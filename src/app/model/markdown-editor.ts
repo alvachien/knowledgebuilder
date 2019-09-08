@@ -1,14 +1,72 @@
 
+// Toolbar preset
 export interface MarkdownEditorToolbarPreset {
   modeName: string;
   content: string[];
 }
 
+// Editor
 export class MarkdownEditor {
   public title: string;
   public version: string;
   public classPrefix: string;
   public toolbarModes: MarkdownEditorToolbarPreset[];
+
+  /// Options
+  public mode: string;                  // gfm or markdown
+  public name: string;                  // Form element name
+  public value: string;                 // value for CodeMirror, if mode not gfm/markdown
+  public theme: string;                 // theme, default empty
+  public editorTheme: string;           // Editor theme
+  public previewTheme: string;          // Preview area theme, default empty
+  public markdown: string;              // Markdown source code
+  public appendMarkdown: string;        // if in init textarea value not empty, append markdown to textarea
+  public width: string;                 // Width
+  public height: string;                // Height
+  public path: string;                  // Dependents module file directory
+  public pluginPath: string;            // If this empty, default use this.path + '../plugins/'
+  public delay: number;                 // Delay parse markdown to html, Uint : ms
+  public autoLoadModules: boolean;      // Automatic load dependent module files
+  public watch: boolean;                // Watch
+  public placeholder: string;           // Place holder
+  public gotoLine: boolean;             // Goto line
+  public codeFold: boolean;             // Fold the code
+  public autoHeight: boolean;           // Automatic calculate the height
+  public autoFocus: boolean;            // Auto set the focus
+  public autoCloseTags: boolean;        // Auto close the tags
+  public searchReplace: boolean;        // Search/Replace
+  public syncScrolling: boolean;        // true | false | 'single', default true
+  public readOnly: boolean;             // read only
+  public tabSize: number;               // Tab size
+  public indentUnit: number;            // Indent unit
+  public lineNumbers: boolean;          // Show line number or not
+  public lineWrapping: boolean;         // Wrap the line or not
+  public autoCloseBrackets: boolean;    // Automatic close brackets
+  public showTrailingSpace: boolean;    // Show tailing space
+  public matchBrackets: boolean;        // Match brackets
+  public indentWithTabs: boolean;       // Indent with tabs
+  public styleSelectedText: boolean;    // Stylize the selected text
+  public matchWordHighlight: boolean;   // Match word highlight: options: true, false, 'onselected'
+  public styleActiveLine: boolean;      // Highlight the current line
+  public dialogLockScreen: boolean;     // Dialog for lock screen
+  public dialogShowMask: boolean;       // Dialog for show mask
+  public dialogDraggable: boolean;      // Dialog for draggable
+  public dialogMaskBgColor: string;     // Mask dialog background color
+  public dialogMaskOpacity: number;     // Mask dialog opacity
+  public fontSize: string;              // Font size
+  public saveHTMLToTextarea: boolean;   // Save html to text area
+  public disabledKeyMaps: any[] = [];   // Disabled key maps
+  public onload: () => {};
+  public onsize: () => {};
+  public onchange: () => {};
+  public onwatch: () => {};
+  public onunwatch: () => {};
+  public onpreviewing: () => {};
+  public onpreviewed: () => {};
+  public onfullscreen: () => {};
+  public onfullscreenExit: () => {};
+  public onscroll: () => {};
+  public onpreviewscroll: () => {};
 
   public dialogZindex = 99999;
   public $katex: any    = null;
@@ -20,62 +78,6 @@ export class MarkdownEditor {
   };
 
   public default: any = {
-    mode                 : 'gfm',          // gfm or markdown
-    name                 : '',             // Form element name
-    value                : '',             // value for CodeMirror, if mode not gfm/markdown
-    theme                : '',             // Editor.md self themes, before v1.5.0 is CodeMirror theme, default empty
-    editorTheme          : 'default',      // Editor area, this is CodeMirror theme at v1.5.0
-    previewTheme         : '',             // Preview area theme, default empty
-    markdown             : '',             // Markdown source code
-    appendMarkdown       : '',             // if in init textarea value not empty, append markdown to textarea
-    width                : '100%',
-    height               : '100%',
-    path                 : './lib/',       // Dependents module file directory
-    pluginPath           : '',             // If this empty, default use settings.path + '../plugins/'
-    delay                : 300,            // Delay parse markdown to html, Uint : ms
-    autoLoadModules      : true,           // Automatic load dependent module files
-    watch                : true,
-    placeholder          : 'Enjoy Markdown! coding now...',
-    gotoLine             : true,
-    codeFold             : false,
-    autoHeight           : false,
-    autoFocus            : true,
-    autoCloseTags        : true,
-    searchReplace        : true,
-    syncScrolling        : true,           // true | false | 'single', default true
-    readOnly             : false,
-    tabSize              : 4,
-    indentUnit           : 4,
-    lineNumbers          : true,
-    lineWrapping         : true,
-    autoCloseBrackets    : true,
-    showTrailingSpace    : true,
-    matchBrackets        : true,
-    indentWithTabs       : true,
-    styleSelectedText    : true,
-    matchWordHighlight   : true,           // options: true, false, 'onselected'
-    styleActiveLine      : true,           // Highlight the current line
-    dialogLockScreen     : true,
-    dialogShowMask       : true,
-    dialogDraggable      : true,
-    dialogMaskBgColor    : '#fff',
-    dialogMaskOpacity    : 0.1,
-    fontSize             : '13px',
-    saveHTMLToTextarea   : false,
-    disabledKeyMaps      : [],
-
-    onload               : function() {},
-    onresize             : function() {},
-    onchange             : function() {},
-    onwatch              : null,
-    onunwatch            : null,
-    onpreviewing         : function() {},
-    onpreviewed          : function() {},
-    onfullscreen         : function() {},
-    onfullscreenExit     : function() {},
-    onscroll             : function() {},
-    onpreviewscroll      : function() {},
-
     imageUpload          : false,
     imageFormats         : ['jpg', 'jpeg', 'gif', 'png', 'bmp', 'webp'],
     imageUploadURL       : '',
@@ -291,5 +293,53 @@ export class MarkdownEditor {
         ]
       },
     ];
+
+    /// Options
+    this.mode = 'gfm';  // gfm or markdown
+    this.name = '';
+    this.value = '';
+    this.theme = '';
+    this.editorTheme = 'default';
+    this.previewTheme = '';
+    this.markdown = '';
+    this.appendMarkdown = '';
+    this.width = '100%';
+    this.height = '100%';
+    this.path = './lib/';
+    this.pluginPath = '';
+    this.delay = 300;
+    this.autoLoadModules = true;
+    this.watch = true;
+    this.placeholder = 'Markdown editor, by Alva Chien';
+    this.gotoLine = true;
+    this.codeFold = false;
+    this.autoHeight = false;
+    this.autoFocus = true;
+    this.autoCloseTags = true;
+    this.searchReplace = true;
+    this.syncScrolling = true;
+    this.readOnly = false;
+    this.tabSize = 4;
+    this.indentUnit = 4;
+    this.lineNumbers = true;
+    this.lineWrapping = true;
+    this.autoCloseBrackets = true;
+    this.showTrailingSpace = true;
+    this.matchBrackets = true;
+    this.indentWithTabs = true;
+    this.styleSelectedText = true;
+    this.matchWordHighlight = true;
+    this.styleActiveLine = true;
+    this.dialogLockScreen = true;
+    this.dialogShowMask = true;
+    this.dialogDraggable = true;
+    this.dialogMaskBgColor = '#fff';
+    this.dialogMaskOpacity = 0.1;
+    this.fontSize = '13px';
+    this.saveHTMLToTextarea = false;
+  }
+
+  init() {
+    // Perform the init
   }
 }
