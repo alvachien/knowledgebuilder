@@ -1,3 +1,4 @@
+import { hasClass, addClass } from './markdown-editor-utility';
 
 // Toolbar preset
 export interface MarkdownEditorToolbarPreset {
@@ -273,6 +274,108 @@ export class MarkdownEditor {
         html     : this.classPrefix + "html-textarea",
         markdown : this.classPrefix + "markdown-textarea"
       }
-    };  
+    };
+
+    let editor: HTMLElement = document.getElementById(id);
+    let pluginPath: string = (this.pluginPath === "") ? this.path + '../plugins/' : this.pluginPath;
+    this.state.watching = (this.watch)? true : false;
+
+    if (!hasClass(editor, 'editormd')) {
+      addClass(editor, 'editormd');
+    }
+
+    editor.style.width = (typeof this.width  === "number") ? this.width  + "px" : this.width;
+    editor.style.height = (typeof this.height  === "number") ? this.height  + "px" : this.height;
+    if (this.autoHeight) {
+      editor.style.height = 'auto';
+    }
+
+    if (editor.childElementCount <= 0) {
+      // editor.append()
+    }
+    let markdownTextarea = this.markdownTextarea = editor.children("textarea");
+  
+  if (markdownTextarea.length < 1)
+  {
+      editor.append("<textarea></textarea>");
+      markdownTextarea = this.markdownTextarea = editor.children("textarea");
+  }
+  
+  markdownTextarea.addClass(classNames.textarea.markdown).attr("placeholder", settings.placeholder);
+  
+  if (typeof markdownTextarea.attr("name") === "undefined" || markdownTextarea.attr("name") === "")
+  {
+      markdownTextarea.attr("name", (settings.name !== "") ? settings.name : id + "-markdown-doc");
+  }
+  
+  var appendElements = [
+      (!settings.readOnly) ? "<a href=\"javascript:;\" class=\"fa fa-close " + classPrefix + "preview-close-btn\"></a>" : "",
+      ( (settings.saveHTMLToTextarea) ? "<textarea class=\"" + classNames.textarea.html + "\" name=\"" + id + "-html-code\"></textarea>" : "" ),
+      "<div class=\"" + classPrefix + "preview\"><div class=\"markdown-body " + classPrefix + "preview-container\"></div></div>",
+      "<div class=\"" + classPrefix + "container-mask\" style=\"display:block;\"></div>",
+      "<div class=\"" + classPrefix + "mask\"></div>"
+  ].join("\n");
+  
+  editor.append(appendElements).addClass(classPrefix + "vertical");
+  
+  if (settings.theme !== "") 
+  {
+      editor.addClass(classPrefix + "theme-" + settings.theme);
+  }
+  
+  this.mask          = editor.children("." + classPrefix + "mask");    
+  this.containerMask = editor.children("." + classPrefix  + "container-mask");
+  
+  if (settings.markdown !== "")
+  {
+      markdownTextarea.val(settings.markdown);
+  }
+  
+  if (settings.appendMarkdown !== "")
+  {
+      markdownTextarea.val(markdownTextarea.val() + settings.appendMarkdown);
+  }
+  
+  this.htmlTextarea     = editor.children("." + classNames.textarea.html);            
+  this.preview          = editor.children("." + classPrefix + "preview");
+  this.previewContainer = this.preview.children("." + classPrefix + "preview-container");
+  
+  if (settings.previewTheme !== "") 
+  {
+      this.preview.addClass(classPrefix + "preview-theme-" + settings.previewTheme);
+  }
+  
+  if (typeof define === "function" && define.amd)
+  {
+      if (typeof katex !== "undefined") 
+      {
+          editormd.$katex = katex;
+      }
+      
+      if (settings.searchReplace && !settings.readOnly) 
+      {
+          editormd.loadCSS(settings.path + "codemirror/addon/dialog/dialog");
+          editormd.loadCSS(settings.path + "codemirror/addon/search/matchesonscrollbar");
+      }
+  }
+  
+  if ((typeof define === "function" && define.amd) || !settings.autoLoadModules)
+  {
+      if (typeof CodeMirror !== "undefined") {
+          editormd.$CodeMirror = CodeMirror;
+      }
+      
+      if (typeof marked     !== "undefined") {
+          editormd.$marked     = marked;
+      }
+      
+      this.setCodeMirror().setToolbar().loadedDisplay();
+  } 
+  else 
+  {
+      this.loadQueues();
+  }
+
+  return this;    
   }
 }
