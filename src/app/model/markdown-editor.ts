@@ -131,6 +131,11 @@ export class MarkdownEditor {
     info             : 'fa-info-circle'
   };
   public toolbarIconTexts: any = {};
+  public htmlTextarea: HTMLTextAreaElement;
+  public preview: HTMLElement;
+  public previewContainer: HTMLElement;
+  public containerMask: HTMLElement;
+  public mask: HTMLElement;
 
   public onload: () => {};
   public onsize: () => {};
@@ -291,21 +296,20 @@ export class MarkdownEditor {
       editor.style.height = 'auto';
     }
 
-    let markdownTextarea: HTMLTextAreaElement;
     if (editor.hasChildNodes) {
-      markdownTextarea = editor.querySelector('textarea');
+      this.htmlTextarea = editor.querySelector('textarea');
     }
-    if (!markdownTextarea) {
-      markdownTextarea = document.createElement('textarea');
-      editor.appendChild(markdownTextarea);
+    if (!this.htmlTextarea) {
+      this.htmlTextarea = document.createElement('textarea');
+      editor.appendChild(this.htmlTextarea);
     }
 
-    addClass(markdownTextarea, this.classNames.textarea.markdown);
+    addClass(this.htmlTextarea, this.classNames.textarea.markdown);
     if (this.placeholder) {
-      markdownTextarea.setAttribute('placeholder', this.placeholder);
+      this.htmlTextarea.setAttribute('placeholder', this.placeholder);
     }
-    if (!markdownTextarea.getAttribute('name')) {
-      markdownTextarea.setAttribute('name', (this.name !== '') ? this.name : (id + '-markdown-doc'));
+    if (!this.htmlTextarea.getAttribute('name')) {
+      this.htmlTextarea.setAttribute('name', (this.name !== '') ? this.name : (id + '-markdown-doc'));
     }
 
     if (this.readOnly) {
@@ -320,19 +324,19 @@ export class MarkdownEditor {
       sht.setAttribute('name', id + '-html-code');
       editor.appendChild(sht);
     }
-    let nelem = document.createElement('div');
-    addClass(nelem, this.classPrefix + 'preview');
-    const contelem = document.createElement('div');
-    addClass(contelem, this.classPrefix + 'preview-container');
-    nelem.appendChild(contelem);
-    editor.appendChild(nelem);
-    nelem = document.createElement('div');
-    addClass(nelem, this.classPrefix + 'container-mask');
-    nelem.style.display = 'block';
-    editor.appendChild(nelem);
-    nelem = document.createElement('div');
-    addClass(nelem, this.classPrefix + 'mask');
-    editor.appendChild(nelem);
+    this.preview = document.createElement('div');
+    addClass(this.preview, this.classPrefix + 'preview');
+    this.previewContainer = document.createElement('div');
+    addClass(this.previewContainer, this.classPrefix + 'preview-container');
+    this.preview.appendChild(this.previewContainer);
+    editor.appendChild(this.preview);
+    this.containerMask = document.createElement('div');
+    addClass(this.containerMask, this.classPrefix + 'container-mask');
+    this.containerMask.style.display = 'block';
+    editor.appendChild(this.containerMask);
+    this.mask = document.createElement('div');
+    addClass(this.mask, this.classPrefix + 'mask');
+    editor.appendChild(this.mask);
 
     addClass(editor, this.classPrefix + 'vertical');
 
@@ -341,9 +345,6 @@ export class MarkdownEditor {
     // {
     //     editor.addClass(classPrefix + "theme-" + settings.theme);
     // }
-
-    this.mask          = editor.children("." + classPrefix + "mask");    
-    this.containerMask = editor.children("." + classPrefix  + "container-mask");
 
     // TBD
     // if (settings.markdown !== "")
@@ -354,47 +355,37 @@ export class MarkdownEditor {
     // {
     //     markdownTextarea.val(markdownTextarea.val() + settings.appendMarkdown);
     // }
-
-  this.htmlTextarea     = editor.children("." + classNames.textarea.html);            
-  this.preview          = editor.children("." + classPrefix + "preview");
-  this.previewContainer = this.preview.children("." + classPrefix + "preview-container");
-  
-  if (settings.previewTheme !== "") 
-  {
-      this.preview.addClass(classPrefix + "preview-theme-" + settings.previewTheme);
-  }
-  
-  if (typeof define === "function" && define.amd)
-  {
-      if (typeof katex !== "undefined") 
-      {
-          editormd.$katex = katex;
-      }
-      
-      if (settings.searchReplace && !settings.readOnly) 
-      {
-          editormd.loadCSS(settings.path + "codemirror/addon/dialog/dialog");
-          editormd.loadCSS(settings.path + "codemirror/addon/search/matchesonscrollbar");
-      }
-  }
-  
-  if ((typeof define === "function" && define.amd) || !settings.autoLoadModules)
-  {
-      if (typeof CodeMirror !== "undefined") {
-          editormd.$CodeMirror = CodeMirror;
-      }
-      
-      if (typeof marked     !== "undefined") {
-          editormd.$marked     = marked;
-      }
-      
-      this.setCodeMirror().setToolbar().loadedDisplay();
-  } 
-  else 
-  {
-      this.loadQueues();
-  }
-
-  return this;    
+    // if (settings.previewTheme !== "") 
+    // {
+    //     this.preview.addClass(classPrefix + "preview-theme-" + settings.previewTheme);
+    // }
+    // if (typeof define === "function" && define.amd)
+    // {
+    //     if (typeof katex !== "undefined") 
+    //     {
+    //         editormd.$katex = katex;
+    //     }
+    //     if (settings.searchReplace && !settings.readOnly) 
+    //     {
+    //         editormd.loadCSS(settings.path + "codemirror/addon/dialog/dialog");
+    //         editormd.loadCSS(settings.path + "codemirror/addon/search/matchesonscrollbar");
+    //     }
+    // }
+    // if ((typeof define === "function" && define.amd) || !settings.autoLoadModules)
+    // {
+    //     if (typeof CodeMirror !== "undefined") {
+    //         editormd.$CodeMirror = CodeMirror;
+    //     }
+        
+    //     if (typeof marked     !== "undefined") {
+    //         editormd.$marked     = marked;
+    //     }
+        
+    //     this.setCodeMirror().setToolbar().loadedDisplay();
+    // } 
+    // else 
+    // {
+    //     this.loadQueues();
+    // }
   }
 }
