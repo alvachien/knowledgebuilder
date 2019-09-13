@@ -1,18 +1,20 @@
 import { BrowserModule } from '@angular/platform-browser';
 import { NgModule } from '@angular/core';
+import { LMarkdownEditorModule } from 'ngx-markdown-editor';
+import { FormsModule } from '@angular/forms';
 
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
-import { MarkedDownEditorComponentComponent } from './marked-down-editor-component/marked-down-editor-component.component';
 
 @NgModule({
   declarations: [
     AppComponent,
-    MarkedDownEditorComponentComponent
   ],
   imports: [
     BrowserModule,
-    AppRoutingModule
+    AppRoutingModule,
+    FormsModule,
+    LMarkdownEditorModule
   ],
   providers: [],
   bootstrap: [AppComponent]
