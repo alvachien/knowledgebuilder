@@ -1,5 +1,5 @@
 import { gfm } from './ac-markdown-editor-turndown-gfm';
-import { IACMEditor, webkitAudioContext } from './ac-markdown-editor-interfaces';
+import { IACMEditor, } from './ac-markdown-editor-interfaces';
 
 // Add style
 export function addStyle(url: string, id: string) {
@@ -234,7 +234,8 @@ export function inputEvent(vditor: IACMEditor, addUndo: boolean = true) {
     vditor.hint.render();
   }
   if (vditor.options.cache) {
-    localStorage.setItem(`vditor${vditor.id}`, getText(vditor.editor.element));
+    // localStorage.setItem(`vditor${vditor.id}`, getText(vditor.editor.element));
+    localStorage.setItem(`vditor${vditor.host.id}`, getText(vditor.editor.element));
   }
   if (vditor.preview) {
     vditor.preview.render(vditor);
@@ -364,7 +365,7 @@ export function getCursorPosition(editor: HTMLPreElement) {
 }
 
 export async function html2md(vditor: IACMEditor, textHTML: string, textPlain?: string) {
-  const {default: TurndownService} = await import(/* webpackChunkName: "turndown" */ 'turndown');
+  const tservice = await import(/* webpackChunkName: "turndown" */ 'turndown');
 
   // process word
   const doc = new DOMParser().parseFromString(textHTML, 'text/html');
@@ -373,11 +374,11 @@ export async function html2md(vditor: IACMEditor, textHTML: string, textPlain?: 
   }
 
   // no escape
-  TurndownService.prototype.escape = (name: string) => {
-      return name;
+  tservice.prototype.escape = (name: string) => {
+    return name;
   };
 
-  const turndownService = new TurndownService({
+  const turndownService = new tservice({
       blankReplacement: (blank: string) => {
           return blank;
       },
@@ -422,7 +423,7 @@ export async function html2md(vditor: IACMEditor, textHTML: string, textPlain?: 
       },
   });
 
-  turndownService.use(gfm);
+  turndownService.use(gfm as any);
 
   const markdownStr = turndownService.turndown(textHTML);
 
@@ -447,6 +448,11 @@ export async function html2md(vditor: IACMEditor, textHTML: string, textPlain?: 
       return markdownStr;
   }
 }
+
+declare var webkitAudioContext: {
+  prototype: AudioContext
+  new(contextOptions?: AudioContextOptions): AudioContext,
+};
 
 // Media recorder
 export class MediaRecorder {

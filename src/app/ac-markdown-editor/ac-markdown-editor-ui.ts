@@ -3,7 +3,8 @@ import { IACMEditor } from './ac-markdown-editor-interfaces';
 
 export class ACMEditorUi {
   constructor(vditor: IACMEditor) {
-    const vditorElement = document.getElementById(vditor.id);
+    // const vditorElement = document.getElementById(vditor.id);
+    const vditorElement = vditor.host;
     vditorElement.innerHTML = '';
     vditorElement.className = 'vditor' + (vditorElement.className ? ' ' + vditorElement.className : '');
     if (typeof vditor.options.height === 'number') {
@@ -57,7 +58,8 @@ export class ACMEditorUi {
     }
     vditor.editor.element.style.paddingBottom = height / 2 + 'px';
 
-    const localValue = localStorage.getItem('vditor' + vditor.id);
+    // const localValue = localStorage.getItem('vditor' + vditor.id);
+    const localValue = localStorage.getItem('vditor' + vditor.host.id);
     if (vditor.options.cache && localValue) {
       formatRender(vditor, localValue, undefined, false);
     } else {

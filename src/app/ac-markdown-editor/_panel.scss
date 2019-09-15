@@ -1,0 +1,47 @@
+/**
+ * panel.
+ *
+ * @author <a href="http://vanessa.b3log.org">Liyuan Li</a>
+ * @version 0.1.0.0, Jan 28, 2019
+ */
+
+@keyframes scale-in {
+  0% {
+    opacity: 0;
+    transform: scale(.5);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.vditor-panel {
+  background-color: $layerBg;
+  position: absolute;
+  box-shadow: $layerShadow;
+  border-radius: 3px;
+  padding: 5px;
+  z-index: 1;
+  font-size: 14px;
+  display: none;
+  user-select: none;
+  max-width: 320px;
+  min-width: 80px;
+  animation-duration: .15s;
+  animation-name: scale-in;
+  animation-timing-function: cubic-bezier(.2, 0, .13, 1.5);
+
+  h1, h2, h3, h4, h5, h6 {
+    margin: 0;
+    cursor: pointer;
+    padding: 3px 10px;
+    border-radius: 3px;
+    line-height: normal;
+
+    &:hover {
+      background-color: $hoverBg;
+      color: $hoverColor;
+    }
+  }
+}

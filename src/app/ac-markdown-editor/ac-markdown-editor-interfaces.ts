@@ -24,11 +24,6 @@ export interface ILute {
   FormatStr(error: string, text: string): string[];
 }
 
-declare var webkitAudioContext: {
-  prototype: AudioContext
-  new(contextOptions?: AudioContextOptions): AudioContext,
-};
-
 export interface IACMEHTMLInputEvent extends Event {
   target: HTMLInputElement & EventTarget;
 }
@@ -164,7 +159,8 @@ export interface IACMEOptions {
 }
 
 export interface IACMEditor {
-  id: string;
+  // id: string;
+  host: HTMLElement;
   options: IACMEOptions;
   originalInnerHTML: string;
   lute: ILute;

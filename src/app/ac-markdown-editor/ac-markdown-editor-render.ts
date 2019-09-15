@@ -1,7 +1,7 @@
 import { code160to32, addStyle } from './ac-markdown-editor-util';
 import { i18n } from './ac-markdown-editor-i18n';
-import copySVG from '../../assets/icons/copy.svg';
-import { IACMEditor, IACMEI18nLang, IACMEPreviewOptions } from './ac-markdown-editor-interfaces';
+// import copySVG from '../../assets/icons/copy.svg';
+import { IACMEditor, IACMEI18nLang, IACMEPreviewOptions, ILute } from './ac-markdown-editor-interfaces';
 
 // ABCjs
 export async function abcRender(element: (HTMLElement | Document) = document) {
@@ -59,7 +59,9 @@ export function codeRender(element: HTMLElement, lang: (keyof IACMEI18nLang) = '
 onmouseover='this.setAttribute('aria-label', '${i18n[lang].copy}')'
 class='vditor-tooltipped vditor-tooltipped__w'
 onclick='this.previousElementSibling.select();document.execCommand('copy');` +
-      `this.setAttribute('aria-label', '${i18n[lang].copied}')'>${copySVG}</span>`;
+      `this.setAttribute('aria-label', '${i18n[lang].copied}')'><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" width="32px" height="32px">
+      <path d="M28.681 11.159c-0.694-0.947-1.662-2.053-2.724-3.116s-2.169-2.030-3.116-2.724c-1.612-1.182-2.393-1.319-2.841-1.319h-11.5c-1.379 0-2.5 1.121-2.5 2.5v23c0 1.378 1.121 2.5 2.5 2.5h19c1.378 0 2.5-1.122 2.5-2.5v-15.5c0-0.448-0.137-1.23-1.319-2.841zM24.543 9.457c0.959 0.959 1.712 1.825 2.268 2.543h-4.811v-4.811c0.718 0.556 1.584 1.309 2.543 2.268v0zM28 29.5c0 0.271-0.229 0.5-0.5 0.5h-19c-0.271 0-0.5-0.229-0.5-0.5v-23c0-0.271 0.229-0.5 0.5-0.5 0 0 11.499-0 11.5 0v7c0 0.552 0.448 1 1 1h7v15.5zM18.841 1.319c-1.612-1.182-2.393-1.319-2.841-1.319h-11.5c-1.378 0-2.5 1.121-2.5 2.5v23c0 1.207 0.86 2.217 2 2.45v-25.45c0-0.271 0.229-0.5 0.5-0.5h15.215c-0.301-0.248-0.595-0.477-0.873-0.681z"></path>
+  </svg></span>`;
 
     e.before(divElement);
     e.style.maxHeight = (window.outerHeight - 40) + 'px';
@@ -92,7 +94,7 @@ export async function highlightRender(hljsStyle: string, enableHighlight: boolea
   }
 
   if (hljsThemes.includes(hljsStyle)) {
-    addStyle(`${CDN_PATH}/vditor/dist/js/highlight.js/styles/${hljsStyle}.css`,
+    addStyle(`assets/styles/${hljsStyle}.css`,
       'vditorHljsStyle');
   }
 
@@ -114,7 +116,7 @@ export async function mathRender(element: HTMLElement, lang: (keyof IACMEI18nLan
       import(/* webpackChunkName: 'katex' */ 'katex').then(() => {
           import(/* webpackChunkName: 'katex' */ 'katex/contrib/auto-render/auto-render')
               .then((renderMathInElement) => {
-                  addStyle(`${CDN_PATH}/vditor/dist/js/katex/katex.min.css`,
+                  addStyle(`assets/styles/katex.min.css`,
                       'vditorKatexStyle');
                   renderMathInElement.default(element, {
                       delimiters: [
@@ -133,7 +135,9 @@ export async function mathRender(element: HTMLElement, lang: (keyof IACMEI18nLan
 <span aria-label='${i18n[lang].copy}' style='top: 2px;right: -20px'
 onmouseover='this.setAttribute('aria-label', '${i18n[lang].copy}')' class='vditor-tooltipped vditor-tooltipped__w'
 onclick='this.previousElementSibling.select();document.execCommand('copy');` +
-                          `this.setAttribute('aria-label', '${i18n[lang].copied}')'>${copySVG}</span></div>`;
+                          `this.setAttribute('aria-label', '${i18n[lang].copied}')'><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" width="32px" height="32px">
+                          <path d="M28.681 11.159c-0.694-0.947-1.662-2.053-2.724-3.116s-2.169-2.030-3.116-2.724c-1.612-1.182-2.393-1.319-2.841-1.319h-11.5c-1.379 0-2.5 1.121-2.5 2.5v23c0 1.378 1.121 2.5 2.5 2.5h19c1.378 0 2.5-1.122 2.5-2.5v-15.5c0-0.448-0.137-1.23-1.319-2.841zM24.543 9.457c0.959 0.959 1.712 1.825 2.268 2.543h-4.811v-4.811c0.718 0.556 1.584 1.309 2.543 2.268v0zM28 29.5c0 0.271-0.229 0.5-0.5 0.5h-19c-0.271 0-0.5-0.229-0.5-0.5v-23c0-0.271 0.229-0.5 0.5-0.5 0 0 11.499-0 11.5 0v7c0 0.552 0.448 1 1 1h7v15.5zM18.841 1.319c-1.612-1.182-2.393-1.319-2.841-1.319h-11.5c-1.378 0-2.5 1.121-2.5 2.5v23c0 1.207 0.86 2.217 2 2.45v-25.45c0-0.271 0.229-0.5 0.5-0.5h15.215c-0.301-0.248-0.595-0.477-0.873-0.681z"></path>
+                      </svg></span></div>`;
                       e.insertAdjacentHTML('beforeend', copyHTML);
                   });
               });
@@ -144,7 +148,7 @@ onclick='this.previousElementSibling.select();document.execCommand('copy');` +
 export function loadLuteJs(vditor?: IACMEditor) {
   const scriptElement = document.createElement('script');
   scriptElement.type = 'text/javascript';
-  scriptElement.src = `${CDN_PATH}/vditor@${VDITOR_VERSION}/dist/js/lute/lute.min.js`;
+  scriptElement.src = `assets/lib/lute.min.js`;
   document.getElementsByTagName('head')[0].appendChild(scriptElement);
 
   return new Promise((resolve) => {
@@ -159,12 +163,14 @@ export function loadLuteJs(vditor?: IACMEditor) {
   });
 }
 
+declare const Lute: ILute;
+
 export async function md2htmlByPreview(mdText: string, options?: IACMEPreviewOptions) {
   if (typeof Lute === 'undefined') {
       await loadLuteJs();
   }
   options = Object.assign({
-      emojiSite: `${CDN_PATH}/vditor/dist/images/emoji`,
+      emojiSite: `assets/images/emoji`,
       emojis: {},
   }, options);
 
@@ -255,7 +261,7 @@ export async function mermaidRender(element: HTMLElement) {
 export async function previewRender(element: HTMLTextAreaElement, options?: IACMEPreviewOptions) {
   const defaultOption = {
       customEmoji: {},
-      emojiPath: `${CDN_PATH}/vditor/dist/images/emoji`,
+      emojiPath: `./assets/images/emoji`,
       enableHighlight: true,
       hljsStyle: 'atom-one-light',
       lang: 'zh_CN',

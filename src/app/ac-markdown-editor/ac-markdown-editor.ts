@@ -31,15 +31,17 @@ export class ACMEditor {
   public readonly version: string;
   public vditor: IACMEditor;
 
-  constructor(id: string, options?: IACMEOptions) {
+  constructor(hostElement: HTMLElement, options?: IACMEOptions) {
     const getOptions = new ACMEditorOptions(options);
     const mergedOptions = getOptions.merge();
 
     this.vditor = {
-      id,
+      // id,
+      host: hostElement,
       lute: undefined,
       options: mergedOptions,
-      originalInnerHTML: document.getElementById(id).innerHTML,
+      // originalInnerHTML: document.getElementById(id).innerHTML,
+      originalInnerHTML: hostElement.innerHTML,
       tip: new ACMEditorTip(),
       undo: undefined,
     };
@@ -129,7 +131,8 @@ export class ACMEditor {
   }
 
   public clearCache() {
-    localStorage.removeItem('vditor' + this.vditor.id);
+    // localStorage.removeItem('vditor' + this.vditor.id);
+    localStorage.removeItem('vditor' + this.vditor.host.id);
   }
 
   public disabledCache() {
@@ -231,7 +234,8 @@ export class ACMEditor {
       start: value.length,
     });
     if (!value) {
-      localStorage.removeItem('vditor' + this.vditor.id);
+      // localStorage.removeItem('vditor' + this.vditor.id);
+      localStorage.removeItem('vditor' + this.vditor.host.id);
     }
   }
 }

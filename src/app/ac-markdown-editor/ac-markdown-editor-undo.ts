@@ -3,8 +3,8 @@ import { formatRender, getSelectPosition, getText } from './ac-markdown-editor-u
 import { IACMEditor } from './ac-markdown-editor-interfaces';
 
 export class ACMEditorUndo {
-  private undoStack: Array<{ patchList: patch_obj[], end: number }>;
-  private redoStack: Array<{ patchList: patch_obj[], end: number }>;
+  private undoStack: Array<{ patchList: diff_match_patch.patch_obj[], end: number }>;
+  private redoStack: Array<{ patchList: diff_match_patch.patch_obj[], end: number }>;
   private stackSize = 50;
   private dmp: diff_match_patch;
   private lastText: string;
@@ -15,7 +15,7 @@ export class ACMEditorUndo {
     this.redoStack = [];
     this.undoStack = [];
     // @ts-ignore
-    this.dmp = new DiffMatchPatch();
+    this.dmp = new diff_match_patch();
     this.lastText = '';
     this.hasUndo = false;
   }
@@ -72,7 +72,7 @@ export class ACMEditorUndo {
     }, 500);
   }
 
-  private renderDiff(state: { patchList: patch_obj[], end: number }, vditor: IACMEditor, isRedo: boolean = false) {
+  private renderDiff(state: { patchList: diff_match_patch.patch_obj[], end: number }, vditor: IACMEditor, isRedo: boolean = false) {
     let text;
     let positoin;
     if (isRedo) {
