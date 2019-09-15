@@ -4,7 +4,7 @@ import { ACMEditor } from './ac-markdown-editor';
 @Component({
   selector: 'app-ac-markdown-editor',
   templateUrl: './ac-markdown-editor.component.html',
-  styleUrls: ['./ac-markdown-editor.component.scss']
+  styleUrls: ['./ac-markdown-editor.component.scss'],
 })
 export class AcMarkdownEditorComponent implements OnInit {
   private editor: ACMEditor;

@@ -29,9 +29,901 @@ $font-family-code: mononoki, Consolas, "Liberation Mono", Menlo, Courier, monosp
 
 $transition: all .15s ease-in-out !default;
 
-@import "tooltipped";
-@import "panel";
-@import "toolbar";
-@import "content";
-@import "hint";
-@import "reset";
+// Tooltipped
+@keyframes tooltip-appear {
+    from {
+      opacity: 0
+    }
+  
+    to {
+      opacity: 1
+    }
+  }
+  
+  .vditor-tooltipped {
+    position: relative;
+    cursor: pointer;
+    &::after {
+      position: absolute;
+      z-index: 1000000;
+      display: none;
+      padding: 5px 8px;
+      font-size: 11px;
+      font-weight: normal;
+      -webkit-font-smoothing: subpixel-antialiased;
+      color: $tooltipColor;
+      text-align: center;
+      text-decoration: none;
+      text-shadow: none;
+      text-transform: none;
+      letter-spacing: normal;
+      word-wrap: break-word;
+      white-space: pre;
+      pointer-events: none;
+      content: attr(aria-label);
+      background: $tooltipBg;
+      border-radius: 3px;
+      line-height: 16px;
+      opacity: 0
+    }
+  
+    &::before {
+      position: absolute;
+      z-index: 1000001;
+      display: none;
+      width: 0;
+      height: 0;
+      color: $tooltipBg;
+      pointer-events: none;
+      content: "";
+      border: 5px solid transparent;
+      opacity: 0
+    }
+  
+    &--hover::before,
+    &--hover::after,
+    &:hover::before,
+    &:hover::after,
+    &:active::before,
+    &:active::after,
+    &:focus::before,
+    &:focus::after {
+      display: inline-block;
+      text-decoration: none;
+      animation-name: tooltip-appear;
+      animation-duration: 0.15s;
+      animation-fill-mode: forwards;
+      animation-timing-function: ease-in;
+    }
+  
+    &__s::after,
+    &__se::after,
+    &__sw::after {
+      top: 100%;
+      right: 50%;
+      margin-top: 5px
+    }
+  
+    &__s::before,
+    &__se::before,
+    &__sw::before {
+      top: auto;
+      right: 50%;
+      bottom: -5px;
+      margin-right: -5px;
+      border-bottom-color: $tooltipBg
+    }
+  
+    &__se::after {
+      right: auto;
+      left: 50%;
+      margin-left: -15px
+    }
+  
+    &__sw::after {
+      margin-right: -15px
+    }
+  
+    &__n::after,
+    &__ne::after,
+    &__nw::after {
+      right: 50%;
+      bottom: 100%;
+      margin-bottom: 5px
+    }
+  
+    &__n::before,
+    &__ne::before,
+    &__nw::before {
+      top: -5px;
+      right: 50%;
+      bottom: auto;
+      margin-right: -5px;
+      border-top-color: $tooltipBg
+    }
+  
+    &__ne::after {
+      right: auto;
+      left: 50%;
+      margin-left: -15px
+    }
+  
+    &__nw::after {
+      margin-right: -15px
+    }
+  
+    &__s::after,
+    &__n::after {
+      transform: translateX(50%)
+    }
+  
+    &__w::after {
+      right: 100%;
+      bottom: 50%;
+      margin-right: 5px;
+      transform: translateY(50%);
+    }
+  
+    &__w::before {
+      top: 50%;
+      bottom: 50%;
+      left: -5px;
+      margin-top: -5px;
+      border-left-color: $tooltipBg;
+    }
+  
+    &__e::after {
+      bottom: 50%;
+      left: 100%;
+      margin-left: 5px;
+      transform: translateY(50%)
+    }
+  
+    &__e::before {
+      top: 50%;
+      right: -5px;
+      bottom: 50%;
+      margin-top: -5px;
+      border-right-color: $tooltipBg
+    }
+  }
+
+// Panel
+@keyframes scale-in {
+  0% {
+    opacity: 0;
+    transform: scale(.5);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.vditor-panel {
+  background-color: $layerBg;
+  position: absolute;
+  box-shadow: $layerShadow;
+  border-radius: 3px;
+  padding: 5px;
+  z-index: 1;
+  font-size: 14px;
+  display: none;
+  user-select: none;
+  max-width: 320px;
+  min-width: 80px;
+  animation-duration: .15s;
+  animation-name: scale-in;
+  animation-timing-function: cubic-bezier(.2, 0, .13, 1.5);
+
+  h1, h2, h3, h4, h5, h6 {
+    margin: 0;
+    cursor: pointer;
+    padding: 3px 10px;
+    border-radius: 3px;
+    line-height: normal;
+
+    &:hover {
+      background-color: $hoverBg;
+      color: $hoverColor;
+    }
+  }
+}
+
+// Toolbar
+.vditor {
+  &-toolbar {
+    background-color: $toolbarBg;
+    border-bottom: 1px solid $borderColor;
+    padding: 0 5px;
+    border-radius: 3px 3px 0 0;
+
+    & > div {
+      padding: 10px 5px;
+      float: left;
+      line-height: 14px;
+      height: 36px;
+      box-sizing: border-box;
+    }
+
+    svg {
+      fill: currentColor;
+      display: inline-block;
+      stroke-width: 0;
+      stroke: currentColor;
+      width: 14px;
+      height: 14px;
+    }
+
+    .vditor-tooltipped {
+      color: $toolbarIcon;
+
+      &:hover {
+        color: $toolbarIconHover;
+      }
+    }
+
+    label {
+      overflow: hidden;
+      position: relative;
+      height: 14px;
+      width: 15px;
+      display: block;
+      cursor: pointer;
+
+      svg {
+        position: absolute;
+        top: 0;
+        left: 0;
+      }
+
+      input {
+        position: absolute;
+        width: 15px;
+        height: 15px;
+        top: 0;
+        left: 0;
+        opacity: .001;
+        overflow: hidden;
+      }
+    }
+  }
+
+  &-menu {
+    &--current svg {
+      color: $toolbarIconHover;
+    }
+
+    &__divider {
+      width: 10px;
+    }
+
+    &__br {
+      width: 100%;
+      padding: 0 !important;
+      height: 0 !important;
+    }
+
+    &--disabled  svg {
+      color: rgba($toolbarIcon, .6);
+      cursor: not-allowed;
+    }
+  }
+
+  &-emojis {
+    display: inline-block;
+    overflow: auto;
+    &::-webkit-scrollbar {
+      display: none;
+    }
+
+    &__tip {
+      flex: 1;
+      width: 200px;
+      margin-right: 10px;
+      color: $toolbarIcon;
+      white-space: nowrap;
+      text-overflow: ellipsis;
+      overflow: hidden;
+    }
+
+    &__tail {
+      margin-top: 5px;
+      font-size: 12px;
+      color: $toolbarIcon;
+      display: flex;
+
+      a {
+        text-decoration: none;
+        color: $toolbarIcon;
+
+        &:hover {
+          color: $hoverBg;
+        }
+      }
+    }
+
+    span {
+      cursor: pointer;
+      border-radius: 3px;
+      float: left;
+      height: 30px;
+      width: 30px;
+      text-align: center;
+      line-height: 26px;
+      padding: 3px;
+      box-sizing: border-box;
+      font-size: 16px;
+      transition: $transition;
+
+      &:hover {
+        transform: scale(1.2);
+      }
+    }
+
+    img {
+      height: 20px;
+      width: 20px;
+      float: left;
+      margin: 3px 0 0 3px;
+    }
+  }
+}
+
+// Content
+@keyframes slideInDown {
+  from {
+    transform: translate3d(0, -100%, 0);
+    visibility: visible;
+  }
+
+  to {
+    transform: translate3d(0, 0, 0);
+  }
+}
+  
+  .vditor {
+    display: flex;
+    flex-direction: column;
+    border: 1px solid $borderColor;
+    border-radius: 3px;
+    box-sizing: border-box;
+    font-family: $font-family-base;
+  
+    &--fullscreen {
+      position: fixed;
+      top: 0;
+      width: 100% !important;
+      left: 0;
+      height: 100vh !important;
+      z-index: 90;
+      background-color: $fullscreenBg;
+    }
+  
+    &-content {
+      display: flex;
+      min-height: 60px;
+      flex: 1;
+      position: relative;
+    }
+  
+    &-textarea {
+      font-family: $font-family-base;
+      margin: 0;
+      height: 100%;
+      overflow: auto;
+      width: 100%;
+      flex: 1;
+      border: 0;
+      resize: none;
+      padding: 10px;
+      box-sizing: border-box;
+      background-color: $textareaBg;
+      outline: 0 none;
+      font-size: 16px;
+      line-height: 22px;
+      color: $textareaColor;
+      border-radius: 0 0 3px 3px;
+      font-variant-ligatures: no-common-ligatures;
+      white-space: pre-wrap;
+      word-break: break-word;
+      word-wrap: break-word;
+  
+      &[contenteditable="false"] {
+        opacity: 0.3;
+        cursor: not-allowed;
+      }
+  
+      &:focus {
+        background-color: $textareaFocusBg;
+      }
+  
+      &:empty::before {
+        content: attr(placeholder);
+        color: rgba($textareaColor, .68);
+      }
+    }
+  
+    &-preview {
+      flex: 1;
+      background-color: $previewBg;
+      overflow: auto;
+      padding: 10px;
+      box-shadow: inset 1px 0 $borderColor;
+      box-sizing: border-box;
+      border-radius: 0 0 3px 0;
+  
+      &--editor {
+        display: none;
+      }
+  
+      &--both {
+        display: block;
+      }
+  
+      &--preview {
+        position: absolute;
+        top: 0;
+        left: -1px;
+        bottom: 0;
+        right: 0;
+        display: block;
+      }
+  
+      & > div::-webkit-scrollbar {
+        display: none;
+      }
+  
+      & > .vditor-reset {
+        margin: 0 auto;
+      }
+    }
+  
+    &-counter {
+      padding: 0 3px;
+      position: absolute;
+      bottom: 10px;
+      right: 20px;
+      color: $textareaColor;
+      background-color: rgba($fullscreenBg, 0.6);
+      border-radius: 3px;
+      font-size: 12px;
+      user-select: none;
+  
+      &--error {
+        color: $errorColor;
+        background-color: rgba($errorColor, 0.1);
+      }
+    }
+  
+    &-resize {
+      padding: 3px 0;
+      cursor: row-resize;
+      user-select: none;
+      position: absolute;
+      width: 100%;
+  
+      &--top {
+        top: -3px;
+      }
+  
+      &--bottom {
+        bottom: -3px;
+      }
+  
+      & > div {
+        height: 3px;
+        background-color: $resizeBg;
+        transition: $transition;
+      }
+  
+      &:hover,
+      &--selected {
+        & > div {
+          background-color: $resizeHoverBg;
+        }
+  
+        svg {
+          color: $hoverColor;
+        }
+      }
+  
+      svg {
+        fill: currentColor;
+        stroke-width: 0;
+        stroke: currentColor;
+        width: 13px;
+        height: 3px;
+        display: block;
+        margin: 0 auto;
+        color: $toolbarIcon;
+      }
+    }
+  
+    &-upload {
+      position: absolute;
+      height: 3px;
+      left: 0;
+      top: -2px;
+      transition: $transition;
+      background-color: rgba($hoverBg, 0.8);
+    }
+  
+    &-tip {
+      position: absolute;
+      font-size: 12px;
+      top: 10px;
+      color: #fff;
+      animation-duration: .15s;
+      animation-fill-mode: both;
+      width: 100%;
+      text-align: center;
+  
+      &--show {
+        display: block;
+        animation-name: slideInDown;
+      }
+  
+      &__content {
+        text-align: left;
+        display: inline-block;
+        line-height: 16px;
+        padding: 3px 10px;
+        border-radius: 3px;
+        background: rgba($hoverBg, 0.8);
+        position: relative;
+  
+        ul {
+          margin: 2px 0;
+          padding: 0 0 0 18px;
+        }
+      }
+  
+      &__close {
+        position: absolute;
+        color: $toolbarIcon;
+        top: -7px;
+        right: -15px;
+        font-weight: bold;
+        cursor: pointer;
+  
+        &:hover {
+          color: $toolbarIconHover;
+        }
+      }
+    }
+  }
+
+  
+  .vditor-hint {
+    background-color: $layerBg;
+    position: absolute;
+    box-shadow: $layerShadow;
+    border-radius: 3px;
+    padding: 5px 0;
+    z-index: 1;
+    line-height: 20px;
+    list-style: none;
+    color: $textareaColor;
+    font-size: 12px;
+    margin: 0;
+    max-width: 250px;
+    min-width: 80px;
+    display: none;
+  
+    li {
+      cursor: pointer;
+      padding: 3px 10px;
+      border-bottom: 1px solid $borderColor;
+      line-height: 20px;
+      &:last-child {
+        border-bottom: 0;
+      }
+    }
+  
+    &--current,
+    li:hover {
+      background-color: $hoverBg;
+      color: $hoverColor;
+    }
+  
+    &__emoji {
+      font-size: 16px;
+      float: left;
+      margin-right: 3px;
+    }
+  
+    img {
+      height: 20px;
+      width: 20px;
+      float: left;
+      margin-right: 3px;
+    }
+  }
+
+  .vditor {
+    &-reset {
+      font-variant-ligatures: no-common-ligatures;
+      font-family: $font-family-base;
+      word-wrap: break-word;
+      overflow: auto;
+      line-height: 1.65;
+      font-size: 16px;
+      word-break: break-word;
+  
+      ul ul ul {
+        list-style-type: square;
+      }
+  
+      ul ul {
+        list-style-type: circle;
+      }
+  
+      ul {
+        list-style-type: disc;
+      }
+  
+      ul,
+      ol {
+        padding-left: 2em;
+        margin-top: 0;
+        margin-bottom: 16px;
+      }
+  
+      li {
+        margin-top: 0.25em;
+      }
+  
+      audio {
+        max-width: 100%;
+  
+        &:focus {
+          outline: none;
+        }
+      }
+  
+      video {
+        max-height: 90vh;
+        max-width: 100%;
+      }
+  
+      img {
+        max-width: 100%;
+      }
+  
+      img.emoji {
+        cursor: auto;
+        max-width: 20px;
+        vertical-align: sub;
+      }
+  
+      h1,
+      h2,
+      h3,
+      h4,
+      h5,
+      h6 {
+        margin-top: 24px;
+        margin-bottom: 16px;
+        font-weight: 600;
+        line-height: 1.25;
+      }
+  
+      h1 {
+        padding-bottom: 0.3em;
+        font-size: 1.7em;
+        border-bottom: 1px solid #eee;
+      }
+  
+      h2 {
+        padding-bottom: 0.3em;
+        font-size: 1.5em;
+        border-bottom: 1px solid #eee;
+      }
+  
+      h3 {
+        font-size: 1.25em;
+      }
+  
+      h4 {
+        font-size: 1em
+      }
+  
+      h5 {
+        font-size: 0.875em;
+      }
+  
+      h6 {
+        font-size: 0.85em;
+      }
+  
+      hr {
+        height: 2px;
+        padding: 0;
+        margin: 24px 0;
+        background-color: #e7e7e7;
+        border: 0;
+      }
+  
+      p {
+        margin-top: 0;
+        margin-bottom: 16px;
+      }
+  
+      blockquote {
+        padding: 0 1em;
+        color: #777;
+        border-left: 0.25em solid #ddd;
+        margin: 0 0 16px 0;
+  
+        p {
+          margin: 0;
+        }
+      }
+  
+      ins > iframe {
+        border: 0;
+      }
+  
+      iframe {
+        border: 1px solid $borderColor;
+        max-width: 100%;
+        box-sizing: border-box;
+  
+        &.iframe__video {
+          min-width: 80%;
+          min-height: 36vh;
+        }
+      }
+  
+      table {
+        width: 100%;
+        border: 1px solid #dedede;
+        margin: 15px auto;
+        border-collapse: collapse;
+        empty-cells: show;
+      }
+  
+      thead {
+        text-align: center;
+      }
+  
+      td,
+      th {
+        height: 35px;
+        border: 1px solid #dedede;
+        padding: 0 10px;
+      }
+  
+      th {
+        font-weight: bold;
+        text-align: center !important;
+        background: rgba(158, 188, 226, 0.2);
+      }
+  
+      tbody tr:nth-child(2n) {
+        background: rgba(158, 188, 226, 0.12);
+      }
+  
+      tr:hover {
+        background: #efefef;
+      }
+  
+      code {
+        padding: 0.2em 0.4em;
+        margin: 0;
+        font-size: 85%;
+        border-radius: 3px;
+        font-family: $font-family-code;
+        word-break: break-word;
+        background-size: 20px 20px;
+        background-image: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADwAAAA8AgMAAABHkjHhAAAACVBMVEWAgIBaWlo+Pj7rTFvWAAAAA3RSTlMHCAw+VhR4AAAA+klEQVQoz4WSMW7EQAhFPxKWNh2FCx+HkaZI6RRb5DYbyVfIJXLKDCFoMbaTKSw/8ZnPAPjaH2xgZcUNUDADD7D9LtDBCLZ45fbkvo/30K8yeI64pPwl6znd/3n/Oe93P3ho9qeh72btTFzqkz0rsJle8Zr81OLEwZ1dv/713uWqvu2pl+k0fy7MWtj9r/tN5q/02z89qa/L4Dc2LvM93kezPfXlME/O86EbY/V9GB9ePX8G1/6W+/9h1dq/HGfTfzT3j/xNo7522Bfnqe5jO/fvhVthlfk434v3iO9zG/UOphyPeinPl1J8Gtaa7xPTa/Dk+RIs4deMvwGvcGsmsCvJ0AAAAABJRU5ErkJggg==);
+        white-space: pre-wrap;
+      }
+  
+      pre > code {
+        padding: 0.5em;
+        border-radius: 5px;
+        display: block;
+        overflow: auto;
+        white-space: pre;
+      }
+  
+      pre:hover div.vditor-copy {
+        display: block;
+      }
+  
+      .katex:hover div.vditor-copy {
+        display: inline;
+      }
+  
+      kbd {
+        display: inline-block;
+        padding: 3px 5px;
+        font: 11px Consolas, "Liberation Mono", Menlo, Courier, monospace;
+        line-height: 10px;
+        color: #555;
+        vertical-align: middle;
+        background-color: #fcfcfc;
+        border: solid 1px $borderColor;
+        border-bottom-color: #bbb;
+        border-radius: 3px;
+        box-shadow: inset 0 -1px 0 #bbb;
+      }
+  
+      summary {
+        cursor: pointer;
+  
+        &:focus {
+          outline: none;
+        }
+      }
+  
+      svg {
+        height: auto;
+        width: auto;
+      }
+  
+      p:last-child,
+      blockquote:last-child,
+      pre:last-child,
+      ul:last-child,
+      ol:last-child,
+      hr:last-child {
+        margin-bottom: 0;
+      }
+  
+      // 当预览内容很长时，就会溢出 vditor，把页面撑高
+      .katex {
+        position: relative;
+      }
+  
+      .language-echarts {
+        overflow: hidden;
+        height: 420px;
+      }
+    }
+  
+    &-task {
+      list-style: none;
+      margin-left: -1.4em;
+      display: flex;
+      align-items: center;
+  
+      input {
+        margin-right: 5px;
+      }
+    }
+  
+    &-copy {
+      position: relative;
+      display: none;
+  
+      textarea {
+        position: absolute;
+        left: -100000px;
+      }
+  
+      span {
+        cursor: pointer;
+        position: absolute;
+        right: 0.5em;
+        top: 0.5em;
+        height: 14px;
+        width: 14px;
+        display: block;
+        background-color: $toolbarBg;
+        border-radius: 3px;
+        padding: 3px;
+      }
+  
+      svg {
+        color: $toolbarIcon;
+        height: 14px;
+        width: 14px !important;
+        display: block;
+        fill: currentColor;
+      }
+    }
+  }
+  
