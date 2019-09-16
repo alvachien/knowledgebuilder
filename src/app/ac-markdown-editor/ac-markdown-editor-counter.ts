@@ -1,4 +1,5 @@
 import { IACMEditor } from './ac-markdown-editor-interfaces';
+import { classPrefix } from './ac-markdown-editor-constants';
 
 ///
 /// Counter
@@ -6,19 +7,19 @@ import { IACMEditor } from './ac-markdown-editor-interfaces';
 export class ACMEditorCounter {
   public element: HTMLElement;
 
-  constructor(vditor: IACMEditor) {
+  constructor(editor: IACMEditor) {
     this.element = document.createElement('div');
-    this.element.className = 'acme-counter';
+    this.element.className = classPrefix + '-counter';
 
-    this.render(0, vditor.options.counter);
+    this.render(0, editor.options.counter);
 
   }
 
   public render(length: number, counter: number) {
     if (length > counter) {
-      this.element.className = 'acme-counter acme-counter--error';
+      this.element.className = `${classPrefix}-counter ${classPrefix}-counter--error`;
     } else {
-      this.element.className = 'acme-counter';
+      this.element.className = `${classPrefix}-counter`;
     }
     this.element.innerHTML = `${length}/${counter}`;
   }

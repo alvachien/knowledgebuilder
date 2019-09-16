@@ -1,27 +1,29 @@
 import { getText, getSelectPosition, formatRender, code160to32, getCursorPosition, selectIsEditor } from './ac-markdown-editor-util';
 import { IACMEditor, IACMEHintData } from './ac-markdown-editor-interfaces';
+import { classPrefix } from './ac-markdown-editor-constants';
 
+// Hint
 export class ACMEditorHint {
   public timeId: number;
-  public vditor: IACMEditor;
+  public editor: IACMEditor;
   public element: HTMLUListElement;
 
-  constructor(vditor: IACMEditor) {
+  constructor(editor: IACMEditor) {
     this.timeId = -1;
-    this.vditor = vditor;
+    this.editor = editor;
 
     this.element = document.createElement('ul');
-    this.element.className = 'vditor-hint';
+    this.element.className = `${classPrefix}-hint`;
 
-    this.vditor.editor.element.parentElement.appendChild(this.element);
+    this.editor.editor.element.parentElement.appendChild(this.element);
   }
 
   public render() {
     if (!window.getSelection().focusNode) {
       return;
     }
-    const position = getSelectPosition(this.vditor.editor.element);
-    const currentLineValue = getText(this.vditor.editor.element).substring(0, position.end).split('\n')
+    const position = getSelectPosition(this.editor.editor.element);
+    const currentLineValue = getText(this.editor.editor.element).substring(0, position.end).split('\n')
       .slice(-1).pop();
 
     let key = this.getKey(currentLineValue, ':');
@@ -36,14 +38,14 @@ export class ACMEditorHint {
       this.element.style.display = 'none';
       clearTimeout(this.timeId);
     } else {
-      if (isAt && this.vditor.options.hint.at) {
+      if (isAt && this.editor.options.hint.at) {
         clearTimeout(this.timeId);
         this.timeId = window.setTimeout(() => {
-          this.genHTML(this.vditor.options.hint.at(key), key, this.vditor.editor.element);
-        }, this.vditor.options.hint.delay);
+          this.genHTML(this.editor.options.hint.at(key), key, this.editor.editor.element);
+        }, this.editor.options.hint.delay);
       }
       if (!isAt) {
-        const emojiHint = key === '' ? this.vditor.options.hint.emoji : this.vditor.lute.GetEmojis();
+        const emojiHint = key === '' ? this.editor.options.hint.emoji : this.editor.lute.GetEmojis();
         const matchEmojiData: IACMEHintData[] = [];
         Object.keys(emojiHint).forEach((keyName) => {
           if (keyName.indexOf(key.toLowerCase()) === 0) {
@@ -54,13 +56,13 @@ export class ACMEditorHint {
               });
             } else {
               matchEmojiData.push({
-                html: `<span class='vditor-hint__emoji'>${emojiHint[keyName]}</span>${keyName}`,
+                html: `<span class='${classPrefix}-hint__emoji'>${emojiHint[keyName]}</span>${keyName}`,
                 value: emojiHint[keyName],
               });
             }
           }
         });
-        this.genHTML(matchEmojiData, key, this.vditor.editor.element);
+        this.genHTML(matchEmojiData, key, this.editor.editor.element);
       }
     }
   }
@@ -72,13 +74,13 @@ export class ACMEditorHint {
     const splitChar = value.indexOf('@') === 0 ? '@' : ':';
 
     let range: Range = window.getSelection().getRangeAt(0);
-    if (!selectIsEditor(this.vditor.editor.element, range)) {
-      range = this.vditor.editor.range;
+    if (!selectIsEditor(this.editor.editor.element, range)) {
+      range = this.editor.editor.range;
     }
-    const position = getSelectPosition(this.vditor.editor.element, range);
-    const text = getText(this.vditor.editor.element);
+    const position = getSelectPosition(this.editor.editor.element, range);
+    const text = getText(this.editor.editor.element);
     const preText = text.substring(0, text.substring(0, position.start).lastIndexOf(splitChar));
-    formatRender(this.vditor, preText + value + text.substring(position.start),
+    formatRender(this.editor, preText + value + text.substring(position.start),
       {
         end: (preText + value).length,
         start: (preText + value).length,
@@ -109,7 +111,7 @@ export class ACMEditorHint {
       return;
     }
 
-    const textareaPosition = getCursorPosition(this.vditor.editor.element);
+    const textareaPosition = getCursorPosition(this.editor.editor.element);
     const x = textareaPosition.left;
     const y = textareaPosition.top;
     let hintsHTML = '';
@@ -131,7 +133,7 @@ export class ACMEditorHint {
           html = html.substr(0, lastIndex) + replaceHtml;
         }
       }
-      hintsHTML += `<li data-value='${hintData.value} ' class='${i || 'vditor-hint--current'}'> ${html}</li>`;
+      hintsHTML += `<li data-value='${hintData.value} ' class='${i || 'acme-hint--current'}'> ${html}</li>`;
     });
 
     this.element.innerHTML = hintsHTML;

@@ -1,7 +1,9 @@
 import { insertText, setSelectionByInlineText, } from './ac-markdown-editor-util';
 import { i18n } from './ac-markdown-editor-i18n';
 import { IACMEditor, IACMEI18nLang } from './ac-markdown-editor-interfaces';
+import { classPrefix } from './ac-markdown-editor-constants';
 
+// Upload
 export class ACMEditorUpload {
   public element: HTMLElement;
   public isUploading: boolean;
@@ -9,16 +11,16 @@ export class ACMEditorUpload {
   constructor() {
     this.isUploading = false;
     this.element = document.createElement('div');
-    this.element.className = 'vditor-upload';
+    this.element.className = `${classPrefix}-upload`;
   }
 }
 
-export function validateFile(vditor: IACMEditor, files: File[]) {
-  vditor.tip.hide();
+export function validateFile(editor: IACMEditor, files: File[]) {
+  editor.tip.hide();
   const uploadFileList = [];
   let errorTip = '';
   let uploadingStr = '';
-  const lang: (keyof IACMEI18nLang) = vditor.options.lang;
+  const lang: (keyof IACMEI18nLang) = editor.options.lang;
 
   for (let iMax = files.length, i = 0; i < iMax; i++) {
     const file = files[i];
@@ -29,18 +31,18 @@ export function validateFile(vditor: IACMEditor, files: File[]) {
       validate = false;
     }
 
-    if (file.size > vditor.options.upload.max) {
-      errorTip += `<li>${file.name} ${i18n[lang].over} ${vditor.options.upload.max / 1024 / 1024}M</li>`;
+    if (file.size > editor.options.upload.max) {
+      errorTip += `<li>${file.name} ${i18n[lang].over} ${editor.options.upload.max / 1024 / 1024}M</li>`;
       validate = false;
     }
 
     const lastIndex = file.name.lastIndexOf('.');
     const fileExt = file.name.substr(lastIndex);
-    const filename = vditor.options.upload.filename(file.name.substr(0, lastIndex)) + fileExt;
+    const filename = editor.options.upload.filename(file.name.substr(0, lastIndex)) + fileExt;
 
-    if (vditor.options.upload.accept) {
+    if (editor.options.upload.accept) {
       let isAccept = false;
-      vditor.options.upload.accept.split(',').forEach((item) => {
+      editor.options.upload.accept.split(',').forEach((item) => {
         const type = item.trim();
         if (type.indexOf('.') === 0) {
           if (fileExt === type) {
@@ -66,11 +68,11 @@ export function validateFile(vditor: IACMEditor, files: File[]) {
   }
 
   if (errorTip !== '') {
-    vditor.tip.show(`<ul>${errorTip}</ul>`);
+    editor.tip.show(`<ul>${errorTip}</ul>`);
   }
 
   if (uploadingStr !== '') {
-    insertText(vditor, uploadingStr, '');
+    insertText(editor, uploadingStr, '');
   }
 
   return {
@@ -79,40 +81,40 @@ export function validateFile(vditor: IACMEditor, files: File[]) {
   };
 }
 
-export function genUploadedLabel(editorElement: HTMLPreElement, responseText: string, vditor: IACMEditor) {
+export function genUploadedLabel(editorElement: HTMLPreElement, responseText: string, editor: IACMEditor) {
   editorElement.focus();
   const response = JSON.parse(responseText);
 
   if (response.code === 1) {
-    vditor.tip.show(response.msg);
+    editor.tip.show(response.msg);
   }
 
   if (response.data.errFiles) {
     response.data.errFiles.forEach((data: string) => {
       const lastIndex = data.lastIndexOf('.');
-      const filename = vditor.options.upload.filename(data.substr(0, lastIndex)) + data.substr(lastIndex);
-      const original = `[${filename}](${i18n[vditor.options.lang].uploading})`;
+      const filename = editor.options.upload.filename(data.substr(0, lastIndex)) + data.substr(lastIndex);
+      const original = `[${filename}](${i18n[editor.options.lang].uploading})`;
       setSelectionByInlineText(original, editorElement.childNodes);
-      insertText(vditor, '', '', true);
+      insertText(editor, '', '', true);
     });
   }
 
   Object.keys(response.data.succMap).forEach((key) => {
     const path = response.data.succMap[key];
     const lastIndex = key.lastIndexOf('.');
-    const filename = vditor.options.upload.filename(key.substr(0, lastIndex)) + key.substr(lastIndex);
-    const original = `[${filename}](${i18n[vditor.options.lang].uploading})`;
+    const filename = editor.options.upload.filename(key.substr(0, lastIndex)) + key.substr(lastIndex);
+    const original = `[${filename}](${i18n[editor.options.lang].uploading})`;
     if (path.indexOf('.wav') === path.length - 4) {
       setSelectionByInlineText(original, editorElement.childNodes);
-      insertText(vditor, `<audio controls='controls' src='${path}'></audio>\n`, '', true);
+      insertText(editor, `<audio controls='controls' src='${path}'></audio>\n`, '', true);
       return;
     }
     setSelectionByInlineText(original, editorElement.childNodes);
-    insertText(vditor, `[${filename}](${path})`, '', true);
+    insertText(editor, `[${filename}](${path})`, '', true);
   });
 }
 
-export const uploadFiles = (vditor: IACMEditor, files: FileList | DataTransferItemList | File[], element?: HTMLInputElement) => {
+export const uploadFiles = (editor: IACMEditor, files: FileList | DataTransferItemList | File[], element?: HTMLInputElement) => {
   // FileList | DataTransferItemList | File[] => File[]
   const fileList = [];
   for (let iMax = files.length, i = 0; i < iMax; i++) {
@@ -123,16 +125,16 @@ export const uploadFiles = (vditor: IACMEditor, files: FileList | DataTransferIt
     fileList.push(fileItem);
   }
 
-  if (vditor.options.upload.handler) {
-    const isValidate = vditor.options.upload.handler(fileList);
+  if (editor.options.upload.handler) {
+    const isValidate = editor.options.upload.handler(fileList);
     if (typeof isValidate === 'string') {
-      vditor.tip.show(isValidate);
+      editor.tip.show(isValidate);
       return;
     }
     return;
   }
 
-  if (!vditor.options.upload.url || !vditor.upload) {
+  if (!editor.options.upload.url || !editor.upload) {
     if (element) {
       element.value = '';
     }
@@ -140,15 +142,15 @@ export const uploadFiles = (vditor: IACMEditor, files: FileList | DataTransferIt
     return;
   }
 
-  if (vditor.options.upload.validate) {
-    const isValidate = vditor.options.upload.validate(fileList);
+  if (editor.options.upload.validate) {
+    const isValidate = editor.options.upload.validate(fileList);
     if (typeof isValidate === 'string') {
-      vditor.tip.show(isValidate);
+      editor.tip.show(isValidate);
       return;
     }
   }
 
-  const validateResult = validateFile(vditor, fileList);
+  const validateResult = validateFile(editor, fileList);
   if (validateResult.uploadFileList.length === 0) {
     if (element) {
       element.value = '';
@@ -162,46 +164,46 @@ export const uploadFiles = (vditor: IACMEditor, files: FileList | DataTransferIt
   }
 
   const xhr = new XMLHttpRequest();
-  xhr.open('POST', vditor.options.upload.url);
-  if (vditor.options.upload.token) {
-    xhr.setRequestHeader('X-Upload-Token', vditor.options.upload.token);
+  xhr.open('POST', editor.options.upload.url);
+  if (editor.options.upload.token) {
+    xhr.setRequestHeader('X-Upload-Token', editor.options.upload.token);
   }
-  vditor.upload.isUploading = true;
-  vditor.editor.element.setAttribute('contenteditable', 'false');
+  editor.upload.isUploading = true;
+  editor.editor.element.setAttribute('contenteditable', 'false');
 
   xhr.onreadystatechange = () => {
     if (xhr.readyState === XMLHttpRequest.DONE) {
-      vditor.upload.isUploading = false;
+      editor.upload.isUploading = false;
       if (element) {
         element.value = '';
       }
-      vditor.editor.element.setAttribute('contenteditable', 'true');
+      editor.editor.element.setAttribute('contenteditable', 'true');
 
       if (xhr.status === 200) {
-        if (vditor.options.upload.success) {
-          vditor.options.upload.success(vditor.editor.element, xhr.responseText);
+        if (editor.options.upload.success) {
+          editor.options.upload.success(editor.editor.element, xhr.responseText);
         } else {
           let responseText = xhr.responseText;
-          if (vditor.options.upload.format) {
-            responseText = vditor.options.upload.format(files as File[], xhr.responseText);
+          if (editor.options.upload.format) {
+            responseText = editor.options.upload.format(files as File[], xhr.responseText);
           }
-          genUploadedLabel(vditor.editor.element, responseText, vditor);
+          genUploadedLabel(editor.editor.element, responseText, editor);
         }
       } else {
-        if (vditor.options.upload.error) {
-          vditor.options.upload.error(xhr.responseText);
+        if (editor.options.upload.error) {
+          editor.options.upload.error(xhr.responseText);
         } else {
-          vditor.tip.show(xhr.responseText);
+          editor.tip.show(xhr.responseText);
           validateResult.uploadingStr.split('\n').forEach((str) => {
             if (!str) {
               return;
             }
-            setSelectionByInlineText(str, vditor.editor.element.childNodes);
-            insertText(vditor, '', '', true);
+            setSelectionByInlineText(str, editor.editor.element.childNodes);
+            insertText(editor, '', '', true);
           });
         }
       }
-      vditor.upload.element.style.display = 'none';
+      editor.upload.element.style.display = 'none';
     }
   };
   xhr.upload.onprogress = (event: ProgressEvent) => {
@@ -209,8 +211,8 @@ export const uploadFiles = (vditor: IACMEditor, files: FileList | DataTransferIt
       return;
     }
     const progress = event.loaded / event.total * 100;
-    vditor.upload.element.style.display = 'block';
-    const progressBar = vditor.upload.element;
+    editor.upload.element.style.display = 'block';
+    const progressBar = editor.upload.element;
     progressBar.style.width = progress + '%';
   };
   xhr.send(formData);

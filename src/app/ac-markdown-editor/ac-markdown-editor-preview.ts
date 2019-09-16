@@ -2,25 +2,27 @@ import { getText } from './ac-markdown-editor-util';
 import { i18n } from './ac-markdown-editor-i18n';
 import { abcRender, chartRender, codeRender, highlightRender, mathRender, md2htmlByVditor, mediaRender, mermaidRender } from './ac-markdown-editor-render';
 import { IACMEditor } from './ac-markdown-editor-interfaces';
+import { classPrefix } from './ac-markdown-editor-constants';
 
+// Preview
 export class ACMEditorPreview {
   public element: HTMLElement;
   private mdTimeoutId: number;
 
-  constructor(vditor: IACMEditor) {
+  constructor(editor: IACMEditor) {
     this.element = document.createElement('div');
-    this.element.className = `vditor-preview vditor-preview--${vditor.options.preview.mode}`;
+    this.element.className = `${classPrefix}-preview ${classPrefix}-preview--${editor.options.preview.mode}`;
     const previewElement = document.createElement('div');
-    previewElement.className = vditor.options.classes.preview ? vditor.options.classes.preview : 'vditor-reset';
-    previewElement.style.maxWidth = vditor.options.preview.maxWidth + 'px';
+    previewElement.className = editor.options.classes.preview ? editor.options.classes.preview : classPrefix + '-reset';
+    previewElement.style.maxWidth = editor.options.preview.maxWidth + 'px';
     this.element.appendChild(previewElement);
-    this.render(vditor);
+    this.render(editor);
   }
 
-  public async render(vditor: IACMEditor, value?: string) {
-    if (this.element.className === 'vditor-preview vditor-preview--editor') {
+  public async render(editor: IACMEditor, value?: string) {
+    if (this.element.className === `${classPrefix}-preview ${classPrefix}-preview--editor`) {
       if (this.element.getAttribute('data-type') === 'renderPerformance') {
-        vditor.tip.hide();
+        editor.tip.hide();
       }
       return;
     }
@@ -30,17 +32,17 @@ export class ACMEditorPreview {
       return;
     }
 
-    if (getText(vditor.editor.element).replace(/^[\s\uFEFF\xA0]+|[\s\uFEFF\xA0]+$/g, '') === '') {
+    if (getText(editor.editor.element).replace(/^[\s\uFEFF\xA0]+|[\s\uFEFF\xA0]+$/g, '') === '') {
       this.element.children[0].innerHTML = '';
       return;
     }
 
     clearTimeout(this.mdTimeoutId);
     const renderStartTime = new Date().getTime();
-    if (vditor.options.preview.url) {
+    if (editor.options.preview.url) {
       this.mdTimeoutId = window.setTimeout(async () => {
         const xhr = new XMLHttpRequest();
-        xhr.open('POST', vditor.options.preview.url);
+        xhr.open('POST', editor.options.preview.url);
         xhr.setRequestHeader('Content-Type', 'application/json;charset=UTF-8');
         xhr.onreadystatechange = () => {
           if (xhr.readyState === XMLHttpRequest.DONE) {
@@ -51,43 +53,42 @@ export class ACMEditorPreview {
                 return;
               }
               this.element.children[0].innerHTML = responseJSON.data;
-              this.afterRender(vditor, renderStartTime);
+              this.afterRender(editor, renderStartTime);
             }
           }
         };
 
         xhr.send(JSON.stringify({
-          markdownText: getText(vditor.editor.element),
+          markdownText: getText(editor.editor.element),
         }));
-      }, vditor.options.preview.delay);
+      }, editor.options.preview.delay);
     } else {
-      const html = await md2htmlByVditor(getText(vditor.editor.element), vditor);
+      const html = await md2htmlByVditor(getText(editor.editor.element), editor);
       this.element.children[0].innerHTML = html;
-      this.afterRender(vditor, renderStartTime);
+      this.afterRender(editor, renderStartTime);
     }
   }
 
-  private afterRender(vditor: IACMEditor, startTime: number) {
-    if (vditor.options.preview.parse) {
-      vditor.options.preview.parse(this.element);
+  private afterRender(editor: IACMEditor, startTime: number) {
+    if (editor.options.preview.parse) {
+      editor.options.preview.parse(this.element);
     }
     const time = (new Date().getTime() - startTime);
     if ((new Date().getTime() - startTime) > 2000) {
-      // https://github.com/b3log/vditor/issues/67
-      vditor.tip.show(i18n[vditor.options.lang].performanceTip.replace('${x}',
+      editor.tip.show(i18n[editor.options.lang].performanceTip.replace('${x}',
         time.toString()));
-      vditor.preview.element.setAttribute('data-type', 'renderPerformance');
-    } else if (vditor.preview.element.getAttribute('data-type') === 'renderPerformance') {
-      vditor.tip.hide();
-      vditor.preview.element.removeAttribute('data-type');
+      editor.preview.element.setAttribute('data-type', 'renderPerformance');
+    } else if (editor.preview.element.getAttribute('data-type') === 'renderPerformance') {
+      editor.tip.hide();
+      editor.preview.element.removeAttribute('data-type');
     }
-    codeRender(vditor.preview.element.children[0] as HTMLElement, vditor.options.lang);
-    highlightRender(vditor.options.preview.hljs.style, vditor.options.preview.hljs.enable,
-      vditor.preview.element.children[0] as HTMLElement);
-    mathRender(vditor.preview.element.children[0] as HTMLElement, vditor.options.lang);
-    mermaidRender(vditor.preview.element.children[0] as HTMLElement);
-    chartRender(vditor.preview.element.children[0] as HTMLElement);
-    abcRender(vditor.preview.element.children[0] as HTMLElement);
-    mediaRender(vditor.preview.element.children[0] as HTMLElement);
+    codeRender(editor.preview.element.children[0] as HTMLElement, editor.options.lang);
+    highlightRender(editor.options.preview.hljs.style, editor.options.preview.hljs.enable,
+      editor.preview.element.children[0] as HTMLElement);
+    mathRender(editor.preview.element.children[0] as HTMLElement, editor.options.lang);
+    mermaidRender(editor.preview.element.children[0] as HTMLElement);
+    chartRender(editor.preview.element.children[0] as HTMLElement);
+    abcRender(editor.preview.element.children[0] as HTMLElement);
+    mediaRender(editor.preview.element.children[0] as HTMLElement);
   }
 }

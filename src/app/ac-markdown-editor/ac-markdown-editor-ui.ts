@@ -1,73 +1,75 @@
 import { formatRender, html2md } from './ac-markdown-editor-util';
 import { IACMEditor } from './ac-markdown-editor-interfaces';
+import { classPrefix } from './ac-markdown-editor-constants';
 
+// UI
 export class ACMEditorUi {
-  constructor(vditor: IACMEditor) {
-    // const vditorElement = document.getElementById(vditor.id);
-    const vditorElement = vditor.host;
-    vditorElement.innerHTML = '';
-    vditorElement.className = 'vditor' + (vditorElement.className ? ' ' + vditorElement.className : '');
-    if (typeof vditor.options.height === 'number') {
-      vditorElement.style.height = vditor.options.height + 'px';
+  constructor(editor: IACMEditor) {
+    // const editorElement = document.getElementById(editor.id);
+    const editorElement = editor.host;
+    editorElement.innerHTML = '';
+    editorElement.className = classPrefix + (editorElement.className ? ' ' + editorElement.className : '');
+    if (typeof editor.options.height === 'number') {
+      editorElement.style.height = editor.options.height + 'px';
     }
-    if (typeof vditor.options.width === 'number') {
-      vditorElement.style.width = vditor.options.width + 'px';
+    if (typeof editor.options.width === 'number') {
+      editorElement.style.width = editor.options.width + 'px';
     } else {
-      vditorElement.style.width = vditor.options.width;
+      editorElement.style.width = editor.options.width;
     }
 
     const toolbarElement = document.createElement('div');
-    toolbarElement.className = 'vditor-toolbar';
-    Object.keys(vditor.toolbar.elements).forEach((key) => {
-      toolbarElement.appendChild(vditor.toolbar.elements[key]);
+    toolbarElement.className = `${classPrefix}-toolbar`;
+    Object.keys(editor.toolbar.elements).forEach((key) => {
+      toolbarElement.appendChild(editor.toolbar.elements[key]);
     });
 
-    vditorElement.appendChild(toolbarElement);
+    editorElement.appendChild(toolbarElement);
 
     const contentElement = document.createElement('div');
-    contentElement.className = 'vditor-content';
-    contentElement.appendChild(vditor.editor.element);
+    contentElement.className = `${classPrefix}-content`;
+    contentElement.appendChild(editor.editor.element);
 
-    if (vditor.preview) {
-      contentElement.appendChild(vditor.preview.element);
+    if (editor.preview) {
+      contentElement.appendChild(editor.preview.element);
     }
 
-    if (vditor.options.counter > 0) {
-      contentElement.appendChild(vditor.counter.element);
+    if (editor.options.counter > 0) {
+      contentElement.appendChild(editor.counter.element);
     }
 
-    if (vditor.upload) {
-      contentElement.appendChild(vditor.upload.element);
+    if (editor.upload) {
+      contentElement.appendChild(editor.upload.element);
     }
 
-    if (vditor.options.resize.enable) {
-      contentElement.appendChild(vditor.resize.element);
+    if (editor.options.resize.enable) {
+      contentElement.appendChild(editor.resize.element);
     }
 
-    contentElement.appendChild(vditor.tip.element);
+    contentElement.appendChild(editor.tip.element);
 
-    vditorElement.appendChild(contentElement);
+    editorElement.appendChild(contentElement);
 
-    this.afterRender(vditor);
+    this.afterRender(editor);
   }
 
-  private async afterRender(vditor: IACMEditor) {
-    let height: number = Math.max(vditor.editor.element.parentElement.offsetHeight, 20);
-    if (height < 21 && typeof vditor.options.height === 'number') {
-      height = vditor.options.height - 37;
+  private async afterRender(editor: IACMEditor) {
+    let height: number = Math.max(editor.editor.element.parentElement.offsetHeight, 20);
+    if (height < 21 && typeof editor.options.height === 'number') {
+      height = editor.options.height - 37;
     }
-    vditor.editor.element.style.paddingBottom = height / 2 + 'px';
+    editor.editor.element.style.paddingBottom = height / 2 + 'px';
 
-    // const localValue = localStorage.getItem('vditor' + vditor.id);
-    const localValue = localStorage.getItem('vditor' + vditor.host.id);
-    if (vditor.options.cache && localValue) {
-      formatRender(vditor, localValue, undefined, false);
+    // const localValue = localStorage.getItem('editor' + editor.id);
+    const localValue = localStorage.getItem('editor' + editor.host.id);
+    if (editor.options.cache && localValue) {
+      formatRender(editor, localValue, undefined, false);
     } else {
-      if (!vditor.originalInnerHTML.trim()) {
+      if (!editor.originalInnerHTML.trim()) {
         return;
       }
-      const mdValue = await html2md(vditor, vditor.originalInnerHTML);
-      formatRender(vditor, mdValue, undefined, false);
+      const mdValue = await html2md(editor, editor.originalInnerHTML);
+      formatRender(editor, mdValue, undefined, false);
     }
   }
 }

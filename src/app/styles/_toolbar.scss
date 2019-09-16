@@ -4,7 +4,7 @@
  * @author <a href="http://vanessa.b3log.org">Liyuan Li</a>
  * @version 0.1.2.0, Jun 20, 2019
  */
-.vditor {
+.acme {
   &-toolbar {
     background-color: $toolbarBg;
     border-bottom: 1px solid $borderColor;
@@ -28,7 +28,7 @@
       height: 14px;
     }
 
-    .vditor-tooltipped {
+    .acme-tooltipped {
       color: $toolbarIcon;
 
       &:hover {

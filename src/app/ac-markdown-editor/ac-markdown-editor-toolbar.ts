@@ -4,44 +4,21 @@ import { insertText, getEventName, getText, getSelectPosition, formatRender,
 import { IACMEditor, IACMEToolbarItem, IACMEHTMLInputEvent, } from './ac-markdown-editor-interfaces';
 import { uploadFiles } from './ac-markdown-editor-upload';
 import { i18n } from './ac-markdown-editor-i18n';
-// import boldSVG from '../../assets/icons/bold.svg';
-// import bothSVG from '../../assets/icons/both.svg';
-// import checkSVG from '../../assets/icons/check.svg';
-// import codeSVG from '../../assets/icons/code.svg';
-// import emojiSVG from '../../assets/icons/emoji.svg';
-// import formatSVG from '../../assets/icons/format.svg';
-// import contractSVG from '../../assets/icons/contract.svg';
-// import fullscreenSVG from '../../assets/icons/fullscreen.svg';
-// import headingsSVG from '../../assets/icons/headings.svg';
-// import helpSVG from '../../assets/icons/help.svg';
-// import infoSVG from '../../assets/icons/info.svg';
-// import inlineCodeSVG from '../../assets/icons/inline-code.svg';
-// import italicSVG from '../../assets/icons/italic.svg';
-// import lineSVG from '../../assets/icons/line.svg';
-// import linkSVG from '../../assets/icons/link.svg';
-// import listSVG from '../../assets/icons/list.svg';
-// import orderedListVG from '../../assets/icons/ordered-list.svg';
-// import previewSVG from '../../assets/icons/preview.svg';
-// import quoteSVG from '../../assets/icons/quote.svg';
-// import recordSVG from '../../assets/icons/record.svg';
-// import redoSVG from '../../assets/icons/redo.svg';
-// import strikekSVG from '../../assets/icons/strike.svg';
-// import tableSVG from '../../assets/icons/table.svg';
-// import undoSVG from '../../assets/icons/undo.svg';
-// import uploadSVG from '../../assets/icons/upload.svg';
+import { classPrefix } from './ac-markdown-editor-constants';
 
+// Toolbar item
 export abstract class ACMEditorToolbarItem {
   public element: HTMLElement;
   public menuItem: IACMEToolbarItem;
-  public vditor: IACMEditor;
+  public editor: IACMEditor;
 
-  constructor(vditor: IACMEditor, menuItem: IACMEToolbarItem) {
+  constructor(editor: IACMEditor, menuItem: IACMEToolbarItem) {
     this.menuItem = menuItem;
-    this.vditor = vditor;
+    this.editor = editor;
 
     this.element = document.createElement('div');
     const iconElement = document.createElement('div');
-    iconElement.className = `vditor-tooltipped vditor-tooltipped__${menuItem.tipPosition}`;
+    iconElement.className = `${classPrefix}-tooltipped ${classPrefix}-tooltipped__${menuItem.tipPosition}`;
 
     let hotkey = this.menuItem.hotkey ? ` <${this.menuItem.hotkey}>` : '';
     if (/Mac/.test(navigator.platform)) {
@@ -50,13 +27,13 @@ export abstract class ACMEditorToolbarItem {
       hotkey = hotkey.replace('⌘', 'ctrl');
     }
     iconElement.setAttribute('aria-label',
-      this.menuItem.tip ? this.menuItem.tip + hotkey : i18n[vditor.options.lang][this.menuItem.name] + hotkey);
+      this.menuItem.tip ? this.menuItem.tip + hotkey : i18n[editor.options.lang][this.menuItem.name] + hotkey);
     this.element.appendChild(iconElement);
   }
 
   public bindEvent(replace: boolean = false) {
     this.element.children[0].addEventListener(getEventName(), (event) => {
-      insertText(this.vditor, this.menuItem.prefix || '', this.menuItem.suffix || '',
+      insertText(this.editor, this.menuItem.prefix || '', this.menuItem.suffix || '',
         replace, true);
       event.preventDefault();
     });
@@ -64,8 +41,8 @@ export abstract class ACMEditorToolbarItem {
 }
 
 export class ACMEditorToolbarBold extends ACMEditorToolbarItem {
-  constructor(vditor: IACMEditor, menuItem: IACMEToolbarItem) {
-    super(vditor, menuItem);
+  constructor(editor: IACMEditor, menuItem: IACMEToolbarItem) {
+    super(editor, menuItem);
     // this.element.children[0].innerHTML = menuItem.icon || boldSVG;
     if (menuItem.icon) {
       this.element.children[0].innerHTML = menuItem.icon;
@@ -84,41 +61,41 @@ export class ACMEditorToolbarBold extends ACMEditorToolbarItem {
 }
 
 export class ACMEditorToolbarBoth extends ACMEditorToolbarItem {
-  constructor(vditor: IACMEditor, menuItem: IACMEToolbarItem) {
-    super(vditor, menuItem);
+  constructor(editor: IACMEditor, menuItem: IACMEToolbarItem) {
+    super(editor, menuItem);
     this.element.children[0].innerHTML = menuItem.icon
       || `<svg version="1.1" xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32">
       <path d="M11.429 6.095h-9.905c-0.842 0-1.524 0.682-1.524 1.524v1.524c0 0.841 0.682 1.524 1.524 1.524h9.905c0.841 0 1.524-0.682 1.524-1.524v-1.524c0-0.842-0.682-1.524-1.524-1.524zM11.429 13.714h-9.905c-0.842 0-1.524 0.682-1.524 1.524v1.524c0 0.841 0.682 1.524 1.524 1.524h9.905c0.841 0 1.524-0.682 1.524-1.524v-1.524c0-0.841-0.682-1.524-1.524-1.524zM11.429 21.333h-9.905c-0.842 0-1.524 0.682-1.524 1.524v1.524c0 0.841 0.682 1.524 1.524 1.524h9.905c0.841 0 1.524-0.682 1.524-1.524v-1.524c0-0.841-0.682-1.524-1.524-1.524zM30.476 6.095h-12.952c-0.841 0-1.524 0.682-1.524 1.524v16.762c0 0.841 0.682 1.524 1.524 1.524h12.952c0.841 0 1.524-0.682 1.524-1.524v-16.762c0-0.841-0.682-1.524-1.524-1.524z"></path>
       </svg>`;
-    if (vditor.options.preview.mode === 'both') {
+    if (editor.options.preview.mode === 'both') {
       this.element.children[0].className =
-        `vditor-tooltipped vditor-tooltipped__${menuItem.tipPosition} vditor-menu--current`;
+        `${classPrefix}-tooltipped ${classPrefix}-tooltipped__${menuItem.tipPosition} ${classPrefix}-menu--current`;
     }
-    this._bindEvent(vditor, menuItem);
+    this._bindEvent(editor, menuItem);
   }
 
-  public _bindEvent(vditor: IACMEditor, menuItem: IACMEToolbarItem) {
+  public _bindEvent(editor: IACMEditor, menuItem: IACMEToolbarItem) {
     this.element.children[0].addEventListener(getEventName(), function() {
-      // const vditorElement = document.getElementById(vditor.id);
-      const vditorElement = vditor.host;
+      // const editorElement = document.getElementById(editor.id);
+      const editorElement = editor.host;
       let className;
-      if (vditor.preview.element.className === 'vditor-preview vditor-preview--both') {
-        vditor.preview.element.className = 'vditor-preview vditor-preview--editor';
-        className = `vditor-tooltipped vditor-tooltipped__${menuItem.tipPosition}`;
+      if (editor.preview.element.className === `${classPrefix}-preview ${classPrefix}-preview--both`) {
+        editor.preview.element.className = `${classPrefix}-preview ${classPrefix}-preview--editor`;
+        className = `${classPrefix}-tooltipped ${classPrefix}-tooltipped__${menuItem.tipPosition}`;
       } else {
-        vditor.preview.element.className = 'vditor-preview vditor-preview--both';
-        className = `vditor-tooltipped vditor-tooltipped__${menuItem.tipPosition} vditor-menu--current`;
-        vditor.preview.render(vditor);
+        editor.preview.element.className = `${classPrefix}-preview ${classPrefix}-preview--both`;
+        className = `${classPrefix}-tooltipped ${classPrefix}-tooltipped__${menuItem.tipPosition} ${classPrefix}-menu--current`;
+        editor.preview.render(editor);
       }
-      if (vditorElement.className.indexOf('vditor--fullscreen') > -1) {
+      if (editorElement.className.indexOf(`${classPrefix}--fullscreen`) > -1) {
         className = className.replace('__n', '__s');
       }
       this.className = className;
 
-      if (vditor.toolbar.elements.preview &&
-        vditor.toolbar.elements.preview.children[0].className.indexOf('vditor-menu--current') > -1) {
-        vditor.toolbar.elements.preview.children[0].className =
-          vditor.toolbar.elements.preview.children[0].className.replace(' vditor-menu--current', '');
+      if (editor.toolbar.elements.preview &&
+        editor.toolbar.elements.preview.children[0].className.indexOf(`${classPrefix}-menu--current`) > -1) {
+          editor.toolbar.elements.preview.children[0].className =
+          editor.toolbar.elements.preview.children[0].className.replace(` ${classPrefix}-menu--current`, '');
       }
     });
   }
@@ -129,13 +106,13 @@ export class ACMEditorToolbarBr {
 
   constructor() {
     this.element = document.createElement('div');
-    this.element.className = 'vditor-menu__br';
+    this.element.className = `${classPrefix}-menu__br`;
   }
 }
 
 export class ACMEditorToolbarCheck extends ACMEditorToolbarItem {
-  constructor(vditor: IACMEditor, menuItem: IACMEToolbarItem) {
-    super(vditor, menuItem);
+  constructor(editor: IACMEditor, menuItem: IACMEToolbarItem) {
+    super(editor, menuItem);
     this.element.children[0].innerHTML = menuItem.icon
     // || checkSVG;
     || `<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32">
@@ -150,8 +127,8 @@ export class ACMEditorToolbarCheck extends ACMEditorToolbarItem {
 }
 
 export class ACMEditorToolbarCode extends ACMEditorToolbarItem {
-  constructor(vditor: IACMEditor, menuItem: IACMEToolbarItem) {
-    super(vditor, menuItem);
+  constructor(editor: IACMEditor, menuItem: IACMEToolbarItem) {
+    super(editor, menuItem);
     this.element.children[0].innerHTML = menuItem.icon
     // || codeSVG;
     || `<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32">
@@ -168,8 +145,8 @@ export class ACMEditorToolbarCode extends ACMEditorToolbarItem {
 }
 
 export class ACMEditorToolbarCustom extends ACMEditorToolbarItem {
-  constructor(vditor: IACMEditor, menuItem: IACMEToolbarItem) {
-    super(vditor, menuItem);
+  constructor(editor: IACMEditor, menuItem: IACMEToolbarItem) {
+    super(editor, menuItem);
     this.element.children[0].innerHTML = menuItem.icon;
     this.element.children[0].addEventListener(getEventName(), (event) => {
       menuItem.click();
@@ -183,15 +160,15 @@ export class ACMEditorToolbarDivider {
 
   constructor() {
     this.element = document.createElement('div');
-    this.element.className = 'vditor-menu__divider';
+    this.element.className = `${classPrefix}-menu__divider`;
   }
 }
 
 export class ACMEditorToolbarEmoji extends ACMEditorToolbarItem {
   public element: HTMLElement;
 
-  constructor(vditor: IACMEditor, menuItem: IACMEToolbarItem) {
-    super(vditor, menuItem);
+  constructor(editor: IACMEditor, menuItem: IACMEToolbarItem) {
+    super(editor, menuItem);
     this.element.children[0].innerHTML = menuItem.icon
     // || emojiSVG;
     || `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" width="32px" height="32px">
@@ -199,11 +176,11 @@ export class ACMEditorToolbarEmoji extends ACMEditorToolbarItem {
 </svg>`;
 
     const emojiPanelElement = document.createElement('div');
-    emojiPanelElement.className = 'vditor-panel';
+    emojiPanelElement.className = classPrefix + '-panel';
 
     let commonEmojiHTML = '';
-    Object.keys(vditor.options.hint.emoji).forEach((key) => {
-      const emojiValue = vditor.options.hint.emoji[key];
+    Object.keys(editor.options.hint.emoji).forEach((key) => {
+      const emojiValue = editor.options.hint.emoji[key];
       if (emojiValue.indexOf('.') > -1) {
         commonEmojiHTML += `<span data-value=':${key}: ' data-key=':${key}:'><img
 data-value=':${key}: ' data-key=':${key}:' src='${emojiValue}'/></span>`;
@@ -212,46 +189,46 @@ data-value=':${key}: ' data-key=':${key}:' src='${emojiValue}'/></span>`;
       }
     });
 
-    const tailHTML = `<div class='vditor-emojis__tail'>
-  <span class='vditor-emojis__tip'></span><span>${vditor.options.hint.emojiTail || ''}</span>
+    const tailHTML = `<div class='${classPrefix}-emojis__tail'>
+  <span class='${classPrefix}-emojis__tip'></span><span>${editor.options.hint.emojiTail || ''}</span>
 </div>`;
 
-    emojiPanelElement.innerHTML = `<div class='vditor-emojis' style='max-height: ${
-      vditor.options.height === 'auto' ? 'auto' : vditor.options.height as number - 80
+    emojiPanelElement.innerHTML = `<div class='${classPrefix}-emojis' style='max-height: ${
+      editor.options.height === 'auto' ? 'auto' : editor.options.height as number - 80
       }px'>${commonEmojiHTML}</div>${tailHTML}`;
 
     this.element.appendChild(emojiPanelElement);
 
-    this._bindEvent(emojiPanelElement, vditor);
+    this._bindEvent(emojiPanelElement, editor);
   }
 
-  public _bindEvent(emojiPanelElement: HTMLElement, vditor: IACMEditor) {
+  public _bindEvent(emojiPanelElement: HTMLElement, editor: IACMEditor) {
     this.element.children[0].addEventListener(getEventName(), (event) => {
       if (emojiPanelElement.style.display === 'block') {
         emojiPanelElement.style.display = 'none';
       } else {
         emojiPanelElement.style.display = 'block';
-        if (vditor.toolbar.elements.headings) {
-          const headingsPanel = vditor.toolbar.elements.headings.children[1] as HTMLElement;
+        if (editor.toolbar.elements.headings) {
+          const headingsPanel = editor.toolbar.elements.headings.children[1] as HTMLElement;
           headingsPanel.style.display = 'none';
         }
       }
 
-      if (vditor.hint) {
-        vditor.hint.element.style.display = 'none';
+      if (editor.hint) {
+        editor.hint.element.style.display = 'none';
       }
       event.preventDefault();
     });
 
-    emojiPanelElement.querySelectorAll('.vditor-emojis span').forEach((element) => {
+    emojiPanelElement.querySelectorAll(`.${classPrefix}-emojis span`).forEach((element) => {
       element.addEventListener(getEventName(), (event: Event) => {
-        insertText(vditor, (event.target as HTMLElement).getAttribute('data-value'),
+        insertText(editor, (event.target as HTMLElement).getAttribute('data-value'),
           '', true);
         emojiPanelElement.style.display = 'none';
         event.preventDefault();
       });
       element.addEventListener('mouseover', (event: Event) => {
-        emojiPanelElement.querySelector('.vditor-emojis__tip').innerHTML =
+        emojiPanelElement.querySelector(`.${classPrefix}-emojis__tip`).innerHTML =
           (event.target as HTMLElement).getAttribute('data-key');
       });
     });
@@ -259,46 +236,46 @@ data-value=':${key}: ' data-key=':${key}:' src='${emojiValue}'/></span>`;
 }
 
 export class ACMEditorToolbarFormat extends ACMEditorToolbarItem {
-  constructor(vditor: IACMEditor, menuItem: IACMEToolbarItem) {
-    super(vditor, menuItem);
+  constructor(editor: IACMEditor, menuItem: IACMEToolbarItem) {
+    super(editor, menuItem);
     this.element.children[0].innerHTML = menuItem.icon
     // || formatSVG;
     || `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" width="32px" height="32px">
     <path d="M14.25 17.75v-3.5h17.75v3.5h-17.75zM14.25 10.667v-3.583h17.75v3.583h-17.75zM0 0h32v3.583h-32v-3.583zM14.25 24.917v-3.583h17.75v3.583h-17.75zM0 8.917l7.083 7.083-7.083 7.083v-14.167zM0 32v-3.583h32v3.583h-32z"></path>
 </svg>`;
     this.element.children[0].addEventListener(getEventName(), (event) => {
-      const formatResult = vditor.lute.FormatStr('', getText(vditor.editor.element));
-      formatRender(vditor, formatResult[0] || formatResult[1],
-        getSelectPosition(vditor.editor.element, vditor.editor.range));
+      const formatResult = editor.lute.FormatStr('', getText(editor.editor.element));
+      formatRender(editor, formatResult[0] || formatResult[1],
+        getSelectPosition(editor.editor.element, editor.editor.range));
       event.preventDefault();
     });
   }
 }
 
 export class ACMEditorToolbarFullscreen extends ACMEditorToolbarItem {
-  constructor(vditor: IACMEditor, menuItem: IACMEToolbarItem) {
-    super(vditor, menuItem);
+  constructor(editor: IACMEditor, menuItem: IACMEToolbarItem) {
+    super(editor, menuItem);
     this.element.children[0].innerHTML = menuItem.icon
     // || fullscreenSVG;
     || `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" width="32px" height="32px">
     <path d="M32 0v13l-5-5-6 6-3-3 6-6-5-5zM14 21l-6 6 5 5h-13v-13l5 5 6-6z"></path>
 </svg>`;
-    this._bindEvent(vditor, menuItem);
+    this._bindEvent(editor, menuItem);
   }
 
-  public _bindEvent(vditor: IACMEditor, menuItem: IACMEToolbarItem) {
+  public _bindEvent(editor: IACMEditor, menuItem: IACMEToolbarItem) {
     this.element.children[0].addEventListener(getEventName(), function() {
-      // const vditorElement = document.getElementById(vditor.id);
-      const vditorElement = vditor.host;
-      if (vditorElement.className.indexOf('vditor--fullscreen') > -1) {
+      // const editorElement = document.getElementById(editor.id);
+      const editorElement = editor.host;
+      if (editorElement.className.indexOf(`${classPrefix}--fullscreen`) > -1) {
         this.innerHTML = menuItem.icon
         // || fullscreenSVG;
         || `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" width="32px" height="32px">
         <path d="M32 0v13l-5-5-6 6-3-3 6-6-5-5zM14 21l-6 6 5 5h-13v-13l5 5 6-6z"></path>
     </svg>`;
-        vditorElement.className = vditorElement.className.replace(' vditor--fullscreen', '');
-        Object.keys(vditor.toolbar.elements).forEach((key) => {
-          const svgElement = vditor.toolbar.elements[key].firstChild as HTMLElement;
+        editorElement.className = editorElement.className.replace(` ${classPrefix}--fullscreen`, '');
+        Object.keys(editor.toolbar.elements).forEach((key) => {
+          const svgElement = editor.toolbar.elements[key].firstChild as HTMLElement;
           if (svgElement) {
             svgElement.className = svgElement.className.replace('__s', '__n');
           }
@@ -309,9 +286,9 @@ export class ACMEditorToolbarFullscreen extends ACMEditorToolbarItem {
         || `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" width="32px" height="32px">
         <path d="M14 18v13l-5-5-6 6-3-3 6-6-5-5zM32 3l-6 6 5 5h-13v-13l5 5 6-6z"></path>
     </svg>`;
-        vditorElement.className = vditorElement.className + ' vditor--fullscreen';
-        Object.keys(vditor.toolbar.elements).forEach((key) => {
-          const svgElement = vditor.toolbar.elements[key].firstChild as HTMLElement;
+        editorElement.className = editorElement.className + ` ${classPrefix}--fullscreen`;
+        Object.keys(editor.toolbar.elements).forEach((key) => {
+          const svgElement = editor.toolbar.elements[key].firstChild as HTMLElement;
           if (svgElement) {
             svgElement.className = svgElement.className.replace('__n', '__s');
           }
@@ -324,8 +301,8 @@ export class ACMEditorToolbarFullscreen extends ACMEditorToolbarItem {
 export class ACMEditorToolbarHeadings extends ACMEditorToolbarItem {
   public element: HTMLElement;
 
-  constructor(vditor: IACMEditor, menuItem: IACMEToolbarItem) {
-    super(vditor, menuItem);
+  constructor(editor: IACMEditor, menuItem: IACMEToolbarItem) {
+    super(editor, menuItem);
     this.element.children[0].innerHTML = menuItem.icon
     // || headingsSVG;
     || `<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32">
@@ -334,7 +311,7 @@ export class ACMEditorToolbarHeadings extends ACMEditorToolbarItem {
 </svg>`;
 
     const headingsPanelElement = document.createElement('div');
-    headingsPanelElement.className = 'vditor-panel';
+    headingsPanelElement.className = `${classPrefix}-panel`;
     headingsPanelElement.innerHTML = `<h1 data-value='# '>Heading 1</h1>
 <h2 data-value='## '>Heading 2</h2>
 <h3 data-value='### '>Heading 3</h3>
@@ -344,29 +321,29 @@ export class ACMEditorToolbarHeadings extends ACMEditorToolbarItem {
 
     this.element.appendChild(headingsPanelElement);
 
-    this._bindEvent(headingsPanelElement, vditor);
+    this._bindEvent(headingsPanelElement, editor);
   }
 
-  public _bindEvent(headingsPanelElement: HTMLElement, vditor: IACMEditor) {
+  public _bindEvent(headingsPanelElement: HTMLElement, editor: IACMEditor) {
     this.element.children[0].addEventListener(getEventName(), (event) => {
       if (headingsPanelElement.style.display === 'block') {
         headingsPanelElement.style.display = 'none';
       } else {
         headingsPanelElement.style.display = 'block';
-        if (vditor.toolbar.elements.emoji) {
-          const panel = vditor.toolbar.elements.emoji.children[1] as HTMLElement;
+        if (editor.toolbar.elements.emoji) {
+          const panel = editor.toolbar.elements.emoji.children[1] as HTMLElement;
           panel.style.display = 'none';
         }
       }
-      if (vditor.hint) {
-        vditor.hint.element.style.display = 'none';
+      if (editor.hint) {
+        editor.hint.element.style.display = 'none';
       }
       event.preventDefault();
     });
 
     for (let i = 0; i < 6; i++) {
       headingsPanelElement.children.item(i).addEventListener(getEventName(), (event: Event) => {
-        insertText(vditor, (event.target as HTMLElement).getAttribute('data-value'), '',
+        insertText(editor, (event.target as HTMLElement).getAttribute('data-value'), '',
           false, true);
         headingsPanelElement.style.display = 'none';
         event.preventDefault();
@@ -376,8 +353,8 @@ export class ACMEditorToolbarHeadings extends ACMEditorToolbarItem {
 }
 
 export class ACMEditorToolbarHelp extends ACMEditorToolbarItem {
-  constructor(vditor: IACMEditor, menuItem: IACMEToolbarItem) {
-    super(vditor, menuItem);
+  constructor(editor: IACMEditor, menuItem: IACMEToolbarItem) {
+    super(editor, menuItem);
     this.element.children[0].innerHTML = menuItem.icon
     // || helpSVG;
     || `<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32">
@@ -394,8 +371,8 @@ export class ACMEditorToolbarHelp extends ACMEditorToolbarItem {
 }
 
 export class ACMEditorToolbarInfo extends ACMEditorToolbarItem {
-  constructor(vditor: IACMEditor, menuItem: IACMEToolbarItem) {
-    super(vditor, menuItem);
+  constructor(editor: IACMEditor, menuItem: IACMEToolbarItem) {
+    super(editor, menuItem);
     this.element.children[0].innerHTML = menuItem.icon
     // || infoSVG;
     || `<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32">
@@ -406,14 +383,13 @@ export class ACMEditorToolbarInfo extends ACMEditorToolbarItem {
 
   public bindEvent() {
     this.element.children[0].addEventListener(getEventName(), () => {
-      // openURL('https://github.com/b3log/vditor');
     });
   }
 }
 
 export class ACMEditorToolbarInlineCode extends ACMEditorToolbarItem {
-  constructor(vditor: IACMEditor, menuItem: IACMEToolbarItem) {
-    super(vditor, menuItem);
+  constructor(editor: IACMEditor, menuItem: IACMEToolbarItem) {
+    super(editor, menuItem);
     this.element.children[0].innerHTML = menuItem.icon
     // || inlineCodeSVG;
     || `<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32">
@@ -429,8 +405,8 @@ export class ACMEditorToolbarInlineCode extends ACMEditorToolbarItem {
 }
 
 export class ACMEditorToolbarItalic extends ACMEditorToolbarItem {
-  constructor(vditor: IACMEditor, menuItem: IACMEToolbarItem) {
-    super(vditor, menuItem);
+  constructor(editor: IACMEditor, menuItem: IACMEToolbarItem) {
+    super(editor, menuItem);
     this.element.children[0].innerHTML = menuItem.icon
     // || italicSVG;
     || `<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32">
@@ -445,8 +421,8 @@ export class ACMEditorToolbarItalic extends ACMEditorToolbarItem {
 }
 
 export class ACMEditorToolbarLine extends ACMEditorToolbarItem {
-  constructor(vditor: IACMEditor, menuItem: IACMEToolbarItem) {
-    super(vditor, menuItem);
+  constructor(editor: IACMEditor, menuItem: IACMEToolbarItem) {
+    super(editor, menuItem);
     this.element.children[0].innerHTML = menuItem.icon
     // || lineSVG;
     || `<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32">
@@ -461,8 +437,8 @@ export class ACMEditorToolbarLine extends ACMEditorToolbarItem {
 }
 
 export class ACMEditorToolbarLink extends ACMEditorToolbarItem {
-  constructor(vditor: IACMEditor, menuItem: IACMEToolbarItem) {
-    super(vditor, menuItem);
+  constructor(editor: IACMEditor, menuItem: IACMEToolbarItem) {
+    super(editor, menuItem);
     this.element.children[0].innerHTML = menuItem.icon
     // || linkSVG;
     || `<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32">
@@ -477,8 +453,8 @@ export class ACMEditorToolbarLink extends ACMEditorToolbarItem {
 }
 
 export class ACMEditorToolbarList extends ACMEditorToolbarItem {
-  constructor(vditor: IACMEditor, menuItem: IACMEToolbarItem) {
-    super(vditor, menuItem);
+  constructor(editor: IACMEditor, menuItem: IACMEToolbarItem) {
+    super(editor, menuItem);
     this.element.children[0].innerHTML = menuItem.icon
     // || listSVG;
     || `<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32">
@@ -493,8 +469,8 @@ export class ACMEditorToolbarList extends ACMEditorToolbarItem {
 }
 
 export class ACMEditorToolbarOrderedList extends ACMEditorToolbarItem {
-  constructor(vditor: IACMEditor, menuItem: IACMEToolbarItem) {
-    super(vditor, menuItem);
+  constructor(editor: IACMEditor, menuItem: IACMEToolbarItem) {
+    super(editor, menuItem);
     this.element.children[0].innerHTML = menuItem.icon
     // || orderedListVG;
     || `<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32">
@@ -509,51 +485,51 @@ export class ACMEditorToolbarOrderedList extends ACMEditorToolbarItem {
 }
 
 export class ACMEditorToolbarPreview extends ACMEditorToolbarItem {
-  constructor(vditor: IACMEditor, menuItem: IACMEToolbarItem) {
-    super(vditor, menuItem);
+  constructor(editor: IACMEditor, menuItem: IACMEToolbarItem) {
+    super(editor, menuItem);
     this.element.children[0].innerHTML = menuItem.icon
     // || previewSVG;
     || `<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32">
     <path d="M0 16c3.037-5.864 9.058-9.802 16-9.802s12.963 3.938 15.953 9.703l0.047 0.1c-3.037 5.864-9.058 9.802-16 9.802s-12.963-3.938-15.953-9.703l-0.047-0.1zM16 22.531c3.607 0 6.531-2.924 6.531-6.531s-2.924-6.531-6.531-6.531v0c-3.607 0-6.531 2.924-6.531 6.531s2.924 6.531 6.531 6.531v0zM16 19.265c-1.804 0-3.265-1.461-3.265-3.265s1.461-3.265 3.265-3.265v0c1.804 0 3.265 1.461 3.265 3.265s-1.461 3.265-3.265 3.265v0z"></path>
     </svg>`;
-    if (vditor.options.preview.mode === 'preview') {
+    if (editor.options.preview.mode === 'preview') {
       this.element.children[0].className =
-        `vditor-tooltipped vditor-tooltipped__${menuItem.tipPosition} vditor-menu--current`;
+        `${classPrefix}-tooltipped ${classPrefix}-tooltipped__${menuItem.tipPosition} ${classPrefix}-menu--current`;
     }
-    this._bindEvent(vditor, menuItem);
+    this._bindEvent(editor, menuItem);
   }
 
-  public _bindEvent(vditor: IACMEditor, menuItem: IACMEToolbarItem) {
+  public _bindEvent(editor: IACMEditor, menuItem: IACMEToolbarItem) {
     this.element.children[0].addEventListener(getEventName(), function() {
-      // const vditorElement = document.getElementById(vditor.id);
-      const vditorElement = vditor.host;
+      // const editorElement = document.getElementById(editor.id);
+      const editorElement = editor.host;
       let className;
-      if (vditor.preview.element.className === 'vditor-preview vditor-preview--preview') {
-        vditor.preview.element.className = 'vditor-preview vditor-preview--editor';
-        className = `vditor-tooltipped vditor-tooltipped__${menuItem.tipPosition}`;
+      if (editor.preview.element.className === `${classPrefix}-preview ${classPrefix}-preview--preview`) {
+        editor.preview.element.className = `${classPrefix}-preview ${classPrefix}-preview--editor`;
+        className = `${classPrefix}-tooltipped ${classPrefix}-tooltipped__${menuItem.tipPosition}`;
       } else {
-        vditor.preview.element.className = 'vditor-preview vditor-preview--preview';
-        className = `vditor-tooltipped vditor-tooltipped__${menuItem.tipPosition} vditor-menu--current`;
-        vditor.preview.render(vditor);
-        vditor.editor.element.blur();
+        editor.preview.element.className = `${classPrefix}-preview ${classPrefix}-preview--preview`;
+        className = `${classPrefix}-tooltipped ${classPrefix}-tooltipped__${menuItem.tipPosition} ${classPrefix}-menu--current`;
+        editor.preview.render(editor);
+        editor.editor.element.blur();
       }
-      if (vditorElement.className.indexOf('vditor--fullscreen') > -1) {
+      if (editorElement.className.indexOf(`${classPrefix}--fullscreen`) > -1) {
         className = className.replace('__n', '__s');
       }
       this.className = className;
 
-      if (vditor.toolbar.elements.both &&
-        vditor.toolbar.elements.both.children[0].className.indexOf('vditor-menu--current') > -1) {
-        vditor.toolbar.elements.both.children[0].className =
-          vditor.toolbar.elements.both.children[0].className.replace(' vditor-menu--current', '');
+      if (editor.toolbar.elements.both &&
+        editor.toolbar.elements.both.children[0].className.indexOf(`${classPrefix}-menu--current`) > -1) {
+          editor.toolbar.elements.both.children[0].className =
+          editor.toolbar.elements.both.children[0].className.replace(` ${classPrefix}-menu--current`, '');
       }
     });
   }
 }
 
 export class ACMEditorToolbarQuote extends ACMEditorToolbarItem {
-  constructor(vditor: IACMEditor, menuItem: IACMEToolbarItem) {
-    super(vditor, menuItem);
+  constructor(editor: IACMEditor, menuItem: IACMEToolbarItem) {
+    super(editor, menuItem);
     this.element.children[0].innerHTML = menuItem.icon
     // || quoteSVG;
     || `<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32">
@@ -568,8 +544,8 @@ export class ACMEditorToolbarQuote extends ACMEditorToolbarItem {
 }
 
 export class ACMEditorToolbarRecord extends ACMEditorToolbarItem {
-  constructor(vditor: IACMEditor, menuItem: IACMEToolbarItem) {
-    super(vditor, menuItem);
+  constructor(editor: IACMEditor, menuItem: IACMEToolbarItem) {
+    super(editor, menuItem);
     this.element.children[0].innerHTML = menuItem.icon
     // || recordSVG;
     || `<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32">
@@ -577,10 +553,10 @@ export class ACMEditorToolbarRecord extends ACMEditorToolbarItem {
     <path d="M16 30.857c-8.229 0-14.933-6.705-14.933-14.933s6.705-14.933 14.933-14.933 15.010 6.705 15.010 15.010c0 8.152-6.705 14.857-15.010 14.857zM16 0c-8.838 0-16 7.162-16 16s7.162 16 16 16 16-7.162 16-16-7.162-16-16-16z"></path>
     </svg>`;
 
-    this._bindEvent(vditor);
+    this._bindEvent(editor);
   }
 
-  public _bindEvent(vditor: IACMEditor) {
+  public _bindEvent(editor: IACMEditor) {
     let mediaRecorder: MediaRecorder;
     this.element.children[0].addEventListener(getEventName(), (event) => {
       if (!mediaRecorder) {
@@ -598,23 +574,23 @@ export class ACMEditorToolbarRecord extends ACMEditorToolbarItem {
             mediaRecorder.cloneChannelData(left, right);
           };
           mediaRecorder.startRecordingNewWavFile();
-          vditor.tip.show(i18n[vditor.options.lang].recording);
-          vditor.editor.element.setAttribute('contenteditable', 'false');
+          editor.tip.show(i18n[editor.options.lang].recording);
+          editor.editor.element.setAttribute('contenteditable', 'false');
         }).catch(() => {
-          vditor.tip.show(i18n[vditor.options.lang]['record-tip']);
+          editor.tip.show(i18n[editor.options.lang]['record-tip']);
         });
         return;
       }
 
       if (mediaRecorder.isRecording) {
         mediaRecorder.stopRecording();
-        vditor.tip.hide();
+        editor.tip.hide();
         const file: File = new File([mediaRecorder.buildWavFileBlob()],
           `record${(new Date()).getTime()}.wav`, { type: 'video/webm' });
-        uploadFiles(vditor, [file]);
+        uploadFiles(editor, [file]);
       } else {
-        vditor.tip.show(i18n[vditor.options.lang].recording);
-        vditor.editor.element.setAttribute('contenteditable', 'false');
+        editor.tip.show(i18n[editor.options.lang].recording);
+        editor.editor.element.setAttribute('contenteditable', 'false');
         mediaRecorder.startRecordingNewWavFile();
       }
       event.preventDefault();
@@ -623,24 +599,24 @@ export class ACMEditorToolbarRecord extends ACMEditorToolbarItem {
 }
 
 export class ACMEditorToolbarRedo extends ACMEditorToolbarItem {
-  constructor(vditor: IACMEditor, menuItem: IACMEToolbarItem) {
-    super(vditor, menuItem);
+  constructor(editor: IACMEditor, menuItem: IACMEToolbarItem) {
+    super(editor, menuItem);
     this.element.children[0].innerHTML = menuItem.icon
     // || redoSVG;
     || `<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32">
     <path d="M19.583 9.75q-8.667 1.25-13.375 6.625t-6.208 12.958q6.417-9.083 19.583-9.083v7.25l12.417-12.417-12.417-12.417v7.083z"></path>
 </svg>`;
-    this.element.children[0].className = this.element.children[0].className + ' vditor-menu--disabled';
+    this.element.children[0].className = this.element.children[0].className + ` ${classPrefix}-menu--disabled`;
     this.element.children[0].addEventListener(getEventName(), (event) => {
-      this.vditor.undo.redo(vditor);
+      this.editor.undo.redo(editor);
       event.preventDefault();
     });
   }
 }
 
 export class ACMEditorToolbarStrike extends ACMEditorToolbarItem {
-  constructor(vditor: IACMEditor, menuItem: IACMEToolbarItem) {
-    super(vditor, menuItem);
+  constructor(editor: IACMEditor, menuItem: IACMEToolbarItem) {
+    super(editor, menuItem);
     this.element.children[0].innerHTML = menuItem.icon
     // || strikekSVG;
     || `<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32">
@@ -655,8 +631,8 @@ export class ACMEditorToolbarStrike extends ACMEditorToolbarItem {
 }
 
 export class ACMEditorToolbarTable extends ACMEditorToolbarItem {
-  constructor(vditor: IACMEditor, menuItem: IACMEToolbarItem) {
-    super(vditor, menuItem);
+  constructor(editor: IACMEditor, menuItem: IACMEToolbarItem) {
+    super(editor, menuItem);
     this.element.children[0].innerHTML = menuItem.icon
     // || tableSVG;
     || `<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32">
@@ -671,27 +647,27 @@ export class ACMEditorToolbarTable extends ACMEditorToolbarItem {
 }
 
 export class ACMEditorToolbarUndo extends ACMEditorToolbarItem {
-  constructor(vditor: IACMEditor, menuItem: IACMEToolbarItem) {
-    super(vditor, menuItem);
+  constructor(editor: IACMEditor, menuItem: IACMEToolbarItem) {
+    super(editor, menuItem);
     this.element.children[0].innerHTML = menuItem.icon
     // || undoSVG;
     || `<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32">
     <path d="M12.417 9.75q8.667 1.25 13.375 6.625t6.208 12.958q-6.417-9.083-19.583-9.083v7.25l-12.417-12.417 12.417-12.417v7.083z"></path>
     </svg>`;
-    this.element.children[0].className = this.element.children[0].className + ' vditor-menu--disabled';
+    this.element.children[0].className = this.element.children[0].className + ` ${classPrefix}-menu--disabled`;
     this.element.children[0].addEventListener(getEventName(), (event) => {
-      vditor.undo.undo(vditor);
+      editor.undo.undo(editor);
       event.preventDefault();
     });
   }
 }
 
 export class ACMEditorToolbarUpload extends ACMEditorToolbarItem {
-  constructor(vditor: IACMEditor, menuItem: IACMEToolbarItem) {
-    super(vditor, menuItem);
+  constructor(editor: IACMEditor, menuItem: IACMEToolbarItem) {
+    super(editor, menuItem);
     let inputHTML = '<input multiple=\'multiple\' type=\'file\'></label>';
-    if (vditor.options.upload.accept) {
-      inputHTML = `<input multiple='multiple' type='file' accept='${vditor.options.upload.accept}'></label>`;
+    if (editor.options.upload.accept) {
+      inputHTML = `<input multiple='multiple' type='file' accept='${editor.options.upload.accept}'></label>`;
     }
     if (menuItem.icon) {
       this.element.children[0].innerHTML = `<label>${(menuItem.icon)}${inputHTML}</label>`;
@@ -701,15 +677,15 @@ export class ACMEditorToolbarUpload extends ACMEditorToolbarItem {
     this.element.children[0].innerHTML = `<label><svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32">
     <path d="M21.334 16.532q0-0.233-0.15-0.384l-5.867-5.867q-0.15-0.15-0.384-0.15t-0.384 0.15l-5.85 5.85q-0.167 0.2-0.167 0.399 0 0.233 0.15 0.384t0.384 0.15h3.733v5.867q0 0.217 0.159 0.375t0.375 0.159h3.2q0.217 0 0.375-0.159t0.159-0.375v-5.867h3.734q0.217 0 0.375-0.159t0.159-0.375zM32 21.332q0 2.65-1.875 4.525t-4.525 1.875h-18.133q-3.083 0-5.275-2.192t-2.192-5.275q0-2.166 1.167-4t3.134-2.75q-0.034-0.5-0.034-0.717 0-3.533 2.5-6.033t6.033-2.5q2.6 0 4.759 1.45t3.142 3.849q1.184-1.033 2.767-1.033 1.767 0 3.017 1.25t1.25 3.017q0 1.267-0.683 2.3 2.166 0.516 3.558 2.258t1.392 3.975z"></path>
 </svg>${inputHTML}</label>`;
-    this._bindEvent(vditor);
+    this._bindEvent(editor);
   }
 
-  public _bindEvent(vditor: IACMEditor) {
+  public _bindEvent(editor: IACMEditor) {
     this.element.querySelector('input').addEventListener('change', (event: IACMEHTMLInputEvent) => {
       if (event.target.files.length === 0) {
         return;
       }
-      uploadFiles(vditor, event.target.files, event.target);
+      uploadFiles(editor, event.target.files, event.target);
     });
   }
 }
@@ -717,21 +693,21 @@ export class ACMEditorToolbarUpload extends ACMEditorToolbarItem {
 export class ACMEditorToolbar {
   public elements: { [key: string]: HTMLElement };
 
-  constructor(vditor: IACMEditor) {
-      const options = vditor.options;
+  constructor(editor: IACMEditor) {
+      const options = editor.options;
       this.elements = {};
 
       options.toolbar.forEach((menuItem: IACMEToolbarItem, i: number) => {
           let menuItemObj;
           switch (menuItem.name) {
               case 'emoji':
-                  menuItemObj = new ACMEditorToolbarEmoji(vditor, menuItem);
+                  menuItemObj = new ACMEditorToolbarEmoji(editor, menuItem);
                   break;
               case 'bold':
-                  menuItemObj = new ACMEditorToolbarBold(vditor, menuItem);
+                  menuItemObj = new ACMEditorToolbarBold(editor, menuItem);
                   break;
               case 'headings':
-                  menuItemObj = new ACMEditorToolbarHeadings(vditor, menuItem);
+                  menuItemObj = new ACMEditorToolbarHeadings(editor, menuItem);
                   break;
               case '|':
                   menuItemObj = new ACMEditorToolbarDivider();
@@ -740,70 +716,70 @@ export class ACMEditorToolbar {
                   menuItemObj = new ACMEditorToolbarBr();
                   break;
               case 'italic':
-                  menuItemObj = new ACMEditorToolbarItalic(vditor, menuItem);
+                  menuItemObj = new ACMEditorToolbarItalic(editor, menuItem);
                   break;
               case 'strike':
-                  menuItemObj = new ACMEditorToolbarStrike(vditor, menuItem);
+                  menuItemObj = new ACMEditorToolbarStrike(editor, menuItem);
                   break;
               case 'line':
-                  menuItemObj = new ACMEditorToolbarLine(vditor, menuItem);
+                  menuItemObj = new ACMEditorToolbarLine(editor, menuItem);
                   break;
               case 'quote':
-                  menuItemObj = new ACMEditorToolbarQuote(vditor, menuItem);
+                  menuItemObj = new ACMEditorToolbarQuote(editor, menuItem);
                   break;
               case 'list':
-                  menuItemObj = new ACMEditorToolbarList(vditor, menuItem);
+                  menuItemObj = new ACMEditorToolbarList(editor, menuItem);
                   break;
               case 'ordered-list':
-                  menuItemObj = new ACMEditorToolbarOrderedList(vditor, menuItem);
+                  menuItemObj = new ACMEditorToolbarOrderedList(editor, menuItem);
                   break;
               case 'check':
-                  menuItemObj = new ACMEditorToolbarCheck(vditor, menuItem);
+                  menuItemObj = new ACMEditorToolbarCheck(editor, menuItem);
                   break;
               case 'undo':
-                  menuItemObj = new ACMEditorToolbarUndo(vditor, menuItem);
+                  menuItemObj = new ACMEditorToolbarUndo(editor, menuItem);
                   break;
               case 'redo':
-                  menuItemObj = new ACMEditorToolbarRedo(vditor, menuItem);
+                  menuItemObj = new ACMEditorToolbarRedo(editor, menuItem);
                   break;
               case 'code':
-                  menuItemObj = new ACMEditorToolbarCode(vditor, menuItem);
+                  menuItemObj = new ACMEditorToolbarCode(editor, menuItem);
                   break;
               case 'inline-code':
-                  menuItemObj = new ACMEditorToolbarInlineCode(vditor, menuItem);
+                  menuItemObj = new ACMEditorToolbarInlineCode(editor, menuItem);
                   break;
               case 'link':
-                  menuItemObj = new ACMEditorToolbarLink(vditor, menuItem);
+                  menuItemObj = new ACMEditorToolbarLink(editor, menuItem);
                   break;
               case 'help':
-                  menuItemObj = new ACMEditorToolbarHelp(vditor, menuItem);
+                  menuItemObj = new ACMEditorToolbarHelp(editor, menuItem);
                   break;
               case 'table':
-                  menuItemObj = new ACMEditorToolbarTable(vditor, menuItem);
+                  menuItemObj = new ACMEditorToolbarTable(editor, menuItem);
                   break;
               case 'both':
-                  menuItemObj = new ACMEditorToolbarBoth(vditor, menuItem);
+                  menuItemObj = new ACMEditorToolbarBoth(editor, menuItem);
                   break;
               case 'preview':
-                  menuItemObj = new ACMEditorToolbarPreview(vditor, menuItem);
+                  menuItemObj = new ACMEditorToolbarPreview(editor, menuItem);
                   break;
               case 'fullscreen':
-                  menuItemObj = new ACMEditorToolbarFullscreen(vditor, menuItem);
+                  menuItemObj = new ACMEditorToolbarFullscreen(editor, menuItem);
                   break;
               case 'upload':
-                  menuItemObj = new ACMEditorToolbarUpload(vditor, menuItem);
+                  menuItemObj = new ACMEditorToolbarUpload(editor, menuItem);
                   break;
               case 'record':
-                  menuItemObj = new ACMEditorToolbarRecord(vditor, menuItem);
+                  menuItemObj = new ACMEditorToolbarRecord(editor, menuItem);
                   break;
               case 'info':
-                  menuItemObj = new ACMEditorToolbarInfo(vditor, menuItem);
+                  menuItemObj = new ACMEditorToolbarInfo(editor, menuItem);
                   break;
               case 'format':
-                  menuItemObj = new ACMEditorToolbarFormat(vditor, menuItem);
+                  menuItemObj = new ACMEditorToolbarFormat(editor, menuItem);
                   break;
               default:
-                  menuItemObj = new ACMEditorToolbarCustom(vditor, menuItem);
+                  menuItemObj = new ACMEditorToolbarCustom(editor, menuItem);
                   break;
           }
 

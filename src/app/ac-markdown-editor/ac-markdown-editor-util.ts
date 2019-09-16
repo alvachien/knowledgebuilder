@@ -1,5 +1,6 @@
 import { gfm } from './ac-markdown-editor-turndown-gfm';
 import { IACMEditor, } from './ac-markdown-editor-interfaces';
+import { classPrefix } from './ac-markdown-editor-constants';
 
 // Add style
 export function addStyle(url: string, id: string) {
@@ -223,25 +224,24 @@ export function setSelectionByInlineText(text: string, childNodes: NodeListOf<Ch
   setSelectionFocus(range);
 }
 
-export function inputEvent(vditor: IACMEditor, addUndo: boolean = true) {
-  if (vditor.options.counter > 0) {
-    vditor.counter.render(getText(vditor.editor.element).length, vditor.options.counter);
+export function inputEvent(editor: IACMEditor, addUndo: boolean = true) {
+  if (editor.options.counter > 0) {
+    editor.counter.render(getText(editor.editor.element).length, editor.options.counter);
   }
-  if (typeof vditor.options.input === 'function') {
-    vditor.options.input(getText(vditor.editor.element), vditor.preview && vditor.preview.element);
+  if (typeof editor.options.input === 'function') {
+    editor.options.input(getText(editor.editor.element), editor.preview && editor.preview.element);
   }
-  if (vditor.hint) {
-    vditor.hint.render();
+  if (editor.hint) {
+    editor.hint.render();
   }
-  if (vditor.options.cache) {
-    // localStorage.setItem(`vditor${vditor.id}`, getText(vditor.editor.element));
-    localStorage.setItem(`vditor${vditor.host.id}`, getText(vditor.editor.element));
+  if (editor.options.cache) {
+    localStorage.setItem(`editor${editor.host.id}`, getText(editor.editor.element));
   }
-  if (vditor.preview) {
-    vditor.preview.render(vditor);
+  if (editor.preview) {
+    editor.preview.render(editor);
   }
   if (addUndo) {
-    vditor.undo.addToUndoStack(vditor);
+    editor.undo.addToUndoStack(editor);
   }
 }
 
@@ -262,7 +262,7 @@ export function openURL(url: string) {
   }
 }
 
-export function formatRender(vditor: IACMEditor, content: string, position?: { start: number, end: number },
+export function formatRender(editor: IACMEditor, content: string, position?: { start: number, end: number },
                              addUndo: boolean = true) {
 
   const textList = content.replace(/\r\n/g, '\n').replace(/\r/g, '\n').split('\n');
@@ -280,36 +280,36 @@ export function formatRender(vditor: IACMEditor, content: string, position?: { s
   });
 
   // TODO: 使用虚拟 Dom
-  vditor.editor.element.innerHTML = html || newLine;
+  editor.editor.element.innerHTML = html || newLine;
 
   if (position) {
-    setSelectionByPosition(position.start, position.end, vditor.editor.element);
+    setSelectionByPosition(position.start, position.end, editor.editor.element);
   }
 
-  inputEvent(vditor, addUndo);
+  inputEvent(editor, addUndo);
 }
 
 // Insert text
-export function insertText(vditor: IACMEditor, prefix: string, suffix: string, replace: boolean = false,
+export function insertText(editor: IACMEditor, prefix: string, suffix: string, replace: boolean = false,
                            toggle: boolean = false) {
   let range: Range = window.getSelection().rangeCount === 0 ? undefined : window.getSelection().getRangeAt(0);
-  if (!selectIsEditor(vditor.editor.element)) {
-    if (vditor.editor.range) {
-      range = vditor.editor.range;
+  if (!selectIsEditor(editor.editor.element)) {
+    if (editor.editor.range) {
+      range = editor.editor.range;
     } else {
-      range = vditor.editor.element.ownerDocument.createRange();
-      range.setStart(vditor.editor.element, 0);
+      range = editor.editor.element.ownerDocument.createRange();
+      range.setStart(editor.editor.element, 0);
       range.collapse(true);
     }
   }
 
-  const position = getSelectPosition(vditor.editor.element, range);
-  const content = getText(vditor.editor.element);
+  const position = getSelectPosition(editor.editor.element, range);
+  const content = getText(editor.editor.element);
 
   // select none || select something and need replace
   if (range.collapsed || (!range.collapsed && replace)) {
     const text = prefix + suffix;
-    formatRender(vditor, content.substring(0, position.start) + text + content.substring(position.end),
+    formatRender(editor, content.substring(0, position.start) + text + content.substring(position.end),
       {
         end: position.start + prefix.length,
         start: position.start + prefix.length,
@@ -318,7 +318,7 @@ export function insertText(vditor: IACMEditor, prefix: string, suffix: string, r
     const selectText = content.substring(position.start, position.end);
     if (toggle && content.substring(position.start - prefix.length, position.start) === prefix
       && content.substring(position.end, position.end + suffix.length) === suffix) {
-      formatRender(vditor, content.substring(0, position.start - prefix.length)
+      formatRender(editor, content.substring(0, position.start - prefix.length)
         + selectText + content.substring(position.end + suffix.length),
         {
           end: position.start - prefix.length + selectText.length,
@@ -326,7 +326,7 @@ export function insertText(vditor: IACMEditor, prefix: string, suffix: string, r
         });
     } else {
       const text = prefix + selectText + suffix;
-      formatRender(vditor, content.substring(0, position.start) + text + content.substring(position.end),
+      formatRender(editor, content.substring(0, position.start) + text + content.substring(position.end),
         {
           end: position.start + prefix.length + selectText.length,
           start: position.start + prefix.length,
@@ -364,7 +364,7 @@ export function getCursorPosition(editor: HTMLPreElement) {
   };
 }
 
-export async function html2md(vditor: IACMEditor, textHTML: string, textPlain?: string) {
+export async function html2md(editor: IACMEditor, textHTML: string, textPlain?: string) {
   const tservice = await import(/* webpackChunkName: "turndown" */ 'turndown');
 
   // process word
@@ -388,7 +388,7 @@ export async function html2md(vditor: IACMEditor, textHTML: string, textPlain?: 
       hr: '---',
   });
 
-  turndownService.addRule('vditorImage', {
+  turndownService.addRule('editorImage', {
       filter: 'img',
       replacement: (content: string, target: HTMLElement) => {
           const src = target.getAttribute('src');
@@ -397,9 +397,9 @@ export async function html2md(vditor: IACMEditor, textHTML: string, textPlain?: 
           }
           // 直接使用 API 或 setOriginal 时不需要对图片进行服务器上传，直接转换。
           // 目前使用 textPlain 判断是否来自 API 或 setOriginal
-          if (vditor.options.upload.linkToImgUrl && textPlain) {
+          if (editor.options.upload.linkToImgUrl && textPlain) {
               const xhr = new XMLHttpRequest();
-              xhr.open('POST', vditor.options.upload.linkToImgUrl);
+              xhr.open('POST', editor.options.upload.linkToImgUrl);
               xhr.onreadystatechange = () => {
                   if (xhr.readyState === XMLHttpRequest.DONE) {
                       const responseJSON = JSON.parse(xhr.responseText);
@@ -409,10 +409,10 @@ export async function html2md(vditor: IACMEditor, textHTML: string, textPlain?: 
                               return;
                           }
                           const original = responseJSON.data.originalURL;
-                          setSelectionByInlineText(original, vditor.editor.element.childNodes);
-                          insertText(vditor, responseJSON.data.url, '', true);
+                          setSelectionByInlineText(original, editor.editor.element.childNodes);
+                          insertText(editor, responseJSON.data.url, '', true);
                       } else {
-                          vditor.tip.show(responseJSON.msg);
+                        editor.tip.show(responseJSON.msg);
                       }
                   }
               };
@@ -437,7 +437,7 @@ export async function html2md(vditor: IACMEditor, textHTML: string, textPlain?: 
       isCode = true;
   }
   const pres = tempElement.querySelectorAll('pre');
-  if (tempElement.childElementCount === 1 && pres.length === 1 && pres[0].className !== 'vditor-textarea') {
+  if (tempElement.childElementCount === 1 && pres.length === 1 && pres[0].className !== `${classPrefix}-textarea`) {
       // IDE
       isCode = true;
   }

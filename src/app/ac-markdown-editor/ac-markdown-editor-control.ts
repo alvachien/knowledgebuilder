@@ -1,6 +1,7 @@
 import { inputEvent, getText, getSelectText, html2md, insertText, } from './ac-markdown-editor-util';
 import { uploadFiles } from './ac-markdown-editor-upload';
 import { IACMEditor } from './ac-markdown-editor-interfaces';
+import { classPrefix } from './ac-markdown-editor-constants';
 
 ///
 /// Control
@@ -9,18 +10,18 @@ export class ACMEditorControl {
   public element: HTMLPreElement;
   public range: Range;
 
-  constructor(vditor: IACMEditor) {
+  constructor(editor: IACMEditor) {
     this.element = document.createElement('pre');
-    this.element.className = 'vditor-textarea';
-    this.element.setAttribute('placeholder', vditor.options.placeholder);
+    this.element.className = classPrefix + '-textarea';
+    this.element.setAttribute('placeholder', editor.options.placeholder);
     this.element.setAttribute('contenteditable', 'true');
     this.element.innerHTML = '<span><br><span style=\'display: none\'>\n</span></span>';
-    this.bindEvent(vditor);
+    this.bindEvent(editor);
   }
 
-  private bindEvent(vditor: IACMEditor) {
+  private bindEvent(editor: IACMEditor) {
     this.element.addEventListener('input', () => {
-      inputEvent(vditor);
+      inputEvent(editor);
       // 选中多行后输入任意字符，br 后无 \n
       this.element.querySelectorAll('br').forEach((br) => {
         if (!br.nextElementSibling) {
@@ -30,15 +31,15 @@ export class ACMEditorControl {
     });
 
     this.element.addEventListener('focus', () => {
-      if (vditor.options.focus) {
-        vditor.options.focus(getText(this.element));
+      if (editor.options.focus) {
+        editor.options.focus(getText(this.element));
       }
-      if (vditor.toolbar.elements.emoji && vditor.toolbar.elements.emoji.children[1]) {
-        const emojiPanel = vditor.toolbar.elements.emoji.children[1] as HTMLElement;
+      if (editor.toolbar.elements.emoji && editor.toolbar.elements.emoji.children[1]) {
+        const emojiPanel = editor.toolbar.elements.emoji.children[1] as HTMLElement;
         emojiPanel.style.display = 'none';
       }
-      if (vditor.toolbar.elements.headings && vditor.toolbar.elements.headings.children[1]) {
-        const headingsPanel = vditor.toolbar.elements.headings.children[1] as HTMLElement;
+      if (editor.toolbar.elements.headings && editor.toolbar.elements.headings.children[1]) {
+        const headingsPanel = editor.toolbar.elements.headings.children[1] as HTMLElement;
         headingsPanel.style.display = 'none';
       }
     });
@@ -47,31 +48,33 @@ export class ACMEditorControl {
       if (navigator.userAgent.indexOf('Firefox') === -1) {
         this.range = window.getSelection().getRangeAt(0).cloneRange();
       }
-      if (vditor.options.blur) {
-        vditor.options.blur(getText(this.element));
+      if (editor.options.blur) {
+        editor.options.blur(getText(this.element));
       }
     });
 
-    if (vditor.options.select) {
+    if (editor.options.select) {
       this.element.addEventListener('mouseup', () => {
         this.range = window.getSelection().getRangeAt(0).cloneRange();
         const selectText = getSelectText(this.element);
         if (selectText === '') {
           return;
         }
-        vditor.options.select(selectText);
+        editor.options.select(selectText);
       });
     }
 
     this.element.addEventListener('scroll', () => {
-      if (!vditor.preview && (vditor.preview.element.className === 'vditor-preview vditor-preview--editor' ||
-        vditor.preview.element.className === 'vditor-preview vditor-preview--preview')) {
+      const classeditor = classPrefix + '-preview ' + classPrefix + '-preview-editor';
+      const classpreview = classPrefix + '-preview ' + classPrefix + '-preview-editor';
+      if (!editor.preview && (editor.preview.element.className === classeditor ||
+        editor.preview.element.className === classpreview)) {
         return;
       }
       const textScrollTop = this.element.scrollTop;
       const textHeight = this.element.clientHeight;
       const textScrollHeight = this.element.scrollHeight - parseFloat(this.element.style.paddingBottom);
-      const preview = vditor.preview.element;
+      const preview = editor.preview.element;
       if ((textScrollTop / textHeight > 0.5)) {
         preview.scrollTop = (textScrollTop + textHeight) *
           preview.scrollHeight / textScrollHeight - textHeight;
@@ -81,7 +84,7 @@ export class ACMEditorControl {
       }
     });
 
-    if (vditor.options.upload.url || vditor.options.upload.handler) {
+    if (editor.options.upload.url || editor.options.upload.handler) {
       this.element.addEventListener('drop', (event: CustomEvent & { dataTransfer?: DataTransfer }) => {
         event.stopPropagation();
         event.preventDefault();
@@ -91,7 +94,7 @@ export class ACMEditorControl {
           return;
         }
 
-        uploadFiles(vditor, files);
+        uploadFiles(editor, files);
       });
     }
 
@@ -108,31 +111,28 @@ export class ACMEditorControl {
       event.preventDefault();
       if (textHTML.trim() !== '') {
         if (textHTML.length < 106496) {
-          // https://github.com/b3log/vditor/issues/51
           if (textHTML.replace(/<(|\/)(html|body|meta)[^>]*?>/ig, '').trim() ===
             `<a href='${textPlain}'>${textPlain}</a>` ||
             textHTML.replace(/<(|\/)(html|body|meta)[^>]*?>/ig, '').trim() ===
             `<!--StartFragment--><a href='${textPlain}'>${textPlain}</a><!--EndFragment-->`) {
-            // https://github.com/b3log/vditor/issues/37
           } else {
-            const mdValue = await html2md(vditor, textHTML, textPlain);
-            insertText(vditor, mdValue, '', true);
+            const mdValue = await html2md(editor, textHTML, textPlain);
+            insertText(editor, mdValue, '', true);
             return;
           }
         }
       } else if (textPlain.trim() !== '' && event.clipboardData.files.length === 0) {
-        // https://github.com/b3log/vditor/issues/67
       } else if (event.clipboardData.files.length > 0) {
         // upload file
-        if (!(vditor.options.upload.url || vditor.options.upload.handler)) {
+        if (!(editor.options.upload.url || editor.options.upload.handler)) {
           return;
         }
         // NOTE: not work in Safari.
         // maybe the browser considered local filesystem as the same domain as the pasted data
-        uploadFiles(vditor, event.clipboardData.files);
+        uploadFiles(editor, event.clipboardData.files);
         return;
       }
-      insertText(vditor, textPlain, '', true);
+      insertText(editor, textPlain, '', true);
     });
   }
 }

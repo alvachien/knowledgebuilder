@@ -1,13 +1,13 @@
 import { IACMEditor, IACMETurndownRule, IACMETurndown } from './ac-markdown-editor-interfaces';
 
 const rules: { [key: string]: IACMETurndownRule } = {
-  vditorDelete: {
+  editorDelete: {
     filter: ['del', 's', 'strike'],
     replacement: (content: string) => {
       return '~~' + content + '~~';
     },
   },
-  vditorListItem: {
+  editorListItem: {
     filter: 'li',
     replacement: (content: string, node: HTMLInputElement) => {
       content = content
@@ -26,19 +26,19 @@ const rules: { [key: string]: IACMETurndownRule } = {
       );
     },
   },
-  vditorTableCell: {
+  editorTableCell: {
     filter: ['td', 'th'],
     replacement: (content, node) => {
       return genCell(content, node);
     },
   },
-  vditorTableSection: {
+  editorTableSection: {
     filter: ['thead', 'tbody', 'tfoot'],
     replacement: (content) => {
       return content;
     },
   },
-  vditorTaskListItems: {
+  editorTaskListItems: {
     filter: (node: HTMLInputElement) => {
       return node.type === 'checkbox' && node.parentNode.nodeName === 'LI';
     },
@@ -46,7 +46,7 @@ const rules: { [key: string]: IACMETurndownRule } = {
       return (node.checked ? '[x]' : '[ ]') + ' ';
     },
   },
-  vditorTr: {
+  editorTr: {
     filter: 'tr',
     replacement: (content, node) => {
       let thCells = '';

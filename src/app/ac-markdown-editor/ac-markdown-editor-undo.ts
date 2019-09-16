@@ -1,7 +1,9 @@
 import * as diff_match_patch from 'diff-match-patch';
 import { formatRender, getSelectPosition, getText } from './ac-markdown-editor-util';
 import { IACMEditor } from './ac-markdown-editor-interfaces';
+import { classPrefix } from './ac-markdown-editor-constants';
 
+// Undo
 export class ACMEditorUndo {
   private undoStack: Array<{ patchList: diff_match_patch.patch_obj[], end: number }>;
   private redoStack: Array<{ patchList: diff_match_patch.patch_obj[], end: number }>;
@@ -20,30 +22,30 @@ export class ACMEditorUndo {
     this.hasUndo = false;
   }
 
-  public undo(vditor: IACMEditor) {
+  public undo(editor: IACMEditor) {
     const state = this.undoStack.pop();
     if (!state || !state.patchList) {
       return;
     }
     this.redoStack.push(state);
-    this.renderDiff(state, vditor);
+    this.renderDiff(state, editor);
     this.hasUndo = true;
   }
 
-  public redo(vditor: IACMEditor) {
+  public redo(editor: IACMEditor) {
     const state = this.redoStack.pop();
     if (!state || !state.patchList) {
       return;
     }
     this.undoStack.push(state);
-    this.renderDiff(state, vditor, true);
+    this.renderDiff(state, editor, true);
   }
 
-  public addToUndoStack(vditor: IACMEditor) {
-    const text = getText(vditor.editor.element);
-    if (vditor.toolbar.elements.undo) {
-      vditor.toolbar.elements.undo.children[0].className =
-        vditor.toolbar.elements.undo.children[0].className.replace(' vditor-menu--disabled', '');
+  public addToUndoStack(editor: IACMEditor) {
+    const text = getText(editor.editor.element);
+    if (editor.toolbar.elements.undo) {
+      editor.toolbar.elements.undo.children[0].className =
+        editor.toolbar.elements.undo.children[0].className.replace(` ${classPrefix}-menu--disabled`, '');
     }
 
     clearTimeout(this.timeout);
@@ -54,25 +56,25 @@ export class ACMEditorUndo {
         return;
       }
       this.lastText = text;
-      this.undoStack.push({ patchList, end: getSelectPosition(vditor.editor.element).end });
+      this.undoStack.push({ patchList, end: getSelectPosition(editor.editor.element).end });
       if (this.undoStack.length > this.stackSize) {
         this.undoStack.shift();
       }
       if (this.hasUndo) {
         this.redoStack = [];
         this.hasUndo = false;
-        if (vditor.toolbar.elements.redo) {
-          const redoClassName = vditor.toolbar.elements.redo.children[0].className;
-          if (redoClassName.indexOf(' vditor-menu--disabled') === -1) {
-            vditor.toolbar.elements.redo.children[0].className =
-              redoClassName + ' vditor-menu--disabled';
+        if (editor.toolbar.elements.redo) {
+          const redoClassName = editor.toolbar.elements.redo.children[0].className;
+          if (redoClassName.indexOf(` ${classPrefix}-menu--disabled`) === -1) {
+            editor.toolbar.elements.redo.children[0].className =
+              redoClassName + ` ${classPrefix}-menu--disabled`;
           }
         }
       }
     }, 500);
   }
 
-  private renderDiff(state: { patchList: diff_match_patch.patch_obj[], end: number }, vditor: IACMEditor, isRedo: boolean = false) {
+  private renderDiff(state: { patchList: diff_match_patch.patch_obj[], end: number }, editor: IACMEditor, isRedo: boolean = false) {
     let text;
     let positoin;
     if (isRedo) {
@@ -99,27 +101,27 @@ export class ACMEditorUndo {
 
     this.lastText = text;
 
-    formatRender(vditor, text, positoin, false);
+    formatRender(editor, text, positoin, false);
 
-    if (vditor.toolbar.elements.undo) {
-      const undoClassName = vditor.toolbar.elements.undo.children[0].className;
+    if (editor.toolbar.elements.undo) {
+      const undoClassName = editor.toolbar.elements.undo.children[0].className;
       if (this.undoStack.length !== 0) {
-        vditor.toolbar.elements.undo.children[0].className =
-          undoClassName.replace(' vditor-menu--disabled', '');
-      } else if (undoClassName.indexOf(' vditor-menu--disabled') === -1) {
-        vditor.toolbar.elements.undo.children[0].className =
-          undoClassName + ' vditor-menu--disabled';
+        editor.toolbar.elements.undo.children[0].className =
+          undoClassName.replace(` ${classPrefix}-menu--disabled`, '');
+      } else if (undoClassName.indexOf(` ${classPrefix}-menu--disabled`) === -1) {
+        editor.toolbar.elements.undo.children[0].className =
+          undoClassName + ` ${classPrefix}-menu--disabled`;
       }
     }
 
-    if (vditor.toolbar.elements.redo) {
-      const redoClassName = vditor.toolbar.elements.redo.children[0].className;
+    if (editor.toolbar.elements.redo) {
+      const redoClassName = editor.toolbar.elements.redo.children[0].className;
       if (this.redoStack.length !== 0) {
-        vditor.toolbar.elements.redo.children[0].className =
-          redoClassName.replace(' vditor-menu--disabled', '');
-      } else if (redoClassName.indexOf(' vditor-menu--disabled') === -1) {
-        vditor.toolbar.elements.redo.children[0].className =
-          redoClassName + ' vditor-menu--disabled';
+        editor.toolbar.elements.redo.children[0].className =
+          redoClassName.replace(` ${classPrefix}-menu--disabled`, '');
+      } else if (redoClassName.indexOf(` ${classPrefix}-menu--disabled`) === -1) {
+        editor.toolbar.elements.redo.children[0].className =
+          redoClassName + ` ${classPrefix}-menu--disabled`;
       }
     }
   }
