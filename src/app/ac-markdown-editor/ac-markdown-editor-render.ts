@@ -254,7 +254,8 @@ export async function mermaidRender(element: HTMLElement) {
       return;
   }
   import(/* webpackChunkName: 'mermaid' */ 'mermaid').then((mermaid) => {
-     mermaid.default.init({noteMargin: 10}, '.language-mermaid');
+    // mermaid.default.init({noteMargin: 10}, '.language-mermaid');
+    mermaid.default.init('.language-mermaid');
   });
 }
 
