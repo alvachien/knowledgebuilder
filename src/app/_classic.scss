@@ -29,9 +29,9 @@ $font-family-code: mononoki, Consolas, "Liberation Mono", Menlo, Courier, monosp
 
 $transition: all .15s ease-in-out !default;
 
-@import "tooltipped";
-@import "panel";
-@import "toolbar";
-@import "content";
-@import "hint";
-@import "reset";
+@import "./styles/tooltipped";
+@import "./styles/panel";
+@import "./styles/toolbar";
+@import "./styles/content";
+@import "./styles/hint";
+@import "./styles/reset";
