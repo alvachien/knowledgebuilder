@@ -13,15 +13,21 @@ export interface IACMETurndown {
 export interface ILute {
   New(): ILute;
 
-  PutEmojis(emojis: { [key: string]: string }): void;
-
   SetEmojiSite(emojiSite: string): void;
+
+  PutEmojis(emojis: { [key: string]: string }): void;
 
   MarkdownStr(error: string, text: string): string[];
 
   GetEmojis(): { [key: string]: string };
 
   FormatStr(error: string, text: string): string[];
+
+  RenderEChartsJSON(text: string): string[];
+
+  RenderVditorDOM(text: string): string[];
+
+  EditorDOMMarkdown(html: string): string[];
 }
 
 export interface IACMEHTMLInputEvent extends Event {
@@ -89,7 +95,7 @@ export interface IACMEToolbarItem {
 export interface IACMEPreview {
   delay?: number;
   maxWidth?: number;
-  mode?: string; // "both" | "preview" | "editor"
+  mode?: 'both' | 'preview' | 'editor';
   url?: string;
   hljs?: {
     style?: string,
@@ -134,10 +140,11 @@ export interface IACMEOptions {
   width?: number | string;
   placeholder?: string;
   lang?: (keyof IACMEI18nLang);
-  toolbar?: Array<string | IACMEMenuItem>;
+  toolbar?: Array<string | IACMEToolbarItem>;
   resize?: IACMEResize;
   counter?: number;
   cache?: boolean;
+  mode?: 'wysiwyg-show' | 'markdown-show' | 'wysiwyg-only' | 'markdown-only';
   preview?: IACMEPreview;
   hint?: IACMEHint;
   upload?: IACMEUpload;
@@ -164,11 +171,18 @@ export interface IACMEditor {
   options: IACMEOptions;
   originalInnerHTML: string;
   lute: ILute;
+  currentMode: 'markdown' | 'wysiwyg';
+  currentPreviewMode: 'both' | 'preview' | 'editor';
+  devtools?: {
+    element: HTMLDivElement,
+    ASTChart: echarts.ECharts,
+    renderEchart(vditor: IACMEditor): void,
+  };
   toolbar?: {
     elements?: { [key: string]: HTMLElement },
   };
   preview?: {
-    element: HTMLElement
+    element: HTMLElement,
     render(editor: IACMEditor, value?: string): void,
   };
   editor?: {
@@ -176,31 +190,34 @@ export interface IACMEditor {
     range: Range,
   };
   counter?: {
-    element: HTMLElement
+    element: HTMLElement,
     render(length: number, counter: number): void,
   };
   resize?: {
     element: HTMLElement,
   };
   hint?: {
-    timeId: number
-    element: HTMLUListElement
-    fillEmoji(element: HTMLElement): void
-    render(): void,
+    timeId: number,
+    element: HTMLUListElement,
+    fillEmoji(element: HTMLElement, vditor: IACMEditor): void,
+    render(editor: IACMEditor): void,
   };
   tip: {
-    element: HTMLElement
-    show(text: string, time?: number): void
+    element: HTMLElement,
+    show(text: string, time?: number): void,
     hide(): void,
   };
   upload?: {
-    element: HTMLElement
+    element: HTMLElement,
     isUploading: boolean,
   };
   undo: {
-    redo(editor: IACMEditor): void
-    undo(editor: IACMEditor): void
+    redo(editor: IACMEditor): void,
+    undo(editor: IACMEditor): void,
     addToUndoStack(editor: IACMEditor): void,
+  };
+  wysiwyg: {
+    element: HTMLElement,
   };
 }
 

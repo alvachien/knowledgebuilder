@@ -155,7 +155,7 @@ export function mathRenderByLute(element: HTMLElement) {
     try {
       mathElement.innerHTML = katex.renderToString(math, {
         displayMode: mathElement.tagName === 'DIV',
-        output: 'html',
+        // output: 'html',
       });
     } catch (e) {
       mathElement.innerHTML = e.message;

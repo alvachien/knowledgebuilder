@@ -1,6 +1,6 @@
 import { getText } from './ac-markdown-editor-util';
 import { i18n } from './ac-markdown-editor-i18n';
-import { abcRender, chartRender, codeRender, highlightRender, mathRender, md2htmlByEditor, mediaRender, mermaidRender, mathRenderByLute } from './ac-markdown-editor-render';
+import { abcRender, chartRender, codeRender, highlightRender, md2htmlByEditor, mediaRender, mermaidRender, mathRenderByLute } from './ac-markdown-editor-render';
 import { IACMEditor } from './ac-markdown-editor-interfaces';
 import { classPrefix } from './ac-markdown-editor-constants';
 
@@ -48,7 +48,7 @@ export class ACMEditorPreview {
         const xhr = new XMLHttpRequest();
         xhr.open('POST', editor.options.preview.url);
         xhr.setRequestHeader('Content-Type', 'application/json;charset=UTF-8');
-        xhr.onreadystatechange = () => {
+        xhr.onreadystatechange = async () => {
           if (xhr.readyState === XMLHttpRequest.DONE) {
             if (xhr.status === 200) {
               const responseJSON = JSON.parse(xhr.responseText);
@@ -63,10 +63,11 @@ export class ACMEditorPreview {
               this.element.children[0].innerHTML = html;
               this.afterRender(editor, renderStartTime);
             }
-          };
+          }
+        };
 
-          xhr.send(JSON.stringify({markdownText}));
-        }, editor.options.preview.delay);
+        xhr.send(JSON.stringify({markdownText}));
+      }, editor.options.preview.delay);
     } else {
       const html = await md2htmlByEditor(markdownText, editor);
       this.element.children[0].innerHTML = html;

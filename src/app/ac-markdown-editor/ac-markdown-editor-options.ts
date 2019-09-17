@@ -19,12 +19,14 @@ export class ACMEditorOptions {
         // tslint:disable-next-line:object-literal-key-quotes
         'heart': '❤️',
       },
+      emojiPath: `assets/images/emoji`,
     },
     keymap: {
       deleteLine: '⌘-Backspace',
       duplicate: '⌘-d',
     },
     lang: 'zh_CN',
+    mode: 'markdown-only',
     placeholder: '',
     preview: {
       delay: 1000,
@@ -141,6 +143,10 @@ export class ACMEditorOptions {
     }, {
       name: '|',
     }, {
+      hotkey: '⌘-⇧-m',
+      name: 'wysiwyg',
+      tipPosition: 'nw',
+    }, {
       hotkey: '⌘-p',
       name: 'both',
       tipPosition: 'nw',
@@ -157,6 +163,9 @@ export class ACMEditorOptions {
     }, {
       hotkey: '⌘-\'',
       name: 'fullscreen',
+      tipPosition: 'nw',
+    }, {
+      name: 'devtools',
       tipPosition: 'nw',
     }, {
       name: 'info',

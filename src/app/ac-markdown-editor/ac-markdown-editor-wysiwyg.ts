@@ -1,7 +1,8 @@
 import { IACMEditor } from './ac-markdown-editor-interfaces';
 import { codeRender, highlightRender, mathRender, mermaidRender, chartRender, abcRender, mediaRender, } from './ac-markdown-editor-render';
 import { classPrefix } from './ac-markdown-editor-constants';
-import { setSelectionFocus, getSelectText, getParentBlock, getSelectPosition, expandByOffset } from './ac-markdown-editor-util';
+import { setSelectionFocus, getSelectText, getParentBlock, getSelectPosition, expandByOffset, focusEvent,
+  copyEvent, hotkeyEvent, scrollCenter, } from './ac-markdown-editor-util';
 
 export function renderDomByMd(editor: IACMEditor, md: string) {
   const domHTML = editor.lute.RenderVditorDOM(md);
@@ -38,7 +39,7 @@ export class ACMEditorWYSIWYG {
   private setExpand() {
     const range = getSelection().getRangeAt(0);
 
-    const caretRenderElement = this.element.querySelector('[data-caret='RenderVditorDOM']');
+    const caretRenderElement = this.element.querySelector(`[data-caret="RenderVditorDOM"]`);
     if (caretRenderElement) {
       // 渲染后不需要对元素展开
       caretRenderElement.remove();

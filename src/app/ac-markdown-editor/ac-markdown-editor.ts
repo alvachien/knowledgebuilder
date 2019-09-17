@@ -4,7 +4,6 @@ import { formatRender, getSelectText, getText, html2md,
   insertText, setSelectionByPosition, getCursorPosition, } from './ac-markdown-editor-util';
 import { ACMEditorControl } from './ac-markdown-editor-control';
 import { ACMEditorHint } from './ac-markdown-editor-hint';
-import { ACMEditorHotkey } from './ac-markdown-editor-hotkey';
 import { abcRender, chartRender, codeRender, highlightRender, mathRender,
   mediaRender, previewRender, mermaidRender,
   loadLuteJs, md2htmlByPreview, md2htmlByEditor, } from './ac-markdown-editor-render';
@@ -19,6 +18,7 @@ import { ACMEditorOptions } from './ac-markdown-editor-options';
 
 import { classPrefix } from './ac-markdown-editor-constants';
 import { FakedGuid } from 'actslib';
+import { ACMEditorWYSIWYG } from './ac-markdown-editor-wysiwyg';
 
 export class ACMEditor {
 
@@ -29,6 +29,8 @@ export class ACMEditor {
     const mergedOptions = getOptions.merge();
 
     this.editor = {
+      currentMode: mergedOptions.mode.indexOf('wysiwyg') > -1 ? 'wysiwyg' : 'markdown',
+      currentPreviewMode: mergedOptions.preview.mode,
       id: id ? id : FakedGuid.newGuid(),
       host: hostElement,
       lute: undefined,
@@ -37,6 +39,7 @@ export class ACMEditor {
       originalInnerHTML: hostElement.innerHTML,
       tip: new ACMEditorTip(),
       undo: undefined,
+      wysiwyg: undefined,
     };
 
     if (mergedOptions.counter > 0) {
@@ -59,7 +62,7 @@ export class ACMEditor {
     }
 
     loadLuteJs(this.editor).then(() => {
-      if (this.editor.toolbar.elements.preview || this.editor.toolbar.elements.both) {
+      if (this.editor.editor && (this.editor.toolbar.elements.preview || this.editor.toolbar.elements.both)) {
         const preview = new ACMEditorPreview(this.editor);
         this.editor.preview = preview;
       }
@@ -69,13 +72,16 @@ export class ACMEditor {
         this.editor.upload = upload;
       }
 
-      const ui = new ACMEditorUi(this.editor);
+      if (this.editor.options.mode !== 'markdown-only') {
+        this.editor.wysiwyg = new ACMEditorWYSIWYG(this.editor);
+      }
 
       if (this.editor.options.hint.at || this.editor.toolbar.elements.emoji) {
-        const hint = new ACMEditorHint(this.editor);
+        const hint = new ACMEditorHint();
         this.editor.hint = hint;
       }
-      const hotkey = new ACMEditorHotkey(this.editor);
+
+      const ui = new ACMEditorUi(this.editor);
     });
   }
 

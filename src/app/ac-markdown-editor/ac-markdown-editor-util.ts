@@ -1,5 +1,5 @@
 import { gfm } from './ac-markdown-editor-turndown-gfm';
-import { IACMEditor, } from './ac-markdown-editor-interfaces';
+import { IACMEditor, IACMEToolbarItem, } from './ac-markdown-editor-interfaces';
 import { classPrefix } from './ac-markdown-editor-constants';
 import * as turndown from 'turndown';
 
@@ -65,12 +65,12 @@ export function getEventName() {
   }
 }
 
-export function getText(element: HTMLPreElement) {
+export function getText(element: HTMLElement) {
   // last char must be a `\n`.
   return code160to32(`${element.textContent}\n`.replace(/\n\n$/, '\n'));
 }
 
-export function selectIsEditor(editor: HTMLPreElement, range?: Range) {
+export function selectIsEditor(editor: HTMLElement, range?: Range) {
   let isEditor = false;
   if (!range) {
     if (window.getSelection().rangeCount === 0) {
@@ -96,47 +96,47 @@ export function selectIsEditor(editor: HTMLPreElement, range?: Range) {
   return isEditor;
 }
 
-export function getSelectPosition(editorElement: HTMLPreElement, range?: Range) {
+export function getSelectPosition(editorElement: HTMLElement, range?: Range) {
   const position = {
     end: 0,
     start: 0,
   };
 
   if (!range) {
-      if (window.getSelection().rangeCount === 0) {
-          return position;
-      }
-      range = window.getSelection().getRangeAt(0);
+    if (window.getSelection().rangeCount === 0) {
+      return position;
+    }
+    range = window.getSelection().getRangeAt(0);
   }
 
   if (selectIsEditor(editorElement, range)) {
-      const preSelectionRange = range.cloneRange();
-      if (editorElement.childNodes[0] && editorElement.childNodes[0].childNodes[0]) {
-          preSelectionRange.setStart(editorElement.childNodes[0].childNodes[0], 0);
-      } else {
-          preSelectionRange.selectNodeContents(editorElement);
-      }
-      if (range.startContainer.childNodes.length === 1 && range.startContainer.textContent.trim() === "") {
-          preSelectionRange.setEnd(editorElement.childNodes[0].childNodes[0], 0);
-      } else {
-          preSelectionRange.setEnd(range.startContainer, range.startOffset);
-      }
-      position.start = preSelectionRange.toString().length;
-      position.end = position.start + range.toString().length;
+    const preSelectionRange = range.cloneRange();
+    if (editorElement.childNodes[0] && editorElement.childNodes[0].childNodes[0]) {
+      preSelectionRange.setStart(editorElement.childNodes[0].childNodes[0], 0);
+    } else {
+      preSelectionRange.selectNodeContents(editorElement);
+    }
+    if (range.startContainer.childNodes.length === 1 && range.startContainer.textContent.trim() === '') {
+      preSelectionRange.setEnd(editorElement.childNodes[0].childNodes[0], 0);
+    } else {
+      preSelectionRange.setEnd(range.startContainer, range.startOffset);
+    }
+    position.start = preSelectionRange.toString().length;
+    position.end = position.start + range.toString().length;
   }
   return position;
 }
 
-export function getSelectText(editor: HTMLPreElement, range?: Range) {
+export function getSelectText(editor: HTMLElement, range?: Range) {
   if (!range) {
     if (window.getSelection().rangeCount === 0) {
-        return '';
+      return '';
     } else {
-        range = window.getSelection().getRangeAt(0);
+      range = window.getSelection().getRangeAt(0);
     }
   }
   if (selectIsEditor(editor, range)) {
-      return window.getSelection().toString();
+    return window.getSelection().toString();
   }
   return '';
 }
@@ -233,7 +233,7 @@ export function inputEvent(editor: IACMEditor, addUndo: boolean = true) {
     editor.options.input(getText(editor.editor.element), editor.preview && editor.preview.element);
   }
   if (editor.hint) {
-    editor.hint.render();
+    editor.hint.render(editor);
   }
   if (editor.options.cache) {
     localStorage.setItem(`editor${editor.id}`, getText(editor.editor.element));
@@ -342,26 +342,26 @@ export function getCursorPosition(editor: HTMLElement) {
   const startNode = range.startContainer.childNodes[range.startOffset] as HTMLElement;
   let cursorRect;
   if (startNode) {
-      if (startNode.nodeType === 3 && startNode.textContent === "") {
-          cursorRect = startNode.nextElementSibling.getClientRects()[0];
-      } else if (startNode.getClientRects) {
-          cursorRect = startNode.getClientRects()[0];
-      }
+    if (startNode.nodeType === 3 && startNode.textContent === '') {
+      cursorRect = startNode.nextElementSibling.getClientRects()[0];
+    } else if (startNode.getClientRects) {
+      cursorRect = startNode.getClientRects()[0];
+    }
   } else {
-      const startOffset = range.startOffset;
-      // fix Safari
-      if (isSafari()) {
-          range.setStart(range.startContainer, startOffset - 1);
-      }
-      cursorRect = range.getBoundingClientRect();
-      // fix Safari
-      if (isSafari()) {
-          range.setStart(range.startContainer, startOffset);
-      }
+    const startOffset = range.startOffset;
+    // fix Safari
+    if (isSafari()) {
+      range.setStart(range.startContainer, startOffset - 1);
+    }
+    cursorRect = range.getBoundingClientRect();
+    // fix Safari
+    if (isSafari()) {
+      range.setStart(range.startContainer, startOffset);
+    }
   }
   return {
-      left: cursorRect.left - parentRect.left,
-      top: cursorRect.top - parentRect.top,
+    left: cursorRect.left - parentRect.left,
+    top: cursorRect.top - parentRect.top,
   };
 }
 
@@ -369,7 +369,7 @@ export async function html2md(editor: IACMEditor, textHTML: string, textPlain?: 
   // process word
   const doc = new DOMParser().parseFromString(textHTML, 'text/html');
   if (doc.body) {
-      textHTML = doc.body.innerHTML;
+    textHTML = doc.body.innerHTML;
   }
 
   // no escape
@@ -378,48 +378,48 @@ export async function html2md(editor: IACMEditor, textHTML: string, textPlain?: 
   // };
 
   const turndownService = new turndown({
-      blankReplacement: (blank: string) => {
-          return blank;
-      },
-      codeBlockStyle: 'fenced',
-      emDelimiter: '*',
-      headingStyle: 'atx',
-      hr: '---',
+    blankReplacement: (blank: string) => {
+      return blank;
+    },
+    codeBlockStyle: 'fenced',
+    emDelimiter: '*',
+    headingStyle: 'atx',
+    hr: '---',
   });
 
   turndownService.addRule('editorImage', {
-      filter: 'img',
-      replacement: (content: string, target: HTMLElement) => {
-          const src = target.getAttribute('src');
-          if (!src || src.indexOf('file://') === 0) {
-              return '';
+    filter: 'img',
+    replacement: (content: string, target: HTMLElement) => {
+      const src = target.getAttribute('src');
+      if (!src || src.indexOf('file://') === 0) {
+        return '';
+      }
+      // 直接使用 API 或 setOriginal 时不需要对图片进行服务器上传，直接转换。
+      // 目前使用 textPlain 判断是否来自 API 或 setOriginal
+      if (editor.options.upload.linkToImgUrl && textPlain) {
+        const xhr = new XMLHttpRequest();
+        xhr.open('POST', editor.options.upload.linkToImgUrl);
+        xhr.onreadystatechange = () => {
+          if (xhr.readyState === XMLHttpRequest.DONE) {
+            const responseJSON = JSON.parse(xhr.responseText);
+            if (xhr.status === 200) {
+              if (responseJSON.code !== 0) {
+                alert(responseJSON.msg);
+                return;
+              }
+              const original = responseJSON.data.originalURL;
+              setSelectionByInlineText(original, editor.editor.element.childNodes);
+              insertText(editor, responseJSON.data.url, '', true);
+            } else {
+              editor.tip.show(responseJSON.msg);
+            }
           }
-          // 直接使用 API 或 setOriginal 时不需要对图片进行服务器上传，直接转换。
-          // 目前使用 textPlain 判断是否来自 API 或 setOriginal
-          if (editor.options.upload.linkToImgUrl && textPlain) {
-              const xhr = new XMLHttpRequest();
-              xhr.open('POST', editor.options.upload.linkToImgUrl);
-              xhr.onreadystatechange = () => {
-                  if (xhr.readyState === XMLHttpRequest.DONE) {
-                      const responseJSON = JSON.parse(xhr.responseText);
-                      if (xhr.status === 200) {
-                          if (responseJSON.code !== 0) {
-                              alert(responseJSON.msg);
-                              return;
-                          }
-                          const original = responseJSON.data.originalURL;
-                          setSelectionByInlineText(original, editor.editor.element.childNodes);
-                          insertText(editor, responseJSON.data.url, '', true);
-                      } else {
-                        editor.tip.show(responseJSON.msg);
-                      }
-                  }
-              };
-              xhr.send(JSON.stringify({url: src}));
-          }
+        };
+        xhr.send(JSON.stringify({ url: src }));
+      }
 
-          return `![${target.getAttribute('alt')}](${src})`;
-      },
+      return `![${target.getAttribute('alt')}](${src})`;
+    },
   });
 
   turndownService.use(gfm as any);
@@ -431,20 +431,20 @@ export async function html2md(editor: IACMEditor, textHTML: string, textPlain?: 
   tempElement.innerHTML = textHTML;
   let isCode = false;
   if (tempElement.childElementCount === 1 &&
-      (tempElement.lastElementChild as HTMLElement).style.fontFamily.indexOf('monospace') > -1) {
-      // VS Code
-      isCode = true;
+    (tempElement.lastElementChild as HTMLElement).style.fontFamily.indexOf('monospace') > -1) {
+    // VS Code
+    isCode = true;
   }
   const pres = tempElement.querySelectorAll('pre');
   if (tempElement.childElementCount === 1 && pres.length === 1 && pres[0].className !== `${classPrefix}-textarea`) {
-      // IDE
-      isCode = true;
+    // IDE
+    isCode = true;
   }
 
   if (isCode) {
-      return '```\n' + (textPlain || textHTML) + '\n```';
+    return '```\n' + (textPlain || textHTML) + '\n```';
   } else {
-      return markdownStr;
+    return markdownStr;
   }
 }
 
@@ -641,4 +641,252 @@ export function getParentBlock(elment: HTMLElement) {
     block = block.parentElement;
   }
   return block;
+}
+
+export function getContent(editor: IACMEditor, editorElement: HTMLElement) {
+  if (editor.currentMode === 'wysiwyg') {
+    return editorElement.textContent;
+  } else {
+    return getText(editorElement);
+  }
+}
+
+export function focusEvent(editor: IACMEditor, editorElement: HTMLElement) {
+  editorElement.addEventListener('focus', () => {
+    if (editor.options.focus) {
+      editor.options.focus(getContent(editor, editorElement));
+    }
+    if (editor.toolbar.elements.emoji && editor.toolbar.elements.emoji.children[1]) {
+      const emojiPanel = editor.toolbar.elements.emoji.children[1] as HTMLElement;
+      emojiPanel.style.display = 'none';
+    }
+    if (editor.toolbar.elements.headings && editor.toolbar.elements.headings.children[1]) {
+      const headingsPanel = editor.toolbar.elements.headings.children[1] as HTMLElement;
+      headingsPanel.style.display = 'none';
+    }
+  });
+}
+
+export function copyEvent(editorElement: HTMLElement) {
+  editorElement.addEventListener('copy', async (event: ClipboardEvent) => {
+    event.stopPropagation();
+    event.preventDefault();
+    event.clipboardData.setData('text/plain', getSelectText(editorElement));
+  });
+}
+
+export function scrollCenter(editorElement: HTMLElement) {
+  const cursorTop = getCursorPosition(editorElement).top;
+  const center = editorElement.clientHeight / 2;
+  if (cursorTop > center) {
+    editorElement.scrollTop = editorElement.scrollTop + (cursorTop - center);
+  }
+}
+
+export function hotkeyEvent(editor: IACMEditor, editorElement: HTMLElement) {
+  const processKeymap = (hotkey: string, event: KeyboardEvent, action: () => void) => {
+    const hotkeys = hotkey.split('-');
+    const hasShift = hotkeys.length === 3 && (hotkeys[1] === 'shift' || hotkeys[1] === '⇧');
+    const key = hasShift ? hotkeys[2] : hotkeys[1];
+    if ((hotkeys[0] === 'ctrl' || hotkeys[0] === '⌘') && (event.metaKey || event.ctrlKey)
+      && event.key.toLowerCase() === key.toLowerCase()) {
+      if ((!hasShift && !event.shiftKey) || (hasShift && event.shiftKey)) {
+        action();
+        event.preventDefault();
+        event.stopPropagation();
+      }
+    }
+  };
+
+  const hint = (event: KeyboardEvent, hintElement: HTMLElement) => {
+    if (!hintElement) {
+      return;
+    }
+
+    if (hintElement.querySelectorAll('li').length === 0 ||
+      hintElement.style.display === 'none') {
+      return;
+    }
+
+    const currentHintElement: HTMLElement = hintElement.querySelector(`.${classPrefix}-hint--current`);
+
+    if (event.key === 'ArrowDown') {
+      event.preventDefault();
+      event.stopPropagation();
+      if (!currentHintElement.nextElementSibling) {
+        hintElement.children[0].className = `${classPrefix}-hint--current`;
+      } else {
+        currentHintElement.nextElementSibling.className = `${classPrefix}-hint--current`;
+      }
+      currentHintElement.removeAttribute('class');
+    } else if (event.key === 'ArrowUp') {
+      event.preventDefault();
+      event.stopPropagation();
+      if (!currentHintElement.previousElementSibling) {
+        const length = hintElement.children.length;
+        hintElement.children[length - 1].className = `${classPrefix}-hint--current`;
+      } else {
+        currentHintElement.previousElementSibling.className = `${classPrefix}-hint--current`;
+      }
+      currentHintElement.removeAttribute('class');
+    } else if (event.key === 'Enter') {
+      event.preventDefault();
+      event.stopPropagation();
+      editor.hint.fillEmoji(currentHintElement, editor);
+    }
+  };
+
+  editorElement.addEventListener('keydown', (event: KeyboardEvent) => {
+    const hintElement = editor.hint && editor.hint.element;
+
+    if ((event.metaKey || event.ctrlKey) && editor.options.ctrlEnter && event.key === 'Enter') {
+      editor.options.ctrlEnter(getContent(editor, editorElement));
+      return;
+    }
+
+    if (event.key === 'Escape') {
+      if (editor.options.esc) {
+        editor.options.esc(getContent(editor, editorElement));
+      }
+      if (hintElement && hintElement.style.display === 'block') {
+        hintElement.style.display = 'none';
+      }
+      return;
+    }
+
+    // TODO: WYSIWYG
+    if (editor.currentMode === 'markdown') {
+      if (editor.options.tab && event.key === 'Tab') {
+        event.preventDefault();
+        event.stopPropagation();
+
+        const position = getSelectPosition(editorElement);
+        const text = getText(editorElement);
+        const selectLinePosition = getCurrentLinePosition(position, text);
+        const selectLineList = text.substring(selectLinePosition.start, selectLinePosition.end - 1).split('\n');
+
+        if (event.shiftKey) {
+          let shiftCount = 0;
+          let startIsShift = false;
+          const selectionShiftResult = selectLineList.map((value, index) => {
+            let shiftLineValue = value;
+            if (value.indexOf(editor.options.tab) === 0) {
+              if (index === 0) {
+                startIsShift = true;
+              }
+              shiftCount++;
+              shiftLineValue = value.replace(editor.options.tab, '');
+            }
+            return shiftLineValue;
+          }).join('\n');
+
+          formatRender(editor, text.substring(0, selectLinePosition.start) +
+            selectionShiftResult + text.substring(selectLinePosition.end - 1),
+            {
+              end: position.end - shiftCount * editor.options.tab.length,
+              start: position.start - (startIsShift ? editor.options.tab.length : 0),
+            });
+          return;
+        }
+
+        if (position.start === position.end) {
+          insertText(editor, editor.options.tab, '');
+          return;
+        }
+        const selectionResult = selectLineList.map((value) => {
+          return editor.options.tab + value;
+        }).join('\n');
+        formatRender(editor, text.substring(0, selectLinePosition.start) + selectionResult +
+          text.substring(selectLinePosition.end - 1),
+          {
+            end: position.end + selectLineList.length * editor.options.tab.length,
+            start: position.start + editor.options.tab.length,
+          });
+        return;
+      }
+
+      if (!event.metaKey && !event.ctrlKey && !event.shiftKey && event.keyCode === 8) {
+        const position = getSelectPosition(editorElement);
+        if (position.start !== position.end) {
+          insertText(editor, '', '', true);
+        } else {
+          const text = getText(editorElement);
+          const emojiMatch = text.substring(0, position.start).match(/([\u{1F300}-\u{1F5FF}][\u{2000}-\u{206F}][\u{2700}-\u{27BF}]|([\u{1F900}-\u{1F9FF}]|[\u{1F300}-\u{1F5FF}]|[\u{1F680}-\u{1F6FF}]|[\u{1F600}-\u{1F64F}])[\u{2000}-\u{206F}][\u{2600}-\u{26FF}]|[\u{1F300}-\u{1F5FF}]|[\u{1F100}-\u{1F1FF}]|[\u{1F600}-\u{1F64F}]|[\u{1F680}-\u{1F6FF}]|[\u{1F200}-\u{1F2FF}]|[\u{1F900}-\u{1F9FF}]|[\u{1F000}-\u{1F02F}]|[\u{FE00}-\u{FE0F}]|[\u{1F0A0}-\u{1F0FF}]|[\u{0000}-\u{007F}][\u{20D0}-\u{20FF}]|[\u{0000}-\u{007F}][\u{FE00}-\u{FE0F}][\u{20D0}-\u{20FF}])$/u);
+          const deleteChar = emojiMatch ? emojiMatch[0].length : 1;
+          formatRender(editor,
+            text.substring(0, position.start - deleteChar) + text.substring(position.start),
+            {
+              end: position.start - deleteChar,
+              start: position.start - deleteChar,
+            });
+        }
+        event.preventDefault();
+        event.stopPropagation();
+        return;
+      }
+
+      // editor actions
+      if (editor.options.keymap.deleteLine) {
+        processKeymap(editor.options.keymap.deleteLine, event, () => {
+          const position = getSelectPosition(editorElement);
+          const text = getText(editorElement);
+          const linePosition = getCurrentLinePosition(position, text);
+          const deletedText = text.substring(0, linePosition.start) + text.substring(linePosition.end);
+          const startIndex = Math.min(deletedText.length, position.start);
+          formatRender(editor, deletedText, {
+            end: startIndex,
+            start: startIndex,
+          });
+        });
+      }
+
+      if (editor.options.keymap.duplicate) {
+        processKeymap(editor.options.keymap.duplicate, event, () => {
+          const position = getSelectPosition(editorElement);
+          const text = getText(editorElement);
+          let lineText = text.substring(position.start, position.end);
+          if (position.start === position.end) {
+            const linePosition = getCurrentLinePosition(position, text);
+            lineText = text.substring(linePosition.start, linePosition.end);
+            formatRender(editor,
+              text.substring(0, linePosition.end) + lineText + text.substring(linePosition.end),
+              {
+                end: position.end + lineText.length,
+                start: position.start + lineText.length,
+              });
+          } else {
+            formatRender(editor,
+              text.substring(0, position.end) + lineText + text.substring(position.end),
+              {
+                end: position.end + lineText.length,
+                start: position.start + lineText.length,
+              });
+          }
+        });
+      }
+
+      // toolbar action
+      editor.options.toolbar.forEach((menuItem: IACMEToolbarItem) => {
+        if (!menuItem.hotkey) {
+          return;
+        }
+        processKeymap(menuItem.hotkey, event, () => {
+          (editor.toolbar.elements[menuItem.name].children[0] as HTMLElement).click();
+        });
+      });
+      if (!editor.toolbar.elements.undo && (event.metaKey || event.ctrlKey) && event.key === 'z') {
+        editor.undo.undo(editor);
+        event.preventDefault();
+      }
+      if (!editor.toolbar.elements.redo && (event.metaKey || event.ctrlKey) && event.key === 'y') {
+        editor.undo.redo(editor);
+        event.preventDefault();
+      }
+    }
+
+    // hint: 上下选择
+    if (editor.options.hint.at || editor.toolbar.elements.emoji) {
+      hint(event, hintElement);
+    }
+  });
 }
