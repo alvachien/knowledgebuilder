@@ -23,6 +23,7 @@
     "@angular/platform-browser-dynamic": "^8.2.5",
     "@angular/router": "^8.2.5",
     "abcjs": "^5.8.1",
+    "actslib": "^0.4.4",
     "diff-match-patch": "^1.0.4",
     "echarts": "^4.2.1",
     "font-awesome": "^4.7.0",

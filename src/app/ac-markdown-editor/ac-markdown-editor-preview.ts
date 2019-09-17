@@ -1,6 +1,6 @@
 import { getText } from './ac-markdown-editor-util';
 import { i18n } from './ac-markdown-editor-i18n';
-import { abcRender, chartRender, codeRender, highlightRender, mathRender, md2htmlByEditor, mediaRender, mermaidRender } from './ac-markdown-editor-render';
+import { abcRender, chartRender, codeRender, highlightRender, mathRender, md2htmlByEditor, mediaRender, mermaidRender, mathRenderByLute } from './ac-markdown-editor-render';
 import { IACMEditor } from './ac-markdown-editor-interfaces';
 import { classPrefix } from './ac-markdown-editor-constants';
 
@@ -15,6 +15,9 @@ export class ACMEditorPreview {
     const previewElement = document.createElement('div');
     previewElement.className = editor.options.classes.preview ? editor.options.classes.preview : classPrefix + '-reset';
     previewElement.style.maxWidth = editor.options.preview.maxWidth + 'px';
+    if (editor.currentMode === 'wysiwyg' || editor.currentPreviewMode === 'editor') {
+      this.element.style.display = 'none';
+    }
     this.element.appendChild(previewElement);
     this.render(editor);
   }
@@ -39,6 +42,7 @@ export class ACMEditorPreview {
 
     clearTimeout(this.mdTimeoutId);
     const renderStartTime = new Date().getTime();
+    const markdownText = getText(editor.editor.element);
     if (editor.options.preview.url) {
       this.mdTimeoutId = window.setTimeout(async () => {
         const xhr = new XMLHttpRequest();
@@ -54,16 +58,17 @@ export class ACMEditorPreview {
               }
               this.element.children[0].innerHTML = responseJSON.data;
               this.afterRender(editor, renderStartTime);
+            } else {
+              const html = await md2htmlByEditor(markdownText, editor);
+              this.element.children[0].innerHTML = html;
+              this.afterRender(editor, renderStartTime);
             }
-          }
-        };
+          };
 
-        xhr.send(JSON.stringify({
-          markdownText: getText(editor.editor.element),
-        }));
-      }, editor.options.preview.delay);
+          xhr.send(JSON.stringify({markdownText}));
+        }, editor.options.preview.delay);
     } else {
-      const html = await md2htmlByEditor(getText(editor.editor.element), editor);
+      const html = await md2htmlByEditor(markdownText, editor);
       this.element.children[0].innerHTML = html;
       this.afterRender(editor, renderStartTime);
     }
@@ -85,7 +90,7 @@ export class ACMEditorPreview {
     codeRender(editor.preview.element.children[0] as HTMLElement, editor.options.lang);
     highlightRender(editor.options.preview.hljs.style, editor.options.preview.hljs.enable,
       editor.preview.element.children[0] as HTMLElement);
-    mathRender(editor.preview.element.children[0] as HTMLElement, editor.options.lang);
+    mathRenderByLute(editor.preview.element.children[0] as HTMLElement);
     mermaidRender(editor.preview.element.children[0] as HTMLElement);
     chartRender(editor.preview.element.children[0] as HTMLElement);
     abcRender(editor.preview.element.children[0] as HTMLElement);

@@ -17,15 +17,15 @@ export class AcMarkdownEditorComponent implements OnInit {
     this.editor = new ACMEditor(this.elemEditor.nativeElement, {
       counter: 100,
       height: 300,
-      hint: {
-        emojiPath: 'assets/images/emoji',
-        emoji: {
-          // tslint:disable-next-line:object-literal-key-quotes
-          'sd': '💔',
-          // tslint:disable-next-line:object-literal-key-quotes
-          'j': 'j',
-        },
-      },
+      // hint: {
+      //   emojiPath: 'assets/images/emoji',
+      //   emoji: {
+      //     // tslint:disable-next-line:object-literal-key-quotes
+      //     'sd': '💔',
+      //     // tslint:disable-next-line:object-literal-key-quotes
+      //     'j': 'j',
+      //   },
+      // },
       tab: '\t',
       upload: {
         accept: 'image/*,.wav',

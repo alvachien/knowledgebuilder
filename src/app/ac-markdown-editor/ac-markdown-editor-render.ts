@@ -92,7 +92,7 @@ export async function highlightRender(hljsStyle: string, enableHighlight: boolea
     'school-book', 'shades-of-purple', 'solarized-dark', 'solarized-light', 'sunburst', 'tomorrow-night',
     'tomorrow-night-blue', 'tomorrow-night-bright', 'tomorrow-night-eighties', 'vs', 'vs2015', 'xcode', 'xt256'];
 
-  const codes = element.querySelectorAll(`.${classPrefix}-reset pre code`);
+  const codes = element.querySelectorAll(`pre > code`);
   if (codes.length === 0) {
     return;
   }
@@ -102,7 +102,7 @@ export async function highlightRender(hljsStyle: string, enableHighlight: boolea
   }
 
 
-  element.querySelectorAll(`.${classPrefix}-reset pre code`).forEach((block) => {
+  element.querySelectorAll(`pre > code`).forEach((block) => {
     if (block.className.indexOf('language-mermaid') > -1 ||
       block.className.indexOf('language-abc') > -1 ||
       block.className.indexOf('language-echarts') > -1) {
@@ -113,10 +113,10 @@ export async function highlightRender(hljsStyle: string, enableHighlight: boolea
   });
 }
 
-export async function mathRender(element: HTMLElement, lang: (keyof IACMEI18nLang) = 'zh_CN') {
+export async function mathRender(element: HTMLElement) {
   const text = code160to32(element.innerText);
   if (text.split('$').length > 2 || (text.split('\\(').length > 1 && text.split('\\)').length > 1)) {
-      addStyle(`assets/styles/katex/katex.min.css`, 'editorKatexStyle');
+      addStyle(`assets/styles/katex/katex.min.css`, `${classPrefix}KatexStyle`);
       katex_auto_render.default(element, {
         delimiters: [
             {left: '$$', right: '$$', display: true},
@@ -124,21 +124,51 @@ export async function mathRender(element: HTMLElement, lang: (keyof IACMEI18nLan
             {left: '$', right: '$', display: false},
         ],
       });
-      element.querySelectorAll('.katex-html').forEach((e: HTMLElement, index: number) => {
-        if (e.querySelector(`.${classPrefix}-copy`)) {
-            return;
-        }
-        const copyHTML = `<div class='${classPrefix}-copy' style='position: absolute'>
-          <textarea>${e.previousElementSibling.querySelector('annotation').textContent}</textarea>
-          <span aria-label='${i18n[lang].copy}' style='top: 2px;right: -20px'
-          onmouseover='this.setAttribute('aria-label', '${i18n[lang].copy}')' class='${classPrefix}-tooltipped ${classPrefix}-tooltipped__w'
-          onclick='this.previousElementSibling.select();document.execCommand('copy');` +
-            `this.setAttribute('aria-label', '${i18n[lang].copied}')'><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" width="32px" height="32px">
-            <path d="M28.681 11.159c-0.694-0.947-1.662-2.053-2.724-3.116s-2.169-2.030-3.116-2.724c-1.612-1.182-2.393-1.319-2.841-1.319h-11.5c-1.379 0-2.5 1.121-2.5 2.5v23c0 1.378 1.121 2.5 2.5 2.5h19c1.378 0 2.5-1.122 2.5-2.5v-15.5c0-0.448-0.137-1.23-1.319-2.841zM24.543 9.457c0.959 0.959 1.712 1.825 2.268 2.543h-4.811v-4.811c0.718 0.556 1.584 1.309 2.543 2.268v0zM28 29.5c0 0.271-0.229 0.5-0.5 0.5h-19c-0.271 0-0.5-0.229-0.5-0.5v-23c0-0.271 0.229-0.5 0.5-0.5 0 0 11.499-0 11.5 0v7c0 0.552 0.448 1 1 1h7v15.5zM18.841 1.319c-1.612-1.182-2.393-1.319-2.841-1.319h-11.5c-1.378 0-2.5 1.121-2.5 2.5v23c0 1.207 0.86 2.217 2 2.45v-25.45c0-0.271 0.229-0.5 0.5-0.5h15.215c-0.301-0.248-0.595-0.477-0.873-0.681z"></path>
-        </svg></span></div>`;
-        e.insertAdjacentHTML('beforeend', copyHTML);
+
+      element.querySelectorAll('.katex').forEach((mathElement: HTMLElement) => {
+        mathElement.addEventListener('copy', (event: ClipboardEvent) => {
+          event.stopPropagation();
+          event.preventDefault();
+          event.clipboardData.setData('text/plain',
+              (event.currentTarget as HTMLElement).closest('.katex').
+              querySelector('annotation').textContent);
+        });
     });
   }
+}
+
+export function mathRenderByLute(element: HTMLElement) {
+  const mathElements = element.querySelectorAll(`.${classPrefix}-math`);
+
+  if (mathElements.length === 0) {
+      return;
+  }
+
+  addStyle(`assets/styles/katex/katex.min.css`, `${classPrefix}KatexStyle`);
+  mathElements.forEach((mathElement) => {
+    if (mathElement.getAttribute('data-math')) {
+      return;
+    }
+
+    const math = code160to32(mathElement.textContent);
+    mathElement.setAttribute('data-math', math);
+    try {
+      mathElement.innerHTML = katex.renderToString(math, {
+        displayMode: mathElement.tagName === 'DIV',
+        output: 'html',
+      });
+    } catch (e) {
+      mathElement.innerHTML = e.message;
+      mathElement.className = `${classPrefix}-math ${classPrefix}--error`;
+    }
+
+    mathElement.addEventListener('copy', (event: ClipboardEvent) => {
+      event.stopPropagation();
+      event.preventDefault();
+      event.clipboardData.setData('text/plain',
+            (event.currentTarget as HTMLElement).closest(`.${classPrefix}-math`).getAttribute('data-math'));
+    });
+  });
 }
 
 export function loadLuteJs(editor?: IACMEditor) {
@@ -175,12 +205,12 @@ export async function md2htmlByPreview(mdText: string, options?: IACMEPreviewOpt
   lute.SetEmojiSite(options.emojiPath);
   const md = await lute.MarkdownStr('', mdText);
 
-  return md[1] || md[0];
+  return md[0] || md[1];
 }
 
 export async function md2htmlByEditor(mdText: string, editor: IACMEditor) {
   const md = await editor.lute.MarkdownStr('', mdText);
-  return md[1] || md[0];
+  return md[0] || md[1];
 }
 
 export function videoRender(element: HTMLElement, url: string) {
@@ -255,7 +285,7 @@ export async function mermaidRender(element: HTMLElement) {
 export async function previewRender(element: HTMLTextAreaElement, options?: IACMEPreviewOptions) {
   const defaultOption = {
       customEmoji: {},
-      emojiPath: `./assets/images/emoji`,
+      emojiPath: `assets/images/emoji`,
       enableHighlight: true,
       hljsStyle: 'atom-one-light',
       lang: 'zh_CN',
@@ -273,7 +303,7 @@ export async function previewRender(element: HTMLTextAreaElement, options?: IACM
   element.remove();
   codeRender(divElement, options.lang);
   highlightRender(options.hljsStyle, options.enableHighlight, divElement);
-  mathRender(divElement, options.lang);
+  mathRenderByLute(divElement);
   mermaidRender(divElement);
   chartRender(divElement);
   abcRender(divElement);

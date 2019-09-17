@@ -16,28 +16,20 @@ import { ACMEditorUi } from './ac-markdown-editor-ui';
 import { ACMEditorUndo } from './ac-markdown-editor-undo';
 import { ACMEditorUpload } from './ac-markdown-editor-upload';
 import { ACMEditorOptions } from './ac-markdown-editor-options';
+
 import { classPrefix } from './ac-markdown-editor-constants';
+import { FakedGuid } from 'actslib';
 
 export class ACMEditor {
 
-  public static codeRender = codeRender;
-  public static highlightRender = highlightRender;
-  public static mathRender = mathRender;
-  public static mermaidRender = mermaidRender;
-  public static chartRender = chartRender;
-  public static abcRender = abcRender;
-  public static mediaRender = mediaRender;
-  public static md2html = md2htmlByPreview;
-  public static preview = previewRender;
-  public readonly version: string;
   public editor: IACMEditor;
 
-  constructor(hostElement: HTMLElement, options?: IACMEOptions) {
+  constructor(hostElement: HTMLElement, options?: IACMEOptions, id?: string) {
     const getOptions = new ACMEditorOptions(options);
     const mergedOptions = getOptions.merge();
 
     this.editor = {
-      // id,
+      id: id ? id : FakedGuid.newGuid(),
       host: hostElement,
       lute: undefined,
       options: mergedOptions,
@@ -132,7 +124,7 @@ export class ACMEditor {
   }
 
   public clearCache() {
-    localStorage.removeItem('editor' + this.editor.host.id);
+    localStorage.removeItem('editor' + this.editor.id);
   }
 
   public disabledCache() {
@@ -234,8 +226,7 @@ export class ACMEditor {
       start: value.length,
     });
     if (!value) {
-      // localStorage.removeItem('editor' + this.editor.id);
-      localStorage.removeItem('editor' + this.editor.host.id);
+      localStorage.removeItem('editor' + this.editor.id);
     }
   }
 }

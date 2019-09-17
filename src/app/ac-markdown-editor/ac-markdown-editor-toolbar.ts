@@ -43,7 +43,6 @@ export abstract class ACMEditorToolbarItem {
 export class ACMEditorToolbarBold extends ACMEditorToolbarItem {
   constructor(editor: IACMEditor, menuItem: IACMEToolbarItem) {
     super(editor, menuItem);
-    // this.element.children[0].innerHTML = menuItem.icon || boldSVG;
     if (menuItem.icon) {
       this.element.children[0].innerHTML = menuItem.icon;
     } else {
@@ -52,10 +51,6 @@ export class ACMEditorToolbarBold extends ACMEditorToolbarItem {
       </svg>`;
     }
 
-    this.bindEvent();
-  }
-
-  public bindEvent() {
     super.bindEvent();
   }
 }
@@ -63,6 +58,14 @@ export class ACMEditorToolbarBold extends ACMEditorToolbarItem {
 export class ACMEditorToolbarBoth extends ACMEditorToolbarItem {
   constructor(editor: IACMEditor, menuItem: IACMEToolbarItem) {
     super(editor, menuItem);
+    const hasWYSIWYG = editor.options.toolbar.find((item: IACMEToolbarItem) => {
+      if (item.name === 'wysiwyg') {
+          return true;
+      }
+    });
+    if (editor.currentMode === 'wysiwyg' && hasWYSIWYG) {
+      this.element.style.display = 'none';
+    }
     this.element.children[0].innerHTML = menuItem.icon
       || `<svg version="1.1" xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32">
       <path d="M11.429 6.095h-9.905c-0.842 0-1.524 0.682-1.524 1.524v1.524c0 0.841 0.682 1.524 1.524 1.524h9.905c0.841 0 1.524-0.682 1.524-1.524v-1.524c0-0.842-0.682-1.524-1.524-1.524zM11.429 13.714h-9.905c-0.842 0-1.524 0.682-1.524 1.524v1.524c0 0.841 0.682 1.524 1.524 1.524h9.905c0.841 0 1.524-0.682 1.524-1.524v-1.524c0-0.841-0.682-1.524-1.524-1.524zM11.429 21.333h-9.905c-0.842 0-1.524 0.682-1.524 1.524v1.524c0 0.841 0.682 1.524 1.524 1.524h9.905c0.841 0 1.524-0.682 1.524-1.524v-1.524c0-0.841-0.682-1.524-1.524-1.524zM30.476 6.095h-12.952c-0.841 0-1.524 0.682-1.524 1.524v16.762c0 0.841 0.682 1.524 1.524 1.524h12.952c0.841 0 1.524-0.682 1.524-1.524v-16.762c0-0.841-0.682-1.524-1.524-1.524z"></path>
@@ -76,29 +79,28 @@ export class ACMEditorToolbarBoth extends ACMEditorToolbarItem {
 
   public _bindEvent(editor: IACMEditor, menuItem: IACMEToolbarItem) {
     this.element.children[0].addEventListener(getEventName(), function() {
-      // const editorElement = document.getElementById(editor.id);
-      const editorElement = editor.host;
-      let className;
-      if (editor.preview.element.className === `${classPrefix}-preview ${classPrefix}-preview--both`) {
-        editor.preview.element.className = `${classPrefix}-preview ${classPrefix}-preview--editor`;
-        className = `${classPrefix}-tooltipped ${classPrefix}-tooltipped__${menuItem.tipPosition}`;
+      editor.editor.element.style.display = 'block';
+      if (editor.currentPreviewMode === 'both') {
+        editor.preview.element.style.display = 'none';
+          this.className =  this.className.replace(` ${classPrefix}-menu--current`, "");
+          editor.currentPreviewMode = 'editor';
       } else {
-        editor.preview.element.className = `${classPrefix}-preview ${classPrefix}-preview--both`;
-        className = `${classPrefix}-tooltipped ${classPrefix}-tooltipped__${menuItem.tipPosition} ${classPrefix}-menu--current`;
-        editor.preview.render(editor);
+          this.className = this.className + ` ${classPrefix}-menu--current`;
+          editor.preview.element.style.display = 'block';
+          editor.preview.render(editor);
+          editor.currentPreviewMode = 'both';
       }
-      if (editorElement.className.indexOf(`${classPrefix}--fullscreen`) > -1) {
-        className = className.replace('__n', '__s');
-      }
-      this.className = className;
-
       if (editor.toolbar.elements.preview &&
         editor.toolbar.elements.preview.children[0].className.indexOf(`${classPrefix}-menu--current`) > -1) {
           editor.toolbar.elements.preview.children[0].className =
           editor.toolbar.elements.preview.children[0].className.replace(` ${classPrefix}-menu--current`, '');
       }
-    });
-  }
+
+      if (editor.devtools &&  editor.devtools.ASTChart && editor.devtools.element.style.display === 'block') {
+        editor.devtools.ASTChart.resize();
+      }
+  });
+}
 }
 
 export class ACMEditorToolbarBr {
@@ -118,10 +120,6 @@ export class ACMEditorToolbarCheck extends ACMEditorToolbarItem {
     || `<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32">
     <path d="M27.094 19.485v6.12c0 3.059-2.483 5.542-5.542 5.542h-16.010c-3.059 0-5.542-2.483-5.542-5.542v-16.010c0-3.059 2.483-5.542 5.542-5.542h16.010c0.769 0 1.54 0.154 2.251 0.481 0.174 0.077 0.308 0.25 0.346 0.443 0.039 0.211-0.019 0.404-0.174 0.558l-0.943 0.943c-0.115 0.115-0.289 0.193-0.443 0.193-0.058 0-0.115-0.019-0.174-0.039-0.289-0.077-0.578-0.115-0.866-0.115h-16.010c-1.693 0-3.079 1.386-3.079 3.079v16.010c0 1.693 1.386 3.079 3.079 3.079h16.010c1.693 0 3.079-1.386 3.079-3.079v-4.888c0-0.154 0.058-0.308 0.174-0.424l1.232-1.232c0.135-0.135 0.289-0.193 0.443-0.193 0.077 0 0.154 0.019 0.231 0.058 0.231 0.096 0.385 0.308 0.385 0.558zM31.54 10.076l-15.664 15.664c-0.615 0.615-1.578 0.615-2.194 0l-8.275-8.275c-0.615-0.615-0.615-1.578 0-2.194l2.116-2.116c0.615-0.615 1.578-0.615 2.194 0l5.060 5.060 12.451-12.451c0.615-0.615 1.578-0.615 2.194 0l2.116 2.116c0.615 0.615 0.615 1.578 0 2.194z"></path>
 </svg>`;
-    this.bindEvent();
-  }
-
-  public bindEvent() {
     super.bindEvent();
   }
 }
@@ -136,10 +134,6 @@ export class ACMEditorToolbarCode extends ACMEditorToolbarItem {
     <path d="M10.947 10.105l-2.526-2.526-8.421 8.421 8.421 8.421 2.526-2.526-5.895-5.895z"></path>
     <path d="M17.613 6.487l1.828 0.499-5.052 18.527-1.828-0.499 5.052-18.527z"></path>
     </svg>`;
-    this.bindEvent();
-  }
-
-  public bindEvent() {
     super.bindEvent();
   }
 }
@@ -152,6 +146,37 @@ export class ACMEditorToolbarCustom extends ACMEditorToolbarItem {
       menuItem.click();
       event.preventDefault();
     });
+  }
+}
+
+export class ACMEditorToolbarDevtools extends ACMEditorToolbarItem {
+  constructor(editor: IACMEditor, menuItem: IACMEToolbarItem) {
+      super(editor, menuItem);
+      this.element.children[0].innerHTML = menuItem.icon || bugSVG;
+
+      this.element.addEventListener(getEventName(), async () => {
+          if (this.element.children[0].className.indexOf("vditor-menu--current") > -1) {
+              this.element.children[0].className =
+                  this.element.children[0].className.replace(" vditor-menu--current", "");
+              vditor.devtools.element.style.display = "none";
+              if (vditor.wysiwyg) {
+                  const padding =
+                      (vditor.wysiwyg.element.parentElement.scrollWidth - vditor.options.preview.maxWidth) / 2;
+                  vditor.wysiwyg.element.style.paddingLeft = `${Math.max(10, padding)}px`;
+                  vditor.wysiwyg.element.style.paddingRight = `${Math.max(10, padding)}px`;
+              }
+          } else {
+              this.element.children[0].className += " vditor-menu--current";
+              vditor.devtools.element.style.display = "block";
+              if (vditor.wysiwyg) {
+                  const padding =
+                      ((vditor.wysiwyg.element.parentElement.scrollWidth / 2) - vditor.options.preview.maxWidth) / 2;
+                  vditor.wysiwyg.element.style.paddingLeft = `${Math.max(10, padding)}px`;
+                  vditor.wysiwyg.element.style.paddingRight = `${Math.max(10, padding)}px`;
+              }
+              vditor.devtools.renderEchart(vditor);
+          }
+      });
   }
 }
 

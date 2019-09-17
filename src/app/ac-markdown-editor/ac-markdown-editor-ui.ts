@@ -60,8 +60,7 @@ export class ACMEditorUi {
     }
     editor.editor.element.style.paddingBottom = height / 2 + 'px';
 
-    // const localValue = localStorage.getItem('editor' + editor.id);
-    const localValue = localStorage.getItem('editor' + editor.host.id);
+    const localValue = localStorage.getItem('editor' + editor.id);
     if (editor.options.cache && localValue) {
       formatRender(editor, localValue, undefined, false);
     } else {

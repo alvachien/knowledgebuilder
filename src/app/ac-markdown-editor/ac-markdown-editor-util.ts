@@ -103,26 +103,26 @@ export function getSelectPosition(editorElement: HTMLPreElement, range?: Range) 
   };
 
   if (!range) {
-    if (window.getSelection().rangeCount === 0) {
-      return position;
-    }
-    range = window.getSelection().getRangeAt(0);
+      if (window.getSelection().rangeCount === 0) {
+          return position;
+      }
+      range = window.getSelection().getRangeAt(0);
   }
 
   if (selectIsEditor(editorElement, range)) {
-    const preSelectionRange = range.cloneRange();
-    if (editorElement.childNodes[0] && editorElement.childNodes[0].childNodes[0]) {
-      preSelectionRange.setStart(editorElement.childNodes[0].childNodes[0], 0);
-    } else {
-      preSelectionRange.selectNodeContents(editorElement);
-    }
-    if (range.startContainer.childNodes.length === 1 && range.startContainer.textContent.trim() === '') {
-      preSelectionRange.setEnd(editorElement.childNodes[0].childNodes[0], 0);
-    } else {
-      preSelectionRange.setEnd(range.startContainer, range.startOffset);
-    }
-    position.start = preSelectionRange.toString().length;
-    position.end = position.start + range.toString().length;
+      const preSelectionRange = range.cloneRange();
+      if (editorElement.childNodes[0] && editorElement.childNodes[0].childNodes[0]) {
+          preSelectionRange.setStart(editorElement.childNodes[0].childNodes[0], 0);
+      } else {
+          preSelectionRange.selectNodeContents(editorElement);
+      }
+      if (range.startContainer.childNodes.length === 1 && range.startContainer.textContent.trim() === "") {
+          preSelectionRange.setEnd(editorElement.childNodes[0].childNodes[0], 0);
+      } else {
+          preSelectionRange.setEnd(range.startContainer, range.startOffset);
+      }
+      position.start = preSelectionRange.toString().length;
+      position.end = position.start + range.toString().length;
   }
   return position;
 }
@@ -130,13 +130,13 @@ export function getSelectPosition(editorElement: HTMLPreElement, range?: Range) 
 export function getSelectText(editor: HTMLPreElement, range?: Range) {
   if (!range) {
     if (window.getSelection().rangeCount === 0) {
-      return '';
+        return '';
     } else {
-      range = window.getSelection().getRangeAt(0);
+        range = window.getSelection().getRangeAt(0);
     }
   }
   if (selectIsEditor(editor, range)) {
-    return window.getSelection().toString();
+      return window.getSelection().toString();
   }
   return '';
 }
@@ -236,7 +236,7 @@ export function inputEvent(editor: IACMEditor, addUndo: boolean = true) {
     editor.hint.render();
   }
   if (editor.options.cache) {
-    localStorage.setItem(`editor${editor.host.id}`, getText(editor.editor.element));
+    localStorage.setItem(`editor${editor.id}`, getText(editor.editor.element));
   }
   if (editor.preview) {
     editor.preview.render(editor);
@@ -336,13 +336,13 @@ export function insertText(editor: IACMEditor, prefix: string, suffix: string, r
   }
 }
 
-export function getCursorPosition(editor: HTMLPreElement) {
+export function getCursorPosition(editor: HTMLElement) {
   const parentRect = editor.parentElement.getBoundingClientRect();
   const range = window.getSelection().getRangeAt(0);
   const startNode = range.startContainer.childNodes[range.startOffset] as HTMLElement;
   let cursorRect;
   if (startNode) {
-      if (startNode.nodeType === 3 && startNode.textContent === '') {
+      if (startNode.nodeType === 3 && startNode.textContent === "") {
           cursorRect = startNode.nextElementSibling.getClientRects()[0];
       } else if (startNode.getClientRects) {
           cursorRect = startNode.getClientRects()[0];
@@ -625,3 +625,20 @@ export class MediaRecorder {
   }
 }
 
+export function expandByOffset(elment: HTMLElement) {
+  const caretElement = elment.querySelector('[data-caret]');
+  const nodeElement = caretElement.closest('.node');
+  if (nodeElement) {
+    nodeElement.className = 'node node--expand';
+  } else if (caretElement.previousElementSibling.className === 'node') {
+    caretElement.previousElementSibling.className = 'node node--expand';
+  }
+}
+
+export function getParentBlock(elment: HTMLElement) {
+  let block = elment;
+  while (block.nodeType === 3 || block.getAttribute('data-mtype') !== '0') {
+    block = block.parentElement;
+  }
+  return block;
+}

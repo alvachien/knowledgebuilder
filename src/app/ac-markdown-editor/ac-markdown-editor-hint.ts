@@ -5,26 +5,24 @@ import { classPrefix } from './ac-markdown-editor-constants';
 // Hint
 export class ACMEditorHint {
   public timeId: number;
-  public editor: IACMEditor;
   public element: HTMLUListElement;
 
-  constructor(editor: IACMEditor) {
+  constructor() {
     this.timeId = -1;
-    this.editor = editor;
 
     this.element = document.createElement('ul');
     this.element.className = `${classPrefix}-hint`;
-
-    this.editor.editor.element.parentElement.appendChild(this.element);
   }
 
-  public render() {
+  public render(editor: IACMEditor) {
     if (!window.getSelection().focusNode) {
       return;
     }
-    const position = getSelectPosition(this.editor.editor.element);
-    const currentLineValue = getText(this.editor.editor.element).substring(0, position.end).split('\n')
-      .slice(-1).pop();
+    const position = getSelectPosition(editor.currentMode === 'wysiwyg' ?
+      editor.wysiwyg.element : editor.editor.element);
+    const currentLineValue = editor.currentMode === 'wysiwyg' ?
+      getSelection().getRangeAt(0).startContainer.textContent.split('\n')[0] :
+      getText(editor.editor.element).substring(0, position.end).split('\n').slice(-1).pop();
 
     let key = this.getKey(currentLineValue, ':');
     let isAt = false;
@@ -38,14 +36,16 @@ export class ACMEditorHint {
       this.element.style.display = 'none';
       clearTimeout(this.timeId);
     } else {
-      if (isAt && this.editor.options.hint.at) {
+      if (isAt && editor.options.hint.at) {
         clearTimeout(this.timeId);
         this.timeId = window.setTimeout(() => {
-          this.genHTML(this.editor.options.hint.at(key), key, this.editor.editor.element);
-        }, this.editor.options.hint.delay);
+          this.genHTML(editor.options.hint.at(key), key,
+            editor.currentMode === 'wysiwyg' ?
+              editor.wysiwyg.element : editor.editor.element, editor);
+        }, editor.options.hint.delay);
       }
       if (!isAt) {
-        const emojiHint = key === '' ? this.editor.options.hint.emoji : this.editor.lute.GetEmojis();
+        const emojiHint = key === '' ? editor.options.hint.emoji : editor.lute.GetEmojis();
         const matchEmojiData: IACMEHintData[] = [];
         Object.keys(emojiHint).forEach((keyName) => {
           if (keyName.indexOf(key.toLowerCase()) === 0) {
@@ -62,29 +62,33 @@ export class ACMEditorHint {
             }
           }
         });
-        this.genHTML(matchEmojiData, key, this.editor.editor.element);
+        this.genHTML(matchEmojiData, key, editor.currentMode === 'wysiwyg' ?
+          editor.wysiwyg.element : editor.editor.element, editor);
       }
     }
   }
-
-  public fillEmoji = (element: HTMLElement) => {
+  public fillEmoji = (element: HTMLElement, editor: IACMEditor) => {
     this.element.style.display = 'none';
 
     const value = element.getAttribute('data-value');
     const splitChar = value.indexOf('@') === 0 ? '@' : ':';
 
-    let range: Range = window.getSelection().getRangeAt(0);
-    if (!selectIsEditor(this.editor.editor.element, range)) {
-      range = this.editor.editor.range;
+    if (editor.currentMode === 'wysiwyg') {
+      // TODO wysiwyg
+    } else {
+      let range: Range = window.getSelection().getRangeAt(0);
+      if (!selectIsEditor(editor.editor.element, range)) {
+        range = editor.editor.range;
+      }
+      const position = getSelectPosition(editor.editor.element, range);
+      const text = getText(editor.editor.element);
+      const preText = text.substring(0, text.substring(0, position.start).lastIndexOf(splitChar));
+      formatRender(editor, preText + value + text.substring(position.start),
+        {
+          end: (preText + value).length,
+          start: (preText + value).length,
+        });
     }
-    const position = getSelectPosition(this.editor.editor.element, range);
-    const text = getText(this.editor.editor.element);
-    const preText = text.substring(0, text.substring(0, position.start).lastIndexOf(splitChar));
-    formatRender(this.editor, preText + value + text.substring(position.start),
-      {
-        end: (preText + value).length,
-        start: (preText + value).length,
-      });
   }
 
   private getKey(currentLineValue: string, splitChar: string) {
@@ -105,13 +109,13 @@ export class ACMEditorHint {
     return key;
   }
 
-  private genHTML(data: IACMEHintData[], key: string, editorElement: HTMLPreElement) {
+  private genHTML(data: IACMEHintData[], key: string, editorElement: HTMLElement, editor: IACMEditor) {
     if (data.length === 0) {
       this.element.style.display = 'none';
       return;
     }
 
-    const textareaPosition = getCursorPosition(this.editor.editor.element);
+    const textareaPosition = getCursorPosition(editorElement);
     const x = textareaPosition.left;
     const y = textareaPosition.top;
     let hintsHTML = '';
@@ -133,7 +137,7 @@ export class ACMEditorHint {
           html = html.substr(0, lastIndex) + replaceHtml;
         }
       }
-      hintsHTML += `<li data-value='${hintData.value} ' class='${i || 'acme-hint--current'}'> ${html}</li>`;
+      hintsHTML += `<li data-value='${hintData.value} ' class='${i || 'vditor-hint--current'}'> ${html}</li>`;
     });
 
     this.element.innerHTML = hintsHTML;
@@ -145,7 +149,7 @@ export class ACMEditorHint {
 
     this.element.querySelectorAll('li').forEach((element) => {
       element.addEventListener('click', () => {
-        this.fillEmoji(element);
+        this.fillEmoji(element, editor);
       });
     });
     // hint 展现在上部

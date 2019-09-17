@@ -159,7 +159,7 @@ export interface IACMEOptions {
 }
 
 export interface IACMEditor {
-  // id: string;
+  id: string;
   host: HTMLElement;
   options: IACMEOptions;
   originalInnerHTML: string;

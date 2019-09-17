@@ -9,10 +9,9 @@ export class ACMEditorCounter {
 
   constructor(editor: IACMEditor) {
     this.element = document.createElement('div');
-    this.element.className = classPrefix + '-counter';
+    this.element.className = `${classPrefix}-counter`;
 
     this.render(0, editor.options.counter);
-
   }
 
   public render(length: number, counter: number) {

@@ -68,6 +68,8 @@ export const i18n: IACMEI18n = {
     'upload': 'Upload image or file',
     // tslint:disable-next-line:object-literal-key-quotes
     'uploading': 'uploading...',
+    // tslint:disable-next-line:object-literal-key-quotes
+    "wysiwyg": "WYSIWYG",
   },
   zh_CN: {
     // tslint:disable-next-line:object-literal-key-quotes
@@ -136,5 +138,7 @@ export const i18n: IACMEI18n = {
     'upload': '上传图片或文件',
     // tslint:disable-next-line:object-literal-key-quotes
     'uploading': '上传中...',
+    // tslint:disable-next-line:object-literal-key-quotes
+    "wysiwyg": "所见即所得",
   },
 };

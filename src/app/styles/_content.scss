@@ -74,28 +74,12 @@
   &-preview {
     flex: 1;
     background-color: $previewBg;
+    margin-left: -1px;
     overflow: auto;
     padding: 10px;
     box-shadow: inset 1px 0 $borderColor;
     box-sizing: border-box;
     border-radius: 0 0 3px 0;
-
-    &--editor {
-      display: none;
-    }
-
-    &--both {
-      display: block;
-    }
-
-    &--preview {
-      position: absolute;
-      top: 0;
-      left: -1px;
-      bottom: 0;
-      right: 0;
-      display: block;
-    }
 
     & > div::-webkit-scrollbar {
       display: none;
@@ -104,6 +88,17 @@
     & > .acme-reset {
       margin: 0 auto;
     }
+  }
+
+  &-devtools {
+    display: none;
+    background-color: $previewBg;
+    overflow: auto;
+    flex: 1;
+    box-shadow: inset 1px 0 $borderColor;
+    box-sizing: border-box;
+    border-radius: 0 0 3px 0;
+    padding: 10px;
   }
 
   &-counter {
@@ -116,6 +111,7 @@
     border-radius: 3px;
     font-size: 12px;
     user-select: none;
+    z-index: 2;
 
     &--error {
       color: $errorColor;
@@ -129,6 +125,7 @@
     user-select: none;
     position: absolute;
     width: 100%;
+    z-index: 2;
 
     &--top {
       top: -3px;
