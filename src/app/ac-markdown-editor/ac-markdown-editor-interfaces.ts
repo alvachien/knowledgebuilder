@@ -169,7 +169,7 @@ export interface IACMEditor {
   };
   preview?: {
     element: HTMLElement
-    render(vditor: IACMEditor, value?: string): void,
+    render(editor: IACMEditor, value?: string): void,
   };
   editor?: {
     element: HTMLPreElement,
@@ -198,9 +198,9 @@ export interface IACMEditor {
     isUploading: boolean,
   };
   undo: {
-    redo(vditor: IACMEditor): void
-    undo(vditor: IACMEditor): void
-    addToUndoStack(vditor: IACMEditor): void,
+    redo(editor: IACMEditor): void
+    undo(editor: IACMEditor): void
+    addToUndoStack(editor: IACMEditor): void,
   };
 }
 
@@ -225,7 +225,7 @@ declare class IACMEditorConstructor {
   public static preview(element: HTMLTextAreaElement, options?: IACMEPreviewOptions): void;
 
   // tslint:disable-next-line:member-ordering
-  public vditor: IACMEditor;
+  public editor: IACMEditor;
 
   constructor(options: IACMEOptions)
 

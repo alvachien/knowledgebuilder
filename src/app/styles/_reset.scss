@@ -186,11 +186,11 @@
       white-space: pre;
     }
 
-    pre:hover div.vditor-copy {
+    pre:hover div.acme-copy {
       display: block;
     }
 
-    .katex:hover div.vditor-copy {
+    .katex:hover div.acme-copy {
       display: inline;
     }
 
@@ -230,7 +230,7 @@
       margin-bottom: 0;
     }
 
-    // 当预览内容很长时，就会溢出 vditor，把页面撑高
+    // 当预览内容很长时，就会溢出 editor，把页面撑高
     .katex {
       position: relative;
     }

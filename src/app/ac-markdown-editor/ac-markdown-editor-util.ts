@@ -1,6 +1,7 @@
 import { gfm } from './ac-markdown-editor-turndown-gfm';
 import { IACMEditor, } from './ac-markdown-editor-interfaces';
 import { classPrefix } from './ac-markdown-editor-constants';
+import * as turndown from 'turndown';
 
 // Add style
 export function addStyle(url: string, id: string) {
@@ -365,8 +366,6 @@ export function getCursorPosition(editor: HTMLPreElement) {
 }
 
 export async function html2md(editor: IACMEditor, textHTML: string, textPlain?: string) {
-  const tservice = await import(/* webpackChunkName: "turndown" */ 'turndown');
-
   // process word
   const doc = new DOMParser().parseFromString(textHTML, 'text/html');
   if (doc.body) {
@@ -374,11 +373,11 @@ export async function html2md(editor: IACMEditor, textHTML: string, textPlain?: 
   }
 
   // no escape
-  tservice.prototype.escape = (name: string) => {
-    return name;
-  };
+  // turndown.prototype.escape = (name: string) => {
+  //   return name;
+  // };
 
-  const turndownService = new tservice({
+  const turndownService = new turndown({
       blankReplacement: (blank: string) => {
           return blank;
       },

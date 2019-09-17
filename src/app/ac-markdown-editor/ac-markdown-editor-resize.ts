@@ -20,11 +20,11 @@ export class ACMEditorResize {
     this.element.addEventListener('mousedown', (event: MouseEvent) => {
 
       const documentSelf = document;
-      // const vditorElement = document.getElementById(vditor.id);
-      const vditorElement = editor.host;
+      // const editorElement = document.getElementById(editor.id);
+      const editorElement = editor.host;
       const y = event.clientY;
-      const height = vditorElement.offsetHeight;
-      const minHeight = 63 + vditorElement.querySelector(`.${classPrefix}-toolbar`).clientHeight;
+      const height = editorElement.offsetHeight;
+      const minHeight = 63 + editorElement.querySelector(`.${classPrefix}-toolbar`).clientHeight;
       documentSelf.ondragstart = () => false;
 
       if (window.captureEvents) {
@@ -35,16 +35,16 @@ export class ACMEditorResize {
 
       documentSelf.onmousemove = (moveEvent: MouseEvent) => {
         if (editor.options.resize.position === 'top') {
-          vditorElement.style.height = Math.max(minHeight, height + (y - moveEvent.clientY)) + 'px';
+          editorElement.style.height = Math.max(minHeight, height + (y - moveEvent.clientY)) + 'px';
         } else {
-          vditorElement.style.height = Math.max(minHeight, height + (moveEvent.clientY - y)) + 'px';
+          editorElement.style.height = Math.max(minHeight, height + (moveEvent.clientY - y)) + 'px';
         }
         editor.editor.element.style.paddingBottom = editor.editor.element.parentElement.offsetHeight / 2 + 'px';
       };
 
       documentSelf.onmouseup = () => {
         if (editor.options.resize.after) {
-          editor.options.resize.after(vditorElement.offsetHeight - height);
+          editor.options.resize.after(editorElement.offsetHeight - height);
         }
 
         if (window.captureEvents) {

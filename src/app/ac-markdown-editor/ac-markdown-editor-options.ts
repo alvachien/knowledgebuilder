@@ -19,8 +19,6 @@ export class ACMEditorOptions {
         // tslint:disable-next-line:object-literal-key-quotes
         'heart': '❤️',
       },
-      // TBD!
-      // emojiPath: `${CDN_PATH}/vditor/dist/images/emoji`,
     },
     keymap: {
       deleteLine: '⌘-Backspace',

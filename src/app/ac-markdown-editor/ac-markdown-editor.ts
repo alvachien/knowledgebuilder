@@ -7,7 +7,7 @@ import { ACMEditorHint } from './ac-markdown-editor-hint';
 import { ACMEditorHotkey } from './ac-markdown-editor-hotkey';
 import { abcRender, chartRender, codeRender, highlightRender, mathRender,
   mediaRender, previewRender, mermaidRender,
-  loadLuteJs, md2htmlByPreview, md2htmlByVditor, } from './ac-markdown-editor-render';
+  loadLuteJs, md2htmlByPreview, md2htmlByEditor, } from './ac-markdown-editor-render';
 import { ACMEditorPreview } from './ac-markdown-editor-preview';
 import { ACMEditorResize } from './ac-markdown-editor-resize';
 import { ACMEditorTip } from './ac-markdown-editor-tip';
@@ -16,6 +16,7 @@ import { ACMEditorUi } from './ac-markdown-editor-ui';
 import { ACMEditorUndo } from './ac-markdown-editor-undo';
 import { ACMEditorUpload } from './ac-markdown-editor-upload';
 import { ACMEditorOptions } from './ac-markdown-editor-options';
+import { classPrefix } from './ac-markdown-editor-constants';
 
 export class ACMEditor {
 
@@ -29,13 +30,13 @@ export class ACMEditor {
   public static md2html = md2htmlByPreview;
   public static preview = previewRender;
   public readonly version: string;
-  public vditor: IACMEditor;
+  public editor: IACMEditor;
 
   constructor(hostElement: HTMLElement, options?: IACMEOptions) {
     const getOptions = new ACMEditorOptions(options);
     const mergedOptions = getOptions.merge();
 
-    this.vditor = {
+    this.editor = {
       // id,
       host: hostElement,
       lute: undefined,
@@ -47,165 +48,164 @@ export class ACMEditor {
     };
 
     if (mergedOptions.counter > 0) {
-      const counter = new ACMEditorCounter(this.vditor);
-      this.vditor.counter = counter;
+      const counter = new ACMEditorCounter(this.editor);
+      this.editor.counter = counter;
     }
 
-    const editor = new ACMEditorControl(this.vditor);
-    this.vditor.editor = editor;
-    this.vditor.undo = new ACMEditorUndo();
+    const editor = new ACMEditorControl(this.editor);
+    this.editor.editor = editor;
+    this.editor.undo = new ACMEditorUndo();
 
     if (mergedOptions.resize.enable) {
-      const resize = new ACMEditorResize(this.vditor);
-      this.vditor.resize = resize;
+      const resize = new ACMEditorResize(this.editor);
+      this.editor.resize = resize;
     }
 
     if (mergedOptions.toolbar) {
-      const toolbar: ACMEditorToolbar = new ACMEditorToolbar(this.vditor);
-      this.vditor.toolbar = toolbar;
+      const toolbar: ACMEditorToolbar = new ACMEditorToolbar(this.editor);
+      this.editor.toolbar = toolbar;
     }
 
-    loadLuteJs(this.vditor).then(() => {
-      if (this.vditor.toolbar.elements.preview || this.vditor.toolbar.elements.both) {
-        const preview = new ACMEditorPreview(this.vditor);
-        this.vditor.preview = preview;
+    loadLuteJs(this.editor).then(() => {
+      if (this.editor.toolbar.elements.preview || this.editor.toolbar.elements.both) {
+        const preview = new ACMEditorPreview(this.editor);
+        this.editor.preview = preview;
       }
 
       if (mergedOptions.upload.url || mergedOptions.upload.handler) {
         const upload = new ACMEditorUpload();
-        this.vditor.upload = upload;
+        this.editor.upload = upload;
       }
 
-      const ui = new ACMEditorUi(this.vditor);
+      const ui = new ACMEditorUi(this.editor);
 
-      if (this.vditor.options.hint.at || this.vditor.toolbar.elements.emoji) {
-        const hint = new ACMEditorHint(this.vditor);
-        this.vditor.hint = hint;
+      if (this.editor.options.hint.at || this.editor.toolbar.elements.emoji) {
+        const hint = new ACMEditorHint(this.editor);
+        this.editor.hint = hint;
       }
-      const hotkey = new ACMEditorHotkey(this.vditor);
+      const hotkey = new ACMEditorHotkey(this.editor);
     });
   }
 
   public getValue() {
-    return getText(this.vditor.editor.element);
+    return getText(this.editor.editor.element);
   }
 
   public focus() {
-    this.vditor.editor.element.focus();
+    this.editor.editor.element.focus();
   }
 
   public blur() {
-    this.vditor.editor.element.blur();
+    this.editor.editor.element.blur();
   }
 
   public disabled() {
-    this.vditor.editor.element.setAttribute('contenteditable', 'false');
+    this.editor.editor.element.setAttribute('contenteditable', 'false');
   }
 
   public enable() {
-    this.vditor.editor.element.setAttribute('contenteditable', 'true');
+    this.editor.editor.element.setAttribute('contenteditable', 'true');
   }
 
   public setSelection(start: number, end: number) {
-    setSelectionByPosition(start, end, this.vditor.editor.element);
+    setSelectionByPosition(start, end, this.editor.editor.element);
   }
 
   public getSelection() {
     let selectText = '';
     if (window.getSelection().rangeCount !== 0) {
-      selectText = getSelectText(this.vditor.editor.element);
+      selectText = getSelectText(this.editor.editor.element);
     }
     return selectText;
   }
 
   public renderPreview(value?: string) {
-    this.vditor.preview.render(this.vditor, value);
+    this.editor.preview.render(this.editor, value);
   }
 
   public getCursorPosition() {
-    return getCursorPosition(this.vditor.editor.element);
+    return getCursorPosition(this.editor.editor.element);
   }
 
   public isUploading() {
-    return this.vditor.upload.isUploading;
+    return this.editor.upload.isUploading;
   }
 
   public clearCache() {
-    // localStorage.removeItem('vditor' + this.vditor.id);
-    localStorage.removeItem('vditor' + this.vditor.host.id);
+    localStorage.removeItem('editor' + this.editor.host.id);
   }
 
   public disabledCache() {
-    this.vditor.options.cache = false;
+    this.editor.options.cache = false;
   }
 
   public enableCache() {
-    this.vditor.options.cache = true;
+    this.editor.options.cache = true;
   }
 
   public html2md(value: string) {
-    return html2md(this.vditor, value);
+    return html2md(this.editor, value);
   }
 
   public getHTML() {
-    return md2htmlByVditor(getText(this.vditor.editor.element), this.vditor);
+    return md2htmlByEditor(getText(this.editor.editor.element), this.editor);
   }
 
   public tip(text: string, time?: number) {
-    this.vditor.tip.show(text, time);
+    this.editor.tip.show(text, time);
   }
 
   public setPreviewMode(mode: string) {
     let toolbarItemClassName;
     switch (mode) {
       case 'both':
-        if (!this.vditor.toolbar.elements.both) {
+        if (!this.editor.toolbar.elements.both) {
           return;
         }
-        toolbarItemClassName = this.vditor.toolbar.elements.both.children[0].className;
-        if (toolbarItemClassName.indexOf('vditor-menu--current') === -1) {
-          this.vditor.preview.element.className = 'vditor-preview vditor-preview--both';
-          this.vditor.toolbar.elements.both.children[0].className =
-            `${toolbarItemClassName} vditor-menu--current`;
-          if (!this.vditor.toolbar.elements.preview) {
+        toolbarItemClassName = this.editor.toolbar.elements.both.children[0].className;
+        if (toolbarItemClassName.indexOf(`${classPrefix}-menu--current`) === -1) {
+          this.editor.preview.element.className = `${classPrefix}-preview ${classPrefix}-preview--both`;
+          this.editor.toolbar.elements.both.children[0].className =
+            `${toolbarItemClassName} ${classPrefix}-menu--current`;
+          if (!this.editor.toolbar.elements.preview) {
             return;
           }
-          this.vditor.toolbar.elements.preview.children[0].className =
-            this.vditor.toolbar.elements.preview.children[0].className.replace(' vditor-menu--current', '');
+          this.editor.toolbar.elements.preview.children[0].className =
+            this.editor.toolbar.elements.preview.children[0].className.replace(` ${classPrefix}-menu--current`, '');
         }
         break;
       case 'editor':
-        if (!this.vditor.preview) {
+        if (!this.editor.preview) {
           return;
         }
-        if (this.vditor.preview.element.className !== 'vditor-preview vditor-preview--editor') {
-          this.vditor.preview.element.className = 'vditor-preview vditor-preview--editor';
-          if (this.vditor.toolbar.elements.preview) {
-            this.vditor.toolbar.elements.preview.children[0].className =
-              this.vditor.toolbar.elements.preview.children[0].className
-                .replace(' vditor-menu--current', '');
+        if (this.editor.preview.element.className !== `${classPrefix}-preview ${classPrefix}-preview--editor`) {
+          this.editor.preview.element.className = `${classPrefix}-preview ${classPrefix}-preview--editor`;
+          if (this.editor.toolbar.elements.preview) {
+            this.editor.toolbar.elements.preview.children[0].className =
+              this.editor.toolbar.elements.preview.children[0].className
+                .replace(` ${classPrefix}-menu--current`, '');
           }
-          if (this.vditor.toolbar.elements.both) {
-            this.vditor.toolbar.elements.both.children[0].className =
-              this.vditor.toolbar.elements.both.children[0].className
-                .replace(' vditor-menu--current', '');
+          if (this.editor.toolbar.elements.both) {
+            this.editor.toolbar.elements.both.children[0].className =
+              this.editor.toolbar.elements.both.children[0].className
+                .replace(` ${classPrefix}-menu--current`, '');
           }
         }
         break;
       case 'preview':
-        if (!this.vditor.toolbar.elements.preview) {
+        if (!this.editor.toolbar.elements.preview) {
           return;
         }
-        toolbarItemClassName = this.vditor.toolbar.elements.preview.children[0].className;
-        if (toolbarItemClassName.indexOf('vditor-menu--current') === -1) {
-          this.vditor.preview.element.className = 'vditor-preview vditor-preview--preview';
-          this.vditor.toolbar.elements.preview.children[0].className =
-            `${toolbarItemClassName} vditor-menu--current`;
-          if (!this.vditor.toolbar.elements.both) {
+        toolbarItemClassName = this.editor.toolbar.elements.preview.children[0].className;
+        if (toolbarItemClassName.indexOf(`${classPrefix}-menu--current`) === -1) {
+          this.editor.preview.element.className = `${classPrefix}-preview ${classPrefix}-preview--preview`;
+          this.editor.toolbar.elements.preview.children[0].className =
+            `${toolbarItemClassName} ${classPrefix}-menu--current`;
+          if (!this.editor.toolbar.elements.both) {
             return;
           }
-          this.vditor.toolbar.elements.both.children[0].className =
-            this.vditor.toolbar.elements.both.children[0].className.replace(' vditor-menu--current', '');
+          this.editor.toolbar.elements.both.children[0].className =
+            this.editor.toolbar.elements.both.children[0].className.replace(` ${classPrefix}-menu--current`, '');
         }
         break;
       default:
@@ -217,25 +217,25 @@ export class ACMEditor {
     if (window.getSelection().isCollapsed) {
       return;
     }
-    insertText(this.vditor, '', '', true);
+    insertText(this.editor, '', '', true);
   }
 
   public updateValue(value: string) {
-    insertText(this.vditor, value, '', true);
+    insertText(this.editor, value, '', true);
   }
 
   public insertValue(value: string) {
-    insertText(this.vditor, value, '');
+    insertText(this.editor, value, '');
   }
 
   public setValue(value: string) {
-    formatRender(this.vditor, value, {
+    formatRender(this.editor, value, {
       end: value.length,
       start: value.length,
     });
     if (!value) {
-      // localStorage.removeItem('vditor' + this.vditor.id);
-      localStorage.removeItem('vditor' + this.vditor.host.id);
+      // localStorage.removeItem('editor' + this.editor.id);
+      localStorage.removeItem('editor' + this.editor.host.id);
     }
   }
 }

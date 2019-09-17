@@ -1,5 +1,4 @@
-import {
-  formatRender, getSelectPosition, getText, insertText,
+import { formatRender, getSelectPosition, getText, insertText,
   getCursorPosition, getCurrentLinePosition,
 } from './ac-markdown-editor-util';
 import { IACMEditor, IACMEMenuItem } from './ac-markdown-editor-interfaces';
