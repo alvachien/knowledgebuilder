@@ -98,7 +98,7 @@ export async function highlightRender(hljsStyle: string, enableHighlight: boolea
   }
 
   if (hljsThemes.includes(hljsStyle)) {
-    addStyle(`assets/styles/${hljsStyle}.css`, `${classPrefix}HljsStyle`);
+    addStyle(`assets/styles/highlightjs/${hljsStyle}.css`, `${classPrefix}HljsStyle`);
   }
 
 
@@ -116,7 +116,7 @@ export async function highlightRender(hljsStyle: string, enableHighlight: boolea
 export async function mathRender(element: HTMLElement, lang: (keyof IACMEI18nLang) = 'zh_CN') {
   const text = code160to32(element.innerText);
   if (text.split('$').length > 2 || (text.split('\\(').length > 1 && text.split('\\)').length > 1)) {
-      addStyle(`assets/styles/katex.min.css`, 'editorKatexStyle');
+      addStyle(`assets/styles/katex/katex.min.css`, 'editorKatexStyle');
       katex_auto_render.default(element, {
         delimiters: [
             {left: '$$', right: '$$', display: true},

@@ -19,7 +19,6 @@ export class AcMarkdownEditorComponent implements OnInit {
       height: 300,
       hint: {
         emojiPath: 'assets/images/emoji',
-        emojiTail: '<a href="https://hacpai.com/settings/function" target="_blank">设置常用表情</a>',
         emoji: {
           // tslint:disable-next-line:object-literal-key-quotes
           'sd': '💔',
