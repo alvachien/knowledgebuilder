@@ -31,7 +31,6 @@
               "src/styles.scss"
             ],
             "scripts": [
-              "node_modules/turndown/dist/turndown.js"
             ]
           },
           "configurations": {
@@ -98,7 +97,6 @@
               "src/styles.scss"
             ],
             "scripts": [
-              "node_modules/turndown/dist/turndown.js"
             ]
           }
         },

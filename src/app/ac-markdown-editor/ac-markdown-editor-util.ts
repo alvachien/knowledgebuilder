@@ -1,7 +1,8 @@
 import { gfm } from './ac-markdown-editor-turndown-gfm';
 import { IACMEditor, IACMEToolbarItem, } from './ac-markdown-editor-interfaces';
 import { classPrefix } from './ac-markdown-editor-constants';
-import * as turndown from 'turndown';
+import TurndownService from 'turndown';
+import * as turndownPluginGfm from 'turndown-plugin-gfm';
 
 // Add style
 export function addStyle(url: string, id: string) {
@@ -372,7 +373,7 @@ export async function html2md(editor: IACMEditor, textHTML: string, textPlain?: 
     textHTML = doc.body.innerHTML;
   }
 
-  let turndownService = new turndown.TurndownService({
+  const turndownService: any = new TurndownService({
     blankReplacement: (blank: string) => {
       return blank;
     },
@@ -381,10 +382,10 @@ export async function html2md(editor: IACMEditor, textHTML: string, textPlain?: 
     headingStyle: 'atx',
     hr: '---',
   });
-  // no escape
-  turndownService.prototype.escape = (name: string) => {
-    return name;
-  };
+  // // no escape
+  // turndownService.prototype.escape = (name: string) => {
+  //   return name;
+  // };
   turndownService.escape = (name: string) => {
     return name;
   };
