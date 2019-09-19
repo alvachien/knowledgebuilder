@@ -73,10 +73,6 @@ onclick='this.previousElementSibling.select();document.execCommand('copy');` +
 }
 
 export async function highlightRender(hljsStyle: string, enableHighlight: boolean, element: HTMLElement | Document = document) {
-  if (!enableHighlight) {
-    return;
-  }
-
   const hljsThemes = ['a11y-dark', 'a11y-light', 'agate', 'an-old-hope', 'androidstudio', 'arduino-light', 'arta',
     'ascetic', 'atelier-cave-dark', 'atelier-cave-light', 'atelier-dune-dark', 'atelier-dune-light', 'school-book',
     'atelier-estuary-dark', 'atelier-estuary-light', 'atelier-forest-dark', 'atelier-forest-light', 'pojoaque',
@@ -91,16 +87,20 @@ export async function highlightRender(hljsStyle: string, enableHighlight: boolea
     'pojoaque', 'purebasic', 'qtcreator_dark', 'qtcreator_light', 'railscasts', 'rainbow', 'routeros', 'tomorrow',
     'school-book', 'shades-of-purple', 'solarized-dark', 'solarized-light', 'sunburst', 'tomorrow-night',
     'tomorrow-night-blue', 'tomorrow-night-bright', 'tomorrow-night-eighties', 'vs', 'vs2015', 'xcode', 'xt256'];
+  if (!hljsThemes.includes(hljsStyle)) {
+    hljsStyle = 'github';
+  }
+
+  addStyle(`assets/styles/highlightjs/${hljsStyle}.css`, `${classPrefix}HljsStyle`);
+
+  if (!enableHighlight) {
+    return;
+  }
 
   const codes = element.querySelectorAll(`pre > code`);
   if (codes.length === 0) {
     return;
   }
-
-  if (hljsThemes.includes(hljsStyle)) {
-    addStyle(`assets/styles/highlightjs/${hljsStyle}.css`, `${classPrefix}HljsStyle`);
-  }
-
 
   element.querySelectorAll(`pre > code`).forEach((block) => {
     if (block.className.indexOf('language-mermaid') > -1 ||
@@ -141,7 +141,7 @@ export function mathRenderByLute(element: HTMLElement) {
   const mathElements = element.querySelectorAll(`.${classPrefix}-math`);
 
   if (mathElements.length === 0) {
-      return;
+    return;
   }
 
   addStyle(`assets/styles/katex/katex.min.css`, `${classPrefix}KatexStyle`);
@@ -196,8 +196,8 @@ export async function md2htmlByPreview(mdText: string, options?: IACMEPreviewOpt
       await loadLuteJs();
   }
   options = Object.assign({
-      emojiSite: `assets/images/emoji`,
-      emojis: {},
+    emojiSite: `assets/images/emoji`,
+    emojis: {},
   }, options);
 
   const lute: ILute = Lute.New();
@@ -284,11 +284,11 @@ export async function mermaidRender(element: HTMLElement) {
 
 export async function previewRender(element: HTMLTextAreaElement, options?: IACMEPreviewOptions) {
   const defaultOption = {
-      customEmoji: {},
-      emojiPath: `assets/images/emoji`,
-      enableHighlight: true,
-      hljsStyle: 'atom-one-light',
-      lang: 'zh_CN',
+    customEmoji: {},
+    emojiPath: `assets/images/emoji`,
+    enableHighlight: true,
+    hljsStyle: 'github',
+    lang: 'zh_CN',
   };
   options = Object.assign(defaultOption, options);
   const html =
@@ -303,7 +303,7 @@ export async function previewRender(element: HTMLTextAreaElement, options?: IACM
   element.remove();
   codeRender(divElement, options.lang);
   highlightRender(options.hljsStyle, options.enableHighlight, divElement);
-  mathRenderByLute(divElement);
+  mathRender(divElement);
   mermaidRender(divElement);
   chartRender(divElement);
   abcRender(divElement);

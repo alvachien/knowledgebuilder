@@ -372,12 +372,7 @@ export async function html2md(editor: IACMEditor, textHTML: string, textPlain?: 
     textHTML = doc.body.innerHTML;
   }
 
-  // no escape
-  // turndown.prototype.escape = (name: string) => {
-  //   return name;
-  // };
-
-  const turndownService = new turndown({
+  let turndownService = new turndown.TurndownService({
     blankReplacement: (blank: string) => {
       return blank;
     },
@@ -386,6 +381,13 @@ export async function html2md(editor: IACMEditor, textHTML: string, textPlain?: 
     headingStyle: 'atx',
     hr: '---',
   });
+  // no escape
+  turndownService.prototype.escape = (name: string) => {
+    return name;
+  };
+  turndownService.escape = (name: string) => {
+    return name;
+  };
 
   turndownService.addRule('editorImage', {
     filter: 'img',

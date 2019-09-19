@@ -1,6 +1,6 @@
 import { getText } from './ac-markdown-editor-util';
 import { i18n } from './ac-markdown-editor-i18n';
-import { abcRender, chartRender, codeRender, highlightRender, md2htmlByEditor, mediaRender, mermaidRender, mathRenderByLute } from './ac-markdown-editor-render';
+import { abcRender, chartRender, codeRender, highlightRender, md2htmlByEditor, mediaRender, mermaidRender, mathRenderByLute, mathRender } from './ac-markdown-editor-render';
 import { IACMEditor } from './ac-markdown-editor-interfaces';
 import { classPrefix } from './ac-markdown-editor-constants';
 
@@ -91,7 +91,7 @@ export class ACMEditorPreview {
     codeRender(editor.preview.element.children[0] as HTMLElement, editor.options.lang);
     highlightRender(editor.options.preview.hljs.style, editor.options.preview.hljs.enable,
       editor.preview.element.children[0] as HTMLElement);
-    mathRenderByLute(editor.preview.element.children[0] as HTMLElement);
+    mathRender(editor.preview.element.children[0] as HTMLElement);
     mermaidRender(editor.preview.element.children[0] as HTMLElement);
     chartRender(editor.preview.element.children[0] as HTMLElement);
     abcRender(editor.preview.element.children[0] as HTMLElement);

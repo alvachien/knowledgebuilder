@@ -32,7 +32,7 @@ export class ACMEditorOptions {
       delay: 1000,
       hljs: {
         enable: true,
-        style: 'atom-one-light',
+        style: 'github',
       },
       maxWidth: 768,
       mode: 'both',
