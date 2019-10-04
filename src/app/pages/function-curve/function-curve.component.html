@@ -1,0 +1,8 @@
+<nz-page-header nzBackIcon>
+  <nz-page-header-title>Function Curves</nz-page-header-title>
+  <nz-page-header-subtitle>This is a subtitle</nz-page-header-subtitle>
+  <nz-page-header-extra>
+      <nz-cascader [nzOptions]="nzOptions" [(ngModel)]="values" (ngModelChange)="onChanges($event)"></nz-cascader>
+    <button nz-button nzType="primary">Primary</button>
+  </nz-page-header-extra>
+</nz-page-header>
