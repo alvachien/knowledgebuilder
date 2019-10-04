@@ -9,9 +9,10 @@ This repo also enhance the quiz generation mechanism by adding the question bank
 # credits
 - [Angular](https://angular.io)
 - [Ant Design](https://ng.ant.design)
+
+# references
 - [Vditor](https://github.com/b3log/vditor)
 
 # author
 Alva Chien
 Mail: alvachien@163.com
-
