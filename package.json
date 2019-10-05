@@ -21,6 +21,7 @@
     "@angular/router": "~8.2.4",
     "echarts": "^4.3.0",
     "ng-zorro-antd": "^8.1.2",
+    "ngx-echarts": "^4.2.1",
     "rxjs": "~6.4.0",
     "tslib": "^1.10.0",
     "zone.js": "~0.9.1"
