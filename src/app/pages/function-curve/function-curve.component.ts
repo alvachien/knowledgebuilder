@@ -25,6 +25,10 @@ export class FunctionCurveComponent implements OnInit {
       label: 'y = Sign(x)',
       isLeaf: true,
     }, {
+      value: 'floor',
+      label: 'y = Floor(x)',
+      isLeaf: true,
+    }, {
       value: 'zhejiang',
       label: 'Zhejiang',
       children: [
@@ -109,6 +113,86 @@ export class FunctionCurveComponent implements OnInit {
         break;
 
       case 'sign':
+        this.funcChartOption = of([]).pipe(
+          map(() => {
+            return {
+              title: {
+                text: 'y = sign(x)',
+                top: 'bottom',
+                left: 'center'
+              },
+              xAxis: {
+                type: 'value',
+                name: 'x',
+                interval: 1,
+                axisLine: {
+                  symbol: ['none', 'arrow'],
+                }
+              },
+              yAxis: {
+                type: 'value',
+                name: 'y',
+                interval: 1,
+                min: -2,
+                max: 2,
+                axisLine: {
+                  symbol: ['none', 'arrow']
+                }
+              },
+              series: [{
+                data: [[-5, -1], [-4, -1], [-3, -1], [-2, -1], [-1, -1], [0, -1]],
+                type: 'line',
+                smooth: false,
+              }, {
+                data: [[0, 0]],
+                type: 'line',
+                smooth: false,
+              }, {
+                data: [[0, 1], [1, 1], [2, 1], [3, 1], [4, 1], [4, 1]],
+                type: 'line',
+                smooth: false,
+              }]
+            };
+          }));
+        break;
+
+      case 'floor':
+        this.funcChartOption = of([]).pipe(
+          map(() => {
+            return {
+              title: {
+                text: 'y = floor(x)',
+                top: 'bottom',
+                left: 'center'
+              },
+              xAxis: {
+                type: 'value',
+                name: 'x',
+                interval: 1,
+                axisLine: {
+                  symbol: ['none', 'arrow'],
+                }
+              },
+              yAxis: {
+                type: 'value',
+                name: 'y',
+                interval: 1,
+                min: -2,
+                max: 2,
+                axisLine: {
+                  symbol: ['none', 'arrow']
+                }
+              },
+              series: [{
+                data: [[-5, -1], [-4, -1], [-3, -1], [-2, -1], [-1, -1], [0, -1]],
+                type: 'line',
+                smooth: false,
+              }]
+            };
+          }));
+        break;
+
+      case 'sin':
         this.funcChartOption = of([]).pipe(
           map(() => {
             return {
