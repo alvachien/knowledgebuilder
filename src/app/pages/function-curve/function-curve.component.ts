@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { EChartOption, EChartTitleOption } from 'echarts';
 import { Observable, of } from 'rxjs';
 import { map } from 'rxjs/operators';
+import * as mathjs from 'mathjs';
 
 @Component({
   selector: 'app-function-curve',
@@ -200,7 +201,7 @@ export class FunctionCurveComponent implements OnInit {
     };
   }
   private curveSeries(func: string): EChartOption.SeriesLine[] {
-    const data: any[] = [];
+    let data: any[] = [];
     const series: EChartOption.SeriesLine[] = [];
 
     switch (func) {
@@ -225,14 +226,14 @@ export class FunctionCurveComponent implements OnInit {
           type: 'line',
           smooth: false,
         });
-        data.splice(0);
+        data = [];
         data.push([0, 0]);
         series.push({
           data,
           type: 'line',
           smooth: false,
         });
-        data.splice(0);
+        data = [];
         data.push([0, 1]);
         for (let i = 1; i < 5; i++) {
           data.push([i, Math.sign(i)]);
@@ -278,20 +279,33 @@ export class FunctionCurveComponent implements OnInit {
         break;
 
       case 'tan':
-        for (let i = 0.001 - (1 * Math.PI / 2); i <= 0.1 - (1 * Math.PI / 2); i += 0.05) {
-          data.push([i, Math.tan(i)]);
+        for (let j = -1; j <= 1; j++) {
+          data = [];
+          let start = (2 * j - 1) * Math.PI / 2;
+          let end = (2 * j + 1) * Math.PI / 2;
+          
+          while (start < end) {
+            start += 0.001;
+            data.push([start, Math.tan(start)]);
+          }
+          // for (let i = 0.2 + start; i > start; i -= 0.01) {
+          //   data.push([i, Math.tan(i)]);
+          // }
+          // for (let i = 0.25 + start; i <= end - 0.25; i += 0.5) {
+          //   data.push([i, Math.tan(i)]);
+          // }
+          // for (let i = end - 0.2; i < end; i += 0.01) {
+          //   data.push([i, Math.tan(i)]);
+          // }
+          // data = data.sort((a: any, b: any) => {
+          //   return a[0] - b[0];
+          // });
+          series.push({
+            data,
+            type: 'line',
+            smooth: true,
+          });
         }
-        for (let i = 0.1 - (1 * Math.PI / 2); i <= (Math.PI / 2) - 0.1; i += 0.5) {
-          data.push([i, Math.tan(i)]);
-        }
-        for (let i = (Math.PI / 2) - 0.1; i < Math.PI / 2; i += 0.005) {
-          data.push([i, Math.tan(i)]);
-        }
-        series.push({
-          data,
-          type: 'line',
-          smooth: true,
-        });
         break;
 
       default:
