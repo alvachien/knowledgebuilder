@@ -1501,7 +1501,7 @@ export function getAllEmoji(imgStaticPath: string) {
   };
 }
 
-export const i18n: II18n = {
+export const i18n: IACMarkdownEditorI18n = {
   en_US: {
       "bold": "Blod",
       "both": "editor & preview",
