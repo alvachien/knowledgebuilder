@@ -7,8 +7,8 @@ export class ACMarkdownEditorHint {
     this.timeId = -1;
     this.vditor = vditor;
 
-    this.element = document.createElement("ul");
-    this.element.className = "vditor-hint";
+    this.element = document.createElement('ul');
+    this.element.className = 'vditor-hint';
 
     this.vditor.editor.element.parentElement.appendChild(this.element);
   }
@@ -18,19 +18,19 @@ export class ACMarkdownEditorHint {
       return;
     }
     const position = getSelectPosition(this.vditor.editor.element);
-    const currentLineValue = getText(this.vditor.editor.element).substring(0, position.end).split("\n")
+    const currentLineValue = getText(this.vditor.editor.element).substring(0, position.end).split('\n')
       .slice(-1).pop();
 
-    let key = this.getKey(currentLineValue, ":");
+    let key = this.getKey(currentLineValue, ':');
     let isAt = false;
 
-    if (typeof key === "undefined") {
+    if (typeof key === 'undefined') {
       isAt = true;
-      key = this.getKey(currentLineValue, "@");
+      key = this.getKey(currentLineValue, '@');
     }
 
     if (key === undefined) {
-      this.element.style.display = "none";
+      this.element.style.display = 'none';
       clearTimeout(this.timeId);
     } else {
       if (isAt && this.vditor.options.hint.at) {
@@ -40,21 +40,21 @@ export class ACMarkdownEditorHint {
         }, this.vditor.options.hint.delay);
       }
       if (!isAt) {
-        import(/* webpackChunkName: "allEmoji" */ "../emoji/allEmoji")
+        import(/* webpackChunkName: 'allEmoji' */ '../emoji/allEmoji')
           .then((allEmoji) => {
-            const emojiHint = key === "" ? this.vditor.options.hint.emoji : Object.assign(
+            const emojiHint = key === '' ? this.vditor.options.hint.emoji : Object.assign(
               allEmoji.getAllEmoji(this.vditor.options.hint.emojiPath), this.vditor.options.hint.emoji);
             const matchEmojiData: IHintData[] = [];
             Object.keys(emojiHint).forEach((keyName) => {
               if (keyName.indexOf(key.toLowerCase()) === 0) {
-                if (emojiHint[keyName].indexOf(".") > -1) {
+                if (emojiHint[keyName].indexOf('.') > -1) {
                   matchEmojiData.push({
-                    html: `<img src="${emojiHint[keyName]}" title=":${keyName}:"/> :${keyName}:`,
+                    html: `<img src='${emojiHint[keyName]}' title=':${keyName}:'/> :${keyName}:`,
                     value: `:${keyName}:`,
                   });
                 } else {
                   matchEmojiData.push({
-                    html: `<span class="vditor-hint__emoji">${emojiHint[keyName]}</span>${keyName}`,
+                    html: `<span class='vditor-hint__emoji'>${emojiHint[keyName]}</span>${keyName}`,
                     value: emojiHint[keyName],
                   });
                 }
@@ -63,17 +63,17 @@ export class ACMarkdownEditorHint {
             this.genHTML(matchEmojiData, key, this.vditor.editor.element);
           })
           .catch((err) => {
-            console.error("Failed to load emoji", err);
+            console.error('Failed to load emoji', err);
           });
       }
     }
   }
 
   public fillEmoji = (element: HTMLElement) => {
-    this.element.style.display = "none";
+    this.element.style.display = 'none';
 
-    const value = element.getAttribute("data-value");
-    const splitChar = value.indexOf("@") === 0 ? "@" : ":";
+    const value = element.getAttribute('data-value');
+    const splitChar = value.indexOf('@') === 0 ? '@' : ':';
 
     let range: Range = window.getSelection().getRangeAt(0);
     if (!selectIsEditor(this.vditor.editor.element, range)) {
@@ -95,11 +95,11 @@ export class ACMarkdownEditorHint {
     const lastItem = lineArray[lineArray.length - 1];
     const maxLength = 32;
     if (lineArray.length > 1 && lastItem.trim() === lastItem) {
-      if (lineArray.length === 2 && lineArray[0] === "" && lineArray[1].length < maxLength) {
+      if (lineArray.length === 2 && lineArray[0] === '' && lineArray[1].length < maxLength) {
         key = lineArray[1];
       } else {
         const preChar = lineArray[lineArray.length - 2].slice(-1);
-        if (code160to32(preChar) === " " && lastItem.length < maxLength) {
+        if (code160to32(preChar) === ' ' && lastItem.length < maxLength) {
           key = lastItem;
         }
       }
@@ -109,14 +109,14 @@ export class ACMarkdownEditorHint {
 
   private genHTML(data: IHintData[], key: string, editorElement: HTMLPreElement) {
     if (data.length === 0) {
-      this.element.style.display = "none";
+      this.element.style.display = 'none';
       return;
     }
 
     const textareaPosition = getCursorPosition(this.vditor.editor.element);
     const x = textareaPosition.left;
     const y = textareaPosition.top;
-    let hintsHTML = "";
+    let hintsHTML = '';
 
     data.forEach((hintData, i) => {
       if (i > 7) {
@@ -124,29 +124,29 @@ export class ACMarkdownEditorHint {
       }
       // process high light
       let html = hintData.html;
-      if (key !== "") {
-        const lastIndex = html.lastIndexOf(">") + 1;
+      if (key !== '') {
+        const lastIndex = html.lastIndexOf('>') + 1;
         let replaceHtml = html.substr(lastIndex);
         const replaceIndex = replaceHtml.toLowerCase().indexOf(key.toLowerCase());
         if (replaceIndex > -1) {
-          replaceHtml = replaceHtml.substring(0, replaceIndex) + "<b>" +
-            replaceHtml.substring(replaceIndex, replaceIndex + key.length) + "</b>" +
+          replaceHtml = replaceHtml.substring(0, replaceIndex) + '<b>' +
+            replaceHtml.substring(replaceIndex, replaceIndex + key.length) + '</b>' +
             replaceHtml.substring(replaceIndex + key.length);
           html = html.substr(0, lastIndex) + replaceHtml;
         }
       }
-      hintsHTML += `<li data-value="${hintData.value} " class="${i || "vditor-hint--current"}"> ${html}</li>`;
+      hintsHTML += `<li data-value='${hintData.value} ' class='${i || 'vditor-hint--current'}'> ${html}</li>`;
     });
 
     this.element.innerHTML = hintsHTML;
     const lineHeight = parseInt(document.defaultView.getComputedStyle(editorElement, null)
-      .getPropertyValue("line-height"), 10);
+      .getPropertyValue('line-height'), 10);
     this.element.style.top = `${y + (lineHeight || 22)}px`;
     this.element.style.left = `${x}px`;
-    this.element.style.display = "block";
+    this.element.style.display = 'block';
 
-    this.element.querySelectorAll("li").forEach((element) => {
-      element.addEventListener("click", () => {
+    this.element.querySelectorAll('li').forEach((element) => {
+      element.addEventListener('click', () => {
         this.fillEmoji(element);
       });
     });

@@ -1,3 +1,6 @@
+import { IACMarkdownEditor } from './acmarkdown-editor-interface';
+import { gfm } from './acmarkdown-editor-gfm';
+
 export function code160to32(text: string): string {
   // 非打断空格转换为空格
   return text.replace(/\u00a0/g, ' ');
@@ -210,7 +213,7 @@ export function formatRender(vditor: IACMarkdownEditor, content: string, positio
   inputEvent(vditor, addUndo);
 }
 
-export function insertText(vditor: IVditor, prefix: string, suffix: string, replace: boolean = false,
+export function insertText(vditor: IACMarkdownEditor, prefix: string, suffix: string, replace: boolean = false,
   toggle: boolean = false) {
   let range: Range = window.getSelection().getRangeAt(0);
   if (!selectIsEditor(vditor.editor.element)) {
@@ -255,63 +258,63 @@ export function insertText(vditor: IVditor, prefix: string, suffix: string, repl
   }
 }
 
-export async function html2md(vditor: IVditor, textHTML: string, textPlain?: string) {
-  const {default: TurndownService} = await import(/* webpackChunkName: "turndown" */ "turndown");
+export async function html2md(vditor: IACMarkdownEditor, textHTML: string, textPlain?: string) {
+  const { default: TurndownService } = await import(/* webpackChunkName: 'turndown' */ 'turndown');
 
   // process word
-  const doc = new DOMParser().parseFromString(textHTML, "text/html");
+  const doc = new DOMParser().parseFromString(textHTML, 'text/html');
   if (doc.body) {
-      textHTML = doc.body.innerHTML;
+    textHTML = doc.body.innerHTML;
   }
 
   // no escape
   TurndownService.prototype.escape = (name: string) => {
-      return name;
+    return name;
   };
 
   const turndownService = new TurndownService({
-      blankReplacement: (blank: string) => {
-          return blank;
-      },
-      codeBlockStyle: "fenced",
-      emDelimiter: "*",
-      headingStyle: "atx",
-      hr: "---",
+    blankReplacement: (blank: string) => {
+      return blank;
+    },
+    codeBlockStyle: 'fenced',
+    emDelimiter: '*',
+    headingStyle: 'atx',
+    hr: '---',
   });
 
-  turndownService.addRule("vditorImage", {
-      filter: "img",
-      replacement: (content: string, target: HTMLElement) => {
-          const src = target.getAttribute("src");
-          if (!src || src.indexOf("file://") === 0) {
-              return "";
+  turndownService.addRule('vditorImage', {
+    filter: 'img',
+    replacement: (content: string, target: HTMLElement) => {
+      const src = target.getAttribute('src');
+      if (!src || src.indexOf('file://') === 0) {
+        return '';
+      }
+      // 直接使用 API 或 setOriginal 时不需要对图片进行服务器上传，直接转换。
+      // 目前使用 textPlain 判断是否来自 API 或 setOriginal
+      if (vditor.options.upload.linkToImgUrl && textPlain) {
+        const xhr = new XMLHttpRequest();
+        xhr.open('POST', vditor.options.upload.linkToImgUrl);
+        xhr.onreadystatechange = () => {
+          if (xhr.readyState === XMLHttpRequest.DONE) {
+            const responseJSON = JSON.parse(xhr.responseText);
+            if (xhr.status === 200) {
+              if (responseJSON.code !== 0) {
+                alert(responseJSON.msg);
+                return;
+              }
+              const original = responseJSON.data.originalURL;
+              setSelectionByInlineText(original, vditor.editor.element.childNodes);
+              insertText(vditor, responseJSON.data.url, '', true);
+            } else {
+              vditor.tip.show(responseJSON.msg);
+            }
           }
-          // 直接使用 API 或 setOriginal 时不需要对图片进行服务器上传，直接转换。
-          // 目前使用 textPlain 判断是否来自 API 或 setOriginal
-          if (vditor.options.upload.linkToImgUrl && textPlain) {
-              const xhr = new XMLHttpRequest();
-              xhr.open("POST", vditor.options.upload.linkToImgUrl);
-              xhr.onreadystatechange = () => {
-                  if (xhr.readyState === XMLHttpRequest.DONE) {
-                      const responseJSON = JSON.parse(xhr.responseText);
-                      if (xhr.status === 200) {
-                          if (responseJSON.code !== 0) {
-                              alert(responseJSON.msg);
-                              return;
-                          }
-                          const original = responseJSON.data.originalURL;
-                          setSelectionByInlineText(original, vditor.editor.element.childNodes);
-                          insertText(vditor, responseJSON.data.url, "", true);
-                      } else {
-                          vditor.tip.show(responseJSON.msg);
-                      }
-                  }
-              };
-              xhr.send(JSON.stringify({url: src}));
-          }
+        };
+        xhr.send(JSON.stringify({ url: src }));
+      }
 
-          return `![${target.getAttribute("alt")}](${src})`;
-      },
+      return `![${target.getAttribute('alt')}](${src})`;
+    },
   });
 
   turndownService.use(gfm);
@@ -319,23 +322,23 @@ export async function html2md(vditor: IVditor, textHTML: string, textPlain?: str
   const markdownStr = turndownService.turndown(textHTML);
 
   // process copy from IDE
-  const tempElement = document.createElement("div");
+  const tempElement = document.createElement('div');
   tempElement.innerHTML = textHTML;
   let isCode = false;
   if (tempElement.childElementCount === 1 &&
-      (tempElement.lastElementChild as HTMLElement).style.fontFamily.indexOf("monospace") > -1) {
-      // VS Code
-      isCode = true;
+    (tempElement.lastElementChild as HTMLElement).style.fontFamily.indexOf('monospace') > -1) {
+    // VS Code
+    isCode = true;
   }
-  const pres = tempElement.querySelectorAll("pre");
-  if (tempElement.childElementCount === 1 && pres.length === 1 && pres[0].className !== "vditor-textarea") {
-      // IDE
-      isCode = true;
+  const pres = tempElement.querySelectorAll('pre');
+  if (tempElement.childElementCount === 1 && pres.length === 1 && pres[0].className !== 'vditor-textarea') {
+    // IDE
+    isCode = true;
   }
 
   if (isCode) {
-      return "```\n" + (textPlain || textHTML) + "\n```";
+    return '```\n' + (textPlain || textHTML) + '\n```';
   } else {
-      return markdownStr;
+    return markdownStr;
   }
 }

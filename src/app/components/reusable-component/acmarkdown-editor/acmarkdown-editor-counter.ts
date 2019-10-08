@@ -1,3 +1,5 @@
+import { IACMarkdownEditor } from './acmarkdown-editor-interface';
+
 export class ACMarkdownEditorCounter {
   public element: HTMLElement;
 
