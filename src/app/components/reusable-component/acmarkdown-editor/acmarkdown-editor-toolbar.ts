@@ -1,6 +1,6 @@
 import { insertText } from './acmarkdown-editor-util';
-import { IACMarkdownEditor, IACMarkdownEditorToolbarItem } from './acmarkdown-editor-interface';
-import { i18n } from './acmarkdown-editor-constant';
+import { IACMarkdownEditor, IACMarkdownEditorToolbarItem, IACMarkdownEditorHTMLInputEvent } from './acmarkdown-editor-interface';
+import { i18n, boldSvg, bothSvg, checkSvg, codeSvg, emojiSvg, fullscreenSvg, contractSvg, headingsSvg, helpSvg, uploadSvg, undoSvg, tableSvg, strikeSvg, redoSvg, recordSvg, quoteSvg, previewSvg, orderedlistSvg, listSvg, linkSvg, lineSvg, italicSvg, inlinecodeSvg, infoSvg, } from './acmarkdown-editor-constant';
 
 export abstract class ACMarkdownEditorToolbarItem {
   public element: HTMLElement;
@@ -37,10 +37,7 @@ export abstract class ACMarkdownEditorToolbarItem {
 export class ACMarkdownToolbarBold extends ACMarkdownEditorToolbarItem {
   constructor(vditor: IACMarkdownEditor, tbItem: IACMarkdownEditorToolbarItem) {
     super(vditor, tbItem);
-    this.element.children[0].innerHTML = tbItem.icon ||
-`<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32' width='32px' height='32px'>
-<path d='M22.996 15.023c1.339-1.591 2.147-3.643 2.147-5.88 0-5.041-4.102-9.143-9.143-9.143h-11.429v32h13.714c5.041 0 9.143-4.102 9.143-9.143 0-3.32-1.779-6.232-4.433-7.834zM11.429 4.571h3.625c1.999 0 3.625 2.051 3.625 4.571s-1.626 4.571-3.625 4.571h-3.625v-9.143zM17.107 27.429h-5.679v-9.143h5.679c2.087 0 3.786 2.051 3.786 4.571s-1.698 4.571-3.786 4.571z'></path>
-</svg>`;
+    this.element.children[0].innerHTML = tbItem.icon || boldSvg;
 
     this.bindEvent();
   }
@@ -53,10 +50,7 @@ export class ACMarkdownToolbarBold extends ACMarkdownEditorToolbarItem {
 export class ACMarkdownToolbarBoth extends ACMarkdownEditorToolbarItem {
   constructor(vditor: IACMarkdownEditor, tbItem: IACMarkdownEditorToolbarItem) {
     super(vditor, tbItem);
-    this.element.children[0].innerHTML = tbItem.icon ||
-`<svg version='1.1' xmlns='http://www.w3.org/2000/svg' width='32' height='32' viewBox='0 0 32 32'>
-<path d='M11.429 6.095h-9.905c-0.842 0-1.524 0.682-1.524 1.524v1.524c0 0.841 0.682 1.524 1.524 1.524h9.905c0.841 0 1.524-0.682 1.524-1.524v-1.524c0-0.842-0.682-1.524-1.524-1.524zM11.429 13.714h-9.905c-0.842 0-1.524 0.682-1.524 1.524v1.524c0 0.841 0.682 1.524 1.524 1.524h9.905c0.841 0 1.524-0.682 1.524-1.524v-1.524c0-0.841-0.682-1.524-1.524-1.524zM11.429 21.333h-9.905c-0.842 0-1.524 0.682-1.524 1.524v1.524c0 0.841 0.682 1.524 1.524 1.524h9.905c0.841 0 1.524-0.682 1.524-1.524v-1.524c0-0.841-0.682-1.524-1.524-1.524zM30.476 6.095h-12.952c-0.841 0-1.524 0.682-1.524 1.524v16.762c0 0.841 0.682 1.524 1.524 1.524h12.952c0.841 0 1.524-0.682 1.524-1.524v-16.762c0-0.841-0.682-1.524-1.524-1.524z'></path>
-</svg>`;
+    this.element.children[0].innerHTML = tbItem.icon || bothSvg;
     if (vditor.options.preview.mode === 'both') {
       this.element.children[0].className =
         `vditor-tooltipped vditor-tooltipped__${tbItem.tipPosition} vditor-menu--current`;
@@ -102,10 +96,7 @@ export class ACMarkdownToolbarBr {
 export class ACMarkdownToolbarCheck extends ACMarkdownEditorToolbarItem {
   constructor(vditor: IACMarkdownEditor, tbItem: IACMarkdownEditorToolbarItem) {
     super(vditor, tbItem);
-    this.element.children[0].innerHTML = tbItem.icon ||
-`<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32">
-<path d="M27.094 19.485v6.12c0 3.059-2.483 5.542-5.542 5.542h-16.010c-3.059 0-5.542-2.483-5.542-5.542v-16.010c0-3.059 2.483-5.542 5.542-5.542h16.010c0.769 0 1.54 0.154 2.251 0.481 0.174 0.077 0.308 0.25 0.346 0.443 0.039 0.211-0.019 0.404-0.174 0.558l-0.943 0.943c-0.115 0.115-0.289 0.193-0.443 0.193-0.058 0-0.115-0.019-0.174-0.039-0.289-0.077-0.578-0.115-0.866-0.115h-16.010c-1.693 0-3.079 1.386-3.079 3.079v16.010c0 1.693 1.386 3.079 3.079 3.079h16.010c1.693 0 3.079-1.386 3.079-3.079v-4.888c0-0.154 0.058-0.308 0.174-0.424l1.232-1.232c0.135-0.135 0.289-0.193 0.443-0.193 0.077 0 0.154 0.019 0.231 0.058 0.231 0.096 0.385 0.308 0.385 0.558zM31.54 10.076l-15.664 15.664c-0.615 0.615-1.578 0.615-2.194 0l-8.275-8.275c-0.615-0.615-0.615-1.578 0-2.194l2.116-2.116c0.615-0.615 1.578-0.615 2.194 0l5.060 5.060 12.451-12.451c0.615-0.615 1.578-0.615 2.194 0l2.116 2.116c0.615 0.615 0.615 1.578 0 2.194z"></path>
-</svg>`;
+    this.element.children[0].innerHTML = tbItem.icon || checkSvg;
     this.bindEvent();
   }
 
@@ -117,12 +108,7 @@ export class ACMarkdownToolbarCheck extends ACMarkdownEditorToolbarItem {
 export class ACMarkdownToolbarCode extends ACMarkdownEditorToolbarItem {
   constructor(vditor: IACMarkdownEditor, tbItem: IACMarkdownEditorToolbarItem) {
     super(vditor, tbItem);
-    this.element.children[0].innerHTML = tbItem.icon ||
-    `<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32">
-    <path d="M21.053 21.895l2.526 2.526 8.421-8.421-8.421-8.421-2.526 2.526 5.895 5.895z"></path>
-    <path d="M10.947 10.105l-2.526-2.526-8.421 8.421 8.421 8.421 2.526-2.526-5.895-5.895z"></path>
-    <path d="M17.613 6.487l1.828 0.499-5.052 18.527-1.828-0.499 5.052-18.527z"></path>
-    </svg>`;
+    this.element.children[0].innerHTML = tbItem.icon || codeSvg;
     this.bindEvent();
   }
 
@@ -155,10 +141,7 @@ export class ACMarkdownToolbarEmoji extends ACMarkdownEditorToolbarItem {
 
   constructor(vditor: IACMarkdownEditor, tbItem: IACMarkdownEditorToolbarItem) {
     super(vditor, tbItem);
-    this.element.children[0].innerHTML = tbItem.icon ||
-`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" width="32px" height="32px">
-<path d="M16 24.789c-3.756 0-6.911-2.254-8.188-5.559h16.376c-1.277 3.305-4.432 5.559-8.188 5.559zM10.366 14.423c-1.352 0-2.404-1.052-2.404-2.404s1.052-2.404 2.404-2.404 2.404 1.052 2.404 2.404-1.052 2.404-2.404 2.404zM21.634 14.423c-1.352 0-2.404-1.052-2.404-2.404s1.052-2.404 2.404-2.404 2.404 1.052 2.404 2.404-1.052 2.404-2.404 2.404zM16 28.845c7.061 0 12.845-5.784 12.845-12.845s-5.784-12.845-12.845-12.845-12.845 5.784-12.845 12.845 5.784 12.845 12.845 12.845zM16 0c8.864 0 16 7.136 16 16s-7.136 16-16 16-16-7.136-16-16 7.136-16 16-16z"></path>
-</svg>`;
+    this.element.children[0].innerHTML = tbItem.icon || emojiSvg;
 
     const emojiPanelElement = document.createElement('div');
     emojiPanelElement.className = 'vditor-panel';
@@ -221,10 +204,7 @@ data-value=':${key}: ' data-key=':${key}:' src='${emojiValue}'/></span>`;
 export class ACMarkdownToolbarFullscreen extends ACMarkdownEditorToolbarItem {
   constructor(vditor: IACMarkdownEditor, tbItem: IACMarkdownEditorToolbarItem) {
     super(vditor, tbItem);
-    this.element.children[0].innerHTML = tbItem.icon ||
-    `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" width="32px" height="32px">
-    <path d="M32 0v13l-5-5-6 6-3-3 6-6-5-5zM14 21l-6 6 5 5h-13v-13l5 5 6-6z"></path>
-</svg>`;
+    this.element.children[0].innerHTML = tbItem.icon || fullscreenSvg;
     this._bindEvent(vditor, tbItem);
   }
 
@@ -232,9 +212,7 @@ export class ACMarkdownToolbarFullscreen extends ACMarkdownEditorToolbarItem {
     this.element.children[0].addEventListener('click', function() {
       const vditorElement = document.getElementById(vditor.id);
       if (vditorElement.className.indexOf('vditor--fullscreen') > -1) {
-        this.innerHTML = tbItem.icon || `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" width="32px" height="32px">
-        <path d="M32 0v13l-5-5-6 6-3-3 6-6-5-5zM14 21l-6 6 5 5h-13v-13l5 5 6-6z"></path>
-    </svg>`;
+        this.innerHTML = tbItem.icon || fullscreenSvg;
         vditorElement.className = vditorElement.className.replace(' vditor--fullscreen', '');
         Object.keys(vditor.toolbar.elements).forEach((key) => {
           const svgElement = vditor.toolbar.elements[key].firstChild as HTMLElement;
@@ -243,7 +221,7 @@ export class ACMarkdownToolbarFullscreen extends ACMarkdownEditorToolbarItem {
           }
         });
       } else {
-        this.innerHTML = tbItem.icon || contractSVG;
+        this.innerHTML = tbItem.icon || contractSvg;
         vditorElement.className = vditorElement.className + ' vditor--fullscreen';
         Object.keys(vditor.toolbar.elements).forEach((key) => {
           const svgElement = vditor.toolbar.elements[key].firstChild as HTMLElement;
@@ -261,7 +239,7 @@ export class ACMarkdownToolbarHeadings extends ACMarkdownEditorToolbarItem {
 
   constructor(vditor: IACMarkdownEditor, tbItem: IACMarkdownEditorToolbarItem) {
     super(vditor, tbItem);
-    this.element.children[0].innerHTML = tbItem.icon || headingsSVG;
+    this.element.children[0].innerHTML = tbItem.icon || headingsSvg;
 
     const headingsPanelElement = document.createElement('div');
     headingsPanelElement.className = 'vditor-panel';
@@ -306,7 +284,7 @@ export class ACMarkdownToolbarHeadings extends ACMarkdownEditorToolbarItem {
 export class ACMarkdownToolbarHelp extends ACMarkdownEditorToolbarItem {
   constructor(vditor: IACMarkdownEditor, tbItem: IACMarkdownEditorToolbarItem) {
     super(vditor, tbItem);
-    this.element.children[0].innerHTML = tbItem.icon || helpSVG;
+    this.element.children[0].innerHTML = tbItem.icon || helpSvg;
     this.bindEvent();
   }
 
@@ -317,10 +295,10 @@ export class ACMarkdownToolbarHelp extends ACMarkdownEditorToolbarItem {
   }
 }
 
-export class Info extends ACMarkdownEditorToolbarItem {
+export class ACMarkdownToolbarInfo extends ACMarkdownEditorToolbarItem {
   constructor(vditor: IACMarkdownEditor, tbItem: IACMarkdownEditorToolbarItem) {
     super(vditor, tbItem);
-    this.element.children[0].innerHTML = tbItem.icon || infoSVG;
+    this.element.children[0].innerHTML = tbItem.icon || infoSvg;
     this.bindEvent();
   }
 
@@ -331,10 +309,10 @@ export class Info extends ACMarkdownEditorToolbarItem {
   }
 }
 
-export class InlineCode extends ACMarkdownEditorToolbarItem {
+export class ACMarkdownToolbarInlineCode extends ACMarkdownEditorToolbarItem {
   constructor(vditor: IACMarkdownEditor, tbItem: IACMarkdownEditorToolbarItem) {
     super(vditor, tbItem);
-    this.element.children[0].innerHTML = tbItem.icon || inlineCodeSVG;
+    this.element.children[0].innerHTML = tbItem.icon || inlinecodeSvg;
     this.bindEvent();
   }
 
@@ -343,10 +321,10 @@ export class InlineCode extends ACMarkdownEditorToolbarItem {
   }
 }
 
-export class Italic extends ACMarkdownEditorToolbarItem {
+export class ACMarkdownToolbarItalic extends ACMarkdownEditorToolbarItem {
   constructor(vditor: IACMarkdownEditor, tbItem: IACMarkdownEditorToolbarItem) {
     super(vditor, tbItem);
-    this.element.children[0].innerHTML = tbItem.icon || italicSVG;
+    this.element.children[0].innerHTML = tbItem.icon || italicSvg;
     this.bindEvent();
   }
 
@@ -355,10 +333,10 @@ export class Italic extends ACMarkdownEditorToolbarItem {
   }
 }
 
-export class Line extends ACMarkdownEditorToolbarItem {
+export class ACMarkdownToolbarLine extends ACMarkdownEditorToolbarItem {
   constructor(vditor: IACMarkdownEditor, tbItem: IACMarkdownEditorToolbarItem) {
     super(vditor, tbItem);
-    this.element.children[0].innerHTML = tbItem.icon || lineSVG;
+    this.element.children[0].innerHTML = tbItem.icon || lineSvg;
     this.bindEvent();
   }
 
@@ -367,10 +345,10 @@ export class Line extends ACMarkdownEditorToolbarItem {
   }
 }
 
-export class Link extends ACMarkdownEditorToolbarItem {
+export class ACMarkdownToolbarLink extends ACMarkdownEditorToolbarItem {
   constructor(vditor: IACMarkdownEditor, tbItem: IACMarkdownEditorToolbarItem) {
     super(vditor, tbItem);
-    this.element.children[0].innerHTML = tbItem.icon || linkSVG;
+    this.element.children[0].innerHTML = tbItem.icon || linkSvg;
     this.bindEvent();
   }
 
@@ -379,10 +357,10 @@ export class Link extends ACMarkdownEditorToolbarItem {
   }
 }
 
-export class List extends ACMarkdownEditorToolbarItem {
+export class ACMarkdownToolbarList extends ACMarkdownEditorToolbarItem {
   constructor(vditor: IACMarkdownEditor, tbItem: IACMarkdownEditorToolbarItem) {
     super(vditor, tbItem);
-    this.element.children[0].innerHTML = tbItem.icon || listSVG;
+    this.element.children[0].innerHTML = tbItem.icon || listSvg;
     this.bindEvent();
   }
 
@@ -391,10 +369,10 @@ export class List extends ACMarkdownEditorToolbarItem {
   }
 }
 
-export class OrderedList extends ACMarkdownEditorToolbarItem {
+export class ACMarkdownToolbarOrderedList extends ACMarkdownEditorToolbarItem {
   constructor(vditor: IACMarkdownEditor, tbItem: IACMarkdownEditorToolbarItem) {
     super(vditor, tbItem);
-    this.element.children[0].innerHTML = tbItem.icon || orderedListVG;
+    this.element.children[0].innerHTML = tbItem.icon || orderedlistSvg;
     this.bindEvent();
   }
 
@@ -403,10 +381,10 @@ export class OrderedList extends ACMarkdownEditorToolbarItem {
   }
 }
 
-export class Preview extends ACMarkdownEditorToolbarItem {
+export class ACMarkdownToolbarPreview extends ACMarkdownEditorToolbarItem {
   constructor(vditor: IACMarkdownEditor, tbItem: IACMarkdownEditorToolbarItem) {
     super(vditor, tbItem);
-    this.element.children[0].innerHTML = tbItem.icon || previewSVG;
+    this.element.children[0].innerHTML = tbItem.icon || previewSvg;
     if (vditor.options.preview.mode === 'preview') {
       this.element.children[0].className =
         `vditor-tooltipped vditor-tooltipped__${tbItem.tipPosition} vditor-menu--current`;
@@ -440,10 +418,10 @@ export class Preview extends ACMarkdownEditorToolbarItem {
   }
 }
 
-export class Quote extends ACMarkdownEditorToolbarItem {
+export class ACMarkdownToolbarQuote extends ACMarkdownEditorToolbarItem {
   constructor(vditor: IACMarkdownEditor, tbItem: IACMarkdownEditorToolbarItem) {
     super(vditor, tbItem);
-    this.element.children[0].innerHTML = tbItem.icon || quoteSVG;
+    this.element.children[0].innerHTML = tbItem.icon || quoteSvg;
     this.bindEvent();
   }
 
@@ -452,10 +430,10 @@ export class Quote extends ACMarkdownEditorToolbarItem {
   }
 }
 
-export class Record extends ACMarkdownEditorToolbarItem {
+export class ACMarkdownToolbarRecord extends ACMarkdownEditorToolbarItem {
   constructor(vditor: IACMarkdownEditor, tbItem: IACMarkdownEditorToolbarItem) {
     super(vditor, tbItem);
-    this.element.children[0].innerHTML = tbItem.icon || recordSVG;
+    this.element.children[0].innerHTML = tbItem.icon || recordSvg;
 
     this._bindEvent(vditor);
   }
@@ -501,10 +479,10 @@ export class Record extends ACMarkdownEditorToolbarItem {
   }
 }
 
-export class Redo extends ACMarkdownEditorToolbarItem {
+export class ACMarkdownToolbarRedo extends ACMarkdownEditorToolbarItem {
   constructor(vditor: IACMarkdownEditor, tbItem: IACMarkdownEditorToolbarItem) {
     super(vditor, tbItem);
-    this.element.children[0].innerHTML = tbItem.icon || redoSVG;
+    this.element.children[0].innerHTML = tbItem.icon || redoSvg;
     this.element.children[0].className = this.element.children[0].className + ' vditor-menu--disabled';
     this.element.children[0].addEventListener('click', () => {
       this.vditor.undo.redo(vditor);
@@ -512,10 +490,10 @@ export class Redo extends ACMarkdownEditorToolbarItem {
   }
 }
 
-export class Strike extends ACMarkdownEditorToolbarItem {
+export class ACMarkdownToolbarStrike extends ACMarkdownEditorToolbarItem {
   constructor(vditor: IACMarkdownEditor, tbItem: IACMarkdownEditorToolbarItem) {
     super(vditor, tbItem);
-    this.element.children[0].innerHTML = tbItem.icon || strikekSVG;
+    this.element.children[0].innerHTML = tbItem.icon || strikeSvg;
     this.bindEvent();
   }
 
@@ -524,10 +502,10 @@ export class Strike extends ACMarkdownEditorToolbarItem {
   }
 }
 
-export class Table extends ACMarkdownEditorToolbarItem {
+export class ACMarkdownToolbarTable extends ACMarkdownEditorToolbarItem {
   constructor(vditor: IACMarkdownEditor, tbItem: IACMarkdownEditorToolbarItem) {
     super(vditor, tbItem);
-    this.element.children[0].innerHTML = tbItem.icon || tableSVG;
+    this.element.children[0].innerHTML = tbItem.icon || tableSvg;
     this.bindEvent();
   }
 
@@ -536,10 +514,10 @@ export class Table extends ACMarkdownEditorToolbarItem {
   }
 }
 
-export class Undo extends ACMarkdownEditorToolbarItem {
+export class ACMarkdownToolbarUndo extends ACMarkdownEditorToolbarItem {
   constructor(vditor: IACMarkdownEditor, tbItem: IACMarkdownEditorToolbarItem) {
     super(vditor, tbItem);
-    this.element.children[0].innerHTML = tbItem.icon || undoSVG;
+    this.element.children[0].innerHTML = tbItem.icon || undoSvg;
     this.element.children[0].className = this.element.children[0].className + ' vditor-menu--disabled';
     this.element.children[0].addEventListener('click', () => {
       vditor.undo.undo(vditor);
@@ -548,19 +526,19 @@ export class Undo extends ACMarkdownEditorToolbarItem {
 }
 
 
-export class Upload extends ACMarkdownEditorToolbarItem {
+export class ACMarkdownToolbarUpload extends ACMarkdownEditorToolbarItem {
   constructor(vditor: IACMarkdownEditor, tbItem: IACMarkdownEditorToolbarItem) {
     super(vditor, tbItem);
-    let inputHTML = '<input multiple='multiple' type='file'></label>';
+    let inputHTML = '<input multiple="multiple" type="file"></label>';
     if (vditor.options.upload.accept) {
-      inputHTML = `<input multiple='multiple' type='file' accept='${vditor.options.upload.accept}'></label>`;
+      inputHTML = `<input multiple="multiple" type="file" accept="${vditor.options.upload.accept}"></label>`;
     }
-    this.element.children[0].innerHTML = `<label>${(tbItem.icon || uploadSVG)}${inputHTML}</label>`;
+    this.element.children[0].innerHTML = `<label>${(tbItem.icon || uploadSvg)}${inputHTML}</label>`;
     this._bindEvent(vditor);
   }
 
   public _bindEvent(vditor: IACMarkdownEditor) {
-    this.element.querySelector('input').addEventListener('change', (event: IHTMLInputEvent) => {
+    this.element.querySelector('input').addEventListener('change', (event: IACMarkdownEditorHTMLInputEvent) => {
       if (event.target.files.length === 0) {
         return;
       }
@@ -569,7 +547,7 @@ export class Upload extends ACMarkdownEditorToolbarItem {
   }
 }
 
-export class Toolbar {
+export class ACMarkdownEditorToolbar {
   public elements: { [key: string]: HTMLElement };
 
   constructor(vditor: IACMarkdownEditor) {
@@ -580,82 +558,82 @@ export class Toolbar {
       let menuItemObj;
       switch (tbItem.name) {
         case 'emoji':
-          menuItemObj = new Emoji(vditor, tbItem);
+          menuItemObj = new ACMarkdownToolbarEmoji(vditor, tbItem);
           break;
         case 'bold':
-          menuItemObj = new Bold(vditor, tbItem);
+          menuItemObj = new ACMarkdownToolbarBold(vditor, tbItem);
           break;
         case 'headings':
-          menuItemObj = new Headings(vditor, tbItem);
+          menuItemObj = new ACMarkdownToolbarHeadings(vditor, tbItem);
           break;
         case '|':
-          menuItemObj = new Divider();
+          menuItemObj = new ACMarkdownToolbarDivider();
           break;
         case 'br':
-          menuItemObj = new Br();
+          menuItemObj = new ACMarkdownToolbarBr();
           break;
         case 'italic':
-          menuItemObj = new Italic(vditor, tbItem);
+          menuItemObj = new ACMarkdownToolbarItalic(vditor, tbItem);
           break;
         case 'strike':
-          menuItemObj = new Strike(vditor, tbItem);
+          menuItemObj = new ACMarkdownToolbarStrike(vditor, tbItem);
           break;
         case 'line':
-          menuItemObj = new Line(vditor, tbItem);
+          menuItemObj = new ACMarkdownToolbarLine(vditor, tbItem);
           break;
         case 'quote':
-          menuItemObj = new Quote(vditor, tbItem);
+          menuItemObj = new ACMarkdownToolbarQuote(vditor, tbItem);
           break;
         case 'list':
-          menuItemObj = new List(vditor, tbItem);
+          menuItemObj = new ACMarkdownToolbarList(vditor, tbItem);
           break;
         case 'ordered-list':
-          menuItemObj = new OrderedList(vditor, tbItem);
+          menuItemObj = new ACMarkdownToolbarOrderedList(vditor, tbItem);
           break;
         case 'check':
-          menuItemObj = new Check(vditor, tbItem);
+          menuItemObj = new ACMarkdownToolbarCheck(vditor, tbItem);
           break;
         case 'undo':
-          menuItemObj = new Undo(vditor, tbItem);
+          menuItemObj = new ACMarkdownToolbarUndo(vditor, tbItem);
           break;
         case 'redo':
-          menuItemObj = new Redo(vditor, tbItem);
+          menuItemObj = new ACMarkdownToolbarRedo(vditor, tbItem);
           break;
         case 'code':
-          menuItemObj = new Code(vditor, tbItem);
+          menuItemObj = new ACMarkdownToolbarCode(vditor, tbItem);
           break;
         case 'inline-code':
-          menuItemObj = new InlineCode(vditor, tbItem);
+          menuItemObj = new ACMarkdownToolbarInlineCode(vditor, tbItem);
           break;
         case 'link':
-          menuItemObj = new Link(vditor, tbItem);
+          menuItemObj = new ACMarkdownToolbarLink(vditor, tbItem);
           break;
         case 'help':
-          menuItemObj = new Help(vditor, tbItem);
+          menuItemObj = new ACMarkdownToolbarHelp(vditor, tbItem);
           break;
         case 'table':
-          menuItemObj = new Table(vditor, tbItem);
+          menuItemObj = new ACMarkdownToolbarTable(vditor, tbItem);
           break;
         case 'both':
-          menuItemObj = new Both(vditor, tbItem);
+          menuItemObj = new ACMarkdownToolbarBoth(vditor, tbItem);
           break;
         case 'preview':
-          menuItemObj = new Preview(vditor, tbItem);
+          menuItemObj = new ACMarkdownToolbarPreview(vditor, tbItem);
           break;
         case 'fullscreen':
-          menuItemObj = new Fullscreen(vditor, tbItem);
+          menuItemObj = new ACMarkdownToolbarFullscreen(vditor, tbItem);
           break;
         case 'upload':
-          menuItemObj = new Upload(vditor, tbItem);
+          menuItemObj = new ACMarkdownToolbarUpload(vditor, tbItem);
           break;
         case 'record':
-          menuItemObj = new Record(vditor, tbItem);
+          menuItemObj = new ACMarkdownToolbarRecord(vditor, tbItem);
           break;
         case 'info':
-          menuItemObj = new Info(vditor, tbItem);
+          menuItemObj = new ACMarkdownToolbarInfo(vditor, tbItem);
           break;
         default:
-          menuItemObj = new Custom(vditor, tbItem);
+          menuItemObj = new ACMarkdownToolbarCustom(vditor, tbItem);
           break;
       }
 

@@ -1,3 +1,5 @@
+import { IACMarkdownEditor } from './acmarkdown-editor-interface';
+
 export class ACMarkdownEditorHotkey {
   public hintElement: HTMLElement;
   public vditor: IACMarkdownEditor;
