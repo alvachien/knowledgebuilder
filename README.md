@@ -9,6 +9,7 @@ This repo also enhance the quiz generation mechanism by adding the question bank
 # credits
 - [Angular](https://angular.io)
 - [Ant Design](https://ng.ant.design)
+- [mathjs](https://mathjs.org)
 
 # references
 - [Vditor](https://github.com/b3log/vditor)

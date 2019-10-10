@@ -1,4 +1,4 @@
-import { inputEvent, getText, getSelectText, insertText } from './acmarkdown-editor-util';
+import { inputEvent, getText, getSelectText, insertText, html2md } from './acmarkdown-editor-util';
 import { IACMarkdownEditor } from './acmarkdown-editor-interface';
 
 export class ACMarkdownEditorControl {
