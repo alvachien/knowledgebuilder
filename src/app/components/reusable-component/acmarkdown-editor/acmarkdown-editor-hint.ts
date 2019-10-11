@@ -1,3 +1,6 @@
+import { IACMarkdownEditor, IACMarkdownEditorHintData } from './acmarkdown-editor-interface';
+import { getSelectPosition, getText, formatRender, selectIsEditor, code160to32, getCursorPosition } from './acmarkdown-editor-util';
+
 export class ACMarkdownEditorHint {
   public timeId: number;
   public vditor: IACMarkdownEditor;
@@ -44,7 +47,7 @@ export class ACMarkdownEditorHint {
           .then((allEmoji) => {
             const emojiHint = key === '' ? this.vditor.options.hint.emoji : Object.assign(
               allEmoji.getAllEmoji(this.vditor.options.hint.emojiPath), this.vditor.options.hint.emoji);
-            const matchEmojiData: IHintData[] = [];
+            const matchEmojiData: IACMarkdownEditorHintData[] = [];
             Object.keys(emojiHint).forEach((keyName) => {
               if (keyName.indexOf(key.toLowerCase()) === 0) {
                 if (emojiHint[keyName].indexOf('.') > -1) {
@@ -107,7 +110,7 @@ export class ACMarkdownEditorHint {
     return key;
   }
 
-  private genHTML(data: IHintData[], key: string, editorElement: HTMLPreElement) {
+  private genHTML(data: IACMarkdownEditorHintData[], key: string, editorElement: HTMLPreElement) {
     if (data.length === 0) {
       this.element.style.display = 'none';
       return;

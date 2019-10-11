@@ -1,4 +1,6 @@
-const rules: { [key: string]: ITurndownRule } = {
+import { IACMarkdownEditorTurndownRule, IACMarkdownEditorTurndown } from './acmarkdown-editor-interface';
+
+const rules: { [key: string]: IACMarkdownEditorTurndownRule } = {
   vditorDelete: {
     filter: ['del', 's', 'strike'],
     replacement: (content: string) => {
@@ -81,8 +83,8 @@ const genCell = (content: string, node: HTMLElement) => {
   return prefix + content + suffix;
 };
 
-export const gfm = (turndownService: ITurndown) => {
+export function gfm(turndownService: IACMarkdownEditorTurndown) {
   Object.keys(rules).forEach((key) => {
     turndownService.addRule(key, rules[key]);
   });
-};
+}

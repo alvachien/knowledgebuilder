@@ -13,7 +13,7 @@ export class ACMarkdownEditorUpload {
   }
 }
 
-const validateFile = (vditor: IACMarkdownEditor, files: File[]): File[] => {
+export function validateFile(vditor: IACMarkdownEditor, files: File[]): File[] {
   vditor.tip.hide();
   const uploadFileList = [];
   let errorTip = '';
@@ -74,43 +74,42 @@ const validateFile = (vditor: IACMarkdownEditor, files: File[]): File[] => {
   }
 
   return uploadFileList;
-};
+}
 
-const genUploadedLabel =
-  (editorElement: HTMLPreElement, responseText: string, vditor: IVditor) => {
-    editorElement.focus();
-    const response = JSON.parse(responseText);
+function genUploadedLabel(editorElement: HTMLPreElement, responseText: string, vditor: IACMarkdownEditor) {
+  editorElement.focus();
+  const response = JSON.parse(responseText);
 
-    if (response.code === 1) {
-      vditor.tip.show(response.msg);
-    }
+  if (response.code === 1) {
+    vditor.tip.show(response.msg);
+  }
 
-    if (response.data.errFiles) {
-      response.data.errFiles.forEach((data: string) => {
-        const lastIndex = data.lastIndexOf('.');
-        const filename = vditor.options.upload.filename(data.substr(0, lastIndex)) + data.substr(lastIndex);
-        const original = `[${filename}](${i18n[vditor.options.lang].uploading})`;
-        setSelectionByInlineText(original, editorElement.childNodes);
-        insertText(vditor, '', '', true);
-      });
-    }
-
-    Object.keys(response.data.succMap).forEach((key) => {
-      const path = response.data.succMap[key];
-      const lastIndex = key.lastIndexOf('.');
-      const filename = vditor.options.upload.filename(key.substr(0, lastIndex)) + key.substr(lastIndex);
+  if (response.data.errFiles) {
+    response.data.errFiles.forEach((data: string) => {
+      const lastIndex = data.lastIndexOf('.');
+      const filename = vditor.options.upload.filename(data.substr(0, lastIndex)) + data.substr(lastIndex);
       const original = `[${filename}](${i18n[vditor.options.lang].uploading})`;
-      if (path.indexOf('.wav') === path.length - 4) {
-        setSelectionByInlineText(original, editorElement.childNodes);
-        insertText(vditor, `<audio controls='controls' src='${path}'></audio>\n`, '', true);
-        return;
-      }
       setSelectionByInlineText(original, editorElement.childNodes);
-      insertText(vditor, `[${filename}](${path})`, '', true);
+      insertText(vditor, '', '', true);
     });
-  };
+  }
 
-const uploadFiles = (vditor: IACMarkdownEditor, files: FileList | DataTransferItemList | File[], element?: HTMLInputElement) => {
+  Object.keys(response.data.succMap).forEach((key) => {
+    const path = response.data.succMap[key];
+    const lastIndex = key.lastIndexOf('.');
+    const filename = vditor.options.upload.filename(key.substr(0, lastIndex)) + key.substr(lastIndex);
+    const original = `[${filename}](${i18n[vditor.options.lang].uploading})`;
+    if (path.indexOf('.wav') === path.length - 4) {
+      setSelectionByInlineText(original, editorElement.childNodes);
+      insertText(vditor, `<audio controls='controls' src='${path}'></audio>\n`, '', true);
+      return;
+    }
+    setSelectionByInlineText(original, editorElement.childNodes);
+    insertText(vditor, `[${filename}](${path})`, '', true);
+  });
+}
+
+export function uploadFiles(vditor: IACMarkdownEditor, files: FileList | DataTransferItemList | File[], element?: HTMLInputElement) {
   // FileList | DataTransferItemList | File[] => File[]
   const fileList = [];
   for (let iMax = files.length, i = 0; i < iMax; i++) {

@@ -342,3 +342,60 @@ export async function html2md(vditor: IACMarkdownEditor, textHTML: string, textP
     return markdownStr;
   }
 }
+
+export function getCursorPosition(editor: HTMLPreElement) {
+  const parentRect = editor.parentElement.getBoundingClientRect();
+  const range = window.getSelection().getRangeAt(0);
+  const startNode = range.startContainer.childNodes[range.startOffset] as HTMLElement;
+  let cursorRect;
+  if (startNode) {
+    if (startNode.nodeType === 3 && startNode.textContent === '') {
+      cursorRect = startNode.nextElementSibling.getClientRects()[0];
+    } else if (startNode.getClientRects) {
+      cursorRect = startNode.getClientRects()[0];
+    }
+  } else {
+    cursorRect = range.getBoundingClientRect();
+  }
+  return {
+    left: cursorRect.left - parentRect.left,
+    top: cursorRect.top - parentRect.top,
+  };
+}
+
+export function getCurrentLinePosition(position: { start: number, end: number }, text: string) {
+
+  // find start
+  let start = position.start - 1;
+  let findStart = false;
+  while (!findStart && start > -1) {
+    // 防止光标在末尾
+    if (text.charAt(start) === '\n' && text.length !== start + 1) {
+      start++;
+      findStart = true;
+    } else if (start === 0) {
+      findStart = true;
+    } else {
+      start--;
+    }
+  }
+
+  // find end
+  let end = position.end;
+  let findEnd = false;
+  while (!findEnd && end <= text.length) {
+    if (text.charAt(end) === '\n') {
+      end++;
+      findEnd = true;
+    } else if (end === text.length) {
+      findEnd = true;
+    } else {
+      end++;
+    }
+  }
+
+  return {
+    end: Math.min(end, text.length),
+    start: Math.max(0, start),
+  };
+}

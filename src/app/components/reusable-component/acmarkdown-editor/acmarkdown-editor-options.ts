@@ -1,4 +1,4 @@
-import { IACMarkdownEditorOptions } from './acmarkdown-editor-interface';
+import { IACMarkdownEditorOptions, IACMarkdownEditorToolbarItem } from './acmarkdown-editor-interface';
 
 export class ACMarkdownEditorOptions {
   public options: IACMarkdownEditorOptions;
@@ -169,17 +169,17 @@ export class ACMarkdownEditorOptions {
     width: 'auto',
   };
 
-  constructor(options: IOptions) {
+  constructor(options: IACMarkdownEditorOptions) {
     this.options = options;
   }
 
-  public merge(): IOptions {
-    const toolbar: IMenuItem[] = [];
+  public merge(): IACMarkdownEditorOptions {
+    const toolbar: IACMarkdownEditorToolbarItem[] = [];
     if (this.options) {
       if (this.options.toolbar) {
-        this.options.toolbar.forEach((menuItem: IMenuItem) => {
+        this.options.toolbar.forEach((menuItem: IACMarkdownEditorToolbarItem) => {
           let currentMenuItem = menuItem;
-          this.defaultOptions.toolbar.forEach((defaultMenuItem: IMenuItem) => {
+          this.defaultOptions.toolbar.forEach((defaultMenuItem: IACMarkdownEditorToolbarItem) => {
             if (typeof menuItem === 'string' && defaultMenuItem.name === menuItem) {
               currentMenuItem = defaultMenuItem;
             }

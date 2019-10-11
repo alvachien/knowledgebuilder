@@ -1,6 +1,7 @@
 import { IACMarkdownEditor } from './acmarkdown-editor-interface';
 import { getText } from './acmarkdown-editor-util';
 import { md2html, mathRender, mermaidRender, codeRender, chartRender, abcRender } from './acmarkdown-editor-markdown';
+import { i18n } from './acmarkdown-editor-constant';
 
 export class ACMarkdownEditorPreview {
   public element: HTMLElement;

@@ -1,6 +1,7 @@
 import { insertText } from './acmarkdown-editor-util';
 import { IACMarkdownEditor, IACMarkdownEditorToolbarItem, IACMarkdownEditorHTMLInputEvent } from './acmarkdown-editor-interface';
 import { i18n, boldSvg, bothSvg, checkSvg, codeSvg, emojiSvg, fullscreenSvg, contractSvg, headingsSvg, helpSvg, uploadSvg, undoSvg, tableSvg, strikeSvg, redoSvg, recordSvg, quoteSvg, previewSvg, orderedlistSvg, listSvg, linkSvg, lineSvg, italicSvg, inlinecodeSvg, infoSvg, } from './acmarkdown-editor-constant';
+import { uploadFiles } from './acmarkdown-editor-upload';
 
 export abstract class ACMarkdownEditorToolbarItem {
   public element: HTMLElement;

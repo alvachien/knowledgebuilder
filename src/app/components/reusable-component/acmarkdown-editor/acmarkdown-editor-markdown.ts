@@ -1,3 +1,7 @@
+import { getText, code160to32 } from './acmarkdown-editor-util';
+import { IACMarkdownEditor, IACMarkdownEditorI18nLang, IACMarkdownEditorPreviewOptions } from './acmarkdown-editor-interface';
+import { i18n, copySvg } from './acmarkdown-editor-constant';
+
 export async function abcRender(element: (HTMLElement | Document) = document) {
   const abcElements = element.querySelectorAll('.language-abc');
   if (abcElements.length > 0) {
@@ -32,7 +36,7 @@ export async function chartRender(element: (HTMLElement | Document) = document) 
 }
 
 
-export function codeRender(element: HTMLElement, lang: (keyof II18nLang) = 'zh_CN') {
+export function codeRender(element: HTMLElement, lang: (keyof IACMarkdownEditorI18nLang) = 'zh_CN') {
   element.querySelectorAll('pre > code').forEach((e: HTMLElement, index: number) => {
     if (e.className.indexOf('language-mermaid') > -1 || e.className.indexOf('language-echarts') > -1
       || e.className.indexOf('language-abc') > -1) {
@@ -54,7 +58,7 @@ export function codeRender(element: HTMLElement, lang: (keyof II18nLang) = 'zh_C
 onmouseover='this.setAttribute('aria-label', '${i18n[lang].copy}')'
 class='vditor-tooltipped vditor-tooltipped__w'
 onclick='this.previousElementSibling.select();document.execCommand('copy');` +
-      `this.setAttribute('aria-label', '${i18n[lang].copied}')'>${copySVG}</span>`;
+      `this.setAttribute('aria-label', '${i18n[lang].copied}')'>${copySvg}</span>`;
 
     e.before(divElement);
     e.style.maxHeight = (window.outerHeight - 40) + 'px';
@@ -109,7 +113,7 @@ export function taskRender(md: markdownit) {
   });
 }
 
-export function mathRender(element: HTMLElement, lang: (keyof II18nLang) = 'zh_CN') {
+export function mathRender(element: HTMLElement, lang: (keyof IACMarkdownEditorI18nLang) = 'zh_CN') {
   const text = code160to32(element.innerText);
   if (text.split('$').length > 2 || (text.split('\\(').length > 1 && text.split('\\)').length > 1)) {
     import(/* webpackChunkName: 'katex' */ 'katex').then(() => {
@@ -134,7 +138,7 @@ export function mathRender(element: HTMLElement, lang: (keyof II18nLang) = 'zh_C
 <span aria-label='${i18n[lang].copy}' style='top: 2px;right: -20px'
 onmouseover='this.setAttribute('aria-label', '${i18n[lang].copy}')' class='vditor-tooltipped vditor-tooltipped__w'
 onclick='this.previousElementSibling.select();document.execCommand('copy');` +
-              `this.setAttribute('aria-label', '${i18n[lang].copied}')'>${copySVG}</span></div>`;
+              `this.setAttribute('aria-label', '${i18n[lang].copied}')'>${copySvg}</span></div>`;
             e.insertAdjacentHTML('beforeend', copyHTML);
           });
         });
@@ -152,7 +156,7 @@ export function mermaidRender(element: HTMLElement) {
 
 }
 
-export function previewRender(element: HTMLTextAreaElement, options?: IPreviewOptions) {
+export function previewRender(element: HTMLTextAreaElement, options?: IACMarkdownEditorPreviewOptions) {
   const defaultOption = {
     customEmoji: {},
     enableHighlight: true,
@@ -222,17 +226,17 @@ export function coreRender(hljsStyle: string, enableHighlight: boolean) {
 }
 
 export function markdownItRender(mdText: string, hljsStyle: string = 'atom-one-light',
-  enableHighlight: boolean = true,
-  customEmoji: { [key: string]: string } = {}) {
-  const md = await render(hljsStyle, enableHighlight);
+                                 enableHighlight: boolean = true,
+                                 customEmoji: { [key: string]: string } = {}) {
+  const md = await coreRender(hljsStyle, enableHighlight);
   return md.render(emojiRender(mdText, customEmoji));
 }
 
-export function md2html(vditor: IVditor, enableHighlight: boolean) {
+export function md2html(vditor: IACMarkdownEditor, enableHighlight: boolean) {
   if (typeof vditor.markdownIt !== 'undefined') {
     return vditor.markdownIt.render(emojiRender(getText(vditor.editor.element), vditor.options.hint.emoji));
   } else {
-    vditor.markdownIt = await render(vditor.options.preview.hljs.style, enableHighlight);
+    vditor.markdownIt = await coreRender(vditor.options.preview.hljs.style, enableHighlight);
     return vditor.markdownIt.render(emojiRender(getText(vditor.editor.element), vditor.options.hint.emoji));
   }
 }

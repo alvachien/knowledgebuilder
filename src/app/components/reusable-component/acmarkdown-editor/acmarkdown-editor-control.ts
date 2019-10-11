@@ -1,5 +1,6 @@
 import { inputEvent, getText, getSelectText, insertText, html2md } from './acmarkdown-editor-util';
 import { IACMarkdownEditor } from './acmarkdown-editor-interface';
+import { uploadFiles } from './acmarkdown-editor-upload';
 
 export class ACMarkdownEditorControl {
   public element: HTMLPreElement;

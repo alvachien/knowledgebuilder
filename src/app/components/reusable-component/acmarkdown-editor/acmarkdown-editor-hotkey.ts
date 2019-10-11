@@ -1,4 +1,5 @@
-import { IACMarkdownEditor } from './acmarkdown-editor-interface';
+import { IACMarkdownEditor, IACMarkdownEditorToolbarItem } from './acmarkdown-editor-interface';
+import { getCursorPosition, insertText, getText, getSelectPosition, getCurrentLinePosition, formatRender } from './acmarkdown-editor-util';
 
 export class ACMarkdownEditorHotkey {
   public hintElement: HTMLElement;
@@ -8,14 +9,13 @@ export class ACMarkdownEditorHotkey {
     this.hintElement = vditor.hint && vditor.hint.element;
     this.vditor = vditor;
     this.bindHotkey();
-
   }
 
   private processKeymap(hotkey: string, event: KeyboardEvent, action: () => void) {
-    const hotkeys = hotkey.split("-");
-    const hasShift = hotkeys.length === 3 && (hotkeys[1] === "shift" || hotkeys[1] === "⇧");
+    const hotkeys = hotkey.split('-');
+    const hasShift = hotkeys.length === 3 && (hotkeys[1] === 'shift' || hotkeys[1] === '⇧');
     const key = hasShift ? hotkeys[2] : hotkeys[1];
-    if ((hotkeys[0] === "ctrl" || hotkeys[0] === "⌘") && (event.metaKey || event.ctrlKey)
+    if ((hotkeys[0] === 'ctrl' || hotkeys[0] === '⌘') && (event.metaKey || event.ctrlKey)
       && event.key.toLowerCase() === key.toLowerCase()) {
       if ((!hasShift && !event.shiftKey) || (hasShift && event.shiftKey)) {
         action();
@@ -26,13 +26,13 @@ export class ACMarkdownEditorHotkey {
   }
 
   private bindHotkey(): void {
-    this.vditor.editor.element.addEventListener("keyup", (event: KeyboardEvent) => {
+    this.vditor.editor.element.addEventListener('keyup', (event: KeyboardEvent) => {
       this.vditor.editor.range = window.getSelection().getRangeAt(0).cloneRange();
     });
 
-    this.vditor.editor.element.addEventListener("keypress", (event: KeyboardEvent) => {
-      if (!event.metaKey && !event.ctrlKey && event.key.toLowerCase() === "enter") {
-        insertText(this.vditor, "\n", "", true);
+    this.vditor.editor.element.addEventListener('keypress', (event: KeyboardEvent) => {
+      if (!event.metaKey && !event.ctrlKey && event.key.toLowerCase() === 'enter') {
+        insertText(this.vditor, '\n', '', true);
 
         const cursorTop = getCursorPosition(this.vditor.editor.element).top;
         const center = this.vditor.editor.element.clientHeight / 2;
@@ -43,31 +43,31 @@ export class ACMarkdownEditorHotkey {
       }
     });
 
-    this.vditor.editor.element.addEventListener("keydown", (event: KeyboardEvent) => {
+    this.vditor.editor.element.addEventListener('keydown', (event: KeyboardEvent) => {
       if ((event.metaKey || event.ctrlKey) && this.vditor.options.ctrlEnter &&
-        event.key.toLowerCase() === "enter") {
+        event.key.toLowerCase() === 'enter') {
         this.vditor.options.ctrlEnter(getText(this.vditor.editor.element));
         return;
       }
 
-      if (event.key === "Escape") {
+      if (event.key === 'Escape') {
         if (this.vditor.options.esc) {
           this.vditor.options.esc(getText(this.vditor.editor.element));
         }
-        if (this.hintElement && this.hintElement.style.display === "block") {
-          this.hintElement.style.display = "none";
+        if (this.hintElement && this.hintElement.style.display === 'block') {
+          this.hintElement.style.display = 'none';
         }
         return;
       }
 
-      if (this.vditor.options.tab && event.key.toLowerCase() === "tab") {
+      if (this.vditor.options.tab && event.key.toLowerCase() === 'tab') {
         event.preventDefault();
         event.stopPropagation();
 
         const position = getSelectPosition(this.vditor.editor.element);
         const text = getText(this.vditor.editor.element);
         const selectLinePosition = getCurrentLinePosition(position, text);
-        const selectLineList = text.substring(selectLinePosition.start, selectLinePosition.end - 1).split("\n");
+        const selectLineList = text.substring(selectLinePosition.start, selectLinePosition.end - 1).split('\n');
 
         if (event.shiftKey) {
           let shiftCount = 0;
@@ -79,10 +79,10 @@ export class ACMarkdownEditorHotkey {
                 startIsShift = true;
               }
               shiftCount++;
-              shiftLineValue = value.replace(this.vditor.options.tab, "");
+              shiftLineValue = value.replace(this.vditor.options.tab, '');
             }
             return shiftLineValue;
-          }).join("\n");
+          }).join('\n');
 
           formatRender(this.vditor, text.substring(0, selectLinePosition.start) +
             selectionShiftResult + text.substring(selectLinePosition.end - 1),
@@ -94,12 +94,12 @@ export class ACMarkdownEditorHotkey {
         }
 
         if (position.start === position.end) {
-          insertText(this.vditor, this.vditor.options.tab, "");
+          insertText(this.vditor, this.vditor.options.tab, '');
           return;
         }
         const selectionResult = selectLineList.map((value) => {
           return this.vditor.options.tab + value;
-        }).join("\n");
+        }).join('\n');
         formatRender(this.vditor, text.substring(0, selectLinePosition.start) + selectionResult +
           text.substring(selectLinePosition.end - 1),
           {
@@ -112,10 +112,11 @@ export class ACMarkdownEditorHotkey {
       if (!event.metaKey && !event.ctrlKey && !event.shiftKey && event.keyCode === 8) {
         const position = getSelectPosition(this.vditor.editor.element);
         if (position.start !== position.end) {
-          insertText(this.vditor, "", "", true);
+          insertText(this.vditor, '', '', true);
         } else {
           const text = getText(this.vditor.editor.element);
-          const emojiMatch = text.substring(0, position.start).match(/([\u{1F300}-\u{1F5FF}][\u{2000}-\u{206F}][\u{2700}-\u{27BF}]|([\u{1F900}-\u{1F9FF}]|[\u{1F300}-\u{1F5FF}]|[\u{1F680}-\u{1F6FF}]|[\u{1F600}-\u{1F64F}])[\u{2000}-\u{206F}][\u{2600}-\u{26FF}]|[\u{1F300}-\u{1F5FF}]|[\u{1F100}-\u{1F1FF}]|[\u{1F600}-\u{1F64F}]|[\u{1F680}-\u{1F6FF}]|[\u{1F200}-\u{1F2FF}]|[\u{1F900}-\u{1F9FF}]|[\u{1F000}-\u{1F02F}]|[\u{FE00}-\u{FE0F}]|[\u{1F0A0}-\u{1F0FF}]|[\u{0000}-\u{007F}][\u{20D0}-\u{20FF}]|[\u{0000}-\u{007F}][\u{FE00}-\u{FE0F}][\u{20D0}-\u{20FF}])$/u);
+          const emojiMatch = text.substring(0, position.start)
+            .match(/([\u{1F300}-\u{1F5FF}][\u{2000}-\u{206F}][\u{2700}-\u{27BF}]|([\u{1F900}-\u{1F9FF}]|[\u{1F300}-\u{1F5FF}]|[\u{1F680}-\u{1F6FF}]|[\u{1F600}-\u{1F64F}])[\u{2000}-\u{206F}][\u{2600}-\u{26FF}]|[\u{1F300}-\u{1F5FF}]|[\u{1F100}-\u{1F1FF}]|[\u{1F600}-\u{1F64F}]|[\u{1F680}-\u{1F6FF}]|[\u{1F200}-\u{1F2FF}]|[\u{1F900}-\u{1F9FF}]|[\u{1F000}-\u{1F02F}]|[\u{FE00}-\u{FE0F}]|[\u{1F0A0}-\u{1F0FF}]|[\u{0000}-\u{007F}][\u{20D0}-\u{20FF}]|[\u{0000}-\u{007F}][\u{FE00}-\u{FE0F}][\u{20D0}-\u{20FF}])$/u);
           const deleteChar = emojiMatch ? emojiMatch[0].length : 1;
           formatRender(this.vditor,
             text.substring(0, position.start - deleteChar) + text.substring(position.start),
@@ -170,19 +171,19 @@ export class ACMarkdownEditorHotkey {
       }
 
       // toolbar action
-      this.vditor.options.toolbar.forEach((menuItem: IMenuItem) => {
-        if (!menuItem.hotkey) {
+      this.vditor.options.toolbar.forEach((tbItem: IACMarkdownEditorToolbarItem) => {
+        if (!tbItem.hotkey) {
           return;
         }
-        this.processKeymap(menuItem.hotkey, event, () => {
-          (this.vditor.toolbar.elements[menuItem.name].children[0] as HTMLElement).click();
+        this.processKeymap(tbItem.hotkey, event, () => {
+          (this.vditor.toolbar.elements[tbItem.name].children[0] as HTMLElement).click();
         });
       });
-      if (!this.vditor.toolbar.elements.undo && (event.metaKey || event.ctrlKey) && event.key === "z") {
+      if (!this.vditor.toolbar.elements.undo && (event.metaKey || event.ctrlKey) && event.key === 'z') {
         this.vditor.undo.undo(this.vditor);
         event.preventDefault();
       }
-      if (!this.vditor.toolbar.elements.redo && (event.metaKey || event.ctrlKey) && event.key === "y") {
+      if (!this.vditor.toolbar.elements.redo && (event.metaKey || event.ctrlKey) && event.key === 'y') {
         this.vditor.undo.redo(this.vditor);
         event.preventDefault();
       }
@@ -199,33 +200,33 @@ export class ACMarkdownEditorHotkey {
       return;
     }
 
-    if (this.hintElement.querySelectorAll("li").length === 0 ||
-      this.hintElement.style.display === "none") {
+    if (this.hintElement.querySelectorAll('li').length === 0 ||
+      this.hintElement.style.display === 'none') {
       return;
     }
 
-    const currentHintElement: HTMLElement = this.hintElement.querySelector(".vditor-hint--current");
+    const currentHintElement: HTMLElement = this.hintElement.querySelector('.vditor-hint--current');
 
-    if (event.key.toLowerCase() === "arrowdown") {
+    if (event.key.toLowerCase() === 'arrowdown') {
       event.preventDefault();
       event.stopPropagation();
       if (!currentHintElement.nextElementSibling) {
-        this.hintElement.children[0].className = "vditor-hint--current";
+        this.hintElement.children[0].className = 'vditor-hint--current';
       } else {
-        currentHintElement.nextElementSibling.className = "vditor-hint--current";
+        currentHintElement.nextElementSibling.className = 'vditor-hint--current';
       }
-      currentHintElement.removeAttribute("class");
-    } else if (event.key.toLowerCase() === "arrowup") {
+      currentHintElement.removeAttribute('class');
+    } else if (event.key.toLowerCase() === 'arrowup') {
       event.preventDefault();
       event.stopPropagation();
       if (!currentHintElement.previousElementSibling) {
         const length = this.hintElement.children.length;
-        this.hintElement.children[length - 1].className = "vditor-hint--current";
+        this.hintElement.children[length - 1].className = 'vditor-hint--current';
       } else {
-        currentHintElement.previousElementSibling.className = "vditor-hint--current";
+        currentHintElement.previousElementSibling.className = 'vditor-hint--current';
       }
-      currentHintElement.removeAttribute("class");
-    } else if (event.key.toLowerCase() === "enter") {
+      currentHintElement.removeAttribute('class');
+    } else if (event.key.toLowerCase() === 'enter') {
       event.preventDefault();
       event.stopPropagation();
       this.vditor.hint.fillEmoji(currentHintElement);
