@@ -1,11 +1,12 @@
 import { IACMarkdownEditor } from './acmarkdown-editor-interface';
 import { getText, getSelectPosition, formatRender } from './acmarkdown-editor-util';
+import * as dmp from 'diff-match-patch';
 
 export class ACMarkdownEditorUndo {
-  private undoStack: Array<{ patchList: patch_obj[], end: number }>;
-  private redoStack: Array<{ patchList: patch_obj[], end: number }>;
+  private undoStack: Array<{ patchList: dmp.patch_obj[], end: number }>;
+  private redoStack: Array<{ patchList: dmp.patch_obj[], end: number }>;
   private stackSize = 50;
-  private dmp: diff_match_patch;
+  private dmp: dmp.diff_match_patch;
   private lastText: string;
   private hasUndo: boolean;
   private timeout: number;
@@ -71,7 +72,7 @@ export class ACMarkdownEditorUndo {
     }, 500);
   }
 
-  private renderDiff(state: { patchList: patch_obj[], end: number }, vditor: IVditor, isRedo: boolean = false) {
+  private renderDiff(state: { patchList: dmp.patch_obj[], end: number }, vditor: IACMarkdownEditor, isRedo: boolean = false) {
     let text;
     let positoin;
     if (isRedo) {

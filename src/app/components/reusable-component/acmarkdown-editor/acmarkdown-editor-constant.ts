@@ -1,316 +1,166 @@
 import { IACMarkdownEditorI18n } from './acmarkdown-editor-interface';
 
+// tslint:disable:object-literal-key-quotes
+// tslint:disable:max-line-length
 export function getAllEmoji(imgStaticPath: string) {
   return {
     '+1': '👍',
     '-1': '👎',
-    // tslint:disable-next-line:object-literal-key-quotes
     '100': '💯',
-    // tslint:disable-next-line:object-literal-key-quotes
     '1234': '🔢',
     '1st_place_medal': '🥇',
     '2nd_place_medal': '🥈',
     '3rd_place_medal': '🥉',
     '8ball': '🎱',
-    // tslint:disable-next-line:object-literal-key-quotes
     'a': '🅰️',
-    // tslint:disable-next-line:object-literal-key-quotes
     'ab': '🆎',
-    // tslint:disable-next-line:object-literal-key-quotes
     'abc': '🔤',
-    // tslint:disable-next-line:object-literal-key-quotes
     'abcd': '🔡',
-    // tslint:disable-next-line:object-literal-key-quotes
     'accept': '🉑',
-    // tslint:disable-next-line:object-literal-key-quotes
     'aerial_tramway': '🚡',
-    // tslint:disable-next-line:object-literal-key-quotes
     'afghanistan': '🇦🇫',
-    // tslint:disable-next-line:object-literal-key-quotes
     'airplane': '✈️',
-    // tslint:disable-next-line:object-literal-key-quotes
     'aland_islands': '🇦🇽',
-    // tslint:disable-next-line:object-literal-key-quotes
     'alarm_clock': '⏰',
-    // tslint:disable-next-line:object-literal-key-quotes
     'albania': '🇦🇱',
-    // tslint:disable-next-line:object-literal-key-quotes
     'alembic': '⚗️',
-    // tslint:disable-next-line:object-literal-key-quotes
     'algeria': '🇩🇿',
-    // tslint:disable-next-line:object-literal-key-quotes
     'alien': '👽',
-    // tslint:disable-next-line:object-literal-key-quotes
     'ambulance': '🚑',
-    // tslint:disable-next-line:object-literal-key-quotes
     'american_samoa': '🇦🇸',
-    // tslint:disable-next-line:object-literal-key-quotes
     'amphora': '🏺',
-    // tslint:disable-next-line:object-literal-key-quotes
     'anchor': '⚓️',
-    // tslint:disable-next-line:object-literal-key-quotes
     'andorra': '🇦🇩',
-    // tslint:disable-next-line:object-literal-key-quotes
     'angel': '👼',
-    // tslint:disable-next-line:object-literal-key-quotes
     'anger': '💢',
-    // tslint:disable-next-line:object-literal-key-quotes
     'angola': '🇦🇴',
-    // tslint:disable-next-line:object-literal-key-quotes
     'angry': '😠',
-    // tslint:disable-next-line:object-literal-key-quotes
     'anguilla': '🇦🇮',
-    // tslint:disable-next-line:object-literal-key-quotes
     'anguished': '😧',
-    // tslint:disable-next-line:object-literal-key-quotes
     'ant': '🐜',
-    // tslint:disable-next-line:object-literal-key-quotes
     'antarctica': '🇦🇶',
-    // tslint:disable-next-line:object-literal-key-quotes
     'antigua_barbuda': '🇦🇬',
-    // tslint:disable-next-line:object-literal-key-quotes
     'apple': '🍎',
-    // tslint:disable-next-line:object-literal-key-quotes
     'aquarius': '♒️',
-    // tslint:disable-next-line:object-literal-key-quotes
     'argentina': '🇦🇷',
-    // tslint:disable-next-line:object-literal-key-quotes
     'aries': '♈️',
-    // tslint:disable-next-line:object-literal-key-quotes
     'armenia': '🇦🇲',
-    // tslint:disable-next-line:object-literal-key-quotes
     'arrow_backward': '◀️',
-    // tslint:disable-next-line:object-literal-key-quotes
     'arrow_double_down': '⏬',
-    // tslint:disable-next-line:object-literal-key-quotes
     'arrow_double_up': '⏫',
-    // tslint:disable-next-line:object-literal-key-quotes
     'arrow_down': '⬇️',
-    // tslint:disable-next-line:object-literal-key-quotes
     'arrow_down_small': '🔽',
-    // tslint:disable-next-line:object-literal-key-quotes
     'arrow_forward': '▶️',
-    // tslint:disable-next-line:object-literal-key-quotes
     'arrow_heading_down': '⤵️',
-    // tslint:disable-next-line:object-literal-key-quotes
     'arrow_heading_up': '⤴️',
-    // tslint:disable-next-line:object-literal-key-quotes
     'arrow_left': '⬅️',
-    // tslint:disable-next-line:object-literal-key-quotes
     'arrow_lower_left': '↙️',
-    // tslint:disable-next-line:object-literal-key-quotes
     'arrow_lower_right': '↘️',
-    // tslint:disable-next-line:object-literal-key-quotes
     'arrow_right': '➡️',
-    // tslint:disable-next-line:object-literal-key-quotes
     'arrow_right_hook': '↪️',
-    // tslint:disable-next-line:object-literal-key-quotes
     'arrow_up': '⬆️',
-    // tslint:disable-next-line:object-literal-key-quotes
     'arrow_up_down': '↕️',
-    // tslint:disable-next-line:object-literal-key-quotes
     'arrow_up_small': '🔼',
-    // tslint:disable-next-line:object-literal-key-quotes
     'arrow_upper_left': '↖️',
-    // tslint:disable-next-line:object-literal-key-quotes
     'arrow_upper_right': '↗️',
-    // tslint:disable-next-line:object-literal-key-quotes
     'arrows_clockwise': '🔃',
-    // tslint:disable-next-line:object-literal-key-quotes
     'arrows_counterclockwise': '🔄',
-    // tslint:disable-next-line:object-literal-key-quotes
     'art': '🎨',
-    // tslint:disable-next-line:object-literal-key-quotes
     'articulated_lorry': '🚛',
-    // tslint:disable-next-line:object-literal-key-quotes
     'artificial_satellite': '🛰',
-    // tslint:disable-next-line:object-literal-key-quotes
     'aruba': '🇦🇼',
-    // tslint:disable-next-line:object-literal-key-quotes
     'asterisk': '*️⃣',
-    // tslint:disable-next-line:object-literal-key-quotes
     'astonished': '😲',
-    // tslint:disable-next-line:object-literal-key-quotes
     'athletic_shoe': '👟',
-    // tslint:disable-next-line:object-literal-key-quotes
     'atm': '🏧',
-    // tslint:disable-next-line:object-literal-key-quotes
     'atom_symbol': '⚛️',
-    // tslint:disable-next-line:object-literal-key-quotes
     'australia': '🇦🇺',
-    // tslint:disable-next-line:object-literal-key-quotes
     'austria': '🇦🇹',
-    // tslint:disable-next-line:object-literal-key-quotes
     'avocado': '🥑',
-    // tslint:disable-next-line:object-literal-key-quotes
     'azerbaijan': '🇦🇿',
-    // tslint:disable-next-line:object-literal-key-quotes
     'b': '🅱️',
-    // tslint:disable-next-line:object-literal-key-quotes
     'baby': '👶',
-    // tslint:disable-next-line:object-literal-key-quotes
     'baby_bottle': '🍼',
-    // tslint:disable-next-line:object-literal-key-quotes
     'baby_chick': '🐤',
-    // tslint:disable-next-line:object-literal-key-quotes
     'baby_symbol': '🚼',
-    // tslint:disable-next-line:object-literal-key-quotes
     'back': '🔙',
-    // tslint:disable-next-line:object-literal-key-quotes
     'bacon': '🥓',
-    // tslint:disable-next-line:object-literal-key-quotes
     'badminton': '🏸',
-    // tslint:disable-next-line:object-literal-key-quotes
     'baggage_claim': '🛄',
-    // tslint:disable-next-line:object-literal-key-quotes
     'baguette_bread': '🥖',
-    // tslint:disable-next-line:object-literal-key-quotes
     'bahamas': '🇧🇸',
-    // tslint:disable-next-line:object-literal-key-quotes
     'bahrain': '🇧🇭',
-    // tslint:disable-next-line:object-literal-key-quotes
     'balance_scale': '⚖️',
-    // tslint:disable-next-line:object-literal-key-quotes
     'balloon': '🎈',
-    // tslint:disable-next-line:object-literal-key-quotes
     'ballot_box': '🗳',
-    // tslint:disable-next-line:object-literal-key-quotes
     'ballot_box_with_check': '☑️',
-    // tslint:disable-next-line:object-literal-key-quotes
     'bamboo': '🎍',
-    // tslint:disable-next-line:object-literal-key-quotes
     'banana': '🍌',
-    // tslint:disable-next-line:object-literal-key-quotes
     'bangbang': '‼️',
-    // tslint:disable-next-line:object-literal-key-quotes
     'bangladesh': '🇧🇩',
-    // tslint:disable-next-line:object-literal-key-quotes
     'bank': '🏦',
-    // tslint:disable-next-line:object-literal-key-quotes
     'bar_chart': '📊',
-    // tslint:disable-next-line:object-literal-key-quotes
     'barbados': '🇧🇧',
-    // tslint:disable-next-line:object-literal-key-quotes
     'barber': '💈',
-    // tslint:disable-next-line:object-literal-key-quotes
     'baseball': '⚾️',
-    // tslint:disable-next-line:object-literal-key-quotes
     'basketball': '🏀',
-    // tslint:disable-next-line:object-literal-key-quotes
     'basketball_man': '⛹',
-    // tslint:disable-next-line:object-literal-key-quotes
     'basketball_woman': '⛹️‍♀️',
-    // tslint:disable-next-line:object-literal-key-quotes
     'bat': '🦇',
-    // tslint:disable-next-line:object-literal-key-quotes
     'bath': '🛀',
-    // tslint:disable-next-line:object-literal-key-quotes
     'bathtub': '🛁',
-    // tslint:disable-next-line:object-literal-key-quotes
     'battery': '🔋',
-    // tslint:disable-next-line:object-literal-key-quotes
     'beach_umbrella': '🏖',
-    // tslint:disable-next-line:object-literal-key-quotes
     'bear': '🐻',
-    // tslint:disable-next-line:object-literal-key-quotes
     'bed': '🛏',
-    // tslint:disable-next-line:object-literal-key-quotes
     'bee': '🐝',
-    // tslint:disable-next-line:object-literal-key-quotes
     'beer': '🍺',
-    // tslint:disable-next-line:object-literal-key-quotes
     'beers': '🍻',
-    // tslint:disable-next-line:object-literal-key-quotes
     'beetle': '🐞',
-    // tslint:disable-next-line:object-literal-key-quotes
     'beginner': '🔰',
-    // tslint:disable-next-line:object-literal-key-quotes
     'belarus': '🇧🇾',
-    // tslint:disable-next-line:object-literal-key-quotes
     'belgium': '🇧🇪',
-    // tslint:disable-next-line:object-literal-key-quotes
     'belize': '🇧🇿',
-    // tslint:disable-next-line:object-literal-key-quotes
     'bell': '🔔',
-    // tslint:disable-next-line:object-literal-key-quotes
     'bellhop_bell': '🛎',
-    // tslint:disable-next-line:object-literal-key-quotes
     'benin': '🇧🇯',
-    // tslint:disable-next-line:object-literal-key-quotes
     'bento': '🍱',
-    // tslint:disable-next-line:object-literal-key-quotes
     'bermuda': '🇧🇲',
-    // tslint:disable-next-line:object-literal-key-quotes
     'bhutan': '🇧🇹',
-    // tslint:disable-next-line:object-literal-key-quotes
     'bicyclist': '🚴',
-    // tslint:disable-next-line:object-literal-key-quotes
     'bike': '🚲',
-    // tslint:disable-next-line:object-literal-key-quotes
     'biking_man': '🚴',
-    // tslint:disable-next-line:object-literal-key-quotes
     'biking_woman': '🚴‍♀',
-    // tslint:disable-next-line:object-literal-key-quotes
     'bikini': '👙',
-    // tslint:disable-next-line:object-literal-key-quotes
     'biohazard': '☣️',
-    // tslint:disable-next-line:object-literal-key-quotes
     'bird': '🐦',
-    // tslint:disable-next-line:object-literal-key-quotes
     'birthday': '🎂',
-    // tslint:disable-next-line:object-literal-key-quotes
     'black_circle': '⚫️',
-    // tslint:disable-next-line:object-literal-key-quotes
     'black_flag': '🏴',
-    // tslint:disable-next-line:object-literal-key-quotes
     'black_heart': '🖤',
-    // tslint:disable-next-line:object-literal-key-quotes
     'black_joker': '🃏',
-    // tslint:disable-next-line:object-literal-key-quotes
     'black_large_square': '⬛️',
-    // tslint:disable-next-line:object-literal-key-quotes
     'black_medium_small_square': '◾️',
-    // tslint:disable-next-line:object-literal-key-quotes
     'black_medium_square': '◼️',
-    // tslint:disable-next-line:object-literal-key-quotes
     'black_nib': '✒️',
-    // tslint:disable-next-line:object-literal-key-quotes
     'black_small_square': '▪️',
-    // tslint:disable-next-line:object-literal-key-quotes
     'black_square_button': '🔲',
-    // tslint:disable-next-line:object-literal-key-quotes
     'blonde_man': '👱',
-    // tslint:disable-next-line:object-literal-key-quotes
     'blonde_woman': '👱‍♀',
-    // tslint:disable-next-line:object-literal-key-quotes
     'blossom': '🌼',
-    // tslint:disable-next-line:object-literal-key-quotes
     'blowfish': '🐡',
-    // tslint:disable-next-line:object-literal-key-quotes
     'blue_book': '📘',
-    // tslint:disable-next-line:object-literal-key-quotes
     'blue_car': '🚙',
-    // tslint:disable-next-line:object-literal-key-quotes
     'blue_heart': '💙',
-    // tslint:disable-next-line:object-literal-key-quotes
     'blush': '😊',
-    // tslint:disable-next-line:object-literal-key-quotes
     'boar': '🐗',
-    // tslint:disable-next-line:object-literal-key-quotes
     'boat': '⛵️',
-    // tslint:disable-next-line:object-literal-key-quotes
     'bolivia': '🇧🇴',
-    // tslint:disable-next-line:object-literal-key-quotes
     'bomb': '💣',
-    // tslint:disable-next-line:object-literal-key-quotes
     'book': '📖',
-    // tslint:disable-next-line:object-literal-key-quotes
     'bookmark': '🔖',
-    // tslint:disable-next-line:object-literal-key-quotes
     'bookmark_tabs': '📑',
-    // tslint:disable-next-line:object-literal-key-quotes
     'books': '📚',
-    // tslint:disable-next-line:object-literal-key-quotes
     'boom': '💥',
     'boot': '👢',
     'bosnia_herzegovina': '🇧🇦',

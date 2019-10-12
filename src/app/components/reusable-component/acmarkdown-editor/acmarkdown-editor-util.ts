@@ -186,8 +186,9 @@ export function getSelectText(editor: HTMLPreElement, range?: Range) {
   return '';
 }
 
-export function formatRender(vditor: IACMarkdownEditor, content: string, position?: { start: number, end: number },
-  addUndo: boolean = true) {
+export function formatRender(vditor: IACMarkdownEditor,
+                             content: string, position?: { start: number, end: number },
+                             addUndo: boolean = true) {
 
   const textList = content.replace(/\r\n/g, '\n').replace(/\r/g, '\n').split('\n');
   let html = '';
@@ -213,8 +214,9 @@ export function formatRender(vditor: IACMarkdownEditor, content: string, positio
   inputEvent(vditor, addUndo);
 }
 
-export function insertText(vditor: IACMarkdownEditor, prefix: string, suffix: string, replace: boolean = false,
-  toggle: boolean = false) {
+export function insertText(vditor: IACMarkdownEditor,
+                           prefix: string, suffix: string, replace: boolean = false,
+                           toggle: boolean = false) {
   let range: Range = window.getSelection().getRangeAt(0);
   if (!selectIsEditor(vditor.editor.element)) {
     if (vditor.editor.range) {

@@ -14,10 +14,11 @@ export class ACMarkdownEditorOptions {
       emoji: {
         '+1': '👍',
         '-1': '👎',
-        'cold_sweat': '😰',
-        'heart': '❤️',
+        cold_sweat: '😰',
+        heart: '❤️',
       },
-      emojiPath: `${CDN_PATH}/vditor/dist/images/emoji`,
+      // TBD.
+      // emojiPath: `${CDN_PATH}/vditor/dist/images/emoji`,
     },
     keymap: {
       deleteLine: '⌘-Backspace',

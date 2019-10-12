@@ -18,7 +18,7 @@ export async function abcRender(element: (HTMLElement | Document) = document) {
 export async function chartRender(element: (HTMLElement | Document) = document) {
   const echartsElements = element.querySelectorAll('.language-echarts');
   if (echartsElements.length > 0) {
-    const { default: echarts } = await import(/* webpackChunkName: 'echarts' */ 'echarts');
+    const echarts = await import(/* webpackChunkName: 'echarts' */ 'echarts');
     echartsElements.forEach((e: HTMLDivElement) => {
       try {
         if (e.getAttribute('data-processed') === 'true') {
@@ -65,26 +65,26 @@ onclick='this.previousElementSibling.select();document.execCommand('copy');` +
   });
 }
 
-export function emojiRender(text: string, customEmoji: { [key: string]: string }) {
-  const imgEmoji = ['b3log', 'chainbook', 'doge', 'hacpai', 'huaji', 'latke', 'pipe', 'solo',
-    'sym', 'vditor', 'octocat', 'wide', 'trollface', ...Object.keys(customEmoji)];
-  imgEmoji.map((emoji) => {
-    if (emoji in customEmoji) {
-      if (customEmoji[emoji].indexOf('//') > -1) {
-        text = text.replace(new RegExp(`:${emoji}:`, 'g'),
-          `<img alt='${emoji}' class='emoji' src='${customEmoji[emoji]}'
- title='${emoji}'>`);
-      }
-    } else {
-      const suffix = emoji === 'huaji' ? 'gif' : 'png';
-      text = text.replace(new RegExp(`:${emoji}:`, 'g'),
-        `<img alt='${emoji}' class='emoji' src='${CDN_PATH}/vditor/dist/images/emoji/${emoji}.${suffix}'
- title='${emoji}'>`);
-    }
+// export function emojiRender(text: string, customEmoji: { [key: string]: string }) {
+//   const imgEmoji = ['b3log', 'chainbook', 'doge', 'hacpai', 'huaji', 'latke', 'pipe', 'solo',
+//     'sym', 'vditor', 'octocat', 'wide', 'trollface', ...Object.keys(customEmoji)];
+//   imgEmoji.map((emoji) => {
+//     if (emoji in customEmoji) {
+//       if (customEmoji[emoji].indexOf('//') > -1) {
+//         text = text.replace(new RegExp(`:${emoji}:`, 'g'),
+//           `<img alt='${emoji}' class='emoji' src='${customEmoji[emoji]}'
+//  title='${emoji}'>`);
+//       }
+//     } else {
+//       const suffix = emoji === 'huaji' ? 'gif' : 'png';
+//       text = text.replace(new RegExp(`:${emoji}:`, 'g'),
+//         `<img alt='${emoji}' class='emoji' src='${CDN_PATH}/vditor/dist/images/emoji/${emoji}.${suffix}'
+//  title='${emoji}'>`);
+//     }
 
-  });
-  return text;
-}
+//   });
+//   return text;
+// }
 
 export function taskRender(md: markdownit) {
   md.core.ruler.after('inline', 'github-task-lists', (state) => {
@@ -119,8 +119,9 @@ export function mathRender(element: HTMLElement, lang: (keyof IACMarkdownEditorI
     import(/* webpackChunkName: 'katex' */ 'katex').then(() => {
       import(/* webpackChunkName: 'katex' */ 'katex/contrib/auto-render/auto-render')
         .then((renderMathInElement) => {
-          addStyle(`${CDN_PATH}/vditor/dist/js/katex/katex.min.css`,
-            'vditorKatexStyle');
+          // TBD!
+          // addStyle(`${CDN_PATH}/vditor/dist/js/katex/katex.min.css`,
+          //   'vditorKatexStyle');
           renderMathInElement.default(element, {
             delimiters: [
               { left: '$$', right: '$$', display: true },
@@ -156,7 +157,7 @@ export function mermaidRender(element: HTMLElement) {
 
 }
 
-export function previewRender(element: HTMLTextAreaElement, options?: IACMarkdownEditorPreviewOptions) {
+export async function previewRender(element: HTMLTextAreaElement, options?: IACMarkdownEditorPreviewOptions) {
   const defaultOption = {
     customEmoji: {},
     enableHighlight: true,
@@ -181,7 +182,34 @@ export function previewRender(element: HTMLTextAreaElement, options?: IACMarkdow
   chartRender(divElement);
 }
 
-export function coreRender(hljsStyle: string, enableHighlight: boolean) {
+function task(md: markdownit) {
+  md.core.ruler.after('inline', 'github-task-lists', (state) => {
+    state.tokens.forEach((token, index: number) => {
+      if (token.type === 'inline' &&
+        (token.content.indexOf('[ ] ') === 0 || token.content.toLocaleLowerCase().indexOf('[x] ') === 0) &&
+        state.tokens[index - 1].type === 'paragraph_open' &&
+        state.tokens[index - 2].type === 'list_item_open'
+      ) {
+        const checkbox = new state.Token('checkbox_input', 'input', 0);
+        checkbox.attrs = [['type', 'checkbox'], ['disabled', 'true']];
+        if (token.content.toLocaleLowerCase().indexOf('[x] ') === 0) {
+          checkbox.attrs.push(['checked', 'true']);
+        }
+
+        token.children[0].content = token.children[0].content.slice(3);
+        token.children.unshift(checkbox);
+
+        if (state.tokens[index - 2].attrIndex('class') < 0) {
+          state.tokens[index - 2].attrPush(['class', 'vditor-task']);
+        } else {
+          state.tokens[index - 2].attrs[index] = ['class', 'vditor-task'];
+        }
+      }
+    });
+  });
+}
+
+export async function coreRender(hljsStyle: string, enableHighlight: boolean) {
   const hljsThemes = ['a11y-dark', 'a11y-light', 'agate', 'an-old-hope', 'androidstudio', 'arduino-light', 'arta',
     'ascetic', 'atelier-cave-dark', 'atelier-cave-light', 'atelier-dune-dark', 'atelier-dune-light', 'school-book',
     'atelier-estuary-dark', 'atelier-estuary-light', 'atelier-forest-dark', 'atelier-forest-light', 'pojoaque',
@@ -198,11 +226,12 @@ export function coreRender(hljsStyle: string, enableHighlight: boolean) {
     'tomorrow-night-blue', 'tomorrow-night-bright', 'tomorrow-night-eighties', 'vs', 'vs2015', 'xcode', 'xt256'];
 
   if (hljsThemes.includes(hljsStyle) && enableHighlight) {
-    addStyle(`${CDN_PATH}/vditor/dist/js/highlight.js/styles/${hljsStyle}.css`,
-      'vditorHljsStyle');
+    // TBD!
+    // addStyle(`${CDN_PATH}/vditor/dist/js/highlight.js/styles/${hljsStyle}.css`,
+    //   'vditorHljsStyle');
   }
 
-  const { default: MarkdownIt } = await import(/* webpackChunkName: 'markdown-it' */ 'markdown-it');
+  const MarkdownIt = await import(/* webpackChunkName: 'markdown-it' */ 'markdown-it');
 
   const options: markdownit.Options = {
     breaks: true,
@@ -211,7 +240,7 @@ export function coreRender(hljsStyle: string, enableHighlight: boolean) {
   };
 
   if (enableHighlight) {
-    const { default: hljs } = await import(/* webpackChunkName: 'highlight.js' */ 'highlight.js');
+    const hljs = await import(/* webpackChunkName: 'highlight.js' */ 'highlight.js');
     options.highlight = (str: string, lang: string) => {
       if (lang === 'mermaid' || lang === 'echarts' || lang === 'abc') {
         return str;
@@ -225,18 +254,22 @@ export function coreRender(hljsStyle: string, enableHighlight: boolean) {
   return new MarkdownIt(options).use(task);
 }
 
-export function markdownItRender(mdText: string, hljsStyle: string = 'atom-one-light',
-                                 enableHighlight: boolean = true,
-                                 customEmoji: { [key: string]: string } = {}) {
+export async function markdownItRender(
+  mdText: string, hljsStyle: string = 'atom-one-light',
+  enableHighlight: boolean = true,
+  customEmoji: { [key: string]: string } = {}) {
   const md = await coreRender(hljsStyle, enableHighlight);
-  return md.render(emojiRender(mdText, customEmoji));
+  // return md.render(emojiRender(mdText, customEmoji));
+  return md.render(mdText);
 }
 
-export function md2html(vditor: IACMarkdownEditor, enableHighlight: boolean) {
+export async function md2html(vditor: IACMarkdownEditor, enableHighlight: boolean) {
   if (typeof vditor.markdownIt !== 'undefined') {
-    return vditor.markdownIt.render(emojiRender(getText(vditor.editor.element), vditor.options.hint.emoji));
+    // return vditor.markdownIt.render(emojiRender(getText(vditor.editor.element), vditor.options.hint.emoji));
+    return vditor.markdownIt.render(getText(vditor.editor.element));
   } else {
     vditor.markdownIt = await coreRender(vditor.options.preview.hljs.style, enableHighlight);
-    return vditor.markdownIt.render(emojiRender(getText(vditor.editor.element), vditor.options.hint.emoji));
+    // return vditor.markdownIt.render(emojiRender(getText(vditor.editor.element), vditor.options.hint.emoji));
+    return vditor.markdownIt.render(getText(vditor.editor.element));
   }
 }

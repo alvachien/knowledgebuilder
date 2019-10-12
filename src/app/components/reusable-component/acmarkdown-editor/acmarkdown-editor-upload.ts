@@ -201,4 +201,4 @@ export function uploadFiles(vditor: IACMarkdownEditor, files: FileList | DataTra
     progressBar.style.width = progress + '%';
   };
   xhr.send(formData);
-};
+}
