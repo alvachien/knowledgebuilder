@@ -16,7 +16,8 @@ export class ACMarkdownEditorResize {
     this.element.addEventListener('mousedown', (event: MouseEvent) => {
 
       const documentSelf = document;
-      const vditorElement = document.getElementById(vditor.id);
+      // const vditorElement = document.getElementById(vditor.id);
+      const vditorElement = vditor.rootElement;
       const y = event.clientY;
       const height = vditorElement.offsetHeight;
       const minHeight = 63 + vditorElement.querySelector('.vditor-toolbar').clientHeight;

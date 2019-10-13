@@ -10,11 +10,6 @@ export interface IACMarkdownEditorTurndownRule {
   replacement(content: string, node?: HTMLElement): string;
 }
 
-declare var webkitAudioContext: {
-  prototype: AudioContext
-  new(contextOptions?: AudioContextOptions): AudioContext,
-};
-
 export interface IACMarkdownEditorHTMLInputEvent extends Event {
   target: HTMLInputElement & EventTarget;
 }
@@ -136,6 +131,7 @@ export interface IACMarkdownEditorOptions {
 
 export interface IACMarkdownEditor {
   id: string;
+  rootElement: HTMLElement;
   mdTimeoutId: number;
   options: IACMarkdownEditorOptions;
   originalInnerHTML: string;

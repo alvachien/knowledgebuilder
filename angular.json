@@ -33,6 +33,8 @@
               }
             ],
             "styles": [
+              "node_modules/highlight.js/styles/default.css",
+              "node_modules/katex/dist/katex.min.css",
               "src/styles.less"
             ],
             "scripts": []
@@ -98,6 +100,8 @@
               "src/assets"
             ],
             "styles": [
+              "node_modules/highlight.js/styles/default.css",
+              "node_modules/katex/dist/katex.min.css",
               "src/styles.less"
             ],
             "scripts": []

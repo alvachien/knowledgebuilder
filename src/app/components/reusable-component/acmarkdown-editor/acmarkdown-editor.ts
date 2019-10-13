@@ -7,7 +7,7 @@ import { ACMarkdownEditorHint } from './acmarkdown-editor-hint';
 import { ACMarkdownEditorUi } from './acmarkdown-editor-ui';
 import { ACMarkdownEditorHotkey } from './acmarkdown-editor-hotkey';
 import { getText, getSelectText, setSelectionByPosition, html2md, selectIsEditor, insertText,
-  formatRender } from './acmarkdown-editor-util';
+  formatRender, getCursorPosition} from './acmarkdown-editor-util';
 import { md2html } from './acmarkdown-editor-markdown';
 import { ACMarkdownEditorTip } from './acmarkdown-editor-tip';
 import { ACMarkdownEditorUndo } from './acmarkdown-editor-undo';
@@ -18,16 +18,17 @@ import { ACMarkdownEditorToolbar } from './acmarkdown-editor-toolbar';
 export class ACMarkdownEditor {
   public vditor: IACMarkdownEditor;
 
-  constructor(id: string, options?: IACMarkdownEditorOptions) {
+  constructor(id: string, rootElement: HTMLElement, options?: IACMarkdownEditorOptions) {
 
     const getOptions = new ACMarkdownEditorOptions(options);
     const mergedOptions = getOptions.merge();
 
     this.vditor = {
       id,
+      rootElement,
       mdTimeoutId: -1,
       options: mergedOptions,
-      originalInnerHTML: document.getElementById(id).innerHTML,
+      originalInnerHTML: '',
       tip: new ACMarkdownEditorTip(),
       undo: undefined,
     };
@@ -107,7 +108,7 @@ export class ACMarkdownEditor {
   }
 
   public getCursorPosition() {
-    return this.getCursorPosition(this.vditor.editor.element);
+    return getCursorPosition(this.vditor.editor.element);
   }
 
   public isUploading() {

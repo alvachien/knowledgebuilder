@@ -282,8 +282,7 @@ export class FunctionCurveComponent implements OnInit {
         for (let j = -1; j <= 1; j++) {
           data = [];
           let start = (2 * j - 1) * Math.PI / 2;
-          let end = (2 * j + 1) * Math.PI / 2;
-          
+          const end = (2 * j + 1) * Math.PI / 2;
           while (start < end) {
             start += 0.001;
             data.push([start, Math.tan(start)]);

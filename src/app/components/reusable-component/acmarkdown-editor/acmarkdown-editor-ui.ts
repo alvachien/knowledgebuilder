@@ -3,7 +3,8 @@ import { IACMarkdownEditor } from './acmarkdown-editor-interface';
 
 export class ACMarkdownEditorUi {
   constructor(vditor: IACMarkdownEditor) {
-    const vditorElement = document.getElementById(vditor.id);
+    // const vditorElement = document.getElementById(vditor.id);
+    const vditorElement = vditor.rootElement;
     vditorElement.innerHTML = '';
     vditorElement.className = 'vditor' + (vditorElement.className ? ' ' + vditorElement.className : '');
     if (typeof vditor.options.height === 'number') {

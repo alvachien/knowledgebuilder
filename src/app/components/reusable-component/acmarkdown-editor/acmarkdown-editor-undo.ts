@@ -15,7 +15,7 @@ export class ACMarkdownEditorUndo {
     this.redoStack = [];
     this.undoStack = [];
     // @ts-ignore
-    this.dmp = new DiffMatchPatch();
+    this.dmp = new dmp.diff_match_patch();
     this.lastText = '';
     this.hasUndo = false;
   }

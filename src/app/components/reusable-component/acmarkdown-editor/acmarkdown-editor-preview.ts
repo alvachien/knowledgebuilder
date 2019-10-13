@@ -82,10 +82,14 @@ export class ACMarkdownEditorPreview {
       // https://github.com/b3log/vditor/issues/67
       vditor.tip.show(i18n[vditor.options.lang].performanceTip.replace('${x}',
         time.toString()));
-      vditor.upload.element.setAttribute('data-type', 'renderPerformance');
-    } else if (vditor.upload.element.getAttribute('data-type') === 'renderPerformance') {
+      if (vditor.upload) {
+        vditor.upload.element.setAttribute('data-type', 'renderPerformance');
+      }
+    } else if (vditor.upload && vditor.upload.element.getAttribute('data-type') === 'renderPerformance') {
       vditor.tip.hide();
-      vditor.upload.element.removeAttribute('data-type');
+      if (vditor.upload) {
+        vditor.upload.element.removeAttribute('data-type');
+      }
     }
   }
 }

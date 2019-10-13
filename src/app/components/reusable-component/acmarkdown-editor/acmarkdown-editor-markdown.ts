@@ -1,11 +1,16 @@
 import { getText, code160to32 } from './acmarkdown-editor-util';
 import { IACMarkdownEditor, IACMarkdownEditorI18nLang, IACMarkdownEditorPreviewOptions } from './acmarkdown-editor-interface';
 import { i18n, copySvg } from './acmarkdown-editor-constant';
+import * as markdownit from 'markdown-it';
+import * as highlightjs from 'highlight.js';
+import * as katex from 'katex';
+import * as katexAutoRender from 'katex/dist/contrib/auto-render';
+import * as abcjs from 'abcjs';
 
 export async function abcRender(element: (HTMLElement | Document) = document) {
   const abcElements = element.querySelectorAll('.language-abc');
   if (abcElements.length > 0) {
-    const { default: abcjs } = await import(/* webpackChunkName: 'abcjs' */ 'abcjs/src/api/abc_tunebook_svg');
+    // const { default: abcjs } = await import(/* webpackChunkName: 'abcjs' */ 'abcjs/src/api/abc_tunebook_svg');
     abcElements.forEach((e: HTMLDivElement) => {
       const divElement = document.createElement('div');
       e.parentNode.parentNode.replaceChild(divElement, e.parentNode);
@@ -116,33 +121,25 @@ export function taskRender(md: markdownit) {
 export function mathRender(element: HTMLElement, lang: (keyof IACMarkdownEditorI18nLang) = 'zh_CN') {
   const text = code160to32(element.innerText);
   if (text.split('$').length > 2 || (text.split('\\(').length > 1 && text.split('\\)').length > 1)) {
-    import(/* webpackChunkName: 'katex' */ 'katex').then(() => {
-      import(/* webpackChunkName: 'katex' */ 'katex/contrib/auto-render/auto-render')
-        .then((renderMathInElement) => {
-          // TBD!
-          // addStyle(`${CDN_PATH}/vditor/dist/js/katex/katex.min.css`,
-          //   'vditorKatexStyle');
-          renderMathInElement.default(element, {
-            delimiters: [
-              { left: '$$', right: '$$', display: true },
-              { left: '\\(', right: '\\)', display: false },
-              { left: '$', right: '$', display: false },
-            ],
-          });
+    katexAutoRender.default(element, {
+      delimiters: [
+        { left: '$$', right: '$$', display: true },
+        { left: '\\(', right: '\\)', display: false },
+        { left: '$', right: '$', display: false },
+      ],
+    });
 
-          element.querySelectorAll('.katex-html').forEach((e: HTMLElement, index: number) => {
-            if (e.querySelector('.vditor-copy')) {
-              return;
-            }
-            const copyHTML = `<div class='vditor-copy' style='position: absolute'>
+    element.querySelectorAll('.katex-html').forEach((e: HTMLElement, index: number) => {
+      if (e.querySelector('.vditor-copy')) {
+        return;
+      }
+      const copyHTML = `<div class='vditor-copy' style='position: absolute'>
 <textarea>${e.previousElementSibling.querySelector('annotation').textContent}</textarea>
 <span aria-label='${i18n[lang].copy}' style='top: 2px;right: -20px'
 onmouseover='this.setAttribute('aria-label', '${i18n[lang].copy}')' class='vditor-tooltipped vditor-tooltipped__w'
 onclick='this.previousElementSibling.select();document.execCommand('copy');` +
-              `this.setAttribute('aria-label', '${i18n[lang].copied}')'>${copySvg}</span></div>`;
-            e.insertAdjacentHTML('beforeend', copyHTML);
-          });
-        });
+        `this.setAttribute('aria-label', '${i18n[lang].copied}')'>${copySvg}</span></div>`;
+      e.insertAdjacentHTML('beforeend', copyHTML);
     });
   }
 }
@@ -154,7 +151,6 @@ export function mermaidRender(element: HTMLElement) {
   import(/* webpackChunkName: 'mermaid' */ 'mermaid').then((mermaid) => {
     mermaid.init({ noteMargin: 10 }, '.language-mermaid');
   });
-
 }
 
 export async function previewRender(element: HTMLTextAreaElement, options?: IACMarkdownEditorPreviewOptions) {
@@ -231,7 +227,7 @@ export async function coreRender(hljsStyle: string, enableHighlight: boolean) {
     //   'vditorHljsStyle');
   }
 
-  const MarkdownIt = await import(/* webpackChunkName: 'markdown-it' */ 'markdown-it');
+  // const MarkdownIt = await import(/* webpackChunkName: 'markdown-it' */ 'markdown-it');
 
   const options: markdownit.Options = {
     breaks: true,
@@ -240,18 +236,18 @@ export async function coreRender(hljsStyle: string, enableHighlight: boolean) {
   };
 
   if (enableHighlight) {
-    const hljs = await import(/* webpackChunkName: 'highlight.js' */ 'highlight.js');
+    // const hljs = await import(/* webpackChunkName: 'highlight.js' */ 'highlight.js');
     options.highlight = (str: string, lang: string) => {
       if (lang === 'mermaid' || lang === 'echarts' || lang === 'abc') {
         return str;
       }
-      if (lang && hljs.getLanguage(lang)) {
-        return `<pre><code class='language-${lang} hljs'>${hljs.highlight(lang, str, true).value}</code></pre>`;
+      if (lang && highlightjs.getLanguage(lang)) {
+        return `<pre><code class='language-${lang} hljs'>${highlightjs.highlight(lang, str, true).value}</code></pre>`;
       }
-      return `<pre><code class='hljs'>${hljs.highlightAuto(str).value}</code></pre>`;
+      return `<pre><code class='hljs'>${highlightjs.highlightAuto(str).value}</code></pre>`;
     };
   }
-  return new MarkdownIt(options).use(task);
+  return markdownit(options).use(task);
 }
 
 export async function markdownItRender(

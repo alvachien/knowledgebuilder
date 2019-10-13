@@ -1,4 +1,4 @@
-import { insertText } from './acmarkdown-editor-util';
+import { insertText, MediaRecorder } from './acmarkdown-editor-util';
 import { IACMarkdownEditor, IACMarkdownEditorToolbarItem, IACMarkdownEditorHTMLInputEvent } from './acmarkdown-editor-interface';
 import { i18n, boldSvg, bothSvg, checkSvg, codeSvg, emojiSvg, fullscreenSvg, contractSvg, headingsSvg,
   helpSvg, uploadSvg, undoSvg, tableSvg, strikeSvg, redoSvg, recordSvg, quoteSvg, previewSvg, orderedlistSvg,
@@ -63,7 +63,8 @@ export class ACMarkdownToolbarBoth extends ACMarkdownEditorToolbarItem {
 
   public _bindEvent(vditor: IACMarkdownEditor, tbItem: IACMarkdownEditorToolbarItem) {
     this.element.children[0].addEventListener('click', function() {
-      const vditorElement = document.getElementById(vditor.id);
+      // const vditorElement = document.getElementById(vditor.id);
+      const vditorElement = vditor.rootElement;
       let className;
       if (vditor.preview.element.className === 'vditor-preview vditor-preview--both') {
         vditor.preview.element.className = 'vditor-preview vditor-preview--editor';
@@ -213,7 +214,8 @@ export class ACMarkdownToolbarFullscreen extends ACMarkdownEditorToolbarItem {
 
   public _bindEvent(vditor: IACMarkdownEditor, tbItem: IACMarkdownEditorToolbarItem) {
     this.element.children[0].addEventListener('click', function() {
-      const vditorElement = document.getElementById(vditor.id);
+      // const vditorElement = document.getElementById(vditor.id);
+      const vditorElement = vditor.rootElement;
       if (vditorElement.className.indexOf('vditor--fullscreen') > -1) {
         this.innerHTML = tbItem.icon || fullscreenSvg;
         vditorElement.className = vditorElement.className.replace(' vditor--fullscreen', '');
@@ -293,7 +295,6 @@ export class ACMarkdownToolbarHelp extends ACMarkdownEditorToolbarItem {
 
   public bindEvent() {
     this.element.children[0].addEventListener('click', () => {
-      window.open('https://hacpai.com/guide/markdown');
     });
   }
 }
@@ -307,7 +308,6 @@ export class ACMarkdownToolbarInfo extends ACMarkdownEditorToolbarItem {
 
   public bindEvent() {
     this.element.children[0].addEventListener('click', () => {
-      window.open('https://github.com/b3log/vditor');
     });
   }
 }
@@ -397,7 +397,8 @@ export class ACMarkdownToolbarPreview extends ACMarkdownEditorToolbarItem {
 
   public _bindEvent(vditor: IACMarkdownEditor, tbItem: IACMarkdownEditorToolbarItem) {
     this.element.children[0].addEventListener('click', function() {
-      const vditorElement = document.getElementById(vditor.id);
+      // const vditorElement = document.getElementById(vditor.id);
+      const vditorElement = vditor.rootElement;
       let className;
       if (vditor.preview.element.className === 'vditor-preview vditor-preview--preview') {
         vditor.preview.element.className = 'vditor-preview vditor-preview--editor';
