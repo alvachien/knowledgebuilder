@@ -156,9 +156,6 @@ export class ACMarkdownEditorOptions {
       name: 'info',
       tipPosition: 'nw',
     }, {
-      name: 'help',
-      tipPosition: 'nw',
-    }, {
       name: 'br',
     }],
     upload: {

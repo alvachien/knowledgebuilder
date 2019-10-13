@@ -286,18 +286,18 @@ export class ACMarkdownToolbarHeadings extends ACMarkdownEditorToolbarItem {
   }
 }
 
-export class ACMarkdownToolbarHelp extends ACMarkdownEditorToolbarItem {
-  constructor(vditor: IACMarkdownEditor, tbItem: IACMarkdownEditorToolbarItem) {
-    super(vditor, tbItem);
-    this.element.children[0].innerHTML = tbItem.icon || helpSvg;
-    this.bindEvent();
-  }
+// export class ACMarkdownToolbarHelp extends ACMarkdownEditorToolbarItem {
+//   constructor(vditor: IACMarkdownEditor, tbItem: IACMarkdownEditorToolbarItem) {
+//     super(vditor, tbItem);
+//     this.element.children[0].innerHTML = tbItem.icon || helpSvg;
+//     this.bindEvent();
+//   }
 
-  public bindEvent() {
-    this.element.children[0].addEventListener('click', () => {
-    });
-  }
-}
+//   public bindEvent() {
+//     this.element.children[0].addEventListener('click', () => {
+//     });
+//   }
+// }
 
 export class ACMarkdownToolbarInfo extends ACMarkdownEditorToolbarItem {
   constructor(vditor: IACMarkdownEditor, tbItem: IACMarkdownEditorToolbarItem) {
@@ -611,9 +611,6 @@ export class ACMarkdownEditorToolbar {
           break;
         case 'link':
           menuItemObj = new ACMarkdownToolbarLink(vditor, tbItem);
-          break;
-        case 'help':
-          menuItemObj = new ACMarkdownToolbarHelp(vditor, tbItem);
           break;
         case 'table':
           menuItemObj = new ACMarkdownToolbarTable(vditor, tbItem);

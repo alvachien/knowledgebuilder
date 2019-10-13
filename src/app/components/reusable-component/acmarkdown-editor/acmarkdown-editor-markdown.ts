@@ -6,6 +6,7 @@ import * as highlightjs from 'highlight.js';
 import * as katex from 'katex';
 import * as katexAutoRender from 'katex/dist/contrib/auto-render';
 import * as abcjs from 'abcjs';
+import * as echarts from 'echarts';
 
 export async function abcRender(element: (HTMLElement | Document) = document) {
   const abcElements = element.querySelectorAll('.language-abc');
@@ -14,7 +15,7 @@ export async function abcRender(element: (HTMLElement | Document) = document) {
     abcElements.forEach((e: HTMLDivElement) => {
       const divElement = document.createElement('div');
       e.parentNode.parentNode.replaceChild(divElement, e.parentNode);
-      abcjs(divElement, e.textContent.trim(), {});
+      abcjs.renderAbc(divElement, e.textContent.trim(), {});
       divElement.style.overflowX = 'auto';
     });
   }
@@ -23,7 +24,7 @@ export async function abcRender(element: (HTMLElement | Document) = document) {
 export async function chartRender(element: (HTMLElement | Document) = document) {
   const echartsElements = element.querySelectorAll('.language-echarts');
   if (echartsElements.length > 0) {
-    const echarts = await import(/* webpackChunkName: 'echarts' */ 'echarts');
+    // const echarts = await import(/* webpackChunkName: 'echarts' */ 'echarts');
     echartsElements.forEach((e: HTMLDivElement) => {
       try {
         if (e.getAttribute('data-processed') === 'true') {
