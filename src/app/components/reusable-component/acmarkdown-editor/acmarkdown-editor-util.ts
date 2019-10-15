@@ -1,4 +1,4 @@
-import { IACMarkdownEditor } from './acmarkdown-editor-interface';
+import { IACMarkdownEditor, IACMarkdownEditorToolbarItem } from './acmarkdown-editor-interface';
 import { gfm } from './acmarkdown-editor-gfm';
 // import * as turndown from 'turndown';
 declare var webkitAudioContext: {
@@ -11,9 +11,17 @@ export function code160to32(text: string): string {
   return text.replace(/\u00a0/g, ' ');
 }
 
-export function getText(element: HTMLPreElement): string {
+export function getText(element: HTMLElement): string {
   // last char must be a `\n`.
   return code160to32(`${element.textContent}\n`.replace(/\n\n$/, '\n'));
+}
+
+const getContent = (vditor: IACMarkdownEditor, editorElement: HTMLElement) => {
+  if (vditor.currentMode === 'wysiwyg') {
+    return editorElement.textContent;
+  } else {
+    return getText(editorElement);
+  }
 }
 
 export function inputEvent(vditor: IACMarkdownEditor, addUndo: boolean = true) {
@@ -24,7 +32,7 @@ export function inputEvent(vditor: IACMarkdownEditor, addUndo: boolean = true) {
     vditor.options.input(getText(vditor.editor.element), vditor.preview && vditor.preview.element);
   }
   if (vditor.hint) {
-    vditor.hint.render();
+    vditor.hint.render(vditor);
   }
   if (vditor.options.cache) {
     localStorage.setItem(`vditor${vditor.id}`, getText(vditor.editor.element));
@@ -37,13 +45,256 @@ export function inputEvent(vditor: IACMarkdownEditor, addUndo: boolean = true) {
   }
 }
 
+export function focusEvent(vditor: IACMarkdownEditor, editorElement: HTMLElement) {
+  editorElement.addEventListener('focus', () => {
+    if (vditor.options.focus) {
+      vditor.options.focus(getContent(vditor, editorElement));
+    }
+    if (vditor.toolbar.elements.emoji && vditor.toolbar.elements.emoji.children[1]) {
+      const emojiPanel = vditor.toolbar.elements.emoji.children[1] as HTMLElement;
+      emojiPanel.style.display = 'none';
+    }
+    if (vditor.toolbar.elements.headings && vditor.toolbar.elements.headings.children[1]) {
+      const headingsPanel = vditor.toolbar.elements.headings.children[1] as HTMLElement;
+      headingsPanel.style.display = 'none';
+    }
+  });
+}
+
+export function copyEvent(editorElement: HTMLElement) {
+  editorElement.addEventListener('copy', async (event: ClipboardEvent) => {
+    event.stopPropagation();
+    event.preventDefault();
+    event.clipboardData.setData('text/plain', getSelectText(editorElement));
+  });
+}
+
+export function scrollCenter(editorElement: HTMLElement) {
+  const cursorTop = getCursorPosition(editorElement).top;
+  const center = editorElement.clientHeight / 2;
+  if (cursorTop > center) {
+    editorElement.scrollTop = editorElement.scrollTop + (cursorTop - center);
+  }
+}
+
+export function hotkeyEvent(vditor: IACMarkdownEditor, editorElement: HTMLElement) {
+  const processKeymap = (hotkey: string, event: KeyboardEvent, action: () => void) => {
+    const hotkeys = hotkey.split('-');
+    const hasShift = hotkeys.length === 3 && (hotkeys[1] === 'shift' || hotkeys[1] === '⇧');
+    const key = hasShift ? hotkeys[2] : hotkeys[1];
+    if ((hotkeys[0] === 'ctrl' || hotkeys[0] === '⌘') && (event.metaKey || event.ctrlKey)
+      && event.key.toLowerCase() === key.toLowerCase()) {
+      if ((!hasShift && !event.shiftKey) || (hasShift && event.shiftKey)) {
+        action();
+        event.preventDefault();
+        event.stopPropagation();
+      }
+    }
+  };
+
+  const hint = (event: KeyboardEvent, hintElement: HTMLElement) => {
+    if (!hintElement) {
+      return;
+    }
+
+    if (hintElement.querySelectorAll('li').length === 0 ||
+      hintElement.style.display === 'none') {
+      return;
+    }
+
+    const currentHintElement: HTMLElement = hintElement.querySelector('.vditor-hint--current');
+
+    if (event.key === 'ArrowDown') {
+      event.preventDefault();
+      event.stopPropagation();
+      if (!currentHintElement.nextElementSibling) {
+        hintElement.children[0].className = 'vditor-hint--current';
+      } else {
+        currentHintElement.nextElementSibling.className = 'vditor-hint--current';
+      }
+      currentHintElement.removeAttribute('class');
+    } else if (event.key === 'ArrowUp') {
+      event.preventDefault();
+      event.stopPropagation();
+      if (!currentHintElement.previousElementSibling) {
+        const length = hintElement.children.length;
+        hintElement.children[length - 1].className = 'vditor-hint--current';
+      } else {
+        currentHintElement.previousElementSibling.className = 'vditor-hint--current';
+      }
+      currentHintElement.removeAttribute('class');
+    } else if (event.key === 'Enter') {
+      event.preventDefault();
+      event.stopPropagation();
+      vditor.hint.fillEmoji(currentHintElement, vditor);
+    }
+  };
+
+  editorElement.addEventListener('keydown', (event: KeyboardEvent) => {
+    const hintElement = vditor.hint && vditor.hint.element;
+
+    vditor.undo.recordFirstPosition(vditor);
+
+    if ((event.metaKey || event.ctrlKey) && vditor.options.ctrlEnter && event.key === 'Enter') {
+      vditor.options.ctrlEnter(getContent(vditor, editorElement));
+      return;
+    }
+
+    if (event.key === 'Escape') {
+      if (vditor.options.esc) {
+        vditor.options.esc(getContent(vditor, editorElement));
+      }
+      if (hintElement && hintElement.style.display === 'block') {
+        hintElement.style.display = 'none';
+      }
+      return;
+    }
+
+    // TODO: WYSIWYG
+    if (vditor.currentMode === 'markdown') {
+      if (vditor.options.tab && event.key === 'Tab') {
+        event.preventDefault();
+        event.stopPropagation();
+
+        const position = getSelectPosition(editorElement);
+        const text = getText(editorElement);
+        const selectLinePosition = getCurrentLinePosition(position, text);
+        const selectLineList = text.substring(selectLinePosition.start, selectLinePosition.end - 1).split('\n');
+
+        if (event.shiftKey) {
+          let shiftCount = 0;
+          let startIsShift = false;
+          const selectionShiftResult = selectLineList.map((value, index) => {
+            let shiftLineValue = value;
+            if (value.indexOf(vditor.options.tab) === 0) {
+              if (index === 0) {
+                startIsShift = true;
+              }
+              shiftCount++;
+              shiftLineValue = value.replace(vditor.options.tab, '');
+            }
+            return shiftLineValue;
+          }).join('\n');
+
+          formatRender(vditor, text.substring(0, selectLinePosition.start) +
+            selectionShiftResult + text.substring(selectLinePosition.end - 1),
+            {
+              end: position.end - shiftCount * vditor.options.tab.length,
+              start: position.start - (startIsShift ? vditor.options.tab.length : 0),
+            });
+          return;
+        }
+
+        if (position.start === position.end) {
+          insertText(vditor, vditor.options.tab, '');
+          return;
+        }
+        const selectionResult = selectLineList.map((value) => {
+          return vditor.options.tab + value;
+        }).join('\n');
+        formatRender(vditor, text.substring(0, selectLinePosition.start) + selectionResult +
+          text.substring(selectLinePosition.end - 1),
+          {
+            end: position.end + selectLineList.length * vditor.options.tab.length,
+            start: position.start + vditor.options.tab.length,
+          });
+        return;
+      }
+
+      if (!event.metaKey && !event.ctrlKey && !event.shiftKey && event.keyCode === 8) {
+        const position = getSelectPosition(editorElement);
+        if (position.start !== position.end) {
+          insertText(vditor, '', '', true);
+        } else {
+          const text = getText(editorElement);
+          // tslint:disable-next-line:max-line-length
+          const emojiMatch = text.substring(0, position.start).match(/([\u{1F300}-\u{1F5FF}][\u{2000}-\u{206F}][\u{2700}-\u{27BF}]|([\u{1F900}-\u{1F9FF}]|[\u{1F300}-\u{1F5FF}]|[\u{1F680}-\u{1F6FF}]|[\u{1F600}-\u{1F64F}])[\u{2000}-\u{206F}][\u{2600}-\u{26FF}]|[\u{1F300}-\u{1F5FF}]|[\u{1F100}-\u{1F1FF}]|[\u{1F600}-\u{1F64F}]|[\u{1F680}-\u{1F6FF}]|[\u{1F200}-\u{1F2FF}]|[\u{1F900}-\u{1F9FF}]|[\u{1F000}-\u{1F02F}]|[\u{FE00}-\u{FE0F}]|[\u{1F0A0}-\u{1F0FF}]|[\u{0000}-\u{007F}][\u{20D0}-\u{20FF}]|[\u{0000}-\u{007F}][\u{FE00}-\u{FE0F}][\u{20D0}-\u{20FF}])$/u);
+          const deleteChar = emojiMatch ? emojiMatch[0].length : 1;
+          formatRender(vditor,
+            text.substring(0, position.start - deleteChar) + text.substring(position.start),
+            {
+              end: position.start - deleteChar,
+              start: position.start - deleteChar,
+            });
+        }
+        event.preventDefault();
+        event.stopPropagation();
+        return;
+      }
+
+      // editor actions
+      if (vditor.options.keymap.deleteLine) {
+        processKeymap(vditor.options.keymap.deleteLine, event, () => {
+          const position = getSelectPosition(editorElement);
+          const text = getText(editorElement);
+          const linePosition = getCurrentLinePosition(position, text);
+          const deletedText = text.substring(0, linePosition.start) + text.substring(linePosition.end);
+          const startIndex = Math.min(deletedText.length, position.start);
+          formatRender(vditor, deletedText, {
+            end: startIndex,
+            start: startIndex,
+          });
+        });
+      }
+
+      if (vditor.options.keymap.duplicate) {
+        processKeymap(vditor.options.keymap.duplicate, event, () => {
+          const position = getSelectPosition(editorElement);
+          const text = getText(editorElement);
+          let lineText = text.substring(position.start, position.end);
+          if (position.start === position.end) {
+            const linePosition = getCurrentLinePosition(position, text);
+            lineText = text.substring(linePosition.start, linePosition.end);
+            formatRender(vditor,
+              text.substring(0, linePosition.end) + lineText + text.substring(linePosition.end),
+              {
+                end: position.end + lineText.length,
+                start: position.start + lineText.length,
+              });
+          } else {
+            formatRender(vditor,
+              text.substring(0, position.end) + lineText + text.substring(position.end),
+              {
+                end: position.end + lineText.length,
+                start: position.start + lineText.length,
+              });
+          }
+        });
+      }
+
+      // toolbar action
+      vditor.options.toolbar.forEach((menuItem: IACMarkdownEditorToolbarItem) => {
+        if (!menuItem.hotkey) {
+          return;
+        }
+        processKeymap(menuItem.hotkey, event, () => {
+          (vditor.toolbar.elements[menuItem.name].children[0] as HTMLElement).click();
+        });
+      });
+      if (!vditor.toolbar.elements.undo && (event.metaKey || event.ctrlKey) && event.key === 'z') {
+        vditor.undo.undo(vditor);
+        event.preventDefault();
+      }
+      if (!vditor.toolbar.elements.redo && (event.metaKey || event.ctrlKey) && event.key === 'y') {
+        vditor.undo.redo(vditor);
+        event.preventDefault();
+      }
+    }
+
+    // hint: 上下选择
+    if (vditor.options.hint.at || vditor.toolbar.elements.emoji) {
+      hint(event, hintElement);
+    }
+  });
+}
+
 export function setSelectionFocus(range: Range) {
   const selection = window.getSelection();
   selection.removeAllRanges();
   selection.addRange(range);
 }
 
-export function selectIsEditor(editor: HTMLPreElement, range?: Range) {
+export function selectIsEditor(editor: HTMLElement, range?: Range) {
   let isEditor = false;
   if (!range) {
     if (window.getSelection().rangeCount === 0) {
@@ -69,7 +320,7 @@ export function selectIsEditor(editor: HTMLPreElement, range?: Range) {
   return isEditor;
 }
 
-export function getSelectPosition(editorElement: HTMLPreElement, range?: Range) {
+export function getSelectPosition(editorElement: HTMLElement, range?: Range) {
   const position = {
     end: 0,
     start: 0,
@@ -89,7 +340,8 @@ export function getSelectPosition(editorElement: HTMLPreElement, range?: Range) 
     } else {
       preSelectionRange.selectNodeContents(editorElement);
     }
-    if (range.startContainer.childNodes.length === 1 && range.startContainer.textContent.trim() === '') {
+    if (range.startContainer.childNodes.length === 1 && range.startContainer.textContent.trim() === '' &&
+      editorElement.childNodes[0].childNodes[0]) {
       preSelectionRange.setEnd(editorElement.childNodes[0].childNodes[0], 0);
     } else {
       preSelectionRange.setEnd(range.startContainer, range.startOffset);
@@ -100,7 +352,7 @@ export function getSelectPosition(editorElement: HTMLPreElement, range?: Range) 
   return position;
 }
 
-export function setSelectionByPosition(start: number, end: number, editor: HTMLPreElement) {
+export function setSelectionByPosition(start: number, end: number, editor: HTMLElement) {
   let charIndex = 0;
   let line = 0;
   let pNode = editor.childNodes[line];
@@ -110,7 +362,7 @@ export function setSelectionByPosition(start: number, end: number, editor: HTMLP
   end = Math.max(0, end);
 
   const range = editor.ownerDocument.createRange();
-  range.setStart(pNode, 0);
+  range.setStart(pNode || editor, 0);
   range.collapse(true);
 
   while (!stop && pNode) {
@@ -177,7 +429,8 @@ export function setSelectionByInlineText(text: string, childNodes: NodeListOf<Ch
   range.setEnd(childNodes[offset].childNodes[0], startIndex + text.length);
   setSelectionFocus(range);
 }
-export function getSelectText(editor: HTMLPreElement, range?: Range) {
+
+export function getSelectText(editor: HTMLElement, range?: Range) {
   if (!range) {
     if (window.getSelection().rangeCount === 0) {
       return '';
@@ -199,10 +452,18 @@ export function formatRender(
   const textList = content.replace(/\r\n/g, '\n').replace(/\r/g, '\n').split('\n');
   let html = '';
   const newLine = '<span><br><span style="display: none">\n</span></span>';
+
+  let isEmpty = true;
   textList.forEach((text, index) => {
+    if (text !== '') {
+      isEmpty = false;
+    }
+
     if (index === textList.length - 1 && text === '') {
+      // 空行行末尾不需要
       return;
     }
+
     if (text) {
       html += `<span>${code160to32(text.replace(/&/g, '&amp;').replace(/</g, '&lt;'))}</span>${newLine}`;
     } else {
@@ -210,8 +471,13 @@ export function formatRender(
     }
   });
 
-  // TODO: 使用虚拟 Dom
-  vditor.editor.element.innerHTML = html || newLine;
+  if (textList.length <= 2 && isEmpty) {
+    // 当内容等于空或 \n 时把编辑器内部元素置空，显示 placeholder 文字
+    vditor.editor.element.innerHTML = '';
+  } else {
+    // TODO: 使用虚拟 Dom
+    vditor.editor.element.innerHTML = html || newLine;
+  }
 
   if (position) {
     setSelectionByPosition(position.start, position.end, vditor.editor.element);
@@ -222,9 +488,11 @@ export function formatRender(
 
 export function insertText(
   vditor: IACMarkdownEditor,
-  prefix: string, suffix: string, replace: boolean = false,
+  prefix: string,
+  suffix: string,
+  replace: boolean = false,
   toggle: boolean = false) {
-  let range: Range = window.getSelection().getRangeAt(0);
+  let range: Range = window.getSelection().rangeCount === 0 ? undefined : window.getSelection().getRangeAt(0);
   if (!selectIsEditor(vditor.editor.element)) {
     if (vditor.editor.range) {
       range = vditor.editor.range;
@@ -346,13 +614,18 @@ export async function html2md(vditor: IACMarkdownEditor, textHTML: string, textP
   }
 
   if (isCode) {
-    return '```\n' + (textPlain || textHTML) + '\n```';
+    const code = textPlain || textHTML;
+    if (/\n/.test(code)) {
+      return '```\n' + code + '\n```';
+    } else {
+      return '`' + code + '`';
+    }
   } else {
     return markdownStr;
   }
 }
 
-export function getCursorPosition(editor: HTMLPreElement) {
+export function getCursorPosition(editor: HTMLElement) {
   const parentRect = editor.parentElement.getBoundingClientRect();
   const range = window.getSelection().getRangeAt(0);
   const startNode = range.startContainer.childNodes[range.startOffset] as HTMLElement;
@@ -362,9 +635,20 @@ export function getCursorPosition(editor: HTMLPreElement) {
       cursorRect = startNode.nextElementSibling.getClientRects()[0];
     } else if (startNode.getClientRects) {
       cursorRect = startNode.getClientRects()[0];
+    } else if (startNode.parentElement) {
+      cursorRect = startNode.parentElement.getClientRects()[0];
     }
   } else {
+    const startOffset = range.startOffset;
+    // fix Safari
+    if (isSafari()) {
+      range.setStart(range.startContainer, startOffset - 1);
+    }
     cursorRect = range.getBoundingClientRect();
+    // fix Safari
+    if (isSafari()) {
+      range.setStart(range.startContainer, startOffset);
+    }
   }
   return {
     left: cursorRect.left - parentRect.left,
@@ -577,5 +861,13 @@ export class MediaRecorder {
     for (let i = 0; i < lng; i++) {
       view.setUint8(offset + i, value.charCodeAt(i));
     }
+  }
+}
+
+export function isSafari(): boolean {
+  if (navigator.userAgent.indexOf('Safari') > -1 && navigator.userAgent.indexOf('Chrome') === -1) {
+     return true;
+  } else {
+     return false;
   }
 }

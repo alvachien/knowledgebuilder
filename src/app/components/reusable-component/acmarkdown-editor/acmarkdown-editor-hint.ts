@@ -1,28 +1,26 @@
 import { IACMarkdownEditor, IACMarkdownEditorHintData } from './acmarkdown-editor-interface';
 import { getSelectPosition, getText, formatRender, selectIsEditor, code160to32, getCursorPosition } from './acmarkdown-editor-util';
+import { getAllEmoji } from './acmarkdown-editor-constant';
 
 export class ACMarkdownEditorHint {
   public timeId: number;
-  public vditor: IACMarkdownEditor;
   public element: HTMLUListElement;
 
-  constructor(vditor: IACMarkdownEditor) {
+  constructor() {
     this.timeId = -1;
-    this.vditor = vditor;
-
     this.element = document.createElement('ul');
     this.element.className = 'vditor-hint';
-
-    this.vditor.editor.element.parentElement.appendChild(this.element);
   }
 
-  public render() {
+  public render(vditor: IACMarkdownEditor) {
     if (!window.getSelection().focusNode) {
       return;
     }
-    const position = getSelectPosition(this.vditor.editor.element);
-    const currentLineValue = getText(this.vditor.editor.element).substring(0, position.end).split('\n')
-      .slice(-1).pop();
+    const position = getSelectPosition(vditor.currentMode === 'wysiwyg' ?
+      vditor.wysiwyg.element : vditor.editor.element);
+    const currentLineValue = vditor.currentMode === 'wysiwyg' ?
+      getSelection().getRangeAt(0).startContainer.textContent.split('\n')[0] :
+      getText(vditor.editor.element).substring(0, position.end).split('\n').slice(-1).pop();
 
     let key = this.getKey(currentLineValue, ':');
     let isAt = false;
@@ -36,61 +34,61 @@ export class ACMarkdownEditorHint {
       this.element.style.display = 'none';
       clearTimeout(this.timeId);
     } else {
-      if (isAt && this.vditor.options.hint.at) {
+      if (isAt && vditor.options.hint.at) {
         clearTimeout(this.timeId);
         this.timeId = window.setTimeout(() => {
-          this.genHTML(this.vditor.options.hint.at(key), key, this.vditor.editor.element);
-        }, this.vditor.options.hint.delay);
+          this.genHTML(vditor.options.hint.at(key), key,
+            vditor.currentMode === 'wysiwyg' ?
+              vditor.wysiwyg.element : vditor.editor.element, vditor);
+        }, vditor.options.hint.delay);
       }
       if (!isAt) {
-        // TBD!
-        // import(/* webpackChunkName: 'allEmoji' */ '../emoji/allEmoji')
-        //   .then((allEmoji) => {
-        //     const emojiHint = key === '' ? this.vditor.options.hint.emoji : Object.assign(
-        //       allEmoji.getAllEmoji(this.vditor.options.hint.emojiPath), this.vditor.options.hint.emoji);
-        //     const matchEmojiData: IACMarkdownEditorHintData[] = [];
-        //     Object.keys(emojiHint).forEach((keyName) => {
-        //       if (keyName.indexOf(key.toLowerCase()) === 0) {
-        //         if (emojiHint[keyName].indexOf('.') > -1) {
-        //           matchEmojiData.push({
-        //             html: `<img src='${emojiHint[keyName]}' title=':${keyName}:'/> :${keyName}:`,
-        //             value: `:${keyName}:`,
-        //           });
-        //         } else {
-        //           matchEmojiData.push({
-        //             html: `<span class='vditor-hint__emoji'>${emojiHint[keyName]}</span>${keyName}`,
-        //             value: emojiHint[keyName],
-        //           });
-        //         }
-        //       }
-        //     });
-        //     this.genHTML(matchEmojiData, key, this.vditor.editor.element);
-        //   })
-        //   .catch((err) => {
-        //     console.error('Failed to load emoji', err);
-        //   });
+        // const emojiHint = key === '' ? vditor.options.hint.emoji : vditor.lute.GetEmojis();
+        const emojiHint = getAllEmoji('');
+        const matchEmojiData: IACMarkdownEditorHintData[] = [];
+        Object.keys(emojiHint).forEach((keyName) => {
+          if (keyName.indexOf(key.toLowerCase()) === 0) {
+            if (emojiHint[keyName].indexOf('.') > -1) {
+              matchEmojiData.push({
+                html: `<img src='${emojiHint[keyName]}' title=':${keyName}:'/> :${keyName}:`,
+                value: `:${keyName}:`,
+              });
+            } else {
+              matchEmojiData.push({
+                html: `<span class='vditor-hint__emoji'>${emojiHint[keyName]}</span>${keyName}`,
+                value: emojiHint[keyName],
+              });
+            }
+          }
+        });
+        this.genHTML(matchEmojiData, key, vditor.currentMode === 'wysiwyg' ?
+          vditor.wysiwyg.element : vditor.editor.element, vditor);
       }
     }
   }
 
-  public fillEmoji = (element: HTMLElement) => {
+  public fillEmoji = (element: HTMLElement, vditor: IACMarkdownEditor) => {
     this.element.style.display = 'none';
 
     const value = element.getAttribute('data-value');
     const splitChar = value.indexOf('@') === 0 ? '@' : ':';
 
-    let range: Range = window.getSelection().getRangeAt(0);
-    if (!selectIsEditor(this.vditor.editor.element, range)) {
-      range = this.vditor.editor.range;
+    if (vditor.currentMode === 'wysiwyg') {
+      // TODO wysiwyg
+    } else {
+      let range: Range = window.getSelection().getRangeAt(0);
+      if (!selectIsEditor(vditor.editor.element, range)) {
+        range = vditor.editor.range;
+      }
+      const position = getSelectPosition(vditor.editor.element, range);
+      const text = getText(vditor.editor.element);
+      const preText = text.substring(0, text.substring(0, position.start).lastIndexOf(splitChar));
+      formatRender(vditor, preText + value + text.substring(position.start),
+        {
+          end: (preText + value).length,
+          start: (preText + value).length,
+        });
     }
-    const position = getSelectPosition(this.vditor.editor.element, range);
-    const text = getText(this.vditor.editor.element);
-    const preText = text.substring(0, text.substring(0, position.start).lastIndexOf(splitChar));
-    formatRender(this.vditor, preText + value + text.substring(position.start),
-      {
-        end: (preText + value).length,
-        start: (preText + value).length,
-      });
   }
 
   private getKey(currentLineValue: string, splitChar: string) {
@@ -111,13 +109,13 @@ export class ACMarkdownEditorHint {
     return key;
   }
 
-  private genHTML(data: IACMarkdownEditorHintData[], key: string, editorElement: HTMLPreElement) {
+  private genHTML(data: IACMarkdownEditorHintData[], key: string, editorElement: HTMLElement, vditor: IACMarkdownEditor) {
     if (data.length === 0) {
       this.element.style.display = 'none';
       return;
     }
 
-    const textareaPosition = getCursorPosition(this.vditor.editor.element);
+    const textareaPosition = getCursorPosition(editorElement);
     const x = textareaPosition.left;
     const y = textareaPosition.top;
     let hintsHTML = '';
@@ -151,7 +149,7 @@ export class ACMarkdownEditorHint {
 
     this.element.querySelectorAll('li').forEach((element) => {
       element.addEventListener('click', () => {
-        this.fillEmoji(element);
+        this.fillEmoji(element, vditor);
       });
     });
     // hint 展现在上部

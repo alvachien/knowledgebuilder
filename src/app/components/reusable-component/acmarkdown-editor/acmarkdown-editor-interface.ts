@@ -61,8 +61,7 @@ export interface IACMarkdownEditorToolbarItem {
 export interface IACMarkdownEditorPreview {
   delay?: number;
   maxWidth?: number;
-  mode?: string; // "both" | "preview" | "editor"
-  url?: string;
+  mode?: string; // 'both' | 'preview' | 'editor'
   hljs?: {
     style?: string,
     enable?: boolean,
@@ -100,6 +99,7 @@ export interface IACMarkdownEditorPreviewOptions {
 }
 
 export interface IACMarkdownEditorOptions {
+  typewriterMode?: boolean;
   keymap?: { [key: string]: string };
   height?: number | string;
   width?: number | string;
@@ -109,6 +109,7 @@ export interface IACMarkdownEditorOptions {
   resize?: IACMarkdownEditorResize;
   counter?: number;
   cache?: boolean;
+  mode?: 'wysiwyg-show' | 'markdown-show' | 'wysiwyg-only' | 'markdown-only';
   preview?: IACMarkdownEditorPreview;
   hint?: IACMarkdownEditorHint;
   upload?: IACMarkdownEditorUpload;
@@ -132,10 +133,11 @@ export interface IACMarkdownEditorOptions {
 export interface IACMarkdownEditor {
   id: string;
   rootElement: HTMLElement;
-  mdTimeoutId: number;
   options: IACMarkdownEditorOptions;
   originalInnerHTML: string;
   markdownIt?: markdownit;
+  currentMode: 'markdown' | 'wysiwyg';
+  currentPreviewMode?: string;
   toolbar?: {
     elements?: { [key: string]: HTMLElement },
   };
@@ -157,8 +159,8 @@ export interface IACMarkdownEditor {
   hint?: {
     timeId: number
     element: HTMLUListElement
-    fillEmoji(element: HTMLElement): void
-    render(): void,
+    fillEmoji(element: HTMLElement, vditor: IACMarkdownEditor): void
+    render(vditor: IACMarkdownEditor): void,
   };
   tip: {
     element: HTMLElement
@@ -173,5 +175,10 @@ export interface IACMarkdownEditor {
     redo(vditor: IACMarkdownEditor): void
     undo(vditor: IACMarkdownEditor): void
     addToUndoStack(vditor: IACMarkdownEditor): void,
+    recordFirstPosition(vditor: IACMarkdownEditor): void,
+  };
+  wysiwyg?: {
+    element: HTMLElement,
+    setExpand(): void,
   };
 }

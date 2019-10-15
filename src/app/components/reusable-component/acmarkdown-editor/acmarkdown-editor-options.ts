@@ -25,6 +25,7 @@ export class ACMarkdownEditorOptions {
       duplicate: '⌘-d',
     },
     lang: 'zh_CN',
+    mode: 'markdown-only',
     placeholder: '',
     preview: {
       delay: 1000,
@@ -158,6 +159,7 @@ export class ACMarkdownEditorOptions {
     }, {
       name: 'br',
     }],
+    typewriterMode: false,
     upload: {
       filename: (name: string) => name.replace(/\W/g, ''),
       linkToImgUrl: '',

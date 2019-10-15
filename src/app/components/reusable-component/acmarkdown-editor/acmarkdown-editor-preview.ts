@@ -1,6 +1,7 @@
 import { IACMarkdownEditor } from './acmarkdown-editor-interface';
 import { getText } from './acmarkdown-editor-util';
-import { md2html, mathRender, mermaidRender, codeRender, chartRender, abcRender } from './acmarkdown-editor-markdown';
+import { md2html2, mathRender, mermaidRender, codeRender, chartRender, abcRender,
+  highlightRender, mediaRender } from './acmarkdown-editor-render';
 import { i18n } from './acmarkdown-editor-constant';
 
 export class ACMarkdownEditorPreview {
@@ -18,7 +19,7 @@ export class ACMarkdownEditorPreview {
 
   public render(vditor: IACMarkdownEditor, value?: string) {
     if (this.element.className === 'vditor-preview vditor-preview--editor') {
-      if (vditor.upload && vditor.upload.element.getAttribute('data-type') === 'renderPerformance') {
+      if (this.element.getAttribute('data-type') === 'renderPerformance') {
         vditor.tip.hide();
       }
       return;
@@ -34,62 +35,27 @@ export class ACMarkdownEditorPreview {
       return;
     }
 
-    clearTimeout(vditor.mdTimeoutId);
+    // clearTimeout(this.mdTimeoutId);
+    const renderStartTime = new Date().getTime();
+    const markdownText = getText(vditor.editor.element);
 
-    vditor.mdTimeoutId = window.setTimeout(() => {
-      const renderStartTime = new Date().getTime();
-      if (vditor.options.preview.url) {
-        const xhr = new XMLHttpRequest();
-        xhr.open('POST', vditor.options.preview.url);
-        xhr.setRequestHeader('Content-Type', 'application/json;charset=UTF-8');
-        xhr.onreadystatechange = () => {
-          if (xhr.readyState === XMLHttpRequest.DONE) {
-            if (xhr.status === 200) {
-              const responseJSON = JSON.parse(xhr.responseText);
-              if (responseJSON.code !== 0) {
-                alert(responseJSON.msg);
-                return;
-              }
-              this.element.children[0].innerHTML = responseJSON.data;
-              this.afterRender(vditor, renderStartTime);
-            }
-          }
-        };
-
-        xhr.send(JSON.stringify({
-          markdownText: getText(vditor.editor.element),
-        }));
-      } else {
-        md2html(vditor, vditor.options.preview.hljs.enable).then((html) => {
-          this.element.children[0].innerHTML = html;
-          this.afterRender(vditor, renderStartTime);
-        });
-      }
-    }, vditor.options.preview.delay);
+    const html = md2html2(vditor, markdownText);
+    this.element.children[0].innerHTML = html;
+    this.afterRender(vditor, renderStartTime);
   }
 
   private afterRender(vditor: IACMarkdownEditor, startTime: number) {
     if (vditor.options.preview.parse) {
       vditor.options.preview.parse(this.element);
     }
-    mathRender(vditor.preview.element.children[0] as HTMLElement, vditor.options.lang);
-    mermaidRender(vditor.preview.element.children[0] as HTMLElement);
+
     codeRender(vditor.preview.element.children[0] as HTMLElement, vditor.options.lang);
+    highlightRender(vditor.options.preview.hljs.style, vditor.options.preview.hljs.enable,
+        vditor.preview.element.children[0] as HTMLElement);
+    mathRender(vditor.preview.element.children[0] as HTMLElement);
+    mermaidRender(vditor.preview.element.children[0] as HTMLElement);
     chartRender(vditor.preview.element.children[0] as HTMLElement);
     abcRender(vditor.preview.element.children[0] as HTMLElement);
-    const time = (new Date().getTime() - startTime);
-    if ((new Date().getTime() - startTime) > 2000) {
-      // https://github.com/b3log/vditor/issues/67
-      vditor.tip.show(i18n[vditor.options.lang].performanceTip.replace('${x}',
-        time.toString()));
-      if (vditor.upload) {
-        vditor.upload.element.setAttribute('data-type', 'renderPerformance');
-      }
-    } else if (vditor.upload && vditor.upload.element.getAttribute('data-type') === 'renderPerformance') {
-      vditor.tip.hide();
-      if (vditor.upload) {
-        vditor.upload.element.removeAttribute('data-type');
-      }
-    }
+    mediaRender(vditor.preview.element.children[0] as HTMLElement);
   }
 }

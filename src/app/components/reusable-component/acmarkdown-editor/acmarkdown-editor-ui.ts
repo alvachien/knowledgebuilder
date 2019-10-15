@@ -2,54 +2,71 @@ import { formatRender, html2md } from './acmarkdown-editor-util';
 import { IACMarkdownEditor } from './acmarkdown-editor-interface';
 
 export class ACMarkdownEditorUi {
+  private contentElement: HTMLElement;
+
   constructor(vditor: IACMarkdownEditor) {
     // const vditorElement = document.getElementById(vditor.id);
     const vditorElement = vditor.rootElement;
     vditorElement.innerHTML = '';
     vditorElement.className = 'vditor' + (vditorElement.className ? ' ' + vditorElement.className : '');
     if (typeof vditor.options.height === 'number') {
-      vditorElement.style.height = vditor.options.height + 'px';
+        vditorElement.style.height = vditor.options.height + 'px';
     }
     if (typeof vditor.options.width === 'number') {
-      vditorElement.style.width = vditor.options.width + 'px';
+        vditorElement.style.width = vditor.options.width + 'px';
     } else {
-      vditorElement.style.width = vditor.options.width;
+        vditorElement.style.width = vditor.options.width;
     }
 
     const toolbarElement = document.createElement('div');
     toolbarElement.className = 'vditor-toolbar';
     Object.keys(vditor.toolbar.elements).forEach((key) => {
-      toolbarElement.appendChild(vditor.toolbar.elements[key]);
+        toolbarElement.appendChild(vditor.toolbar.elements[key]);
     });
 
     vditorElement.appendChild(toolbarElement);
 
-    const contentElement = document.createElement('div');
-    contentElement.className = 'vditor-content';
-    contentElement.appendChild(vditor.editor.element);
+    this.contentElement = document.createElement('div');
+    this.contentElement.className = 'vditor-content';
 
-    if (vditor.preview) {
-      contentElement.appendChild(vditor.preview.element);
+    // if (vditor.wysiwyg) {
+    //     this.contentElement.appendChild(vditor.wysiwyg.element);
+    // }
+
+    if (vditor.editor) {
+        this.contentElement.appendChild(vditor.editor.element);
     }
 
+    if (vditor.preview) {
+        this.contentElement.appendChild(vditor.preview.element);
+    }
+
+    // if (vditor.toolbar.elements.devtools) {
+    //     this.contentElement.appendChild(vditor.devtools.element);
+    // }
+
     if (vditor.options.counter > 0) {
-      contentElement.appendChild(vditor.counter.element);
+        this.contentElement.appendChild(vditor.counter.element);
     }
 
     if (vditor.upload) {
-      contentElement.appendChild(vditor.upload.element);
+        this.contentElement.appendChild(vditor.upload.element);
     }
 
     if (vditor.options.resize.enable) {
-      contentElement.appendChild(vditor.resize.element);
+        this.contentElement.appendChild(vditor.resize.element);
     }
 
-    contentElement.appendChild(vditor.tip.element);
+    if (vditor.hint) {
+        this.contentElement.appendChild(vditor.hint.element);
+    }
 
-    vditorElement.appendChild(contentElement);
+    this.contentElement.appendChild(vditor.tip.element);
+
+    vditorElement.appendChild(this.contentElement);
 
     this.afterRender(vditor);
-  }
+}
 
   private async afterRender(vditor: IACMarkdownEditor) {
     let height: number = Math.max(vditor.editor.element.parentElement.offsetHeight, 20);

@@ -5,15 +5,14 @@ import { ACMarkdownEditorResize } from './acmarkdown-editor-resize';
 import { ACMarkdownEditorPreview } from './acmarkdown-editor-preview';
 import { ACMarkdownEditorHint } from './acmarkdown-editor-hint';
 import { ACMarkdownEditorUi } from './acmarkdown-editor-ui';
-import { ACMarkdownEditorHotkey } from './acmarkdown-editor-hotkey';
 import { getText, getSelectText, setSelectionByPosition, html2md, selectIsEditor, insertText,
   formatRender, getCursorPosition} from './acmarkdown-editor-util';
-import { md2html } from './acmarkdown-editor-markdown';
 import { ACMarkdownEditorTip } from './acmarkdown-editor-tip';
 import { ACMarkdownEditorUndo } from './acmarkdown-editor-undo';
 import { ACMarkdownEditorUpload } from './acmarkdown-editor-upload';
 import { ACMarkdownEditorOptions } from './acmarkdown-editor-options';
 import { ACMarkdownEditorToolbar } from './acmarkdown-editor-toolbar';
+import { md2html2 } from './acmarkdown-editor-render';
 
 export class ACMarkdownEditor {
   public vditor: IACMarkdownEditor;
@@ -26,7 +25,8 @@ export class ACMarkdownEditor {
     this.vditor = {
       id,
       rootElement,
-      mdTimeoutId: -1,
+      currentMode: mergedOptions.mode.indexOf('wysiwyg') > -1 ? 'wysiwyg' : 'markdown',
+      currentPreviewMode: mergedOptions.preview.mode,
       options: mergedOptions,
       originalInnerHTML: '',
       tip: new ACMarkdownEditorTip(),
@@ -65,10 +65,9 @@ export class ACMarkdownEditor {
     const ui = new ACMarkdownEditorUi(this.vditor);
 
     if (this.vditor.options.hint.at || this.vditor.toolbar.elements.emoji) {
-      const hint = new ACMarkdownEditorHint(this.vditor);
+      const hint = new ACMarkdownEditorHint();
       this.vditor.hint = hint;
     }
-    const hotkey = new ACMarkdownEditorHotkey(this.vditor);
   }
 
   public getValue() {
@@ -131,9 +130,9 @@ export class ACMarkdownEditor {
     return html2md(this.vditor, value);
   }
 
-  public getHTML(enableHighlight?: boolean) {
-    return md2html(this.vditor, enableHighlight);
-  }
+  // public getHTML(enableHighlight?: boolean) {
+  //   return md2html2(this.vditor, enableHighlight);
+  // }
 
   public tip(text: string, time?: number) {
     this.vditor.tip.show(text, time);
