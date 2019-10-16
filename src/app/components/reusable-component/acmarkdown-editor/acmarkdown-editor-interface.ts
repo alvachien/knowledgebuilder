@@ -1,4 +1,4 @@
-import 'markdown-it';
+import { MarkedOptions } from 'marked';
 
 export interface IACMarkdownEditorTurndown {
   addRule(key: string, rule: IACMarkdownEditorTurndownRule): IACMarkdownEditorTurndown;
@@ -114,6 +114,7 @@ export interface IACMarkdownEditorOptions {
   hint?: IACMarkdownEditorHint;
   upload?: IACMarkdownEditorUpload;
   classes?: IACMarkdownEditorClasses;
+  markedOption?: MarkedOptions;
 
   tab?: string;
 
@@ -135,7 +136,7 @@ export interface IACMarkdownEditor {
   rootElement: HTMLElement;
   options: IACMarkdownEditorOptions;
   originalInnerHTML: string;
-  markdownIt?: markdownit;
+  // markdownIt?: markdownit;
   currentMode: 'markdown' | 'wysiwyg';
   currentPreviewMode?: string;
   toolbar?: {

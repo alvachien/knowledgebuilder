@@ -1,8 +1,9 @@
 import { IACMarkdownEditor } from './acmarkdown-editor-interface';
 import { getText } from './acmarkdown-editor-util';
-import { md2html2, mathRender, mermaidRender, codeRender, chartRender, abcRender,
-  highlightRender, mediaRender } from './acmarkdown-editor-render';
+import { mermaidRender, codeRender, chartRender, abcRender,
+  highlightRender, mediaRender, mathRender2 } from './acmarkdown-editor-render';
 import { i18n } from './acmarkdown-editor-constant';
+import * as marked from 'marked';
 
 export class ACMarkdownEditorPreview {
   public element: HTMLElement;
@@ -35,11 +36,10 @@ export class ACMarkdownEditorPreview {
       return;
     }
 
-    // clearTimeout(this.mdTimeoutId);
     const renderStartTime = new Date().getTime();
     const markdownText = getText(vditor.editor.element);
 
-    const html = md2html2(vditor, markdownText);
+    const html = marked(markdownText, vditor.options.markedOption);
     this.element.children[0].innerHTML = html;
     this.afterRender(vditor, renderStartTime);
   }
@@ -52,7 +52,8 @@ export class ACMarkdownEditorPreview {
     codeRender(vditor.preview.element.children[0] as HTMLElement, vditor.options.lang);
     highlightRender(vditor.options.preview.hljs.style, vditor.options.preview.hljs.enable,
         vditor.preview.element.children[0] as HTMLElement);
-    mathRender(vditor.preview.element.children[0] as HTMLElement);
+    // mathRender(vditor.preview.element.children[0] as HTMLElement);
+    mathRender2(vditor.preview.element.children[0] as HTMLElement);
     mermaidRender(vditor.preview.element.children[0] as HTMLElement);
     chartRender(vditor.preview.element.children[0] as HTMLElement);
     abcRender(vditor.preview.element.children[0] as HTMLElement);

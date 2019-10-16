@@ -16,7 +16,7 @@ export function getText(element: HTMLElement): string {
   return code160to32(`${element.textContent}\n`.replace(/\n\n$/, '\n'));
 }
 
-const getContent = (vditor: IACMarkdownEditor, editorElement: HTMLElement) => {
+function getContent(vditor: IACMarkdownEditor, editorElement: HTMLElement) {
   if (vditor.currentMode === 'wysiwyg') {
     return editorElement.textContent;
   } else {
@@ -454,6 +454,9 @@ export function formatRender(
   const newLine = '<span><br><span style="display: none">\n</span></span>';
 
   let isEmpty = true;
+  // let inMathBlock = false;
+  // let mathBlockContext = '';
+
   textList.forEach((text, index) => {
     if (text !== '') {
       isEmpty = false;
@@ -464,12 +467,40 @@ export function formatRender(
       return;
     }
 
+    // if (text) {
+    //   if (inMathBlock) {
+    //     if (text === '$$') {
+    //       html += `<p class="katex">$$\n${mathBlockContext}\n$$</p>${newLine}`;
+    //       mathBlockContext = '';
+    //       inMathBlock = false;
+    //     } else {
+    //       mathBlockContext += `${text}\n`;
+    //     }
+    //   } else {
+    //     if (text === '$$') {
+    //       inMathBlock = true;
+    //     } else {
+    //       const isTeXInline     = /\$\$(.*)\$\$/g.test(text);
+    //       // const isTeXLine       = /^\$\$(.*)\$\$$/.test(text);
+    //       if (isTeXInline) {
+    //         html += `<span class="katex">${code160to32(text.replace(/&/g, '&amp;').replace(/</g, '&lt;'))}</span>${newLine}`;
+    //       } else {
+    //         html += `<span>${code160to32(text.replace(/&/g, '&amp;').replace(/</g, '&lt;'))}</span>${newLine}`;
+    //       }
+    //     }
+    //   }
+    // } else {
+    //   html += newLine;
+    // }
     if (text) {
       html += `<span>${code160to32(text.replace(/&/g, '&amp;').replace(/</g, '&lt;'))}</span>${newLine}`;
     } else {
       html += newLine;
     }
   });
+  // if (mathBlockContext) {
+  //   html += `<p class="katex">$$\n${mathBlockContext}\n</p>${newLine}`;
+  // }
 
   if (textList.length <= 2 && isEmpty) {
     // 当内容等于空或 \n 时把编辑器内部元素置空，显示 placeholder 文字

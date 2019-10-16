@@ -5,14 +5,16 @@ import { ACMarkdownEditorResize } from './acmarkdown-editor-resize';
 import { ACMarkdownEditorPreview } from './acmarkdown-editor-preview';
 import { ACMarkdownEditorHint } from './acmarkdown-editor-hint';
 import { ACMarkdownEditorUi } from './acmarkdown-editor-ui';
-import { getText, getSelectText, setSelectionByPosition, html2md, selectIsEditor, insertText,
-  formatRender, getCursorPosition} from './acmarkdown-editor-util';
+import {
+  getText, getSelectText, setSelectionByPosition, html2md, selectIsEditor, insertText,
+  formatRender, getCursorPosition
+} from './acmarkdown-editor-util';
 import { ACMarkdownEditorTip } from './acmarkdown-editor-tip';
 import { ACMarkdownEditorUndo } from './acmarkdown-editor-undo';
 import { ACMarkdownEditorUpload } from './acmarkdown-editor-upload';
 import { ACMarkdownEditorOptions } from './acmarkdown-editor-options';
 import { ACMarkdownEditorToolbar } from './acmarkdown-editor-toolbar';
-import { md2html2 } from './acmarkdown-editor-render';
+import * as marked from 'marked';
 
 export class ACMarkdownEditor {
   public vditor: IACMarkdownEditor;
@@ -21,6 +23,33 @@ export class ACMarkdownEditor {
 
     const getOptions = new ACMarkdownEditorOptions(options);
     const mergedOptions = getOptions.merge();
+
+    const markedRender = new marked.Renderer();
+    markedRender.paragraph = (text: any) => {
+      const isTeXInline     = /\$\$(.*)\$\$/g.test(text);
+      const isTeXLine       = /^\$\$(.*)\$\$$/.test(text);
+      const isTeXAddClass = (isTeXLine) ? ' class=\'katex\'' : '';
+
+      if (!isTeXLine && isTeXInline) {
+        text = text.replace(/(\$\$([^\$]*)\$\$)+/g, ($1, $2) => {
+          return '<span class=\'katex\'>' + $2.replace(/\$/g, '') + '</span>';
+        });
+      } else {
+        text = (isTeXLine) ? text.replace(/\$/g, '') : text;
+      }
+
+      return '<p' + isTeXAddClass + '>' + text + '</p>\n';
+    };
+    mergedOptions.markedOption = {
+      renderer    : markedRender,
+      gfm         : true,
+      tables      : true,
+      breaks      : true,
+      pedantic    : false,
+      sanitize    : true,
+      smartLists  : true,
+      smartypants : true
+    };
 
     this.vditor = {
       id,
@@ -129,10 +158,6 @@ export class ACMarkdownEditor {
   public html2md(value: string) {
     return html2md(this.vditor, value);
   }
-
-  // public getHTML(enableHighlight?: boolean) {
-  //   return md2html2(this.vditor, enableHighlight);
-  // }
 
   public tip(text: string, time?: number) {
     this.vditor.tip.show(text, time);

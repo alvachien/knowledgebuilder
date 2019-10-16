@@ -1,7 +1,7 @@
 import { getText, code160to32 } from './acmarkdown-editor-util';
 import { IACMarkdownEditor, IACMarkdownEditorI18nLang, IACMarkdownEditorPreviewOptions } from './acmarkdown-editor-interface';
 import { i18n, copySvg } from './acmarkdown-editor-constant';
-import * as markdownit from 'markdown-it';
+import * as marked from 'marked';
 import * as highlightjs from 'highlight.js';
 import * as katex from 'katex';
 import * as katexAutoRender from 'katex/dist/contrib/auto-render';
@@ -124,91 +124,94 @@ export function highlightRender(
 //   return text;
 // }
 
-export function taskRender(md: markdownit) {
-  md.core.ruler.after('inline', 'github-task-lists', (state) => {
-    state.tokens.forEach((token, index: number) => {
-      if (token.type === 'inline' &&
-        (token.content.indexOf('[ ] ') === 0 || token.content.toLocaleLowerCase().indexOf('[x] ') === 0) &&
-        state.tokens[index - 1].type === 'paragraph_open' &&
-        state.tokens[index - 2].type === 'list_item_open'
-      ) {
-        const checkbox = new state.Token('checkbox_input', 'input', 0);
-        checkbox.attrs = [['type', 'checkbox'], ['disabled', 'true']];
-        if (token.content.toLocaleLowerCase().indexOf('[x] ') === 0) {
-          checkbox.attrs.push(['checked', 'true']);
-        }
+// export function taskRender(md: markdownit) {
+//   md.core.ruler.after('inline', 'github-task-lists', (state) => {
+//     state.tokens.forEach((token, index: number) => {
+//       if (token.type === 'inline' &&
+//         (token.content.indexOf('[ ] ') === 0 || token.content.toLocaleLowerCase().indexOf('[x] ') === 0) &&
+//         state.tokens[index - 1].type === 'paragraph_open' &&
+//         state.tokens[index - 2].type === 'list_item_open'
+//       ) {
+//         const checkbox = new state.Token('checkbox_input', 'input', 0);
+//         checkbox.attrs = [['type', 'checkbox'], ['disabled', 'true']];
+//         if (token.content.toLocaleLowerCase().indexOf('[x] ') === 0) {
+//           checkbox.attrs.push(['checked', 'true']);
+//         }
 
-        token.children[0].content = token.children[0].content.slice(3);
-        token.children.unshift(checkbox);
+//         token.children[0].content = token.children[0].content.slice(3);
+//         token.children.unshift(checkbox);
 
-        if (state.tokens[index - 2].attrIndex('class') < 0) {
-          state.tokens[index - 2].attrPush(['class', 'vditor-task']);
-        } else {
-          state.tokens[index - 2].attrs[index] = ['class', 'vditor-task'];
-        }
-      }
-    });
-  });
-}
+//         if (state.tokens[index - 2].attrIndex('class') < 0) {
+//           state.tokens[index - 2].attrPush(['class', 'vditor-task']);
+//         } else {
+//           state.tokens[index - 2].attrs[index] = ['class', 'vditor-task'];
+//         }
+//       }
+//     });
+//   });
+// }
 
-export function mathRender(element: HTMLElement, lang: (keyof IACMarkdownEditorI18nLang) = 'zh_CN') {
-  const text = code160to32(element.innerText);
-  if (text.split('$').length > 2 || (text.split('\\(').length > 1 && text.split('\\)').length > 1)) {
-    katexAutoRender.default(element, {
-      delimiters: [
-        { left: '$$', right: '$$', display: true },
-        { left: '\\(', right: '\\)', display: false },
-        { left: '$', right: '$', display: false },
-      ],
-    });
+// export function mathRender(element: HTMLElement, lang: (keyof IACMarkdownEditorI18nLang) = 'zh_CN') {
+//   const text = code160to32(element.innerText);
+//   if (text.split('$').length > 2 || (text.split('\\(').length > 1 && text.split('\\)').length > 1)) {
+//     katexAutoRender.default(element, {
+//       delimiters: [
+//         { left: '$$', right: '$$', display: true },
+//         { left: '\\(', right: '\\)', display: false },
+//         { left: '$', right: '$', display: false },
+//       ],
+//     });
 
-    element.querySelectorAll('.katex').forEach((mathElement: HTMLElement) => {
-      mathElement.addEventListener('copy', function (event: ClipboardEvent) {
-        event.stopPropagation();
-        event.preventDefault();
-        event.clipboardData.setData('text/plain',
-          this.querySelector('annotation').textContent);
-        event.clipboardData.setData('text/html', this.innerHTML);
-      });
-    });
-  }
-}
+//     element.querySelectorAll('.katex').forEach((mathElement: HTMLElement) => {
+//       mathElement.addEventListener('copy', function (event: ClipboardEvent) {
+//         event.stopPropagation();
+//         event.preventDefault();
+//         event.clipboardData.setData('text/plain',
+//           this.querySelector('annotation').textContent);
+//         event.clipboardData.setData('text/html', this.innerHTML);
+//       });
+//     });
+//   }
+// }
 
 export function mathRender2(element: HTMLElement) {
-  const mathElements = element.querySelectorAll('.vditor-math');
+  // const mathElements = element.querySelectorAll('.katex');
 
-  if (mathElements.length === 0) {
-    return;
-  }
+  // if (mathElements.length === 0) {
+  //   return;
+  // }
 
-  mathElements.forEach((mathElement) => {
-    if (mathElement.getAttribute('data-math')) {
-      return;
-    }
+  // mathElements.forEach((mathElement) => {
+  //   const math = code160to32(mathElement.textContent);
 
-    const math = code160to32(mathElement.textContent);
-    mathElement.setAttribute('data-math', math);
+  //   try {
+  //     mathElement.innerHTML = katex.renderToString(math, {
+  //       displayMode: mathElement.tagName === 'DIV',
+  //       // output: 'html',
+  //     });
+  //   } catch (e) {
+  //     mathElement.innerHTML = e.message;
+  //     mathElement.className = 'vditor-math vditor--error';
+  //   }
 
-    try {
-      mathElement.innerHTML = katex.renderToString(math, {
-        displayMode: mathElement.tagName === 'DIV',
-        // output: 'html',
-      });
-    } catch (e) {
-      mathElement.innerHTML = e.message;
-      mathElement.className = 'vditor-math vditor--error';
-    }
-
-    mathElement.addEventListener('copy', (event: ClipboardEvent) => {
-      event.stopPropagation();
-      event.preventDefault();
-      const vditorMathElement = (event.currentTarget as HTMLElement).closest('.vditor-math');
-      event.clipboardData.setData('text/html', vditorMathElement.innerHTML);
-      event.clipboardData.setData('text/plain',
-        vditorMathElement.getAttribute('data-math'));
+  //   mathElement.addEventListener('copy', (event: ClipboardEvent) => {
+  //     event.stopPropagation();
+  //     event.preventDefault();
+  //     const vditorMathElement = (event.currentTarget as HTMLElement).closest('.vditor-math');
+  //     event.clipboardData.setData('text/html', vditorMathElement.innerHTML);
+  //     event.clipboardData.setData('text/plain',
+  //       vditorMathElement.getAttribute('data-math'));
+  //   });
+  // });
+  const chlds = element.getElementsByClassName('katex');
+  const orgcount = chlds.length;
+  for (let i = 0; i < orgcount; i++) {
+    const chdelem = chlds.item(i);
+    katex.render(chdelem.textContent, chdelem as HTMLElement, {
+      throwOnError: false
     });
-  });
-};
+  }
+}
 
 export function mermaidRender(element: HTMLElement) {
   if (element.querySelectorAll('code.language-mermaid').length === 0) {
@@ -244,32 +247,32 @@ export function mermaidRender(element: HTMLElement) {
 //   chartRender(divElement);
 // }
 
-function task(md: markdownit) {
-  md.core.ruler.after('inline', 'github-task-lists', (state) => {
-    state.tokens.forEach((token, index: number) => {
-      if (token.type === 'inline' &&
-        (token.content.indexOf('[ ] ') === 0 || token.content.toLocaleLowerCase().indexOf('[x] ') === 0) &&
-        state.tokens[index - 1].type === 'paragraph_open' &&
-        state.tokens[index - 2].type === 'list_item_open'
-      ) {
-        const checkbox = new state.Token('checkbox_input', 'input', 0);
-        checkbox.attrs = [['type', 'checkbox'], ['disabled', 'true']];
-        if (token.content.toLocaleLowerCase().indexOf('[x] ') === 0) {
-          checkbox.attrs.push(['checked', 'true']);
-        }
+// function task(md: markdownit) {
+//   md.core.ruler.after('inline', 'github-task-lists', (state) => {
+//     state.tokens.forEach((token, index: number) => {
+//       if (token.type === 'inline' &&
+//         (token.content.indexOf('[ ] ') === 0 || token.content.toLocaleLowerCase().indexOf('[x] ') === 0) &&
+//         state.tokens[index - 1].type === 'paragraph_open' &&
+//         state.tokens[index - 2].type === 'list_item_open'
+//       ) {
+//         const checkbox = new state.Token('checkbox_input', 'input', 0);
+//         checkbox.attrs = [['type', 'checkbox'], ['disabled', 'true']];
+//         if (token.content.toLocaleLowerCase().indexOf('[x] ') === 0) {
+//           checkbox.attrs.push(['checked', 'true']);
+//         }
 
-        token.children[0].content = token.children[0].content.slice(3);
-        token.children.unshift(checkbox);
+//         token.children[0].content = token.children[0].content.slice(3);
+//         token.children.unshift(checkbox);
 
-        if (state.tokens[index - 2].attrIndex('class') < 0) {
-          state.tokens[index - 2].attrPush(['class', 'vditor-task']);
-        } else {
-          state.tokens[index - 2].attrs[index] = ['class', 'vditor-task'];
-        }
-      }
-    });
-  });
-}
+//         if (state.tokens[index - 2].attrIndex('class') < 0) {
+//           state.tokens[index - 2].attrPush(['class', 'vditor-task']);
+//         } else {
+//           state.tokens[index - 2].attrs[index] = ['class', 'vditor-task'];
+//         }
+//       }
+//     });
+//   });
+// }
 
 // export function coreRender(hljsStyle: string, enableHighlight: boolean) {
 //   // const hljsThemes = ['a11y-dark', 'a11y-light', 'agate', 'an-old-hope', 'androidstudio', 'arduino-light', 'arta',
@@ -313,14 +316,15 @@ function task(md: markdownit) {
 //   }
 //   return markdownit(options).use(task);
 // }
-export function coreRender2() {
-  const options: markdownit.Options = {
-    breaks: true,
-    html: true,
-    linkify: true,
-  };
-  return markdownit(options).use(task);
-}
+
+// export function coreRender2() {
+//   const options: markdownit.Options = {
+//     breaks: true,
+//     html: true,
+//     linkify: true,
+//   };
+//   return markdownit(options).use(task);
+// }
 
 // export function md2html(vditor: IACMarkdownEditor, enableHighlight: boolean): string {
 //   if (typeof vditor.markdownIt !== 'undefined') {
@@ -333,16 +337,16 @@ export function coreRender2() {
 //   }
 // }
 
-export function md2html2(vditor: IACMarkdownEditor, mdText: string, options?: IACMarkdownEditorPreviewOptions): string {
-  if (typeof vditor.markdownIt !== 'undefined') {
-    // return vditor.markdownIt.render(emojiRender(getText(vditor.editor.element), vditor.options.hint.emoji));
-    return vditor.markdownIt.render(mdText);
-  } else {
-    vditor.markdownIt = coreRender2();
-    // return vditor.markdownIt.render(emojiRender(getText(vditor.editor.element), vditor.options.hint.emoji));
-    return vditor.markdownIt.render(mdText);
-  }
-}
+// export function md2html2(vditor: IACMarkdownEditor, mdText: string, options?: IACMarkdownEditorPreviewOptions): string {
+//   if (typeof vditor.markdownIt !== 'undefined') {
+//     // return vditor.markdownIt.render(emojiRender(getText(vditor.editor.element), vditor.options.hint.emoji));
+//     return vditor.markdownIt.render(mdText);
+//   } else {
+//     vditor.markdownIt = coreRender2();
+//     // return vditor.markdownIt.render(emojiRender(getText(vditor.editor.element), vditor.options.hint.emoji));
+//     return vditor.markdownIt.render(mdText);
+//   }
+// }
 
 const videoRender = (element: HTMLElement, url: string) => {
   element.insertAdjacentHTML('afterend', `<video controls='controls' src='${url}'></video>`);
