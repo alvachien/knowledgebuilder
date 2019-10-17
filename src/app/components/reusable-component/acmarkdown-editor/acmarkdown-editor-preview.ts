@@ -1,7 +1,7 @@
 import { IACMarkdownEditor } from './acmarkdown-editor-interface';
 import { getText } from './acmarkdown-editor-util';
 import { mermaidRender, codeRender, chartRender, abcRender,
-  highlightRender, mediaRender, mathRender2 } from './acmarkdown-editor-render';
+  highlightRender, mediaRender, mathRender2, emojiRender } from './acmarkdown-editor-render';
 import { i18n } from './acmarkdown-editor-constant';
 import * as marked from 'marked';
 
@@ -39,7 +39,8 @@ export class ACMarkdownEditorPreview {
     const renderStartTime = new Date().getTime();
     const markdownText = getText(vditor.editor.element);
 
-    const html = marked(markdownText, vditor.options.markedOption);
+    let html = marked(markdownText, vditor.options.markedOption);
+    html = emojiRender(html);
     this.element.children[0].innerHTML = html;
     this.afterRender(vditor, renderStartTime);
   }
