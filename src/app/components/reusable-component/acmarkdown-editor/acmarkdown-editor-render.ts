@@ -1,12 +1,21 @@
 import { getText, code160to32 } from './acmarkdown-editor-util';
 import { IACMarkdownEditor, IACMarkdownEditorI18nLang, IACMarkdownEditorPreviewOptions } from './acmarkdown-editor-interface';
-import { i18n, copySvg } from './acmarkdown-editor-constant';
+import { i18n, copySvg, getAllEmoji } from './acmarkdown-editor-constant';
 import * as marked from 'marked';
 import * as highlightjs from 'highlight.js';
 import * as katex from 'katex';
 import * as katexAutoRender from 'katex/dist/contrib/auto-render';
 import * as abcjs from 'abcjs';
 import * as echarts from 'echarts';
+
+export function emojiRender(text: string): string {
+  const allEmoji = getAllEmoji('');
+  const imgEmoji = Object.keys(allEmoji);
+  imgEmoji.map((emoji) => {
+    text = text.replace(new RegExp(`:${emoji}:`, 'g'), allEmoji[emoji]);
+  });
+  return text;
+}
 
 export function abcRender(element: (HTMLElement | Document) = document) {
   const abcElements = element.querySelectorAll('.language-abc');
@@ -204,13 +213,15 @@ export function mathRender2(element: HTMLElement) {
   //   });
   // });
   const chlds = element.getElementsByClassName('katex');
-  const orgcount = chlds.length;
-  for (let i = 0; i < orgcount; i++) {
-    const chdelem = chlds.item(i);
-    katex.render(chdelem.textContent, chdelem as HTMLElement, {
+  const chldelements: HTMLElement[] = [];
+  for (let i = 0; i < chlds.length; i++) {
+    chldelements.push(chlds.item(i) as HTMLElement);
+  }
+  chldelements.forEach((helem: HTMLElement) => {
+    katex.render(helem.textContent, helem, {
       throwOnError: false
     });
-  }
+  });
 }
 
 export function mermaidRender(element: HTMLElement) {

@@ -26,13 +26,13 @@ export class ACMarkdownEditor {
 
     const markedRender = new marked.Renderer();
     markedRender.paragraph = (text: any) => {
-      const isTeXInline     = /\$\$(.*)\$\$/g.test(text);
-      const isTeXLine       = /^\$\$(.*)\$\$$/.test(text);
-      const isTeXAddClass = (isTeXLine) ? ' class=\'katex\'' : '';
+      const isTeXInline = /\$(.*)\$/g.test(text);
+      const isTeXLine = /^\$\$(.*)\$\$$/.test(text);
+      const isTeXAddClass = (isTeXLine) ? ' class="katex"' : '';
 
       if (!isTeXLine && isTeXInline) {
-        text = text.replace(/(\$\$([^\$]*)\$\$)+/g, ($1, $2) => {
-          return '<span class=\'katex\'>' + $2.replace(/\$/g, '') + '</span>';
+        text = text.replace(/(\$([^\$]*)\$)+/g, ($1, $2) => {
+          return `<span class="katex">` + $2.replace(/\$/g, '') + `</span>`;
         });
       } else {
         text = (isTeXLine) ? text.replace(/\$/g, '') : text;
@@ -41,14 +41,13 @@ export class ACMarkdownEditor {
       return '<p' + isTeXAddClass + '>' + text + '</p>\n';
     };
     mergedOptions.markedOption = {
-      renderer    : markedRender,
-      gfm         : true,
-      tables      : true,
-      breaks      : true,
-      pedantic    : false,
-      sanitize    : true,
-      smartLists  : true,
-      smartypants : true
+      renderer: markedRender,
+      gfm: true,
+      tables: true,
+      breaks: true,
+      pedantic: false,
+      smartLists: true,
+      smartypants: true
     };
 
     this.vditor = {
