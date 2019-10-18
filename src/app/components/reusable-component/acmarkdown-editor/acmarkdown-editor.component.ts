@@ -1,5 +1,5 @@
 import { Component, OnInit, ViewChild, ElementRef, OnDestroy, AfterViewInit, ViewEncapsulation,
-  forwardRef, Input, Attribute } from '@angular/core';
+  forwardRef, Input, Attribute, HostListener } from '@angular/core';
 import { NG_VALUE_ACCESSOR, ControlValueAccessor, NG_VALIDATORS, Validator,
   AbstractControl, ValidationErrors } from '@angular/forms';
 import { ACMarkdownEditor } from './acmarkdown-editor';
@@ -26,6 +26,7 @@ export class ACMarkdownEditorComponent implements OnInit, AfterViewInit, OnDestr
   @ViewChild('acme_editor', {static: false}) editorInstance: ElementRef;
   @Input() public preRender: Function;
   @Input() public upload: Function;
+  @Input() public instanceID: string;
 
   instanceEditor: ACMarkdownEditor;
   private _markdownValue: any;
@@ -37,11 +38,33 @@ export class ACMarkdownEditorComponent implements OnInit, AfterViewInit, OnDestr
     @Attribute('maxlength') public maxlength: number = -1,
   ) { }
 
+  @HostListener('change') onChange(): void {
+    console.log('entering onChange - change');
+
+    if (this._onChange) {
+      this._onChange(this.markdownValue);
+    }
+  }
+  @HostListener('blur') onTouched(): void {
+    console.log('entering onTouched - blur');
+
+    if (this._onTouched) {
+      this._onTouched();
+    }
+  }
+
   ngOnInit() {
   }
 
   ngAfterViewInit() {
-    this.instanceEditor = new ACMarkdownEditor('test1', this.editorInstance.nativeElement);
+    this.instanceEditor = new ACMarkdownEditor('acme-' + this.instanceID, this.editorInstance.nativeElement, {
+      input: () => {
+        if (this.instanceEditor) {
+          const val = this.instanceEditor.getValue();
+          this.markdownValue = val;
+        }
+      }
+    });
   }
   ngOnDestroy() {
   }
@@ -55,6 +78,7 @@ export class ACMarkdownEditorComponent implements OnInit, AfterViewInit, OnDestr
   }
 
   writeValue(value: any | Array<any>): void {
+    console.log('entering writeValue');
     setTimeout(() => {
       this.markdownValue = value;
       if (typeof value !== 'undefined' && this.instanceEditor) {
@@ -64,11 +88,25 @@ export class ACMarkdownEditorComponent implements OnInit, AfterViewInit, OnDestr
   }
 
   registerOnChange(fn: (_: any) => {}): void {
+    console.log('entering registerOnChange');
     this._onChange = fn;
   }
 
-  registerOnTouched(fn: () => {}): void {
+  registerOnTouched(fn: any): void {
+    console.log('entering registerOnTouched');
     this._onTouched = fn;
+  }
+  setDisabledState?(isDisabled: boolean): void {
+    console.log('entering setDisabledState');
+    if (isDisabled) {
+      if (this.instanceEditor) {
+        this.instanceEditor.disabled();
+      }
+    } else {
+      if (this.instanceEditor) {
+        this.instanceEditor.enable();
+      }
+    }
   }
 
   validate(c: AbstractControl): ValidationErrors {
