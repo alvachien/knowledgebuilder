@@ -1,5 +1,7 @@
-import { Component, OnInit, ViewChild, ElementRef, OnDestroy, AfterViewInit, ViewEncapsulation, forwardRef, Input, Attribute } from '@angular/core';
-import { NG_VALUE_ACCESSOR, ControlValueAccessor, NG_VALIDATORS, Validator, AbstractControl, ValidationErrors } from '@angular/forms';
+import { Component, OnInit, ViewChild, ElementRef, OnDestroy, AfterViewInit, ViewEncapsulation,
+  forwardRef, Input, Attribute } from '@angular/core';
+import { NG_VALUE_ACCESSOR, ControlValueAccessor, NG_VALIDATORS, Validator,
+  AbstractControl, ValidationErrors } from '@angular/forms';
 import { ACMarkdownEditor } from './acmarkdown-editor';
 
 @Component({
@@ -42,8 +44,8 @@ export class ACMarkdownEditorComponent implements OnInit, AfterViewInit, OnDestr
     this.instanceEditor = new ACMarkdownEditor('test1', this.editorInstance.nativeElement);
   }
   ngOnDestroy() {
-
   }
+
   public get markdownValue(): any {
     return this._markdownValue || '';
   }

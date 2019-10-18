@@ -1,1 +1,4 @@
-<app-acmarkdown-editor></app-acmarkdown-editor>
+<app-acmarkdown-editor [(ngModel)]="content" required maxlength="500"></app-acmarkdown-editor>
+
+<hr />
+<textarea rows="10" readonly [value]="content"></textarea>
