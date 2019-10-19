@@ -10,18 +10,18 @@ export class ACMarkdownEditorUi {
     vditorElement.innerHTML = '';
     vditorElement.className = 'vditor' + (vditorElement.className ? ' ' + vditorElement.className : '');
     if (typeof vditor.options.height === 'number') {
-        vditorElement.style.height = vditor.options.height + 'px';
+      vditorElement.style.height = vditor.options.height + 'px';
     }
     if (typeof vditor.options.width === 'number') {
-        vditorElement.style.width = vditor.options.width + 'px';
+      vditorElement.style.width = vditor.options.width + 'px';
     } else {
-        vditorElement.style.width = vditor.options.width;
+      vditorElement.style.width = vditor.options.width;
     }
 
     const toolbarElement = document.createElement('div');
     toolbarElement.className = 'vditor-toolbar';
     Object.keys(vditor.toolbar.elements).forEach((key) => {
-        toolbarElement.appendChild(vditor.toolbar.elements[key]);
+      toolbarElement.appendChild(vditor.toolbar.elements[key]);
     });
 
     vditorElement.appendChild(toolbarElement);
@@ -34,11 +34,11 @@ export class ACMarkdownEditorUi {
     // }
 
     if (vditor.editor) {
-        this.contentElement.appendChild(vditor.editor.element);
+      this.contentElement.appendChild(vditor.editor.element);
     }
 
     if (vditor.preview) {
-        this.contentElement.appendChild(vditor.preview.element);
+      this.contentElement.appendChild(vditor.preview.element);
     }
 
     // if (vditor.toolbar.elements.devtools) {
@@ -46,19 +46,19 @@ export class ACMarkdownEditorUi {
     // }
 
     if (vditor.options.counter > 0) {
-        this.contentElement.appendChild(vditor.counter.element);
+      this.contentElement.appendChild(vditor.counter.element);
     }
 
     if (vditor.upload) {
-        this.contentElement.appendChild(vditor.upload.element);
+      this.contentElement.appendChild(vditor.upload.element);
     }
 
     if (vditor.options.resize.enable) {
-        this.contentElement.appendChild(vditor.resize.element);
+      this.contentElement.appendChild(vditor.resize.element);
     }
 
     if (vditor.hint) {
-        this.contentElement.appendChild(vditor.hint.element);
+      this.contentElement.appendChild(vditor.hint.element);
     }
 
     this.contentElement.appendChild(vditor.tip.element);
@@ -66,7 +66,7 @@ export class ACMarkdownEditorUi {
     vditorElement.appendChild(this.contentElement);
 
     this.afterRender(vditor);
-}
+  }
 
   private async afterRender(vditor: IACMarkdownEditor) {
     let height: number = Math.max(vditor.editor.element.parentElement.offsetHeight, 20);
