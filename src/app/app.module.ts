@@ -11,6 +11,8 @@ import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { registerLocaleData } from '@angular/common';
 import zh from '@angular/common/locales/zh';
 
+import { OdataService, FileUploadService, SelectivePreloadingStrategyService, } from './services';
+
 registerLocaleData(zh);
 
 @NgModule({
@@ -26,7 +28,11 @@ registerLocaleData(zh);
     HttpClientModule,
     BrowserAnimationsModule
   ],
-  providers: [{ provide: NZ_I18N, useValue: zh_CN }],
+  providers: [{ provide: NZ_I18N, useValue: zh_CN },
+    OdataService,
+    FileUploadService,
+    SelectivePreloadingStrategyService,
+  ],
   bootstrap: [AppComponent]
 })
 export class AppModule { }

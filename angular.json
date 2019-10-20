@@ -74,7 +74,8 @@
         "serve": {
           "builder": "@angular-devkit/build-angular:dev-server",
           "options": {
-            "browserTarget": "knowledgebuilder:build"
+            "browserTarget": "knowledgebuilder:build",
+            "port": 20020
           },
           "configurations": {
             "production": {
