@@ -1,1 +1,56 @@
-<p>knowledge-detail works!</p>
+<nz-spin [nzSpinning]="isLoadingResults" [nzDelay]="500">
+  <nz-page-header nzBackIcon>
+    <nz-breadcrumb nz-page-header-breadcrumb>
+      <nz-breadcrumb-item><a routerLink="/knowledge">Knowledge</a></nz-breadcrumb-item>
+    </nz-breadcrumb>
+    <nz-page-header-title>Knowledge</nz-page-header-title>
+    <nz-page-header-subtitle>Detail View</nz-page-header-subtitle>
+    <nz-page-header-extra>
+      <button nz-button nzType="primary">Create</button>
+    </nz-page-header-extra>
+  </nz-page-header>
+  <div nz-row>
+    <form nz-form [formGroup]="detailForm" (ngSubmit)="submitForm(detailForm.value)">
+      <!-- ID -->
+      <nz-form-item>
+        <nz-form-label [nzSpan]="7">ID</nz-form-label>
+        <nz-form-control [nzSpan]="12">
+          <input nz-input formControlName="idControl"/>
+        </nz-form-control>
+      </nz-form-item>
+      <!-- Category -->
+      <nz-form-item>
+        <nz-form-label [nzSpan]="7" nzRequired>Category</nz-form-label>
+        <nz-form-control [nzSpan]="12" nzHasFeedback [nzErrorTip]="ctgyErrorTpl">
+          <input nz-input formControlName="ctgyControl" placeholder="Category" type="email" />
+          <ng-template #ctgyErrorTpl let-control>
+            <ng-container *ngIf="control.hasError('required')">
+              Please select your category
+            </ng-container>
+          </ng-template>
+        </nz-form-control>
+      </nz-form-item>
+      <!-- Name -->
+      <nz-form-item>
+        <nz-form-label [nzSpan]="7" nzRequired>Name</nz-form-label>
+        <nz-form-control [nzSpan]="12" nzHasFeedback [nzErrorTip]="nameErrorTpl">
+          <input nz-input type="text" formControlName="nameControl" placeholder="Name" />
+          <ng-template #nameErrorTpl let-control>
+            <ng-container *ngIf="control.hasError('required')">
+              Please input name!
+            </ng-container>
+          </ng-template>
+        </nz-form-control>
+      </nz-form-item>
+      <!-- Content -->
+
+      <!-- Action -->
+      <nz-form-item>
+        <nz-form-control [nzOffset]="7" [nzSpan]="12">
+          <button nz-button nzType="primary" [disabled]="!detailForm.valid">Submit</button>
+          <button nz-button (click)="resetForm($event)">Reset</button>
+        </nz-form-control>
+      </nz-form-item>
+    </form>
+  </div>
+</nz-spin>
