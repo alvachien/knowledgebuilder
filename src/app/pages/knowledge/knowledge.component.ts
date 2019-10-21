@@ -3,7 +3,7 @@ import { Component, OnInit } from '@angular/core';
 @Component({
   selector: 'app-knowledge',
   templateUrl: './knowledge.component.html',
-  styleUrls: ['./knowledge.component.less']
+  styleUrls: ['./knowledge.component.less'],
 })
 export class KnowledgeComponent implements OnInit {
 
@@ -11,5 +11,4 @@ export class KnowledgeComponent implements OnInit {
 
   ngOnInit() {
   }
-
 }

@@ -90,7 +90,7 @@ export class OdataService {
 Content-Type: application/http
 Content-Transfer-Encoding:binary
 
-GET knowledges?$count=true HTTP/1.1
+GET knowledges?$count HTTP/1.1
 Accept: application/json;odata.metadata=minimal
 
 `;
@@ -107,8 +107,8 @@ Accept: application/json;
     reqbody += `--${batchUuid}--`;
 
     return this.http.post(endpoint, reqbody, {
-        headers,
-      });
+      headers,
+    });
   }
 
   public readKnowledge(kid: number): Observable<KnowledgeItem> {
