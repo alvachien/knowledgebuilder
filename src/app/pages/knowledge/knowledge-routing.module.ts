@@ -6,8 +6,10 @@ import { KnowledgeDetailComponent } from './knowledge-detail/knowledge-detail.co
 
 const routes: Routes = [
   { path: '', component: KnowledgeListComponent },
+  { path: 'list', component: KnowledgeListComponent },
   { path: 'create', component: KnowledgeDetailComponent },
   { path: 'display/:id', component: KnowledgeDetailComponent },
+  { path: 'edit/:id', component: KnowledgeDetailComponent },
 ];
 
 @NgModule({

@@ -1,6 +1,6 @@
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { NzPageHeaderModule } from 'ng-zorro-antd/page-header';
 import { NzCascaderModule } from 'ng-zorro-antd/cascader';
 import { NzButtonModule } from 'ng-zorro-antd/button';
@@ -11,6 +11,8 @@ import { NzBreadCrumbModule } from 'ng-zorro-antd/breadcrumb';
 import { NzSelectModule } from 'ng-zorro-antd/select';
 import { NzDatePickerModule } from 'ng-zorro-antd/date-picker';
 import { NzTimePickerModule } from 'ng-zorro-antd/time-picker';
+import { NzFormModule } from 'ng-zorro-antd/form';
+import { ReusableComponentModule } from '../../components/reusable-component/reusable-component.module';
 
 import { KnowledgeRoutingModule } from './knowledge-routing.module';
 import { KnowledgeComponent } from './knowledge.component';
@@ -26,6 +28,7 @@ import { KnowledgeDetailComponent } from './knowledge-detail/knowledge-detail.co
   imports: [
     CommonModule,
     FormsModule,
+    ReactiveFormsModule,
     NzPageHeaderModule,
     NzCascaderModule,
     NzButtonModule,
@@ -35,8 +38,10 @@ import { KnowledgeDetailComponent } from './knowledge-detail/knowledge-detail.co
     NzSelectModule,
     NzDatePickerModule,
     NzTimePickerModule,
+    NzFormModule,
     TranslateModule.forChild(),
 
+    ReusableComponentModule,
     KnowledgeRoutingModule,
   ],
 })

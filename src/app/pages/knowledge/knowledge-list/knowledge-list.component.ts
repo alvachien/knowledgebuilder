@@ -1,4 +1,5 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Router } from '@angular/router';
 import { ReplaySubject, of } from 'rxjs';
 import { takeUntil, catchError, map } from 'rxjs/operators';
 
@@ -19,7 +20,8 @@ export class KnowledgeListComponent implements OnInit, OnDestroy {
   pageSize = 10;
   totalItemCount = 0;
 
-  constructor(private oDataSvc: OdataService) {
+  constructor(private oDataSvc: OdataService,
+    private _router: Router,) {
     this.isLoadingResults = false;
   }
 
@@ -34,6 +36,10 @@ export class KnowledgeListComponent implements OnInit, OnDestroy {
       this._destroyed$.next(true);
       this._destroyed$.complete();
     }
+  }
+
+  public onCreateItem(): void {
+    this._router.navigate(['/knowledge/create']);
   }
 
   private _fetchData(reset: boolean = false): void {

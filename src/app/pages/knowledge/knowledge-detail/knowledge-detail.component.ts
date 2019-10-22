@@ -5,7 +5,7 @@ import { ReplaySubject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 
 import { OdataService } from '../../../services';
-import { UIModeEnum, KnowledgeItem } from '../../../models';
+import { UIModeEnum, KnowledgeItem, getUIModeString } from '../../../models';
 
 @Component({
   selector: 'app-knowledge-detail',
@@ -16,6 +16,7 @@ export class KnowledgeDetailComponent implements OnInit {
   private routerID: number = -1; // Current object ID in routing
   private _destroyed$: ReplaySubject<boolean>;
 
+  public knowledgeDetailID = '123';
   public isLoadingResults: boolean;
   public currentMode: string;
   public uiMode: UIModeEnum = UIModeEnum.create;
@@ -30,6 +31,7 @@ export class KnowledgeDetailComponent implements OnInit {
       idControl: new FormControl(''),
       ctgyControl: new FormControl('', Validators.required),
       nameControl: new FormControl('', Validators.required),
+      contentControl: new FormControl('', Validators.required),
     });
   }
 
@@ -48,7 +50,7 @@ export class KnowledgeDetailComponent implements OnInit {
 
           this.uiMode = UIModeEnum.display;
         }
-        // this.currentMode = getUIModeString(this.uiMode);
+        this.currentMode = getUIModeString(this.uiMode);
 
         if (this.uiMode === UIModeEnum.display || this.uiMode === UIModeEnum.edit) {
           this.isLoadingResults = true;
@@ -60,11 +62,7 @@ export class KnowledgeDetailComponent implements OnInit {
             this.isLoadingResults = false;
             this.detailForm.get('idControl').setValue(dtl.id);
             this.detailForm.get('nameControl').setValue(dtl.name);
-            // this.detailForm.get('nameControl').setValue(dtl.Name);
-            // this.detailForm.get('creatorDisplayAsControl').setValue(dtl.CreatorDisplayAs);
-            // this.detailForm.get('baseCurrControl').setValue(dtl.BaseCurrency);
-            // this.detailForm.get('hostControl').setValue(dtl.Host);
-            // this.detailForm.get('detailControl').setValue(dtl.Details);
+            this.detailForm.get('contentControl').setValue(dtl.content);
             this.detailForm.markAsUntouched();
             this.detailForm.markAsPristine();
 
@@ -83,6 +81,15 @@ export class KnowledgeDetailComponent implements OnInit {
         }
       }
     });
+  }
+
+  public submitForm(val: any) {
+    // Submit the form
+  }
+  public resetForm() {
+    if (this.detailForm.enabled) {
+      this.detailForm.reset();
+    }
   }
 
   // Example Validate methods
@@ -106,5 +113,5 @@ export class KnowledgeDetailComponent implements OnInit {
   //     return { confirm: true, error: true };
   //   }
   //   return {};
-  // };  
+  // };
 }

@@ -14,9 +14,47 @@ export enum QuestionBankCategoryEnum {
   Calculation = 0, // Question and Answer
 }
 
+/**
+ * Indicates a field is changable based on current mode
+ *
+ * @param mode Current UI mode
+ * @returns true means it is editable
+ *
+ */
 export function isFieldEditable(mode: UIModeEnum): boolean {
   return mode === UIModeEnum.edit || mode === UIModeEnum.create;
 }
+
+/**
+ * Get display string for current Model.
+ *
+ * @param mode Current UI mode
+ * @returns A string for translation
+ *
+ */
+export function getUIModeString(mode: UIModeEnum): string {
+  switch (mode) {
+    case UIModeEnum.create:
+    return 'Common.Create';
+
+    case UIModeEnum.edit:
+      return 'Common.Edit';
+
+    case UIModeEnum.display:
+      return 'Common.Display';
+
+    default:
+      return '';
+  }
+}
+
+/**
+ * Get display string for knowledge category.
+ *
+ * @param ctgy Knowledge category
+ * @returns A string for translation
+ *
+ */
 export function getknowlegeCategoryDisplayString(ctgy: KnowledgeCategoryEnum): string {
   switch (ctgy) {
     case KnowledgeCategoryEnum.Concept:
@@ -27,6 +65,7 @@ export function getknowlegeCategoryDisplayString(ctgy: KnowledgeCategoryEnum): s
       return '';
   }
 }
+
 export function getQuestionBankCategoryDisplayString(ctgy: QuestionBankCategoryEnum): string {
   switch (ctgy) {
     case QuestionBankCategoryEnum.Calculation:
