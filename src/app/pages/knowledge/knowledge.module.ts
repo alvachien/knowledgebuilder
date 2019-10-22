@@ -4,6 +4,7 @@ import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { NzPageHeaderModule } from 'ng-zorro-antd/page-header';
 import { NzCascaderModule } from 'ng-zorro-antd/cascader';
 import { NzButtonModule } from 'ng-zorro-antd/button';
+import { NzRadioModule } from 'ng-zorro-antd/radio';
 import { TranslateModule } from '@ngx-translate/core';
 import { NzSpinModule } from 'ng-zorro-antd/spin';
 import { NzTableModule } from 'ng-zorro-antd/table';
@@ -32,6 +33,7 @@ import { KnowledgeDetailComponent } from './knowledge-detail/knowledge-detail.co
     NzPageHeaderModule,
     NzCascaderModule,
     NzButtonModule,
+    NzRadioModule,
     NzSpinModule,
     NzTableModule,
     NzBreadCrumbModule,

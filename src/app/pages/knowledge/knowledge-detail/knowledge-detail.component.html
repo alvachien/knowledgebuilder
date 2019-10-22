@@ -6,7 +6,9 @@
     <nz-page-header-title>Knowledge</nz-page-header-title>
     <nz-page-header-subtitle>{{currentMode | translate}}</nz-page-header-subtitle>
     <nz-page-header-extra>
-      <button nz-button nzType="primary">Create</button>
+      <button nz-button nzType="primary" [disabled]="!detailForm.valid"
+        (click)="submitForm(detailForm.value)">Save</button>
+      <button nz-button (click)="resetForm($event)">Reset</button>
     </nz-page-header-extra>
   </nz-page-header>
   <div nz-row>
@@ -15,7 +17,7 @@
       <nz-form-item>
         <nz-form-label [nzSpan]="7">ID</nz-form-label>
         <nz-form-control [nzSpan]="12">
-          <input nz-input formControlName="idControl"/>
+          <input nz-input formControlName="idControl" />
         </nz-form-control>
       </nz-form-item>
 
@@ -23,7 +25,12 @@
       <nz-form-item>
         <nz-form-label [nzSpan]="7" nzRequired>Category</nz-form-label>
         <nz-form-control [nzSpan]="12" nzHasFeedback [nzErrorTip]="ctgyErrorTpl">
-          <input nz-input formControlName="ctgyControl" placeholder="Category" type="email" />
+          <nz-radio-group formControlName="ctgyControl">
+            <label nz-radio nzValue="A">1</label>
+            <label nz-radio nzValue="B">2</label>
+            <label nz-radio nzValue="C">3</label>
+            <label nz-radio nzValue="M">4</label>
+          </nz-radio-group>
           <ng-template #ctgyErrorTpl let-control>
             <ng-container *ngIf="control.hasError('required')">
               Please select your category
@@ -44,19 +51,11 @@
           </ng-template>
         </nz-form-control>
       </nz-form-item>
-      
+
       <!-- Content -->
       <nz-form-item>
-        <app-acmarkdown-editor required maxlength="500" formControlName="contentControl" instanceID="knowledgeDetailID">          
+        <app-acmarkdown-editor required maxlength="500" formControlName="contentControl" instanceID="knowledgeDetailID">
         </app-acmarkdown-editor>
-      </nz-form-item>
-
-      <!-- Action -->
-      <nz-form-item>
-        <nz-form-control [nzOffset]="7" [nzSpan]="12">
-          <button nz-button nzType="primary" [disabled]="!detailForm.valid">Submit</button>
-          <button nz-button (click)="resetForm($event)">Reset</button>
-        </nz-form-control>
       </nz-form-item>
     </form>
   </div>
