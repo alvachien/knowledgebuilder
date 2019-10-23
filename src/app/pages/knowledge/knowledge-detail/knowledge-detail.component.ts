@@ -85,6 +85,7 @@ export class KnowledgeDetailComponent implements OnInit {
 
   public submitForm(val: any) {
     // Submit the form
+    // this.oDataSrv.createKnowledge().subscribe()
   }
   public resetForm() {
     if (this.detailForm.enabled) {
