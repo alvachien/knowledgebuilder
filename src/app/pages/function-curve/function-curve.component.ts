@@ -19,72 +19,55 @@ export class FunctionCurveComponent implements OnInit {
   ngOnInit() {
     this.nzOptions = [{
       value: 'abs',
-      label: 'y = Abs(x)',
+      label: 'y = abs(x)',
       isLeaf: true,
     }, {
       value: 'sign',
-      label: 'y = Sign(x)',
+      label: 'y = sign(x)',
       isLeaf: true,
     }, {
       value: 'floor',
-      label: 'y = Floor(x)',
+      label: 'y = floor(x)',
       isLeaf: true,
     }, {
+      value: 'ceil',
+      label: 'y = ceil(x)',
+      isLeaf: true,
+    }, {
+      value: 'power',
+      label: 'Power functions',
+      children: [{
+        value: 'x^2',
+        label: 'y = x^2',
+        isLeaf: true
+      }, {
+        value: 'x^3',
+        label: 'y = x^3',
+        isLeaf: true
+      },
+      ],
+    }, {
       value: 'trigono',
-      label: 'Trigonometric function',
+      label: 'Trigonometric functions',
       children: [{
         value: 'sin',
-        label: 'y = Sin(x)',
+        label: 'y = sin(x)',
         isLeaf: true
       }, {
         value: 'cos',
-        label: 'y = Cos(x)',
+        label: 'y = cos(x)',
         isLeaf: true
       }, {
         value: 'tan',
-        label: 'y = Tan(x)',
+        label: 'y = tan(x)',
+        isLeaf: true
+      }, {
+        value: 'cot',
+        label: 'y = cot(x)',
         isLeaf: true
       }
       ]
-    }, {
-      value: 'zhejiang',
-      label: 'Zhejiang',
-      children: [
-        {
-          value: 'hangzhou',
-          label: 'Hangzhou',
-          children: [
-            {
-              value: 'xihu',
-              label: 'West Lake',
-              isLeaf: true
-            }
-          ]
-        },
-        {
-          value: 'ningbo',
-          label: 'Ningbo',
-          isLeaf: true
-        }
-      ]
-    }, {
-      value: 'jiangsu',
-      label: 'Jiangsu',
-      children: [
-        {
-          value: 'nanjing',
-          label: 'Nanjing',
-          children: [
-            {
-              value: 'zhonghuamen',
-              label: 'Zhong Hua Men',
-              isLeaf: true
-            }
-          ]
-        }
-      ]
-    }
-    ];
+    }];
   }
 
   onChanges(values: any): void {
@@ -110,10 +93,16 @@ export class FunctionCurveComponent implements OnInit {
       case 'sign':
         this.funcChartOption = of([]).pipe(
           map(() => {
+            const xAxis = this.curveXAxis();
+            xAxis.max = 5;
+            xAxis.min = -5;
+            const yAxis = this.curveYAxis();
+            yAxis.max = 2;
+            yAxis.min = -2;
             return {
               title: this.curveTitle('y = sign(x)'),
-              xAxis: this.curveXAxis(),
-              yAxis: this.curveYAxis(),
+              xAxis,
+              yAxis,
               series: this.curveSeries(curval),
             };
           }));
@@ -124,6 +113,18 @@ export class FunctionCurveComponent implements OnInit {
           map(() => {
             return {
               title: this.curveTitle('y = floor(x)'),
+              xAxis: this.curveXAxis(),
+              yAxis: this.curveYAxis(),
+              series: this.curveSeries(curval),
+            };
+          }));
+        break;
+
+      case 'ceil':
+        this.funcChartOption = of([]).pipe(
+          map(() => {
+            return {
+              title: this.curveTitle('y = ceil(x)'),
               xAxis: this.curveXAxis(),
               yAxis: this.curveYAxis(),
               series: this.curveSeries(curval),
@@ -154,12 +155,61 @@ export class FunctionCurveComponent implements OnInit {
             };
           }));
         break;
+
       case 'tan':
         this.funcChartOption = of([]).pipe(
           map(() => {
+            const xAxis = this.curveXAxis();
+            xAxis.max = 20;
+            xAxis.min = -20;
             return {
               title: this.curveTitle('y = tan(x)'),
-              xAxis: this.curveXAxis(),
+              xAxis,
+              yAxis: this.curveYAxis(),
+              series: this.curveSeries(curval),
+            };
+          }));
+        break;
+
+      case 'cot':
+        this.funcChartOption = of([]).pipe(
+          map(() => {
+            const xAxis = this.curveXAxis();
+            xAxis.max = 20;
+            xAxis.min = -20;
+            return {
+              title: this.curveTitle('y = cot(x)'),
+              xAxis,
+              yAxis: this.curveYAxis(),
+              series: this.curveSeries(curval),
+            };
+          }));
+        break;
+
+      case 'x^2':
+        this.funcChartOption = of([]).pipe(
+          map(() => {
+            const xAxis = this.curveXAxis();
+            xAxis.max = 25;
+            xAxis.min = -25;
+            return {
+              title: this.curveTitle('y = x^2'),
+              xAxis,
+              yAxis: this.curveYAxis(),
+              series: this.curveSeries(curval),
+            };
+          }));
+        break;
+
+      case 'x^3':
+        this.funcChartOption = of([]).pipe(
+          map(() => {
+            const xAxis = this.curveXAxis();
+            xAxis.max = 25;
+            xAxis.min = -25;
+            return {
+              title: this.curveTitle('y = x^3'),
+              xAxis,
               yAxis: this.curveYAxis(),
               series: this.curveSeries(curval),
             };
@@ -235,7 +285,7 @@ export class FunctionCurveComponent implements OnInit {
         });
         data = [];
         data.push([0, 1]);
-        for (let i = 1; i < 5; i++) {
+        for (let i = 1; i <= 5; i++) {
           data.push([i, Math.sign(i)]);
         }
         series.push({
@@ -247,13 +297,32 @@ export class FunctionCurveComponent implements OnInit {
 
       case 'floor':
         for (let i = -5; i <= 5; i++) {
-          data.push([i, Math.floor(i)]);
+          data = [];
+          data.push([i, Math.floor(i + 0.1)]);
+          for (let j = i + 0.1; j <= i + 1; j += 0.1) {
+            data.push([j, Math.floor(j)]);
+          }
+          series.push({
+            data,
+            type: 'line',
+            smooth: false,
+          });
         }
-        series.push({
-          data,
-          type: 'line',
-          smooth: false,
-        });
+        break;
+
+      case 'ceil':
+        for (let i = -5; i <= 5; i++) {
+          data = [];
+          data.push([i, Math.ceil(i + 0.1)]);
+          for (let j = i + 0.1; j < i + 1; j += 0.1) {
+            data.push([j, Math.ceil(j)]);
+          }
+          series.push({
+            data,
+            type: 'line',
+            smooth: false,
+          });
+        }
         break;
 
       case 'sin':
@@ -279,26 +348,17 @@ export class FunctionCurveComponent implements OnInit {
         break;
 
       case 'tan':
-        for (let j = -1; j <= 1; j++) {
+        for (let j = -5; j <= 5; j++) {
           data = [];
-          let start = (2 * j - 1) * Math.PI / 2;
-          const end = (2 * j + 1) * Math.PI / 2;
-          while (start < end) {
-            start += 0.001;
-            data.push([start, Math.tan(start)]);
+          let ystart = -20;
+          const yend = 20;
+          while (ystart <= yend) {
+            let xpoint = Math.atan(ystart);
+            xpoint += (j * Math.PI);
+            data.push([xpoint, ystart]);
+            ystart += 1;
           }
-          // for (let i = 0.2 + start; i > start; i -= 0.01) {
-          //   data.push([i, Math.tan(i)]);
-          // }
-          // for (let i = 0.25 + start; i <= end - 0.25; i += 0.5) {
-          //   data.push([i, Math.tan(i)]);
-          // }
-          // for (let i = end - 0.2; i < end; i += 0.01) {
-          //   data.push([i, Math.tan(i)]);
-          // }
-          // data = data.sort((a: any, b: any) => {
-          //   return a[0] - b[0];
-          // });
+
           series.push({
             data,
             type: 'line',
@@ -307,8 +367,51 @@ export class FunctionCurveComponent implements OnInit {
         }
         break;
 
-      default:
+      case 'cot':
+        for (let j = -5; j <= 5; j++) {
+          data = [];
+          let ystart = -20;
+          const yend = 20;
+          while (ystart <= yend) {
+            let xpoint = Math.atan(ystart);
+            xpoint += (j + 0.5) * Math.PI;
+            data.push([xpoint, ystart]);
+            ystart += 1;
+          }
+
+          series.push({
+            data,
+            type: 'line',
+            smooth: true,
+          });
+        }
         break;
+
+      case 'x^2':
+        for (let i = -5; i <= 5; i += 0.2) {
+          data.push([i, Math.pow(i, 2)]);
+        }
+        series.push({
+          data,
+          type: 'line',
+          smooth: true,
+        });
+        break;
+
+      case 'x^3':
+        for (let i = -3; i <= 3; i += 0.2) {
+          data.push([i, Math.pow(i, 3)]);
+        }
+
+        series.push({
+          data,
+          type: 'line',
+          smooth: true,
+        });
+        break;
+
+      default:
+      break;
     }
 
     return series;
