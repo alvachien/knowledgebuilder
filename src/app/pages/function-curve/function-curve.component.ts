@@ -34,6 +34,14 @@ export class FunctionCurveComponent implements OnInit {
       label: 'y = ceil(x)',
       isLeaf: true,
     }, {
+      value: 'exp',
+      label: 'Exponential functions',
+      children: [{
+        value: '2^x',
+        label: 'y = 2^x',
+        isLeaf: true
+      }],
+    }, {
       value: 'power',
       label: 'Power functions',
       children: [{
