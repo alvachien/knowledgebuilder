@@ -224,6 +224,21 @@ export class FunctionCurveComponent implements OnInit {
           }));
         break;
 
+      case '2^x':
+        this.funcChartOption = of([]).pipe(
+          map(() => {
+            const xAxis = this.curveXAxis();
+            xAxis.max = 6;
+            xAxis.min = -10;
+            return {
+              title: this.curveTitle('y = 2^x'),
+              xAxis,
+              yAxis: this.curveYAxis(),
+              series: this.curveSeries(curval),
+            };
+          }));
+        break;
+
       default:
         break;
     }
@@ -418,7 +433,19 @@ export class FunctionCurveComponent implements OnInit {
         });
         break;
 
-      default:
+      case '2^x':
+        for (let i = -8; i <= 4; i += 0.2) {
+          data.push([i, Math.pow(2, i)]);
+        }
+
+        series.push({
+          data,
+          type: 'line',
+          smooth: true,
+        });
+        break;
+
+        default:
       break;
     }
 
