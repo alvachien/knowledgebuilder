@@ -5,6 +5,7 @@ import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
 import { IconsProviderModule } from './icons-provider.module';
 import { NgZorroAntdModule, NZ_I18N, zh_CN } from 'ng-zorro-antd';
+import { NzMessageModule } from 'ng-zorro-antd/message';
 import { FormsModule } from '@angular/forms';
 import { HttpClientModule, HttpClient } from '@angular/common/http';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
@@ -13,7 +14,8 @@ import zh from '@angular/common/locales/zh';
 import { TranslateModule, TranslateLoader } from '@ngx-translate/core';
 import { TranslateHttpLoader } from '@ngx-translate/http-loader';
 
-import { OdataService, FileUploadService, SelectivePreloadingStrategyService, } from './services';
+import { OdataService, FileUploadService, SelectivePreloadingStrategyService,
+  UIHelpService, } from './services';
 
 registerLocaleData(zh);
 export function HttpLoaderFactory(http: HttpClient): TranslateHttpLoader {
@@ -44,6 +46,7 @@ export function HttpLoaderFactory(http: HttpClient): TranslateHttpLoader {
     OdataService,
     FileUploadService,
     SelectivePreloadingStrategyService,
+    UIHelpService,
   ],
   bootstrap: [AppComponent]
 })

@@ -4,7 +4,7 @@ import { Router, ActivatedRoute } from '@angular/router';
 import { ReplaySubject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 
-import { OdataService } from '../../../services';
+import { OdataService, UIHelpService } from '../../../services';
 import { UIModeEnum, KnowledgeItem, getUIModeString } from '../../../models';
 
 @Component({
@@ -25,10 +25,11 @@ export class KnowledgeDetailComponent implements OnInit {
   constructor(
     private oDataSrv: OdataService,
     private router: Router,
-    private activateRoute: ActivatedRoute) {
+    private activateRoute: ActivatedRoute,
+    private uiService: UIHelpService) {
 
     this.detailForm = new FormGroup({
-      idControl: new FormControl(''),
+      idControl: new FormControl({disable: true}),
       ctgyControl: new FormControl('', Validators.required),
       nameControl: new FormControl('', Validators.required),
       contentControl: new FormControl('', Validators.required),
@@ -74,9 +75,8 @@ export class KnowledgeDetailComponent implements OnInit {
           }, (error: any) => {
             this.isLoadingResults = false;
 
-            // Show error dialog - TBD
-            // popupDialog(this._dialog, this._uiService.getUILabel(UICommonLabelEnum.Error),
-            //   error ? error.toString() : this._uiService.getUILabel(UICommonLabelEnum.Error));
+            // Show error dialog
+            this.uiService.createMessage('error', error ? error.toString() : 'error');
           });
         }
       }
@@ -85,7 +85,21 @@ export class KnowledgeDetailComponent implements OnInit {
 
   public submitForm(val: any) {
     // Submit the form
-    // this.oDataSrv.createKnowledge().subscribe()
+    if (val) {
+      const ki: KnowledgeItem = new KnowledgeItem();
+      ki.name = val.nameControl;
+      ki.content = val.content;
+      ki.category = val.category;
+
+      this.oDataSrv.createKnowledge(ki)
+        .pipe(takeUntil(this._destroyed$))
+        .subscribe((obsrv: any) => {
+          // Change to display mode.
+        }, (error: any) => {
+          // Report error
+          this.uiService.createMessage('error', error ? error.toString() : 'error');
+        });
+    }
   }
   public resetForm() {
     if (this.detailForm.enabled) {
