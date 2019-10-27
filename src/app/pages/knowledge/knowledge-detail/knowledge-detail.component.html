@@ -25,14 +25,16 @@
       <nz-form-item>
         <nz-form-label [nzSpan]="7" nzRequired>Category</nz-form-label>
         <nz-form-control [nzSpan]="12" nzHasFeedback [nzErrorTip]="ctgyErrorTpl">
-          <nz-radio-group formControlName="ctgyControl">
-            <label nz-radio nzValue="A">1</label>
-            <label nz-radio nzValue="B">2</label>
-            <label nz-radio nzValue="C">3</label>
-            <label nz-radio nzValue="M">4</label>
-          </nz-radio-group>
+          <nz-select
+            id="category"
+            formControlName="ctgyControl"
+            nzPlaceHolder="Select a category"
+            (ngModelChange)="categoryChange($event)">
+            <nz-option nzValue="0" nzLabel="Concept"></nz-option>
+            <nz-option nzValue="1" nzLabel="Forumula"></nz-option>
+          </nz-select>
           <ng-template #ctgyErrorTpl let-control>
-            <ng-container *ngIf="control.hasError('required')">
+            <ng-container *ngIf="ctgyControl.hasError('required')">
               Please select your category
             </ng-container>
           </ng-template>
@@ -45,7 +47,7 @@
         <nz-form-control [nzSpan]="12" nzHasFeedback [nzErrorTip]="nameErrorTpl">
           <input nz-input type="text" formControlName="nameControl" placeholder="Name" />
           <ng-template #nameErrorTpl let-control>
-            <ng-container *ngIf="control.hasError('required')">
+            <ng-container *ngIf="nameControl.hasError('required')">
               Please input name!
             </ng-container>
           </ng-template>

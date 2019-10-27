@@ -40,7 +40,7 @@ export class KnowledgeItem {
       Content: this.content,
       CanGenerate: this.canGenerate,
 
-      '@odata.type': 'MathLearnAPI.Models.Knowledge',
+      // '@odata.type': 'MathLearnAPI.Models.Knowledge',
     });
   }
 }

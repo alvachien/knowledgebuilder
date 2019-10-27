@@ -5,7 +5,7 @@ import { ReplaySubject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 
 import { OdataService, UIHelpService } from '../../../services';
-import { UIModeEnum, KnowledgeItem, getUIModeString } from '../../../models';
+import { UIModeEnum, KnowledgeItem, getUIModeString, MessageType } from '../../../models';
 
 @Component({
   selector: 'app-knowledge-detail',
@@ -13,7 +13,7 @@ import { UIModeEnum, KnowledgeItem, getUIModeString } from '../../../models';
   styleUrls: ['./knowledge-detail.component.less'],
 })
 export class KnowledgeDetailComponent implements OnInit {
-  private routerID: number = -1; // Current object ID in routing
+  private routerID = -1; // Current object ID in routing
   private _destroyed$: ReplaySubject<boolean>;
 
   public knowledgeDetailID = '123';
@@ -62,6 +62,7 @@ export class KnowledgeDetailComponent implements OnInit {
 
             this.isLoadingResults = false;
             this.detailForm.get('idControl').setValue(dtl.id);
+            this.detailForm.get('ctgyControl').setValue(dtl.category);
             this.detailForm.get('nameControl').setValue(dtl.name);
             this.detailForm.get('contentControl').setValue(dtl.content);
             this.detailForm.markAsUntouched();
@@ -76,29 +77,36 @@ export class KnowledgeDetailComponent implements OnInit {
             this.isLoadingResults = false;
 
             // Show error dialog
-            this.uiService.createMessage('error', error ? error.toString() : 'error');
+            this.uiService.showMessage(MessageType.Error, error ? error.toString() : 'error');
           });
         }
       }
     });
   }
+  public categoryChange(event: any) {
+    // Category changed
+  }
 
   public submitForm(val: any) {
     // Submit the form
     if (val) {
-      const ki: KnowledgeItem = new KnowledgeItem();
-      ki.name = val.nameControl;
-      ki.content = val.content;
-      ki.category = val.category;
+      if (this.uiMode === UIModeEnum.create) {
+        const ki: KnowledgeItem = new KnowledgeItem();
+        ki.name = val.nameControl;
+        ki.content = val.contentControl;
+        ki.category = val.ctgyControl;
+        ki.id = -1;
 
-      this.oDataSrv.createKnowledge(ki)
-        .pipe(takeUntil(this._destroyed$))
-        .subscribe((obsrv: any) => {
-          // Change to display mode.
-        }, (error: any) => {
-          // Report error
-          this.uiService.createMessage('error', error ? error.toString() : 'error');
-        });
+        this.oDataSrv.createKnowledge(ki)
+          .pipe(takeUntil(this._destroyed$))
+          .subscribe((nki: KnowledgeItem) => {
+            // Change to display mode.
+            this.uiService.showMessage(MessageType.Success, 'Craeted');
+          }, (error: any) => {
+            // Report error
+            this.uiService.showMessage(MessageType.Error, error ? error.toString() : 'error');
+          });
+      }
     }
   }
   public resetForm() {

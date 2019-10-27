@@ -108,7 +108,11 @@ export class EnumUtility {
   }
 }
 
-export enum MessageType { Info = 1, Warning = 2, Error = 3 }
+export enum MessageType {
+  Success = 0,
+  Info = 1,
+  Warning = 2,
+  Error = 3 }
 
 /**
  * Info message class
