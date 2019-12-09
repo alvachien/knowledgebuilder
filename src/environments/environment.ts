@@ -7,7 +7,7 @@ export const environment = {
 
   APIBaseUrl: 'http://localhost:53412/',
   APIUrl: 'http://localhost:53412/api/',
-  ODataUrl: 'http://localhost:53412/odata/'
+  ODataUrl: 'http://localhost:5000/odata/'
 };
 
 /*
