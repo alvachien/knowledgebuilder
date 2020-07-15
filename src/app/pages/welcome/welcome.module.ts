@@ -9,6 +9,7 @@ import { WelcomeComponent } from './welcome.component';
   declarations: [WelcomeComponent],
   imports: [
     CommonModule,
+    WelcomeRoutingModule,
   ]
 })
 export class WelcomeModule { }

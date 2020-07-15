@@ -6,7 +6,7 @@ import { MediaMatcher } from '@angular/cdk/layout';
   templateUrl: './app.component.html',
   styleUrls: ['./app.component.scss'],
 })
-export class AppComponent {
+export class AppComponent implements OnDestroy {
   title = 'Knowledge builder';
 
   mobileQuery: MediaQueryList;
@@ -30,5 +30,5 @@ export class AppComponent {
 
   ngOnDestroy(): void {
     this.mobileQuery.removeListener(this._mobileQueryListener);
-  }  
+  }
 }

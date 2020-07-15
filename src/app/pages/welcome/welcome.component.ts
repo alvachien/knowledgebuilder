@@ -1,4 +1,5 @@
 import { Component, OnInit } from '@angular/core';
+import { ODataService } from '../../services';
 
 @Component({
   selector: 'app-welcome',
@@ -7,9 +8,21 @@ import { Component, OnInit } from '@angular/core';
 })
 export class WelcomeComponent implements OnInit {
 
-  constructor() { }
+  constructor(private odataSrv: ODataService) {
+    console.log('Entering WelcomeComponent constructor');
+  }
 
   ngOnInit(): void {
+    console.log('Entering WelcomeComponent ngOnInit');
+
+    this.odataSrv.getMetadata().subscribe({
+      next: val => {
+        console.log(val);
+      },
+      error: err => {
+        console.error(err);
+      },
+    });
   }
 
 }

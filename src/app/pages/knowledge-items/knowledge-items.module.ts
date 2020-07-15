@@ -3,10 +3,11 @@ import { CommonModule } from '@angular/common';
 
 import { KnowledgeItemsRoutingModule } from './knowledge-items-routing.module';
 import { KnowledgeItemsComponent } from './knowledge-items.component';
+import { KnowledgeItemDetailComponent } from './knowledge-item-detail/knowledge-item-detail.component';
 
 
 @NgModule({
-  declarations: [KnowledgeItemsComponent],
+  declarations: [KnowledgeItemsComponent, KnowledgeItemDetailComponent],
   imports: [
     CommonModule,
     KnowledgeItemsRoutingModule

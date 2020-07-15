@@ -1,8 +1,15 @@
 import { NgModule } from '@angular/core';
 import { Routes, RouterModule } from '@angular/router';
 
+import { KnowledgeItemsComponent } from './knowledge-items.component';
+import { KnowledgeItemDetailComponent } from './knowledge-item-detail';
 
-const routes: Routes = [];
+const routes: Routes = [
+  { path: '', component: KnowledgeItemsComponent },
+  { path: 'create', component: KnowledgeItemDetailComponent },
+  { path: 'display/:id', component: KnowledgeItemDetailComponent },
+  { path: 'edit/:id', component: KnowledgeItemDetailComponent },
+];
 
 @NgModule({
   imports: [RouterModule.forChild(routes)],
