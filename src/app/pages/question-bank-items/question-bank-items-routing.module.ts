@@ -10,6 +10,7 @@ const routes: Routes = [
   { path: 'display/:id', component: QuestionBankItemDetailComponent },
   { path: 'edit/:id', component: QuestionBankItemDetailComponent },
 ];
+
 @NgModule({
   imports: [RouterModule.forChild(routes)],
   exports: [RouterModule]

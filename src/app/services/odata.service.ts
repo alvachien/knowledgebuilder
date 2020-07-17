@@ -24,11 +24,34 @@ export class ODataService {
         // params,
       })
       .pipe(map((response: HttpResponse<any>) => {
-        const rjs: any = response as any;
+        const rjs = response as unknown as string;
         return rjs;
       }),
       catchError((error: HttpErrorResponse) => {
+        return throwError(error.statusText + '; ' + error.error + '; ' + error.message);
+      }));
+  }
 
+  public getKnowledgeItems(): Observable<any> {
+    let headers: HttpHeaders = new HttpHeaders();
+    headers = headers.append('Content-Type', 'application/json')
+              .append('Accept', 'application/json');
+
+    let params: HttpParams = new HttpParams();
+    params = params.append('$top', '100');
+    params = params.append('$count', 'true');
+    return this.http.get(`${this.apiUrl}KnowledgeItems`, {
+        headers,
+        params,
+      })
+      .pipe(map((response: HttpResponse<any>) => {
+        const rjs = response as any;
+        return {
+          total_count: rjs['@odata.count'],
+          items: rjs.value as any[]
+        };
+      }),
+      catchError((error: HttpErrorResponse) => {
         return throwError(error.statusText + '; ' + error.error + '; ' + error.message);
       }));
   }
