@@ -12,7 +12,7 @@ import { ODataService } from '../../services';
   styleUrls: ['./knowledge-items.component.scss']
 })
 export class KnowledgeItemsComponent implements AfterViewInit {
-  displayedColumns: string[] = ['created', 'state', 'number', 'title'];
+  displayedColumns: string[] = ['id', 'category', 'title', 'createdat'];
   data: any[] = [];
 
   resultsLength = 0;
@@ -33,7 +33,7 @@ export class KnowledgeItemsComponent implements AfterViewInit {
         startWith({}),
         switchMap(() => {
           this.isLoadingResults = true;
-          return this.odataService.getKnowledgeItems(            
+          return this.odataService.getKnowledgeItems(
           );
         }),
         map(data => {
@@ -52,16 +52,4 @@ export class KnowledgeItemsComponent implements AfterViewInit {
         })
       ).subscribe(data => this.data = data);
   }
-}
-
-export interface GithubApi {
-  items: GithubIssue[];
-  total_count: number;
-}
-
-export interface GithubIssue {
-  created_at: string;
-  number: string;
-  state: string;
-  title: string;
 }

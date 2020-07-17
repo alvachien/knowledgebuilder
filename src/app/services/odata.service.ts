@@ -1,5 +1,6 @@
 import { Injectable } from '@angular/core';
 import { HttpParams, HttpClient, HttpHeaders, HttpResponse, HttpRequest, HttpErrorResponse } from '@angular/common/http';
+
 import { Observable, throwError } from 'rxjs';
 import { map, catchError } from 'rxjs/operators';
 
@@ -40,6 +41,7 @@ export class ODataService {
     let params: HttpParams = new HttpParams();
     params = params.append('$top', '100');
     params = params.append('$count', 'true');
+    params = params.append('$select', 'ID,Category,Title,CreatedAt,ModifiedAt');
     return this.http.get(`${this.apiUrl}KnowledgeItems`, {
         headers,
         params,
