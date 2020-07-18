@@ -11,7 +11,7 @@ import { ODataService } from './services';
 
 @NgModule({
   declarations: [
-    AppComponent
+    AppComponent,
   ],
   imports: [
     BrowserModule,
