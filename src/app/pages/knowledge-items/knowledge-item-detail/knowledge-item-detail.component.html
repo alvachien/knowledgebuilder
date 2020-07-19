@@ -6,14 +6,14 @@
     <mat-card-content>
         <form [formGroup]="itemFormGroup">
             <!-- ID -->
-            <div class="achih-control-full-width" *ngIf="!isCreateMode">
+            <div class="achih-control-full-width">
             </div>
 
             <!-- Title -->
             <mat-form-field>
                 <input matInput type="text" placeholder="Title" formControlName="titleControl"
-                    name="title" #accountname maxlength="30">
-                <mat-hint align="end">{{accountname.value.length}} / 30</mat-hint>
+                    name="title" #title maxlength="30">
+                <mat-hint align="end">{{title.value.length}} / 30</mat-hint>
             </mat-form-field>
 
             <!-- Content -->

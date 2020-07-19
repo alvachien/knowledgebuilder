@@ -3,6 +3,8 @@ import { FormGroup, FormControl, Validators } from '@angular/forms';
 import { ReplaySubject } from 'rxjs';
 import { ActivatedRoute } from '@angular/router';
 
+import { ODataService } from '../../../services';
+
 @Component({
   selector: 'app-knowledge-item-detail',
   templateUrl: './knowledge-item-detail.component.html',
@@ -15,7 +17,9 @@ export class KnowledgeItemDetailComponent implements OnInit {
   // Step: Generic info
   public itemFormGroup: FormGroup;
 
-  constructor(private activateRoute: ActivatedRoute,) {
+  constructor(
+    private activateRoute: ActivatedRoute,
+    private odataService: ODataService) {
     this.itemFormGroup = new FormGroup({
       titleControl: new FormControl('', Validators.required),
       contentControl: new FormControl('', Validators.required),
@@ -29,5 +33,28 @@ export class KnowledgeItemDetailComponent implements OnInit {
 
   onOK(): void {
     // On OK
+    if (this.currentMode === 'Create') {
+      if (!this.itemFormGroup.valid) {
+        if (this.itemFormGroup.hasError) {
+          let err = this.itemFormGroup.errors;
+          console.log(err);
+        }
+        return;
+      }
+
+      // Create a new knowlege item
+      this.odataService.createKnowledgeItem({
+        Category: 'Concept',
+        Title: this.itemFormGroup.get('titleControl').value,
+        Content: this.itemFormGroup.get('contentControl').value
+      }).subscribe({
+        next: val => {
+          // Val
+        },
+        error: err => {
+          // Error
+        }
+      });
+    }
   }
 }
