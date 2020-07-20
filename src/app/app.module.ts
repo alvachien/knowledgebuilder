@@ -8,10 +8,14 @@ import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { MaterialModulesModule } from './material-modules';
 
 import { ODataService } from './services';
+import { CodeEditorComponent } from './pages/code-editor/code-editor.component';
+import { MarkdownEditorComponent } from './pages/markdown-editor/markdown-editor.component';
 
 @NgModule({
   declarations: [
     AppComponent,
+    CodeEditorComponent,
+    MarkdownEditorComponent,
   ],
   imports: [
     BrowserModule,
