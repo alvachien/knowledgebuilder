@@ -6,20 +6,21 @@ import { MaterialModulesModule } from '../../material-modules';
 import { KnowledgeItemsRoutingModule } from './knowledge-items-routing.module';
 import { KnowledgeItemsComponent } from './knowledge-items.component';
 import { KnowledgeItemDetailComponent } from './knowledge-item-detail/knowledge-item-detail.component';
-import { fromEventPattern } from 'rxjs';
+import { MarkdownEditorModule } from '../markdown-editor/markdown-editor.module';
 
 
 @NgModule({
   declarations: [
     KnowledgeItemsComponent,
-    KnowledgeItemDetailComponent
+    KnowledgeItemDetailComponent,
   ],
   imports: [
     CommonModule,
     FormsModule,
     ReactiveFormsModule,
     MaterialModulesModule,
+    MarkdownEditorModule,
     KnowledgeItemsRoutingModule,
-  ]
+  ],
 })
 export class KnowledgeItemsModule { }

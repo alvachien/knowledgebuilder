@@ -15,8 +15,7 @@ import {
 import { NG_VALUE_ACCESSOR } from '@angular/forms';
 import { combineLatest, fromEvent, BehaviorSubject, Subject, Observable } from 'rxjs';
 import { debounceTime, distinctUntilChanged, filter, map, takeUntil, take } from 'rxjs/operators';
-
-import { warn, InputBoolean } from 'ng-zorro-antd/core';
+import { isDevMode } from '@angular/core';
 
 import { JoinedEditorOption, CoreEditorMode } from './code-editor.definitions';
 import { CodeEditorService } from './code-editor.services';
@@ -28,14 +27,51 @@ import IDiffEditor = editor.IDiffEditor;
 import ITextModel = editor.ITextModel;
 import IEditorConstructionOptions = editor.IEditorConstructionOptions;
 import IDiffEditorConstructionOptions = editor.IDiffEditorConstructionOptions;
+import { coerceBooleanProperty } from '@angular/cdk/coercion';
 
 // tslint:disable-next-line no-any
 declare const monaco: any;
 
+// Utility to make it work
 export function inNextTick(): Observable<void> {
   const timer = new Subject<void>();
   Promise.resolve().then(() => timer.next());
   return timer.pipe(take(1));
+}
+
+export function toBoolean(value: boolean | string): boolean {
+  return coerceBooleanProperty(value);
+}
+function propDecoratorFactory<T, D>(name: string, fallback: (v: T) => D): (target: any, propName: string) => void {
+  function propDecorator(target: any, propName: string, originalDescriptor?: TypedPropertyDescriptor<any>): any {
+    const privatePropName = `$$__${propName}`;
+
+    // if (Object.prototype.hasOwnProperty.call(target, privatePropName)) {
+    //   warn(`The prop "${privatePropName}" is already exist, it will be overrided by ${name} decorator.`);
+    // }
+
+    Object.defineProperty(target, privatePropName, {
+      configurable: true,
+      writable: true
+    });
+
+    return {
+      get(): string {
+        return originalDescriptor && originalDescriptor.get ? originalDescriptor.get.bind(this)() : this[privatePropName];
+      },
+      set(value: T): void {
+        if (originalDescriptor && originalDescriptor.set) {
+          originalDescriptor.set.bind(this)(fallback(value));
+        }
+        this[privatePropName] = fallback(value);
+      }
+    };
+  }
+
+  return propDecorator;
+}
+export function InputBoolean(): any {
+  return propDecoratorFactory('InputBoolean', toBoolean);
 }
 
 @Component({
@@ -192,7 +228,7 @@ export class CodeEditorComponent implements OnDestroy, AfterViewInit {
     }
 
     if (this.nzFullControl && this.value) {
-      warn(`should not set value when you are using full control mode! It would result in ambiguous data flow!`);
+      // warn(`should not set value when you are using full control mode! It would result in ambiguous data flow!`);
       return;
     }
 
@@ -200,10 +236,10 @@ export class CodeEditorComponent implements OnDestroy, AfterViewInit {
       if (this.modelSet) {
         (this.editorInstance.getModel() as ITextModel).setValue(this.value);
       } else {
-        (this.editorInstance as IEditor).setModel(
-          monaco.editor.createModel(this.value, (this.editorOptionCached as IEditorConstructionOptions).language)
-        );
-        this.modelSet = true;
+        // (this.editorInstance as IEditor).setModel(
+        //   monaco.editor.createModel(this.value, (this.editorOptionCached as IEditorConstructionOptions).language)
+        // );
+        // this.modelSet = true;
       }
     } else {
       if (this.modelSet) {
@@ -211,11 +247,11 @@ export class CodeEditorComponent implements OnDestroy, AfterViewInit {
         model.modified.setValue(this.value);
         model.original.setValue(this.nzOriginalText);
       } else {
-        const language = (this.editorOptionCached as IEditorConstructionOptions).language;
-        (this.editorInstance as IDiffEditor).setModel({
-          original: monaco.editor.createModel(this.value, language),
-          modified: monaco.editor.createModel(this.nzOriginalText, language)
-        });
+        // const language = (this.editorOptionCached as IEditorConstructionOptions).language;
+        // (this.editorInstance as IDiffEditor).setModel({
+        //   original: monaco.editor.createModel(this.value, language),
+        //   modified: monaco.editor.createModel(this.nzOriginalText, language)
+        // });
       }
     }
   }
