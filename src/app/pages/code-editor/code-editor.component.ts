@@ -78,6 +78,7 @@ export function InputBoolean(): any {
   changeDetection: ChangeDetectionStrategy.OnPush,
   encapsulation: ViewEncapsulation.None,
   selector: 'app-code-editor',
+  exportAs: 'codeEditor',
   templateUrl: './code-editor.component.html',
   styleUrls: ['./code-editor.component.scss'],
   providers: [
@@ -111,7 +112,7 @@ export class CodeEditorComponent implements OnDestroy, AfterViewInit {
   private value = '';
   private modelSet = false;
 
-  constructor(private nzCodeEditorService: CodeEditorService, private ngZone: NgZone, elementRef: ElementRef) {
+  constructor(private codeEditorService: CodeEditorService, private ngZone: NgZone, elementRef: ElementRef) {
     this.el = elementRef.nativeElement;
   }
 
@@ -119,7 +120,7 @@ export class CodeEditorComponent implements OnDestroy, AfterViewInit {
    * Initialize a monaco editor instance.
    */
   ngAfterViewInit(): void {
-    this.nzCodeEditorService.requestToInit().subscribe(option => this.setup(option));
+    this.codeEditorService.requestToInit().subscribe(option => this.setup(option));
   }
 
   ngOnDestroy(): void {
@@ -171,7 +172,7 @@ export class CodeEditorComponent implements OnDestroy, AfterViewInit {
   }
 
   private registerOptionChanges(): void {
-    combineLatest([this.editorOption$, this.nzCodeEditorService.option$])
+    combineLatest([this.editorOption$, this.codeEditorService.option$])
       .pipe(takeUntil(this.destroy$))
       .subscribe(([selfOpt, defaultOpt]) => {
         this.editorOptionCached = {

@@ -14,7 +14,10 @@ export class MarkdownEditorComponent implements OnInit {
   constructor() { }
 
   ngOnInit(): void {
+    console.log('Entering MarkdownEditorComponent OnInit');
   }
+
   onEditorInit(e: editor.ICodeEditor): void {
+    console.log('Entering MarkdownEditorComponent onEditorInit');
   }
 }
