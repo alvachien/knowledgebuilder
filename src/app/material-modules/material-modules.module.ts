@@ -44,6 +44,8 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatTreeModule } from '@angular/material/tree';
 import { FlexLayoutModule } from '@angular/flex-layout';
 
+// import { MonacoEditorModule } from 'ngx-monaco-editor';
+
 @NgModule({
   exports: [
     A11yModule,
@@ -90,6 +92,7 @@ import { FlexLayoutModule } from '@angular/flex-layout';
     PortalModule,
     ScrollingModule,
     FlexLayoutModule,
+    // MonacoEditorModule,
   ]
 })
 export class MaterialModulesModule { }

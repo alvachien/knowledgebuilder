@@ -13,11 +13,10 @@ export class MarkdownEditorComponent implements OnInit {
 
   constructor() { }
 
+  editorOptions = { theme: 'vs-dark', language: 'javascript' };
+  code = `function x() {\nconsole.log("Hello world!");\n}`;
+
   ngOnInit(): void {
     console.log('Entering MarkdownEditorComponent OnInit');
-  }
-
-  onEditorInit(e: editor.ICodeEditor): void {
-    console.log('Entering MarkdownEditorComponent onEditorInit');
   }
 }

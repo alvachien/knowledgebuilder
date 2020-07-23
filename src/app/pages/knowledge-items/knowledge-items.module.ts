@@ -2,11 +2,13 @@ import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 
+import { MonacoEditorModule } from 'ngx-monaco-editor';
+import { MarkdownModule, MarkedOptions } from 'ngx-markdown';
+
 import { MaterialModulesModule } from '../../material-modules';
 import { KnowledgeItemsRoutingModule } from './knowledge-items-routing.module';
 import { KnowledgeItemsComponent } from './knowledge-items.component';
 import { KnowledgeItemDetailComponent } from './knowledge-item-detail/knowledge-item-detail.component';
-import { MarkdownEditorModule } from '../markdown-editor/markdown-editor.module';
 
 
 @NgModule({
@@ -19,7 +21,8 @@ import { MarkdownEditorModule } from '../markdown-editor/markdown-editor.module'
     FormsModule,
     ReactiveFormsModule,
     MaterialModulesModule,
-    MarkdownEditorModule,
+    MonacoEditorModule,
+    MarkdownModule.forChild(),
     KnowledgeItemsRoutingModule,
   ],
 })

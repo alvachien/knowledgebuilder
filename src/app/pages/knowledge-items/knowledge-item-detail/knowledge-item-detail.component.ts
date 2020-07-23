@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { FormGroup, FormControl, Validators } from '@angular/forms';
 import { ReplaySubject } from 'rxjs';
 import { ActivatedRoute } from '@angular/router';
+import { KatexOptions } from 'ngx-markdown';
 
 import { ODataService } from '../../../services';
 
@@ -16,13 +17,20 @@ export class KnowledgeItemDetailComponent implements OnInit {
   currentMode: string;
   // Step: Generic info
   public itemFormGroup: FormGroup;
+  editorOptions = { theme: 'vs-dark' };
+  content = `function x() {\nconsole.log("Hello world!");\n}`;
+  public mathOptions: KatexOptions = {
+    displayMode: true,
+    throwOnError: false,
+    errorColor: '#cc0000',
+  };
 
   constructor(
     private activateRoute: ActivatedRoute,
     private odataService: ODataService) {
     this.itemFormGroup = new FormGroup({
       titleControl: new FormControl('', Validators.required),
-      contentControl: new FormControl('', Validators.required),
+//      contentControl: new FormControl('', Validators.required),
     });
 
     this.currentMode = 'Create';
@@ -46,7 +54,8 @@ export class KnowledgeItemDetailComponent implements OnInit {
       this.odataService.createKnowledgeItem({
         Category: 'Concept',
         Title: this.itemFormGroup.get('titleControl').value,
-        Content: this.itemFormGroup.get('contentControl').value
+//        Content: this.itemFormGroup.get('contentControl').value
+        Content: this.content,
       }).subscribe({
         next: val => {
           // Val

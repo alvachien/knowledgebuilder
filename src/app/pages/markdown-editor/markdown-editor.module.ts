@@ -3,23 +3,23 @@ import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 
 import { MaterialModulesModule } from '../../material-modules';
-import { CodeEditorComponent } from '../code-editor/code-editor.component';
+import { MonacoEditorModule } from 'ngx-monaco-editor';
+
 import { MarkdownEditorComponent } from '../markdown-editor/markdown-editor.component';
 
 
 @NgModule({
   declarations: [
-    CodeEditorComponent,
     MarkdownEditorComponent,
   ],
   imports: [
     CommonModule,
     FormsModule,
     ReactiveFormsModule,
+    MonacoEditorModule,
     MaterialModulesModule,
   ],
   exports: [
-    CodeEditorComponent,
     MarkdownEditorComponent,
   ]
 })

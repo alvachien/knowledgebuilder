@@ -10,27 +10,29 @@
             </div>
 
             <!-- Title -->
-            <mat-form-field>
+            <mat-form-field class="control-full-width">
                 <input matInput type="text" placeholder="Title" formControlName="titleControl"
                     name="title" #title maxlength="30">
                 <mat-hint align="end">{{title.value.length}} / 30</mat-hint>
             </mat-form-field>
 
             <!-- Content -->
-            <mat-form-field>
+            <!-- <mat-form-field>
               <textarea matInput placeholder="Content" formControlName="contentControl"></textarea>
-            </mat-form-field>
+            </mat-form-field> -->
         </form>
 
-        <div>
-            <button mat-button (click)="onOK()">OK</button>
+        <div class="control-full-width">
+            <div fxFlex="50">
+                <ngx-monaco-editor [options]="editorOptions" [(ngModel)]="content"></ngx-monaco-editor>
+            </div>
+            <div fxFlex>
+                <markdown emoji [data]="content" katex [katexOptions]="mathOptions"></markdown>
+            </div>
         </div>
     </mat-card-content>
+    <mat-card-actions>
+        <button mat-button (click)="onOK()">OK</button>
+        <button mat-button>SHARE</button>
+    </mat-card-actions>    
 </mat-card>
-
-<hr/>
-
-<app-markdown-editor>
-    
-</app-markdown-editor>
-
