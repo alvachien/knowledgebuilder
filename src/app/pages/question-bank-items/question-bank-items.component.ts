@@ -1,15 +1,52 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ViewChild, AfterViewInit } from '@angular/core';
+import { MatPaginator } from '@angular/material/paginator';
+import { MatSort } from '@angular/material/sort';
+import { merge, Observable, of as observableOf } from 'rxjs';
+import { catchError, map, startWith, switchMap } from 'rxjs/operators';
+
+import { ODataService } from '../../services';
 
 @Component({
   selector: 'app-question-bank-items',
   templateUrl: './question-bank-items.component.html',
-  styleUrls: ['./question-bank-items.component.scss']
+  styleUrls: ['./question-bank-items.component.scss'],
 })
-export class QuestionBankItemsComponent implements OnInit {
+export class QuestionBankItemsComponent implements AfterViewInit {
 
-  constructor() { }
+  displayedColumns: string[] = ['id', 'category', 'title', 'createdat'];
+  data: any[] = [];
 
-  ngOnInit(): void {
+  resultsLength = 0;
+  isLoadingResults = true;
+
+  @ViewChild(MatPaginator) paginator: MatPaginator;
+  @ViewChild(MatSort) sort: MatSort;
+
+  constructor(private odataService: ODataService) {}
+
+  ngAfterViewInit() {
+    // If the user changes the sort order, reset back to the first page.
+    this.sort.sortChange.subscribe(() => this.paginator.pageIndex = 0);
+
+    merge(this.sort.sortChange, this.paginator.page)
+      .pipe(
+        startWith({}),
+        switchMap(() => {
+          this.isLoadingResults = true;
+          return this.odataService.getQuestionBankItems(
+          );
+        }),
+        map(data => {
+          // Flip flag to show that loading has finished.
+          this.isLoadingResults = false;
+          this.resultsLength = data.total_count;
+
+          return data.items;
+        }),
+        catchError(() => {
+          this.isLoadingResults = false;
+          return observableOf([]);
+        })
+      ).subscribe(data => this.data = data);
   }
-
 }

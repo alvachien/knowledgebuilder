@@ -82,4 +82,29 @@ export class ODataService {
         return throwError(error.statusText + '; ' + error.error + '; ' + error.message);
       }));
   }
+
+  public getQuestionBankItems(): Observable<any> {
+    let headers: HttpHeaders = new HttpHeaders();
+    headers = headers.append('Content-Type', 'application/json')
+              .append('Accept', 'application/json');
+
+    let params: HttpParams = new HttpParams();
+    params = params.append('$top', '100');
+    params = params.append('$count', 'true');
+    params = params.append('$select', 'ID,KnowledgeItemID,ParentID,QBType,Content');
+    return this.http.get(`${this.apiUrl}QuestionBankItems`, {
+        headers,
+        params,
+      })
+      .pipe(map((response: HttpResponse<any>) => {
+        const rjs = response as any;
+        return {
+          total_count: rjs['@odata.count'],
+          items: rjs.value as any[]
+        };
+      }),
+      catchError((error: HttpErrorResponse) => {
+        return throwError(error.statusText + '; ' + error.error + '; ' + error.message);
+      }));
+  }
 }

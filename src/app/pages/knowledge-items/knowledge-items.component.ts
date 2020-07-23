@@ -1,15 +1,15 @@
-import { HttpClient } from '@angular/common/http';
 import { Component, OnInit, ViewChild, AfterViewInit } from '@angular/core';
 import { MatPaginator } from '@angular/material/paginator';
 import { MatSort } from '@angular/material/sort';
 import { merge, Observable, of as observableOf } from 'rxjs';
 import { catchError, map, startWith, switchMap } from 'rxjs/operators';
+
 import { ODataService } from '../../services';
 
 @Component({
   selector: 'app-knowledge-items',
   templateUrl: './knowledge-items.component.html',
-  styleUrls: ['./knowledge-items.component.scss']
+  styleUrls: ['./knowledge-items.component.scss'],
 })
 export class KnowledgeItemsComponent implements AfterViewInit {
   displayedColumns: string[] = ['id', 'category', 'title', 'createdat'];

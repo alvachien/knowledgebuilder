@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 
 import { MonacoEditorModule } from 'ngx-monaco-editor';
 import { MarkdownModule, MarkedOptions } from 'ngx-markdown';
+import { MaterialModulesModule } from '../../material-modules';
 
 import { QuestionBankItemsRoutingModule } from './question-bank-items-routing.module';
 import { QuestionBankItemsComponent } from './question-bank-items.component';
@@ -20,6 +21,7 @@ import { QuestionBankItemDetailComponent } from './question-bank-item-detail/que
 
     MonacoEditorModule,
     MarkdownModule.forChild(),
+    MaterialModulesModule,
   ]
 })
 export class QuestionBankItemsModule { }
