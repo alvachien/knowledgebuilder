@@ -13,7 +13,7 @@ import { ODataService } from '../../services';
 })
 export class QuestionBankItemsComponent implements AfterViewInit {
 
-  displayedColumns: string[] = ['id', 'category', 'title', 'createdat'];
+  displayedColumns: string[] = ['id', 'kid', 'parent', 'type'];
   data: any[] = [];
 
   resultsLength = 0;

@@ -58,6 +58,30 @@ export class ODataService {
       }));
   }
 
+  public getKnowledgeItem(kid: number): Observable<any> {
+    let headers: HttpHeaders = new HttpHeaders();
+    headers = headers.append('Content-Type', 'application/json')
+              .append('Accept', 'application/json');
+
+    let params: HttpParams = new HttpParams();
+    params = params.append('$select', 'ID,Category,Title,Content');
+    params = params.append('$expand', 'QuestionBankItems');
+    return this.http.get(`${this.apiUrl}KnowledgeItems(${kid})`, {
+        headers,
+        params,
+      })
+      .pipe(map((response: HttpResponse<any>) => {
+        const rjs = response as any;
+        return {
+          total_count: rjs['@odata.count'],
+          items: rjs.value as any[]
+        };
+      }),
+      catchError((error: HttpErrorResponse) => {
+        return throwError(error.statusText + '; ' + error.error + '; ' + error.message);
+      }));
+  }
+
   public createKnowledgeItem(ki: any): Observable<any> {
     let headers: HttpHeaders = new HttpHeaders();
     headers = headers.append('Content-Type', 'application/json')

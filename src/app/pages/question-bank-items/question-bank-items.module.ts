@@ -1,5 +1,6 @@
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 
 import { MonacoEditorModule } from 'ngx-monaco-editor';
 import { MarkdownModule, MarkedOptions } from 'ngx-markdown';
@@ -17,6 +18,8 @@ import { QuestionBankItemDetailComponent } from './question-bank-item-detail/que
   ],
   imports: [
     CommonModule,
+    FormsModule,
+    ReactiveFormsModule,
     QuestionBankItemsRoutingModule,
 
     MonacoEditorModule,
