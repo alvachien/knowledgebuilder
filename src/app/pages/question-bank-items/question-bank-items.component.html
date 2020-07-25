@@ -20,7 +20,11 @@
             <!-- ID Column -->
             <ng-container matColumnDef="id">
                 <th mat-header-cell *matHeaderCellDef>#</th>
-                <td mat-cell *matCellDef="let row">{{row.ID}}</td>
+                <td mat-cell *matCellDef="let row">
+                    {{row.ID}}
+                    <a mat-button routerLink="display/{{row.ID}}">Display</a>
+                    <a mat-button routerLink="edit/{{row.ID}}">Edit</a>
+                </td>
             </ng-container>
 
             <!-- KID Column -->

@@ -7,12 +7,13 @@
         <form [formGroup]="itemFormGroup">
             <!-- ID -->
             <div class="achih-control-full-width">
+                <input matInput type="text" placeholder="ID" formControlName="idControl">
             </div>
 
             <!-- Title -->
             <mat-form-field class="control-full-width">
-                <input matInput type="text" placeholder="Title" formControlName="titleControl"
-                    name="title" #title maxlength="30">
+                <input matInput type="text" placeholder="Title" formControlName="titleControl" name="title" #title
+                    maxlength="30">
                 <mat-hint align="end">{{title.value.length}} / 30</mat-hint>
             </mat-form-field>
 
@@ -23,16 +24,48 @@
         </form>
 
         <div class="control-full-width">
-            <div fxFlex="50">
+            <div *ngIf="!isDisplayMode" fxFlex="50">
                 <ngx-monaco-editor [options]="editorOptions" [(ngModel)]="content"></ngx-monaco-editor>
             </div>
             <div fxFlex>
                 <markdown emoji [data]="content" katex [katexOptions]="mathOptions"></markdown>
             </div>
         </div>
+
+        <div *ngIf="!IsCreateMode" class="control-full-width">
+            <mat-divider [inset]="true"></mat-divider>
+            <div class="control-full-width">
+                <table mat-table [dataSource]="qbitems" class="example-table" matSort matSortActive="created"
+                    matSortDisableClear matSortDirection="desc">
+                    <caption align="left">Question Bank Items</caption>
+                    <!-- ID Column -->
+                    <ng-container matColumnDef="id">
+                        <th mat-header-cell *matHeaderCellDef>#</th>
+                        <td mat-cell *matCellDef="let row">{{row.ID}}</td>
+                    </ng-container>
+
+                    <!-- Parent Column -->
+                    <ng-container matColumnDef="parent">
+                        <th mat-header-cell *matHeaderCellDef>Parent</th>
+                        <td mat-cell *matCellDef="let row">{{row.ParentID}}</td>
+                    </ng-container>
+
+                    <!-- QBType Column -->
+                    <ng-container matColumnDef="type">
+                        <th mat-header-cell *matHeaderCellDef>Type</th>
+                        <td mat-cell *matCellDef="let row">{{row.QBType}}</td>
+                    </ng-container>
+
+                    <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+                    <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+                </table>
+            </div>
+
+            <mat-paginator [pageSize]="30"></mat-paginator>
+        </div>
     </mat-card-content>
     <mat-card-actions>
-        <button mat-button (click)="onOK()">OK</button>
-        <button mat-button>SHARE</button>
-    </mat-card-actions>    
+        <button mat-button (click)="onOK()">SAVE</button>
+        <button mat-button>CANCEL</button>
+    </mat-card-actions>
 </mat-card>

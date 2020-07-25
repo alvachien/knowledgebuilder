@@ -7,13 +7,22 @@
         <form [formGroup]="itemFormGroup">
             <!-- ID -->
             <div class="achih-control-full-width">
+                <input matInput type="text" placeholder="ID" formControlName="idControl">
             </div>
 
-            <!-- Title -->
+            <!-- Knowledge Item ID -->
             <mat-form-field class="control-full-width">
-                <input matInput type="text" placeholder="Title" formControlName="titleControl"
-                    name="title" #title maxlength="30">
-                <mat-hint align="end">{{title.value.length}} / 30</mat-hint>
+                <input matInput type="text" placeholder="Knowledge Item" formControlName="knowledgeControl">
+            </mat-form-field>
+
+            <!-- Parent ID -->
+            <mat-form-field class="control-full-width">
+                <input matInput type="text" placeholder="Parent" formControlName="parentControl">
+            </mat-form-field>
+            
+            <!-- QB Type -->
+            <mat-form-field class="control-full-width">
+                <input matInput type="text" placeholder="Type" formControlName="typeControl">
             </mat-form-field>
 
             <!-- Content -->
@@ -23,7 +32,7 @@
         </form>
 
         <div class="control-full-width">
-            <div fxFlex="50">
+            <div *ngIf="!isDisplayMode"  fxFlex="50">
                 <ngx-monaco-editor [options]="editorOptions" [(ngModel)]="content"></ngx-monaco-editor>
             </div>
             <div fxFlex>

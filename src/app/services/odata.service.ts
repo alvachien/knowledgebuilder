@@ -58,7 +58,7 @@ export class ODataService {
       }));
   }
 
-  public getKnowledgeItem(kid: number): Observable<any> {
+  public readKnowledgeItem(kid: number): Observable<any> {
     let headers: HttpHeaders = new HttpHeaders();
     headers = headers.append('Content-Type', 'application/json')
               .append('Accept', 'application/json');
@@ -71,11 +71,7 @@ export class ODataService {
         params,
       })
       .pipe(map((response: HttpResponse<any>) => {
-        const rjs = response as any;
-        return {
-          total_count: rjs['@odata.count'],
-          items: rjs.value as any[]
-        };
+        return response as any;
       }),
       catchError((error: HttpErrorResponse) => {
         return throwError(error.statusText + '; ' + error.error + '; ' + error.message);
@@ -126,6 +122,48 @@ export class ODataService {
           total_count: rjs['@odata.count'],
           items: rjs.value as any[]
         };
+      }),
+      catchError((error: HttpErrorResponse) => {
+        return throwError(error.statusText + '; ' + error.error + '; ' + error.message);
+      }));
+  }
+
+  public createQuestionBankItem(qbi: any): Observable<any> {
+    let headers: HttpHeaders = new HttpHeaders();
+    headers = headers.append('Content-Type', 'application/json')
+              .append('Accept', 'application/json');
+
+    // let params: HttpParams = new HttpParams();
+    return this.http.post(`${this.apiUrl}QuestionBankItems`, qbi, {
+        headers,
+        // params,
+      })
+      .pipe(map((response: HttpResponse<any>) => {
+        const rjs = response as any;
+        return {
+          total_count: rjs['@odata.count'],
+          items: rjs.value as any[]
+        };
+      }),
+      catchError((error: HttpErrorResponse) => {
+        return throwError(error.statusText + '; ' + error.error + '; ' + error.message);
+      }));
+  }
+
+  public readQuestionBankItem(qbid: number): Observable<any> {
+    let headers: HttpHeaders = new HttpHeaders();
+    headers = headers.append('Content-Type', 'application/json')
+              .append('Accept', 'application/json');
+
+    let params: HttpParams = new HttpParams();
+    // params = params.append('$select', 'ID,KnowledgeItemID,ParentID,QBType,Content');
+    // params = params.append('$expand', 'SubItems');
+    return this.http.get(`${this.apiUrl}QuestionBankItems(${qbid})`, {
+        headers,
+        // params,
+      })
+      .pipe(map((response: HttpResponse<any>) => {
+        return response as any;
       }),
       catchError((error: HttpErrorResponse) => {
         return throwError(error.statusText + '; ' + error.error + '; ' + error.message);
