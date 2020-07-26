@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
-import { HttpParams, HttpClient, HttpHeaders, HttpResponse, HttpRequest, HttpErrorResponse } from '@angular/common/http';
+import { HttpParams, HttpClient, HttpHeaders, HttpResponse, HttpRequest, HttpErrorResponse, HttpEventType } from '@angular/common/http';
 
-import { Observable, throwError } from 'rxjs';
+import { Observable, throwError, Subject } from 'rxjs';
 import { map, catchError } from 'rxjs/operators';
 
 @Injectable({
@@ -9,6 +9,7 @@ import { map, catchError } from 'rxjs/operators';
 })
 export class ODataService {
   apiUrl = `https://localhost:44355/odata/`;
+  uploadUrl = `https://localhost:44355/api/ImageUpload`;
 
   constructor(private http: HttpClient,
     ) { }
@@ -168,5 +169,52 @@ export class ODataService {
       catchError((error: HttpErrorResponse) => {
         return throwError(error.statusText + '; ' + error.error + '; ' + error.message);
       }));
+  }
+
+  public uploadFiles(files: Set<File>):
+    { [key: string]: { progress: Observable<number> } } {
+
+    // this will be the our resulting map
+    const status: { [key: string]: { progress: Observable<number> } } = {};
+
+    files.forEach(file => {
+      // create a new multipart-form for every file
+      const formData: FormData = new FormData();
+      formData.append('file', file, file.name);
+
+      // create a http-post request and pass the form
+      // tell it to report the upload progress
+      const req = new HttpRequest('POST', this.uploadUrl, formData, {
+        reportProgress: true
+      });
+
+      // create a new progress-subject for every file
+      const progress = new Subject<number>();
+
+      // send the http-request and subscribe for progress-updates
+      this.http.request(req).subscribe(event => {
+        if (event.type === HttpEventType.UploadProgress) {
+
+          // calculate the progress percentage
+          const percentDone = Math.round(100 * event.loaded / event.total);
+
+          // pass the percentage into the progress-stream
+          progress.next(percentDone);
+        } else if (event instanceof HttpResponse) {
+
+          // Close the progress-stream if we get an answer form the API
+          // The upload is complete
+          progress.complete();
+        }
+      });
+
+      // Save every progress-observable in a map of all observables
+      status[file.name] = {
+        progress: progress.asObservable()
+      };
+    });
+
+    // return the map of progress.observables
+    return status;
   }
 }

@@ -31,12 +31,15 @@
             </mat-form-field> -->
         </form>
 
-        <div class="control-full-width">
+        <div fxLayout="row" class="control-full-width" style="height: 500px;">
             <div *ngIf="!isDisplayMode"  fxFlex="50">
-                <ngx-monaco-editor [options]="editorOptions" [(ngModel)]="content"></ngx-monaco-editor>
+                <mat-toolbar>
+                    <span>My Application</span>
+                </mat-toolbar>                
+                <ngx-monaco-editor [options]="editorOptions" [(ngModel)]="content" style="height: 100%;"></ngx-monaco-editor>
             </div>
             <div fxFlex>
-                <markdown emoji [data]="content" katex [katexOptions]="mathOptions"></markdown>
+                <markdown emoji [data]="content" katex [katexOptions]="mathOptions" style="height: 100%;"></markdown>
             </div>
         </div>
     </mat-card-content>

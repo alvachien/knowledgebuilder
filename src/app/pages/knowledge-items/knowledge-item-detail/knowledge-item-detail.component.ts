@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Component, OnInit, OnDestroy, ViewChild } from '@angular/core';
 import { FormGroup, FormControl, Validators } from '@angular/forms';
 import { ReplaySubject } from 'rxjs';
 import { ActivatedRoute } from '@angular/router';
@@ -15,6 +15,8 @@ export class KnowledgeItemDetailComponent implements OnInit, OnDestroy {
 
   private _destroyed$: ReplaySubject<boolean>;
   private routerID = -1;
+  @ViewChild('file') file;
+  public files: Set<File> = new Set();
 
   currentMode: string;
   // Generic info
@@ -131,6 +133,18 @@ export class KnowledgeItemDetailComponent implements OnInit, OnDestroy {
           // Error
         }
       });
+    }
+  }
+
+  addFiles() {
+    this.file.nativeElement.click();
+  }
+  onFilesAdded() {
+    const files: { [key: string]: File } = this.file.nativeElement.files;
+    for (let key in files) {
+      if (!isNaN(parseInt(key))) {
+        this.files.add(files[key]);
+      }
     }
   }
 }
