@@ -10,14 +10,10 @@ import { MonacoEditorModule } from 'ngx-monaco-editor';
 import { MarkdownModule, MarkedOptions } from 'ngx-markdown';
 
 import { ODataService } from './services';
-// import { CodeEditorComponent } from './pages/code-editor/code-editor.component';
-// import { MarkdownEditorComponent } from './pages/markdown-editor/markdown-editor.component';
 
 @NgModule({
   declarations: [
     AppComponent,
-    // CodeEditorComponent,
-    // MarkdownEditorComponent,
   ],
   imports: [
     BrowserModule,
