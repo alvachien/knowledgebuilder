@@ -6,26 +6,26 @@ import { MonacoEditorModule } from 'ngx-monaco-editor';
 import { MarkdownModule, MarkedOptions } from 'ngx-markdown';
 
 import { MaterialModulesModule } from '../../material-modules';
-import { ImageUploadModule } from '../image-upload/image-upload.module';
-import { KnowledgeItemsRoutingModule } from './knowledge-items-routing.module';
-import { KnowledgeItemsComponent } from './knowledge-items.component';
-import { KnowledgeItemDetailComponent } from './knowledge-item-detail/knowledge-item-detail.component';
+import { ImageUploadComponent } from './image-upload.component';
 
 
 @NgModule({
   declarations: [
-    KnowledgeItemsComponent,
-    KnowledgeItemDetailComponent,
+    ImageUploadComponent,
+  ],
+  entryComponents: [
+    ImageUploadComponent,
   ],
   imports: [
     CommonModule,
     FormsModule,
     ReactiveFormsModule,
     MaterialModulesModule,
-    ImageUploadModule,
     MonacoEditorModule,
     MarkdownModule.forChild(),
-    KnowledgeItemsRoutingModule,
   ],
+  exports: [
+      ImageUploadComponent,
+  ]
 })
-export class KnowledgeItemsModule { }
+export class ImageUploadModule { }

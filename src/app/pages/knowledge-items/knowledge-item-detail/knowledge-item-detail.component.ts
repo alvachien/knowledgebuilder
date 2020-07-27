@@ -2,9 +2,11 @@ import { Component, OnInit, OnDestroy, ViewChild } from '@angular/core';
 import { FormGroup, FormControl, Validators } from '@angular/forms';
 import { ReplaySubject } from 'rxjs';
 import { ActivatedRoute } from '@angular/router';
+import { MatDialog } from '@angular/material/dialog';
 import { KatexOptions } from 'ngx-markdown';
 
 import { ODataService } from '../../../services';
+import { ImageUploadComponent } from '../../image-upload/image-upload.component';
 
 @Component({
   selector: 'app-knowledge-item-detail',
@@ -15,8 +17,6 @@ export class KnowledgeItemDetailComponent implements OnInit, OnDestroy {
 
   private _destroyed$: ReplaySubject<boolean>;
   private routerID = -1;
-  @ViewChild('file') file;
-  public files: Set<File> = new Set();
 
   currentMode: string;
   // Generic info
@@ -40,6 +40,7 @@ export class KnowledgeItemDetailComponent implements OnInit, OnDestroy {
   }
 
   constructor(
+    public dialog: MatDialog,
     private activateRoute: ActivatedRoute,
     private odataService: ODataService) {
     this.itemFormGroup = new FormGroup({
@@ -136,15 +137,12 @@ export class KnowledgeItemDetailComponent implements OnInit, OnDestroy {
     }
   }
 
-  addFiles() {
-    this.file.nativeElement.click();
-  }
-  onFilesAdded() {
-    const files: { [key: string]: File } = this.file.nativeElement.files;
-    for (let key in files) {
-      if (!isNaN(parseInt(key))) {
-        this.files.add(files[key]);
+  openUploadDialog() {
+    let dialogRef = this.dialog.open(ImageUploadComponent, { width: '50%', height: '50%' });
+    dialogRef.afterClosed().subscribe({
+      next: val => {
+        console.log(val);
       }
-    }
+    });
   }
 }
