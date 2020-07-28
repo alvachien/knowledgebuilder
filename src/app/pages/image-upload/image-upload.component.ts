@@ -40,7 +40,7 @@ export class ImageUploadComponent implements OnInit {
   closeDialog() {
     // if everything was uploaded already, just close the dialog
     if (this.uploadSuccessful) {
-      return this.dialogRef.close();
+      return this.dialogRef.close(this.progress);
     }
 
     // set the component state to "uploading"
@@ -48,9 +48,11 @@ export class ImageUploadComponent implements OnInit {
 
     // start the upload and save the progress map
     this.progress = this.uploadService.uploadFiles(this.files);
-    console.log(this.progress);
+    // console.log(this.progress);
     for (const key in this.progress) {
-      this.progress[key].progress.subscribe(val => console.log(val));
+      this.progress[key].progress.subscribe(val => {
+        console.log(val);
+      });
     }
 
     // convert the progress map into an array

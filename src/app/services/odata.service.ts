@@ -172,10 +172,10 @@ export class ODataService {
   }
 
   public uploadFiles(files: Set<File>):
-    { [key: string]: { progress: Observable<number> } } {
+    { [key: string]: { progress: Observable<number>, imgurl: string } } {
 
     // this will be the our resulting map
-    const status: { [key: string]: { progress: Observable<number> } } = {};
+    const status: { [key: string]: { progress: Observable<number>, imgurl: string } } = {};
 
     files.forEach(file => {
       // create a new multipart-form for every file
@@ -190,6 +190,7 @@ export class ODataService {
 
       // create a new progress-subject for every file
       const progress = new Subject<number>();
+      let imgurl = '';
 
       // send the http-request and subscribe for progress-updates
       this.http.request(req).subscribe(event => {
@@ -201,7 +202,7 @@ export class ODataService {
           // pass the percentage into the progress-stream
           progress.next(percentDone);
         } else if (event instanceof HttpResponse) {
-
+          imgurl = event.body[0].url;
           // Close the progress-stream if we get an answer form the API
           // The upload is complete
           progress.complete();
@@ -210,7 +211,8 @@ export class ODataService {
 
       // Save every progress-observable in a map of all observables
       status[file.name] = {
-        progress: progress.asObservable()
+        progress: progress.asObservable(),
+        imgurl,
       };
     });
 
