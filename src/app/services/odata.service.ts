@@ -8,8 +8,9 @@ import { map, catchError } from 'rxjs/operators';
   providedIn: 'root'
 })
 export class ODataService {
-  apiUrl = `https://localhost:44355/odata/`;
-  uploadUrl = `https://localhost:44355/api/ImageUpload`;
+  apiRoot = `https://localhost:44355`;
+  apiUrl = `${this.apiRoot}/odata/`;
+  uploadUrl = `${this.apiRoot}/api/ImageUpload`;
 
   constructor(private http: HttpClient,
     ) { }
@@ -172,10 +173,10 @@ export class ODataService {
   }
 
   public uploadFiles(files: Set<File>):
-    { [key: string]: { progress: Observable<number>, imgurl: string } } {
+    { [key: string]: { result: Observable<any> } } {
 
     // this will be the our resulting map
-    const status: { [key: string]: { progress: Observable<number>, imgurl: string } } = {};
+    const status: { [key: string]: { result: Observable<any> } } = {};
 
     files.forEach(file => {
       // create a new multipart-form for every file
@@ -184,35 +185,32 @@ export class ODataService {
 
       // create a http-post request and pass the form
       // tell it to report the upload progress
-      const req = new HttpRequest('POST', this.uploadUrl, formData, {
-        reportProgress: true
-      });
+      const req = new HttpRequest('POST', this.uploadUrl, formData);
 
       // create a new progress-subject for every file
-      const progress = new Subject<number>();
-      let imgurl = '';
+      const result = new Subject<any>();
 
       // send the http-request and subscribe for progress-updates
       this.http.request(req).subscribe(event => {
-        if (event.type === HttpEventType.UploadProgress) {
+        if (event instanceof HttpResponse) {
+          result.next({
+            delete_type: event.body[0].delete_type,
+            delete_url: `${this.apiRoot}${event.body[0].delete_url}`,
+            name: event.body[0].name,
+            progress: 1,
+            size: event.body[0].size,
+            thumbnail_url: `${this.apiRoot}${event.body[0].thumbnail_url}`,
+            type: event.body[0].type,
+            url: `${this.apiRoot}${event.body[0].url}`,
+          });
 
-          // calculate the progress percentage
-          const percentDone = Math.round(100 * event.loaded / event.total);
-
-          // pass the percentage into the progress-stream
-          progress.next(percentDone);
-        } else if (event instanceof HttpResponse) {
-          imgurl = event.body[0].url;
-          // Close the progress-stream if we get an answer form the API
-          // The upload is complete
-          progress.complete();
+          result.complete();
         }
       });
 
       // Save every progress-observable in a map of all observables
       status[file.name] = {
-        progress: progress.asObservable(),
-        imgurl,
+        result: result.asObservable()
       };
     });
 

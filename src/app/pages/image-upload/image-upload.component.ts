@@ -13,12 +13,13 @@ export class ImageUploadComponent implements OnInit {
   @ViewChild('file', { static: false }) file;
 
   public files: Set<File> = new Set();
-  progress;
+  results;
   canBeClosed = true;
   primaryButtonText = 'Upload';
   showCancelButton = true;
   uploading = false;
   uploadSuccessful = false;
+  uploadResults: any[] = [];
 
   constructor(public dialogRef: MatDialogRef<ImageUploadComponent>, public uploadService: ODataService) { }
 
@@ -40,25 +41,26 @@ export class ImageUploadComponent implements OnInit {
   closeDialog() {
     // if everything was uploaded already, just close the dialog
     if (this.uploadSuccessful) {
-      return this.dialogRef.close(this.progress);
+      return this.dialogRef.close(this.uploadResults);
     }
 
     // set the component state to "uploading"
     this.uploading = true;
 
     // start the upload and save the progress map
-    this.progress = this.uploadService.uploadFiles(this.files);
+    this.results = this.uploadService.uploadFiles(this.files);
     // console.log(this.progress);
-    for (const key in this.progress) {
-      this.progress[key].progress.subscribe(val => {
-        console.log(val);
+    for (const key in this.results) {
+      this.results[key].result.subscribe(val => {
+        // console.log(val);
+        this.uploadResults.push(val);
       });
     }
 
     // convert the progress map into an array
     let allProgressObservables = [];
-    for (let key in this.progress) {
-      allProgressObservables.push(this.progress[key].progress);
+    for (let key in this.results) {
+      allProgressObservables.push(this.results[key].result);
     }
 
     // Adjust the state variables
@@ -72,6 +74,7 @@ export class ImageUploadComponent implements OnInit {
 
     // Hide the cancel-button
     this.showCancelButton = false;
+
 
     // When all progress-observables are completed...
     forkJoin(allProgressObservables).subscribe(end => {

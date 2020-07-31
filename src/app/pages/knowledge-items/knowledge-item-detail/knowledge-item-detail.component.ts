@@ -142,6 +142,12 @@ export class KnowledgeItemDetailComponent implements OnInit, OnDestroy {
     dialogRef.afterClosed().subscribe({
       next: val => {
         console.log(val);
+
+        val.forEach(entry => {
+          this.content += `
+            ![Img](${entry.url})
+          `;
+        });
         // {
         //   [key: string]: {
         //       progress: Observable<number>;
