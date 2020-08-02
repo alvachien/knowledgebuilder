@@ -34,12 +34,12 @@
         <div fxLayout="row" class="control-full-width" style="height: 500px;">
             <div *ngIf="!isDisplayMode"  fxFlex="50">
                 <mat-toolbar>
-                    <span>My Application</span>
+                    <button mat-raised-button (click)="openUploadDialog()">Upload</button>
                 </mat-toolbar>                
                 <ngx-monaco-editor [options]="editorOptions" [(ngModel)]="content" style="height: 100%;"></ngx-monaco-editor>
             </div>
             <div fxFlex>
-                <markdown emoji [data]="content" katex [katexOptions]="mathOptions" style="height: 100%;"></markdown>
+                <markdown emoji [data]="content" katex [katexOptions]="mathOptions"></markdown>
             </div>
         </div>
     </mat-card-content>

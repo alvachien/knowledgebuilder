@@ -1,15 +1,17 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { FormGroup, FormControl, Validators } from '@angular/forms';
 import { ReplaySubject } from 'rxjs';
+import { MatDialog } from '@angular/material/dialog';
 import { ActivatedRoute } from '@angular/router';
 import { KatexOptions } from 'ngx-markdown';
 
 import { ODataService } from '../../../services';
+import { ImageUploadComponent } from '../../image-upload/image-upload.component';
 
 @Component({
   selector: 'app-question-bank-item-detail',
   templateUrl: './question-bank-item-detail.component.html',
-  styleUrls: ['./question-bank-item-detail.component.scss']
+  styleUrls: ['./question-bank-item-detail.component.scss'],
 })
 export class QuestionBankItemDetailComponent implements OnInit, OnDestroy {
 
@@ -31,6 +33,7 @@ export class QuestionBankItemDetailComponent implements OnInit, OnDestroy {
   }
 
   constructor(
+    public dialog: MatDialog,
     private activateRoute: ActivatedRoute,
     private odataService: ODataService) {
     this.itemFormGroup = new FormGroup({
@@ -128,5 +131,26 @@ export class QuestionBankItemDetailComponent implements OnInit, OnDestroy {
         }
       });
     }
+  }
+
+  openUploadDialog() {
+    let dialogRef = this.dialog.open(ImageUploadComponent, { width: '50%', height: '50%' });
+    dialogRef.afterClosed().subscribe({
+      next: val => {
+        console.log(val);
+
+        val.forEach(entry => {
+          this.content += `
+![Img](${entry.url})
+          `;
+        });
+        // {
+        //   [key: string]: {
+        //       progress: Observable<number>;
+        //       imgurl: string;
+        //   };
+        // }
+      }
+    });
   }
 }

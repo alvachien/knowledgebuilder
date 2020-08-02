@@ -145,7 +145,7 @@ export class KnowledgeItemDetailComponent implements OnInit, OnDestroy {
 
         val.forEach(entry => {
           this.content += `
-            ![Img](${entry.url})
+![Img](${entry.url})
           `;
         });
         // {
