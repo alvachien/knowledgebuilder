@@ -16,3 +16,12 @@ td {
 .mat-card-actions {
   margin-top: 50px;
 }
+
+.example-table-container {
+  position: relative;
+  max-height: 400px;
+  overflow: auto;
+  width: 100%;
+  margin-top: 8px;
+  margin-bottom: 8px;
+}

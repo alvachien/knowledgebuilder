@@ -23,6 +23,9 @@ export class QuestionBankItemDetailComponent implements OnInit, OnDestroy {
   public itemFormGroup: FormGroup;
   editorOptions = { theme: 'vs-dark' };
   content = `New Question Bank Item`;
+  // Sub items
+  subItems: any[];
+  displayedSubItemColumns: string[] = ['subid', 'type', 'content'];
   public mathOptions: KatexOptions = {
     displayMode: true,
     throwOnError: false,
@@ -68,7 +71,7 @@ export class QuestionBankItemDetailComponent implements OnInit, OnDestroy {
         if (this.routerID !== -1) {
           this.odataService.readQuestionBankItem(this.routerID)
             .subscribe({
-              next: val => {
+              next: (val: any) => {
                 this.itemFormGroup.get('idControl').setValue(val.ID);
                 this.itemFormGroup.get('idControl').disable();
                 this.itemFormGroup.get('knowledgeControl').setValue(val.KnowledgeItemID);
