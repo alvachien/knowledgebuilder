@@ -1,15 +1,30 @@
-<mat-vertical-stepper linear="isLinear" #stepper>
-  <mat-step [stepControl]="firstFormGroup">
-    <form [formGroup]="firstFormGroup">
-      <ng-template matStepLabel>Fill out your name</ng-template>
-      <mat-form-field>
-        <mat-label>Name</mat-label>
-        <input matInput placeholder="Last name, First name" formControlName="firstCtrl" required>
-      </mat-form-field>
+<mat-vertical-stepper linear #stepper>
+  <mat-step>
+    <ng-template matStepLabel>Choose quiz type</ng-template>
+    <div>
+      <label id="example-radio-group-label">Quiz type</label>
+      <mat-radio-group
+        aria-labelledby="example-radio-group-label"
+        class="example-radio-group"
+        [(ngModel)]="chosenType">
+        <mat-radio-button class="example-radio-button" *ngFor="let qtype of quizTypes" [value]="qtype">
+          {{qtype}}
+        </mat-radio-button>
+      </mat-radio-group>
+      <div *ngIf="chosenType == 'Arithmetic'">
+        <span class="example-list-section">
+          <ul>
+            <li><mat-checkbox [(ngModel)]="addMode">Addition</mat-checkbox></li>
+            <li><mat-checkbox [(ngModel)]="subMode">Subtraction</mat-checkbox></li>
+            <li><mat-checkbox [(ngModel)]="multiMode">Multiplication</mat-checkbox></li>
+            <li><mat-checkbox [(ngModel)]="divisionMode">Division</mat-checkbox></li>
+          </ul>
+        </span>
+      </div>
       <div>
         <button mat-button matStepperNext>Next</button>
       </div>
-    </form>
+    </div>
   </mat-step>
   <mat-step [stepControl]="secondFormGroup">
     <form [formGroup]="secondFormGroup">

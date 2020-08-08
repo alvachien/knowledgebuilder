@@ -24,8 +24,11 @@ export class QuestionBankItemDetailComponent implements OnInit, OnDestroy {
   editorOptions = { theme: 'vs-dark' };
   content = `New Question Bank Item`;
   // Sub items
-  subItems: any[];
+  subItems: any[] = [];
   displayedSubItemColumns: string[] = ['subid', 'type', 'content'];
+  isSubItemEditing = false;
+  subItemID = '';
+  subItemContent = `New Sub Item`;
   public mathOptions: KatexOptions = {
     displayMode: true,
     throwOnError: false,
@@ -155,5 +158,29 @@ export class QuestionBankItemDetailComponent implements OnInit, OnDestroy {
         // }
       }
     });
+  }
+
+  ///
+  /// Sub Item opertions
+  ///
+  // Create
+  onCreateSubItem(): void {
+    this.isSubItemEditing = true;
+  }
+  // Done
+  onSubItemDone(): void {
+    this.subItems = [...this.subItems, {
+      SubID: this.subItemID,
+      QBType: 1,
+      Content: this.subItemContent,
+    }];
+
+    this.isSubItemEditing = false;
+  }
+  // Cancel
+  onSubItemCancel(): void {
+    this.subItemID = ``;
+    this.subItemContent = `New Sub Content`;
+    this.isSubItemEditing = false;
   }
 }

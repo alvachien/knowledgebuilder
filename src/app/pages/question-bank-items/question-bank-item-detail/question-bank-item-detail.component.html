@@ -31,26 +31,24 @@
             </mat-form-field> -->
         </form>
 
+        <mat-toolbar *ngIf="!isDisplayMode">
+            <button mat-raised-button (click)="openUploadDialog()">Upload</button>
+        </mat-toolbar>
+
         <div fxLayout="row" class="example-table-container">
-            <div *ngIf="!isDisplayMode" fxFlex="50">
-                <mat-toolbar>
-                    <button mat-raised-button (click)="openUploadDialog()">Upload</button>
-                </mat-toolbar>
+            <div fxFlex="50" style="margin-right: 8px;">
                 <ngx-monaco-editor [options]="editorOptions" [(ngModel)]="content" style="height: 100%;">
                 </ngx-monaco-editor>
             </div>
-            <div fxFlex>
+            <div fxFlex style="margin-left:8px;">
                 <markdown emoji [data]="content" katex [katexOptions]="mathOptions"></markdown>
             </div>
         </div>
 
-        <mat-divider></mat-divider>
+        <mat-toolbar *ngIf="!isDisplayMode">
+            <button mat-raised-button (click)="onCreateSubItem()">Create</button>
+        </mat-toolbar>
 
-        <div fxLayout="row" class="example-table-container">
-            <mat-toolbar>
-                <button mat-raised-button>Create</button>
-            </mat-toolbar>
-        </div>
         <div fxLayout="row" class="example-table-container">
             <table mat-table [dataSource]="subItems" class="example-table">
                 <!-- ID Column -->
@@ -76,11 +74,30 @@
 
                 <tr mat-header-row *matHeaderRowDef="displayedSubItemColumns"></tr>
                 <tr mat-row *matRowDef="let row; columns: displayedSubItemColumns;"></tr>
-            </table>    
+            </table>
+        </div>
+
+        <div fxLayout="column" class="sub-item-editing" *ngIf="isSubItemEditing">
+            <div>
+                <input matInput type="text" placeholder="Sub ID" [(ngModel)]="subItemID">
+            </div>
+            <div fxLayout="row" class="example-table-container" >
+                <div fxFlex="50" style="margin-right: 8px;">
+                    <ngx-monaco-editor [options]="editorOptions" [(ngModel)]="subItemContent" style="height: 100%;">
+                    </ngx-monaco-editor>
+                </div>
+                <div fxFlex style="margin-left:8px;">
+                    <markdown emoji [data]="subItemContent" katex [katexOptions]="mathOptions"></markdown>
+                </div>
+            </div>
+            <div>
+                <button mat-raised-button (click)="onSubItemDone()">DONE</button>
+                <button mat-raised-button (click)="onSubItemCancel()">CANCEL</button>
+            </div>
         </div>
     </mat-card-content>
     <mat-card-actions>
         <button mat-button (click)="onOK()">OK</button>
-        <button mat-button>SHARE</button>
+        <button mat-button>CANCEL</button>
     </mat-card-actions>
 </mat-card>

@@ -7,16 +7,17 @@ import { FormBuilder, FormGroup, Validators } from '@angular/forms';
   styleUrls: ['./quiz-create.component.scss']
 })
 export class QuizCreateComponent implements OnInit {
-
-  firstFormGroup: FormGroup;
+  chosenType: string;
+  quizTypes: string[] = ['Arithmetic', 'Spring', 'Summer', 'Autumn'];
+  addMode = false;
+  subMode = false;
+  multiMode = false;
+  divisionMode = false;
   secondFormGroup: FormGroup;
 
   constructor(private _formBuilder: FormBuilder) {}
 
   ngOnInit() {
-    this.firstFormGroup = this._formBuilder.group({
-      firstCtrl: ['', Validators.required]
-    });
     this.secondFormGroup = this._formBuilder.group({
       secondCtrl: ['', Validators.required]
     });
