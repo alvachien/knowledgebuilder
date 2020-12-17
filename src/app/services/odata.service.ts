@@ -26,7 +26,7 @@ export class ODataService {
         headers,
         // params,
       })
-      .pipe(map((response: HttpResponse<any>) => {
+      .pipe(map(response => {
         const rjs = response as unknown as string;
         return rjs;
       }),
@@ -48,7 +48,7 @@ export class ODataService {
         headers,
         params,
       })
-      .pipe(map((response: HttpResponse<any>) => {
+      .pipe(map(response => {
         const rjs = response as any;
         return {
           total_count: rjs['@odata.count'],
@@ -72,7 +72,7 @@ export class ODataService {
         headers,
         params,
       })
-      .pipe(map((response: HttpResponse<any>) => {
+      .pipe(map(response => {
         return response as any;
       }),
       catchError((error: HttpErrorResponse) => {
@@ -93,7 +93,7 @@ export class ODataService {
         headers
         // params,
       })
-      .pipe(map((response: HttpResponse<any>) => {
+      .pipe(map(response => {
         const rjs = response as any;
         return {
           total_count: rjs['@odata.count'],
@@ -118,7 +118,7 @@ export class ODataService {
         headers,
         params,
       })
-      .pipe(map((response: HttpResponse<any>) => {
+      .pipe(map(response => {
         const rjs = response as any;
         return {
           total_count: rjs['@odata.count'],
@@ -140,7 +140,7 @@ export class ODataService {
         headers,
         // params,
       })
-      .pipe(map((response: HttpResponse<any>) => {
+      .pipe(map(response => {
         const rjs = response as any;
         return {
           total_count: rjs['@odata.count'],
@@ -164,7 +164,7 @@ export class ODataService {
         headers,
         // params,
       })
-      .pipe(map((response: HttpResponse<any>) => {
+      .pipe(map(response => {
         return response as any;
       }),
       catchError((error: HttpErrorResponse) => {
