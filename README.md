@@ -1,27 +1,40 @@
-# Knowledgebuilder
+# Knowledge Builder
 
-This project was generated with [Angular CLI](https://github.com/angular/angular-cli) version 9.1.4.
+## Documentations 
 
-## Development server
+本系列之前的文章：
 
-Run `ng serve` for a dev server. Navigate to `http://localhost:4200/`. The app will automatically reload if you change any of the source files.
+- 第一篇 [Part I: 业务场景和存储层设计](https://alvachien.github.io/2019/11/ODataBasedAPI1.html)
 
-## Code scaffolding
+- 第二篇 [Part II: 开发环境及项目设置](https://alvachien.github.io/2019/11/ODataBasedAPI2.html)
 
-Run `ng generate component component-name` to generate a new component. You can also use `ng generate directive|pipe|service|class|guard|interface|enum|module`.
+- 第三篇 [Part III: Model类](https://alvachien.github.io/2019/11/ODataBasedAPI3.html)
 
-## Build
+- 第四篇 [Part IV: Data Context](https://alvachien.github.io/2019/11/ODataBasedAPI4.html)
 
-Run `ng build` to build the project. The build artifacts will be stored in the `dist/` directory. Use the `--prod` flag for a production build.
+- 第五篇 [Part V: Controller](https://alvachien.github.io/2020/07/ODataBasedAPI5.html)
 
-## Running unit tests
+- 第六篇 [Part VI: 为Controller添加CRUD](https://alvachien.github.io/2020/07/ODataBasedAPI6.html)
 
-Run `ng test` to execute the unit tests via [Karma](https://karma-runner.github.io).
+- 第七篇 [Part VII: 用Postman测试](https://alvachien.github.io/2020/07/ODataBasedAPI7.html)
 
-## Running end-to-end tests
+- 第八篇 [Part VIII: Unit Test准备](https://alvachien.github.io/2020/07/ODataBasedAPI8.html)
 
-Run `ng e2e` to execute the end-to-end tests via [Protractor](http://www.protractortest.org/).
+- 第九篇 [Part IX: Angular程序环境准备](https://alvachien.github.io/2020/07/ODataBasedAPI9.html)
 
-## Further help
+- 第十篇 [Part X: 完善Angular程序](https://alvachien.github.io/2020/07/ODataBasedAPI10.html)
 
-To get more help on the Angular CLI use `ng help` or go check out the [Angular CLI README](https://github.com/angular/angular-cli/blob/master/README.md).
+- 第十一篇 [Part XI: 为API添加CORS支持](https://alvachien.github.io/2020/07/ODataBasedAPI11.html)
+
+- 第十二篇 [Part XI: 为API添加CORS支持](https://alvachien.github.io/2020/07/ODataBasedAPI12.html)
+
+## Web API in USE
+Web API in use with Github repo: [Link](https://github.com/alvachien/knowledgebuilderapi)
+
+
+## Credits
+
+- .Net Core
+- SQL Server Express  
+- Microsoft OData
+
