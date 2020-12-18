@@ -34,7 +34,10 @@ Web API in use with Github repo: [Link](https://github.com/alvachien/knowledgebu
 
 ## Credits
 
-- .Net Core
-- SQL Server Express  
-- Microsoft OData
+- Angular
+- Angular Material
+
+# Author  
+
+Alva Chien   
 

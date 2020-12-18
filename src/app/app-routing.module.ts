@@ -9,14 +9,6 @@ const routes: Routes = [
     path: 'knowledge-item',
     loadChildren: () => import('./pages/knowledge-items/knowledge-items.module').then(m => m.KnowledgeItemsModule),
   },
-  {
-    path: 'question-bank-item',
-    loadChildren: () => import('./pages/question-bank-items/question-bank-items.module').then(m => m.QuestionBankItemsModule),
-  },
-  {
-    path: 'quiz',
-    loadChildren: () => import('./pages/quiz/quiz.module').then(m => m.QuizModule),
-  },
 ];
 
 @NgModule({
