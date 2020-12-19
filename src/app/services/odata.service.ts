@@ -110,7 +110,7 @@ export class ODataService {
       }));
   }
 
-  public getQuestionBankItems(): Observable<any> {
+  public getExerciseItems(): Observable<any> {
     let headers: HttpHeaders = new HttpHeaders();
     headers = headers.append('Content-Type', 'application/json')
               .append('Accept', 'application/json');
@@ -119,7 +119,7 @@ export class ODataService {
     params = params.append('$top', '100');
     params = params.append('$count', 'true');
     params = params.append('$select', 'ID,KnowledgeItemID,ParentID,QBType,Content');
-    return this.http.get(`${this.apiUrl}QuestionBankItems`, {
+    return this.http.get(`${this.apiUrl}ExerciseItems`, {
         headers,
         params,
       })
@@ -135,13 +135,13 @@ export class ODataService {
       }));
   }
 
-  public createQuestionBankItem(qbi: any): Observable<any> {
+  public createExerciseItem(qbi: any): Observable<any> {
     let headers: HttpHeaders = new HttpHeaders();
     headers = headers.append('Content-Type', 'application/json')
               .append('Accept', 'application/json');
 
     // let params: HttpParams = new HttpParams();
-    return this.http.post(`${this.apiUrl}QuestionBankItems`, qbi, {
+    return this.http.post(`${this.apiUrl}ExerciseItems`, qbi, {
         headers,
         // params,
       })
@@ -157,7 +157,7 @@ export class ODataService {
       }));
   }
 
-  public readQuestionBankItem(qbid: number): Observable<any> {
+  public readExerciseItem(qbid: number): Observable<any> {
     let headers: HttpHeaders = new HttpHeaders();
     headers = headers.append('Content-Type', 'application/json')
               .append('Accept', 'application/json');
@@ -165,7 +165,7 @@ export class ODataService {
     let params: HttpParams = new HttpParams();
     // params = params.append('$select', 'ID,KnowledgeItemID,ParentID,QBType,Content');
     // params = params.append('$expand', 'SubItems');
-    return this.http.get(`${this.apiUrl}QuestionBankItems(${qbid})`, {
+    return this.http.get(`${this.apiUrl}ExerciseItems(${qbid})`, {
         headers,
         // params,
       })

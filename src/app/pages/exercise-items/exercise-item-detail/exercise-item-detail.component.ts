@@ -22,7 +22,7 @@ export class ExerciseItemDetailComponent implements OnInit, OnDestroy {
   // Generic info
   public itemFormGroup: FormGroup;
   editorOptions = { theme: 'vs-dark' };
-  content = `New Knowledge Item`;
+  content = `New Exercise Item`;
   public mathOptions: KatexOptions = {
     displayMode: true,
     throwOnError: false,
