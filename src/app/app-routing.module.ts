@@ -9,6 +9,10 @@ const routes: Routes = [
     path: 'knowledge-item',
     loadChildren: () => import('./pages/knowledge-items/knowledge-items.module').then(m => m.KnowledgeItemsModule),
   },
+  {
+    path: 'exercise-item',
+    loadChildren: () => import('./pages/exercise-items/exercise-items.module').then(m => m.ExerciseItemsModule),
+  },
 ];
 
 @NgModule({

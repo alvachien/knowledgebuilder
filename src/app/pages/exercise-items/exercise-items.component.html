@@ -1,0 +1,55 @@
+<mat-toolbar-row>
+    <span>Knowledge Items</span>
+    <span class="example-spacer"></span>
+    <section>
+        <div class="example-button-row">
+            <a mat-stroked-button routerLink="create">CREATE</a>
+        </div>
+    </section>
+</mat-toolbar-row>
+
+<div class="example-container mat-elevation-z8">
+    <div class="example-loading-shade" *ngIf="isLoadingResults">
+        <mat-progress-spinner *ngIf="isLoadingResults"></mat-progress-spinner>
+    </div>
+
+    <div class="example-table-container">
+        <table mat-table [dataSource]="data" class="example-table" matSort matSortActive="created" matSortDisableClear
+            matSortDirection="desc">
+            <!-- ID Column -->
+            <ng-container matColumnDef="id">
+                <th mat-header-cell *matHeaderCellDef>#</th>
+                <td mat-cell *matCellDef="let row">
+                    <div>
+                        {{row.ID}}
+                        <a mat-button routerLink="display/{{row.ID}}">Display</a>
+                        <a mat-button routerLink="edit/{{row.ID}}">Edit</a>
+                    </div>
+                </td>
+            </ng-container>
+
+            <!-- Category Column -->
+            <ng-container matColumnDef="category">
+                <th mat-header-cell *matHeaderCellDef>Category</th>
+                <td mat-cell *matCellDef="let row">{{row.Category}}</td>
+            </ng-container>
+
+            <!-- Title Column -->
+            <ng-container matColumnDef="title">
+                <th mat-header-cell *matHeaderCellDef>Title</th>
+                <td mat-cell *matCellDef="let row">{{row.Title}}</td>
+            </ng-container>
+
+            <!-- Created At Column -->
+            <ng-container matColumnDef="createdat">
+                <th mat-header-cell *matHeaderCellDef>Created At</th>
+                <td mat-cell *matCellDef="let row">{{row.CreatedAt}}</td>
+            </ng-container>
+
+            <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+            <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+        </table>
+    </div>
+
+    <mat-paginator [length]="resultsLength" [pageSize]="30"></mat-paginator>
+</div>

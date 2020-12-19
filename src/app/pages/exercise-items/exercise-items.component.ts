@@ -7,11 +7,11 @@ import { catchError, map, startWith, switchMap } from 'rxjs/operators';
 import { ODataService } from '../../services';
 
 @Component({
-  selector: 'app-knowledge-items',
-  templateUrl: './knowledge-items.component.html',
-  styleUrls: ['./knowledge-items.component.scss'],
+  selector: 'app-exercise-items',
+  templateUrl: './exercise-items.component.html',
+  styleUrls: ['./exercise-items.component.scss'],
 })
-export class KnowledgeItemsComponent implements AfterViewInit {
+export class ExerciseItemsComponent implements AfterViewInit {
   displayedColumns: string[] = ['id', 'category', 'title', 'createdat'];
   data: any[] = [];
 

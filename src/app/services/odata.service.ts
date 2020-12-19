@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpParams, HttpClient, HttpHeaders, HttpResponse, HttpRequest, HttpErrorResponse, HttpEventType } from '@angular/common/http';
 
-import { Observable, throwError, Subject } from 'rxjs';
+import { Observable, throwError, Subject, of } from 'rxjs';
 import { map, catchError } from 'rxjs/operators';
 
 @Injectable({
@@ -12,27 +12,32 @@ export class ODataService {
   apiUrl = `${this.apiRoot}/odata/`;
   uploadUrl = `${this.apiRoot}/api/ImageUpload`;
 
+  private isMetadataLoaded = false;
+  private metadataInfo = '';
+
   constructor(private http: HttpClient,
     ) { }
 
-  public getMetadata(): Observable<any> {
-    let headers: HttpHeaders = new HttpHeaders();
-    headers = headers.append('Content-Type', 'application/json')
-              .append('Accept', 'application/json');
-
-    // let params: HttpParams = new HttpParams();
-    // params = params.append('$count', 'true');
-    return this.http.get(`${this.apiUrl}$metadata`, {
-        headers,
-        // params,
-      })
-      .pipe(map(response => {
-        const rjs = response as unknown as string;
-        return rjs;
-      }),
-      catchError((error: HttpErrorResponse) => {
-        return throwError(error.statusText + '; ' + error.error + '; ' + error.message);
-      }));
+  public getMetadata(forceReload?: boolean): Observable<any> {
+    if (!this.isMetadataLoaded || forceReload) { 
+      let headers: HttpHeaders = new HttpHeaders();
+      headers = headers.append('Content-Type', 'application/xml,application/json')
+                .append('Accept', 'text/html,application/xhtml+xml,application/xml');
+  
+      return this.http.get(`${this.apiUrl}$metadata`, {
+          headers: headers,
+          responseType: 'text'
+        })
+        .pipe(map(response => {
+          this.metadataInfo = response as unknown as string;
+          return this.metadataInfo;
+        }),
+        catchError((error: HttpErrorResponse) => {
+          return throwError(error.statusText + '; ' + error.error + '; ' + error.message);
+        }));
+      } else {
+        return of(this.metadataInfo);
+      }
   }
 
   public getKnowledgeItems(): Observable<any> {
@@ -193,15 +198,17 @@ export class ODataService {
       // send the http-request and subscribe for progress-updates
       this.http.request(req).subscribe(event => {
         if (event instanceof HttpResponse) {
+          let bodys: any = event.body;
+          let body = bodys[0];
           result.next({
-            delete_type: event.body[0].delete_type,
-            delete_url: `${this.apiRoot}${event.body[0].delete_url}`,
-            name: event.body[0].name,
+            delete_type: body.delete_type,
+            delete_url: `${this.apiRoot}${body.delete_url}`,
+            name: body.name,
             progress: 1,
-            size: event.body[0].size,
-            thumbnail_url: `${this.apiRoot}${event.body[0].thumbnail_url}`,
-            type: event.body[0].type,
-            url: `${this.apiRoot}${event.body[0].url}`,
+            size: body.size,
+            thumbnail_url: `${this.apiRoot}${body.thumbnail_url}`,
+            type: body.type,
+            url: `${this.apiRoot}${body.url}`,
           });
 
           result.complete();

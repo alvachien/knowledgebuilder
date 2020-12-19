@@ -2,7 +2,7 @@
 
 ## Documentations 
 
-本系列之前的文章：
+本系列文章：
 
 - 第一篇 [Part I: 业务场景和存储层设计](https://alvachien.github.io/2019/11/ODataBasedAPI1.html)
 
@@ -28,7 +28,8 @@
 
 - 第十二篇 [Part XI: 为API添加CORS支持](https://alvachien.github.io/2020/07/ODataBasedAPI12.html)
 
-## Web API in USE
+## Web API in USE   
+
 Web API in use with Github repo: [Link](https://github.com/alvachien/knowledgebuilderapi)
 
 

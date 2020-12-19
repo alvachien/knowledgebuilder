@@ -9,11 +9,11 @@ import { ODataService } from '../../../services';
 import { ImageUploadComponent } from '../../image-upload/image-upload.component';
 
 @Component({
-  selector: 'app-knowledge-item-detail',
-  templateUrl: './knowledge-item-detail.component.html',
-  styleUrls: ['./knowledge-item-detail.component.scss'],
+  selector: 'app-exercise-item-detail',
+  templateUrl: './exercise-item-detail.component.html',
+  styleUrls: ['./exercise-item-detail.component.scss'],
 })
-export class KnowledgeItemDetailComponent implements OnInit, OnDestroy {
+export class ExerciseItemDetailComponent implements OnInit, OnDestroy {
 
   private _destroyed$ ?: ReplaySubject<boolean>;
   private routerID = -1;

@@ -13,7 +13,7 @@ export class ImageUploadComponent implements OnInit {
   @ViewChild('file', { static: false }) file;
 
   public files: Set<File> = new Set();
-  results;
+  results : any;
   canBeClosed = true;
   primaryButtonText = 'Upload';
   showCancelButton = true;
@@ -51,7 +51,7 @@ export class ImageUploadComponent implements OnInit {
     this.results = this.uploadService.uploadFiles(this.files);
     // console.log(this.progress);
     for (const key in this.results) {
-      this.results[key].result.subscribe(val => {
+      this.results[key].result.subscribe((val : any) => {
         // console.log(val);
         this.uploadResults.push(val);
       });
