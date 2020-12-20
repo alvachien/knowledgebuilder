@@ -10,7 +10,7 @@ import { ODataService } from '../../services';
   styleUrls: ['./image-upload.component.scss']
 })
 export class ImageUploadComponent implements OnInit {
-  @ViewChild('file', { static: false }) file;
+  @ViewChild('file', { static: false }) file: any;
 
   public files: Set<File> = new Set();
   results : any;

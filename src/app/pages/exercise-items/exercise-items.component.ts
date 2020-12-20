@@ -4,6 +4,7 @@ import { MatSort } from '@angular/material/sort';
 import { merge, Observable, of as observableOf } from 'rxjs';
 import { catchError, map, startWith, switchMap } from 'rxjs/operators';
 
+import { ExerciseItem } from '../../models/exercise-item';
 import { ODataService } from '../../services';
 
 @Component({
@@ -12,14 +13,14 @@ import { ODataService } from '../../services';
   styleUrls: ['./exercise-items.component.scss'],
 })
 export class ExerciseItemsComponent implements AfterViewInit {
-  displayedColumns: string[] = ['id', 'category', 'title', 'createdat'];
-  data: any[] = [];
+  displayedColumns: string[] = ['id', 'itemtype', 'knowledgeitem'];
+  data: ExerciseItem[] = [];
 
   resultsLength = 0;
   isLoadingResults = true;
 
-  @ViewChild(MatPaginator, { static: true }) paginator: MatPaginator;
-  @ViewChild(MatSort, {static: true}) sort: MatSort;
+  @ViewChild(MatPaginator) paginator!: MatPaginator;
+  @ViewChild(MatSort) sort!: MatSort;
 
   constructor(private odataService: ODataService) {}
 
@@ -32,13 +33,13 @@ export class ExerciseItemsComponent implements AfterViewInit {
         startWith({}),
         switchMap(() => {
           this.isLoadingResults = true;
-          return this.odataService.getKnowledgeItems(
+          return this.odataService.getExerciseItems(
           );
         }),
         map(data => {
           // Flip flag to show that loading has finished.
           this.isLoadingResults = false;
-          this.resultsLength = data.total_count;
+          this.resultsLength = data.totalCount;
 
           return data.items;
         }),

@@ -3,6 +3,7 @@ import { HttpParams, HttpClient, HttpHeaders, HttpResponse, HttpRequest, HttpErr
 
 import { Observable, throwError, Subject, of } from 'rxjs';
 import { map, catchError } from 'rxjs/operators';
+import { ExerciseItem } from '../models/exercise-item';
 
 @Injectable({
   providedIn: 'root'
@@ -72,7 +73,7 @@ export class ODataService {
 
     let params: HttpParams = new HttpParams();
     params = params.append('$select', 'ID,Category,Title,Content');
-    params = params.append('$expand', 'QuestionBankItems');
+    // params = params.append('$expand', 'QuestionBankItems');
     return this.http.get(`${this.apiUrl}KnowledgeItems(${kid})`, {
         headers,
         params,
@@ -110,7 +111,7 @@ export class ODataService {
       }));
   }
 
-  public getExerciseItems(): Observable<any> {
+  public getExerciseItems(): Observable<{ totalCount: number, items: ExerciseItem[]}> {
     let headers: HttpHeaders = new HttpHeaders();
     headers = headers.append('Content-Type', 'application/json')
               .append('Accept', 'application/json');
@@ -118,16 +119,24 @@ export class ODataService {
     let params: HttpParams = new HttpParams();
     params = params.append('$top', '100');
     params = params.append('$count', 'true');
-    params = params.append('$select', 'ID,KnowledgeItemID,ParentID,QBType,Content');
+    params = params.append('$select', 'ID,KnowledgeItemID,ExerciseType');
     return this.http.get(`${this.apiUrl}ExerciseItems`, {
         headers,
         params,
       })
       .pipe(map(response => {
         const rjs = response as any;
+        const ritems = rjs.value as any[];
+        const items: ExerciseItem[] = [];
+        ritems.forEach(item => {
+          let rit: ExerciseItem = new ExerciseItem();
+          rit.parseData(item);
+          items.push(rit);
+        });
+
         return {
-          total_count: rjs['@odata.count'],
-          items: rjs.value as any[]
+          totalCount: rjs['@odata.count'],
+          items: items,
         };
       }),
       catchError((error: HttpErrorResponse) => {

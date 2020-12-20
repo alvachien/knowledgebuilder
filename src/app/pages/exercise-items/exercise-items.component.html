@@ -1,5 +1,5 @@
 <mat-toolbar-row>
-    <span>Knowledge Items</span>
+    <span>Exercise Items</span>
     <span class="example-spacer"></span>
     <section>
         <div class="example-button-row">
@@ -28,23 +28,23 @@
                 </td>
             </ng-container>
 
-            <!-- Category Column -->
-            <ng-container matColumnDef="category">
-                <th mat-header-cell *matHeaderCellDef>Category</th>
-                <td mat-cell *matCellDef="let row">{{row.Category}}</td>
+            <!-- Item Type Column -->
+            <ng-container matColumnDef="itemtype">
+                <th mat-header-cell *matHeaderCellDef>Item Type</th>
+                <td mat-cell *matCellDef="let row">{{row.ItemType}}</td>
             </ng-container>
 
-            <!-- Title Column -->
-            <ng-container matColumnDef="title">
-                <th mat-header-cell *matHeaderCellDef>Title</th>
-                <td mat-cell *matCellDef="let row">{{row.Title}}</td>
+            <!-- Knowledge Item -->
+            <ng-container matColumnDef="knowledgeitem">
+                <th mat-header-cell *matHeaderCellDef>Knowledge Item</th>
+                <td mat-cell *matCellDef="let row">{{row.KnowledgeItemID}}</td>
             </ng-container>
 
             <!-- Created At Column -->
-            <ng-container matColumnDef="createdat">
+            <!-- <ng-container matColumnDef="createdat">
                 <th mat-header-cell *matHeaderCellDef>Created At</th>
                 <td mat-cell *matCellDef="let row">{{row.CreatedAt}}</td>
-            </ng-container>
+            </ng-container> -->
 
             <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
             <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>

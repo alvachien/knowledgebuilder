@@ -5,6 +5,7 @@ import { ActivatedRoute } from '@angular/router';
 import { MatDialog } from '@angular/material/dialog';
 import { KatexOptions } from 'ngx-markdown';
 
+import { ExerciseItem } from '../../../models/exercise-item';
 import { ODataService } from '../../../services';
 import { ImageUploadComponent } from '../../image-upload/image-upload.component';
 
@@ -17,6 +18,7 @@ export class ExerciseItemDetailComponent implements OnInit, OnDestroy {
 
   private _destroyed$ ?: ReplaySubject<boolean>;
   private routerID = -1;
+  private _itemObject: ExerciseItem | undefined;
 
   currentMode: string;
   // Generic info
@@ -28,9 +30,6 @@ export class ExerciseItemDetailComponent implements OnInit, OnDestroy {
     throwOnError: false,
     errorColor: '#cc0000',
   };
-  // Questoin bank items
-  displayedColumns: string[] = ['id', 'type'];
-  qbitems: any[] = [];
 
   get isDisplayMode(): boolean {
     return this.currentMode === 'Display';
@@ -45,8 +44,7 @@ export class ExerciseItemDetailComponent implements OnInit, OnDestroy {
     private odataService: ODataService) {
     this.itemFormGroup = new FormGroup({
       idControl: new FormControl(),
-      titleControl: new FormControl('', Validators.required),
-//      contentControl: new FormControl('', Validators.required),
+      contentControl: new FormControl('', Validators.required),
     });
 
     this.currentMode = 'Create';
@@ -71,12 +69,11 @@ export class ExerciseItemDetailComponent implements OnInit, OnDestroy {
         }
 
         if (this.routerID !== -1) {
-          this.odataService.readKnowledgeItem(this.routerID)
+          this.odataService.readExerciseItem(this.routerID)
             .subscribe({
               next: val => {
                 this.itemFormGroup.get('idControl')?.setValue(val.ID);
                 this.itemFormGroup.get('idControl')?.disable();
-                this.itemFormGroup.get('titleControl')?.setValue(val.Title);
                 this.content = val.Content;
 
                 if (this.currentMode === 'Display') {
@@ -84,8 +81,6 @@ export class ExerciseItemDetailComponent implements OnInit, OnDestroy {
                 } else {
                   this.itemFormGroup.markAsPristine();
                 }
-
-                this.qbitems = val.QuestionBankItems;
               },
               error: err => {
                 console.error(err);
@@ -120,13 +115,8 @@ export class ExerciseItemDetailComponent implements OnInit, OnDestroy {
         return;
       }
 
-      // Create a new knowlege item
-      this.odataService.createKnowledgeItem({
-        Category: 'Concept',
-        Title: this.itemFormGroup.get('titleControl')?.value,
-//        Content: this.itemFormGroup.get('contentControl').value
-        Content: this.content,
-      }).subscribe({
+      // Create a new exercise item
+      this.odataService.createExerciseItem(this._itemObject).subscribe({
         next: val => {
           // Val
         },
