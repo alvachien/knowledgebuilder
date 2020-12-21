@@ -5,7 +5,7 @@ import { ActivatedRoute } from '@angular/router';
 import { MatDialog } from '@angular/material/dialog';
 import { KatexOptions } from 'ngx-markdown';
 
-import { ExerciseItem } from '../../../models/exercise-item';
+import { ExerciseItem, ExerciseItemType } from '../../../models/exercise-item';
 import { ODataService } from '../../../services';
 import { ImageUploadComponent } from '../../image-upload/image-upload.component';
 
@@ -44,7 +44,8 @@ export class ExerciseItemDetailComponent implements OnInit, OnDestroy {
     private odataService: ODataService) {
     this.itemFormGroup = new FormGroup({
       idControl: new FormControl(),
-      contentControl: new FormControl('', Validators.required),
+      typeControl: new FormControl(),
+      knowledgeControl: new FormControl(),
     });
 
     this.currentMode = 'Create';
@@ -116,6 +117,9 @@ export class ExerciseItemDetailComponent implements OnInit, OnDestroy {
       }
 
       // Create a new exercise item
+      this._itemObject = new ExerciseItem();
+      this._itemObject.ItemType = this.itemFormGroup.get('typeControl')!.value as ExerciseItemType;
+      this._itemObject.Content = this.content;
       this.odataService.createExerciseItem(this._itemObject).subscribe({
         next: val => {
           // Val

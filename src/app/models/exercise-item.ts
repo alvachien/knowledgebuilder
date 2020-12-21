@@ -42,4 +42,15 @@ export class ExerciseItem {
         // if (val && val.CreatedAt) {            
         // }
     }
+    public generateString(): string {
+        let exobj: any = {
+            Content: this.Content,
+            ExerciseType: +this.ItemType
+        };
+        if (this.KnowledgeItemID) {
+            exobj.KnowledgeItemID = this.KnowledgeItemID;
+        }
+
+        return JSON && JSON.stringify(exobj);
+    }
 }

@@ -6,19 +6,28 @@
     <mat-card-content>
         <form [formGroup]="itemFormGroup">
             <!-- ID -->
-            <div class="achih-control-full-width">
+            <mat-form-field class="control-full-width">
+                <mat-label>ID</mat-label>
                 <input matInput type="text" placeholder="ID" formControlName="idControl">
-            </div>
+            </mat-form-field>
 
             <!-- Item Type -->
-            <div class="achih-control-full-width">
-                <input matInput type="text" placeholder="ID" formControlName="idControl">
-            </div>
+            <mat-form-field appearance="fill" class="control-full-width">
+                <mat-label>Item Type</mat-label>
+                <select matNativeControl required formControlName="typeControl">
+                    <option value="0">Question</option>
+                    <option value="1">Single-Choice</option>
+                    <option value="2">Multiple-Choice</option>
+                    <option value="3">Short-Answer</option>
+                    <option value="4">Essay Questions</option>
+                </select>
+            </mat-form-field>
             
             <!-- Knowledge Item -->
-            <div class="achih-control-full-width">
-                <input matInput type="text" placeholder="ID" formControlName="idControl">
-            </div>
+            <mat-form-field class="control-full-width">
+                <mat-label>Knowledge ID</mat-label>
+                <input matInput type="text" placeholder="Knowledge ID" formControlName="knowledgeControl">
+            </mat-form-field>
         </form>
 
         <div fxLayout="row" class="control-full-width" style="height: 500px;">

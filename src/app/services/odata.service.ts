@@ -144,15 +144,14 @@ export class ODataService {
       }));
   }
 
-  public createExerciseItem(qbi: any): Observable<any> {
+  public createExerciseItem(qbi: ExerciseItem): Observable<any> {
     let headers: HttpHeaders = new HttpHeaders();
     headers = headers.append('Content-Type', 'application/json')
               .append('Accept', 'application/json');
 
-    // let params: HttpParams = new HttpParams();
-    return this.http.post(`${this.apiUrl}ExerciseItems`, qbi, {
+    let jdata = qbi.generateString();
+    return this.http.post(`${this.apiUrl}ExerciseItems`, jdata, {
         headers,
-        // params,
       })
       .pipe(map(response => {
         const rjs = response as any;
