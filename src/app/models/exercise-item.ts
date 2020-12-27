@@ -3,11 +3,11 @@
 ///
 
 export enum ExerciseItemType {
-    Question = 0,
-    SingleChoice = 1,
-    MultipleChoice = 2,
-    ShortAnswer = 3,
-    EssayQuestions = 4,
+    Question = 'Question',
+    SingleChoice = 'SingleChoice',
+    MultipleChoice = 'MultipleChoice',
+    ShortAnswer = 'ShortAnswer',
+    EssayQuestions = 'EssayQuestions',
 }
 
 export class ExerciseItem {
@@ -45,7 +45,7 @@ export class ExerciseItem {
     public generateString(): string {
         let exobj: any = {
             Content: this.Content,
-            ExerciseType: +this.ItemType
+            ExerciseType: this.ItemType
         };
         if (this.KnowledgeItemID) {
             exobj.KnowledgeItemID = this.KnowledgeItemID;
