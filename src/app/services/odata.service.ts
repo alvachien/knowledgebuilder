@@ -165,20 +165,22 @@ export class ODataService {
       }));
   }
 
-  public readExerciseItem(qbid: number): Observable<any> {
+  public readExerciseItem(qbid: number): Observable<ExerciseItem> {
     let headers: HttpHeaders = new HttpHeaders();
     headers = headers.append('Content-Type', 'application/json')
               .append('Accept', 'application/json');
 
     let params: HttpParams = new HttpParams();
-    // params = params.append('$select', 'ID,KnowledgeItemID,ParentID,QBType,Content');
-    // params = params.append('$expand', 'SubItems');
+    params = params.append('$select', 'ID,KnowledgeItemID,Content,CreatedAt,ModifiedAt');
+    params = params.append('$expand', 'Tags,Answer');
     return this.http.get(`${this.apiUrl}ExerciseItems(${qbid})`, {
         headers,
-        // params,
+        params,
       })
       .pipe(map(response => {
-        return response as any;
+        let ei: ExerciseItem = new ExerciseItem();
+        ei.parseData(response);
+        return ei;
       }),
       catchError((error: HttpErrorResponse) => {
         return throwError(error.statusText + '; ' + error.error + '; ' + error.message);

@@ -30,4 +30,9 @@ export class AppComponent implements OnDestroy {
   ngOnDestroy(): void {
     this.mobileQuery.removeEventListener('change', this._mobileQueryListener);
   }
+
+  openCodeRepo(): void {
+    // Open github repo.
+    window.open('https://github.com/alvachien/knowledgebuilder', '_blank');
+  }
 }

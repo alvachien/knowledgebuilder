@@ -1,9 +1,11 @@
 import { Component, OnInit, OnDestroy, ViewChild } from '@angular/core';
 import { FormGroup, FormControl, Validators } from '@angular/forms';
 import { ReplaySubject } from 'rxjs';
+import {COMMA, ENTER} from '@angular/cdk/keycodes';
 import { ActivatedRoute } from '@angular/router';
 import { MatDialog } from '@angular/material/dialog';
 import { KatexOptions } from 'ngx-markdown';
+import {MatChipInputEvent} from '@angular/material/chips';
 
 import { ExerciseItem, ExerciseItemType } from '../../../models/exercise-item';
 import { ODataService } from '../../../services';
@@ -25,17 +27,26 @@ export class ExerciseItemDetailComponent implements OnInit, OnDestroy {
   public itemFormGroup: FormGroup;
   editorOptions = { theme: 'vs-dark' };
   content = `New Exercise Item`;
+  answerContent = ``;
   public mathOptions: KatexOptions = {
     displayMode: true,
     throwOnError: false,
     errorColor: '#cc0000',
   };
+  // Chip for tags
+  selectable = true;
+  addOnBlur = true;
+  readonly separatorKeysCodes: number[] = [ENTER, COMMA];
+  public tags: string[] = [];
 
   get isDisplayMode(): boolean {
     return this.currentMode === 'Display';
   }
-  get IsCreateMode(): boolean {
+  get isCreateMode(): boolean {
     return this.currentMode === 'Create';
+  }
+  get isEditable(): boolean {
+    return this.currentMode === 'Create' || this.currentMode === 'Change';
   }
 
   constructor(
@@ -45,7 +56,10 @@ export class ExerciseItemDetailComponent implements OnInit, OnDestroy {
     this.itemFormGroup = new FormGroup({
       idControl: new FormControl(),
       typeControl: new FormControl(),
+      createdAtControl: new FormControl(),
+      modifiedAtControl: new FormControl(),
       knowledgeControl: new FormControl(),
+      tagControl: new FormControl(),
     });
 
     this.currentMode = 'Create';
@@ -75,6 +89,9 @@ export class ExerciseItemDetailComponent implements OnInit, OnDestroy {
               next: val => {
                 this.itemFormGroup.get('idControl')?.setValue(val.ID);
                 this.itemFormGroup.get('idControl')?.disable();
+                this.itemFormGroup.get('typeControl')?.setValue(val.ItemType);
+                this.itemFormGroup.get('createdAtControl')?.setValue(val.CreatedAt);
+                this.itemFormGroup.get('modifiedAtControl')?.setValue(val.ModifiedAt);
                 this.content = val.Content;
 
                 if (this.currentMode === 'Display') {
@@ -90,6 +107,8 @@ export class ExerciseItemDetailComponent implements OnInit, OnDestroy {
         } else {
           this.itemFormGroup.get('idControl')?.setValue('NEW');
           this.itemFormGroup.get('idControl')?.disable();
+          this.itemFormGroup.get('createdAtControl')?.disable();
+          this.itemFormGroup.get('modifiedAtControl')?.disable();
         }
       },
       error: err => {
@@ -151,4 +170,48 @@ export class ExerciseItemDetailComponent implements OnInit, OnDestroy {
       }
     });
   }
+
+  openAnswerUploadDialog() {
+      let dialogRef = this.dialog.open(ImageUploadComponent, { width: '50%', height: '50%' });
+      dialogRef.afterClosed().subscribe({
+        next: val => {
+          console.log(val);
+  
+          val.forEach((entry: any) => {
+            this.answerContent += `
+  ![Img](${entry.url})
+            `;
+          });
+          // {
+          //   [key: string]: {
+          //       progress: Observable<number>;
+          //       imgurl: string;
+          //   };
+          // }
+        }
+      });
+    }
+
+    addTag(event: MatChipInputEvent): void {
+      const input = event.input;
+      const value = event.value;
+  
+      // Add our fruit
+      if ((value || '').trim()) {
+        this.tags.push(value.trim());
+      }
+  
+      // Reset the input value
+      if (input) {
+        input.value = '';
+      }
+    }
+  
+    removeTag(tag: string): void {
+      const index = this.tags.indexOf(tag);
+  
+      if (index >= 0) {
+        this.tags.splice(index, 1);
+      }
+    }    
 }
