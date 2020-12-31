@@ -93,6 +93,7 @@ export class ExerciseItemDetailComponent implements OnInit, OnDestroy {
                 this.itemFormGroup.get('createdAtControl')?.setValue(val.CreatedAt);
                 this.itemFormGroup.get('modifiedAtControl')?.setValue(val.ModifiedAt);
                 this.content = val.Content;
+                this.tags = val.Tags;
 
                 if (this.currentMode === 'Display') {
                   this.itemFormGroup.disable(); // Readonly mode
@@ -139,12 +140,16 @@ export class ExerciseItemDetailComponent implements OnInit, OnDestroy {
       this._itemObject = new ExerciseItem();
       this._itemObject.ItemType = this.itemFormGroup.get('typeControl')!.value as ExerciseItemType;
       this._itemObject.Content = this.content;
+      this._itemObject.Tags = this.tags;
+      this._itemObject.Answer = this.answerContent;
       this.odataService.createExerciseItem(this._itemObject).subscribe({
         next: val => {
           // Val
+          console.log(val);
         },
         error: err => {
           // Error
+          console.error(err);
         }
       });
     }

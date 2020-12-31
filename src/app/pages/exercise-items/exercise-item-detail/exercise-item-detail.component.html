@@ -41,14 +41,13 @@
 
             <mat-form-field appearance="fill" class="control-full-width">
                 <mat-label>Tags</mat-label>
-                <mat-chip-list #chipList>
+                <mat-chip-list #chipList formControlName="tagControl">
                   <mat-chip *ngFor="let tag of tags" [selectable]="selectable"
                            [removable]="isEditable" (removed)="removeTag(tag)">
                     {{tag}}
                     <mat-icon matChipRemove *ngIf="isEditable">cancel</mat-icon>
                   </mat-chip>
                   <input placeholder="New tag..."
-                         formControlName="tagControl"
                          [matChipInputFor]="chipList"
                          [matChipInputSeparatorKeyCodes]="separatorKeysCodes"
                          [matChipInputAddOnBlur]="addOnBlur"

@@ -18,6 +18,7 @@ export class ExerciseItem {
     private _createdAt?: Date;
     private _modifiedAt?: Date;
     private _tags: string[] = [];
+    private _answer?: string;
 
     get ID(): number                    { return this._id;          }
     set ID(nid: number)                 { this._id  = nid;          }
@@ -31,10 +32,12 @@ export class ExerciseItem {
     set CreatedAt(ca: Date | undefined) { this._createdAt = ca;     }
     get ModifiedAt(): Date | undefined   { return this._modifiedAt;   }
     set ModifiedAt(ua: Date | undefined) { this._modifiedAt = ua;     } 
-    get Tags(): string[]                        { return this._tags;        }
+    get Tags(): string[]                 { return this._tags;        }
     set Tags(tag: string[]) { 
         this._tags = tag.slice();   
     }
+    get Answer(): string | undefined    { return this._answer;      }
+    set Answer(awr: string | undefined) { this._answer = awr;       }
 
     public parseData(val: any) {
         if (val && val.ID) {
@@ -56,7 +59,7 @@ export class ExerciseItem {
             this.ModifiedAt = new Date(val.ModifiedAt);
         }
     }
-    public generateString(): string {
+    public generateString(iscreate?: boolean): string {
         let exobj: any = {
             Content: this.Content,
             ExerciseType: this.ItemType
@@ -69,7 +72,20 @@ export class ExerciseItem {
         }
         if (this.ModifiedAt) {
             exobj.ModifiedAt = this.ModifiedAt.toISOString(); // .slice(0,10);;
-        }        
+        }
+        if (this.Answer) {
+            exobj.Answer = {
+                Content: this.Answer
+            };
+        }
+        if (this.Tags) {
+            exobj.Tags = [];
+            this.Tags.forEach(tg => {
+                exobj.Tags.push({
+                    TagTerm: tg
+                });
+            });
+        }
 
         return JSON && JSON.stringify(exobj);
     }
