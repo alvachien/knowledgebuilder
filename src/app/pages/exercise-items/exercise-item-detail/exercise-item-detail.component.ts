@@ -86,30 +86,13 @@ export class ExerciseItemDetailComponent implements OnInit, OnDestroy {
         if (this.routerID !== -1) {
           this.odataService.readExerciseItem(this.routerID)
             .subscribe({
-              next: val => {
-                this.itemFormGroup.get('idControl')?.setValue(val.ID);
-                this.itemFormGroup.get('idControl')?.disable();
-                this.itemFormGroup.get('typeControl')?.setValue(val.ItemType);
-                this.itemFormGroup.get('createdAtControl')?.setValue(val.CreatedAt);
-                this.itemFormGroup.get('modifiedAtControl')?.setValue(val.ModifiedAt);
-                this.content = val.Content;
-                this.tags = val.Tags;
-
-                if (this.currentMode === 'Display') {
-                  this.itemFormGroup.disable(); // Readonly mode
-                } else {
-                  this.itemFormGroup.markAsPristine();
-                }
+              next: exitem => {
+                this.onSetItemData(exitem);
               },
               error: err => {
                 console.error(err);
               }
             });
-        } else {
-          this.itemFormGroup.get('idControl')?.setValue('NEW');
-          this.itemFormGroup.get('idControl')?.disable();
-          this.itemFormGroup.get('createdAtControl')?.disable();
-          this.itemFormGroup.get('modifiedAtControl')?.disable();
         }
       },
       error: err => {
@@ -118,7 +101,7 @@ export class ExerciseItemDetailComponent implements OnInit, OnDestroy {
     });
   }
 
-  ngOnDestroy() {
+  ngOnDestroy(): void {
     if (this._destroyed$) {
       this._destroyed$.complete();
       this._destroyed$ = undefined;
@@ -144,8 +127,10 @@ export class ExerciseItemDetailComponent implements OnInit, OnDestroy {
       this._itemObject.Answer = this.answerContent;
       this.odataService.createExerciseItem(this._itemObject).subscribe({
         next: val => {
-          // Val
-          console.log(val);
+          // Display current reason
+          this.routerID = val.ID;
+          this.currentMode = 'Display';
+          this.onSetItemData(val);
         },
         error: err => {
           // Error
@@ -155,7 +140,7 @@ export class ExerciseItemDetailComponent implements OnInit, OnDestroy {
     }
   }
 
-  openUploadDialog() {
+  openUploadDialog(): void {
     let dialogRef = this.dialog.open(ImageUploadComponent, { width: '50%', height: '50%' });
     dialogRef.afterClosed().subscribe({
       next: val => {
@@ -176,12 +161,12 @@ export class ExerciseItemDetailComponent implements OnInit, OnDestroy {
     });
   }
 
-  openAnswerUploadDialog() {
+  openAnswerUploadDialog(): void {
       let dialogRef = this.dialog.open(ImageUploadComponent, { width: '50%', height: '50%' });
       dialogRef.afterClosed().subscribe({
         next: val => {
           console.log(val);
-  
+
           val.forEach((entry: any) => {
             this.answerContent += `
   ![Img](${entry.url})
@@ -200,23 +185,39 @@ export class ExerciseItemDetailComponent implements OnInit, OnDestroy {
     addTag(event: MatChipInputEvent): void {
       const input = event.input;
       const value = event.value;
-  
+
       // Add our fruit
       if ((value || '').trim()) {
         this.tags.push(value.trim());
       }
-  
+
       // Reset the input value
       if (input) {
         input.value = '';
       }
     }
-  
+
     removeTag(tag: string): void {
       const index = this.tags.indexOf(tag);
-  
+
       if (index >= 0) {
         this.tags.splice(index, 1);
       }
-    }    
+    }
+
+  onSetItemData(val: ExerciseItem): void {
+    this.itemFormGroup.get('idControl')?.setValue(val.ID);
+    this.itemFormGroup.get('idControl')?.disable();
+    this.itemFormGroup.get('typeControl')?.setValue(val.ItemType);
+    this.itemFormGroup.get('createdAtControl')?.setValue(val.CreatedAt);
+    this.itemFormGroup.get('modifiedAtControl')?.setValue(val.ModifiedAt);
+    this.content = val.Content;
+    this.tags = val.Tags;
+
+    if (this.currentMode === 'Display') {
+      this.itemFormGroup.disable(); // Readonly mode
+    } else {
+      this.itemFormGroup.markAsPristine();
+    }
+  }
 }

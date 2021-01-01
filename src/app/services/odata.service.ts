@@ -144,21 +144,20 @@ export class ODataService {
       }));
   }
 
-  public createExerciseItem(qbi: ExerciseItem): Observable<any> {
+  public createExerciseItem(qbi: ExerciseItem): Observable<ExerciseItem> {
     let headers: HttpHeaders = new HttpHeaders();
     headers = headers.append('Content-Type', 'application/json')
               .append('Accept', 'application/json');
 
-    let jdata = qbi.generateString();
+    const jdata = qbi.generateString();
     return this.http.post(`${this.apiUrl}ExerciseItems`, jdata, {
         headers,
       })
       .pipe(map(response => {
         const rjs = response as any;
-        return {
-          total_count: rjs['@odata.count'],
-          items: rjs.value as any[]
-        };
+        const rtn = new ExerciseItem();
+        rtn.parseData(rjs);
+        return rtn;
       }),
       catchError((error: HttpErrorResponse) => {
         return throwError(error.statusText + '; ' + error.error + '; ' + error.message);
