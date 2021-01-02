@@ -73,11 +73,11 @@ export class KnowledgeItemDetailComponent implements OnInit, OnDestroy {
         if (this.routerID !== -1) {
           this.odataService.readKnowledgeItem(this.routerID)
             .subscribe({
-              next: val => {
-                this.itemFormGroup.get('idControl')?.setValue(val.ID);
+              next: val2 => {
+                this.itemFormGroup.get('idControl')?.setValue(val2.ID);
                 this.itemFormGroup.get('idControl')?.disable();
-                this.itemFormGroup.get('titleControl')?.setValue(val.Title);
-                this.content = val.Content;
+                this.itemFormGroup.get('titleControl')?.setValue(val2.Title);
+                this.content = val2.Content;
 
                 if (this.currentMode === 'Display') {
                   this.itemFormGroup.disable(); // Readonly mode
@@ -85,7 +85,7 @@ export class KnowledgeItemDetailComponent implements OnInit, OnDestroy {
                   this.itemFormGroup.markAsPristine();
                 }
 
-                this.qbitems = val.QuestionBankItems;
+                this.qbitems = val2.QuestionBankItems;
               },
               error: err => {
                 console.error(err);
@@ -102,7 +102,7 @@ export class KnowledgeItemDetailComponent implements OnInit, OnDestroy {
     });
   }
 
-  ngOnDestroy() {
+  ngOnDestroy(): void {
     if (this._destroyed$) {
       this._destroyed$.complete();
       this._destroyed$ = undefined;
@@ -114,7 +114,7 @@ export class KnowledgeItemDetailComponent implements OnInit, OnDestroy {
     if (this.currentMode === 'Create') {
       if (!this.itemFormGroup.valid) {
         if (this.itemFormGroup.errors) {
-          let err = this.itemFormGroup.errors;
+          const err = this.itemFormGroup.errors;
           console.log(err);
         }
         return;
@@ -137,8 +137,8 @@ export class KnowledgeItemDetailComponent implements OnInit, OnDestroy {
     }
   }
 
-  openUploadDialog() {
-    let dialogRef = this.dialog.open(ImageUploadComponent, { width: '50%', height: '50%' });
+  openUploadDialog(): void {
+    const dialogRef = this.dialog.open(ImageUploadComponent, { width: '50%', height: '50%' });
     dialogRef.afterClosed().subscribe({
       next: val => {
         console.log(val);

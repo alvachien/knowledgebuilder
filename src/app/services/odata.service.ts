@@ -1,17 +1,17 @@
 import { Injectable } from '@angular/core';
 import { HttpParams, HttpClient, HttpHeaders, HttpResponse, HttpRequest, HttpErrorResponse, HttpEventType } from '@angular/common/http';
-
 import { Observable, throwError, Subject, of } from 'rxjs';
 import { map, catchError } from 'rxjs/operators';
+
 import { ExerciseItem } from '../models/exercise-item';
+import { environment } from '../../environments/environment';
 
 @Injectable({
   providedIn: 'root'
 })
 export class ODataService {
-  apiRoot = `https://localhost:44355`;
-  apiUrl = `${this.apiRoot}/odata/`;
-  uploadUrl = `${this.apiRoot}/api/ImageUpload`;
+  apiUrl = `${environment.apiurl_root}/odata/`;
+  uploadUrl = `${environment.apiurl_root}/api/ImageUpload`;
 
   private isMetadataLoaded = false;
   private metadataInfo = '';
@@ -20,13 +20,13 @@ export class ODataService {
     ) { }
 
   public getMetadata(forceReload?: boolean): Observable<any> {
-    if (!this.isMetadataLoaded || forceReload) { 
+    if (!this.isMetadataLoaded || forceReload) {
       let headers: HttpHeaders = new HttpHeaders();
       headers = headers.append('Content-Type', 'application/xml,application/json')
                 .append('Accept', 'text/html,application/xhtml+xml,application/xml');
-  
+
       return this.http.get(`${this.apiUrl}$metadata`, {
-          headers: headers,
+          headers,
           responseType: 'text'
         })
         .pipe(map(response => {
@@ -129,14 +129,14 @@ export class ODataService {
         const ritems = rjs.value as any[];
         const items: ExerciseItem[] = [];
         ritems.forEach(item => {
-          let rit: ExerciseItem = new ExerciseItem();
+          const rit: ExerciseItem = new ExerciseItem();
           rit.parseData(item);
           items.push(rit);
         });
 
         return {
           totalCount: rjs['@odata.count'],
-          items: items,
+          items,
         };
       }),
       catchError((error: HttpErrorResponse) => {
@@ -177,7 +177,7 @@ export class ODataService {
         params,
       })
       .pipe(map(response => {
-        let ei: ExerciseItem = new ExerciseItem();
+        const ei: ExerciseItem = new ExerciseItem();
         ei.parseData(response);
         return ei;
       }),
@@ -207,17 +207,17 @@ export class ODataService {
       // send the http-request and subscribe for progress-updates
       this.http.request(req).subscribe(event => {
         if (event instanceof HttpResponse) {
-          let bodys: any = event.body;
-          let body = bodys[0];
+          const bodys: any = event.body;
+          const body = bodys[0];
           result.next({
             delete_type: body.delete_type,
-            delete_url: `${this.apiRoot}${body.delete_url}`,
+            delete_url: `${environment.apiurl_root}${body.delete_url}`,
             name: body.name,
             progress: 1,
             size: body.size,
-            thumbnail_url: `${this.apiRoot}${body.thumbnail_url}`,
+            thumbnail_url: `${environment.apiurl_root}${body.thumbnail_url}`,
             type: body.type,
-            url: `${this.apiRoot}${body.url}`,
+            url: `${environment.apiurl_root}${body.url}`,
           });
 
           result.complete();

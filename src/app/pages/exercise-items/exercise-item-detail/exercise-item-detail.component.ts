@@ -1,8 +1,8 @@
 import { Component, OnInit, OnDestroy, ViewChild } from '@angular/core';
 import { FormGroup, FormControl, Validators } from '@angular/forms';
 import { ReplaySubject } from 'rxjs';
-import {COMMA, ENTER} from '@angular/cdk/keycodes';
-import { ActivatedRoute } from '@angular/router';
+import { COMMA, ENTER } from '@angular/cdk/keycodes';
+import { ActivatedRoute, Router } from '@angular/router';
 import { MatDialog } from '@angular/material/dialog';
 import { KatexOptions } from 'ngx-markdown';
 import {MatChipInputEvent} from '@angular/material/chips';
@@ -52,6 +52,7 @@ export class ExerciseItemDetailComponent implements OnInit, OnDestroy {
   constructor(
     public dialog: MatDialog,
     private activateRoute: ActivatedRoute,
+    private router: Router,
     private odataService: ODataService) {
     this.itemFormGroup = new FormGroup({
       idControl: new FormControl(),
@@ -113,7 +114,7 @@ export class ExerciseItemDetailComponent implements OnInit, OnDestroy {
     if (this.currentMode === 'Create') {
       if (!this.itemFormGroup.valid) {
         if (this.itemFormGroup.errors) {
-          let err = this.itemFormGroup.errors;
+          const err = this.itemFormGroup.errors;
           console.log(err);
         }
         return;
@@ -128,9 +129,7 @@ export class ExerciseItemDetailComponent implements OnInit, OnDestroy {
       this.odataService.createExerciseItem(this._itemObject).subscribe({
         next: val => {
           // Display current reason
-          this.routerID = val.ID;
-          this.currentMode = 'Display';
-          this.onSetItemData(val);
+          this.router.navigate(['/exercise-item/display', val.ID]);
         },
         error: err => {
           // Error
@@ -141,7 +140,7 @@ export class ExerciseItemDetailComponent implements OnInit, OnDestroy {
   }
 
   openUploadDialog(): void {
-    let dialogRef = this.dialog.open(ImageUploadComponent, { width: '50%', height: '50%' });
+    const dialogRef = this.dialog.open(ImageUploadComponent, { width: '50%', height: '50%' });
     dialogRef.afterClosed().subscribe({
       next: val => {
         console.log(val);
@@ -162,7 +161,7 @@ export class ExerciseItemDetailComponent implements OnInit, OnDestroy {
   }
 
   openAnswerUploadDialog(): void {
-      let dialogRef = this.dialog.open(ImageUploadComponent, { width: '50%', height: '50%' });
+      const dialogRef = this.dialog.open(ImageUploadComponent, { width: '50%', height: '50%' });
       dialogRef.afterClosed().subscribe({
         next: val => {
           console.log(val);

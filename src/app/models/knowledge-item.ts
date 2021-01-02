@@ -1,4 +1,4 @@
-/// 
+///
 /// Knowledge item
 ///
 export enum KnowledgeItemCategory {
@@ -22,7 +22,7 @@ export class KnowledgeItem {
     set ItemCategory(ic: KnowledgeItemCategory) { this._itemCtgy = ic;      }
     get Tags(): string[]                        { return this._tags;        }
     set Tags(tag: string[]) { 
-        this._tags = tag.slice();   
+        this._tags = tag.slice();
     }
     get CreatedAt(): Date | undefined   { return this._createdAt;   }
     set CreatedAt(ca: Date | undefined) { this._createdAt = ca;     }
@@ -60,5 +60,4 @@ export class KnowledgeItem {
 
         return JSON && JSON.stringify(exobj);
     }
-
 }
