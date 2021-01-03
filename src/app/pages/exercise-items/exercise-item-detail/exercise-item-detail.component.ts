@@ -55,10 +55,19 @@ export class ExerciseItemDetailComponent implements OnInit, OnDestroy {
     private router: Router,
     private odataService: ODataService) {
     this.itemFormGroup = new FormGroup({
-      idControl: new FormControl(),
+      idControl: new FormControl({
+        value: null,
+        disabled: true
+      }),
       typeControl: new FormControl(),
-      createdAtControl: new FormControl(),
-      modifiedAtControl: new FormControl(),
+      createdAtControl: new FormControl({
+        value: null,
+        disabled: true
+      }),
+      modifiedAtControl: new FormControl({
+        value: null,
+        disabled: true
+      }),
       knowledgeControl: new FormControl(),
       tagControl: new FormControl(),
     });
@@ -196,13 +205,13 @@ export class ExerciseItemDetailComponent implements OnInit, OnDestroy {
       }
     }
 
-    removeTag(tag: string): void {
-      const index = this.tags.indexOf(tag);
+  removeTag(tag: string): void {
+    const index = this.tags.indexOf(tag);
 
-      if (index >= 0) {
-        this.tags.splice(index, 1);
-      }
+    if (index >= 0) {
+      this.tags.splice(index, 1);
     }
+  }
 
   onSetItemData(val: ExerciseItem): void {
     this.itemFormGroup.get('idControl')?.setValue(val.ID);

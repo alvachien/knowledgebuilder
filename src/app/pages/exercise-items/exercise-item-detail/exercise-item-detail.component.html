@@ -96,7 +96,7 @@
         </div>
     </mat-card-content>
     <mat-card-actions>
-        <button mat-button (click)="onOK()" >SAVE</button>
+        <button mat-button (click)="onOK()" [disabled]="!(isEditable && itemFormGroup.valid)">SAVE</button>
         <button mat-button>CANCEL</button>
     </mat-card-actions>
 </mat-card>

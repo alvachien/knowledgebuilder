@@ -27,19 +27,19 @@ export class ExerciseItem {
     get ItemType(): ExerciseItemType    { return this._itemType;    }
     set ItemType(it: ExerciseItemType)  { this._itemType = it;      }
     get KnowledgeItemID(): number | undefined { return this._knowledgeItemID;   }
-    set KnowledgeItemID(kid : number | undefined) { this._knowledgeItemID = kid; }
+    set KnowledgeItemID(kid: number | undefined) { this._knowledgeItemID = kid; }
     get CreatedAt(): Date | undefined   { return this._createdAt;   }
     set CreatedAt(ca: Date | undefined) { this._createdAt = ca;     }
     get ModifiedAt(): Date | undefined   { return this._modifiedAt;   }
-    set ModifiedAt(ua: Date | undefined) { this._modifiedAt = ua;     } 
+    set ModifiedAt(ua: Date | undefined) { this._modifiedAt = ua;     }
     get Tags(): string[]                 { return this._tags;        }
-    set Tags(tag: string[]) { 
-        this._tags = tag.slice();   
+    set Tags(tag: string[]) {
+        this._tags = tag.slice();
     }
     get Answer(): string | undefined    { return this._answer;      }
     set Answer(awr: string | undefined) { this._answer = awr;       }
 
-    public parseData(val: any) {
+    public parseData(val: any): void {
         if (val && val.ID) {
             this.ID = +val.ID;
         }
@@ -58,9 +58,21 @@ export class ExerciseItem {
         if (val && val.ModifiedAt) {
             this.ModifiedAt = new Date(val.ModifiedAt);
         }
+        // Answer
+        if (val && val.Answer) {
+            this.Answer = val.Answer.Content;
+        }
+        // Tags
+        if (val && val.Tags) {
+            const tags: any[] = val.Tags as any[];
+            this._tags = [];
+            tags.forEach(tg => {
+                this._tags.push(tg.TagTerm);
+            });
+        }
     }
     public generateString(iscreate?: boolean): string {
-        let exobj: any = {
+        const exobj: any = {
             Content: this.Content,
             ExerciseType: this.ItemType
         };
