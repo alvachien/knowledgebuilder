@@ -1,11 +1,11 @@
 import { Component, OnInit, ViewChild, AfterViewInit } from '@angular/core';
 import { MatPaginator } from '@angular/material/paginator';
 import { MatSort } from '@angular/material/sort';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { merge, Observable, of as observableOf } from 'rxjs';
 import { catchError, map, startWith, switchMap } from 'rxjs/operators';
 
-import { TagCount, Tag } from 'src/app/models';
+import { TagCount, Tag, TagReferenceType } from 'src/app/models';
 import { ODataService } from 'src/app/services';
 
 @Component({
@@ -16,7 +16,7 @@ import { ODataService } from 'src/app/services';
 export class TagDetailComponent implements OnInit, AfterViewInit {
   displayedColumns: string[] = ['tag', 'reftype', 'refid'];
   data: Tag[] = [];
-  currenttag: string = '';
+  currenttag = '';
 
   resultsLength = 0;
   isLoadingResults = true;
@@ -24,8 +24,10 @@ export class TagDetailComponent implements OnInit, AfterViewInit {
   @ViewChild(MatPaginator) paginator!: MatPaginator;
   @ViewChild(MatSort) sort!: MatSort;
 
-  constructor(private odataService: ODataService,
-    private activateRoute: ActivatedRoute) {}
+  constructor(
+    private odataService: ODataService,
+    private activateRoute: ActivatedRoute,
+    private router: Router) {}
 
   ngOnInit(): void {
     this.activateRoute.url.subscribe({
@@ -33,7 +35,7 @@ export class TagDetailComponent implements OnInit, AfterViewInit {
         if (val instanceof Array && val.length > 0) {
           if (val[0].path === 'display') {
             this.currenttag = val[1].path;
-          }          
+          }
         }
       },
       error: err => {
@@ -42,7 +44,7 @@ export class TagDetailComponent implements OnInit, AfterViewInit {
     });
   }
 
-  ngAfterViewInit() {
+  ngAfterViewInit(): void {
     // If the user changes the sort order, reset back to the first page.
     this.sort.sortChange.subscribe(() => this.paginator.pageIndex = 0);
 
@@ -67,7 +69,12 @@ export class TagDetailComponent implements OnInit, AfterViewInit {
       ).subscribe(data => this.data = data);
   }
 
-  public onRefIDClicked(row: TagCount): void {
-    console.log(`Count link clicked: ${row}`);
+  public onRefIDClicked(row: Tag): void {
+    // console.log(`Count link clicked: ${row}`);
+    if (row.RefType === TagReferenceType.ExerciseItem) {
+      this.router.navigate(['exercise-item/display', row.RefID]);
+    } else if (row.RefType === TagReferenceType.KnowledgeItem) {
+      this.router.navigate(['knowledge-item/display', row.RefID]);
+    }
   }
 }
