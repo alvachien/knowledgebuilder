@@ -3,7 +3,7 @@ import { HttpParams, HttpClient, HttpHeaders, HttpResponse, HttpRequest, HttpErr
 import { Observable, throwError, Subject, of } from 'rxjs';
 import { map, catchError } from 'rxjs/operators';
 
-import { ExerciseItem } from '../models/exercise-item';
+import { ExerciseItem, TagCount, Tag, KnowledgeItem, TagReferenceType } from '../models';
 import { environment } from '../../environments/environment';
 
 @Injectable({
@@ -232,5 +232,72 @@ export class ODataService {
 
     // return the map of progress.observables
     return status;
+  }
+
+  public getTagCounts(): Observable<{ totalCount: number, items: TagCount[]}> {
+    let headers: HttpHeaders = new HttpHeaders();
+    headers = headers.append('Content-Type', 'application/json')
+              .append('Accept', 'application/json');
+
+    let params: HttpParams = new HttpParams();
+    params = params.append('$top', '100');
+    params = params.append('$count', 'true');
+    // params = params.append('$select', 'ID,KnowledgeItemID,ExerciseType');
+    return this.http.get(`${this.apiUrl}TagCounts`, {
+        headers,
+        params,
+      })
+      .pipe(map(response => {
+        const rjs = response as any;
+        const ritems = rjs.value as any[];
+        const items: TagCount[] = [];
+        ritems.forEach(item => {
+          const rit: TagCount = new TagCount();
+          rit.parseData(item);
+          items.push(rit);
+        });
+
+        return {
+          totalCount: rjs['@odata.count'],
+          items,
+        };
+      }),
+      catchError((error: HttpErrorResponse) => {
+        return throwError(error.statusText + '; ' + error.error + '; ' + error.message);
+      }));
+  }
+
+  public getTags(term: string, reftype?: TagReferenceType): Observable<{ totalCount: number, items: Tag[]}> {
+    let headers: HttpHeaders = new HttpHeaders();
+    headers = headers.append('Content-Type', 'application/json')
+              .append('Accept', 'application/json');
+
+    let params: HttpParams = new HttpParams();
+    params = params.append('$top', '100');
+    params = params.append('$count', 'true');
+    params = params.append('$filter', `TagTerm eq '${term}'`);
+    // params = params.append('$select', 'ID,KnowledgeItemID,ExerciseType');
+    return this.http.get(`${this.apiUrl}Tags`, {
+        headers,
+        params,
+      })
+      .pipe(map(response => {
+        const rjs = response as any;
+        const ritems = rjs.value as any[];
+        const items: Tag[] = [];
+        ritems.forEach(item => {
+          const rit: Tag = new Tag();
+          rit.parseData(item);
+          items.push(rit);
+        });
+
+        return {
+          totalCount: rjs['@odata.count'],
+          items,
+        };
+      }),
+      catchError((error: HttpErrorResponse) => {
+        return throwError(error.statusText + '; ' + error.error + '; ' + error.message);
+      }));
   }
 }

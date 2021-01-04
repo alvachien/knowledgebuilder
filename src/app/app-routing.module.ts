@@ -13,6 +13,10 @@ const routes: Routes = [
     path: 'exercise-item',
     loadChildren: () => import('./pages/exercise-items/exercise-items.module').then(m => m.ExerciseItemsModule),
   },
+  {
+    path: 'tag',
+    loadChildren: () => import('./pages/tag/tag.module').then(m => m.TagModule),
+  },
 ];
 
 @NgModule({
