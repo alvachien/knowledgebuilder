@@ -38,7 +38,7 @@ export class KnowledgeItemsComponent implements AfterViewInit {
         map(data => {
           // Flip flag to show that loading has finished.
           this.isLoadingResults = false;
-          this.resultsLength = data.total_count;
+          this.resultsLength = data.totalCount;
 
           return data.items;
         }),

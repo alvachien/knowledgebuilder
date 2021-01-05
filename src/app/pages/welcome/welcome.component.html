@@ -4,7 +4,8 @@
             *ngFor="let tile of tiles"
             [colspan]="tile.cols"
             [rowspan]="tile.rows"
-            [style.background]="tile.color">
+            [style.background]="tile.color"
+            [style.font-size]="tile.fontsize">
           {{tile.text}}
         </mat-grid-tile>
     </mat-grid-list>    

@@ -1,11 +1,14 @@
 import { Component, OnInit } from '@angular/core';
-import { ODataService } from '../../services';
+
+import { OverviewInfo, TagReferenceType } from 'src/app/models';
+import { ODataService } from 'src/app/services';
 
 export interface Tile {
   color: string;
   cols: number;
   rows: number;
   text: string;
+  fontsize: string;
 }
 
 @Component({
@@ -14,11 +17,13 @@ export interface Tile {
   styleUrls: ['./welcome.component.scss'],
 })
 export class WelcomeComponent implements OnInit {
+  countOfKnowledge = 0;
+  countOfExercise = 0;
   tiles: Tile[] = [
-    {text: 'Welcome', cols: 3, rows: 1, color: 'lightblue'},
-    {text: 'To', cols: 1, rows: 2, color: 'lightgreen'},
-    {text: 'Knowledge', cols: 1, rows: 1, color: 'lightpink'},
-    {text: 'Builder', cols: 2, rows: 1, color: '#DDBDF1'},
+    {text: 'Welcome!', cols: 3, rows: 1, color: 'lightblue', fontsize: "16px"},
+    {text: 'Knowledge Builder', cols: 1, rows: 2, color: 'lightgreen', fontsize: "16px"},
+    {text: `Knowledge Items: ${this.countOfKnowledge}`, cols: 1, rows: 1, color: 'lightpink', fontsize: "32px"},
+    {text: `Exercise Items: ${this.countOfExercise}`, cols: 2, rows: 1, color: '#DDBDF1', fontsize: "32px"},
   ];
 
   constructor(private odataSrv: ODataService) {
@@ -36,5 +41,22 @@ export class WelcomeComponent implements OnInit {
         console.error(err);
       },
     });
+
+    this.odataSrv.getOverviewInfo().subscribe({
+      next: (val: OverviewInfo[]) => {
+        val.forEach(oi => {
+          if (oi.RefType === TagReferenceType.KnowledgeItem) {
+            this.countOfKnowledge = oi.Count;
+            this.tiles[2].text = `Knowledge Items: ${this.countOfKnowledge ? this.countOfKnowledge : 0}`; 
+          } else if (oi.RefType === TagReferenceType.ExerciseItem) {
+            this.countOfExercise = oi.Count;
+            this.tiles[3].text = `Exercise Items: ${this.countOfExercise ? this.countOfExercise : 0}`; 
+          }
+        });
+      },
+      error: err => {
+        console.error(err);
+      }
+    })
   }
 }

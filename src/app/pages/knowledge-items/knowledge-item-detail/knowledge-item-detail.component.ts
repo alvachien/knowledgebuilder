@@ -1,12 +1,13 @@
 import { Component, OnInit, OnDestroy, ViewChild } from '@angular/core';
 import { FormGroup, FormControl, Validators } from '@angular/forms';
 import { ReplaySubject } from 'rxjs';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { MatDialog } from '@angular/material/dialog';
 import { KatexOptions } from 'ngx-markdown';
 
 import { ODataService } from '../../../services';
 import { ImageUploadComponent } from '../../image-upload/image-upload.component';
+import { KnowledgeItemCategory, KnowledgeItem, } from 'src/app/models';
 
 @Component({
   selector: 'app-knowledge-item-detail',
@@ -42,6 +43,7 @@ export class KnowledgeItemDetailComponent implements OnInit, OnDestroy {
   constructor(
     public dialog: MatDialog,
     private activateRoute: ActivatedRoute,
+    private router: Router,
     private odataService: ODataService) {
     this.itemFormGroup = new FormGroup({
       idControl: new FormControl(),
@@ -77,6 +79,8 @@ export class KnowledgeItemDetailComponent implements OnInit, OnDestroy {
                 this.itemFormGroup.get('idControl')?.setValue(val2.ID);
                 this.itemFormGroup.get('idControl')?.disable();
                 this.itemFormGroup.get('titleControl')?.setValue(val2.Title);
+                // Category
+                // this.itemFormGroup.get('')?.setValue();
                 this.content = val2.Content;
 
                 if (this.currentMode === 'Display') {
@@ -84,8 +88,6 @@ export class KnowledgeItemDetailComponent implements OnInit, OnDestroy {
                 } else {
                   this.itemFormGroup.markAsPristine();
                 }
-
-                this.qbitems = val2.QuestionBankItems;
               },
               error: err => {
                 console.error(err);
@@ -121,14 +123,14 @@ export class KnowledgeItemDetailComponent implements OnInit, OnDestroy {
       }
 
       // Create a new knowlege item
-      this.odataService.createKnowledgeItem({
-        Category: 'Concept',
-        Title: this.itemFormGroup.get('titleControl')?.value,
-//        Content: this.itemFormGroup.get('contentControl').value
-        Content: this.content,
-      }).subscribe({
+      let kitem = new KnowledgeItem();
+      kitem.ItemCategory = KnowledgeItemCategory.Concept;
+      kitem.Content = this.content;
+      kitem.Title = this.itemFormGroup.get('titleControl')?.value;
+      this.odataService.createKnowledgeItem(kitem).subscribe({
         next: val => {
-          // Val
+          // Succeed
+          this.router.navigate(['knowledge-item/display', val.ID]);
         },
         error: err => {
           // Error

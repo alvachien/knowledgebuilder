@@ -3,7 +3,7 @@ import { HttpParams, HttpClient, HttpHeaders, HttpResponse, HttpRequest, HttpErr
 import { Observable, throwError, Subject, of } from 'rxjs';
 import { map, catchError } from 'rxjs/operators';
 
-import { ExerciseItem, TagCount, Tag, KnowledgeItem, TagReferenceType } from '../models';
+import { ExerciseItem, TagCount, Tag, KnowledgeItem, TagReferenceType, OverviewInfo } from '../models';
 import { environment } from '../../environments/environment';
 
 @Injectable({
@@ -41,7 +41,10 @@ export class ODataService {
       }
   }
 
-  public getKnowledgeItems(): Observable<any> {
+  public getKnowledgeItems(): Observable<{
+    totalCount: number,
+    items: KnowledgeItem[]
+  }> {
     let headers: HttpHeaders = new HttpHeaders();
     headers = headers.append('Content-Type', 'application/json')
               .append('Accept', 'application/json');
@@ -56,9 +59,17 @@ export class ODataService {
       })
       .pipe(map(response => {
         const rjs = response as any;
+        const ritems = rjs.value as any[];
+        const items: KnowledgeItem[] = [];
+        ritems.forEach(item => {
+          const rit: KnowledgeItem = new KnowledgeItem();
+          rit.parseData(item);
+          items.push(rit);
+        });
+
         return {
-          total_count: rjs['@odata.count'],
-          items: rjs.value as any[]
+          totalCount: rjs['@odata.count'],
+          items:items,
         };
       }),
       catchError((error: HttpErrorResponse) => {
@@ -66,7 +77,7 @@ export class ODataService {
       }));
   }
 
-  public readKnowledgeItem(kid: number): Observable<any> {
+  public readKnowledgeItem(kid: number): Observable<KnowledgeItem> {
     let headers: HttpHeaders = new HttpHeaders();
     headers = headers.append('Content-Type', 'application/json')
               .append('Accept', 'application/json');
@@ -79,14 +90,17 @@ export class ODataService {
         params,
       })
       .pipe(map(response => {
-        return response as any;
+        const rsp = response as any;
+        const kitem = new KnowledgeItem();
+        kitem.parseData(rsp);
+        return kitem;
       }),
       catchError((error: HttpErrorResponse) => {
         return throwError(error.statusText + '; ' + error.error + '; ' + error.message);
       }));
   }
 
-  public createKnowledgeItem(ki: any): Observable<any> {
+  public createKnowledgeItem(ki: KnowledgeItem): Observable<KnowledgeItem> {
     let headers: HttpHeaders = new HttpHeaders();
     headers = headers.append('Content-Type', 'application/json')
               .append('Accept', 'application/json');
@@ -95,16 +109,16 @@ export class ODataService {
     // params = params.append('$top', '100');
     // params = params.append('$count', 'true');
     // params = params.append('$select', 'ID,Category,Title,CreatedAt,ModifiedAt');
-    return this.http.post(`${this.apiUrl}KnowledgeItems`, ki, {
+    const jdata = ki.generateString();
+    return this.http.post(`${this.apiUrl}KnowledgeItems`, jdata, {
         headers
         // params,
       })
       .pipe(map(response => {
-        const rjs = response as any;
-        return {
-          total_count: rjs['@odata.count'],
-          items: rjs.value as any[]
-        };
+        const rsp = response as any;
+        const kitem = new KnowledgeItem();
+        kitem.parseData(rsp);
+        return kitem;
       }),
       catchError((error: HttpErrorResponse) => {
         return throwError(error.statusText + '; ' + error.error + '; ' + error.message);
@@ -170,7 +184,7 @@ export class ODataService {
               .append('Accept', 'application/json');
 
     let params: HttpParams = new HttpParams();
-    params = params.append('$select', 'ID,KnowledgeItemID,Content,CreatedAt,ModifiedAt');
+    params = params.append('$select', 'ID,KnowledgeItemID,ExerciseType,Content,CreatedAt,ModifiedAt');
     params = params.append('$expand', 'Tags,Answer');
     return this.http.get(`${this.apiUrl}ExerciseItems(${qbid})`, {
         headers,
@@ -295,6 +309,37 @@ export class ODataService {
           totalCount: rjs['@odata.count'],
           items,
         };
+      }),
+      catchError((error: HttpErrorResponse) => {
+        return throwError(error.statusText + '; ' + error.error + '; ' + error.message);
+      }));
+  }
+
+  public getOverviewInfo(): Observable<OverviewInfo[]> {
+    let headers: HttpHeaders = new HttpHeaders();
+    headers = headers.append('Content-Type', 'application/json')
+              .append('Accept', 'application/json');
+
+    let params: HttpParams = new HttpParams();
+    // params = params.append('$top', '100');
+    // params = params.append('$count', 'true');
+    // params = params.append('$filter', `TagTerm eq '${term}'`);
+    // params = params.append('$select', 'ID,KnowledgeItemID,ExerciseType');
+    return this.http.get(`${this.apiUrl}OverviewInfos`, {
+        headers,
+        params,
+      })
+      .pipe(map(response => {
+        const rjs = response as any;
+        const ritems = rjs.value as any[];
+        const items: OverviewInfo[] = [];
+        ritems.forEach(item => {
+          const rit: OverviewInfo = new OverviewInfo();
+          rit.parseData(item);
+          items.push(rit);
+        });
+
+        return items;
       }),
       catchError((error: HttpErrorResponse) => {
         return throwError(error.statusText + '; ' + error.error + '; ' + error.message);

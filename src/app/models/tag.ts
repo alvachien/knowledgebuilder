@@ -14,7 +14,11 @@ export class Tag {
             this.TagTerm = val.TagTerm;
         }
         if (val && val.RefType) {
-            this.RefType = val.RefType;
+            if (isNaN(+val.RefType)) {
+                this.RefType = TagReferenceType[val.RefType as keyof typeof TagReferenceType];
+            } else {
+                this.RefType = +val.RefType;
+            }
         }
         if (val && val.RefID) {
             this.RefID = val.RefID;
@@ -32,7 +36,11 @@ export class TagCount {
             this.TagTerm = val.Tag;
         }
         if (val && val.RefType) {
-            this.RefType = val.RefType;
+            if (isNaN(+val.RefType)) {
+                this.RefType = TagReferenceType[val.RefType as keyof typeof TagReferenceType];
+            } else {
+                this.RefType = val.RefType;
+            }
         }
         if (val && val.Count) {
             this.Count = val.Count;
@@ -46,7 +54,11 @@ export class TagCountByRefType {
 
     public parseData(val: any): void {
         if (val && val.RefType) {
-            this.RefType = val.RefType;
+            if (isNaN(+val.RefType)) {
+                this.RefType = TagReferenceType[val.RefType as keyof typeof TagReferenceType];
+            } else {
+                this.RefType = val.RefType;
+            }
         }
         if (val && val.Count) {
             this.Count = val.Count;

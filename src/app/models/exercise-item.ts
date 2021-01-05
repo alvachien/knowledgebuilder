@@ -3,11 +3,11 @@
 ///
 
 export enum ExerciseItemType {
-    Question = 'Question',
-    SingleChoice = 'SingleChoice',
-    MultipleChoice = 'MultipleChoice',
-    ShortAnswer = 'ShortAnswer',
-    EssayQuestions = 'EssayQuestions',
+    Question = 0,
+    SingleChoice = 1,
+    MultipleChoice = 2,
+    ShortAnswer = 3,
+    EssayQuestions = 4,
 }
 
 export class ExerciseItem {
@@ -47,7 +47,11 @@ export class ExerciseItem {
             this.KnowledgeItemID = val.KnowledgeItemID;
         }
         if (val && val.ExerciseType) {
-            this.ItemType = val.ExerciseType;
+            if (isNaN(+val.ExerciseType)) {
+                this.ItemType = ExerciseItemType[val.ExerciseType as keyof typeof ExerciseItemType];
+            } else {
+                this.ItemType = +val.ExerciseType;
+            }
         }
         if (val && val.Content) {
             this.Content = val.Content;
@@ -74,7 +78,7 @@ export class ExerciseItem {
     public generateString(iscreate?: boolean): string {
         const exobj: any = {
             Content: this.Content,
-            ExerciseType: this.ItemType
+            ExerciseType: ExerciseItemType[this.ItemType],
         };
         if (this.KnowledgeItemID) {
             exobj.KnowledgeItemID = this.KnowledgeItemID;

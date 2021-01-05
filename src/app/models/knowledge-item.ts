@@ -13,9 +13,12 @@ export class KnowledgeItem {
     private _tags: string[] = [];
     private _createdAt?: Date;
     private _modifiedAt?: Date;
+    private _title!: string;
 
     get ID(): number                            { return this._id;          }
     set ID(nid: number)                         { this._id  = nid;          }
+    get Title(): string                         { return this._title;       }
+    set Title(title: string)                    { this._title = title;      }
     get Content(): string                       { return this._content;     }
     set Content(ct: string)                     { this._content = ct;       }
     get ItemCategory(): KnowledgeItemCategory   { return this._itemCtgy;    }
@@ -34,7 +37,14 @@ export class KnowledgeItem {
             this.ID = +val.ID;
         }
         if (val && val.ItemCategory) {
-            this.ItemCategory = val.ItemCategory;
+            if (isNaN(+val.ItemCategory)) {
+                this.ItemCategory = KnowledgeItemCategory[val.ItemCategory as keyof typeof KnowledgeItemCategory];
+            } else {
+                this.ItemCategory = +val.ItemCategory;
+            }
+        }
+        if (val && val.Title) {
+            this._title = val.Title;
         }
         if (val && val.Content) {
             this.Content = val.Content;
@@ -48,8 +58,9 @@ export class KnowledgeItem {
     }
     public generateString(): string {
         let exobj: any = {
-            Content: this.Content,
-            ItemCategory: this.ItemCategory
+            Content: this._content,
+            Title: this._title,
+            Category: KnowledgeItemCategory[this.ItemCategory],
         };
         if (this.CreatedAt) {
             exobj.CreatedAt = this.CreatedAt.toISOString();
