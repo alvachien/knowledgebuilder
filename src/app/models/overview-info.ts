@@ -1,8 +1,8 @@
 import { TagReferenceType } from './tag';
 
 export class OverviewInfo {
-    public RefType: TagReferenceType;
-    public Count: number;
+    public RefType!: TagReferenceType;
+    public Count!: number;
 
     public parseData(val: any): void {
         if (val && val.RefType) {

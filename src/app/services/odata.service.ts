@@ -178,6 +178,26 @@ export class ODataService {
       }));
   }
 
+  public changeExerciseItem(qbi: ExerciseItem): Observable<ExerciseItem> {
+    let headers: HttpHeaders = new HttpHeaders();
+    headers = headers.append('Content-Type', 'application/json')
+              .append('Accept', 'application/json');
+
+    const jdata = qbi.generateString();
+    return this.http.put(`${this.apiUrl}ExerciseItems`, jdata, {
+        headers,
+      })
+      .pipe(map(response => {
+        const rjs = response as any;
+        const rtn = new ExerciseItem();
+        rtn.parseData(rjs);
+        return rtn;
+      }),
+      catchError((error: HttpErrorResponse) => {
+        return throwError(error.statusText + '; ' + error.error + '; ' + error.message);
+      }));
+  }
+
   public readExerciseItem(qbid: number): Observable<ExerciseItem> {
     let headers: HttpHeaders = new HttpHeaders();
     headers = headers.append('Content-Type', 'application/json')

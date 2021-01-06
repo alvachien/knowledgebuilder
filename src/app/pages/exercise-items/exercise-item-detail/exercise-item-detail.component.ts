@@ -86,7 +86,7 @@ export class ExerciseItemDetailComponent implements OnInit, OnDestroy {
             this.currentMode = 'Create';
           } else if (val[0].path === 'edit') {
             this.routerID = +val[1].path;
-            this.currentMode = 'Edit';
+            this.currentMode = 'Change';
           } else if (val[0].path === 'display') {
             this.routerID = +val[1].path;
             this.currentMode = 'Display';
@@ -98,6 +98,7 @@ export class ExerciseItemDetailComponent implements OnInit, OnDestroy {
             .subscribe({
               next: exitem => {
                 this.onSetItemData(exitem);
+                this._itemObject = exitem;
               },
               error: err => {
                 console.error(err);
@@ -124,7 +125,7 @@ export class ExerciseItemDetailComponent implements OnInit, OnDestroy {
       if (!this.itemFormGroup.valid) {
         if (this.itemFormGroup.errors) {
           const err = this.itemFormGroup.errors;
-          console.log(err);
+          console.error(err);
         }
         return;
       }
@@ -145,6 +146,32 @@ export class ExerciseItemDetailComponent implements OnInit, OnDestroy {
           console.error(err);
         }
       });
+    } else if (this.currentMode === 'Change') {
+      if (!this.itemFormGroup.valid) {
+        if (this.itemFormGroup.errors) {
+          const err = this.itemFormGroup.errors;
+          console.log(err);
+        }
+        return;
+      }
+
+      // Create a new exercise item
+      if (this._itemObject) {
+        this._itemObject.ItemType = this.itemFormGroup.get('typeControl')!.value as ExerciseItemType;
+        this._itemObject.Content = this.content;
+        this._itemObject.Tags = this.tags;
+        this._itemObject.Answer = this.answerContent;
+        this.odataService.changeExerciseItem(this._itemObject).subscribe({
+          next: val => {
+            // Display current reason
+            this.router.navigate(['/exercise-item/display', val.ID]);
+          },
+          error: err => {
+            // Error
+            console.error(err);
+          }
+        });  
+      }
     }
   }
 
