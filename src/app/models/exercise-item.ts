@@ -75,19 +75,22 @@ export class ExerciseItem {
             });
         }
     }
-    public generateString(iscreate?: boolean): string {
+    public generateString(isupdate?: boolean): string {
         const exobj: any = {
             Content: this.Content,
             ExerciseType: ExerciseItemType[this.ItemType],
         };
+        if (isupdate) {
+            exobj.ID = this.ID;
+        }
         if (this.KnowledgeItemID) {
             exobj.KnowledgeItemID = this.KnowledgeItemID;
         }
         if (this.CreatedAt) {
-            exobj.CreatedAt = this.CreatedAt.toISOString();
+            exobj.CreatedAt = this.CreatedAt.toISOString().slice(0,10);
         }
         if (this.ModifiedAt) {
-            exobj.ModifiedAt = this.ModifiedAt.toISOString(); // .slice(0,10);;
+            exobj.ModifiedAt = this.ModifiedAt.toISOString().slice(0,10);
         }
         if (this.Answer) {
             exobj.Answer = {

@@ -183,8 +183,8 @@ export class ODataService {
     headers = headers.append('Content-Type', 'application/json')
               .append('Accept', 'application/json');
 
-    const jdata = qbi.generateString();
-    return this.http.put(`${this.apiUrl}ExerciseItems`, jdata, {
+    const jdata = qbi.generateString(true);
+    return this.http.put(`${this.apiUrl}ExerciseItems(${qbi.ID})`, jdata, {
         headers,
       })
       .pipe(map(response => {
