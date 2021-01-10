@@ -55,6 +55,14 @@ export class KnowledgeItem {
         if (val && val.ModifiedAt) {
             this.ModifiedAt = new Date(val.ModifiedAt);
         }
+        // Tags
+        if (val && val.Tags) {
+            const tags: any[] = val.Tags as any[];
+            this._tags = [];
+            tags.forEach(tg => {
+                this._tags.push(tg.TagTerm);
+            });
+        }
     }
     public generateString(): string {
         let exobj: any = {
@@ -67,6 +75,14 @@ export class KnowledgeItem {
         }
         if (this.ModifiedAt) {
             exobj.ModifiedAt = this.ModifiedAt.toISOString(); // .slice(0,10);;
+        }
+        if (this.Tags) {
+            exobj.Tags = [];
+            this.Tags.forEach(tg => {
+                exobj.Tags.push({
+                    TagTerm: tg
+                });
+            });
         }
 
         return JSON && JSON.stringify(exobj);

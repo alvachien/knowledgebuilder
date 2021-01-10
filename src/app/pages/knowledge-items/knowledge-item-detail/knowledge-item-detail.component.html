@@ -12,9 +12,51 @@
 
             <!-- Title -->
             <mat-form-field class="control-full-width">
-                <input matInput type="text" placeholder="Title" formControlName="titleControl" required name="title" #title
+                <input matInput type="text" placeholder="{{'Title' | transloco}}" formControlName="titleControl" required name="title" #title
                     maxlength="30">
                 <mat-hint align="end">{{title.value.length}} / 30</mat-hint>
+            </mat-form-field>
+
+            <!-- Category -->
+            <mat-form-field appearance="fill" class="control-full-width">
+                <mat-label>{{'Category' | transloco}}</mat-label>
+                <select matNativeControl required formControlName="ctgyControl">
+                    <option value="0">Concept</option>
+                    <option value="1">Foruma</option>
+                </select>
+            </mat-form-field>
+            
+            <!-- Created At -->
+            <mat-form-field appearance="fill" class="control-full-width">
+                <mat-label>{{'CreatedAt' | transloco}}</mat-label>
+                <input matInput [matDatepicker]="createdAt" formControlName="createdAtControl">
+                <mat-datepicker-toggle matSuffix [for]="createdAt"></mat-datepicker-toggle>
+                <mat-datepicker #createdAt></mat-datepicker>
+            </mat-form-field>
+
+            <!-- Modified At -->
+            <mat-form-field appearance="fill" class="control-full-width">
+                <mat-label>{{'ModifiedAt' | transloco}}</mat-label>
+                <input matInput [matDatepicker]="modifiedAt" formControlName="modifiedAtControl">
+                <mat-datepicker-toggle matSuffix [for]="modifiedAt"></mat-datepicker-toggle>
+                <mat-datepicker #modifiedAt></mat-datepicker>
+            </mat-form-field>
+
+            <!-- Tags -->
+            <mat-form-field appearance="fill" class="control-full-width">
+                <mat-label>{{'Tags' | transloco}}</mat-label>
+                <mat-chip-list #chipList formControlName="tagControl">
+                  <mat-chip *ngFor="let tag of tags" [selectable]="selectable"
+                           [removable]="isEditable" (removed)="removeTag(tag)">
+                    {{tag}}
+                    <mat-icon matChipRemove *ngIf="isEditable">cancel</mat-icon>
+                  </mat-chip>
+                  <input placeholder="New tag..."
+                         [matChipInputFor]="chipList"
+                         [matChipInputSeparatorKeyCodes]="separatorKeysCodes"
+                         [matChipInputAddOnBlur]="addOnBlur"
+                         (matChipInputTokenEnd)="addTag($event)">
+                </mat-chip-list>
             </mat-form-field>
         </form>
 
@@ -31,7 +73,7 @@
         </div>
     </mat-card-content>
     <mat-card-actions>
-        <button mat-button (click)="onOK()">SAVE</button>
-        <button mat-button>CANCEL</button>
+        <button mat-button (click)="onOK()">{{'Save' | transloco}}</button>
+        <button mat-button>{{'Cancel' | transloco}}</button>
     </mat-card-actions>
 </mat-card>

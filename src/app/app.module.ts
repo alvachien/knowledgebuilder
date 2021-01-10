@@ -8,8 +8,11 @@ import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { MaterialModulesModule } from './material-modules';
 import { MonacoEditorModule } from 'ngx-monaco-editor';
 import { MarkdownModule, MarkedOptions } from 'ngx-markdown';
+import { translocoLoader } from './transloco-loader';
 
 import { ODataService } from './services';
+import { environment } from 'src/environments/environment';
+import { translocoConfig, TranslocoModule, TRANSLOCO_CONFIG } from '@ngneat/transloco';
 
 @NgModule({
   declarations: [
@@ -20,6 +23,7 @@ import { ODataService } from './services';
     AppRoutingModule,
     BrowserAnimationsModule,
     HttpClientModule,
+    TranslocoModule,
     MonacoEditorModule.forRoot(),
     MarkdownModule.forRoot({
       loader: HttpClient, // optional, only if you use [src] attribute
@@ -36,7 +40,19 @@ import { ODataService } from './services';
     }),
     MaterialModulesModule,
   ],
-  providers: [ODataService],
+  providers: [
+    ODataService,
+    {
+      provide: TRANSLOCO_CONFIG,
+      useValue: translocoConfig({
+        availableLangs: ['en', 'zh'],
+        defaultLang: 'zh',
+        reRenderOnLangChange: true,
+        prodMode: environment.production,
+      })
+    },
+    translocoLoader,
+  ],
   bootstrap: [AppComponent]
 })
 export class AppModule { }

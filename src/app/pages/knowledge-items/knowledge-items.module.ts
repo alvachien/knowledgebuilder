@@ -4,6 +4,7 @@ import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 
 import { MonacoEditorModule } from 'ngx-monaco-editor';
 import { MarkdownModule, MarkedOptions } from 'ngx-markdown';
+import { TranslocoModule } from '@ngneat/transloco';
 
 import { MaterialModulesModule } from '../../material-modules';
 import { ImageUploadModule } from '../image-upload/image-upload.module';
@@ -26,6 +27,7 @@ import { KnowledgeItemDetailComponent } from './knowledge-item-detail/knowledge-
     MonacoEditorModule,
     MarkdownModule.forChild(),
     KnowledgeItemsRoutingModule,
+    TranslocoModule,
   ],
 })
 export class KnowledgeItemsModule { }

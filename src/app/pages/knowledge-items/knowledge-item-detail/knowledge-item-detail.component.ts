@@ -4,6 +4,8 @@ import { ReplaySubject } from 'rxjs';
 import { ActivatedRoute, Router } from '@angular/router';
 import { MatDialog } from '@angular/material/dialog';
 import { KatexOptions } from 'ngx-markdown';
+import { COMMA, ENTER } from '@angular/cdk/keycodes';
+import { MatChipInputEvent } from '@angular/material/chips';
 
 import { ODataService } from '../../../services';
 import { ImageUploadComponent } from '../../image-upload/image-upload.component';
@@ -29,15 +31,20 @@ export class KnowledgeItemDetailComponent implements OnInit, OnDestroy {
     throwOnError: false,
     errorColor: '#cc0000',
   };
-  // Questoin bank items
-  displayedColumns: string[] = ['id', 'type'];
-  qbitems: any[] = [];
+  // Chip for tags
+  selectable = true;
+  addOnBlur = true;
+  readonly separatorKeysCodes: number[] = [ENTER, COMMA];
+  public tags: string[] = [];
 
   get isDisplayMode(): boolean {
     return this.currentMode === 'Display';
   }
   get IsCreateMode(): boolean {
     return this.currentMode === 'Create';
+  }
+  get isEditable(): boolean {
+    return this.currentMode === 'Create' || this.currentMode === 'Change';
   }
 
   constructor(
@@ -48,7 +55,16 @@ export class KnowledgeItemDetailComponent implements OnInit, OnDestroy {
     this.itemFormGroup = new FormGroup({
       idControl: new FormControl(),
       titleControl: new FormControl('', Validators.required),
-//      contentControl: new FormControl('', Validators.required),
+      ctgyControl: new FormControl(),
+      createdAtControl: new FormControl({
+        value: null,
+        disabled: true
+      }),
+      modifiedAtControl: new FormControl({
+        value: null,
+        disabled: true
+      }),
+      tagControl: new FormControl(),
     });
 
     this.currentMode = 'Create';
@@ -79,9 +95,11 @@ export class KnowledgeItemDetailComponent implements OnInit, OnDestroy {
                 this.itemFormGroup.get('idControl')?.setValue(val2.ID);
                 this.itemFormGroup.get('idControl')?.disable();
                 this.itemFormGroup.get('titleControl')?.setValue(val2.Title);
-                // Category
-                // this.itemFormGroup.get('')?.setValue();
+                this.itemFormGroup.get('ctgyControl')?.setValue(val2.ItemCategory);
+                this.itemFormGroup.get('createdAtControl')?.setValue(val2.CreatedAt);
+                this.itemFormGroup.get('modifiedAtControl')?.setValue(val2.ModifiedAt);
                 this.content = val2.Content;
+                this.tags = val2.Tags;
 
                 if (this.currentMode === 'Display') {
                   this.itemFormGroup.disable(); // Readonly mode
@@ -158,5 +176,27 @@ export class KnowledgeItemDetailComponent implements OnInit, OnDestroy {
         // }
       }
     });
+  }
+  addTag(event: MatChipInputEvent): void {
+    const input = event.input;
+    const value = event.value;
+
+    // Add our fruit
+    if ((value || '').trim()) {
+      this.tags.push(value.trim());
+    }
+
+    // Reset the input value
+    if (input) {
+      input.value = '';
+    }
+  }
+
+  removeTag(tag: string): void {
+    const index = this.tags.indexOf(tag);
+
+    if (index >= 0) {
+      this.tags.splice(index, 1);
+    }
   }
 }

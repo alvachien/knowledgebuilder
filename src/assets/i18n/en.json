@@ -1,0 +1,23 @@
+{
+    "KnowledgeItem": "Knowledge Item",
+    "ExerciseItem": "Exercise Item",
+    "Category": "Category",
+    "Type": "Type",
+    "Create": "Create",
+    "Change": "Change",
+    "Delete": "Delete",
+    "New": "New",
+    "Tag": "Tag",
+    "Title": "Title",
+    "Content": "Content",
+    "Answer": "Answer",
+    "CreatedAt": "Created At",
+    "ModifiedAt": "Modified At",
+    "Tags": "Tags",
+    "Save": "Save",
+    "Cancel": "Cancel",
+    "KnowledgeBuilder": "Knowledge Builder",
+    "Close": "Close",
+    "WelcomePage": "Welcome Page",
+    "Count": "Count"
+}

@@ -5,7 +5,7 @@ import { COMMA, ENTER } from '@angular/cdk/keycodes';
 import { ActivatedRoute, Router } from '@angular/router';
 import { MatDialog } from '@angular/material/dialog';
 import { KatexOptions } from 'ngx-markdown';
-import {MatChipInputEvent} from '@angular/material/chips';
+import { MatChipInputEvent } from '@angular/material/chips';
 
 import { ExerciseItem, ExerciseItemType } from '../../../models/exercise-item';
 import { ODataService } from '../../../services';
@@ -217,20 +217,20 @@ export class ExerciseItemDetailComponent implements OnInit, OnDestroy {
       });
     }
 
-    addTag(event: MatChipInputEvent): void {
-      const input = event.input;
-      const value = event.value;
+  addTag(event: MatChipInputEvent): void {
+    const input = event.input;
+    const value = event.value;
 
-      // Add our fruit
-      if ((value || '').trim()) {
-        this.tags.push(value.trim());
-      }
-
-      // Reset the input value
-      if (input) {
-        input.value = '';
-      }
+    // Add our fruit
+    if ((value || '').trim()) {
+      this.tags.push(value.trim());
     }
+
+    // Reset the input value
+    if (input) {
+      input.value = '';
+    }
+  }
 
   removeTag(tag: string): void {
     const index = this.tags.indexOf(tag);

@@ -30,6 +30,7 @@ export class ODataService {
           responseType: 'text'
         })
         .pipe(map(response => {
+          this.isMetadataLoaded = true;
           this.metadataInfo = response as unknown as string;
           return this.metadataInfo;
         }),
@@ -84,7 +85,7 @@ export class ODataService {
 
     let params: HttpParams = new HttpParams();
     params = params.append('$select', 'ID,Category,Title,Content');
-    // params = params.append('$expand', 'QuestionBankItems');
+    params = params.append('$expand', 'Tags');
     return this.http.get(`${this.apiUrl}KnowledgeItems(${kid})`, {
         headers,
         params,
@@ -105,10 +106,6 @@ export class ODataService {
     headers = headers.append('Content-Type', 'application/json')
               .append('Accept', 'application/json');
 
-    // let params: HttpParams = new HttpParams();
-    // params = params.append('$top', '100');
-    // params = params.append('$count', 'true');
-    // params = params.append('$select', 'ID,Category,Title,CreatedAt,ModifiedAt');
     const jdata = ki.generateString();
     return this.http.post(`${this.apiUrl}KnowledgeItems`, jdata, {
         headers
