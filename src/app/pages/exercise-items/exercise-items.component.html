@@ -30,13 +30,13 @@
 
             <!-- Item Type Column -->
             <ng-container matColumnDef="itemtype">
-                <th mat-header-cell *matHeaderCellDef>Item Type</th>
+                <th mat-header-cell *matHeaderCellDef>{{'Type' | transloco}}</th>
                 <td mat-cell *matCellDef="let row">{{row.ItemType}}</td>
             </ng-container>
 
             <!-- Knowledge Item -->
             <ng-container matColumnDef="knowledgeitem">
-                <th mat-header-cell *matHeaderCellDef>Knowledge Item</th>
+                <th mat-header-cell *matHeaderCellDef>{{'KnowledgeItem' | transloco}}</th>
                 <td mat-cell *matCellDef="let row">{{row.KnowledgeItemID}}</td>
             </ng-container>
 

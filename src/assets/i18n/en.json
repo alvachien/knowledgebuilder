@@ -1,6 +1,8 @@
 {
     "KnowledgeItem": "Knowledge Item",
     "ExerciseItem": "Exercise Item",
+    "KnowledgeItems": "Knowledge Items",
+    "ExerciseItems": "Exercise Items",
     "Category": "Category",
     "Type": "Type",
     "Create": "Create",
@@ -19,5 +21,7 @@
     "KnowledgeBuilder": "Knowledge Builder",
     "Close": "Close",
     "WelcomePage": "Welcome Page",
-    "Count": "Count"
+    "Count": "Count",
+    "NewKnowledgeItem": "New Knowledge Item",
+    "NewExerciseItem": "New Exercise Item"
 }

@@ -1,6 +1,8 @@
 {
     "KnowledgeItem": "知识点",
     "ExerciseItem": "练习题",
+    "KnowledgeItems": "知识点",
+    "ExerciseItems": "练习题",
     "Category": "种类",
     "Type": "类别",
     "Create": "创建",
@@ -19,5 +21,7 @@
     "KnowledgeBuilder": "Knowledge Builder",
     "Close": "关闭",
     "WelcomePage": "欢迎页",
-    "Count": "总计"
+    "Count": "总计",
+    "NewKnowledgeItem": "新建知识点",
+    "NewExerciseItem": "新建练习题"
 }
