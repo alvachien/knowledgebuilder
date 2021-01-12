@@ -53,7 +53,10 @@ export class KnowledgeItemDetailComponent implements OnInit, OnDestroy {
     private router: Router,
     private odataService: ODataService) {
     this.itemFormGroup = new FormGroup({
-      idControl: new FormControl(),
+      idControl: new FormControl({
+        value: null,
+        disabled: true
+      }),
       titleControl: new FormControl('', Validators.required),
       ctgyControl: new FormControl(),
       createdAtControl: new FormControl({
@@ -81,7 +84,7 @@ export class KnowledgeItemDetailComponent implements OnInit, OnDestroy {
             this.currentMode = 'Create';
           } else if (val[0].path === 'edit') {
             this.routerID = +val[1].path;
-            this.currentMode = 'Edit';
+            this.currentMode = 'Change';
           } else if (val[0].path === 'display') {
             this.routerID = +val[1].path;
             this.currentMode = 'Display';
@@ -93,7 +96,6 @@ export class KnowledgeItemDetailComponent implements OnInit, OnDestroy {
             .subscribe({
               next: val2 => {
                 this.itemFormGroup.get('idControl')?.setValue(val2.ID);
-                this.itemFormGroup.get('idControl')?.disable();
                 this.itemFormGroup.get('titleControl')?.setValue(val2.Title);
                 this.itemFormGroup.get('ctgyControl')?.setValue(val2.ItemCategory);
                 this.itemFormGroup.get('createdAtControl')?.setValue(val2.CreatedAt);
@@ -145,10 +147,36 @@ export class KnowledgeItemDetailComponent implements OnInit, OnDestroy {
       kitem.ItemCategory = KnowledgeItemCategory.Concept;
       kitem.Content = this.content;
       kitem.Title = this.itemFormGroup.get('titleControl')?.value;
+      kitem.Tags = this.tags;
       this.odataService.createKnowledgeItem(kitem).subscribe({
         next: val => {
           // Succeed
           this.router.navigate(['knowledge-item/display', val.ID]);
+        },
+        error: err => {
+          // Error
+        }
+      });
+    } else if(this.currentMode === 'Change') {
+      if (!this.itemFormGroup.valid) {
+        if (this.itemFormGroup.errors) {
+          const err = this.itemFormGroup.errors;
+          console.log(err);
+        }
+        return;
+      }
+
+      // Create a new knowlege item
+      let kitem = new KnowledgeItem();
+      kitem.ID = this.itemFormGroup.get('idControl')?.value;
+      kitem.ItemCategory = KnowledgeItemCategory.Concept;
+      kitem.Content = this.content;
+      kitem.Title = this.itemFormGroup.get('titleControl')?.value;
+      kitem.Tags = this.tags;
+      this.odataService.changeKnowledgeItem(kitem).subscribe({
+        next: val => {
+          // Succeed
+          this.router.navigate(['knowledge-item/display', kitem.ID]);
         },
         error: err => {
           // Error
@@ -177,6 +205,7 @@ export class KnowledgeItemDetailComponent implements OnInit, OnDestroy {
       }
     });
   }
+
   addTag(event: MatChipInputEvent): void {
     const input = event.input;
     const value = event.value;

@@ -4,6 +4,20 @@ export enum TagReferenceType {
     ExerciseItem = 2,
 }
 
+export function getTagReferenceTypeName(reftype: TagReferenceType): string {
+    let rtn = '';
+    switch (reftype) {
+        case TagReferenceType.ExerciseItem:
+            rtn = 'ExerciseItem';
+            break;
+
+        default:
+            rtn = 'KnowlegeItem';
+            break;
+    }
+    return rtn;
+}
+
 export class Tag {
     public TagTerm?: string;
     public RefType?: TagReferenceType;

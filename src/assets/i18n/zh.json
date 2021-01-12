@@ -23,5 +23,16 @@
     "WelcomePage": "欢迎页",
     "Count": "总计",
     "NewKnowledgeItem": "新建知识点",
-    "NewExerciseItem": "新建练习题"
+    "NewExerciseItem": "新建练习题",
+    "ExerciseItemType": {
+        "SingleChoice": "单选题",
+        "MultipleChoices": "多选题",
+        "ShortAnswer": "简答题",
+        "Question": "普通问题",
+        "EssayQuestion": "论述题"
+    },
+    "KnowledgeItemCategory": {
+        "Concept": "概念",
+        "Formula": "公式"
+    }
 }

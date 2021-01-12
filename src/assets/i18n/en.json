@@ -23,5 +23,16 @@
     "WelcomePage": "Welcome Page",
     "Count": "Count",
     "NewKnowledgeItem": "New Knowledge Item",
-    "NewExerciseItem": "New Exercise Item"
+    "NewExerciseItem": "New Exercise Item",
+    "ExerciseItemType": {
+        "SingleChoice": "Single Choice",
+        "MultipleChoices": "Multiple Choices",
+        "ShortAnswer": "Short Answer",
+        "Question": "Question",
+        "EssayQuestion": "Essay Question"
+    },
+    "KnowledgeItemCategory": {
+        "Concept": "Concept",
+        "Formula": "Formula"
+    }
 }

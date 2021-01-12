@@ -121,6 +121,26 @@ export class ODataService {
         return throwError(error.statusText + '; ' + error.error + '; ' + error.message);
       }));
   }
+  public changeKnowledgeItem(ki: KnowledgeItem): Observable<KnowledgeItem> {
+    let headers: HttpHeaders = new HttpHeaders();
+    headers = headers.append('Content-Type', 'application/json')
+              .append('Accept', 'application/json');
+
+    const jdata = ki.generateString(true);
+    return this.http.put(`${this.apiUrl}KnowledgeItems(${ki.ID})`, jdata, {
+        headers
+        // params,
+      })
+      .pipe(map(response => {
+        const rsp = response as any;
+        const kitem = new KnowledgeItem();
+        kitem.parseData(rsp);
+        return kitem;
+      }),
+      catchError((error: HttpErrorResponse) => {
+        return throwError(error.statusText + '; ' + error.error + '; ' + error.message);
+      }));
+  }
 
   public getExerciseItems(): Observable<{ totalCount: number, items: ExerciseItem[]}> {
     let headers: HttpHeaders = new HttpHeaders();

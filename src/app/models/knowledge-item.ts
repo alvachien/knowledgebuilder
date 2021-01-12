@@ -6,6 +6,21 @@ export enum KnowledgeItemCategory {
     Formula     = 1,
 }
 
+export function getKnowledgeItemCategoryName(ctgy: KnowledgeItemCategory): string {
+    let rtn = '';
+    switch (ctgy) {
+        case KnowledgeItemCategory.Formula:
+            rtn = 'KnowledgeItemCategory.Formula';
+            break;
+
+        case KnowledgeItemCategory.Concept:
+        default:
+            rtn = 'KnowledgeItemCategory.Concept';
+            break;
+    }
+    return rtn;
+}
+
 export class KnowledgeItem {
     private _id!: number;
     private _content!: string;
@@ -36,11 +51,11 @@ export class KnowledgeItem {
         if (val && val.ID) {
             this.ID = +val.ID;
         }
-        if (val && val.ItemCategory) {
-            if (isNaN(+val.ItemCategory)) {
-                this.ItemCategory = KnowledgeItemCategory[val.ItemCategory as keyof typeof KnowledgeItemCategory];
+        if (val && val.Category) {
+            if (isNaN(+val.Category)) {
+                this.ItemCategory = KnowledgeItemCategory[val.Category as keyof typeof KnowledgeItemCategory];
             } else {
-                this.ItemCategory = +val.ItemCategory;
+                this.ItemCategory = +val.Category;
             }
         }
         if (val && val.Title) {
@@ -64,12 +79,15 @@ export class KnowledgeItem {
             });
         }
     }
-    public generateString(): string {
+    public generateString(isupdate?: boolean): string {
         let exobj: any = {
             Content: this._content,
             Title: this._title,
             Category: KnowledgeItemCategory[this.ItemCategory],
         };
+        if (isupdate) {
+            exobj.ID = this.ID;
+        }
         if (this.CreatedAt) {
             exobj.CreatedAt = this.CreatedAt.toISOString();
         }

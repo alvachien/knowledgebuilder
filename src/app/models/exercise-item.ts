@@ -10,6 +10,33 @@ export enum ExerciseItemType {
     EssayQuestions = 4,
 }
 
+export function getExerciseItemTypeName(reftype: ExerciseItemType): string {
+    let rtn = '';
+    switch (reftype) {
+        case ExerciseItemType.SingleChoice:
+            rtn = 'ExerciseItemType.SingleChoice';
+            break;
+
+        case ExerciseItemType.MultipleChoice:
+            rtn = 'ExerciseItemType.MultipleChoices';
+            break;
+    
+        case ExerciseItemType.ShortAnswer:
+            rtn = 'ExerciseItemType.ShortAnswer';
+            break;
+
+        case ExerciseItemType.ShortAnswer:
+            rtn = 'ExerciseItemType.EssayQuestion';
+            break;
+
+        case ExerciseItemType.Question:
+        default:
+            rtn = 'Question';
+            break;
+    }
+    return rtn;
+}
+
 export class ExerciseItem {
     private _id!: number;
     private _content!: string;
