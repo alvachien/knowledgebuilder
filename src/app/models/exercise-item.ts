@@ -31,7 +31,7 @@ export function getExerciseItemTypeName(reftype: ExerciseItemType): string {
 
         case ExerciseItemType.Question:
         default:
-            rtn = 'Question';
+            rtn = 'ExerciseItemType.Question';
             break;
     }
     return rtn;

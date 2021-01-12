@@ -12,7 +12,7 @@ export function getTagReferenceTypeName(reftype: TagReferenceType): string {
             break;
 
         default:
-            rtn = 'KnowlegeItem';
+            rtn = 'KnowledgeItem';
             break;
     }
     return rtn;

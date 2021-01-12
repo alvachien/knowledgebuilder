@@ -4,6 +4,7 @@ import { MatSort } from '@angular/material/sort';
 import { merge, Observable, of as observableOf } from 'rxjs';
 import { catchError, map, startWith, switchMap } from 'rxjs/operators';
 
+import { KnowledgeItemCategory, getKnowledgeItemCategoryName } from 'src/app/models';
 import { ODataService } from '../../services';
 
 @Component({
@@ -22,6 +23,10 @@ export class KnowledgeItemsComponent implements AfterViewInit {
   @ViewChild(MatSort) sort!: MatSort;
 
   constructor(private odataService: ODataService) {}
+
+  getKnowledgeItemCategoryName(ctgy: KnowledgeItemCategory): string {
+    return getKnowledgeItemCategoryName(ctgy);
+  }
 
   ngAfterViewInit() {
     // If the user changes the sort order, reset back to the first page.

@@ -5,7 +5,7 @@ import { Router } from '@angular/router';
 import { merge, Observable, of as observableOf } from 'rxjs';
 import { catchError, map, startWith, switchMap } from 'rxjs/operators';
 
-import { TagCount } from 'src/app/models';
+import { TagCount, TagReferenceType, getTagReferenceTypeName } from 'src/app/models';
 import { ODataService } from '../../services';
 
 @Component({
@@ -25,6 +25,10 @@ export class TagComponent implements AfterViewInit {
 
   constructor(private odataService: ODataService,
     private router: Router) {}
+
+  getTagReferenceTypeName(reftype: TagReferenceType): string {
+    return getTagReferenceTypeName(reftype);
+  }
 
   ngAfterViewInit() {
     // If the user changes the sort order, reset back to the first page.

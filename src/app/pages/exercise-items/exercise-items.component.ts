@@ -4,7 +4,7 @@ import { MatSort } from '@angular/material/sort';
 import { merge, Observable, of as observableOf } from 'rxjs';
 import { catchError, map, startWith, switchMap } from 'rxjs/operators';
 
-import { ExerciseItem } from '../../models/exercise-item';
+import { ExerciseItem, ExerciseItemType, getExerciseItemTypeName, } from '../../models/exercise-item';
 import { ODataService } from '../../services';
 
 @Component({
@@ -13,7 +13,7 @@ import { ODataService } from '../../services';
   styleUrls: ['./exercise-items.component.scss'],
 })
 export class ExerciseItemsComponent implements AfterViewInit {
-  displayedColumns: string[] = ['id', 'itemtype', 'knowledgeitem'];
+  displayedColumns: string[] = ['id', 'itemtype', 'knowledgeitem', 'createdat'];
   data: ExerciseItem[] = [];
 
   resultsLength = 0;
@@ -23,6 +23,10 @@ export class ExerciseItemsComponent implements AfterViewInit {
   @ViewChild(MatSort) sort!: MatSort;
 
   constructor(private odataService: ODataService) {}
+
+  getExerciseItemTypeName(itemtype: ExerciseItemType): string {
+    return getExerciseItemTypeName(itemtype);
+  }
 
   ngAfterViewInit() {
     // If the user changes the sort order, reset back to the first page.

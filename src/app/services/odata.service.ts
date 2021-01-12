@@ -150,7 +150,7 @@ export class ODataService {
     let params: HttpParams = new HttpParams();
     params = params.append('$top', '100');
     params = params.append('$count', 'true');
-    params = params.append('$select', 'ID,KnowledgeItemID,ExerciseType');
+    params = params.append('$select', 'ID,KnowledgeItemID,ExerciseType,CreatedAt');
     return this.http.get(`${this.apiUrl}ExerciseItems`, {
         headers,
         params,
