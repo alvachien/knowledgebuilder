@@ -5,6 +5,20 @@
     </button>
     <h1 class="example-app-name">{{'KnowledgeBuilder' | transloco}}</h1>
     <span class="toolbar-spacer"></span>
+    <button mat-icon-button mat-button matTooltip="{{'Language' | transloco }}" [matMenuTriggerFor]="matMenuLanguage">
+      <mat-icon>language</mat-icon>
+    </button>
+    <mat-menu #matMenuLanguage="matMenu" overlapTrigger="false" xPosition="after" yPosition="below">
+      <button mat-menu-item *ngFor="let lang of availableLanguages" (click)="switchLanguage(lang.value)">
+        <mat-icon *ngIf="selectedLanguage === lang.value">check</mat-icon>
+        {{lang.displayas | transloco}}
+      </button>
+    </mat-menu>
+
+    <button mat-icon-button (click)="toggleFullscreen()" title="Toggle fullscreen" matTooltip="{{'FullScreen' | transloco }}">
+      <mat-icon>fullscreen</mat-icon>
+    </button>
+
     <button mat-icon-button (click)="openCodeRepo()">
       <mat-icon aria-hidden="false" aria-label="Code Repo">code</mat-icon>
     </button>
@@ -13,13 +27,39 @@
   <mat-sidenav-container class="example-sidenav-container" [style.marginTop.px]="mobileQuery.matches ? 56 : 0">
     <mat-sidenav #snav [mode]="mobileQuery.matches ? 'over' : 'side'" [fixedInViewport]="mobileQuery.matches"
       fixedTopGap="56">
+      <mat-expansion-panel hideToggle="false">
+        <mat-expansion-panel-header>
+          <mat-panel-title>
+            <mat-icon>home</mat-icon> {{'WelcomePage' | transloco}}
+          </mat-panel-title>
+        </mat-expansion-panel-header>
+        <mat-nav-list>
+          <a *ngFor="let navItem of navItems | navItemFilter: 0" mat-list-item (click)="snav.close()" [routerLink]="[navItem.route]">
+            {{navItem.name | transloco}}
+          </a>
+        </mat-nav-list>
+      </mat-expansion-panel>
+      <mat-expansion-panel hideToggle="false">
+        <mat-expansion-panel-header>
+          <mat-panel-title>
+            <mat-icon>school</mat-icon>{{'MathExercise.PrimarySchoolBasicMath' | transloco}}
+          </mat-panel-title>
+        </mat-expansion-panel-header>
+        <mat-nav-list>
+          <a *ngFor="let navItem of navItems | navItemFilter: 1" mat-list-item (click)="snav.close()" [routerLink]="[navItem.route]">
+            {{navItem.name | transloco}}
+          </a>
+        </mat-nav-list>
+      </mat-expansion-panel>
       <mat-nav-list>
-        <a mat-list-item routerLink="welcome">{{'WelcomePage' | transloco}}</a>
         <a mat-list-item routerLink="knowledge-item">{{'KnowledgeItem' | transloco}}</a>
         <a mat-list-item routerLink="exercise-item">{{'ExerciseItem' | transloco}}</a>
         <a mat-list-item routerLink="tag">{{'Tags' | transloco}}</a>
         <mat-divider></mat-divider>
-        <a mat-list-item (click)="snav.toggle()">{{'Close' | transloco}}</a>
+        <a mat-list-item routerLink="/help/about">{{'Help.About' | transloco}}</a>
+        <a mat-list-item routerLink="/help/credits">{{'Help.Credits' | transloco}}</a>
+        <mat-divider></mat-divider>
+        <a mat-list-item (click)="snav.toggle()">{{'Common.Close' | transloco}}</a>
       </mat-nav-list>
     </mat-sidenav>
 

@@ -1,9 +1,26 @@
 {
+    "Languages": {
+      "en": "English",
+      "zh": "Simpliled Chinese"
+    },
+    "Language": "语言",
     "KnowledgeItem": "知识点",
     "ExerciseItem": "练习题",
     "KnowledgeItems": "知识点",
     "ExerciseItems": "练习题",
     "Category": "种类",
+    "Common": {
+        "Create": "创建",
+        "Change": "修改",
+        "Delete": "删除",
+        "Display": "显示",
+        "New": "新建",
+        "Save": "保存",
+        "Cancel": "取消",
+        "Close": "关闭",
+        "Start": "开始",
+        "Submit": "交卷"
+    },
     "Type": "类别",
     "Create": "创建",
     "Change": "修改",
@@ -35,5 +52,18 @@
     "KnowledgeItemCategory": {
         "Concept": "概念",
         "Formula": "公式"
+    },
+    "MathExercises": "Math Exercises",
+    "MathExercise": {
+        "PrimarySchoolBasicMath": "小学数学基础",
+        "PrimarySchoolExtendMath": "小学数学强化",
+        "DivisionExercises": "除法练习",
+        "MultiplicationExercises": "乘法练习",
+        "AdditionExercises": "加法练习",
+        "SubtractionExercises": "减法练习"
+    },
+    "Help": {
+        "About": "关于",
+        "Credits": "致谢"
     }
 }

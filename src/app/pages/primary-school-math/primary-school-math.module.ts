@@ -1,0 +1,30 @@
+import { NgModule } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { MonacoEditorModule } from 'ngx-monaco-editor';
+import { MarkdownModule, MarkedOptions } from 'ngx-markdown';
+import { TranslocoModule } from '@ngneat/transloco';
+
+import { MaterialModulesModule } from '../../material-modules';
+import { PrimarySchoolMathComponent } from './primary-school-math.component';
+import { AdditionExerciseComponent } from './addition-exercise';
+import { PrimarySchoolMathRoutingModule } from './primary-school-math-routing.module';
+
+
+@NgModule({
+  declarations: [
+    PrimarySchoolMathComponent,
+    AdditionExerciseComponent,
+  ],
+  imports: [
+    CommonModule,
+    FormsModule,
+    ReactiveFormsModule,
+    MaterialModulesModule,
+    MonacoEditorModule,
+    MarkdownModule.forChild(),
+    PrimarySchoolMathRoutingModule,
+    TranslocoModule,
+  ],
+})
+export class PrimarySchoolMathModule { }

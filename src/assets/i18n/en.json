@@ -1,9 +1,26 @@
 {
+    "Languages": {
+      "en": "English",
+      "zh": "Simpliled Chinese"
+    },
+    "Language": "Language",
     "KnowledgeItem": "Knowledge Item",
     "ExerciseItem": "Exercise Item",
     "KnowledgeItems": "Knowledge Items",
     "ExerciseItems": "Exercise Items",
     "Category": "Category",
+    "Common": {
+        "Create": "CREATE",
+        "Change": "CHANGE",
+        "Delete": "DELETE",
+        "Display": "DISPLAY",
+        "New": "NEW",
+        "Save": "SAVE",
+        "Cancel": "CANCEL",
+        "Close": "CLOSE",
+        "Start": "START",
+        "Submit": "SUBMIT"
+    },
     "Type": "Type",
     "Create": "Create",
     "Change": "Change",
@@ -35,5 +52,18 @@
     "KnowledgeItemCategory": {
         "Concept": "Concept",
         "Formula": "Formula"
+    },
+    "MathExercises": "Math Exercises",
+    "MathExercise": {
+        "PrimarySchoolBasicMath": "Basic Math of P.S.",
+        "PrimarySchoolExtendMath": "Extended Math of P.S.",
+        "DivisionExercises": "Division Exercises",
+        "MultiplicationExercises": "Multiplication Exercises",
+        "AdditionExercises": "Addition Exercises",
+        "SubtractionExercises": "Subtraction Exercises"
+    },
+    "Help": {
+        "About": "About",
+        "Credits": "Credits"
     }
 }

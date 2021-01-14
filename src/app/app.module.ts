@@ -9,14 +9,16 @@ import { MaterialModulesModule } from './material-modules';
 import { MonacoEditorModule } from 'ngx-monaco-editor';
 import { MarkdownModule, MarkedOptions } from 'ngx-markdown';
 import { translocoLoader } from './transloco-loader';
-
-import { ODataService } from './services';
-import { environment } from 'src/environments/environment';
 import { translocoConfig, TranslocoModule, TRANSLOCO_CONFIG } from '@ngneat/transloco';
+
+import { ODataService, QuizService } from './services';
+import { environment } from 'src/environments/environment';
+import { NavItemFilterPipe } from './pipes';
 
 @NgModule({
   declarations: [
     AppComponent,
+    NavItemFilterPipe,
   ],
   imports: [
     BrowserModule,
@@ -42,6 +44,7 @@ import { translocoConfig, TranslocoModule, TRANSLOCO_CONFIG } from '@ngneat/tran
   ],
   providers: [
     ODataService,
+    QuizService,
     {
       provide: TRANSLOCO_CONFIG,
       useValue: translocoConfig({

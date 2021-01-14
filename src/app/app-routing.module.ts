@@ -17,6 +17,14 @@ const routes: Routes = [
     path: 'tag',
     loadChildren: () => import('./pages/tag/tag.module').then(m => m.TagModule),
   },
+  {
+    path: 'help',
+    loadChildren: () => import('./pages/help/help.module').then(m => m.HelpModule),
+  },
+  {
+    path: 'primary-school-math',
+    loadChildren: () => import('./pages/primary-school-math/primary-school-math.module').then(m => m.PrimarySchoolMathModule),
+  }
 ];
 
 @NgModule({
