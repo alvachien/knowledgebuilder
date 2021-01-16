@@ -4,3 +4,4 @@ export * from './exercise-item-answer';
 export * from './tag';
 export * from './overview-info';
 export * from './uicommon';
+export * from './quizconcept';

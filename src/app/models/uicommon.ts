@@ -8,7 +8,7 @@ export enum UIMode {
   Update = 2,
   Display = 3
 }
-  
+
 /**
   * Date range
   */
@@ -20,7 +20,6 @@ export enum StatisticsDateRangeEnum {
   All = 5
 }
 
-  
 /**
  * Group of nav. item
  */
@@ -33,7 +32,7 @@ export enum AppNavItemGroupEnum {
   report = 5,
   others = 10
 }
-  
+
 /**
   * Nav. item
   */
@@ -42,7 +41,7 @@ export interface AppNavItem {
   route: string;
   group: AppNavItemGroupEnum;
 }
-  
+
 /**
   * App. language
   */

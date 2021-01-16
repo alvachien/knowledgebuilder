@@ -19,7 +19,9 @@
         "Cancel": "CANCEL",
         "Close": "CLOSE",
         "Start": "START",
-        "Submit": "SUBMIT"
+        "Submit": "SUBMIT",
+        "Next": "NEXT",
+        "Previous": "PREVIOUS"
     },
     "Type": "Type",
     "Create": "Create",
@@ -42,6 +44,7 @@
     "Count": "Count",
     "NewKnowledgeItem": "New Knowledge Item",
     "NewExerciseItem": "New Exercise Item",
+    "FullScreen": "Full screen",
     "ExerciseItemType": {
         "SingleChoice": "Single Choice",
         "MultipleChoices": "Multiple Choices",
@@ -60,10 +63,32 @@
         "DivisionExercises": "Division Exercises",
         "MultiplicationExercises": "Multiplication Exercises",
         "AdditionExercises": "Addition Exercises",
-        "SubtractionExercises": "Subtraction Exercises"
+        "SubtractionExercises": "Subtraction Exercises",
+        "Sum": "Sum",
+        "Difference": "Difference",
+        "Product": "Product",
+        "Quotient": "Quotient",
+        "Dividend": "Dividend",
+        "Divisor": "Divisor",
+        "Remainder": "Remainder",
+        "Numerator": "Numerator",
+        "Denominator": "Denominator",
+        "LeftNumber": "LeftNumber",
+        "RightNumber": "RightNumber",
+        "Minuend": "Minuend",
+        "Subtrahend": "Subtrahend",
+        "Summand": "Summand",
+        "Addend": "Addend",
+        "Multiplicand": "Multiplicand",
+        "Multiplier": "Multiplier"
     },
     "Help": {
         "About": "About",
         "Credits": "Credits"
+    },
+    "Quiz": {
+        "QuizItemCount": "Count of Quiz Item",
+        "FailedFactor": "Failed Factor",
+        "FailedFactorHint": "Used to continues the quzi if failed items occurs. Example: set to 5, and 2 failed item, the quiz will continue with 10 items."
     }
 }

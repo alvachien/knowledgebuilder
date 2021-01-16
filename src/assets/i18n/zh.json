@@ -19,7 +19,9 @@
         "Cancel": "取消",
         "Close": "关闭",
         "Start": "开始",
-        "Submit": "交卷"
+        "Submit": "交卷",
+        "Next": "下一题",
+        "Previous": "上一题"
     },
     "Type": "类别",
     "Create": "创建",
@@ -42,6 +44,7 @@
     "Count": "总计",
     "NewKnowledgeItem": "新建知识点",
     "NewExerciseItem": "新建练习题",
+    "FullScreen": "全屏",
     "ExerciseItemType": {
         "SingleChoice": "单选题",
         "MultipleChoices": "多选题",
@@ -60,10 +63,32 @@
         "DivisionExercises": "除法练习",
         "MultiplicationExercises": "乘法练习",
         "AdditionExercises": "加法练习",
-        "SubtractionExercises": "减法练习"
+        "SubtractionExercises": "减法练习",
+        "Sum": "和",
+        "Difference": "差",
+        "Product": "积",
+        "Quotient": "商",
+        "Dividend": "被除数",
+        "Divisor": "除数",
+        "Remainder": "余数",
+        "Numerator": "分子",
+        "Denominator": "分母",
+        "LeftNumber": "左",
+        "RightNumber": "右",
+        "Minuend": "被减数",
+        "Subtrahend": "减数",
+        "Summand": "被加数",
+        "Addend": "加数",
+        "Multiplicand": "被乘数",
+        "Multiplier": "乘数"
     },
     "Help": {
         "About": "关于",
         "Credits": "致谢"
+    },
+    "Quiz": {
+        "QuizItemCount": "试题数量",
+        "FailedFactor": "错误扩散因子",
+        "FailedFactorHint": "用来强迫测验在有错误项时继续. 例子：因子数为5，2个错误项，测验会继续10个项。"
     }
 }

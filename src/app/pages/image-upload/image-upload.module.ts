@@ -25,7 +25,7 @@ import { ImageUploadComponent } from './image-upload.component';
     MarkdownModule.forChild(),
   ],
   exports: [
-      ImageUploadComponent,
+    ImageUploadComponent,
   ]
 })
 export class ImageUploadModule { }

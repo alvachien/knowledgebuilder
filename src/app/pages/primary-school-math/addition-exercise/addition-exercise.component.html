@@ -1,9 +1,70 @@
 <mat-card>
-    <mat-card-header>
-      <mat-card-title>{{'MathExercise.AdditionExercises' | transloco}}</mat-card-title>
-    </mat-card-header>
-    <mat-card-content>
-      <!-- <div *ngIf="!quizInstance.IsStarted">
+  <mat-card-header>
+    <mat-card-title>{{'MathExercise.AdditionExercises' | transloco}}</mat-card-title>
+  </mat-card-header>
+  <mat-card-content>
+    <form [formGroup]="quizControlFormGroup" *ngIf="!isQuizStarted" style="font-size:12px;">
+      <!-- Quiz Item Count -->
+      <mat-form-field>
+        <input matInput type="number" placeholder="{{'Quiz.QuizItemCount' | transloco}}" formControlName="countControl" required>
+      </mat-form-field>
+
+      <mat-form-field>
+        <input matInput type="number" placeholder="{{'Quiz.FailedFactor' | transloco}}" matTooltip="{{'Quiz.FailedFactorHint' | transloco}}" formControlName="failedFactorControl">
+        <mat-error>This field is required</mat-error>
+      </mat-form-field>
+
+      <div class="control-full-width" fxLayout="row">
+        <div fxFlex="50">
+          <mat-form-field>
+            <input matInput type="number" placeholder="{{'MathExercise.Summand' | transloco}}" formControlName="leftSummandControl"
+              required>
+          </mat-form-field>
+        </div>
+        <div fxFlex>
+          <mat-form-field>
+            <input matInput type="number" placeholder="{{'MathExercise.Summand' | transloco}}" formControlName="rightSummandControl"
+              required>
+          </mat-form-field>    
+        </div>
+      </div>
+
+      <div class="control-full-width" fxLayout="row">
+        <div fxFlex="50">
+          <mat-form-field>
+            <input matInput type="number" placeholder="{{'MathExercise.Addend' | transloco}}" formControlName="leftAddendControl"
+              required>
+          </mat-form-field>    
+        </div>
+        <div fxFlex>
+          <mat-form-field>
+            <input matInput type="number" placeholder="{{'MathExercise.Addend' | transloco}}" formControlName="rightAddendControl"
+              required>
+          </mat-form-field>    
+        </div>
+      </div>
+      <button mat-button (click)="onQuizStart()" [disabled]="!canStart()">{{'Common.Start' | transloco }}</button>
+    </form>
+
+    <div class="control-full-width" *ngIf="isQuizStarted">
+      <div style="text-align:center">
+        ({{QuizCursor + 1}} / {{UsedQuizAmount}}).
+      </div>
+
+      <div #itemForm (keydown.enter)="onQuizSubmit()">
+        <mat-form-field class="control-full-width" style="font-size: 72px; text-align: center;">
+          <span matPrefix>{{QuizItems[QuizCursor].LeftNumber}} + {{QuizItems[QuizCursor].RightNumber}} =</span>
+          <input matInput type="number" placeholder="{{'MathExercise.Sum' | transloco}}" [(ngModel)]="QuizItems[QuizCursor].InputtedResult" required name="irst" autofocus>
+        </mat-form-field>
+      </div>
+
+      <div class="example-button-row">
+        <button mat-raised-button [disabled]="isPreviousButtonDisabled" (click)="onPrevious()">{{'Common.Previous' | transloco }}</button>
+        <button mat-raised-button [disabled]="isSubmitButtonDisabled" (click)="onQuizSubmit()">{{NextButtonText | transloco}}</button>
+      </div>
+    </div>
+
+    <!-- <div *ngIf="!quizInstance.IsStarted">
         <app-quiz-control [controlInstance]="quizControl" [disabled]="controlFronzen"></app-quiz-control>
       </div>
       
@@ -26,10 +87,10 @@
                 (page)="onPageChanged($event)">
         </mat-paginator> 
       </div> -->
-    </mat-card-content>
-  
-    <mat-card-actions>
-      <button mat-button (click)="onQuizStart()" [disabled]="!canStart()">{{'Common.Start' | transloco }}</button>
-      <button mat-button (click)="onQuizSubmit()" [disabled]="!canSubmit()">{{'Common.Submit' | transloco }}</button>
-    </mat-card-actions>
-  </mat-card>
+  </mat-card-content>
+
+  <mat-card-actions>
+    
+    <!-- <button mat-button (click)="onQuizSubmit()" [disabled]="!canSubmit()">{{'Common.Submit' | transloco }}</button> -->
+  </mat-card-actions>
+</mat-card>
