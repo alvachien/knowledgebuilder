@@ -48,7 +48,7 @@
 
     <div class="control-full-width" *ngIf="isQuizStarted">
       <div style="text-align:center">
-        ({{QuizCursor + 1}} / {{UsedQuizAmount}}).
+        ({{QuizCursor + 1}} / {{UsedQuizAmount}})
       </div>
 
       <div #itemForm (keydown.enter)="onQuizSubmit()">
@@ -63,34 +63,8 @@
         <button mat-raised-button [disabled]="isSubmitButtonDisabled" (click)="onQuizSubmit()">{{NextButtonText | transloco}}</button>
       </div>
     </div>
-
-    <!-- <div *ngIf="!quizInstance.IsStarted">
-        <app-quiz-control [controlInstance]="quizControl" [disabled]="controlFronzen"></app-quiz-control>
-      </div>
-      
-      <div class="demo-full-width" *ngIf="quizInstance.IsStarted">
-        <app-digit-clock [IsStart]="quizInstance.IsStarted" style="display:block;"></app-digit-clock>
-      </div>
-        
-      <div class="demo-full-width" *ngIf="quizInstance.IsStarted">
-        <div class="demo-full-width" *ngFor="let quiz of DisplayedQuizItems; trackBy: onQuizItemTrackBy">
-          <span>({{quiz.QuizIndex}}). </span><span style="font-size: 24px">{{quiz.LeftNumber}} + {{quiz.RightNumber}} = </span>
-          <mat-form-field>
-            <input matInput type="number" placeholder="{{'Math.Sum' | translate}}" [(ngModel)]="quiz.InputtedResult" name="iptquot">
-          </mat-form-field>
-        </div>
-  
-        <mat-paginator [length]="QuizItems.length"
-                [pageSize]="pageSize"
-                [pageIndex]="pageIndex"
-                [pageSizeOptions]="[5, 10, 25, 100]"
-                (page)="onPageChanged($event)">
-        </mat-paginator> 
-      </div> -->
   </mat-card-content>
 
   <mat-card-actions>
-    
-    <!-- <button mat-button (click)="onQuizSubmit()" [disabled]="!canSubmit()">{{'Common.Submit' | transloco }}</button> -->
   </mat-card-actions>
 </mat-card>

@@ -10,4 +10,6 @@ import { environment } from '../../environments/environment';
   providedIn: 'root'
 })
 export class QuizService {
+  private isQuizStarted: boolean = false;
+
 }

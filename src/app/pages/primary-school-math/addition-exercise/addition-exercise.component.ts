@@ -2,7 +2,7 @@ import { Component, OnInit, OnDestroy, ViewChild, ElementRef } from '@angular/co
 import { AbstractControl, FormControl, FormGroup, NgForm, ValidationErrors, ValidatorFn } from '@angular/forms';
 import { Validators } from '@angular/forms';
 
-import { AdditionQuizItem } from 'src/app/models';
+import { AdditionQuizItem, PrimarySchoolMathQuizSection } from 'src/app/models';
 import { QuizService } from 'src/app/services';
 
 @Component({
@@ -34,6 +34,7 @@ export class AdditionExerciseComponent implements OnInit, OnDestroy {
       this.itemForm.nativeElement.focus();
     }
   }
+  quizSections: PrimarySchoolMathQuizSection[] = [];
 
   constructor(private quizService: QuizService) {
   }

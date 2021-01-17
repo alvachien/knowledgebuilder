@@ -137,8 +137,8 @@ export class PrimarySchoolMathQuizItem extends QuizItem {
  * four arithmetic operations
  */
 export class PrimarySchoolMathFAOQuizItem extends PrimarySchoolMathQuizItem {
-    protected _leftNumber: number;
-    protected _rightNumber: number;
+    protected _leftNumber: number = 0;
+    protected _rightNumber: number = 0;
     protected _decimalPlaces: number;
 
     get LeftNumber(): number {
@@ -246,7 +246,7 @@ export class PrimarySchoolMathQuizSection {
         return this._sectionNumber;
     }
 
-    private _itemCount: number;
+    private _itemCount: number = 0;
     get ItemsCount(): number {
         return this._itemCount;
     }
@@ -254,7 +254,7 @@ export class PrimarySchoolMathQuizSection {
         this._itemCount = ic;
     }
 
-    private _itemFailed: number;
+    private _itemFailed: number = 0;
     get ItemsFailed(): number {
         return this._itemFailed;
     }
@@ -262,8 +262,8 @@ export class PrimarySchoolMathQuizSection {
         this._itemFailed = ifed;
     }
 
-    private _startPoint: number;
-    private _timeSpent: number;
+    private _startPoint: number = 0;
+    private _timeSpent: number = 0;
     get TimeSpent(): number {
         return this._timeSpent;
     }
@@ -295,8 +295,8 @@ export class PrimarySchoolMathQuizSection {
  * Math quiz item for additon part
  */
 export class AdditionQuizItem extends PrimarySchoolMathFAOQuizItem {
-    private _result: number;
-    private _inputtedResult: number;
+    private _result!: number;
+    private _inputtedResult!: number;
 
     get Result(): number {
         return this._result;
@@ -370,8 +370,8 @@ export class AdditionQuizItem extends PrimarySchoolMathFAOQuizItem {
  * Math quiz item for subtraction part
  */
 export class SubtractionQuizItem extends PrimarySchoolMathFAOQuizItem {
-    private _result: number;
-    private _inputtedResult: number;
+    private _result!: number;
+    private _inputtedResult!: number;
 
     get Result(): number {
         return this._result;
@@ -445,8 +445,8 @@ export class SubtractionQuizItem extends PrimarySchoolMathFAOQuizItem {
  * Math quiz item for multiplication part
  */
 export class MultiplicationQuizItem extends PrimarySchoolMathFAOQuizItem {
-    private _result: number;
-    private _inputtedResult: number;
+    private _result!: number;
+    private _inputtedResult!: number;
 
     get Result(): number {
         return this._result;
@@ -521,10 +521,10 @@ export class MultiplicationQuizItem extends PrimarySchoolMathFAOQuizItem {
  * Math quiz item for division  part
  */
 export class DivisionQuizItem extends PrimarySchoolMathFAOQuizItem {
-    private _quotient: number;
-    private _remainder: number;
-    private _inputtedQuotient: number;
-    private _inputtedRemainder: number;
+    private _quotient!: number;
+    private _remainder!: number;
+    private _inputtedQuotient!: number;
+    private _inputtedRemainder!: number;
 
     get Dividend(): number {
         return this.LeftNumber;
