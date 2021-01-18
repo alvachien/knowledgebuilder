@@ -89,6 +89,13 @@
     "Quiz": {
         "QuizItemCount": "试题数量",
         "FailedFactor": "错误扩散因子",
-        "FailedFactorHint": "用来强迫测验在有错误项时继续. 例子：因子数为5，2个错误项，测验会继续10个项。"
+        "FailedFactorHint": "用来强迫测验在有错误项时继续. 例子：因子数为5，2个错误项，测验会继续10个项。",
+        "Summary": "练习总结",
+        "Score": "分数",
+        "Total": "总计",
+        "Failure": "错误项",
+        "TimeSpentInSeconds": "用时 (秒)",
+        "AvgTimeSpentEachInSeconds": "平均每题用时 (秒)",
+        "AdjAvgTimeSpentEachInSeconds": "调整后平均每题用时 (秒)"
     }
 }

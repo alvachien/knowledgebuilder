@@ -1,8 +1,10 @@
 import { Component, OnInit, OnDestroy, ViewChild, ElementRef } from '@angular/core';
 import { AbstractControl, FormControl, FormGroup, NgForm, ValidationErrors, ValidatorFn } from '@angular/forms';
 import { Validators } from '@angular/forms';
+import { MatSnackBar } from '@angular/material/snack-bar';
+import { Router } from '@angular/router';
 
-import { AdditionQuizItem, PrimarySchoolMathQuizSection } from 'src/app/models';
+import { AdditionQuizItem, PrimarySchoolMathQuizSection, QuizSection } from 'src/app/models';
 import { QuizService } from 'src/app/services';
 
 @Component({
@@ -21,7 +23,6 @@ export class AdditionExerciseComponent implements OnInit, OnDestroy {
     rightAddendControl: new FormControl(100)
   }, { validators: this.basicValidator });
   QuizItems: AdditionQuizItem[] = [];
-  UsedQuizAmount = 0;
   QuizCursor = 0;
   quizFormGroup: FormGroup = new FormGroup({
     inputControl: new FormControl(null, Validators.required)
@@ -36,11 +37,12 @@ export class AdditionExerciseComponent implements OnInit, OnDestroy {
   }
   quizSections: PrimarySchoolMathQuizSection[] = [];
 
-  constructor(private quizService: QuizService) {
+  constructor(private quizService: QuizService,
+    public snackBar: MatSnackBar,
+    private router: Router,) {
   }
 
   ngOnInit(): void {
-
   }
   ngOnDestroy(): void {
   }
@@ -50,16 +52,22 @@ export class AdditionExerciseComponent implements OnInit, OnDestroy {
   }
 
   onQuizStart(): void {
-    this.isQuizStarted = true;
-    this.generateQuizSection();
+    if (!this.quizService.ActiveQuiz) {
+      let quiz = this.quizService.startNewQuiz(this.quizService.NextQuizID);
 
-    this.setNextButtonText();
+      this.isQuizStarted = true;
+      this.generateQuizSection(this.quizControlFormGroup.get('countControl')!.value);
+      this.setNextButtonText();
+
+      let quizSection = new QuizSection(quiz.NextSectionID, this.QuizItems.length);
+      quiz.startNewSection(quizSection);
+    }
   }
 
   onQuizSubmit(): void {
     if (this.QuizItems[this.QuizCursor].InputtedResult === undefined) {
     } else {
-      if (this.QuizCursor === this.UsedQuizAmount - 1) {
+      if (this.QuizCursor === this.QuizItems.length - 1) {
         // do real submit
         const failedItems = [];
         for (const quiz of this.QuizItems) {
@@ -67,29 +75,45 @@ export class AdditionExerciseComponent implements OnInit, OnDestroy {
             failedItems.push(quiz);
           }
         }
-        if (failedItems.length > 0) {
-          alert(" succeed.");
+        
+        // Complete current section, and start another one!
+        this.quizService.ActiveQuiz?.completeActionSection(failedItems.length);
+        let failedfactor = this.quizControlFormGroup.get('failedFactorControl')!.value;
+
+        if (failedItems.length > 0 && failedfactor > 0) {
+          this.snackBar.open(`Failed items: ${failedItems.length}, please retry`);
+
+          this.generateQuizSection(failedItems.length * failedfactor);
+          this.QuizCursor = 0;
+          this.setNextButtonText();
+
+          let curquiz = this.quizService.ActiveQuiz!;
+          let quizSection = new QuizSection(curquiz.NextSectionID, this.QuizItems.length);
+          curquiz.startNewSection(quizSection);    
         } else {
-          alert(" succeed.");
+          let qid = this.quizService.ActiveQuiz?.QuizID;
+          this.quizService.completeActiveQuiz();
+
+          this.router.navigate(['/quiz-summary/display', qid]);
         }
       } else {
-        this.QuizCursor ++;
+        this.QuizCursor++;
         this.setNextButtonText();
       }
     }
   }
   onPrevious(): void {
-    this.QuizCursor --;
+    this.QuizCursor--;
     this.setNextButtonText();
   }
   get isSubmitButtonDisabled(): boolean {
-    return this.QuizCursor >= this.UsedQuizAmount;
+    return this.QuizCursor > this.QuizItems.length;
   }
   get isPreviousButtonDisabled(): boolean {
     return this.QuizCursor <= 0;
   }
   setNextButtonText(): void {
-    if (this.QuizCursor === this.UsedQuizAmount - 1) {
+    if (this.QuizCursor === this.QuizItems.length - 1) {
       this.NextButtonText = 'Common.Submit';
     }
   }
@@ -105,15 +129,14 @@ export class AdditionExerciseComponent implements OnInit, OnDestroy {
     qz.QuizIndex = idx;
     return qz;
   }
-  private generateQuizSection(): void {
+  private generateQuizSection(itemcnt: number): void {
     this.QuizItems = [];
 
-    for (let i = 0; i < this.quizControlFormGroup.get('countControl')!.value; i++) {
-      const dq: AdditionQuizItem = this.generateQuizItem(this.UsedQuizAmount + i + 1);
+    for (let i = 0; i < itemcnt; i++) {
+      const dq: AdditionQuizItem = this.generateQuizItem(i + 1);
 
       this.QuizItems.push(dq);
     }
-    this.UsedQuizAmount += this.QuizItems.length;
   }
 
   // ValidatorFn
@@ -127,8 +150,8 @@ export class AdditionExerciseComponent implements OnInit, OnDestroy {
 
     let isvalid = false;
     if (leftSummard && rightSummard && leftAddend && rightAddend
-        && leftSummard.value < rightSummard.value
-        && leftAddend.value < rightAddend.value) {
+      && leftSummard.value < rightSummard.value
+      && leftAddend.value < rightAddend.value) {
       isvalid = true;
     }
 

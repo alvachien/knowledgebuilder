@@ -1,3 +1,4 @@
+
 /**
  * Storable object
  */
@@ -42,6 +43,104 @@ export abstract class StorableObject implements IStorableObject {
     }
     protected calcResult(): void {
         // Do nothing
+    }
+}
+
+/**
+ * Quiz concept
+ * Quiz 1:N Sections
+ *          Section 1:N Items
+ */
+export class QuizSection {
+    private sectionID!: number;
+    private itemCount: number = 0;
+    private failedItemCount: number = 0;
+    private timeStarted!: Date;
+    private timeSpent: number = 0;
+    private isStarted = false;
+    get SectionID(): number {
+        return this.sectionID;
+    }
+    // set SectionID(sid: number) {
+    //     this.sectionID = sid;
+    // }
+
+    get ItemsCount(): number {
+        return this.itemCount;
+    }
+    // set ItemsCount(ic: number) {
+    //     this.itemCount = ic;
+    // }
+
+    get FailedItemsCount(): number {
+        return this.failedItemCount;
+    }
+    // set FailedItemsCount(ifed: number) {
+    //     this.failedItemCount = ifed;
+    // }
+    get IsStarted(): boolean {
+        return this.isStarted;
+    }
+
+    get TimeSpent(): number {
+        return this.timeSpent;
+    }
+
+    constructor(sectionid: number, itemCount: number) {
+        this.sectionID = sectionid;
+
+        this.itemCount = itemCount;
+        this.isStarted = false;
+    }
+
+    public Start() {
+        this.timeStarted = new Date();
+    }
+    public Complete(failedItem?: number) {
+        this.timeSpent = (new Date().getTime() - this.timeStarted.getTime()) / 1000;
+        this.isStarted = false;
+
+        if (failedItem) {
+            this.failedItemCount = failedItem;
+        } else {
+            this.failedItemCount = 0;
+        }
+    }
+}
+
+export class Quiz {
+    private elderSections: QuizSection[] = [];
+    private quizID!: number;
+    private curSection: QuizSection | null;
+    private curSectionID: number = 0;
+
+    constructor(qid: number) {
+        this.quizID = qid;
+        this.curSection = null;
+    }
+    get QuizID(): number { return this.quizID; }
+    get ElderSections(): QuizSection[] { return this.elderSections; }
+    get ActiveSection(): QuizSection | null { return this.curSection; }
+    get NextSectionID(): number { return this.curSectionID + 1; }
+
+    startNewSection(section: QuizSection) {
+        if (this.curSection != null) {
+            throw "An active section not yet completed";
+        }
+        if (section.SectionID <= this.curSectionID) {
+            throw "Invalid Section ID";
+        }
+        this.curSectionID = section.SectionID;
+        this.curSection = section;
+        this.curSection.Start();
+    }
+    completeActionSection(failedItem?: number) {
+        if (!this.curSection) {
+            throw "Active section not available";
+        }
+        this.curSection.Complete(failedItem);
+        this.elderSections.push(this.curSection);
+        this.curSection = null;
     }
 }
 

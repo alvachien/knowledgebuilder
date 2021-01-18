@@ -48,7 +48,7 @@
 
     <div class="control-full-width" *ngIf="isQuizStarted">
       <div style="text-align:center">
-        ({{QuizCursor + 1}} / {{UsedQuizAmount}})
+        ({{QuizCursor + 1}} / {{QuizItems.length}})
       </div>
 
       <div #itemForm (keydown.enter)="onQuizSubmit()">

@@ -89,6 +89,13 @@
     "Quiz": {
         "QuizItemCount": "Count of Quiz Item",
         "FailedFactor": "Failed Factor",
-        "FailedFactorHint": "Used to continues the quzi if failed items occurs. Example: set to 5, and 2 failed item, the quiz will continue with 10 items."
+        "FailedFactorHint": "Used to continues the quzi if failed items occurs. Example: set to 5, and 2 failed item, the quiz will continue with 10 items.",
+        "Summary": "Summary",
+        "Score": "Score",
+        "Total": "Total",
+        "Failure": "Failure",
+        "TimeSpentInSeconds": "Time spt. (s)",
+        "AvgTimeSpentEachInSeconds": "Avg. time spt. (s)",
+        "AdjAvgTimeSpentEachInSeconds": "Adj. avg. time spt. (s)"
     }
 }

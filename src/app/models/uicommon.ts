@@ -30,6 +30,7 @@ export enum AppNavItemGroupEnum {
   games = 3,
   award = 4,
   report = 5,
+  help = 6,
   others = 10
 }
 

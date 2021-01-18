@@ -5,19 +5,19 @@
 
 /* Structure */
 .example-container {
-    position: relative;
-    min-height: 200px;
-  }
-  
-  .example-table-container {
-    position: relative;
-    max-height: 400px;
-    overflow: auto;
-  }
-  
-  table {
-    width: 100%;
-  }
+  position: relative;
+  min-height: 200px;
+}
+
+.example-table-container {
+  position: relative;
+  max-height: 400px;
+  overflow: auto;
+}
+
+table {
+  width: 100%;
+}
   
   .example-loading-shade {
     position: absolute;
@@ -38,13 +38,13 @@
     text-align: center;
   }
   
-  /* Column Widths */
-  .mat-column-number,
-  .mat-column-state {
-    max-width: 64px;
-  }
+/* Column Widths */
+.mat-column-number,
+.mat-column-state {
+  max-width: 64px;
+}
   
-  .mat-column-created {
-    max-width: 124px;
-  }
+.mat-column-createdat {
+  max-width: 124px;
+}
   

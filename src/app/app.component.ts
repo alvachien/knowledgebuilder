@@ -35,6 +35,8 @@ export class AppComponent implements OnDestroy {
       { name: 'MathExercise.SubtractionExercises', route: 'sub-ex', group: AppNavItemGroupEnum.ps_basic },
       { name: 'MathExercise.MultiplicationExercises', route: 'multi-ex', group: AppNavItemGroupEnum.ps_basic },
       { name: 'MathExercise.DivisionExercises', route: 'divide-ex', group: AppNavItemGroupEnum.ps_basic },
+      { name: 'Help.About', route: '/help/about', group: AppNavItemGroupEnum.help },
+      { name: 'Help.Credits', route: '/help/credits', group: AppNavItemGroupEnum.help },
     ];
   }
 
