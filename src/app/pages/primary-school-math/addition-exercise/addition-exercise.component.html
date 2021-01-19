@@ -3,7 +3,7 @@
     <mat-card-title>{{'MathExercise.AdditionExercises' | transloco}}</mat-card-title>
   </mat-card-header>
   <mat-card-content>
-    <form [formGroup]="quizControlFormGroup" *ngIf="!isQuizStarted" style="font-size:12px;">
+    <form [formGroup]="quizControlFormGroup" *ngIf="!isQuizStarted" style="font-size:16px;">
       <!-- Quiz Item Count -->
       <mat-form-field>
         <input matInput type="number" placeholder="{{'Quiz.QuizItemCount' | transloco}}" formControlName="countControl" required>
@@ -43,7 +43,10 @@
           </mat-form-field>    
         </div>
       </div>
-      <button mat-button (click)="onQuizStart()" [disabled]="!canStart()">{{'Common.Start' | transloco }}</button>
+      <mat-form-field>
+        <input matInput type="number" placeholder="{{ 'MathExercise.DecimalPlaces' | transloco }}" formControlName="decControl"/>
+      </mat-form-field>
+    <button mat-button (click)="onQuizStart()" [disabled]="!canStart()">{{'Common.Start' | transloco }}</button>
     </form>
 
     <div class="control-full-width" *ngIf="isQuizStarted">
@@ -53,8 +56,8 @@
 
       <div #itemForm (keydown.enter)="onQuizSubmit()">
         <mat-form-field class="control-full-width" style="font-size: 72px; text-align: center;">
-          <span matPrefix>{{QuizItems[QuizCursor].LeftNumber}} + {{QuizItems[QuizCursor].RightNumber}} =</span>
-          <input matInput type="number" placeholder="{{'MathExercise.Sum' | transloco}}" [(ngModel)]="QuizItems[QuizCursor].InputtedResult" required name="irst" autofocus>
+          <span matPrefix>{{QuizItems[QuizCursor].LeftNumber | number }} + {{QuizItems[QuizCursor].RightNumber | number}} =</span>
+          <input matInput type="number" placeholder="{{'MathExercise.Result' | transloco}}" [(ngModel)]="QuizItems[QuizCursor].InputtedResult" required name="irst" autofocus>
         </mat-form-field>
       </div>
 

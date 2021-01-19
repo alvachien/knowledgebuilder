@@ -31,10 +31,12 @@ export class AppComponent implements OnDestroy {
 
     this.navItems = [
       { name: 'WelcomePage', route: '/welcome', group: AppNavItemGroupEnum.home },
+      
       { name: 'MathExercise.AdditionExercises', route: '/primary-school-math/add-ex', group: AppNavItemGroupEnum.ps_basic },
-      { name: 'MathExercise.SubtractionExercises', route: 'sub-ex', group: AppNavItemGroupEnum.ps_basic },
-      { name: 'MathExercise.MultiplicationExercises', route: 'multi-ex', group: AppNavItemGroupEnum.ps_basic },
-      { name: 'MathExercise.DivisionExercises', route: 'divide-ex', group: AppNavItemGroupEnum.ps_basic },
+      { name: 'MathExercise.SubtractionExercises', route: '/primary-school-math/sub-ex', group: AppNavItemGroupEnum.ps_basic },
+      { name: 'MathExercise.MultiplicationExercises', route: '/primary-school-math/multi-ex', group: AppNavItemGroupEnum.ps_basic },
+      { name: 'MathExercise.DivisionExercises', route: '/primary-school-math/div-ex', group: AppNavItemGroupEnum.ps_basic },
+
       { name: 'Help.About', route: '/help/about', group: AppNavItemGroupEnum.help },
       { name: 'Help.Credits', route: '/help/credits', group: AppNavItemGroupEnum.help },
     ];

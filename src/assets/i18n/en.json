@@ -79,8 +79,12 @@
         "Subtrahend": "Subtrahend",
         "Summand": "Summand",
         "Addend": "Addend",
+        "AllowNegative": "Allow Negative",
+        "AllowDecimal": "Allow Decimal",
+        "DecimalPlaces": "Decimal Places",
         "Multiplicand": "Multiplicand",
-        "Multiplier": "Multiplier"
+        "Multiplier": "Multiplier",
+        "Result": "Result"
     },
     "Help": {
         "About": "About",

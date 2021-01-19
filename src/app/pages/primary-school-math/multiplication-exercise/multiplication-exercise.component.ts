@@ -4,15 +4,15 @@ import { Validators } from '@angular/forms';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { Router } from '@angular/router';
 
-import { AdditionQuizItem, PrimarySchoolMathQuizSection, QuizSection } from 'src/app/models';
+import { MultiplicationQuizItem, PrimarySchoolMathQuizSection, QuizSection } from 'src/app/models';
 import { QuizService } from 'src/app/services';
 
 @Component({
-  selector: 'app-primary-school-math-addex',
-  templateUrl: './addition-exercise.component.html',
-  styleUrls: ['./addition-exercise.component.scss'],
+  selector: 'app-primary-school-math-multi-ex',
+  templateUrl: './multiplication-exercise.component.html',
+  styleUrls: ['./multiplication-exercise.component.scss'],
 })
-export class AdditionExerciseComponent implements OnInit, OnDestroy {
+export class MultiplicationExerciseComponent implements OnInit, OnDestroy {
   isQuizStarted = false;
   quizControlFormGroup: FormGroup = new FormGroup({
     countControl: new FormControl(50, [Validators.required, Validators.min(1), Validators.max(1000)]),
@@ -23,7 +23,7 @@ export class AdditionExerciseComponent implements OnInit, OnDestroy {
     rightAddendControl: new FormControl(100),
     decControl: new FormControl(0, [Validators.min(0), Validators.max(5)]),
   }, { validators: this.basicValidator });
-  QuizItems: AdditionQuizItem[] = [];
+  QuizItems: MultiplicationQuizItem[] = [];
   QuizCursor = 0;
   quizFormGroup: FormGroup = new FormGroup({
     inputControl: new FormControl(null, Validators.required)
@@ -119,21 +119,22 @@ export class AdditionExerciseComponent implements OnInit, OnDestroy {
     }
   }
 
-  private generateQuizItem(idx: number): AdditionQuizItem {
+  private generateQuizItem(idx: number): MultiplicationQuizItem {
     let mfactor = 0;
     const decplace = this.quizControlFormGroup.get('decControl')!.value;
     mfactor = Math.pow(10, decplace);
-    let rnum1 = Math.random() * mfactor *
+    let rnum1 = 0, rnum2 = 0;
+    rnum1 = Math.random() * mfactor *
       (this.quizControlFormGroup.get('rightSummandControl')!.value - this.quizControlFormGroup.get('leftSummandControl')!.value)
       + this.quizControlFormGroup.get('leftSummandControl')!.value;
-    let rnum2 = Math.random() * mfactor *
+    rnum2 = Math.random() * mfactor *
       (this.quizControlFormGroup.get('rightAddendControl')!.value - this.quizControlFormGroup.get('leftAddendControl')!.value)
       + this.quizControlFormGroup.get('leftAddendControl')!.value;
-    if (mfactor !== 0) {
+    if (mfactor > 0) {
       rnum1 = rnum1 / mfactor;
       rnum2 = rnum2 / mfactor;
     }
-    const qz: AdditionQuizItem = new AdditionQuizItem(rnum1, rnum2, decplace); // TBD
+    const qz: MultiplicationQuizItem = new MultiplicationQuizItem(rnum1, rnum2, decplace);
     qz.QuizIndex = idx;
     return qz;
   }
@@ -141,7 +142,7 @@ export class AdditionExerciseComponent implements OnInit, OnDestroy {
     this.QuizItems = [];
 
     for (let i = 0; i < itemcnt; i++) {
-      const dq: AdditionQuizItem = this.generateQuizItem(i + 1);
+      const dq: MultiplicationQuizItem = this.generateQuizItem(i + 1);
 
       this.QuizItems.push(dq);
     }
@@ -166,4 +167,3 @@ export class AdditionExerciseComponent implements OnInit, OnDestroy {
     return isvalid ? null : { invalidInputs: true };
   }
 }
-

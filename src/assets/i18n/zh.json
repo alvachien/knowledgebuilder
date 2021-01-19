@@ -79,8 +79,12 @@
         "Subtrahend": "减数",
         "Summand": "被加数",
         "Addend": "加数",
+        "AllowNegative": "允许负数",
+        "AllowDecimal": "允许小数",
+        "DecimalPlaces": "小数点位数",
         "Multiplicand": "被乘数",
-        "Multiplier": "乘数"
+        "Multiplier": "乘数",
+        "Result": "答案"
     },
     "Help": {
         "About": "关于",
