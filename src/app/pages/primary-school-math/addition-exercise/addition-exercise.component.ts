@@ -3,16 +3,17 @@ import { AbstractControl, FormControl, FormGroup, NgForm, ValidationErrors, Vali
 import { Validators } from '@angular/forms';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { Router } from '@angular/router';
+import { Observable } from 'rxjs';
 
 import { AdditionQuizItem, PrimarySchoolMathQuizSection, QuizSection } from 'src/app/models';
-import { QuizService } from 'src/app/services';
+import { CanComponentDeactivate, CanDeactivateGuard, QuizService } from 'src/app/services';
 
 @Component({
   selector: 'app-primary-school-math-addex',
   templateUrl: './addition-exercise.component.html',
   styleUrls: ['./addition-exercise.component.scss'],
 })
-export class AdditionExerciseComponent implements OnInit, OnDestroy {
+export class AdditionExerciseComponent implements OnInit, OnDestroy, CanDeactivateGuard {
   isQuizStarted = false;
   quizControlFormGroup: FormGroup = new FormGroup({
     countControl: new FormControl(50, [Validators.required, Validators.min(1), Validators.max(1000)]),
@@ -36,11 +37,22 @@ export class AdditionExerciseComponent implements OnInit, OnDestroy {
       this.itemForm.nativeElement.focus();
     }
   }
+  inputCtrl!: ElementRef;
+  @ViewChild('irst', {static: false}) set inputControl(content: ElementRef) {
+    if (content) {
+      this.inputCtrl = content;
+      this.inputCtrl.nativeElement.focus();
+    }
+  }
   quizSections: PrimarySchoolMathQuizSection[] = [];
 
   constructor(private quizService: QuizService,
     public snackBar: MatSnackBar,
     private router: Router,) {
+  }
+
+  canDeactivate(component: CanComponentDeactivate): boolean | Observable<boolean> | Promise<boolean> {
+    return !this.isQuizStarted;
   }
 
   ngOnInit(): void {
@@ -67,6 +79,9 @@ export class AdditionExerciseComponent implements OnInit, OnDestroy {
 
   onQuizSubmit(): void {
     if (this.QuizItems[this.QuizCursor].InputtedResult === undefined) {
+      if (this.inputCtrl) {
+        this.inputCtrl.nativeElement.focus();
+      }
     } else {
       if (this.QuizCursor === this.QuizItems.length - 1) {
         // do real submit
@@ -94,18 +109,25 @@ export class AdditionExerciseComponent implements OnInit, OnDestroy {
         } else {
           let qid = this.quizService.ActiveQuiz?.QuizID;
           this.quizService.completeActiveQuiz();
+          this.isQuizStarted = false;
 
           this.router.navigate(['/quiz-summary/display', qid]);
         }
       } else {
         this.QuizCursor++;
         this.setNextButtonText();
+        if (this.inputCtrl) {
+          this.inputCtrl.nativeElement.focus();
+        }
       }
     }
   }
   onPrevious(): void {
     this.QuizCursor--;
     this.setNextButtonText();
+    if (this.inputCtrl) {
+      this.inputCtrl.nativeElement.focus();
+    }
   }
   get isSubmitButtonDisabled(): boolean {
     return this.QuizCursor > this.QuizItems.length;

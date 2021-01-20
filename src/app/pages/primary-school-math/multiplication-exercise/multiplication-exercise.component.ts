@@ -3,16 +3,17 @@ import { AbstractControl, FormControl, FormGroup, NgForm, ValidationErrors, Vali
 import { Validators } from '@angular/forms';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { Router } from '@angular/router';
+import { Observable } from 'rxjs';
 
 import { MultiplicationQuizItem, PrimarySchoolMathQuizSection, QuizSection } from 'src/app/models';
-import { QuizService } from 'src/app/services';
+import { CanComponentDeactivate, CanDeactivateGuard, QuizService } from 'src/app/services';
 
 @Component({
   selector: 'app-primary-school-math-multi-ex',
   templateUrl: './multiplication-exercise.component.html',
   styleUrls: ['./multiplication-exercise.component.scss'],
 })
-export class MultiplicationExerciseComponent implements OnInit, OnDestroy {
+export class MultiplicationExerciseComponent implements OnInit, OnDestroy, CanDeactivateGuard {
   isQuizStarted = false;
   quizControlFormGroup: FormGroup = new FormGroup({
     countControl: new FormControl(50, [Validators.required, Validators.min(1), Validators.max(1000)]),
@@ -41,6 +42,9 @@ export class MultiplicationExerciseComponent implements OnInit, OnDestroy {
   constructor(private quizService: QuizService,
     public snackBar: MatSnackBar,
     private router: Router,) {
+  }
+  canDeactivate(component: CanComponentDeactivate): boolean | Observable<boolean> | Promise<boolean> {
+    return !this.isQuizStarted;
   }
 
   ngOnInit(): void {
@@ -94,6 +98,7 @@ export class MultiplicationExerciseComponent implements OnInit, OnDestroy {
         } else {
           let qid = this.quizService.ActiveQuiz?.QuizID;
           this.quizService.completeActiveQuiz();
+          this.isQuizStarted = true;
 
           this.router.navigate(['/quiz-summary/display', qid]);
         }

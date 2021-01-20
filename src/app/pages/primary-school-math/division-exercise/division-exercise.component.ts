@@ -3,16 +3,17 @@ import { AbstractControl, FormControl, FormGroup, NgForm, ValidationErrors, Vali
 import { Validators } from '@angular/forms';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { Router } from '@angular/router';
+import { Observable } from 'rxjs';
 
 import { DivisionQuizItem, PrimarySchoolMathQuizSection, QuizSection } from 'src/app/models';
-import { QuizService } from 'src/app/services';
+import { CanComponentDeactivate, CanDeactivateGuard, QuizService } from 'src/app/services';
 
 @Component({
   selector: 'app-primary-school-math-div-ex',
   templateUrl: './division-exercise.component.html',
   styleUrls: ['./division-exercise.component.scss'],
 })
-export class DivisionExerciseComponent implements OnInit, OnDestroy {
+export class DivisionExerciseComponent implements OnInit, OnDestroy, CanDeactivateGuard {
   isQuizStarted = false;
   quizControlFormGroup: FormGroup = new FormGroup({
     countControl: new FormControl(50, [Validators.required, Validators.min(1), Validators.max(1000)]),
@@ -33,7 +34,20 @@ export class DivisionExerciseComponent implements OnInit, OnDestroy {
   @ViewChild('itemForm', { static: false }) set content(content: ElementRef) {
     if (content) { // initially setter gets called with undefined
       this.itemForm = content;
-      this.itemForm.nativeElement.focus();
+      // this.itemForm.nativeElement.focus();
+    }
+  }
+  inputCtrl!: ElementRef;
+  @ViewChild('irst', {static: false}) set inputControl(content: ElementRef) {
+    if (content) {
+      this.inputCtrl = content;
+      this.inputCtrl.nativeElement.focus();
+    }
+  }
+  inputCtrl2!: ElementRef;
+  @ViewChild('irst', {static: false}) set inputControl2(content: ElementRef) {
+    if (content) {
+      this.inputCtrl2 = content;
     }
   }
   quizSections: PrimarySchoolMathQuizSection[] = [];
@@ -41,6 +55,9 @@ export class DivisionExerciseComponent implements OnInit, OnDestroy {
   constructor(private quizService: QuizService,
     public snackBar: MatSnackBar,
     private router: Router,) {
+  }
+  canDeactivate(component: CanComponentDeactivate): boolean | Observable<boolean> | Promise<boolean> {
+    return !this.isQuizStarted;
   }
 
   ngOnInit(): void {
@@ -67,6 +84,9 @@ export class DivisionExerciseComponent implements OnInit, OnDestroy {
 
   onQuizSubmit(): void {
     if (this.QuizItems[this.QuizCursor].InputtedQuotient === undefined || this.QuizItems[this.QuizCursor].InputtedRemainder === undefined) {
+      if (this.inputCtrl) {
+        this.inputCtrl.nativeElement.focus();
+      }
     } else {
       if (this.QuizCursor === this.QuizItems.length - 1) {
         // do real submit
@@ -94,18 +114,25 @@ export class DivisionExerciseComponent implements OnInit, OnDestroy {
         } else {
           let qid = this.quizService.ActiveQuiz?.QuizID;
           this.quizService.completeActiveQuiz();
+          this.isQuizStarted = false;
 
           this.router.navigate(['/quiz-summary/display', qid]);
         }
       } else {
         this.QuizCursor++;
         this.setNextButtonText();
+        if (this.inputCtrl) {
+          this.inputCtrl.nativeElement.focus();
+        }
       }
     }
   }
   onPrevious(): void {
     this.QuizCursor--;
     this.setNextButtonText();
+    if (this.inputCtrl) {
+      this.inputCtrl.nativeElement.focus();
+    }
   }
   get isSubmitButtonDisabled(): boolean {
     return this.QuizCursor > this.QuizItems.length;

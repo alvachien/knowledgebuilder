@@ -58,12 +58,12 @@
           <mat-form-field fxFlex="60" style="font-size: 72px; text-align: center">
             <span matPrefix>{{ QuizItems[QuizCursor].Dividend }} ÷ {{ QuizItems[QuizCursor].Divisor }} =</span>
             <input matInput type="number" placeholder="{{ 'MathExercise.Quotient' | transloco }}" [(ngModel)]="QuizItems[QuizCursor].InputtedQuotient"
-              required name="irst" autofocus />
+              required name="irst" #irst />
           </mat-form-field>
-          <span fxFlex="10" style="font-size: 72px; text-align: center; vertical-align: bottom;">......</span>
+          <div fxFlex="10" style="font-size: 24px; text-align: center; vertical-align: bottom;">...</div>
           <mat-form-field fxFlex style="font-size: 72px; text-align: center">
             <input matInput type="number" placeholder="{{ 'MathExercise.Remainder' | transloco }}" [(ngModel)]="QuizItems[QuizCursor].InputtedRemainder"
-              required name="irst2" />
+              required name="irst2" #irst2 />
           </mat-form-field>
         </div>
       </div>
