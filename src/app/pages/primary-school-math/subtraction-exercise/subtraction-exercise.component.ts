@@ -87,7 +87,9 @@ export class SubtractionExerciseComponent implements OnInit, OnDestroy, CanDeact
         let failedfactor = this.quizControlFormGroup.get('failedFactorControl')!.value;
 
         if (failedItems.length > 0 && failedfactor > 0) {
-          this.snackBar.open(`Failed items: ${failedItems.length}, please retry`);
+          this.snackBar.open(`Failed items: ${failedItems.length}, please retry`, undefined, {
+            duration: 2000,
+          });
 
           this.generateQuizSection(failedItems.length * failedfactor);
           this.QuizCursor = 0;

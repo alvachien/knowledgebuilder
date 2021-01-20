@@ -86,7 +86,9 @@ export class MultiplicationExerciseComponent implements OnInit, OnDestroy, CanDe
         let failedfactor = this.quizControlFormGroup.get('failedFactorControl')!.value;
 
         if (failedItems.length > 0 && failedfactor > 0) {
-          this.snackBar.open(`Failed items: ${failedItems.length}, please retry`);
+          this.snackBar.open(`Failed items: ${failedItems.length}, please retry`, undefined, {
+            duration: 1000
+          });
 
           this.generateQuizSection(failedItems.length * failedfactor);
           this.QuizCursor = 0;
@@ -98,7 +100,7 @@ export class MultiplicationExerciseComponent implements OnInit, OnDestroy, CanDe
         } else {
           let qid = this.quizService.ActiveQuiz?.QuizID;
           this.quizService.completeActiveQuiz();
-          this.isQuizStarted = true;
+          this.isQuizStarted = false;
 
           this.router.navigate(['/quiz-summary/display', qid]);
         }
