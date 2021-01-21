@@ -31,6 +31,7 @@ export enum AppNavItemGroupEnum {
   award = 4,
   report = 5,
   help = 6,
+  knowledge = 7,
   others = 10
 }
 

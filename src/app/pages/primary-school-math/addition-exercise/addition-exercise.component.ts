@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy, ViewChild, ElementRef } from '@angular/core';
+import { Component, OnInit, OnDestroy, ViewChild, ElementRef, ChangeDetectorRef } from '@angular/core';
 import { AbstractControl, FormControl, FormGroup, NgForm, ValidationErrors, ValidatorFn } from '@angular/forms';
 import { Validators } from '@angular/forms';
 import { MatSnackBar } from '@angular/material/snack-bar';
@@ -48,7 +48,8 @@ export class AdditionExerciseComponent implements OnInit, OnDestroy, CanDeactiva
 
   constructor(private quizService: QuizService,
     public snackBar: MatSnackBar,
-    private router: Router,) {
+    private router: Router,
+    private changeDef: ChangeDetectorRef) {
   }
 
   canDeactivate(component: CanComponentDeactivate): boolean | Observable<boolean> | Promise<boolean> {
@@ -67,13 +68,14 @@ export class AdditionExerciseComponent implements OnInit, OnDestroy, CanDeactiva
   onQuizStart(): void {
     if (!this.quizService.ActiveQuiz) {
       let quiz = this.quizService.startNewQuiz(this.quizService.NextQuizID);
-
-      this.isQuizStarted = true;
       this.generateQuizSection(this.quizControlFormGroup.get('countControl')!.value);
-      this.setNextButtonText();
-
       let quizSection = new QuizSection(quiz.NextSectionID, this.QuizItems.length);
       quiz.startNewSection(quizSection);
+
+      this.isQuizStarted = true;
+      this.changeDef.detectChanges();
+
+      this.setNextButtonText();      
     }
   }
 
@@ -109,9 +111,11 @@ export class AdditionExerciseComponent implements OnInit, OnDestroy, CanDeactiva
           let quizSection = new QuizSection(curquiz.NextSectionID, this.QuizItems.length);
           curquiz.startNewSection(quizSection);    
         } else {
+          this.isQuizStarted = false;
+          this.changeDef.detectChanges();
+
           let qid = this.quizService.ActiveQuiz?.QuizID;
           this.quizService.completeActiveQuiz();
-          this.isQuizStarted = false;
 
           this.router.navigate(['/quiz-summary/display', qid]);
         }

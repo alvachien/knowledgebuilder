@@ -1,18 +1,18 @@
 <mat-card>
   <mat-card-header>
-    <mat-card-title>{{ "Quiz.Summary" | transloco }}</mat-card-title>
+    <mat-card-title>{{ 'Quiz.Summary' | transloco }}</mat-card-title>
     <!-- <mat-card-subtitle>{{quizBaseInfo}}</mat-card-subtitle> -->
   </mat-card-header>
   <mat-card-content>
     <div class="control-full-width">
       <h3>
-        <span>{{ "Quiz.Score" | transloco }}: </span>
+        <span>{{ 'Quiz.Score' | transloco }}: </span>
         <span>{{ totalScore | number:'.2' }}</span>
       </h3>
     </div>
     <div class="control-full-width">
       <h3>
-        <span>{{ "Quiz.AvgTimeSpentEachInSeconds" | transloco }}: </span>
+        <span>{{ 'Quiz.AvgTimeSpentEachInSeconds' | transloco }}: </span>
         <span>{{ totalAvgTime | number:'.2' }}</span>
       </h3>
     </div>
@@ -26,33 +26,25 @@
 
         <!-- Total count Column -->
         <ng-container cdkColumnDef="totalcnt">
-          <mat-header-cell *cdkHeaderCellDef>{{
-            "Quiz.Total" | transloco
-          }}</mat-header-cell>
+          <mat-header-cell *cdkHeaderCellDef>{{'Quiz.Total' | transloco}}</mat-header-cell>
           <mat-cell *cdkCellDef="let row"> {{ row.totalcnt }} </mat-cell>
         </ng-container>
 
         <!-- Failed Column -->
         <ng-container cdkColumnDef="failedcnt">
-          <mat-header-cell *cdkHeaderCellDef>
-            {{ "Quiz.Failure" | transloco }}
-          </mat-header-cell>
+          <mat-header-cell *cdkHeaderCellDef>{{ 'Quiz.Failure' | transloco }}</mat-header-cell>
           <mat-cell *cdkCellDef="let row"> {{ row.failedcnt }} </mat-cell>
         </ng-container>
 
         <!-- Timespent Column -->
         <ng-container cdkColumnDef="timespent">
-          <mat-header-cell *cdkHeaderCellDef>{{
-            "Quiz.TimeSpentInSeconds" | transloco
-          }}</mat-header-cell>
+          <mat-header-cell *cdkHeaderCellDef>{{ 'Quiz.TimeSpentInSeconds' | transloco }}</mat-header-cell>
           <mat-cell *cdkCellDef="let row"> {{ row.timespent | number:'.2' }} </mat-cell>
         </ng-container>
 
         <!-- TimespentEach Column -->
         <ng-container cdkColumnDef="avgtimespent">
-          <mat-header-cell *cdkHeaderCellDef>{{
-            "Quiz.AvgTimeSpentEachInSeconds" | transloco
-          }}</mat-header-cell>
+          <mat-header-cell *cdkHeaderCellDef>{{ 'Quiz.AvgTimeSpentEachInSeconds' | transloco}}</mat-header-cell>
           <mat-cell *cdkCellDef="let row"> {{ row.avgtimespent | number:'.2' }} </mat-cell>
         </ng-container>
 
