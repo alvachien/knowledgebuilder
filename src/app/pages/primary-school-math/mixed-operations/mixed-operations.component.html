@@ -1,6 +1,6 @@
 <mat-card>
   <mat-card-header>
-    <mat-card-title>{{'MathExercise.SubtractionExercises' | transloco}}</mat-card-title>
+    <mat-card-title>{{'MathExercise.MixedOperations' | transloco}}</mat-card-title>
   </mat-card-header>
   <mat-card-content>
     <form [formGroup]="quizControlFormGroup" *ngIf="!isQuizStarted" style="font-size: 16px">
@@ -12,31 +12,17 @@
       <mat-form-field>
         <input matInput type="number" placeholder="{{ 'Quiz.FailedFactor' | transloco }}" matTooltip="{{ 'Quiz.FailedFactorHint' | transloco }}"
           formControlName="failedFactorControl" />
-        <mat-error>This field is required</mat-error>
       </mat-form-field>
 
       <div class="control-full-width" fxLayout="row">
         <div fxFlex="50">
           <mat-form-field>
-            <input matInput type="number" placeholder="{{ 'MathExercise.LeftNumber' | transloco }}" formControlName="leftSummandControl" required />
+            <input matInput type="number" placeholder="{{ 'MathExercise.Number' | transloco }}" formControlName="leftSummandControl" required />
           </mat-form-field>
         </div>
         <div fxFlex>
           <mat-form-field>
-            <input matInput type="number" placeholder="{{ 'MathExercise.LeftNumber' | transloco }}" formControlName="rightSummandControl" required />
-          </mat-form-field>
-        </div>
-      </div>
-
-      <div class="control-full-width" fxLayout="row">
-        <div fxFlex="50">
-          <mat-form-field>
-            <input matInput type="number" placeholder="{{ 'MathExercise.RightNumber' | transloco }}" formControlName="leftAddendControl" required />
-          </mat-form-field>
-        </div>
-        <div fxFlex>
-          <mat-form-field>
-            <input matInput type="number" placeholder="{{ 'MathExercise.RightNumber' | transloco }}" formControlName="rightAddendControl" required />
+            <input matInput type="number" placeholder="{{ 'MathExercise.Number' | transloco }}" formControlName="rightSummandControl" required />
           </mat-form-field>
         </div>
       </div>
@@ -50,7 +36,19 @@
           </mat-form-field>
         </div>
       </div>
-      <button mat-raised-button color="primary" (click)="onQuizStart()" [disabled]="!canStart()">{{ "Common.Start" | transloco }}</button>
+      <mat-divider></mat-divider>
+      <div class="control-full-width">
+        <div>Allowed Operators:</div>
+        <mat-selection-list #opers>
+          <mat-list-option *ngFor="let oper of allowedOperators">
+            {{oper}}
+          </mat-list-option>
+        </mat-selection-list>
+      </div>
+
+      <button mat-raised-button color="primary" (click)="onQuizStart()" [disabled]="!canStart()">
+        {{ "Common.Start" | transloco }}
+      </button>
     </form>
 
     <div class="control-full-width" *ngIf="isQuizStarted">
@@ -60,9 +58,8 @@
 
       <div #itemForm (keydown.enter)="onQuizSubmit()">
         <mat-form-field class="control-full-width" style="font-size: 72px; text-align: center">
-          <span matPrefix>{{ QuizItems[QuizCursor].LeftNumber }} - {{ QuizItems[QuizCursor].RightNumber }} =</span>
-          <input matInput type="number" placeholder="{{ 'MathExercise.Result' | transloco }}" [(ngModel)]="QuizItems[QuizCursor].InputtedResult"
-            required name="irst" autofocus />
+          <span matPrefix>{{ QuizItems[QuizCursor].LeftNumber | number }} + {{ QuizItems[QuizCursor].RightNumber | number }} =</span>
+          <input matInput type="number" placeholder="{{ 'MathExercise.Result' | transloco }}" [(ngModel)]="QuizItems[QuizCursor].InputtedResult" required #irst name="irst" />
         </mat-form-field>
       </div>
 

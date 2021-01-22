@@ -84,7 +84,10 @@
         "DecimalPlaces": "Decimal Places",
         "Multiplicand": "Multiplicand",
         "Multiplier": "Multiplier",
-        "Result": "Result"
+        "Result": "Result",
+        "MixedOperations": "Mixed Operations",
+        "Number": "Number",
+        "Operators": "Operators"
     },
     "Help": {
         "About": "About",

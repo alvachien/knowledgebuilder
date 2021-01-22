@@ -11,6 +11,7 @@ import { AdditionExerciseComponent } from './addition-exercise';
 import { SubtractionExerciseComponent } from './subtraction-exercise';
 import { MultiplicationExerciseComponent } from './multiplication-exercise';
 import { DivisionExerciseComponent } from './division-exercise';
+import { MixedOperationsComponent } from './mixed-operations';
 import { PrimarySchoolMathRoutingModule } from './primary-school-math-routing.module';
 
 @NgModule({
@@ -20,6 +21,7 @@ import { PrimarySchoolMathRoutingModule } from './primary-school-math-routing.mo
     SubtractionExerciseComponent,
     MultiplicationExerciseComponent,
     DivisionExerciseComponent,
+    MixedOperationsComponent,
   ],
   imports: [
     CommonModule,

@@ -43,9 +43,8 @@
       <mat-form-field>
         <input matInput type="number" placeholder="{{ 'MathExercise.DecimalPlaces' | transloco }}" formControlName="decControl"/>
       </mat-form-field>
-      <button mat-button (click)="onQuizStart()" [disabled]="!canStart()">
-        {{ "Common.Start" | transloco }}
-      </button>
+
+      <button mat-raised-button color="primary" (click)="onQuizStart()" [disabled]="!canStart()">{{ "Common.Start" | transloco }}</button>
     </form>
   
     <div class="control-full-width" *ngIf="isQuizStarted">

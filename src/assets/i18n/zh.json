@@ -84,7 +84,10 @@
         "DecimalPlaces": "小数点位数",
         "Multiplicand": "被乘数",
         "Multiplier": "乘数",
-        "Result": "答案"
+        "Result": "答案",
+        "MixedOperations": "四则混合运算",
+        "Number": "数值",
+        "Operators": "运算符"
     },
     "Help": {
         "About": "关于",

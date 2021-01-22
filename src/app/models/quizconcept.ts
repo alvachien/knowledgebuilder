@@ -85,6 +85,9 @@ export class QuizSection {
     get TimeSpent(): number {
         return this.timeSpent;
     }
+    set TimeSpent(ts: number) {
+        this.timeSpent = ts;
+    }
 
     constructor(sectionid: number, itemCount: number) {
         this.sectionID = sectionid;
@@ -725,3 +728,108 @@ export class DivisionQuizItem extends PrimarySchoolMathFAOQuizItem {
         }
     }
 }
+
+/**
+ * Mixed operation quiz
+ */
+export class MixedOperationQuizItem extends PrimarySchoolMathQuizItem {
+    private _formula!: string;
+    private _result!: number;
+    private _inputtedResult!: number;
+    private _decimalPlace!: number;
+  
+    get Formula(): string {
+      return this._formula;
+    }
+    get Result(): number {
+      return this._result;
+    }
+    get decimalPlace(): number {
+      return this._decimalPlace;
+    }
+  
+    get InputtedResult(): number {
+      return this._inputtedResult;
+    }
+    set InputtedResult(ia: number) {
+      this._inputtedResult = ia;
+    }
+    set decimalPlace(dplace: number) {
+      this._decimalPlace = dplace;
+    }
+  
+    constructor(frm?: string) {
+      super();
+  
+      if (frm) {
+        this._formula = frm;
+      }
+  
+      if (this.canCalcResult()) {
+        this.calcResult();
+      }
+    }
+  
+    public IsCorrect(): boolean {
+      if (!super.IsCorrect()) {
+        return false;
+      }
+  
+      if (this._result === this._inputtedResult) {
+        return true;
+      }
+  
+      return false;
+    }
+  
+    public getCorrectFormula(): string {
+      return this.getQuizFormat() + this.Result.toString();
+    }
+  
+    public getInputtedForumla(): string {
+      return this.getQuizFormat() + this.InputtedResult.toString();
+    }
+  
+    public getQuizFormat(): string {
+      const rststr = super.getQuizFormat();
+      return rststr + this._formula.replace('*', '×').replace('/', '÷') + ' = ';
+    }
+  
+    protected storeToJsonObject(): any {
+      const jobj = super.storeToJsonObject();
+      jobj.forumla = this._formula;
+      return jobj;
+    }
+  
+    protected restoreFromJsonObject(jobj: any): void {
+      super.restoreFromJsonObject(jobj);
+  
+      if (jobj && jobj.forumla) {
+        this._formula = jobj.formula;
+      }
+    }
+  
+    protected canCalcResult(): boolean {
+      if (!super.canCalcResult()) {
+        return false;
+      }
+  
+      if (this._formula === undefined || this._formula.length <= 0) {
+        return false;
+      }
+  
+      return true;
+    }
+  
+    protected calcResult(): void {
+      super.calcResult();
+  
+      this._result = <number>eval(this._formula);
+      if (this._decimalPlace > 0) {
+        this._result = parseFloat(this._result.toFixed(this._decimalPlace));
+      } else {
+        this._result = Math.floor(this._result);
+      }
+    }
+  }
+  

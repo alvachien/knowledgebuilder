@@ -6,6 +6,7 @@ import { AdditionExerciseComponent } from './addition-exercise';
 import { SubtractionExerciseComponent } from './subtraction-exercise';
 import { MultiplicationExerciseComponent } from './multiplication-exercise';
 import { DivisionExerciseComponent } from './division-exercise';
+import { MixedOperationsComponent } from './mixed-operations';
 
 import { CanDeactivateGuard } from '../../services';
 
@@ -15,6 +16,7 @@ const routes: Routes = [
   { path: 'sub-ex', component: SubtractionExerciseComponent, canDeactivate: [CanDeactivateGuard] },
   { path: 'multi-ex', component: MultiplicationExerciseComponent, canDeactivate: [CanDeactivateGuard] },
   { path: 'div-ex', component: DivisionExerciseComponent, canDeactivate: [CanDeactivateGuard] },
+  { path: 'mixed-op', component: MixedOperationsComponent, canDeactivate: [CanDeactivateGuard] },
 ];
 
 @NgModule({

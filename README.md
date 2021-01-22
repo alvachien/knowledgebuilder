@@ -32,13 +32,25 @@
 
 Web API in use with Github repo: [Link](https://github.com/alvachien/knowledgebuilderapi)
 
+## UI development tips
+
+- Generate a component:
+
+```Powershell
+ng g c pages\primary-school-math\MixedOperations -m pages\primary-school-math
+```
 
 ## Credits
 
 - Angular
 - Angular Material
+- eCharts
+- marked
+- Katex
 
 # Author  
 
-Alva Chien   
+Alva Chien | 钱红俊
+
+
 

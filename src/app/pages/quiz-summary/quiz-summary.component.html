@@ -1,1 +1,31 @@
-<router-outlet></router-outlet>
+<mat-card>
+  <mat-card-header>
+    <mat-card-title>{{ "Quiz.Summary" | transloco }}</mat-card-title>
+  </mat-card-header>
+  <mat-card-content>
+    <div class="example-table-container">
+      <table mat-table [dataSource]="data" class="example-table">
+        <!-- ID Column -->
+        <ng-container cdkColumnDef="qid">
+          <mat-header-cell *cdkHeaderCellDef>#</mat-header-cell>
+          <mat-cell *cdkCellDef="let row"> {{ row.ID }} </mat-cell>
+        </ng-container>
+
+        <!-- Total count Column -->
+        <ng-container cdkColumnDef="count">
+          <mat-header-cell *cdkHeaderCellDef>{{"Quiz.Total" | transloco}}</mat-header-cell>
+          <mat-cell *cdkCellDef="let row"> {{ row.Count }} </mat-cell>
+        </ng-container>
+
+        <!-- Timespent Column -->
+        <ng-container cdkColumnDef="timespent">
+          <mat-header-cell *cdkHeaderCellDef>{{"Quiz.TimeSpentInSeconds" | transloco}}</mat-header-cell>
+          <mat-cell *cdkCellDef="let row">{{ row.TimeSpent | number: ".2" }}</mat-cell>
+        </ng-container>
+
+        <mat-header-row *cdkHeaderRowDef="displayedColumns"></mat-header-row>
+        <mat-row *cdkRowDef="let row; columns: displayedColumns"></mat-row>
+      </table>
+    </div>
+  </mat-card-content>
+</mat-card>
