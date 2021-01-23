@@ -19,10 +19,8 @@ export class MixedOperationsComponent implements OnInit, OnDestroy, CanDeactivat
   quizControlFormGroup: FormGroup = new FormGroup({
     countControl: new FormControl(20, [Validators.required, Validators.min(1), Validators.max(1000)]),
     failedFactorControl: new FormControl(2, [Validators.min(0), Validators.max(10)]),
-    leftSummandControl: new FormControl(0),
-    rightSummandControl: new FormControl(100),
-    leftAddendControl: new FormControl(0),
-    rightAddendControl: new FormControl(100),
+    leftNumberControl: new FormControl(0),
+    rightNumberControl: new FormControl(100),
     negControl: new FormControl(false),
     decControl: new FormControl(0, [Validators.min(0), Validators.max(5)]),
   }, { validators: this.basicValidator });
@@ -55,7 +53,8 @@ export class MixedOperationsComponent implements OnInit, OnDestroy, CanDeactivat
     { display: ' ÷ ', value: '/' },
   ];
 
-  constructor(private quizService: QuizService,
+  constructor(
+    private quizService: QuizService,
     public snackBar: MatSnackBar,
     private router: Router,
     private changeDef: ChangeDetectorRef) {
@@ -106,7 +105,7 @@ export class MixedOperationsComponent implements OnInit, OnDestroy, CanDeactivat
 
         // Complete current section, and start another one!
         this.quizService.ActiveQuiz?.completeActionSection(failedItems.length);
-        let failedfactor = this.quizControlFormGroup.get('failedFactorControl')!.value;
+        const failedfactor = this.quizControlFormGroup.get('failedFactorControl')!.value;
 
         if (failedItems.length > 0 && failedfactor > 0) {
           this.snackBar.open(`Failed items: ${failedItems.length}, please retry`, undefined, {
@@ -117,8 +116,8 @@ export class MixedOperationsComponent implements OnInit, OnDestroy, CanDeactivat
           this.QuizCursor = 0;
           this.setNextButtonText();
 
-          let curquiz = this.quizService.ActiveQuiz!;
-          let quizSection = new QuizSection(curquiz.NextSectionID, this.QuizItems.length);
+          const curquiz = this.quizService.ActiveQuiz!;
+          const quizSection = new QuizSection(curquiz.NextSectionID, this.QuizItems.length);
           curquiz.startNewSection(quizSection);
         } else {
           this.isQuizStarted = false;
@@ -181,8 +180,8 @@ export class MixedOperationsComponent implements OnInit, OnDestroy, CanDeactivat
     let mfactor = 0;
     const decplace = this.quizControlFormGroup.get('decControl')!.value;
     mfactor = Math.pow(10, decplace);
-    const leftNumb = mfactor * this.quizControlFormGroup.get('leftSummandControl')!.value;
-    const rightNumb = mfactor * this.quizControlFormGroup.get('rightSummandControl')!.value;
+    const leftNumb = mfactor * this.quizControlFormGroup.get('leftNumberControl')!.value;
+    const rightNumb = mfactor * this.quizControlFormGroup.get('rightNumberControl')!.value;
 
     let rnum1 = Math.round(Math.random() * ( rightNumb - leftNumb )) + leftNumb;
     if (mfactor !== 0) {
@@ -203,16 +202,11 @@ export class MixedOperationsComponent implements OnInit, OnDestroy, CanDeactivat
   // ValidatorFn
   basicValidator(control: AbstractControl): ValidationErrors | null {
     // Summand
-    const leftSummard = control.get('leftSummandControl');
-    const rightSummard = control.get('rightSummandControl');
-    // Addend
-    const leftAddend = control.get('leftAddendControl');
-    const rightAddend = control.get('rightAddendControl');
+    const leftNumber = control.get('leftNumberControl');
+    const rightNumber = control.get('rightNumberControl');
 
     let isvalid = false;
-    if (leftSummard && rightSummard && leftAddend && rightAddend
-      && leftSummard.value < rightSummard.value
-      && leftAddend.value < rightAddend.value) {
+    if (leftNumber && rightNumber && leftNumber.value < rightNumber.value) {
       isvalid = true;
     }
 

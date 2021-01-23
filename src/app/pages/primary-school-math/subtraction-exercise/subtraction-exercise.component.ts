@@ -16,12 +16,10 @@ import { CanComponentDeactivate, CanDeactivateGuard, QuizService } from 'src/app
 export class SubtractionExerciseComponent implements OnInit, OnDestroy, CanDeactivateGuard {
   isQuizStarted = false;
   quizControlFormGroup: FormGroup = new FormGroup({
-    countControl: new FormControl(50, [Validators.required, Validators.min(1), Validators.max(1000)]),
-    failedFactorControl: new FormControl(5, [Validators.min(0), Validators.max(10)]),
-    leftSummandControl: new FormControl(0),
-    rightSummandControl: new FormControl(100),
-    leftAddendControl: new FormControl(0),
-    rightAddendControl: new FormControl(100),
+    countControl: new FormControl(20, [Validators.required, Validators.min(1), Validators.max(1000)]),
+    failedFactorControl: new FormControl(2, [Validators.min(0), Validators.max(10)]),
+    leftNumberControl: new FormControl(0),
+    rightNumberControl: new FormControl(100),
     decControl: new FormControl(0, [Validators.min(0), Validators.max(5)]),
     negControl: new FormControl(false)
   }, { validators: this.basicValidator });
@@ -47,7 +45,8 @@ export class SubtractionExerciseComponent implements OnInit, OnDestroy, CanDeact
   }
   quizSections: PrimarySchoolMathQuizSection[] = [];
 
-  constructor(private quizService: QuizService,
+  constructor(
+    private quizService: QuizService,
     public snackBar: MatSnackBar,
     private router: Router,
     private changeDef: ChangeDetectorRef) {
@@ -67,10 +66,10 @@ export class SubtractionExerciseComponent implements OnInit, OnDestroy, CanDeact
 
   onQuizStart(): void {
     if (!this.quizService.ActiveQuiz) {
-      let quiz = this.quizService.startNewQuiz(this.quizService.NextQuizID);
+      const quiz = this.quizService.startNewQuiz(this.quizService.NextQuizID);
 
       this.generateQuizSection(this.quizControlFormGroup.get('countControl')!.value);
-      let quizSection = new QuizSection(quiz.NextSectionID, this.QuizItems.length);
+      const quizSection = new QuizSection(quiz.NextSectionID, this.QuizItems.length);
       quiz.startNewSection(quizSection);
 
       this.isQuizStarted = true;
@@ -104,15 +103,13 @@ export class SubtractionExerciseComponent implements OnInit, OnDestroy, CanDeact
           this.QuizCursor = 0;
           this.setNextButtonText();
 
-          let curquiz = this.quizService.ActiveQuiz!;
-          let quizSection = new QuizSection(curquiz.NextSectionID, this.QuizItems.length);
+          const curquiz = this.quizService.ActiveQuiz!;
+          const quizSection = new QuizSection(curquiz.NextSectionID, this.QuizItems.length);
           curquiz.startNewSection(quizSection);
         } else {
-          this.isQuizStarted = false;
-          // this.changeDef.detectChanges();
-
-          let qid = this.quizService.ActiveQuiz?.QuizID;
+          const qid = this.quizService.ActiveQuiz?.QuizID;
           this.quizService.completeActiveQuiz();
+          this.isQuizStarted = false;
 
           this.router.navigate(['/quiz-summary/display', qid]);
         }
@@ -138,32 +135,33 @@ export class SubtractionExerciseComponent implements OnInit, OnDestroy, CanDeact
     }
   }
 
-  private generateQuizItem(idx: number): SubtractionQuizItem {
+  private getNumber(): number {
     let mfactor = 0;
     const decplace = this.quizControlFormGroup.get('decControl')!.value;
     mfactor = Math.pow(10, decplace);
+    const leftNumb = mfactor * this.quizControlFormGroup.get('leftNumberControl')!.value;
+    const rightNumb = mfactor * this.quizControlFormGroup.get('rightNumberControl')!.value;
+
+    let rnum1 = Math.round(Math.random() * ( rightNumb - leftNumb )) + leftNumb;
+    if (mfactor !== 0) {
+      rnum1 = rnum1 / mfactor;
+    }
+    return rnum1;
+  }
+  private generateQuizItem(idx: number): SubtractionQuizItem {
+    const decplace = this.quizControlFormGroup.get('decControl')!.value;
     const allowneg: boolean = this.quizControlFormGroup.get('negControl')!.value as boolean;
-    let rnum1 = 0, rnum2 = 0;
-    while(true) {
-      rnum1 = Math.random() * mfactor *
-      (this.quizControlFormGroup.get('rightSummandControl')!.value - this.quizControlFormGroup.get('leftSummandControl')!.value)
-      + this.quizControlFormGroup.get('leftSummandControl')!.value;
-      rnum2 = Math.random() * mfactor *
-        (this.quizControlFormGroup.get('rightAddendControl')!.value - this.quizControlFormGroup.get('leftAddendControl')!.value)
-        + this.quizControlFormGroup.get('leftAddendControl')!.value;
-      if (!allowneg) {
-        // Not allow neg!
-        if (rnum1 < rnum2) {
-          continue;
-        }
-      }
-      if (mfactor > 0) {
-        rnum1 = rnum1 / mfactor;
-        rnum2 = rnum2 / mfactor;
+    let rnum1 = 0;
+    let rnum2 = 0;
+    while (true) {
+      rnum1 = this.getNumber();
+      rnum2 = this.getNumber();
+      if (!allowneg && rnum1 < rnum2) {
+        continue;
       }
       break;
     }
-    const qz: SubtractionQuizItem = new SubtractionQuizItem(rnum1, rnum2, decplace); // TBD
+    const qz: SubtractionQuizItem = new SubtractionQuizItem(rnum1, rnum2, decplace);
     qz.QuizIndex = idx;
     return qz;
   }
@@ -179,17 +177,11 @@ export class SubtractionExerciseComponent implements OnInit, OnDestroy, CanDeact
 
   // ValidatorFn
   basicValidator(control: AbstractControl): ValidationErrors | null {
-    // Summand
-    const leftSummard = control.get('leftSummandControl');
-    const rightSummard = control.get('rightSummandControl');
-    // Addend
-    const leftAddend = control.get('leftAddendControl');
-    const rightAddend = control.get('rightAddendControl');
+    const lowNumber = control.get('leftNumberControl');
+    const rightNumber = control.get('rightNumberControl');
 
     let isvalid = false;
-    if (leftSummard && rightSummard && leftAddend && rightAddend
-      && leftSummard.value < rightSummard.value
-      && leftAddend.value < rightAddend.value) {
+    if (lowNumber && rightNumber && lowNumber.value < rightNumber.value) {
       isvalid = true;
     }
 

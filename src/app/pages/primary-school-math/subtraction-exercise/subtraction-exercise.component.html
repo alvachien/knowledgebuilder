@@ -18,28 +18,16 @@
       <div class="control-full-width" fxLayout="row">
         <div fxFlex="50">
           <mat-form-field>
-            <input matInput type="number" placeholder="{{ 'MathExercise.LeftNumber' | transloco }}" formControlName="leftSummandControl" required />
+            <input matInput type="number" placeholder="{{ 'MathExercise.Number' | transloco }}" formControlName="leftNumberControl" required />
           </mat-form-field>
         </div>
         <div fxFlex>
           <mat-form-field>
-            <input matInput type="number" placeholder="{{ 'MathExercise.LeftNumber' | transloco }}" formControlName="rightSummandControl" required />
+            <input matInput type="number" placeholder="{{ 'MathExercise.Number' | transloco }}" formControlName="rightNumberControl" required />
           </mat-form-field>
         </div>
       </div>
 
-      <div class="control-full-width" fxLayout="row">
-        <div fxFlex="50">
-          <mat-form-field>
-            <input matInput type="number" placeholder="{{ 'MathExercise.RightNumber' | transloco }}" formControlName="leftAddendControl" required />
-          </mat-form-field>
-        </div>
-        <div fxFlex>
-          <mat-form-field>
-            <input matInput type="number" placeholder="{{ 'MathExercise.RightNumber' | transloco }}" formControlName="rightAddendControl" required />
-          </mat-form-field>
-        </div>
-      </div>
       <div class="control-full-width" fxLayout="row">
         <div fxFlex="50">
           <mat-checkbox formControlName="negControl">{{'MathExercise.AllowNegative' | transloco}}</mat-checkbox>

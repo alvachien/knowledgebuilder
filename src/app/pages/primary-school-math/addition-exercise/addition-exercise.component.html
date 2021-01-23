@@ -17,35 +17,22 @@
       <div class="control-full-width" fxLayout="row">
         <div fxFlex="50">
           <mat-form-field>
-            <input matInput type="number" placeholder="{{'MathExercise.Summand' | transloco}}" formControlName="leftSummandControl"
+            <input matInput type="number" placeholder="{{'MathExercise.Number' | transloco}}" formControlName="leftNumberControl"
               required>
           </mat-form-field>
         </div>
         <div fxFlex>
           <mat-form-field>
-            <input matInput type="number" placeholder="{{'MathExercise.Summand' | transloco}}" formControlName="rightSummandControl"
+            <input matInput type="number" placeholder="{{'MathExercise.Number' | transloco}}" formControlName="rightNumberControl"
               required>
           </mat-form-field>    
         </div>
       </div>
 
-      <div class="control-full-width" fxLayout="row">
-        <div fxFlex="50">
-          <mat-form-field>
-            <input matInput type="number" placeholder="{{'MathExercise.Addend' | transloco}}" formControlName="leftAddendControl"
-              required>
-          </mat-form-field>    
-        </div>
-        <div fxFlex>
-          <mat-form-field>
-            <input matInput type="number" placeholder="{{'MathExercise.Addend' | transloco}}" formControlName="rightAddendControl"
-              required>
-          </mat-form-field>    
-        </div>
-      </div>
       <mat-form-field>
         <input matInput type="number" placeholder="{{ 'MathExercise.DecimalPlaces' | transloco }}" formControlName="decControl"/>
       </mat-form-field>
+
       <button mat-raised-button color="primary" (click)="onQuizStart()" [disabled]="!canStart()">{{'Common.Start' | transloco }}</button>
     </form>
 
