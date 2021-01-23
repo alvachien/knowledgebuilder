@@ -62,7 +62,7 @@
         <mat-form-field class="control-full-width" style="font-size: 72px; text-align: center">
           <span matPrefix>{{ QuizItems[QuizCursor].LeftNumber }} - {{ QuizItems[QuizCursor].RightNumber }} =</span>
           <input matInput type="number" placeholder="{{ 'MathExercise.Result' | transloco }}" [(ngModel)]="QuizItems[QuizCursor].InputtedResult"
-            required name="irst" autofocus />
+            required name="irst" #irst autofocus />
         </mat-form-field>
       </div>
 

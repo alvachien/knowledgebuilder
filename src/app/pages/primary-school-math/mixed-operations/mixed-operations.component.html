@@ -38,13 +38,14 @@
       </div>
       <mat-divider></mat-divider>
       <div class="control-full-width">
-        <div>Allowed Operators:</div>
+        <div>{{'MathExercise.Operators' | transloco}}:</div>
         <mat-selection-list #opers>
-          <mat-list-option *ngFor="let oper of allowedOperators">
-            {{oper}}
+          <mat-list-option *ngFor="let oper of allowedOperators" [value]="oper.value">
+            {{oper.display}}
           </mat-list-option>
         </mat-selection-list>
       </div>
+      <mat-divider></mat-divider>
 
       <button mat-raised-button color="primary" (click)="onQuizStart()" [disabled]="!canStart()">
         {{ "Common.Start" | transloco }}
@@ -58,7 +59,7 @@
 
       <div #itemForm (keydown.enter)="onQuizSubmit()">
         <mat-form-field class="control-full-width" style="font-size: 72px; text-align: center">
-          <span matPrefix>{{ QuizItems[QuizCursor].LeftNumber | number }} + {{ QuizItems[QuizCursor].RightNumber | number }} =</span>
+          <span matPrefix>{{ QuizItems[QuizCursor].getQuizFormat() }}</span>
           <input matInput type="number" placeholder="{{ 'MathExercise.Result' | transloco }}" [(ngModel)]="QuizItems[QuizCursor].InputtedResult" required #irst name="irst" />
         </mat-form-field>
       </div>

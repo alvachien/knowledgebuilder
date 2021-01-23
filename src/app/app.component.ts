@@ -21,7 +21,7 @@ export class AppComponent implements OnDestroy {
 
   private _mobileQueryListener: () => void;
 
-  constructor(changeDetectorRef: ChangeDetectorRef, 
+  constructor(changeDetectorRef: ChangeDetectorRef,
     media: MediaMatcher,
     private translocoService: TranslocoService,
   ) {
@@ -31,7 +31,7 @@ export class AppComponent implements OnDestroy {
 
     this.navItems = [
       { name: 'WelcomePage', route: '/welcome', group: AppNavItemGroupEnum.home },
-      
+
       { name: 'MathExercise.AdditionExercises', route: '/primary-school-math/add-ex', group: AppNavItemGroupEnum.ps_basic },
       { name: 'MathExercise.SubtractionExercises', route: '/primary-school-math/sub-ex', group: AppNavItemGroupEnum.ps_basic },
       { name: 'MathExercise.MultiplicationExercises', route: '/primary-school-math/multi-ex', group: AppNavItemGroupEnum.ps_basic },

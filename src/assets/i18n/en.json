@@ -101,6 +101,7 @@
         "Score": "Score",
         "Total": "Total",
         "Failure": "Failure",
+        "DisplayAllResult": "Display All Results",
         "TimeSpentInSeconds": "Time spt. (s)",
         "AvgTimeSpentEachInSeconds": "Avg. time spt. (s)",
         "AdjAvgTimeSpentEachInSeconds": "Adj. avg. time spt. (s)"

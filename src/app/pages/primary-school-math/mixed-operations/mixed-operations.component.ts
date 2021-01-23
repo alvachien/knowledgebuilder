@@ -1,11 +1,12 @@
 import { Component, OnInit, OnDestroy, ViewChild, ElementRef, ChangeDetectorRef } from '@angular/core';
 import { AbstractControl, FormControl, FormGroup, NgForm, ValidationErrors, ValidatorFn } from '@angular/forms';
 import { Validators } from '@angular/forms';
+import { MatSelectionList } from '@angular/material/list';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { Router } from '@angular/router';
 import { Observable } from 'rxjs';
 
-import { AdditionQuizItem, PrimarySchoolMathQuizSection, QuizSection } from 'src/app/models';
+import { MixedOperationQuizItem, PrimarySchoolMathQuizSection, QuizSection } from 'src/app/models';
 import { CanComponentDeactivate, CanDeactivateGuard, QuizService } from 'src/app/services';
 
 @Component({
@@ -16,8 +17,8 @@ import { CanComponentDeactivate, CanDeactivateGuard, QuizService } from 'src/app
 export class MixedOperationsComponent implements OnInit, OnDestroy, CanDeactivateGuard {
   isQuizStarted = false;
   quizControlFormGroup: FormGroup = new FormGroup({
-    countControl: new FormControl(50, [Validators.required, Validators.min(1), Validators.max(1000)]),
-    failedFactorControl: new FormControl(5, [Validators.min(0), Validators.max(10)]),
+    countControl: new FormControl(20, [Validators.required, Validators.min(1), Validators.max(1000)]),
+    failedFactorControl: new FormControl(2, [Validators.min(0), Validators.max(10)]),
     leftSummandControl: new FormControl(0),
     rightSummandControl: new FormControl(100),
     leftAddendControl: new FormControl(0),
@@ -25,7 +26,7 @@ export class MixedOperationsComponent implements OnInit, OnDestroy, CanDeactivat
     negControl: new FormControl(false),
     decControl: new FormControl(0, [Validators.min(0), Validators.max(5)]),
   }, { validators: this.basicValidator });
-  QuizItems: AdditionQuizItem[] = [];
+  QuizItems: MixedOperationQuizItem[] = [];
   QuizCursor = 0;
   quizFormGroup: FormGroup = new FormGroup({
     inputControl: new FormControl(null, Validators.required)
@@ -45,12 +46,13 @@ export class MixedOperationsComponent implements OnInit, OnDestroy, CanDeactivat
       this.inputCtrl.nativeElement.focus();
     }
   }
+  @ViewChild('opers', {static: false}) operatorsCtrl?: MatSelectionList;
   quizSections: PrimarySchoolMathQuizSection[] = [];
-  allowedOperators: string[] = [
-    '+',
-    '-',
-    'X',
-    '÷'
+  allowedOperators: any[] = [
+    { display: ' + ', value: '+' },
+    { display: ' - ', value: '-' },
+    { display: ' × ', value: '*' },
+    { display: ' ÷ ', value: '/' },
   ];
 
   constructor(private quizService: QuizService,
@@ -69,7 +71,8 @@ export class MixedOperationsComponent implements OnInit, OnDestroy, CanDeactivat
   }
 
   canStart(): boolean {
-    return !this.isQuizStarted && this.quizControlFormGroup.valid;
+    return !this.isQuizStarted && this.quizControlFormGroup.valid
+      && this.operatorsCtrl! && this.operatorsCtrl!.selectedOptions.selected.length > 0;
   }
 
   onQuizStart(): void {
@@ -82,7 +85,7 @@ export class MixedOperationsComponent implements OnInit, OnDestroy, CanDeactivat
       this.isQuizStarted = true;
       this.changeDef.detectChanges();
 
-      this.setNextButtonText();      
+      this.setNextButtonText();
     }
   }
 
@@ -100,7 +103,7 @@ export class MixedOperationsComponent implements OnInit, OnDestroy, CanDeactivat
             failedItems.push(quiz);
           }
         }
-        
+
         // Complete current section, and start another one!
         this.quizService.ActiveQuiz?.completeActionSection(failedItems.length);
         let failedfactor = this.quizControlFormGroup.get('failedFactorControl')!.value;
@@ -116,10 +119,10 @@ export class MixedOperationsComponent implements OnInit, OnDestroy, CanDeactivat
 
           let curquiz = this.quizService.ActiveQuiz!;
           let quizSection = new QuizSection(curquiz.NextSectionID, this.QuizItems.length);
-          curquiz.startNewSection(quizSection);    
+          curquiz.startNewSection(quizSection);
         } else {
           this.isQuizStarted = false;
-          this.changeDef.detectChanges();
+          // this.changeDef.detectChanges();
 
           let qid = this.quizService.ActiveQuiz?.QuizID;
           this.quizService.completeActiveQuiz();
@@ -154,29 +157,44 @@ export class MixedOperationsComponent implements OnInit, OnDestroy, CanDeactivat
     }
   }
 
-  private generateQuizItem(idx: number): AdditionQuizItem {
+  private generateQuizItem(idx: number): MixedOperationQuizItem {
+    const allowneg: boolean = this.quizControlFormGroup.get('negControl')!.value as boolean;
+    let qz: MixedOperationQuizItem;
+    while (true) {
+      let fmt = this.getNumber().toString();
+
+      this.operatorsCtrl!.selectedOptions.selected.forEach(vop => {
+        fmt += vop.value;
+        fmt += this.getNumber().toString();
+      });
+      qz = new MixedOperationQuizItem(fmt);
+      if (!allowneg && qz.Result < 0) {
+        continue;
+      }
+      qz.QuizIndex = idx;
+      break;
+    }
+
+    return qz;
+  }
+  private getNumber(): number {
     let mfactor = 0;
     const decplace = this.quizControlFormGroup.get('decControl')!.value;
     mfactor = Math.pow(10, decplace);
-    let rnum1 = Math.random() * mfactor *
-      (this.quizControlFormGroup.get('rightSummandControl')!.value - this.quizControlFormGroup.get('leftSummandControl')!.value)
-      + this.quizControlFormGroup.get('leftSummandControl')!.value;
-    let rnum2 = Math.random() * mfactor *
-      (this.quizControlFormGroup.get('rightAddendControl')!.value - this.quizControlFormGroup.get('leftAddendControl')!.value)
-      + this.quizControlFormGroup.get('leftAddendControl')!.value;
+    const leftNumb = mfactor * this.quizControlFormGroup.get('leftSummandControl')!.value;
+    const rightNumb = mfactor * this.quizControlFormGroup.get('rightSummandControl')!.value;
+
+    let rnum1 = Math.round(Math.random() * ( rightNumb - leftNumb )) + leftNumb;
     if (mfactor !== 0) {
       rnum1 = rnum1 / mfactor;
-      rnum2 = rnum2 / mfactor;
     }
-    const qz: AdditionQuizItem = new AdditionQuizItem(rnum1, rnum2, decplace); // TBD
-    qz.QuizIndex = idx;
-    return qz;
+    return rnum1;
   }
   private generateQuizSection(itemcnt: number): void {
     this.QuizItems = [];
 
     for (let i = 0; i < itemcnt; i++) {
-      const dq: AdditionQuizItem = this.generateQuizItem(i + 1);
+      const dq: MixedOperationQuizItem = this.generateQuizItem(i + 1);
 
       this.QuizItems.push(dq);
     }

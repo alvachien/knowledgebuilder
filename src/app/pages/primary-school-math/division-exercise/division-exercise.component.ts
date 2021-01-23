@@ -16,8 +16,8 @@ import { CanComponentDeactivate, CanDeactivateGuard, QuizService } from 'src/app
 export class DivisionExerciseComponent implements OnInit, OnDestroy, CanDeactivateGuard {
   isQuizStarted = false;
   quizControlFormGroup: FormGroup = new FormGroup({
-    countControl: new FormControl(50, [Validators.required, Validators.min(1), Validators.max(1000)]),
-    failedFactorControl: new FormControl(5, [Validators.min(0), Validators.max(10)]),
+    countControl: new FormControl(20, [Validators.required, Validators.min(1), Validators.max(1000)]),
+    failedFactorControl: new FormControl(2, [Validators.min(0), Validators.max(10)]),
     leftSummandControl: new FormControl(0),
     rightSummandControl: new FormControl(100),
     leftAddendControl: new FormControl(0),
@@ -99,7 +99,7 @@ export class DivisionExerciseComponent implements OnInit, OnDestroy, CanDeactiva
             failedItems.push(quiz);
           }
         }
-        
+
         // Complete current section, and start another one!
         this.quizService.ActiveQuiz?.completeActionSection(failedItems.length);
         let failedfactor = this.quizControlFormGroup.get('failedFactorControl')!.value;
@@ -115,10 +115,10 @@ export class DivisionExerciseComponent implements OnInit, OnDestroy, CanDeactiva
 
           let curquiz = this.quizService.ActiveQuiz!;
           let quizSection = new QuizSection(curquiz.NextSectionID, this.QuizItems.length);
-          curquiz.startNewSection(quizSection);    
+          curquiz.startNewSection(quizSection);
         } else {
           this.isQuizStarted = false;
-          this.changeDef.detectChanges();
+          // this.changeDef.detectChanges();
 
           let qid = this.quizService.ActiveQuiz?.QuizID;
           this.quizService.completeActiveQuiz();
