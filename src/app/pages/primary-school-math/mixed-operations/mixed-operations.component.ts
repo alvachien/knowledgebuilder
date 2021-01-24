@@ -23,6 +23,7 @@ export class MixedOperationsComponent implements OnInit, OnDestroy, CanDeactivat
     rightNumberControl: new FormControl(100),
     negControl: new FormControl(false),
     decControl: new FormControl(0, [Validators.min(0), Validators.max(5)]),
+    operatorCountControl: new FormControl(2, [Validators.required, Validators.min(1), Validators.max(4)])
   }, { validators: this.basicValidator });
   QuizItems: MixedOperationQuizItem[] = [];
   QuizCursor = 0;
@@ -71,7 +72,8 @@ export class MixedOperationsComponent implements OnInit, OnDestroy, CanDeactivat
 
   canStart(): boolean {
     return !this.isQuizStarted && this.quizControlFormGroup.valid
-      && this.operatorsCtrl! && this.operatorsCtrl!.selectedOptions.selected.length > 0;
+      && this.operatorsCtrl! && this.operatorsCtrl!.selectedOptions.selected.length > 0
+      && this.quizControlFormGroup.get('operatorCountControl')!.value <= this.operatorsCtrl!.selectedOptions.selected.length;
   }
 
   onQuizStart(): void {
@@ -120,11 +122,9 @@ export class MixedOperationsComponent implements OnInit, OnDestroy, CanDeactivat
           const quizSection = new QuizSection(curquiz.NextSectionID, this.QuizItems.length);
           curquiz.startNewSection(quizSection);
         } else {
-          this.isQuizStarted = false;
-          // this.changeDef.detectChanges();
-
-          let qid = this.quizService.ActiveQuiz?.QuizID;
+          const qid = this.quizService.ActiveQuiz?.QuizID;
           this.quizService.completeActiveQuiz();
+          this.isQuizStarted = false;
 
           this.router.navigate(['/quiz-summary/display', qid]);
         }
@@ -158,16 +158,35 @@ export class MixedOperationsComponent implements OnInit, OnDestroy, CanDeactivat
 
   private generateQuizItem(idx: number): MixedOperationQuizItem {
     const allowneg: boolean = this.quizControlFormGroup.get('negControl')!.value as boolean;
+    const opercnt = this.quizControlFormGroup.get('operatorCountControl')!.value;
     let qz: MixedOperationQuizItem;
     while (true) {
       let fmt = this.getNumber().toString();
 
-      this.operatorsCtrl!.selectedOptions.selected.forEach(vop => {
-        fmt += vop.value;
-        fmt += this.getNumber().toString();
-      });
+      if (opercnt >= this.operatorsCtrl!.selectedOptions.selected.length) {
+        this.operatorsCtrl!.selectedOptions.selected.forEach(vop => {
+          fmt += vop.value;
+          fmt += this.getNumber().toString();
+        });
+      } else {
+        const ops: any[] = [];
+        this.operatorsCtrl!.selectedOptions.selected.forEach(vop => {
+          ops.push(vop.value);
+        });
+        let diff = ops.length - opercnt;
+        do {
+          const idx = Math.floor(Math.random() * ops.length);
+          ops.splice(idx, 1);
+          diff --;
+        } while (diff > 0);
+
+        ops.forEach(op => {
+          fmt += op;
+          fmt += this.getNumber().toString();
+        });
+      }
       qz = new MixedOperationQuizItem(fmt);
-      if (!allowneg && qz.Result < 0) {
+      if (isNaN(qz.Result) || !isFinite(qz.Result) || (!allowneg && qz.Result < 0)) {
         continue;
       }
       qz.QuizIndex = idx;

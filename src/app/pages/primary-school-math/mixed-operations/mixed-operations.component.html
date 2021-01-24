@@ -37,6 +37,9 @@
         </div>
       </div>
       <mat-divider></mat-divider>
+      <mat-form-field>
+        <input matInput type="number" placeholder="{{ 'MathExercise.NumberOfOperators' | transloco }}" formControlName="operatorCountControl" />
+      </mat-form-field>
       <div class="control-full-width">
         <div>{{'MathExercise.Operators' | transloco}}:</div>
         <mat-selection-list #opers>

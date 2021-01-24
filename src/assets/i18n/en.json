@@ -87,7 +87,8 @@
         "Result": "Result",
         "MixedOperations": "Mixed Operations",
         "Number": "Number",
-        "Operators": "Operators"
+        "Operators": "Operators",
+        "NumberOfOperators": "Number of operators"
     },
     "Help": {
         "About": "About",

@@ -87,7 +87,8 @@
         "Result": "答案",
         "MixedOperations": "四则混合运算",
         "Number": "数值",
-        "Operators": "运算符"
+        "Operators": "运算符",
+        "NumberOfOperators": "操作符数量"
     },
     "Help": {
         "About": "关于",
