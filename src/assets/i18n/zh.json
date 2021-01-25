@@ -21,7 +21,8 @@
         "Start": "开始",
         "Submit": "交卷",
         "Next": "下一题",
-        "Previous": "上一题"
+        "Previous": "上一题",
+        "Continue": "继续"
     },
     "Type": "类别",
     "Create": "创建",
@@ -99,12 +100,16 @@
         "FailedFactor": "错误扩散因子",
         "FailedFactorHint": "用来强迫测验在有错误项时继续. 例子：因子数为5，2个错误项，测验会继续10个项。",
         "Summary": "练习总结",
+        "Expected": "正确答案",
+        "Inputted": "输入答案",
         "Score": "分数",
         "Total": "总计",
         "Failure": "错误项",
         "DisplayAllResult": "显示所有结果",
         "TimeSpentInSeconds": "用时 (秒)",
         "AvgTimeSpentEachInSeconds": "平均每题用时 (秒)",
-        "AdjAvgTimeSpentEachInSeconds": "调整后平均每题用时 (秒)"
+        "AdjAvgTimeSpentEachInSeconds": "调整后平均每题用时 (秒)",
+        "PrintableQuizGenerator": "打印版练习生成器",
+        "Generate": "生成"
     }
 }

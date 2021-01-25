@@ -14,6 +14,6 @@ export class NavItemFilterPipe implements PipeTransform {
 
         return true;
     });
-}
+  }
 }
  

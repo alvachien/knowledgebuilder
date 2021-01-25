@@ -13,6 +13,9 @@ import { MultiplicationExerciseComponent } from './multiplication-exercise';
 import { DivisionExerciseComponent } from './division-exercise';
 import { MixedOperationsComponent } from './mixed-operations';
 import { PrimarySchoolMathRoutingModule } from './primary-school-math-routing.module';
+import { PrintableQuizComponent } from './printable-quiz/printable-quiz.component';
+import { PrintableQuizSectionComponent } from './printable-quiz-section/printable-quiz-section.component';
+import { PrintableQuizSectionItemComponent } from './printable-quiz-section-item/printable-quiz-section-item.component';
 
 @NgModule({
   declarations: [
@@ -22,6 +25,9 @@ import { PrimarySchoolMathRoutingModule } from './primary-school-math-routing.mo
     MultiplicationExerciseComponent,
     DivisionExerciseComponent,
     MixedOperationsComponent,
+    PrintableQuizComponent,
+    PrintableQuizSectionComponent,
+    PrintableQuizSectionItemComponent,
   ],
   imports: [
     CommonModule,

@@ -37,15 +37,14 @@ export class ODataService {
         catchError((error: HttpErrorResponse) => {
           return throwError(error.statusText + '; ' + error.error + '; ' + error.message);
         }));
-      } else {
-        return of(this.metadataInfo);
-      }
+    } else {
+      return of(this.metadataInfo);
+    }
   }
 
   public getKnowledgeItems(): Observable<{
     totalCount: number,
-    items: KnowledgeItem[]
-  }> {
+    items: KnowledgeItem[]}> {
     let headers: HttpHeaders = new HttpHeaders();
     headers = headers.append('Content-Type', 'application/json')
               .append('Accept', 'application/json');

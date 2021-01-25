@@ -21,7 +21,8 @@
         "Start": "START",
         "Submit": "SUBMIT",
         "Next": "NEXT",
-        "Previous": "PREVIOUS"
+        "Previous": "PREVIOUS",
+        "Continue": "CONTINUE"
     },
     "Type": "Type",
     "Create": "Create",
@@ -99,12 +100,16 @@
         "FailedFactor": "Failed Factor",
         "FailedFactorHint": "Used to continues the quzi if failed items occurs. Example: set to 5, and 2 failed item, the quiz will continue with 10 items.",
         "Summary": "Summary",
+        "Expected": "Expected",
+        "Inputted": "Inputted",
         "Score": "Score",
         "Total": "Total",
         "Failure": "Failure",
         "DisplayAllResult": "Display All Results",
         "TimeSpentInSeconds": "Time spt. (s)",
         "AvgTimeSpentEachInSeconds": "Avg. time spt. (s)",
-        "AdjAvgTimeSpentEachInSeconds": "Adj. avg. time spt. (s)"
+        "AdjAvgTimeSpentEachInSeconds": "Adj. avg. time spt. (s)",
+        "PrintableQuizGenerator": "Printable Quiz Generator",
+        "Generate": "Generate"
     }
 }

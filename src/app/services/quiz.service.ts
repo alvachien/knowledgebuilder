@@ -3,7 +3,7 @@ import { HttpParams, HttpClient, HttpHeaders, HttpResponse, HttpRequest, HttpErr
 import { Observable, throwError, Subject, of } from 'rxjs';
 import { map, catchError } from 'rxjs/operators';
 
-import { ExerciseItem, TagCount, Tag, KnowledgeItem, TagReferenceType, QuizSection, Quiz } from '../models';
+import { Quiz, QuizItem } from '../models';
 import { environment } from '../../environments/environment';
 
 @Injectable({
@@ -13,14 +13,20 @@ export class QuizService {
   private currentQuizID: number = 0;
   private elderQuizs: Quiz[] = [];
   private curQuiz?: Quiz;
+  private failedItems: QuizItem[] = [];
+  private currScore = 0;
 
   get NextQuizID(): number { return this.currentQuizID + 1; }
   get ActiveQuiz(): Quiz | undefined { return this.curQuiz; }
   get ElderQuizs(): Quiz[] { return this.elderQuizs; }
+  get FailedQuizItems(): QuizItem[] { return this.failedItems; }
+  set FailedQuizItems(items: QuizItem[]) { this.failedItems = items; }
+  get CurrentScore(): number { return this.currScore; }
+  set CurrentScore(scre: number) { this.currScore = scre; }
 
   public startNewQuiz(qid: number): Quiz {
     if (this.curQuiz) {
-      throw 'Active Quiz not yet completed';
+      throw new Error('Active Quiz not yet completed');
     }
 
     this.curQuiz = new Quiz(qid);
@@ -30,12 +36,12 @@ export class QuizService {
   }
   public completeActiveQuiz(): void {
     if (!this.curQuiz) {
-      throw 'Active Quiz not exist';
+      throw new Error('Active Quiz not exist');
     }
     if (this.curQuiz.ActiveSection) {
-      throw 'Active Quiz has active section';
+      throw new Error('Active Quiz has active section');
     }
     this.elderQuizs.push(this.curQuiz);
     this.curQuiz = undefined;
-  }  
+  }
 }

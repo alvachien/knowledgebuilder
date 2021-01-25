@@ -1,0 +1,34 @@
+<h2 matDialogTitle>{{'Quiz.Failure' | transloco}}</h2>
+<mat-dialog-content>
+  <h2 class="control-full-width">
+    <span>{{'Quiz.Score' | transloco}}</span>
+    <span [style.color]="currentScore > 80 ? 'lightyellow': 'red'">{{currentScore}}</span>
+  </h2>
+  <div class="example-container mat-elevation-z8">
+    <table mat-table [dataSource]="failedItems">
+      <!-- ID Column -->
+      <ng-container cdkColumnDef="qid">
+        <mat-header-cell *cdkHeaderCellDef>#</mat-header-cell>
+        <mat-cell *cdkCellDef="let row"> {{row.QuizIndex}} </mat-cell>
+      </ng-container>
+
+      <!-- Expected Column -->
+      <ng-container cdkColumnDef="expected">
+        <mat-header-cell *cdkHeaderCellDef>{{'Quiz.Expected' | transloco}}</mat-header-cell>
+        <mat-cell *cdkCellDef="let row" style="color:#00FF00;"> {{row.getCorrectFormula()}} </mat-cell>
+      </ng-container>
+
+      <!-- Inputted Column -->
+      <ng-container cdkColumnDef="inputted">
+        <mat-header-cell *cdkHeaderCellDef> {{'Quiz.Inputted' | transloco}} </mat-header-cell>
+        <mat-cell *cdkCellDef="let row" style="color:#FF0000;"> {{row.getInputtedForumla()}} </mat-cell>
+      </ng-container>
+
+      <mat-header-row *cdkHeaderRowDef="displayedColumns"></mat-header-row>
+      <mat-row *cdkRowDef="let row; columns: displayedColumns;"></mat-row>
+    </table>
+  </div>
+</mat-dialog-content>
+<mat-dialog-actions>
+  <button mat-button [matDialogClose]="true" tabindex="1">{{'Common.Continue' | transloco}}</button>
+</mat-dialog-actions>

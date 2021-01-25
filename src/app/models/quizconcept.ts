@@ -175,6 +175,13 @@ export abstract class QuizItem extends StorableObject {
     public getQuizFormat(): string {
         return '';
     }
+    public getCorrectFormula(): string {
+        return '';
+    }
+
+    public getInputtedForumla(): string {
+        return '';
+    }
 
     protected storeToJsonObject(): any {
         return super.storeToJsonObject();
@@ -208,11 +215,13 @@ export class PrimarySchoolMathQuizItem extends QuizItem {
     }
 
     public getCorrectFormula(): string {
-        return '';
+        const rststr = super.getCorrectFormula();
+        return rststr;
     }
 
     public getInputtedForumla(): string {
-        return '';
+        const rststr = super.getInputtedForumla();
+        return rststr;
     }
 
     protected storeToJsonObject(): any {

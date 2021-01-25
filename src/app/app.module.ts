@@ -14,11 +14,13 @@ import { translocoConfig, TranslocoModule, TRANSLOCO_CONFIG } from '@ngneat/tran
 import { ODataService, QuizService } from './services';
 import { environment } from 'src/environments/environment';
 import { NavItemFilterPipe } from './pipes';
+import { QuizFailureDailogComponent } from './pages/quiz-failure-dailog';
 
 @NgModule({
   declarations: [
     AppComponent,
     NavItemFilterPipe,
+    QuizFailureDailogComponent,
   ],
   imports: [
     BrowserModule,
@@ -55,6 +57,9 @@ import { NavItemFilterPipe } from './pipes';
       })
     },
     translocoLoader,
+  ],
+  entryComponents: [
+    QuizFailureDailogComponent
   ],
   bootstrap: [AppComponent]
 })

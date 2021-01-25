@@ -1,12 +1,14 @@
 import { Component, OnInit, OnDestroy, ViewChild, ElementRef, ChangeDetectorRef } from '@angular/core';
 import { AbstractControl, FormControl, FormGroup, NgForm, ValidationErrors, ValidatorFn } from '@angular/forms';
 import { Validators } from '@angular/forms';
+import { MatDialog } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { Router } from '@angular/router';
 import { Observable } from 'rxjs';
 
 import { MultiplicationQuizItem, PrimarySchoolMathQuizSection, QuizSection } from 'src/app/models';
 import { CanComponentDeactivate, CanDeactivateGuard, QuizService } from 'src/app/services';
+import { QuizFailureDailogComponent } from '../../quiz-failure-dailog';
 
 @Component({
   selector: 'app-primary-school-math-multi-ex',
@@ -48,7 +50,8 @@ export class MultiplicationExerciseComponent implements OnInit, OnDestroy, CanDe
     private quizService: QuizService,
     public snackBar: MatSnackBar,
     private router: Router,
-    private changeDef: ChangeDetectorRef) {
+    private changeDef: ChangeDetectorRef,
+    private dialog: MatDialog) {
   }
   canDeactivate(component: CanComponentDeactivate): boolean | Observable<boolean> | Promise<boolean> {
     return !this.isQuizStarted;
@@ -94,17 +97,25 @@ export class MultiplicationExerciseComponent implements OnInit, OnDestroy, CanDe
         const failedfactor = this.quizControlFormGroup.get('failedFactorControl')!.value;
 
         if (failedItems.length > 0 && failedfactor > 0) {
-          this.snackBar.open(`Failed items: ${failedItems.length}, please retry`, undefined, {
-            duration: 1000
+          // this.snackBar.open(`Failed items: ${failedItems.length}, please retry`, undefined, {
+          //   duration: 1000
+          // });
+          this.quizService.FailedQuizItems = failedItems;
+          this.quizService.CurrentScore = (this.QuizItems.length - failedItems.length) / this.QuizItems.length;
+          const dialogRef = this.dialog.open(QuizFailureDailogComponent, {
+            disableClose: false,
+            width: '500px'
           });
+    
+          dialogRef.afterClosed().subscribe(x => {
+            this.generateQuizSection(failedItems.length * failedfactor);
+            this.QuizCursor = 0;
+            this.setNextButtonText();
 
-          this.generateQuizSection(failedItems.length * failedfactor);
-          this.QuizCursor = 0;
-          this.setNextButtonText();
-
-          const curquiz = this.quizService.ActiveQuiz!;
-          const quizSection = new QuizSection(curquiz.NextSectionID, this.QuizItems.length);
-          curquiz.startNewSection(quizSection);
+            const curquiz = this.quizService.ActiveQuiz!;
+            const quizSection = new QuizSection(curquiz.NextSectionID, this.QuizItems.length);
+            curquiz.startNewSection(quizSection);
+          });
         } else {
           const qid = this.quizService.ActiveQuiz?.QuizID;
           this.quizService.completeActiveQuiz();
