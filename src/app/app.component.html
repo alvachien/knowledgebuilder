@@ -66,6 +66,18 @@
       <mat-expansion-panel hideToggle="false">
         <mat-expansion-panel-header>
           <mat-panel-title>
+            <mat-icon color="primary">snooze</mat-icon>{{'PuzzleGames.PuzzleGames' | transloco}}
+          </mat-panel-title>
+        </mat-expansion-panel-header>
+        <mat-nav-list>
+          <a *ngFor="let navItem of navItems | navItemFilter: 3" mat-list-item (click)="snav.close()" [routerLink]="[navItem.route]">
+            {{navItem.name | transloco}}
+          </a>
+        </mat-nav-list>
+      </mat-expansion-panel>
+      <mat-expansion-panel hideToggle="false">
+        <mat-expansion-panel-header>
+          <mat-panel-title>
             <mat-icon color="primary">help_outline</mat-icon>{{'Help.About' | transloco}}
           </mat-panel-title>
         </mat-expansion-panel-header>

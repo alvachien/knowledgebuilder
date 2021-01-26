@@ -26,6 +26,10 @@ const routes: Routes = [
     loadChildren: () => import('./pages/primary-school-math/primary-school-math.module').then(m => m.PrimarySchoolMathModule),
   },
   {
+    path: 'puzzle-games',
+    loadChildren: () => import('./pages/puzzle-game/puzzle-game.module').then(m => m.PuzzleGameModule),
+  },
+  {
     path: 'quiz-summary',
     loadChildren: () => import('./pages/quiz-summary/quiz-summary.module').then(m => m.QuizSummaryModule),
   }

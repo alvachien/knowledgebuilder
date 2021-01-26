@@ -40,6 +40,22 @@ Web API in use with Github repo: [Link](https://github.com/alvachien/knowledgebu
 ng g c pages\primary-school-math\MixedOperations -m pages\primary-school-math
 ```
 
+- Generate a module:
+
+```Powershell
+ng g m pages\puzzle-game\PuzzleGame --routing
+```
+
+## Todos
+
+|Functioanlity | Status | Comment |
+|--|--|--|
+|Printable Quiz Generator|In Process|Make the quiz printable, via PDFs|
+|Puzzle Games: Sudou|In Process|Traiditonal Sudou games|
+|Puzzle Games: Typing game|In process|Typing games|
+|Puzzle Games: Gobang game|In Process|Gobang|
+
+
 ## Credits
 
 - Angular
@@ -47,6 +63,8 @@ ng g c pages\primary-school-math\MixedOperations -m pages\primary-school-math
 - eCharts
 - marked
 - Katex
+- monaco-editor
+
 
 # Author  
 

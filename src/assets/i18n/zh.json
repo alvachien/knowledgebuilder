@@ -95,6 +95,15 @@
         "About": "关于",
         "Credits": "致谢"
     },
+    "PuzzleGames": {
+        "Calculate24": "速算24",
+        "Sudou": "数独",
+        "PuzzleGames": "智力游戏",
+        "Minesweeper": "扫雷游戏",
+        "TypingTutor": "打字游戏",
+        "Gobang": "五子棋游戏",
+        "ChineseChess": "中国象棋"    
+    },
     "Quiz": {
         "QuizItemCount": "试题数量",
         "FailedFactor": "错误扩散因子",

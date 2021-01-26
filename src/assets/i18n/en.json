@@ -95,6 +95,15 @@
         "About": "About",
         "Credits": "Credits"
     },
+    "PuzzleGames": {
+        "Calculate24": "Calculate 24",
+        "Sudou": "Sudou",
+        "PuzzleGames": "Puzzle Games",
+        "Minesweeper": "Minesweeper",
+        "TypingTutor": "Typing Game",
+        "Gobang": "Gobang",
+        "ChineseChess": "Chinese Chess"    
+    },
     "Quiz": {
         "QuizItemCount": "Count of Quiz Item",
         "FailedFactor": "Failed Factor",

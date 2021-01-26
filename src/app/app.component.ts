@@ -42,6 +42,11 @@ export class AppComponent implements OnDestroy {
       { name: 'ExerciseItem', route: '/exercise-item', group: AppNavItemGroupEnum.knowledge },
       { name: 'Tags', route: '/tag', group: AppNavItemGroupEnum.knowledge },
 
+      { name: 'PuzzleGames.Calculate24', route: '/puzzle-games/cal24', group: AppNavItemGroupEnum.games },
+      { name: 'PuzzleGames.Sudou', route: '/puzzle-games/sudou', group: AppNavItemGroupEnum.games },
+      { name: 'PuzzleGames.TypingTutor', route: 'puzzle-games/typegame', group: AppNavItemGroupEnum.games },
+      { name: 'PuzzleGames.Gobang', route: 'puzzle-games/gobang', group: AppNavItemGroupEnum.games },
+
       { name: 'Help.About', route: '/help/about', group: AppNavItemGroupEnum.help },
       { name: 'Help.Credits', route: '/help/credits', group: AppNavItemGroupEnum.help },
     ];
