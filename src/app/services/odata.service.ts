@@ -20,7 +20,7 @@ export class ODataService {
     ) { }
 
   public getMetadata(forceReload?: boolean): Observable<any> {
-    if (!this.isMetadataLoaded || forceReload) {
+    if (!environment.noapi && (!this.isMetadataLoaded || forceReload)) {
       let headers: HttpHeaders = new HttpHeaders();
       headers = headers.append('Content-Type', 'application/xml,application/json')
                 .append('Accept', 'text/html,application/xhtml+xml,application/xml');
@@ -45,6 +45,10 @@ export class ODataService {
   public getKnowledgeItems(): Observable<{
     totalCount: number,
     items: KnowledgeItem[]}> {
+    if (environment.noapi) {
+      return of({totalCount: 0, items: []});
+    }
+
     let headers: HttpHeaders = new HttpHeaders();
     headers = headers.append('Content-Type', 'application/json')
               .append('Accept', 'application/json');
@@ -81,7 +85,10 @@ export class ODataService {
     let headers: HttpHeaders = new HttpHeaders();
     headers = headers.append('Content-Type', 'application/json')
               .append('Accept', 'application/json');
-
+    if (environment.noapi) {
+      return of(new KnowledgeItem());
+    }
+          
     let params: HttpParams = new HttpParams();
     params = params.append('$select', 'ID,Category,Title,Content');
     params = params.append('$expand', 'Tags');
@@ -101,6 +108,10 @@ export class ODataService {
   }
 
   public createKnowledgeItem(ki: KnowledgeItem): Observable<KnowledgeItem> {
+    if (environment.noapi) {
+      return of(new KnowledgeItem());
+    }
+
     let headers: HttpHeaders = new HttpHeaders();
     headers = headers.append('Content-Type', 'application/json')
               .append('Accept', 'application/json');
@@ -121,6 +132,10 @@ export class ODataService {
       }));
   }
   public changeKnowledgeItem(ki: KnowledgeItem): Observable<KnowledgeItem> {
+    if (environment.noapi) {
+      return of(new KnowledgeItem());
+    }
+
     let headers: HttpHeaders = new HttpHeaders();
     headers = headers.append('Content-Type', 'application/json')
               .append('Accept', 'application/json');
@@ -142,6 +157,12 @@ export class ODataService {
   }
 
   public getExerciseItems(): Observable<{ totalCount: number, items: ExerciseItem[]}> {
+    if (environment.noapi) {
+      return of({
+        totalCount: 0,
+        items: []
+      });
+    }
     let headers: HttpHeaders = new HttpHeaders();
     headers = headers.append('Content-Type', 'application/json')
               .append('Accept', 'application/json');
@@ -175,6 +196,9 @@ export class ODataService {
   }
 
   public createExerciseItem(qbi: ExerciseItem): Observable<ExerciseItem> {
+    if (environment.noapi) {
+      return of(new ExerciseItem());
+    }
     let headers: HttpHeaders = new HttpHeaders();
     headers = headers.append('Content-Type', 'application/json')
               .append('Accept', 'application/json');
@@ -195,6 +219,9 @@ export class ODataService {
   }
 
   public changeExerciseItem(qbi: ExerciseItem): Observable<ExerciseItem> {
+    if (environment.noapi) {
+      return of(new ExerciseItem());
+    }
     let headers: HttpHeaders = new HttpHeaders();
     headers = headers.append('Content-Type', 'application/json')
               .append('Accept', 'application/json');
@@ -215,6 +242,9 @@ export class ODataService {
   }
 
   public readExerciseItem(qbid: number): Observable<ExerciseItem> {
+    if (environment.noapi) {
+      return of(new ExerciseItem());
+    }
     let headers: HttpHeaders = new HttpHeaders();
     headers = headers.append('Content-Type', 'application/json')
               .append('Accept', 'application/json');
@@ -238,7 +268,7 @@ export class ODataService {
 
   public uploadFiles(files: Set<File>):
     { [key: string]: { result: Observable<any> } } {
-
+ 
     // this will be the our resulting map
     const status: { [key: string]: { result: Observable<any> } } = {};
 
@@ -285,6 +315,9 @@ export class ODataService {
   }
 
   public getTagCounts(): Observable<{ totalCount: number, items: TagCount[]}> {
+    if (environment.noapi) {
+      return of({ totalCount: 0, items: []});
+    }
     let headers: HttpHeaders = new HttpHeaders();
     headers = headers.append('Content-Type', 'application/json')
               .append('Accept', 'application/json');
@@ -318,6 +351,9 @@ export class ODataService {
   }
 
   public getTags(term: string, reftype?: TagReferenceType): Observable<{ totalCount: number, items: Tag[]}> {
+    if (environment.noapi) {
+      return of({totalCount: 0, items: []});
+    }
     let headers: HttpHeaders = new HttpHeaders();
     headers = headers.append('Content-Type', 'application/json')
               .append('Accept', 'application/json');
@@ -352,6 +388,9 @@ export class ODataService {
   }
 
   public getOverviewInfo(): Observable<OverviewInfo[]> {
+    if (environment.noapi) {
+      return of([]);
+    }
     let headers: HttpHeaders = new HttpHeaders();
     headers = headers.append('Content-Type', 'application/json')
               .append('Accept', 'application/json');
