@@ -1,5 +1,9 @@
 # Knowledge Builder
 
+## Live Demo
+
+Live demo available in Github pages. Click [this link](https://alvachien.github.io/knowledgebuilder/) to access it.
+
 ## Documentations 
 
 本系列文章：
@@ -54,6 +58,7 @@ ng g m pages\puzzle-game\PuzzleGame --routing
 |Puzzle Games: Sudou|In Process|Traiditonal Sudou games|
 |Puzzle Games: Typing game|In process|Typing games|
 |Puzzle Games: Gobang game|In Process|Gobang|
+|Full screen|TBD|Full screen mode|
 
 
 ## Credits

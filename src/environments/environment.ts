@@ -5,6 +5,7 @@
 export const environment = {
   production: false,
   noapi: false,
+  basehref: '/',
   apiurl_root: 'https://localhost:44355'
 };
 
