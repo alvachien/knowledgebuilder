@@ -15,14 +15,8 @@ export class TypingGameComponent implements OnInit {
   @ViewChild('inpword', {static: true}) inpWordER!: ElementRef;
   @ViewChild('inpword2', {static: true}) inpWord2ER!: ElementRef;
   @ViewChild('keyboard', {static: true}) keyboardER!: ElementRef;
-  @Input()
-  set expectedString(exp: string) {
-    this._expectedString = exp;
-
-    this.updateComparison();
-  }
   @Output() finishEvent: EventEmitter<any> = new EventEmitter();
-  private _expectedString = 'new game';
+  public expectedString = '';
   public inputtedString: string = '';
   public fakedContent = '';
 
@@ -35,6 +29,7 @@ export class TypingGameComponent implements OnInit {
 
   ngOnInit() {
     this.inputtedString = '';
+    this.generateExpectedString();
 
     // https://stackoverflow.com/questions/3671141/hide-textfield-blinking-cursor
     this.inpWordER.nativeElement.addEventListener('focus', () => {
@@ -89,9 +84,9 @@ export class TypingGameComponent implements OnInit {
         this.inpWordER.nativeElement.innerHTML = nhtml;
       }
     } else {
-      if (this._expectedString !== undefined && this._expectedString.length > 0) {
+      if (this.expectedString !== undefined && this.expectedString.length > 0) {
         this.arComparison = [];
-        for (const c of this._expectedString) {
+        for (const c of this.expectedString) {
           const tc: typingCompare = {
             expected: c,
             inputted: null
@@ -101,13 +96,31 @@ export class TypingGameComponent implements OnInit {
 
         if (this.expWordER !== null && this.expWordER !== undefined) {
           let nhtml = '';
-          for (const c of this._expectedString) {
+          for (const c of this.expectedString) {
             nhtml += '<span>' + c + '</span>';
           }
 
           this.expWordER.nativeElement.innerHTML = nhtml;
         }
       }
+    }
+  }
+  private generateExpectedString() {
+    let basic = 'abcdefghijklmnopqrstuvwxyz';
+    // if (this.typingIncCaptial) {
+      basic = basic + 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+    // }
+    // if (this.typingIncNumber) {
+      basic = basic + '0123456789';
+    // }
+    // if (this.typingIncSymbols) {
+    //   basic = basic + ',.;\'`!@#$%^&*()_+-=[]{}\|<>?:';
+    // }
+
+    this.expectedString = '';
+    for (let i = 0; i < 20; i++) {
+      const word = basic.charAt(Math.floor(Math.random() * basic.length));
+      this.expectedString += word;
     }
   }
 
