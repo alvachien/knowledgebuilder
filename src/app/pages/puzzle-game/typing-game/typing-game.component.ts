@@ -1,8 +1,8 @@
-import { Component, ElementRef, EventEmitter, HostListener, Input, OnInit, Output, ViewChild } from '@angular/core';
+import { AfterViewInit, Component, ElementRef, EventEmitter, HostListener, Input, OnInit, Output, ViewChild } from '@angular/core';
 
 export interface typingCompare {
   expected: string;
-  inputted: string | null;
+  inputted: string;
 }
 
 @Component({
@@ -10,14 +10,14 @@ export interface typingCompare {
   templateUrl: './typing-game.component.html',
   styleUrls: ['./typing-game.component.scss']
 })
-export class TypingGameComponent implements OnInit {
+export class TypingGameComponent implements OnInit, AfterViewInit {
   @ViewChild('expword', {static: true}) expWordER!: ElementRef;
   @ViewChild('inpword', {static: true}) inpWordER!: ElementRef;
   @ViewChild('inpword2', {static: true}) inpWord2ER!: ElementRef;
   @ViewChild('keyboard', {static: true}) keyboardER!: ElementRef;
   @Output() finishEvent: EventEmitter<any> = new EventEmitter();
   public expectedString = '';
-  public inputtedString: string = '';
+  public inputtedString: string | null = '';
   public fakedContent = '';
 
   arComparison: typingCompare[] = [];
@@ -30,28 +30,29 @@ export class TypingGameComponent implements OnInit {
   ngOnInit() {
     this.inputtedString = '';
     this.generateExpectedString();
+  }
 
-    // https://stackoverflow.com/questions/3671141/hide-textfield-blinking-cursor
+  ngAfterViewInit() {
     this.inpWordER.nativeElement.addEventListener('focus', () => {
       this.inpWord2ER.nativeElement.focus();
     });
 
-    this.inpWord2ER.nativeElement.focus();
+    this.inpWord2ER.nativeElement.focus(); 
   }
 
   private updateComparison(isdelta?: boolean) {
     if (isdelta) {
-      const nlen = this.inputtedString.length;
+      const nlen = this.inputtedString!.length;
       let issucc = true;
 
       if (nlen !== this.arComparison.length) {
         issucc = false;
       }
       for (let i = 0; i < nlen; i++) {
-        this.arComparison[i].inputted = this.inputtedString.charAt(i);
+        this.arComparison[i].inputted = this.inputtedString!.charAt(i);
 
         if (issucc) {
-          if (this.arComparison[i].expected !== this.inputtedString.charAt(i)) {
+          if (this.arComparison[i].expected !== this.inputtedString!.charAt(i)) {
             issucc = false;
           }
         }
