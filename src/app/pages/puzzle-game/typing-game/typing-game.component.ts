@@ -27,17 +27,18 @@ export class TypingGameComponent implements OnInit, AfterViewInit {
     this.currHittingKeyID = '';
   }
 
-  ngOnInit() {
+  ngOnInit(): void {
     this.inputtedString = '';
     this.generateExpectedString();
+    this.updateComparison();
   }
 
-  ngAfterViewInit() {
+  ngAfterViewInit(): void {
     this.inpWordER.nativeElement.addEventListener('focus', () => {
       this.inpWord2ER.nativeElement.focus();
     });
 
-    this.inpWord2ER.nativeElement.focus(); 
+    this.inpWord2ER.nativeElement.focus();
   }
 
   private updateComparison(isdelta?: boolean) {
@@ -64,7 +65,7 @@ export class TypingGameComponent implements OnInit, AfterViewInit {
       }
 
       for (let i: number = nlen; i < this.arComparison.length; i++) {
-        this.arComparison[i].inputted = null;
+        this.arComparison[i].inputted = '';
       }
 
       // There still room to improve performance!
@@ -90,7 +91,7 @@ export class TypingGameComponent implements OnInit, AfterViewInit {
         for (const c of this.expectedString) {
           const tc: typingCompare = {
             expected: c,
-            inputted: null
+            inputted: ''
           };
           this.arComparison.push(tc);
         }
@@ -135,8 +136,8 @@ export class TypingGameComponent implements OnInit, AfterViewInit {
     }
 
     if (evt.key === 'Backspace') {
-      if (this.inputtedString.length >= 2) {
-        this.inputtedString = this.inputtedString.slice(0, length - 2);
+      if (this.inputtedString!.length >= 2) {
+        this.inputtedString = this.inputtedString!.slice(0, length - 2);
       } else {
         this.inputtedString = '';
       }
