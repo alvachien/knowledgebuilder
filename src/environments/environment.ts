@@ -4,7 +4,7 @@
 
 export const environment = {
   production: false,
-  noapi: false,
+  mockdata: false,
   basehref: '/',
   apiurl_root: 'https://localhost:44355'
 };

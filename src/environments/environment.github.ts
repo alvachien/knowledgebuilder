@@ -1,6 +1,6 @@
 export const environment = {
   production: true,
-  noapi: true,
+  mockdata: true,
   basehref: '/knowledgebuilder/',
   apiurl_root: ''
 };

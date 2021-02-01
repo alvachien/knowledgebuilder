@@ -20,7 +20,7 @@ export class ODataService {
     ) { }
 
   public getMetadata(forceReload?: boolean): Observable<any> {
-    if (!environment.noapi && (!this.isMetadataLoaded || forceReload)) {
+    if (!environment.mockdata && (!this.isMetadataLoaded || forceReload)) {
       let headers: HttpHeaders = new HttpHeaders();
       headers = headers.append('Content-Type', 'application/xml,application/json')
                 .append('Accept', 'text/html,application/xhtml+xml,application/xml');
@@ -45,7 +45,7 @@ export class ODataService {
   public getKnowledgeItems(): Observable<{
     totalCount: number,
     items: KnowledgeItem[]}> {
-    if (environment.noapi) {
+    if (environment.mockdata) {
       return of({totalCount: 0, items: []});
     }
 
@@ -85,7 +85,7 @@ export class ODataService {
     let headers: HttpHeaders = new HttpHeaders();
     headers = headers.append('Content-Type', 'application/json')
               .append('Accept', 'application/json');
-    if (environment.noapi) {
+    if (environment.mockdata) {
       return of(new KnowledgeItem());
     }
           
@@ -108,7 +108,7 @@ export class ODataService {
   }
 
   public createKnowledgeItem(ki: KnowledgeItem): Observable<KnowledgeItem> {
-    if (environment.noapi) {
+    if (environment.mockdata) {
       return of(new KnowledgeItem());
     }
 
@@ -132,7 +132,7 @@ export class ODataService {
       }));
   }
   public changeKnowledgeItem(ki: KnowledgeItem): Observable<KnowledgeItem> {
-    if (environment.noapi) {
+    if (environment.mockdata) {
       return of(new KnowledgeItem());
     }
 
@@ -157,7 +157,7 @@ export class ODataService {
   }
 
   public getExerciseItems(): Observable<{ totalCount: number, items: ExerciseItem[]}> {
-    if (environment.noapi) {
+    if (environment.mockdata) {
       return of({
         totalCount: 0,
         items: []
@@ -196,7 +196,7 @@ export class ODataService {
   }
 
   public createExerciseItem(qbi: ExerciseItem): Observable<ExerciseItem> {
-    if (environment.noapi) {
+    if (environment.mockdata) {
       return of(new ExerciseItem());
     }
     let headers: HttpHeaders = new HttpHeaders();
@@ -219,7 +219,7 @@ export class ODataService {
   }
 
   public changeExerciseItem(qbi: ExerciseItem): Observable<ExerciseItem> {
-    if (environment.noapi) {
+    if (environment.mockdata) {
       return of(new ExerciseItem());
     }
     let headers: HttpHeaders = new HttpHeaders();
@@ -242,7 +242,7 @@ export class ODataService {
   }
 
   public readExerciseItem(qbid: number): Observable<ExerciseItem> {
-    if (environment.noapi) {
+    if (environment.mockdata) {
       return of(new ExerciseItem());
     }
     let headers: HttpHeaders = new HttpHeaders();
@@ -315,7 +315,7 @@ export class ODataService {
   }
 
   public getTagCounts(): Observable<{ totalCount: number, items: TagCount[]}> {
-    if (environment.noapi) {
+    if (environment.mockdata) {
       return of({ totalCount: 0, items: []});
     }
     let headers: HttpHeaders = new HttpHeaders();
@@ -351,7 +351,7 @@ export class ODataService {
   }
 
   public getTags(term: string, reftype?: TagReferenceType): Observable<{ totalCount: number, items: Tag[]}> {
-    if (environment.noapi) {
+    if (environment.mockdata) {
       return of({totalCount: 0, items: []});
     }
     let headers: HttpHeaders = new HttpHeaders();
@@ -388,7 +388,7 @@ export class ODataService {
   }
 
   public getOverviewInfo(): Observable<OverviewInfo[]> {
-    if (environment.noapi) {
+    if (environment.mockdata) {
       return of([]);
     }
     let headers: HttpHeaders = new HttpHeaders();

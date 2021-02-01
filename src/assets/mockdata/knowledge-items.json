@@ -1,0 +1,22 @@
+{
+    "@odata.context": "https://localhost:44355/odata/$metadata#KnowledgeItems(ID,Category,Title,CreatedAt,ModifiedAt)",
+    "@odata.count": 2,
+    "value": [
+        {
+            "@odata.etag": "W/\"J1Rlc3QgMSc=\"",
+            "ID": 1,
+            "Category": "Concept",
+            "Title": "Test 1",
+            "CreatedAt": "2021-01-05T19:09:29.227+08:00",
+            "ModifiedAt": "2021-01-05T19:09:29.503+08:00"
+        },
+        {
+            "@odata.etag": "W/\"J1Rlc3QgMic=\"",
+            "ID": 2,
+            "Category": "Concept",
+            "Title": "Test 2",
+            "CreatedAt": "2021-01-05T19:28:17.553+08:00",
+            "ModifiedAt": "2021-01-05T19:28:17.563+08:00"
+        }
+    ]
+}

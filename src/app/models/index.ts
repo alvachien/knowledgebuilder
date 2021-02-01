@@ -6,3 +6,5 @@ export * from './overview-info';
 export * from './uicommon';
 export * from './quizconcept';
 export * from './puzzle-game';
+export * from './gobang';
+

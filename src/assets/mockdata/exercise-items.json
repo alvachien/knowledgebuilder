@@ -1,0 +1,30 @@
+{
+    "@odata.context": "https://localhost:44355/odata/$metadata#ExerciseItems(ID,KnowledgeItemID,ExerciseType,CreatedAt)",
+    "@odata.count": 4,
+    "value": [
+        {
+            "ID": 1,
+            "KnowledgeItemID": null,
+            "ExerciseType": "Question",
+            "CreatedAt": "2021-01-04T16:19:18.497+08:00"
+        },
+        {
+            "ID": 2,
+            "KnowledgeItemID": null,
+            "ExerciseType": "Question",
+            "CreatedAt": "2021-01-04T16:20:15.273+08:00"
+        },
+        {
+            "ID": 3,
+            "KnowledgeItemID": null,
+            "ExerciseType": "Question",
+            "CreatedAt": "2021-01-04T16:21:26.483+08:00"
+        },
+        {
+            "ID": 4,
+            "KnowledgeItemID": null,
+            "ExerciseType": "MultipleChoice",
+            "CreatedAt": "2021-01-05T00:00:00+08:00"
+        }
+    ]
+}
