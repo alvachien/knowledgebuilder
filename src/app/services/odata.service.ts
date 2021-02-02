@@ -15,17 +15,25 @@ export class ODataService {
 
   private isMetadataLoaded = false;
   private metadataInfo = '';
+  // Mockdata - knowledge item
+  private mockedKnowledgeItem: KnowledgeItem[] = [];
+  // Mockdata - exercise item
+  private mockedExerciseItem: ExerciseItem[] = [];
 
   constructor(private http: HttpClient,
     ) { }
 
   public getMetadata(forceReload?: boolean): Observable<any> {
-    if (!environment.mockdata && (!this.isMetadataLoaded || forceReload)) {
+    if (!this.isMetadataLoaded || forceReload) {
       let headers: HttpHeaders = new HttpHeaders();
       headers = headers.append('Content-Type', 'application/xml,application/json')
                 .append('Accept', 'text/html,application/xhtml+xml,application/xml');
 
-      return this.http.get(`${this.apiUrl}$metadata`, {
+      let apiurl = `${this.apiUrl}$metadata`;
+      if (environment.mockdata) {
+        apiurl = `${environment.basehref}assets/mockdata/metadata.xml`;
+      }
+      return this.http.get(apiurl, {
           headers,
           responseType: 'text'
         })
@@ -45,8 +53,12 @@ export class ODataService {
   public getKnowledgeItems(): Observable<{
     totalCount: number,
     items: KnowledgeItem[]}> {
-    if (environment.mockdata) {
-      return of({totalCount: 0, items: []});
+
+    if (environment.mockdata && this.mockedKnowledgeItem.length > 0) {
+      return of({
+        totalCount: this.mockedKnowledgeItem.length,
+        items: this.mockedKnowledgeItem
+      });
     }
 
     let headers: HttpHeaders = new HttpHeaders();
@@ -57,7 +69,12 @@ export class ODataService {
     params = params.append('$top', '100');
     params = params.append('$count', 'true');
     params = params.append('$select', 'ID,Category,Title,CreatedAt,ModifiedAt');
-    return this.http.get(`${this.apiUrl}KnowledgeItems`, {
+    let apiurl = `${this.apiUrl}KnowledgeItems`;
+    if (environment.mockdata) {
+      apiurl = `${environment.basehref}assets/mockdata/knowledge-items.json`;
+      params = new HttpParams();
+    }
+    return this.http.get(apiurl, {
         headers,
         params,
       })
@@ -70,6 +87,9 @@ export class ODataService {
           rit.parseData(item);
           items.push(rit);
         });
+        if (environment.mockdata) {
+          this.mockedKnowledgeItem = items.slice();
+        }
 
         return {
           totalCount: rjs['@odata.count'],
@@ -82,12 +102,17 @@ export class ODataService {
   }
 
   public readKnowledgeItem(kid: number): Observable<KnowledgeItem> {
+    if (environment.mockdata) {
+      const idx = this.mockedKnowledgeItem.findIndex(val => val.ID === kid);
+      if (idx !== -1) {
+        return of(this.mockedKnowledgeItem[idx]);
+      }
+      return of(new KnowledgeItem());
+    }
+
     let headers: HttpHeaders = new HttpHeaders();
     headers = headers.append('Content-Type', 'application/json')
               .append('Accept', 'application/json');
-    if (environment.mockdata) {
-      return of(new KnowledgeItem());
-    }
           
     let params: HttpParams = new HttpParams();
     params = params.append('$select', 'ID,Category,Title,Content');
@@ -109,7 +134,7 @@ export class ODataService {
 
   public createKnowledgeItem(ki: KnowledgeItem): Observable<KnowledgeItem> {
     if (environment.mockdata) {
-      return of(new KnowledgeItem());
+      return throwError('Cannot create in mock mode');
     }
 
     let headers: HttpHeaders = new HttpHeaders();
@@ -133,7 +158,7 @@ export class ODataService {
   }
   public changeKnowledgeItem(ki: KnowledgeItem): Observable<KnowledgeItem> {
     if (environment.mockdata) {
-      return of(new KnowledgeItem());
+      return throwError('Cannot change in mock mode');
     }
 
     let headers: HttpHeaders = new HttpHeaders();
@@ -157,21 +182,28 @@ export class ODataService {
   }
 
   public getExerciseItems(): Observable<{ totalCount: number, items: ExerciseItem[]}> {
-    if (environment.mockdata) {
+    if (environment.mockdata && this.mockedExerciseItem.length > 0) {
       return of({
-        totalCount: 0,
-        items: []
+        totalCount: this.mockedExerciseItem.length,
+        items: this.mockedExerciseItem
       });
     }
+
     let headers: HttpHeaders = new HttpHeaders();
     headers = headers.append('Content-Type', 'application/json')
               .append('Accept', 'application/json');
-
+              
     let params: HttpParams = new HttpParams();
     params = params.append('$top', '100');
     params = params.append('$count', 'true');
     params = params.append('$select', 'ID,KnowledgeItemID,ExerciseType,CreatedAt');
-    return this.http.get(`${this.apiUrl}ExerciseItems`, {
+    let apiurl = `${this.apiUrl}ExerciseItems`;
+    if (environment.mockdata) {
+      apiurl = `${environment.basehref}assets/mockdata/exercise-items.json`;
+      params = new HttpParams();
+    }
+
+    return this.http.get(apiurl, {
         headers,
         params,
       })
@@ -185,6 +217,10 @@ export class ODataService {
           items.push(rit);
         });
 
+        if (environment.mockdata) {
+          this.mockedExerciseItem = items.slice();
+        }
+
         return {
           totalCount: rjs['@odata.count'],
           items,
@@ -197,7 +233,7 @@ export class ODataService {
 
   public createExerciseItem(qbi: ExerciseItem): Observable<ExerciseItem> {
     if (environment.mockdata) {
-      return of(new ExerciseItem());
+      return throwError('Cannot create in mock mode');
     }
     let headers: HttpHeaders = new HttpHeaders();
     headers = headers.append('Content-Type', 'application/json')
@@ -220,7 +256,7 @@ export class ODataService {
 
   public changeExerciseItem(qbi: ExerciseItem): Observable<ExerciseItem> {
     if (environment.mockdata) {
-      return of(new ExerciseItem());
+      return throwError('Cannot change in mock mode');
     }
     let headers: HttpHeaders = new HttpHeaders();
     headers = headers.append('Content-Type', 'application/json')
@@ -243,8 +279,13 @@ export class ODataService {
 
   public readExerciseItem(qbid: number): Observable<ExerciseItem> {
     if (environment.mockdata) {
+      const idx = this.mockedExerciseItem.findIndex(val => val.ID === qbid);
+      if (idx !== -1) {
+        return of(this.mockedExerciseItem[idx]);
+      }
       return of(new ExerciseItem());
     }
+
     let headers: HttpHeaders = new HttpHeaders();
     headers = headers.append('Content-Type', 'application/json')
               .append('Accept', 'application/json');
@@ -315,9 +356,6 @@ export class ODataService {
   }
 
   public getTagCounts(): Observable<{ totalCount: number, items: TagCount[]}> {
-    if (environment.mockdata) {
-      return of({ totalCount: 0, items: []});
-    }
     let headers: HttpHeaders = new HttpHeaders();
     headers = headers.append('Content-Type', 'application/json')
               .append('Accept', 'application/json');
@@ -325,8 +363,14 @@ export class ODataService {
     let params: HttpParams = new HttpParams();
     params = params.append('$top', '100');
     params = params.append('$count', 'true');
-    // params = params.append('$select', 'ID,KnowledgeItemID,ExerciseType');
-    return this.http.get(`${this.apiUrl}TagCounts`, {
+
+    let apiurl = `${this.apiUrl}TagCounts`;
+    if (environment.mockdata) {
+      apiurl = `${environment.basehref}assets/mockdata/tag-counts.json`;
+      params = new HttpParams();
+    }
+
+    return this.http.get(apiurl, {
         headers,
         params,
       })
@@ -351,9 +395,6 @@ export class ODataService {
   }
 
   public getTags(term: string, reftype?: TagReferenceType): Observable<{ totalCount: number, items: Tag[]}> {
-    if (environment.mockdata) {
-      return of({totalCount: 0, items: []});
-    }
     let headers: HttpHeaders = new HttpHeaders();
     headers = headers.append('Content-Type', 'application/json')
               .append('Accept', 'application/json');
@@ -362,8 +403,13 @@ export class ODataService {
     params = params.append('$top', '100');
     params = params.append('$count', 'true');
     params = params.append('$filter', `TagTerm eq '${term}'`);
-    // params = params.append('$select', 'ID,KnowledgeItemID,ExerciseType');
-    return this.http.get(`${this.apiUrl}Tags`, {
+
+    let apiurl = `${this.apiUrl}Tags`;
+    if (environment.mockdata) {
+      apiurl = `${environment.basehref}assets/mockdata/tags.json`;
+      params = new HttpParams();
+    }
+    return this.http.get(apiurl, {
         headers,
         params,
       })
@@ -388,21 +434,16 @@ export class ODataService {
   }
 
   public getOverviewInfo(): Observable<OverviewInfo[]> {
-    if (environment.mockdata) {
-      return of([]);
-    }
     let headers: HttpHeaders = new HttpHeaders();
     headers = headers.append('Content-Type', 'application/json')
               .append('Accept', 'application/json');
 
-    let params: HttpParams = new HttpParams();
-    // params = params.append('$top', '100');
-    // params = params.append('$count', 'true');
-    // params = params.append('$filter', `TagTerm eq '${term}'`);
-    // params = params.append('$select', 'ID,KnowledgeItemID,ExerciseType');
-    return this.http.get(`${this.apiUrl}OverviewInfos`, {
-        headers,
-        params,
+    let apiurl = `${this.apiUrl}OverviewInfos`;
+    if (environment.mockdata) {
+      apiurl = `${environment.basehref}assets/mockdata/overview-infos.json`;      
+    }
+    return this.http.get(apiurl, {
+        headers
       })
       .pipe(map(response => {
         const rjs = response as any;

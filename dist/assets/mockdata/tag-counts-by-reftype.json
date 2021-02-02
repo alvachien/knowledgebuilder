@@ -1,0 +1,13 @@
+{
+    "@odata.context": "https://localhost:44355/odata/$metadata#TagCountByRefTypes",
+    "value": [
+        {
+            "RefType": "KnowledgeItem",
+            "TagCount": 2
+        },
+        {
+            "RefType": "ExerciseItem",
+            "TagCount": 8
+        }
+    ]
+}

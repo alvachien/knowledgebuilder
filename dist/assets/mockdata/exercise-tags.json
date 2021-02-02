@@ -1,54 +1,36 @@
 {
-    "@odata.context": "https://localhost:44355/odata/$metadata#Tags",
+    "@odata.context": "https://localhost:44355/odata/$metadata#ExerciseTags",
     "value": [
         {
-            "TagTerm": "test1",
-            "RefType": "KnowledgeItem",
-            "RefID": 1
-        },
-        {
-            "TagTerm": "test2",
-            "RefType": "KnowledgeItem",
-            "RefID": 1
-        },
-        {
             "TagTerm": "math",
-            "RefType": "ExerciseItem",
             "RefID": 3
         },
         {
             "TagTerm": "test1",
-            "RefType": "ExerciseItem",
             "RefID": 1
         },
         {
             "TagTerm": "test1",
-            "RefType": "ExerciseItem",
             "RefID": 2
         },
         {
             "TagTerm": "test1",
-            "RefType": "ExerciseItem",
             "RefID": 4
         },
         {
             "TagTerm": "test1.1",
-            "RefType": "ExerciseItem",
             "RefID": 1
         },
         {
             "TagTerm": "test1.1",
-            "RefType": "ExerciseItem",
             "RefID": 4
         },
         {
             "TagTerm": "test1.2",
-            "RefType": "ExerciseItem",
             "RefID": 2
         },
         {
             "TagTerm": "test2",
-            "RefType": "ExerciseItem",
             "RefID": 4
         }
     ]

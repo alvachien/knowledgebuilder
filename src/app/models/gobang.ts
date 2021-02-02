@@ -1,5 +1,4 @@
-import { CanvasCellPositionInf } from './uicommon';
-import { Matrix, MatrixPosIntf } from 'actslib';
+import { Matrix, MatrixPosIntf, CanvasCellPositionInf } from 'actslib';
 
 // Gobang cell
 export class GobangCell {

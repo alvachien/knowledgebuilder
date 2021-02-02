@@ -1,0 +1,13 @@
+{
+    "@odata.context": "https://localhost:44355/odata/$metadata#OverviewInfos",
+    "value": [
+        {
+            "RefType": "KnowledgeItem",
+            "Count": 2
+        },
+        {
+            "RefType": "ExerciseItem",
+            "Count": 4
+        }
+    ]
+}

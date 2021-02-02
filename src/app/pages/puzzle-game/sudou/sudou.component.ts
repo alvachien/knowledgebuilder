@@ -1,6 +1,8 @@
 import { AfterContentInit, AfterViewInit, Component, ElementRef, EventEmitter, HostListener,
   Input, OnDestroy, OnInit, Output, ViewChild } from '@angular/core';
-import { generateValidSudou, getCanvasCellPosition, getCanvasMouseEventPosition, Sudou, SudouSize } from 'src/app/models';
+import { generateValidSudou, Sudou, SudouSize } from 'src/app/models';
+
+import { getCanvasCellPosition, getCanvasMouseEventPosition } from 'actslib';
 
 /**
  * UI Cell for Sudou

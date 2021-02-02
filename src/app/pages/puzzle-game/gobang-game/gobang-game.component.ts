@@ -2,7 +2,8 @@ import { AfterContentInit, Component, ElementRef, EventEmitter, HostListener,
   Input, OnInit, Output, ViewChild } from '@angular/core';
 import { MatSnackBar } from '@angular/material/snack-bar';
 
-import { CanvasCellPositionInf, getCanvasCellPosition, getCanvasMouseEventPosition, Gobang } from 'src/app/models';
+import { Gobang } from 'src/app/models';
+import { CanvasCellPositionInf, getCanvasCellPosition, getCanvasMouseEventPosition } from 'actslib';
 
 @Component({
   selector: 'app-gobang-game',

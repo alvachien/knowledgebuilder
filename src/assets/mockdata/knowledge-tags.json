@@ -1,0 +1,13 @@
+{
+    "@odata.context": "https://localhost:44355/odata/$metadata#KnowledgeTags",
+    "value": [
+        {
+            "TagTerm": "test1",
+            "RefID": 1
+        },
+        {
+            "TagTerm": "test2",
+            "RefID": 1
+        }
+    ]
+}
