@@ -1,0 +1,37 @@
+{
+    "@odata.context": "https://localhost:44355/odata/$metadata#ExerciseTags",
+    "value": [
+        {
+            "TagTerm": "math",
+            "RefID": 3
+        },
+        {
+            "TagTerm": "test1",
+            "RefID": 1
+        },
+        {
+            "TagTerm": "test1",
+            "RefID": 2
+        },
+        {
+            "TagTerm": "test1",
+            "RefID": 4
+        },
+        {
+            "TagTerm": "test1.1",
+            "RefID": 1
+        },
+        {
+            "TagTerm": "test1.1",
+            "RefID": 4
+        },
+        {
+            "TagTerm": "test1.2",
+            "RefID": 2
+        },
+        {
+            "TagTerm": "test2",
+            "RefID": 4
+        }
+    ]
+}

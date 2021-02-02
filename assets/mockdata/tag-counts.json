@@ -1,0 +1,40 @@
+{
+    "@odata.context": "https://localhost:44355/odata/$metadata#TagCounts",
+    "value": [
+        {
+            "Tag": "test1",
+            "RefType": "KnowledgeItem",
+            "Count": 1
+        },
+        {
+            "Tag": "test2",
+            "RefType": "KnowledgeItem",
+            "Count": 1
+        },
+        {
+            "Tag": "math",
+            "RefType": "ExerciseItem",
+            "Count": 1
+        },
+        {
+            "Tag": "test1",
+            "RefType": "ExerciseItem",
+            "Count": 3
+        },
+        {
+            "Tag": "test1.1",
+            "RefType": "ExerciseItem",
+            "Count": 2
+        },
+        {
+            "Tag": "test1.2",
+            "RefType": "ExerciseItem",
+            "Count": 1
+        },
+        {
+            "Tag": "test2",
+            "RefType": "ExerciseItem",
+            "Count": 1
+        }
+    ]
+}
