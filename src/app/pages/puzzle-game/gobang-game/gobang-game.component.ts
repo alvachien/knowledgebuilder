@@ -1,9 +1,10 @@
-import { AfterContentInit, Component, ElementRef, EventEmitter, HostListener, 
+import { AfterContentInit, Component, ElementRef, EventEmitter, HostListener,
   Input, OnInit, Output, ViewChild } from '@angular/core';
 import { MatSnackBar } from '@angular/material/snack-bar';
 
 import { Gobang } from 'src/app/models';
 import { CanvasCellPositionInf, getCanvasCellPosition, getCanvasMouseEventPosition } from 'actslib';
+import { environment } from 'src/environments/environment';
 
 @Component({
   selector: 'app-gobang-game',
@@ -99,9 +100,9 @@ export class GobangGameComponent implements OnInit, AfterContentInit {
 
     const image = new Image();
     if (this._userStep) {
-      //image.src = environment.AppHost + '/assets/image/gobangresource/blackchess.png';
+      image.src = environment.basehref + 'assets/image/gobangresource/blackchess.png';
     } else {
-      //image.src = environment.AppHost + '/assets/image/gobangresource/whitechess.png';
+      image.src = environment.basehref + 'assets/image/gobangresource/whitechess.png';
     }
 
     image.onload = () => {

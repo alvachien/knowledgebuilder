@@ -54,11 +54,12 @@ ng g m pages\puzzle-game\PuzzleGame --routing
 
 |Functioanlity | Status | Comment |
 |--|--|--|
-|Printable Quiz Generator|In Process|Make the quiz printable, via PDFs|
+|Printable Quiz Generator|In Process|Make the quiz printable, via PDFs, and can be downloaded.|
 |Puzzle Games: Sudou|In Process|Traiditonal Sudou games|
 |Puzzle Games: Typing game|In process|Typing games|
 |Puzzle Games: Gobang game|In Process|Gobang|
 |Full screen|TBD|Full screen mode|
+|Mock data for Github pages|[x]|Mock data when deploying to Github pages.|
 
 
 ## Credits
