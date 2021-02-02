@@ -1,4 +1,4 @@
-/// 
+///
 /// Exercise item
 ///
 
@@ -20,7 +20,7 @@ export function getExerciseItemTypeName(reftype: ExerciseItemType): string {
         case ExerciseItemType.MultipleChoice:
             rtn = 'ExerciseItemType.MultipleChoices';
             break;
-    
+
         case ExerciseItemType.ShortAnswer:
             rtn = 'ExerciseItemType.ShortAnswer';
             break;

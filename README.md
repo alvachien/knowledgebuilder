@@ -59,7 +59,7 @@ ng g m pages\puzzle-game\PuzzleGame --routing
 |Puzzle Games: Typing game|In process|Typing games|
 |Puzzle Games: Gobang game|In Process|Gobang|
 |Full screen|TBD|Full screen mode|
-|Mock data for Github pages|[x]|Mock data when deploying to Github pages.|
+|Mock data for Github pages|DONE|Mock data when deploying to Github pages.|
 
 
 ## Credits
