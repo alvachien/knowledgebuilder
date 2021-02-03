@@ -22,7 +22,9 @@
         "Submit": "交卷",
         "Next": "下一题",
         "Previous": "上一题",
-        "Continue": "继续"
+        "Continue": "继续",
+        "Backspace": "退格",
+        "Reset": "重置"
     },
     "Type": "类别",
     "Create": "创建",
@@ -102,7 +104,10 @@
         "Minesweeper": "扫雷游戏",
         "TypingTutor": "打字游戏",
         "Gobang": "五子棋游戏",
-        "ChineseChess": "中国象棋"    
+        "ChineseChess": "中国象棋",
+        "Cal24Detail": "使用上面的数字和操作符(+-*/)使其等于24。注意，乘号用*表示，除法用/表示",
+        "Cal24NoSolution": "无解！当前数字在允许的操作符的范畴内无解！",
+        "Surrender": "投降"
     },
     "Quiz": {
         "QuizItemCount": "试题数量",

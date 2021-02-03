@@ -1,1 +1,50 @@
-<p>calculate24 works!</p>
+<mat-card class="control-full-width">
+    <mat-card-header>
+        <mat-card-title>{{'PuzzleGames.Calculate24' | transloco}}</mat-card-title>
+    </mat-card-header>
+    <mat-card-content>
+        <div class="control-full-width">
+            <div #cal24btntbr>
+                <button mat-mini-fab color="primary" (click)="OnCal24Append('1')">1</button>
+                <button mat-mini-fab color="primary" (click)="OnCal24Append('2')">2</button>
+                <button mat-mini-fab color="primary" (click)="OnCal24Append('3')">3</button>
+                <button mat-mini-fab color="primary" (click)="OnCal24Append('4')">4</button>
+                <button mat-mini-fab color="primary" (click)="OnCal24Append('5')">5</button>
+                <button mat-mini-fab color="primary" (click)="OnCal24Append('6')">6</button>
+                <button mat-mini-fab color="primary" (click)="OnCal24Append('7')">7</button>
+                <button mat-mini-fab color="primary" (click)="OnCal24Append('8')">8</button>
+                <button mat-mini-fab color="primary" (click)="OnCal24Append('9')">9</button>
+            </div>
+            <button mat-mini-fab color="accent" (click)="OnCal24Append('+')">+</button>
+            <button mat-mini-fab color="accent" (click)="OnCal24Append('-')">-</button>
+            <button mat-mini-fab color="accent" (click)="OnCal24Append('×')">×</button>
+            <button mat-mini-fab color="accent" (click)="OnCal24Append('÷')">÷</button>
+            <button mat-mini-fab color="accent" (click)="OnCal24Append('(')">(</button>
+            <button mat-mini-fab color="accent" (click)="OnCal24Append(')')">)</button>
+            <button mat-raised-button color="warn" (click)="OnCal24Backspace()">{{'Common.Backspace' | transloco}}</button>
+            <button mat-raised-button color="warn" (click)="OnCal24Reset()">{{'Common.Reset' | transloco}}</button>
+        </div>
+
+        <div class="control-full-width" *ngIf="isStarted">
+            <h2 class="control-full-width">
+                <span *ngFor="let it of Cal24items; let i = index">{{it}}<span *ngIf="i !== Cal24items.length - 1">,</span></span>
+            </h2>
+            <h2 class="control-full-width">
+                <p class="lead">
+                    {{'PuzzleGames.Cal24Detail' | transloco}}
+                </p>
+            </h2>
+
+            <div class="control-full-width">
+                <mat-form-field>
+                    <input matInput type="text" placeholder="{{'PuzzleGames.Calculate24' | transloco }}" [(ngModel)]="Cal24Input" name="cal24inp" readonly required>
+                </mat-form-field>
+            </div>
+        </div>
+    </mat-card-content>
+    <mat-card-actions>
+        <button mat-button [disabled]="isStarted" (click)="OnCal24Start()">{{'Common.Start' | transloco}}</button>
+        <button mat-button [disabled]="!CanCal24Submit()" (click)="OnCal24Submit()">{{'Common.Submit' | transloco}}</button>
+        <button mat-raised-button *ngIf="isStarted" (click)="OnCal24Surrender()">{{'PuzzleGames.Surrender' | transloco}}</button>
+    </mat-card-actions>
+</mat-card>
