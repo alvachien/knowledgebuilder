@@ -7,6 +7,7 @@ import { SubtractionExerciseComponent } from './subtraction-exercise';
 import { MultiplicationExerciseComponent } from './multiplication-exercise';
 import { DivisionExerciseComponent } from './division-exercise';
 import { MixedOperationsComponent } from './mixed-operations';
+import { PrintableQuizComponent } from './printable-quiz';
 
 import { CanDeactivateGuard } from '../../services';
 
@@ -17,6 +18,7 @@ const routes: Routes = [
   { path: 'multi-ex', component: MultiplicationExerciseComponent, canDeactivate: [CanDeactivateGuard] },
   { path: 'div-ex', component: DivisionExerciseComponent, canDeactivate: [CanDeactivateGuard] },
   { path: 'mixed-op', component: MixedOperationsComponent, canDeactivate: [CanDeactivateGuard] },
+  { path: 'printable-quiz', component: PrintableQuizComponent },
 ];
 
 @NgModule({

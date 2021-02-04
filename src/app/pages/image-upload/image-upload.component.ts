@@ -7,7 +7,7 @@ import { ODataService } from '../../services';
 @Component({
   selector: 'app-image-upload',
   templateUrl: './image-upload.component.html',
-  styleUrls: ['./image-upload.component.scss']
+  styleUrls: ['./image-upload.component.scss'],
 })
 export class ImageUploadComponent implements OnInit {
   @ViewChild('file', { static: false }) file: any;
@@ -58,7 +58,7 @@ export class ImageUploadComponent implements OnInit {
     }
 
     // convert the progress map into an array
-    let allProgressObservables = [];
+    const allProgressObservables = [];
     for (let key in this.results) {
       allProgressObservables.push(this.results[key].result);
     }
@@ -74,7 +74,6 @@ export class ImageUploadComponent implements OnInit {
 
     // Hide the cancel-button
     this.showCancelButton = false;
-
 
     // When all progress-observables are completed...
     forkJoin(allProgressObservables).subscribe(end => {

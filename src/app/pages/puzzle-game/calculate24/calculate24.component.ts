@@ -13,7 +13,6 @@ export class Calculate24Component implements OnInit {
   private Cal24NumberRangeBgn = 1;
   private Cal24NumberRangeEnd = 9;
   Cal24SurrendString = '';
-  @ViewChild('cal24btntbr', {static: false}) cal24BtnToolbar!: ElementRef;
 
   constructor() { }
 
@@ -61,6 +60,12 @@ export class Calculate24Component implements OnInit {
     return true;
   }
 
+  public IsButtonDisabled(num: number): boolean {
+    if (!this.isStarted) {
+      return true;
+    }
+    return !this.Cal24items.includes(num);
+  }
   public OnCal24Start(): void {
 
     this.Cal24Input = ''; // Clear the inputs
@@ -68,25 +73,13 @@ export class Calculate24Component implements OnInit {
 
     while (this.Cal24items.length < 4) {
       const nNum = Math.floor(Math.random() * (this.Cal24NumberRangeEnd - this.Cal24NumberRangeBgn)) + this.Cal24NumberRangeBgn;
-      const nExistIdx = this.Cal24items.findIndex((val) => { return val === nNum; });
+      const nExistIdx = this.Cal24items.findIndex(val => val === nNum );
       if (nExistIdx === -1) {
         this.Cal24items.push(nNum);
       }
     }
 
-    // Enable the buttons
-    if (this.cal24BtnToolbar) {
-      let btnidx = 0;
-      for (const btn of this.cal24BtnToolbar.nativeElement.children) {
-        if (!this.Cal24items.includes(btnidx + 1)) {
-          btn.disabled = true;
-        } else {
-          btn.disabled = false;
-        }
-
-        btnidx ++;
-      }
-    }
+    this.isStarted = true;
   }
 
   public CanCal24Submit(): boolean {

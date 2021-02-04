@@ -41,7 +41,8 @@
             "scripts": [
               "./node_modules/marked/lib/marked.js",
               "./node_modules/emoji-toolkit/lib/js/joypixels.min.js",
-              "./node_modules/katex/dist/katex.min.js"
+              "./node_modules/katex/dist/katex.min.js",
+              "./node_modules/jspdf/dist/jspdf.umd.min.js"
             ]
           },
           "configurations": {
@@ -112,6 +113,9 @@
           "configurations": {
             "production": {
               "browserTarget": "knowledgebuilder:build:production"
+            },
+            "github": {
+              "browserTarget": "knowledgebuilder:build:github"
             }
           }
         },
@@ -136,7 +140,12 @@
               "./node_modules/@angular/material/prebuilt-themes/deeppurple-amber.css",
               "src/styles.scss"
             ],
-            "scripts": []
+            "scripts": [
+              "./node_modules/marked/lib/marked.js",
+              "./node_modules/emoji-toolkit/lib/js/joypixels.min.js",
+              "./node_modules/katex/dist/katex.min.js",
+              "./node_modules/jspdf/dist/jspdf.umd.min.js"
+            ]
           }
         },
         "lint": {
