@@ -25,7 +25,7 @@
             "ID": 2,
             "Category": "Concept",
             "Title": "Test 2",
-            "Content": "New Knowledge Item\r\n\r\nTest 2\r\n\r\n![Img](https://localhost:44355/uploads/274a43af130640beadb5e9ec53d420dd.png)\r\n",
+            "Content": "New Knowledge Item\r\n\r\nTest 2\r\n\r\n\r\n",
             "CreatedAt": "2021-01-05T19:28:17.553+08:00",
             "ModifiedAt": "2021-01-05T19:28:17.563+08:00",
             "Tags": []
