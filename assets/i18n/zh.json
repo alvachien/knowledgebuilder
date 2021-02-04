@@ -22,7 +22,9 @@
         "Submit": "交卷",
         "Next": "下一题",
         "Previous": "上一题",
-        "Continue": "继续"
+        "Continue": "继续",
+        "Backspace": "退格",
+        "Reset": "重置"
     },
     "Type": "类别",
     "Create": "创建",
@@ -65,6 +67,9 @@
         "MultiplicationExercises": "乘法练习",
         "AdditionExercises": "加法练习",
         "SubtractionExercises": "减法练习",
+        "FractionExercises": "分数练习",
+        "FormulaExercises": "公式定理练习",
+        "FormulaList": "公式定理列表",
         "Sum": "和",
         "Difference": "差",
         "Product": "积",
@@ -102,7 +107,10 @@
         "Minesweeper": "扫雷游戏",
         "TypingTutor": "打字游戏",
         "Gobang": "五子棋游戏",
-        "ChineseChess": "中国象棋"    
+        "ChineseChess": "中国象棋",
+        "Cal24Detail": "使用上面的数字和操作符(+-*/)使其等于24。注意，乘号用*表示，除法用/表示",
+        "Cal24NoSolution": "无解！当前数字在允许的操作符的范畴内无解！",
+        "Surrender": "投降"
     },
     "Quiz": {
         "QuizItemCount": "试题数量",
@@ -112,6 +120,7 @@
         "Expected": "正确答案",
         "Inputted": "输入答案",
         "Score": "分数",
+        "Date": "日期",
         "Total": "总计",
         "Failure": "错误项",
         "DisplayAllResult": "显示所有结果",
@@ -119,6 +128,20 @@
         "AvgTimeSpentEachInSeconds": "平均每题用时 (秒)",
         "AdjAvgTimeSpentEachInSeconds": "调整后平均每题用时 (秒)",
         "PrintableQuizGenerator": "打印版练习生成器",
-        "Generate": "生成"
+        "Generate": "生成",
+        "FontSize": "字体大小",
+        "NumberOfCopies": "拷贝份数",
+        "RandomizeInputPosition": "随机生成输入位置",
+        "AddScorePart": "添加成绩框",
+        "AddDatePart": "添加日期框",
+        "CustomizeHeader": "自定义标题",
+        "PrintSetting": "打印设置",
+        "PrintPreview": "打印预览",
+        "GeneratePDF": "生成PDF文件",
+        "InvalidMixOperators": "无效的预算符，请选择两个以上的运算符",
+        "InvalidQuizAmount": "无效的习题数量，请确保总习题数量大于0",
+        "InvalidNumberRange": "无效的数字范围",
+        "InvalidNumberOfCopy": "无效的拷贝份数，请输入一个正数",
+        "InvalidFontSize": "无效的字体大小，请输入一个10-30之间的数值"
     }
 }

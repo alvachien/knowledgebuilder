@@ -55,7 +55,7 @@
             "ID": 4,
             "KnowledgeItemID": null,
             "ExerciseType": "MultipleChoice",
-            "Content": "ItemTest \r\n\r\n![Img](https://localhost:44355/uploads/61ac8519c44f4b8eb240f342af6a366e.png)\r\n\r\nAAA\r\n\r\nBBB\r\n\r\nCCC\r\n",
+            "Content": "ItemTest \r\n\r\n\r\n\r\nAAA\r\n\r\nBBB\r\n\r\nCCC\r\n",
             "CreatedAt": "2021-01-05T00:00:00+08:00",
             "ModifiedAt": "2021-01-07T09:18:35.083+08:00",
             "Tags": [
