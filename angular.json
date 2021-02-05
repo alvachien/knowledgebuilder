@@ -53,6 +53,7 @@
                   "with": "src/environments/environment.prod.ts"
                 }
               ],
+              "baseHref": "/math/",
               "optimization": true,
               "outputHashing": "all",
               "sourceMap": false,

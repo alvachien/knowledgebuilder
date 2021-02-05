@@ -1,6 +1,6 @@
 export const environment = {
   production: true,
   mockdata: false,
-  basehref: '/knowledgebuilder/',
-  apiurl_root: 'https://localhost:44355'
+  basehref: '/math/',
+  apiurl_root: 'https://www.alvachien.com/quizapi'
 };
