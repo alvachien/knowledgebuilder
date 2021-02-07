@@ -1,6 +1,6 @@
 {
   "name": "knowledgebuilder",
-  "version": "0.1.20",
+  "version": "0.1.22",
   "author": {
     "name": "Alva Chien",
     "email": "alvachien@163.com",
@@ -9,7 +9,7 @@
   "description": "Knowledge Builder",
   "scripts": {
     "ng": "ng",
-    "start": "ng serve --ssl true -o --sslKey ssl/server.key --sslCert ssl/server.crt",
+    "start": "ng serve --ssl true -o --ssl-key ssl/server.key --ssl-cert ssl/server.crt",
     "build": "ng build",
     "build-ali": "ng build --prod --base-href=/hih/",
     "test": "ng test",
