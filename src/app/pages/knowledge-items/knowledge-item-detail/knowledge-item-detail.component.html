@@ -20,10 +20,10 @@
             <!-- Category -->
             <mat-form-field appearance="fill" class="control-full-width">
                 <mat-label>{{'Category' | transloco}}</mat-label>
-                <select matNativeControl required formControlName="ctgyControl">
-                    <option value="0">Concept</option>
-                    <option value="1">Foruma</option>
-                </select>
+                <mat-select required formControlName="ctgyControl">
+                    <mat-option value="0">{{'KnowledgeItemCategory.Concept' | transloco}}</mat-option>
+                    <mat-option value="1">{{'KnowledgeItemCategory.Formula' | transloco}}</mat-option>
+                </mat-select>
             </mat-form-field>
             
             <!-- Created At -->
@@ -60,14 +60,18 @@
             </mat-form-field>
         </form>
 
+        <mat-toolbar *ngIf="IsCreateMode">
+            <h3>{{'Content' | transloco}}</h3>
+            <div class="toolbar-spacer"></div>
+            <button mat-raised-button (click)="openUploadDialog()">
+                <mat-icon>file_upload</mat-icon>
+            </button>
+        </mat-toolbar>
         <div fxLayout="row" class="control-full-width" style="height: 500px;">
             <div *ngIf="!isDisplayMode" fxFlex="50">
-                <mat-toolbar>
-                    <button mat-raised-button (click)="openUploadDialog()">Upload</button>
-                </mat-toolbar>                
                 <ngx-monaco-editor [options]="editorOptions" [(ngModel)]="content" style="height: 100%;"></ngx-monaco-editor>
             </div>
-            <div fxFlex>
+            <div fxFlex style="height: 100%; overflow-y: scroll;">
                 <markdown emoji [data]="content" katex [katexOptions]="mathOptions"></markdown>
             </div>
         </div>
