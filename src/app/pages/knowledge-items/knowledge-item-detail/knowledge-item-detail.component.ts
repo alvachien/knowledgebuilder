@@ -6,6 +6,7 @@ import { MatDialog } from '@angular/material/dialog';
 import { KatexOptions } from 'ngx-markdown';
 import { COMMA, ENTER } from '@angular/cdk/keycodes';
 import { MatChipInputEvent } from '@angular/material/chips';
+import { UIMode } from 'actslib';
 
 import { ODataService } from '../../../services';
 import { ImageUploadComponent } from '../../image-upload/image-upload.component';
@@ -17,11 +18,11 @@ import { KnowledgeItemCategory, KnowledgeItem, } from 'src/app/models';
   styleUrls: ['./knowledge-item-detail.component.scss'],
 })
 export class KnowledgeItemDetailComponent implements OnInit, OnDestroy {
-
-  private _destroyed$ ?: ReplaySubject<boolean>;
+  private _destroyed$?: ReplaySubject<boolean>;
   private routerID = -1;
 
-  currentMode: string;
+  uiMode: UIMode = UIMode.Create;
+  currentMode = '';
   // Generic info
   public itemFormGroup: FormGroup;
   editorOptions = { theme: 'vs-dark' };
@@ -38,13 +39,16 @@ export class KnowledgeItemDetailComponent implements OnInit, OnDestroy {
   public tags: string[] = [];
 
   get isDisplayMode(): boolean {
-    return this.currentMode === 'Display';
+    return this.uiMode === UIMode.Display;
   }
-  get IsCreateMode(): boolean {
-    return this.currentMode === 'Create';
+  get isCreateMode(): boolean {
+    return this.uiMode === UIMode.Create;
+  }
+  get isUpdateMode(): boolean {
+    return this.uiMode === UIMode.Update;
   }
   get isEditable(): boolean {
-    return this.currentMode === 'Create' || this.currentMode === 'Change';
+    return this.uiMode === UIMode.Create || this.uiMode === UIMode.Update;
   }
 
   constructor(
@@ -69,8 +73,6 @@ export class KnowledgeItemDetailComponent implements OnInit, OnDestroy {
       }),
       tagControl: new FormControl(),
     });
-
-    this.currentMode = 'Create';
   }
 
   ngOnInit(): void {
@@ -81,13 +83,16 @@ export class KnowledgeItemDetailComponent implements OnInit, OnDestroy {
         if (val instanceof Array && val.length > 0) {
           if (val[0].path === 'create') {
             this.routerID = -1;
-            this.currentMode = 'Create';
+            this.uiMode = UIMode.Create;
+            this.currentMode = 'Common.Create';
           } else if (val[0].path === 'edit') {
             this.routerID = +val[1].path;
-            this.currentMode = 'Change';
+            this.uiMode = UIMode.Update;
+            this.currentMode = 'Common.Change';
           } else if (val[0].path === 'display') {
             this.routerID = +val[1].path;
-            this.currentMode = 'Display';
+            this.uiMode = UIMode.Display;
+            this.currentMode = 'Common.Display';
           }
         }
 
@@ -103,7 +108,7 @@ export class KnowledgeItemDetailComponent implements OnInit, OnDestroy {
                 this.content = val2.Content;
                 this.tags = val2.Tags;
 
-                if (this.currentMode === 'Display') {
+                if (this.isDisplayMode) {
                   this.itemFormGroup.disable(); // Readonly mode
                 } else {
                   this.itemFormGroup.markAsPristine();
@@ -133,7 +138,7 @@ export class KnowledgeItemDetailComponent implements OnInit, OnDestroy {
 
   onOK(): void {
     // On OK
-    if (this.currentMode === 'Create') {
+    if (this.isCreateMode) {
       if (!this.itemFormGroup.valid) {
         if (this.itemFormGroup.errors) {
           const err = this.itemFormGroup.errors;
@@ -143,7 +148,7 @@ export class KnowledgeItemDetailComponent implements OnInit, OnDestroy {
       }
 
       // Create a new knowlege item
-      let kitem = new KnowledgeItem();
+      const kitem = new KnowledgeItem();
       kitem.ItemCategory = KnowledgeItemCategory.Concept;
       kitem.Content = this.content;
       kitem.Title = this.itemFormGroup.get('titleControl')?.value;
@@ -157,7 +162,7 @@ export class KnowledgeItemDetailComponent implements OnInit, OnDestroy {
           // Error
         }
       });
-    } else if(this.currentMode === 'Change') {
+    } else if(this.isUpdateMode) {
       if (!this.itemFormGroup.valid) {
         if (this.itemFormGroup.errors) {
           const err = this.itemFormGroup.errors;
@@ -167,7 +172,7 @@ export class KnowledgeItemDetailComponent implements OnInit, OnDestroy {
       }
 
       // Create a new knowlege item
-      let kitem = new KnowledgeItem();
+      const kitem = new KnowledgeItem();
       kitem.ID = this.itemFormGroup.get('idControl')?.value;
       kitem.ItemCategory = KnowledgeItemCategory.Concept;
       kitem.Content = this.content;

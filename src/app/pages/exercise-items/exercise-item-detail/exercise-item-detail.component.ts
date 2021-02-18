@@ -6,6 +6,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { MatDialog } from '@angular/material/dialog';
 import { KatexOptions } from 'ngx-markdown';
 import { MatChipInputEvent } from '@angular/material/chips';
+import { UIMode } from 'actslib';
 
 import { ExerciseItem, ExerciseItemType } from '../../../models/exercise-item';
 import { ODataService } from '../../../services';
@@ -18,11 +19,12 @@ import { ImageUploadComponent } from '../../image-upload/image-upload.component'
 })
 export class ExerciseItemDetailComponent implements OnInit, OnDestroy {
 
-  private _destroyed$ ?: ReplaySubject<boolean>;
+  private _destroyed$?: ReplaySubject<boolean>;
   private routerID = -1;
   private _itemObject: ExerciseItem | undefined;
 
-  currentMode: string;
+  uiMode: UIMode = UIMode.Create;
+  currentMode = '';
   // Generic info
   public itemFormGroup: FormGroup;
   editorOptions = { theme: 'vs-dark' };
@@ -40,13 +42,16 @@ export class ExerciseItemDetailComponent implements OnInit, OnDestroy {
   public tags: string[] = [];
 
   get isDisplayMode(): boolean {
-    return this.currentMode === 'Display';
+    return this.uiMode === UIMode.Display;
   }
   get isCreateMode(): boolean {
-    return this.currentMode === 'Create';
+    return this.uiMode === UIMode.Create;
+  }
+  get isUpdateMode(): boolean {
+    return this.uiMode === UIMode.Update;
   }
   get isEditable(): boolean {
-    return this.currentMode === 'Create' || this.currentMode === 'Change';
+    return this.uiMode === UIMode.Create || this.uiMode === UIMode.Update;
   }
 
   constructor(
@@ -71,8 +76,6 @@ export class ExerciseItemDetailComponent implements OnInit, OnDestroy {
       knowledgeControl: new FormControl(),
       tagControl: new FormControl(),
     });
-
-    this.currentMode = 'Create';
   }
 
   ngOnInit(): void {
@@ -83,13 +86,16 @@ export class ExerciseItemDetailComponent implements OnInit, OnDestroy {
         if (val instanceof Array && val.length > 0) {
           if (val[0].path === 'create') {
             this.routerID = -1;
-            this.currentMode = 'Create';
+            this.uiMode = UIMode.Create;
+            this.currentMode = 'Common.Create';
           } else if (val[0].path === 'edit') {
             this.routerID = +val[1].path;
-            this.currentMode = 'Change';
+            this.uiMode = UIMode.Update;
+            this.currentMode = 'Common.Change';
           } else if (val[0].path === 'display') {
             this.routerID = +val[1].path;
-            this.currentMode = 'Display';
+            this.uiMode = UIMode.Display;
+            this.currentMode = 'Common.Display';
           }
         }
 
@@ -121,7 +127,7 @@ export class ExerciseItemDetailComponent implements OnInit, OnDestroy {
 
   onOK(): void {
     // On OK
-    if (this.currentMode === 'Create') {
+    if (this.isCreateMode) {
       if (!this.itemFormGroup.valid) {
         if (this.itemFormGroup.errors) {
           const err = this.itemFormGroup.errors;
@@ -146,7 +152,7 @@ export class ExerciseItemDetailComponent implements OnInit, OnDestroy {
           console.error(err);
         }
       });
-    } else if (this.currentMode === 'Change') {
+    } else if (this.isUpdateMode) {
       if (!this.itemFormGroup.valid) {
         if (this.itemFormGroup.errors) {
           const err = this.itemFormGroup.errors;
@@ -249,7 +255,7 @@ export class ExerciseItemDetailComponent implements OnInit, OnDestroy {
     this.content = val.Content;
     this.tags = val.Tags;
 
-    if (this.currentMode === 'Display') {
+    if (this.isDisplayMode) {
       this.itemFormGroup.disable(); // Readonly mode
     } else {
       this.itemFormGroup.markAsPristine();

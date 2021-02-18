@@ -1,7 +1,7 @@
 <mat-card>
     <mat-card-header>
         <mat-card-title>{{'ExerciseItem' | transloco}}</mat-card-title>
-        <mat-card-subtitle>{{currentMode}}</mat-card-subtitle>
+        <mat-card-subtitle>{{currentMode | transloco}}</mat-card-subtitle>
     </mat-card-header>
     <mat-card-content>
         <form [formGroup]="itemFormGroup">
@@ -14,13 +14,13 @@
             <!-- Item Type -->
             <mat-form-field appearance="fill" class="control-full-width">
                 <mat-label>{{'Type' | transloco}}</mat-label>
-                <select matNativeControl required formControlName="typeControl">
-                    <option value="0">Question</option>
-                    <option value="1">Single-Choice</option>
-                    <option value="2">Multiple-Choice</option>
-                    <option value="3">Short-Answer</option>
-                    <option value="4">Essay Questions</option>
-                </select>
+                <mat-select required formControlName="typeControl">
+                    <mat-option value="0">{{'ExerciseItemType.Question' | transloco}}</mat-option>
+                    <mat-option value="1">{{'ExerciseItemType.SingleChoice' | transloco}}</mat-option>
+                    <mat-option value="2">{{'ExerciseItemType.MultipleChoices' | transloco}}</mat-option>
+                    <mat-option value="3">{{'ExerciseItemType.ShortAnswer' | transloco}}</mat-option>
+                    <mat-option value="4">{{'ExerciseItemType.EssayQuestion' | transloco}}</mat-option>
+                </mat-select>
             </mat-form-field>
             
             <!-- Created At -->
@@ -73,7 +73,7 @@
             <div *ngIf="!isDisplayMode" fxFlex="50">
                 <ngx-monaco-editor [options]="editorOptions" [(ngModel)]="content" style="height: 100%;"></ngx-monaco-editor>
             </div>
-            <div fxFlex>
+            <div fxFlex style="height: 100%; overflow-y: scroll;">
                 <markdown emoji [data]="content" katex [katexOptions]="mathOptions"></markdown>
             </div>
         </div>
@@ -90,7 +90,7 @@
             <div *ngIf="isCreateMode" fxFlex="50">
                 <ngx-monaco-editor [options]="editorOptions" [(ngModel)]="answerContent" style="height: 100%;"></ngx-monaco-editor>
             </div>
-            <div fxFlex>
+            <div fxFlex style="height: 100%; overflow-y: scroll;">
                 <markdown emoji [data]="answerContent" katex [katexOptions]="mathOptions"></markdown>
             </div>
         </div>
