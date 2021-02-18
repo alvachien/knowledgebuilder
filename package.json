@@ -6,10 +6,10 @@
     "email": "alvachien@163.com",
     "url": "https://github.com/alvachien"
   },
-  "description": "Knowledge Builder",
+  "description": "Knowledge Builder, a web application to build the knowledge.",
   "scripts": {
     "ng": "ng",
-    "start": "ng serve --ssl true -o --sslKey ssl/server.key --sslCert ssl/server.crt",
+    "start": "ng serve --ssl true -o --ssl-key ssl/server.key --ssl-cert ssl/server.crt",
     "build": "ng build",
     "build-ali": "ng build --prod --base-href=/hih/",
     "test": "ng test",
