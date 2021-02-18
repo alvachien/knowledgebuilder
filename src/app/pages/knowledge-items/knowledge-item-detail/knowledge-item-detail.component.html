@@ -1,7 +1,7 @@
 <mat-card>
     <mat-card-header>
         <mat-card-title>Knowledge Item</mat-card-title>
-        <mat-card-subtitle>{{currentMode}}</mat-card-subtitle>
+        <mat-card-subtitle>{{currentMode | transloco}}</mat-card-subtitle>
     </mat-card-header>
     <mat-card-content>
         <form [formGroup]="itemFormGroup">
@@ -60,7 +60,7 @@
             </mat-form-field>
         </form>
 
-        <mat-toolbar *ngIf="IsCreateMode">
+        <mat-toolbar *ngIf="isCreateMode">
             <h3>{{'Content' | transloco}}</h3>
             <div class="toolbar-spacer"></div>
             <button mat-raised-button (click)="openUploadDialog()">
