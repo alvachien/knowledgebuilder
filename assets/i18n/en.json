@@ -24,7 +24,8 @@
         "Previous": "PREVIOUS",
         "Continue": "CONTINUE",
         "Backspace": "BACKSPACE",
-        "Reset": "RESET"
+        "Reset": "RESET",
+        "ReturnToList": "RETURN TO LIST"
     },
     "Type": "Type",
     "Create": "Create",
