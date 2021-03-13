@@ -6,17 +6,18 @@
 /* Structure */
 .example-container {
   position: relative;
-  min-height: 200px;
+  min-height: 500px;
 }
     
-.example-table-container {
+.table-container {
   position: relative;
-  max-height: 400px;
+  min-height: 400px;
   overflow: auto;
 }
     
 table {
   width: 100%;
+  height: 100%;
 }
 
 .example-loading-shade {

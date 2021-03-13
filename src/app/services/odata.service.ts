@@ -21,38 +21,36 @@ export class ODataService {
   private mockedExerciseItem: ExerciseItem[] = [];
 
   constructor(private http: HttpClient,
-    ) { }
+  ) { }
 
   public getMetadata(forceReload?: boolean): Observable<any> {
     if (!this.isMetadataLoaded || forceReload) {
       let headers: HttpHeaders = new HttpHeaders();
       headers = headers.append('Content-Type', 'application/xml,application/json')
-                .append('Accept', 'text/html,application/xhtml+xml,application/xml');
+        .append('Accept', 'text/html,application/xhtml+xml,application/xml');
 
       let apiurl = `${this.apiUrl}$metadata`;
       if (environment.mockdata) {
         apiurl = `${environment.basehref}assets/mockdata/metadata.xml`;
       }
       return this.http.get(apiurl, {
-          headers,
-          responseType: 'text'
-        })
+        headers,
+        responseType: 'text'
+      })
         .pipe(map(response => {
           this.isMetadataLoaded = true;
           this.metadataInfo = response as unknown as string;
           return this.metadataInfo;
         }),
-        catchError((error: HttpErrorResponse) => {
-          return throwError(error.statusText + '; ' + error.error + '; ' + error.message);
-        }));
+        catchError((error: HttpErrorResponse) => throwError(error.statusText + '; ' + error.error + '; ' + error.message) ));
     } else {
       return of(this.metadataInfo);
     }
   }
 
-  public getKnowledgeItems(): Observable<{
-    totalCount: number,
-    items: KnowledgeItem[]}> {
+  public getKnowledgeItems(top = 30, skip = 0, sort?: string, order?: string): Observable<{
+    totalCount: number;
+    items: KnowledgeItem[];}> {
 
     if (environment.mockdata && this.mockedKnowledgeItem.length > 0) {
       return of({
@@ -63,11 +61,17 @@ export class ODataService {
 
     let headers: HttpHeaders = new HttpHeaders();
     headers = headers.append('Content-Type', 'application/json')
-              .append('Accept', 'application/json');
+      .append('Accept', 'application/json');
 
     let params: HttpParams = new HttpParams();
-    params = params.append('$top', '100');
+    params = params.append('$top', top.toString());
+    params = params.append('$skip', skip.toString());
     params = params.append('$count', 'true');
+    if (sort) {
+      if (sort === 'createdat') {
+        params = params.append('$orderby', `CreatedAt ${order}`);
+      }
+    }
     params = params.append('$select', 'ID,Category,Title,CreatedAt,ModifiedAt');
     let apiurl = `${this.apiUrl}KnowledgeItems`;
     if (environment.mockdata) {
@@ -75,9 +79,9 @@ export class ODataService {
       params = new HttpParams();
     }
     return this.http.get(apiurl, {
-        headers,
-        params,
-      })
+      headers,
+      params,
+    })
       .pipe(map(response => {
         const rjs = response as any;
         const ritems = rjs.value as any[];
@@ -93,12 +97,10 @@ export class ODataService {
 
         return {
           totalCount: rjs['@odata.count'],
-          items:items,
+          items
         };
       }),
-      catchError((error: HttpErrorResponse) => {
-        return throwError(error.statusText + '; ' + error.error + '; ' + error.message);
-      }));
+      catchError((error: HttpErrorResponse) => throwError(error.statusText + '; ' + error.error + '; ' + error.message) ));
   }
 
   public readKnowledgeItem(kid: number): Observable<KnowledgeItem> {
@@ -112,24 +114,22 @@ export class ODataService {
 
     let headers: HttpHeaders = new HttpHeaders();
     headers = headers.append('Content-Type', 'application/json')
-              .append('Accept', 'application/json');
-          
+      .append('Accept', 'application/json');
+
     let params: HttpParams = new HttpParams();
     params = params.append('$select', 'ID,Category,Title,Content');
     params = params.append('$expand', 'Tags');
     return this.http.get(`${this.apiUrl}KnowledgeItems(${kid})`, {
-        headers,
-        params,
-      })
+      headers,
+      params,
+    })
       .pipe(map(response => {
         const rsp = response as any;
         const kitem = new KnowledgeItem();
         kitem.parseData(rsp);
         return kitem;
       }),
-      catchError((error: HttpErrorResponse) => {
-        return throwError(error.statusText + '; ' + error.error + '; ' + error.message);
-      }));
+      catchError((error: HttpErrorResponse) => throwError(error.statusText + '; ' + error.error + '; ' + error.message) ));
   }
 
   public createKnowledgeItem(ki: KnowledgeItem): Observable<KnowledgeItem> {
@@ -139,23 +139,23 @@ export class ODataService {
 
     let headers: HttpHeaders = new HttpHeaders();
     headers = headers.append('Content-Type', 'application/json')
-              .append('Accept', 'application/json');
+      .append('Accept', 'application/json');
 
     const jdata = ki.generateString();
     return this.http.post(`${this.apiUrl}KnowledgeItems`, jdata, {
-        headers
-        // params,
-      })
+      headers
+      // params,
+    })
       .pipe(map(response => {
         const rsp = response as any;
         const kitem = new KnowledgeItem();
         kitem.parseData(rsp);
         return kitem;
       }),
-      catchError((error: HttpErrorResponse) => {
-        return throwError(error.statusText + '; ' + error.error + '; ' + error.message);
-      }));
+      catchError((error: HttpErrorResponse) => throwError(error.statusText + '; ' + error.error + '; ' + error.message)
+      ));
   }
+
   public changeKnowledgeItem(ki: KnowledgeItem): Observable<KnowledgeItem> {
     if (environment.mockdata) {
       return throwError('Cannot change in mock mode');
@@ -163,25 +163,24 @@ export class ODataService {
 
     let headers: HttpHeaders = new HttpHeaders();
     headers = headers.append('Content-Type', 'application/json')
-              .append('Accept', 'application/json');
+      .append('Accept', 'application/json');
 
     const jdata = ki.generateString(true);
     return this.http.put(`${this.apiUrl}KnowledgeItems(${ki.ID})`, jdata, {
-        headers
-        // params,
-      })
+      headers
+      // params,
+    })
       .pipe(map(response => {
         const rsp = response as any;
         const kitem = new KnowledgeItem();
         kitem.parseData(rsp);
         return kitem;
       }),
-      catchError((error: HttpErrorResponse) => {
-        return throwError(error.statusText + '; ' + error.error + '; ' + error.message);
-      }));
+      catchError((error: HttpErrorResponse) => throwError(error.statusText + '; ' + error.error + '; ' + error.message)
+      ));
   }
 
-  public getExerciseItems(): Observable<{ totalCount: number, items: ExerciseItem[]}> {
+  public getExerciseItems(top = 30, skip = 0, sort?: string, order?: string): Observable<{ totalCount: number; items: ExerciseItem[] }> {
     if (environment.mockdata && this.mockedExerciseItem.length > 0) {
       return of({
         totalCount: this.mockedExerciseItem.length,
@@ -191,11 +190,17 @@ export class ODataService {
 
     let headers: HttpHeaders = new HttpHeaders();
     headers = headers.append('Content-Type', 'application/json')
-              .append('Accept', 'application/json');
-              
+      .append('Accept', 'application/json');
+
     let params: HttpParams = new HttpParams();
-    params = params.append('$top', '100');
+    params = params.append('$top', top.toString());
+    params = params.append('$skip', skip.toString());
     params = params.append('$count', 'true');
+    if (sort) {
+      if (sort === 'createdat') {
+        params = params.append('$orderby', `CreatedAt ${order}`);
+      }
+    }
     params = params.append('$select', 'ID,KnowledgeItemID,ExerciseType,CreatedAt');
     let apiurl = `${this.apiUrl}ExerciseItems`;
     if (environment.mockdata) {
@@ -204,9 +209,9 @@ export class ODataService {
     }
 
     return this.http.get(apiurl, {
-        headers,
-        params,
-      })
+      headers,
+      params,
+    })
       .pipe(map(response => {
         const rjs = response as any;
         const ritems = rjs.value as any[];
@@ -226,9 +231,7 @@ export class ODataService {
           items,
         };
       }),
-      catchError((error: HttpErrorResponse) => {
-        return throwError(error.statusText + '; ' + error.error + '; ' + error.message);
-      }));
+      catchError((error: HttpErrorResponse) => throwError(error.statusText + '; ' + error.error + '; ' + error.message) ));
   }
 
   public createExerciseItem(qbi: ExerciseItem): Observable<ExerciseItem> {
@@ -237,21 +240,19 @@ export class ODataService {
     }
     let headers: HttpHeaders = new HttpHeaders();
     headers = headers.append('Content-Type', 'application/json')
-              .append('Accept', 'application/json');
+      .append('Accept', 'application/json');
 
     const jdata = qbi.generateString();
     return this.http.post(`${this.apiUrl}ExerciseItems`, jdata, {
-        headers,
-      })
+      headers,
+    })
       .pipe(map(response => {
         const rjs = response as any;
         const rtn = new ExerciseItem();
         rtn.parseData(rjs);
         return rtn;
       }),
-      catchError((error: HttpErrorResponse) => {
-        return throwError(error.statusText + '; ' + error.error + '; ' + error.message);
-      }));
+      catchError((error: HttpErrorResponse) => throwError(error.statusText + '; ' + error.error + '; ' + error.message) ));
   }
 
   public changeExerciseItem(qbi: ExerciseItem): Observable<ExerciseItem> {
@@ -260,21 +261,19 @@ export class ODataService {
     }
     let headers: HttpHeaders = new HttpHeaders();
     headers = headers.append('Content-Type', 'application/json')
-              .append('Accept', 'application/json');
+      .append('Accept', 'application/json');
 
     const jdata = qbi.generateString(true);
     return this.http.put(`${this.apiUrl}ExerciseItems(${qbi.ID})`, jdata, {
-        headers,
-      })
+      headers,
+    })
       .pipe(map(response => {
         const rjs = response as any;
         const rtn = new ExerciseItem();
         rtn.parseData(rjs);
         return rtn;
       }),
-      catchError((error: HttpErrorResponse) => {
-        return throwError(error.statusText + '; ' + error.error + '; ' + error.message);
-      }));
+      catchError((error: HttpErrorResponse) => throwError(error.statusText + '; ' + error.error + '; ' + error.message) ));
   }
 
   public readExerciseItem(qbid: number): Observable<ExerciseItem> {
@@ -288,28 +287,25 @@ export class ODataService {
 
     let headers: HttpHeaders = new HttpHeaders();
     headers = headers.append('Content-Type', 'application/json')
-              .append('Accept', 'application/json');
+      .append('Accept', 'application/json');
 
     let params: HttpParams = new HttpParams();
     params = params.append('$select', 'ID,KnowledgeItemID,ExerciseType,Content,CreatedAt,ModifiedAt');
     params = params.append('$expand', 'Tags,Answer');
     return this.http.get(`${this.apiUrl}ExerciseItems(${qbid})`, {
-        headers,
-        params,
-      })
+      headers,
+      params,
+    })
       .pipe(map(response => {
         const ei: ExerciseItem = new ExerciseItem();
         ei.parseData(response);
         return ei;
       }),
-      catchError((error: HttpErrorResponse) => {
-        return throwError(error.statusText + '; ' + error.error + '; ' + error.message);
-      }));
+      catchError((error: HttpErrorResponse) => throwError(error.statusText + '; ' + error.error + '; ' + error.message) ));
   }
 
-  public uploadFiles(files: Set<File>):
-    { [key: string]: { result: Observable<any> } } {
- 
+  public uploadFiles(files: Set<File>): { [key: string]: { result: Observable<any> } } {
+
     // this will be the our resulting map
     const status: { [key: string]: { result: Observable<any> } } = {};
 
@@ -355,10 +351,10 @@ export class ODataService {
     return status;
   }
 
-  public getTagCounts(): Observable<{ totalCount: number, items: TagCount[]}> {
+  public getTagCounts(): Observable<{ totalCount: number, items: TagCount[] }> {
     let headers: HttpHeaders = new HttpHeaders();
     headers = headers.append('Content-Type', 'application/json')
-              .append('Accept', 'application/json');
+      .append('Accept', 'application/json');
 
     let params: HttpParams = new HttpParams();
     params = params.append('$top', '100');
@@ -371,9 +367,9 @@ export class ODataService {
     }
 
     return this.http.get(apiurl, {
-        headers,
-        params,
-      })
+      headers,
+      params,
+    })
       .pipe(map(response => {
         const rjs = response as any;
         const ritems = rjs.value as any[];
@@ -389,15 +385,13 @@ export class ODataService {
           items,
         };
       }),
-      catchError((error: HttpErrorResponse) => {
-        return throwError(error.statusText + '; ' + error.error + '; ' + error.message);
-      }));
+      catchError((error: HttpErrorResponse) => throwError(error.statusText + '; ' + error.error + '; ' + error.message) ));
   }
 
-  public getTags(term: string, reftype?: TagReferenceType): Observable<{ totalCount: number, items: Tag[]}> {
+  public getTags(term: string, reftype?: TagReferenceType): Observable<{ totalCount: number, items: Tag[] }> {
     let headers: HttpHeaders = new HttpHeaders();
     headers = headers.append('Content-Type', 'application/json')
-              .append('Accept', 'application/json');
+      .append('Accept', 'application/json');
 
     let params: HttpParams = new HttpParams();
     params = params.append('$top', '100');
@@ -410,9 +404,9 @@ export class ODataService {
       params = new HttpParams();
     }
     return this.http.get(apiurl, {
-        headers,
-        params,
-      })
+      headers,
+      params,
+    })
       .pipe(map(response => {
         const rjs = response as any;
         const ritems = rjs.value as any[];
@@ -428,23 +422,21 @@ export class ODataService {
           items,
         };
       }),
-      catchError((error: HttpErrorResponse) => {
-        return throwError(error.statusText + '; ' + error.error + '; ' + error.message);
-      }));
+      catchError((error: HttpErrorResponse) => throwError(error.statusText + '; ' + error.error + '; ' + error.message) ));
   }
 
   public getOverviewInfo(): Observable<OverviewInfo[]> {
     let headers: HttpHeaders = new HttpHeaders();
     headers = headers.append('Content-Type', 'application/json')
-              .append('Accept', 'application/json');
+      .append('Accept', 'application/json');
 
     let apiurl = `${this.apiUrl}OverviewInfos`;
     if (environment.mockdata) {
-      apiurl = `${environment.basehref}assets/mockdata/overview-infos.json`;      
+      apiurl = `${environment.basehref}assets/mockdata/overview-infos.json`;
     }
     return this.http.get(apiurl, {
-        headers
-      })
+      headers
+    })
       .pipe(map(response => {
         const rjs = response as any;
         const ritems = rjs.value as any[];
@@ -457,8 +449,6 @@ export class ODataService {
 
         return items;
       }),
-      catchError((error: HttpErrorResponse) => {
-        return throwError(error.statusText + '; ' + error.error + '; ' + error.message);
-      }));
+      catchError((error: HttpErrorResponse) => throwError(error.statusText + '; ' + error.error + '; ' + error.message) ));
   }
 }

@@ -14,7 +14,7 @@ import { ODataService } from '../../services';
 })
 export class ExerciseItemsComponent implements AfterViewInit {
   displayedColumns: string[] = ['id', 'itemtype', 'knowledgeitem', 'createdat'];
-  data: ExerciseItem[] = [];
+  dataSource: ExerciseItem[] = [];
 
   resultsLength = 0;
   isLoadingResults = true;
@@ -37,7 +37,9 @@ export class ExerciseItemsComponent implements AfterViewInit {
         startWith({}),
         switchMap(() => {
           this.isLoadingResults = true;
-          return this.odataService.getExerciseItems(
+          const top = this.paginator.pageSize;
+          const skip = top * this.paginator.pageIndex;
+          return this.odataService.getExerciseItems(top, skip, this.sort.active, this.sort.direction
           );
         }),
         map(data => {
@@ -51,6 +53,10 @@ export class ExerciseItemsComponent implements AfterViewInit {
           this.isLoadingResults = false;
           return observableOf([]);
         })
-      ).subscribe(data => this.data = data);
+      ).subscribe(data => this.dataSource = data);
+  }
+
+  resetPaging(): void {
+    this.paginator.pageIndex = 0;
   }
 }

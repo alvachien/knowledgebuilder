@@ -18,7 +18,7 @@ import { KnowledgeItemCategory, KnowledgeItem, } from 'src/app/models';
   styleUrls: ['./knowledge-item-detail.component.scss'],
 })
 export class KnowledgeItemDetailComponent implements OnInit, OnDestroy {
-  private _destroyed$?: ReplaySubject<boolean>;
+  private destroyed$?: ReplaySubject<boolean>;
   private routerID = -1;
 
   uiMode: UIMode = UIMode.Create;
@@ -76,7 +76,7 @@ export class KnowledgeItemDetailComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit(): void {
-    this._destroyed$ = new ReplaySubject(1);
+    this.destroyed$ = new ReplaySubject(1);
 
     this.activateRoute.url.subscribe({
       next: val => {
@@ -130,9 +130,9 @@ export class KnowledgeItemDetailComponent implements OnInit, OnDestroy {
   }
 
   ngOnDestroy(): void {
-    if (this._destroyed$) {
-      this._destroyed$.complete();
-      this._destroyed$ = undefined;
+    if (this.destroyed$) {
+      this.destroyed$.complete();
+      this.destroyed$ = undefined;
     }
   }
 
@@ -232,5 +232,8 @@ export class KnowledgeItemDetailComponent implements OnInit, OnDestroy {
     if (index >= 0) {
       this.tags.splice(index, 1);
     }
+  }
+  onReturnToList() {
+    this.router.navigate(['knowledge-item']);
   }
 }

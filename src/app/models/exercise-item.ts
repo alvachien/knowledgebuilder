@@ -10,7 +10,7 @@ export enum ExerciseItemType {
     EssayQuestions = 4,
 }
 
-export function getExerciseItemTypeName(reftype: ExerciseItemType): string {
+export const getExerciseItemTypeName = (reftype: ExerciseItemType): string => {
     let rtn = '';
     switch (reftype) {
         case ExerciseItemType.SingleChoice:
@@ -35,8 +35,11 @@ export function getExerciseItemTypeName(reftype: ExerciseItemType): string {
             break;
     }
     return rtn;
-}
+};
 
+//
+// Exercise Item
+//
 export class ExerciseItem {
     private _id!: number;
     private _content!: string;
@@ -47,24 +50,24 @@ export class ExerciseItem {
     private _tags: string[] = [];
     private _answer?: string;
 
-    get ID(): number                    { return this._id;          }
-    set ID(nid: number)                 { this._id  = nid;          }
-    get Content(): string               { return this._content;     }
-    set Content(ct: string)             { this._content = ct;       }
-    get ItemType(): ExerciseItemType    { return this._itemType;    }
-    set ItemType(it: ExerciseItemType)  { this._itemType = it;      }
-    get KnowledgeItemID(): number | undefined { return this._knowledgeItemID;   }
+    get ID(): number { return this._id; }
+    set ID(nid: number) { this._id = nid; }
+    get Content(): string { return this._content; }
+    set Content(ct: string) { this._content = ct; }
+    get ItemType(): ExerciseItemType { return this._itemType; }
+    set ItemType(it: ExerciseItemType) { this._itemType = it; }
+    get KnowledgeItemID(): number | undefined { return this._knowledgeItemID; }
     set KnowledgeItemID(kid: number | undefined) { this._knowledgeItemID = kid; }
-    get CreatedAt(): Date | undefined   { return this._createdAt;   }
-    set CreatedAt(ca: Date | undefined) { this._createdAt = ca;     }
-    get ModifiedAt(): Date | undefined   { return this._modifiedAt;   }
-    set ModifiedAt(ua: Date | undefined) { this._modifiedAt = ua;     }
-    get Tags(): string[]                 { return this._tags;        }
+    get CreatedAt(): Date | undefined { return this._createdAt; }
+    set CreatedAt(ca: Date | undefined) { this._createdAt = ca; }
+    get ModifiedAt(): Date | undefined { return this._modifiedAt; }
+    set ModifiedAt(ua: Date | undefined) { this._modifiedAt = ua; }
+    get Tags(): string[] { return this._tags; }
     set Tags(tag: string[]) {
         this._tags = tag.slice();
     }
-    get Answer(): string | undefined    { return this._answer;      }
-    set Answer(awr: string | undefined) { this._answer = awr;       }
+    get Answer(): string | undefined { return this._answer; }
+    set Answer(awr: string | undefined) { this._answer = awr; }
 
     public parseData(val: any): void {
         if (val && val.ID) {
@@ -114,10 +117,10 @@ export class ExerciseItem {
             exobj.KnowledgeItemID = this.KnowledgeItemID;
         }
         if (this.CreatedAt) {
-            exobj.CreatedAt = this.CreatedAt.toISOString().slice(0,10);
+            exobj.CreatedAt = this.CreatedAt.toISOString().slice(0, 10);
         }
         if (this.ModifiedAt) {
-            exobj.ModifiedAt = this.ModifiedAt.toISOString().slice(0,10);
+            exobj.ModifiedAt = this.ModifiedAt.toISOString().slice(0, 10);
         }
         if (this.Answer) {
             exobj.Answer = {

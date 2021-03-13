@@ -19,9 +19,9 @@ import { ImageUploadComponent } from '../../image-upload/image-upload.component'
 })
 export class ExerciseItemDetailComponent implements OnInit, OnDestroy {
 
-  private _destroyed$?: ReplaySubject<boolean>;
+  private destroyed$?: ReplaySubject<boolean>;
   private routerID = -1;
-  private _itemObject: ExerciseItem | undefined;
+  private itemObject: ExerciseItem | undefined;
 
   uiMode: UIMode = UIMode.Create;
   currentMode = '';
@@ -79,7 +79,7 @@ export class ExerciseItemDetailComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit(): void {
-    this._destroyed$ = new ReplaySubject(1);
+    this.destroyed$ = new ReplaySubject(1);
 
     this.activateRoute.url.subscribe({
       next: val => {
@@ -104,7 +104,7 @@ export class ExerciseItemDetailComponent implements OnInit, OnDestroy {
             .subscribe({
               next: exitem => {
                 this.onSetItemData(exitem);
-                this._itemObject = exitem;
+                this.itemObject = exitem;
               },
               error: err => {
                 console.error(err);
@@ -119,9 +119,9 @@ export class ExerciseItemDetailComponent implements OnInit, OnDestroy {
   }
 
   ngOnDestroy(): void {
-    if (this._destroyed$) {
-      this._destroyed$.complete();
-      this._destroyed$ = undefined;
+    if (this.destroyed$) {
+      this.destroyed$.complete();
+      this.destroyed$ = undefined;
     }
   }
 
@@ -137,12 +137,12 @@ export class ExerciseItemDetailComponent implements OnInit, OnDestroy {
       }
 
       // Create a new exercise item
-      this._itemObject = new ExerciseItem();
-      this._itemObject.ItemType = this.itemFormGroup.get('typeControl')!.value as ExerciseItemType;
-      this._itemObject.Content = this.content;
-      this._itemObject.Tags = this.tags;
-      this._itemObject.Answer = this.answerContent;
-      this.odataService.createExerciseItem(this._itemObject).subscribe({
+      this.itemObject = new ExerciseItem();
+      this.itemObject.ItemType = this.itemFormGroup.get('typeControl')!.value as ExerciseItemType;
+      this.itemObject.Content = this.content;
+      this.itemObject.Tags = this.tags;
+      this.itemObject.Answer = this.answerContent;
+      this.odataService.createExerciseItem(this.itemObject).subscribe({
         next: val => {
           // Display current reason
           this.router.navigate(['/exercise-item/display', val.ID]);
@@ -162,12 +162,12 @@ export class ExerciseItemDetailComponent implements OnInit, OnDestroy {
       }
 
       // Create a new exercise item
-      if (this._itemObject) {
-        this._itemObject.ItemType = this.itemFormGroup.get('typeControl')!.value as ExerciseItemType;
-        this._itemObject.Content = this.content;
-        this._itemObject.Tags = this.tags;
-        this._itemObject.Answer = this.answerContent;
-        this.odataService.changeExerciseItem(this._itemObject).subscribe({
+      if (this.itemObject) {
+        this.itemObject.ItemType = this.itemFormGroup.get('typeControl')!.value as ExerciseItemType;
+        this.itemObject.Content = this.content;
+        this.itemObject.Tags = this.tags;
+        this.itemObject.Answer = this.answerContent;
+        this.odataService.changeExerciseItem(this.itemObject).subscribe({
           next: val => {
             // Display current reason
             this.router.navigate(['/exercise-item/display', val.ID]);
@@ -176,7 +176,7 @@ export class ExerciseItemDetailComponent implements OnInit, OnDestroy {
             // Error
             console.error(err);
           }
-        });  
+        });
       }
     }
   }
@@ -221,7 +221,7 @@ export class ExerciseItemDetailComponent implements OnInit, OnDestroy {
           // }
         }
       });
-    }
+  }
 
   addTag(event: MatChipInputEvent): void {
     const input = event.input;
@@ -260,5 +260,9 @@ export class ExerciseItemDetailComponent implements OnInit, OnDestroy {
     } else {
       this.itemFormGroup.markAsPristine();
     }
+  }
+
+  onReturnToList() {
+    this.router.navigate(['exercise-item']);
   }
 }

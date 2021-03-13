@@ -1,6 +1,6 @@
 {
   "name": "knowledgebuilder",
-  "version": "0.1.23",
+  "version": "0.1.25",
   "author": {
     "name": "Alva Chien",
     "email": "alvachien@163.com",
@@ -11,7 +11,7 @@
     "ng": "ng",
     "start": "ng serve --ssl true -o --ssl-key ssl/server.key --ssl-cert ssl/server.crt",
     "build": "ng build",
-    "build-ali": "ng build --prod --base-href=/hih/",
+    "build-ali": "ng build --prod --base-href=/math/",
     "test": "ng test",
     "devtest": "ng test --code-coverage",
     "test-headless": "ng test --watch=false --no-progress --browsers=ChromeHeadlessNoSandbox",
@@ -32,6 +32,7 @@
     "@angular/platform-browser": "^11.0.5",
     "@angular/platform-browser-dynamic": "^11.0.5",
     "@angular/router": "^11.0.5",
+    "@materia-ui/ngx-monaco-editor": "^5.0.0",
     "@ngneat/transloco": "^2.20.0",
     "actslib": "^0.4.22",
     "echarts": "^5.0.2",
@@ -44,7 +45,6 @@
     "monaco-editor": "^0.21.2",
     "ngx-echarts": "^6.0.0",
     "ngx-markdown": "^11.0.1",
-    "ngx-monaco-editor": "^10.0.0-beta.1",
     "rxjs": "^6.6.3",
     "tslib": "^2.0.3",
     "zone.js": "^0.11.3"

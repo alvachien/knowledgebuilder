@@ -58,7 +58,7 @@ export class AppComponent implements OnDestroy {
     if (lang === 'en') {
       this.translocoService.setActiveLang('en');
     } else {
-      this.translocoService.setActiveLang('zh');      
+      this.translocoService.setActiveLang('zh');
     }
   }
 

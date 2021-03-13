@@ -13,8 +13,8 @@
         <mat-progress-spinner *ngIf="isLoadingResults"></mat-progress-spinner>
     </div>
 
-    <div class="example-table-container">
-        <table mat-table [dataSource]="data" class="example-table" matSort matSortActive="createdat">
+    <div class="table-container">
+        <table mat-table [dataSource]="dataSource" matSort matSortActive="createdat" (matSortChange)="resetPaging()">
             <!-- ID Column -->
             <ng-container matColumnDef="id">
                 <th mat-header-cell *matHeaderCellDef>#</th>

@@ -4,7 +4,7 @@ import { MatSort } from '@angular/material/sort';
 import { merge, Observable, of as observableOf } from 'rxjs';
 import { catchError, map, startWith, switchMap } from 'rxjs/operators';
 
-import { KnowledgeItemCategory, getKnowledgeItemCategoryName } from 'src/app/models';
+import { KnowledgeItemCategory, getKnowledgeItemCategoryName, KnowledgeItem } from 'src/app/models';
 import { ODataService } from '../../services';
 
 @Component({
@@ -14,7 +14,7 @@ import { ODataService } from '../../services';
 })
 export class KnowledgeItemsComponent implements AfterViewInit {
   displayedColumns: string[] = ['id', 'category', 'title', 'createdat'];
-  data: any[] = [];
+  dataSource: KnowledgeItem[] = [];
 
   resultsLength = 0;
   isLoadingResults = true;
@@ -37,7 +37,10 @@ export class KnowledgeItemsComponent implements AfterViewInit {
         startWith({}),
         switchMap(() => {
           this.isLoadingResults = true;
-          return this.odataService.getKnowledgeItems(
+
+          const top = this.paginator.pageSize;
+          const skip = top * this.paginator.pageIndex;
+          return this.odataService.getKnowledgeItems(top, skip, this.sort.active, this.sort.direction
           );
         }),
         map(data => {
@@ -51,6 +54,10 @@ export class KnowledgeItemsComponent implements AfterViewInit {
           this.isLoadingResults = false;
           return observableOf([]);
         })
-      ).subscribe(data => this.data = data);
+      ).subscribe(data => this.dataSource = data);
+  }
+
+  resetPaging(): void {
+    this.paginator.pageIndex = 0;
   }
 }
