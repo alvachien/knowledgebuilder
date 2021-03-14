@@ -100,7 +100,7 @@ export class ExerciseItemDetailComponent implements OnInit, OnDestroy {
         }
 
         if (this.routerID !== -1) {
-          this.odataService.readExerciseItem(this.routerID)
+          this.odataService.readExerciseItem(this.routerID, this.uiMode === UIMode.Update)
             .subscribe({
               next: exitem => {
                 this.onSetItemData(exitem);

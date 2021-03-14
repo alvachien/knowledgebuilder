@@ -1,11 +1,12 @@
 import { Component, OnInit, ViewChild, AfterViewInit } from '@angular/core';
 import { MatPaginator } from '@angular/material/paginator';
 import { MatSort } from '@angular/material/sort';
+import { Router } from '@angular/router';
 import { merge, Observable, of as observableOf } from 'rxjs';
 import { catchError, map, startWith, switchMap } from 'rxjs/operators';
 
-import { KnowledgeItemCategory, getKnowledgeItemCategoryName, KnowledgeItem } from 'src/app/models';
-import { ODataService } from '../../services';
+import { KnowledgeItemCategory, getKnowledgeItemCategoryName, KnowledgeItem, TagReferenceType } from 'src/app/models';
+import { ODataService, PreviewObject } from '../../services';
 
 @Component({
   selector: 'app-knowledge-items',
@@ -22,7 +23,8 @@ export class KnowledgeItemsComponent implements AfterViewInit {
   @ViewChild(MatPaginator) paginator!: MatPaginator;
   @ViewChild(MatSort) sort!: MatSort;
 
-  constructor(private odataService: ODataService) {}
+  constructor(private odataService: ODataService,
+    private router: Router) {}
 
   getKnowledgeItemCategoryName(ctgy: KnowledgeItemCategory): string {
     return getKnowledgeItemCategoryName(ctgy);
@@ -55,6 +57,18 @@ export class KnowledgeItemsComponent implements AfterViewInit {
           return observableOf([]);
         })
       ).subscribe(data => this.dataSource = data);
+  }
+
+  public onGoToPreview(): void {
+    const arobj: PreviewObject[] = [];
+    this.dataSource.forEach(val => {
+      arobj.push({
+        refType: TagReferenceType.KnowledgeItem,
+        refId: val.ID,
+      });
+    });
+    this.odataService.previewObjList = arobj;
+    this.router.navigate(['preview']);
   }
 
   resetPaging(): void {

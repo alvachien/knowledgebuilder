@@ -4,24 +4,23 @@ import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { TranslocoModule } from '@ngneat/transloco';
 
 import { MaterialModulesModule } from '../../material-modules';
-import { TagRoutingModule } from './tag-routing.module';
-import { TagComponent } from './tag.component';
-import { TagDetailComponent } from './tag-detail';
+import { PreviewRoutingModule } from './preview-routing.module';
+import { PreviewComponent } from './preview.component';
 import { MarkdownModule } from 'ngx-markdown';
+
 
 @NgModule({
   declarations: [
-    TagComponent,
-    TagDetailComponent,
+    PreviewComponent
   ],
   imports: [
     CommonModule,
     FormsModule,
     ReactiveFormsModule,
-    MaterialModulesModule,
-    TagRoutingModule,
-    MarkdownModule.forChild(),
     TranslocoModule,
-  ],
+    MaterialModulesModule,
+    MarkdownModule,
+    PreviewRoutingModule
+  ]
 })
-export class TagModule { }
+export class PreviewModule { }

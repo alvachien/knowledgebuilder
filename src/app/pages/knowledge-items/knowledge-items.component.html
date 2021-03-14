@@ -1,10 +1,9 @@
 <mat-toolbar-row>
   <span>{{'KnowledgeItem' | transloco}}</span>
-  <span class="example-spacer"></span>
+  <span class="toolbar-spacer"></span>
   <section>
-    <div class="example-button-row">
-      <a mat-stroked-button routerLink="create">{{'Create' | transloco}}</a>
-    </div>
+    <a mat-stroked-button routerLink="create">{{'Create' | transloco}}</a>
+    <a mat-stroked-button (click)="onGoToPreview()" [disabled]="dataSource.length <= 0">{{'Common.Preview' | transloco}}</a>
   </section>
 </mat-toolbar-row>
 
@@ -50,5 +49,5 @@
     </table>
   </div>
 
-  <mat-paginator [length]="resultsLength" [pageSize]="30"></mat-paginator>
+  <mat-paginator [length]="resultsLength" [pageSize]="20"></mat-paginator>
 </div>

@@ -6,6 +6,11 @@ import { map, catchError } from 'rxjs/operators';
 import { ExerciseItem, TagCount, Tag, KnowledgeItem, TagReferenceType, OverviewInfo } from '../models';
 import { environment } from '../../environments/environment';
 
+export interface PreviewObject {
+  refType: TagReferenceType;
+  refId: number;
+}
+
 @Injectable({
   providedIn: 'root'
 })
@@ -19,9 +24,12 @@ export class ODataService {
   private mockedKnowledgeItem: KnowledgeItem[] = [];
   // Mockdata - exercise item
   private mockedExerciseItem: ExerciseItem[] = [];
+  // Preview objects
+  previewObjList: PreviewObject[] = [];
+  bufferedKnowledgeItems: KnowledgeItem[] = [];
+  bufferedExerciseItems: ExerciseItem[] = [];
 
-  constructor(private http: HttpClient,
-  ) { }
+  constructor(private http: HttpClient,) { }
 
   public getMetadata(forceReload?: boolean): Observable<any> {
     if (!this.isMetadataLoaded || forceReload) {
@@ -103,13 +111,18 @@ export class ODataService {
       catchError((error: HttpErrorResponse) => throwError(error.statusText + '; ' + error.error + '; ' + error.message) ));
   }
 
-  public readKnowledgeItem(kid: number): Observable<KnowledgeItem> {
+  public readKnowledgeItem(kid: number, forceLoad = false): Observable<KnowledgeItem> {
     if (environment.mockdata) {
       const idx = this.mockedKnowledgeItem.findIndex(val => val.ID === kid);
       if (idx !== -1) {
         return of(this.mockedKnowledgeItem[idx]);
       }
       return of(new KnowledgeItem());
+    }
+
+    const bufidx = this.bufferedKnowledgeItems.findIndex(val => val.ID === kid);
+    if (!forceLoad && bufidx !== -1) {
+      return of(this.bufferedKnowledgeItems[bufidx]);
     }
 
     let headers: HttpHeaders = new HttpHeaders();
@@ -127,6 +140,13 @@ export class ODataService {
         const rsp = response as any;
         const kitem = new KnowledgeItem();
         kitem.parseData(rsp);
+
+        if (bufidx === -1) {
+          this.bufferedKnowledgeItems.push(kitem);
+        } else {
+          this.bufferedKnowledgeItems[bufidx] = kitem;
+        }
+
         return kitem;
       }),
       catchError((error: HttpErrorResponse) => throwError(error.statusText + '; ' + error.error + '; ' + error.message) ));
@@ -150,6 +170,10 @@ export class ODataService {
         const rsp = response as any;
         const kitem = new KnowledgeItem();
         kitem.parseData(rsp);
+
+        // Add to buffer
+        this.bufferedKnowledgeItems.push(kitem);
+
         return kitem;
       }),
       catchError((error: HttpErrorResponse) => throwError(error.statusText + '; ' + error.error + '; ' + error.message)
@@ -174,6 +198,14 @@ export class ODataService {
         const rsp = response as any;
         const kitem = new KnowledgeItem();
         kitem.parseData(rsp);
+
+        const bufidx = this.bufferedKnowledgeItems.findIndex(val => val.ID === kitem.ID);
+        if (bufidx === -1) {
+          this.bufferedKnowledgeItems.push(kitem);
+        } else {
+          this.bufferedKnowledgeItems[bufidx] = kitem;
+        }
+
         return kitem;
       }),
       catchError((error: HttpErrorResponse) => throwError(error.statusText + '; ' + error.error + '; ' + error.message)
@@ -202,6 +234,7 @@ export class ODataService {
       }
     }
     params = params.append('$select', 'ID,KnowledgeItemID,ExerciseType,CreatedAt');
+    params = params.append('$expand', 'Tags');
     let apiurl = `${this.apiUrl}ExerciseItems`;
     if (environment.mockdata) {
       apiurl = `${environment.basehref}assets/mockdata/exercise-items.json`;
@@ -250,6 +283,10 @@ export class ODataService {
         const rjs = response as any;
         const rtn = new ExerciseItem();
         rtn.parseData(rjs);
+
+        // Add to buffer
+        this.bufferedExerciseItems.push(rtn);
+
         return rtn;
       }),
       catchError((error: HttpErrorResponse) => throwError(error.statusText + '; ' + error.error + '; ' + error.message) ));
@@ -271,18 +308,31 @@ export class ODataService {
         const rjs = response as any;
         const rtn = new ExerciseItem();
         rtn.parseData(rjs);
+
+        const bufidx = this.bufferedExerciseItems.findIndex(val => val.ID === rtn.ID);
+        if (bufidx === -1) {
+          this.bufferedExerciseItems.push(rtn);
+        } else {
+          this.bufferedExerciseItems[bufidx] = rtn;
+        }
+
         return rtn;
       }),
       catchError((error: HttpErrorResponse) => throwError(error.statusText + '; ' + error.error + '; ' + error.message) ));
   }
 
-  public readExerciseItem(qbid: number): Observable<ExerciseItem> {
+  public readExerciseItem(qbid: number, forceLoad = false): Observable<ExerciseItem> {
     if (environment.mockdata) {
       const idx = this.mockedExerciseItem.findIndex(val => val.ID === qbid);
       if (idx !== -1) {
         return of(this.mockedExerciseItem[idx]);
       }
       return of(new ExerciseItem());
+    }
+
+    const bufidx = this.bufferedExerciseItems.findIndex(val => val.ID === qbid);
+    if (!forceLoad && bufidx !== -1) {
+      return of(this.bufferedExerciseItems[bufidx]);
     }
 
     let headers: HttpHeaders = new HttpHeaders();
@@ -299,6 +349,13 @@ export class ODataService {
       .pipe(map(response => {
         const ei: ExerciseItem = new ExerciseItem();
         ei.parseData(response);
+
+        if (bufidx === -1) {
+          this.bufferedExerciseItems.push(ei);
+        } else {
+          this.bufferedExerciseItems[bufidx] = ei;
+        }
+
         return ei;
       }),
       catchError((error: HttpErrorResponse) => throwError(error.statusText + '; ' + error.error + '; ' + error.message) ));

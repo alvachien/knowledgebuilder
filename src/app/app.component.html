@@ -23,7 +23,7 @@
       <mat-icon aria-hidden="false" aria-label="Code Repo">code</mat-icon>
     </button>
 
-    <span>V0.1.25</span>
+    <span>V:0.1.32</span>
   </mat-toolbar>
 
   <mat-sidenav-container class="example-sidenav-container" [style.marginTop.px]="mobileQuery.matches ? 56 : 0">
@@ -36,7 +36,7 @@
           </mat-panel-title>
         </mat-expansion-panel-header>
         <mat-nav-list>
-          <a *ngFor="let navItem of navItems | navItemFilter: 0" mat-list-item (click)="snav.close()" [routerLink]="[navItem.route]">
+          <a *ngFor="let navItem of navItems | navItemFilter: 0" mat-list-item [routerLink]="[navItem.route]">
             {{navItem.name | transloco}}
           </a>
         </mat-nav-list>
@@ -48,7 +48,7 @@
           </mat-panel-title>
         </mat-expansion-panel-header>
         <mat-nav-list>
-          <a *ngFor="let navItem of navItems | navItemFilter: 1" mat-list-item (click)="snav.close()" [routerLink]="[navItem.route]">
+          <a *ngFor="let navItem of navItems | navItemFilter: 1" mat-list-item [routerLink]="[navItem.route]">
             {{navItem.name | transloco}}
           </a>
         </mat-nav-list>
@@ -60,7 +60,7 @@
           </mat-panel-title>
         </mat-expansion-panel-header>
         <mat-nav-list>
-          <a *ngFor="let navItem of navItems | navItemFilter: 7" mat-list-item (click)="snav.close()" [routerLink]="[navItem.route]">
+          <a *ngFor="let navItem of navItems | navItemFilter: 7" mat-list-item [routerLink]="[navItem.route]">
             {{navItem.name | transloco}}
           </a>
         </mat-nav-list>
@@ -72,7 +72,7 @@
           </mat-panel-title>
         </mat-expansion-panel-header>
         <mat-nav-list>
-          <a *ngFor="let navItem of navItems | navItemFilter: 3" mat-list-item (click)="snav.close()" [routerLink]="[navItem.route]">
+          <a *ngFor="let navItem of navItems | navItemFilter: 3" mat-list-item [routerLink]="[navItem.route]">
             {{navItem.name | transloco}}
           </a>
         </mat-nav-list>
@@ -84,11 +84,14 @@
           </mat-panel-title>
         </mat-expansion-panel-header>
         <mat-nav-list>
-          <a *ngFor="let navItem of navItems | navItemFilter: 6" mat-list-item (click)="snav.close()" [routerLink]="[navItem.route]">
+          <a *ngFor="let navItem of navItems | navItemFilter: 6" mat-list-item [routerLink]="[navItem.route]">
             {{navItem.name | transloco}}
           </a>
         </mat-nav-list>
       </mat-expansion-panel>
+      <mat-nav-list>
+        <a mat-list-item (click)="snav.close()">{{'Common.Close' | transloco}}</a>
+      </mat-nav-list>
     </mat-sidenav>
 
     <mat-sidenav-content>

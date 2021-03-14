@@ -1,12 +1,7 @@
-/* Toolbar */
-.example-spacer {
-  flex: 1 1 auto;
-}
-  
 /* Structure */
 .example-container {
   position: relative;
-  min-height: 500px;
+  min-height: 200px;
 }
     
 .table-container {
@@ -33,18 +28,19 @@ table {
   justify-content: center;
 }
     
-.example-rate-limit-reached {
-  color: #980000;
-  max-width: 360px;
-  text-align: center;
-}
-    
 /* Column Widths */
-.mat-column-number,
-.mat-column-state {
+.mat-column-id {
   max-width: 64px;
 }
-    
+
+.mat-column-itemtype {
+  max-width: 120px;
+}
+
+.mat-column-tags {
+  max-width: 150px;
+}
+
 .mat-column-created {
   max-width: 124px;
 }

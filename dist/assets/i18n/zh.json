@@ -25,7 +25,9 @@
         "Continue": "继续",
         "Backspace": "退格",
         "Reset": "重置",
-        "ReturnToList": "返回列表页"
+        "ReturnToList": "返回列表页",
+        "ListView": "列表页",
+        "Preview": "预览"
     },
     "Type": "类别",
     "Create": "创建",

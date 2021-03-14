@@ -25,7 +25,9 @@
         "Continue": "CONTINUE",
         "Backspace": "BACKSPACE",
         "Reset": "RESET",
-        "ReturnToList": "RETURN TO LIST"
+        "ReturnToList": "RETURN TO LIST",
+        "ListView": "LIST VIEW",
+        "Preview": "PREVIEW"
     },
     "Type": "Type",
     "Create": "Create",

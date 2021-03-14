@@ -1,0 +1,55 @@
+<div class="button-row">
+    <button mat-raised-button (click)="onPreviousPreviewItem()" [disabled]="!isPreviousButtonEnabled">{{'Common.Previous' | transloco}}</button>
+    <button mat-raised-button (click)="onNextPreviewItem()" [disabled]="!isNextPreviewButtonEnabled">{{'Common.Next' | transloco}}</button>
+</div>
+
+<mat-divider></mat-divider>
+
+<div *ngIf="selectedObj && selectedObj.refType === 1" style="margin: 8px;">
+    <!-- Knowledge Item-->
+    <ul>
+        <li>
+            <mat-form-field>
+                <mat-label>ID</mat-label>
+                <input matInput disabled [ngModel]="selectedKnowledge!.ID">
+            </mat-form-field>
+        </li>
+        <li>
+            <mat-form-field>
+                <mat-label>{{'Title' | transloco}}</mat-label>
+                <input matInput disabled [ngModel]="selectedKnowledge!.Title">
+            </mat-form-field>
+        </li>
+        <li>
+            <markdown emoji [data]="selectedKnowledge!.Content" katex [katexOptions]="mathOptions"></markdown>
+        </li>
+    </ul>
+</div>
+
+<div *ngIf="selectedObj && selectedObj.refType === 2" style="margin: 8px;">
+    <!-- Exercise Item-->
+    <ul>
+        <li>
+            <mat-form-field>
+                <mat-label>ID</mat-label>
+                <input matInput disabled [ngModel]="selectedExercise!.ID">
+            </mat-form-field>
+        </li>
+        <li>
+            <mat-form-field>
+                <mat-label>{{'Tag' | transloco}}</mat-label>
+                <input matInput disabled [ngModel]="selectedExercise!.Tags.toString()">
+            </mat-form-field>
+        </li>
+        <li>
+            <markdown emoji [data]="selectedExercise!.Content" katex [katexOptions]="mathOptions"></markdown>
+        </li>
+    </ul>
+</div>
+
+<mat-divider></mat-divider>
+
+<div class="button-row">
+    <button mat-raised-button (click)="onPreviousPreviewItem()" [disabled]="!isPreviousButtonEnabled">{{'Common.Previous' | transloco}}</button>
+    <button mat-raised-button (click)="onNextPreviewItem()" [disabled]="!isNextPreviewButtonEnabled">{{'Common.Next' | transloco}}</button>
+</div>

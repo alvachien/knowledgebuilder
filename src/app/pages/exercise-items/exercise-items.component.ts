@@ -1,11 +1,13 @@
 import { Component, OnInit, ViewChild, AfterViewInit } from '@angular/core';
 import { MatPaginator } from '@angular/material/paginator';
 import { MatSort } from '@angular/material/sort';
+import { Router } from '@angular/router';
 import { merge, Observable, of as observableOf } from 'rxjs';
 import { catchError, map, startWith, switchMap } from 'rxjs/operators';
+import { TagReferenceType } from 'src/app/models';
 
 import { ExerciseItem, ExerciseItemType, getExerciseItemTypeName, } from '../../models/exercise-item';
-import { ODataService } from '../../services';
+import { ODataService, PreviewObject } from '../../services';
 
 @Component({
   selector: 'app-exercise-items',
@@ -13,7 +15,7 @@ import { ODataService } from '../../services';
   styleUrls: ['./exercise-items.component.scss'],
 })
 export class ExerciseItemsComponent implements AfterViewInit {
-  displayedColumns: string[] = ['id', 'itemtype', 'knowledgeitem', 'createdat'];
+  displayedColumns: string[] = ['id', 'itemtype', 'tags', 'knowledgeitem', 'createdat'];
   dataSource: ExerciseItem[] = [];
 
   resultsLength = 0;
@@ -22,7 +24,8 @@ export class ExerciseItemsComponent implements AfterViewInit {
   @ViewChild(MatPaginator) paginator!: MatPaginator;
   @ViewChild(MatSort) sort!: MatSort;
 
-  constructor(private odataService: ODataService) {}
+  constructor(private odataService: ODataService,
+    private router: Router) {}
 
   getExerciseItemTypeName(itemtype: ExerciseItemType): string {
     return getExerciseItemTypeName(itemtype);
@@ -54,6 +57,18 @@ export class ExerciseItemsComponent implements AfterViewInit {
           return observableOf([]);
         })
       ).subscribe(data => this.dataSource = data);
+  }
+
+  public onGoToPreview(): void {
+    const arobj: PreviewObject[] = [];
+    this.dataSource.forEach(val => {
+      arobj.push({
+        refType: TagReferenceType.ExerciseItem,
+        refId: val.ID,
+      });
+    });
+    this.odataService.previewObjList = arobj;
+    this.router.navigate(['preview']);
   }
 
   resetPaging(): void {

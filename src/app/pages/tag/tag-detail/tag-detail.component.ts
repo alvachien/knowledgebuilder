@@ -2,11 +2,12 @@ import { Component, OnInit, ViewChild, AfterViewInit } from '@angular/core';
 import { MatPaginator } from '@angular/material/paginator';
 import { MatSort } from '@angular/material/sort';
 import { ActivatedRoute, Router } from '@angular/router';
+import { KatexOptions } from 'ngx-markdown';
 import { merge, Observable, of as observableOf } from 'rxjs';
 import { catchError, map, startWith, switchMap } from 'rxjs/operators';
 
-import { TagCount, Tag, TagReferenceType } from 'src/app/models';
-import { ODataService } from 'src/app/services';
+import { TagCount, Tag, TagReferenceType, getTagReferenceTypeName } from 'src/app/models';
+import { PreviewObject, ODataService } from 'src/app/services';
 
 @Component({
   selector: 'app-tag-detail',
@@ -15,11 +16,13 @@ import { ODataService } from 'src/app/services';
 })
 export class TagDetailComponent implements OnInit, AfterViewInit {
   displayedColumns: string[] = ['tag', 'reftype', 'refid'];
-  data: Tag[] = [];
+  dataSource: Tag[] = [];
   currenttag = '';
 
   resultsLength = 0;
   isLoadingResults = true;
+
+  getTagReferenceTypeName = getTagReferenceTypeName;
 
   @ViewChild(MatPaginator) paginator!: MatPaginator;
   @ViewChild(MatSort) sort!: MatSort;
@@ -27,7 +30,8 @@ export class TagDetailComponent implements OnInit, AfterViewInit {
   constructor(
     private odataService: ODataService,
     private activateRoute: ActivatedRoute,
-    private router: Router) {}
+    private router: Router) {
+  }
 
   ngOnInit(): void {
     this.activateRoute.url.subscribe({
@@ -66,7 +70,7 @@ export class TagDetailComponent implements OnInit, AfterViewInit {
           this.isLoadingResults = false;
           return observableOf([]);
         })
-      ).subscribe(data => this.data = data);
+      ).subscribe(data => this.dataSource = data);
   }
 
   public onRefIDClicked(row: Tag): void {
@@ -76,5 +80,18 @@ export class TagDetailComponent implements OnInit, AfterViewInit {
     } else if (row.RefType === TagReferenceType.KnowledgeItem) {
       this.router.navigate(['knowledge-item/display', row.RefID]);
     }
+  }
+  public onGoToPreview(): void {
+    const arobj: PreviewObject[] = [];
+    this.dataSource.forEach(val => {
+      if (val.RefType && val.RefID) {
+        arobj.push({
+          refType: val.RefType,
+          refId: val.RefID
+        });
+      }
+    });
+    this.odataService.previewObjList = arobj;
+    this.router.navigate(['preview']);
   }
 }

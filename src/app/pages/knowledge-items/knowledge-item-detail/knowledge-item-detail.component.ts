@@ -97,7 +97,7 @@ export class KnowledgeItemDetailComponent implements OnInit, OnDestroy {
         }
 
         if (this.routerID !== -1) {
-          this.odataService.readKnowledgeItem(this.routerID)
+          this.odataService.readKnowledgeItem(this.routerID, this.uiMode === UIMode.Update)
             .subscribe({
               next: val2 => {
                 this.itemFormGroup.get('idControl')?.setValue(val2.ID);
