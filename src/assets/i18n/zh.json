@@ -27,7 +27,8 @@
         "Reset": "重置",
         "ReturnToList": "返回列表页",
         "ListView": "列表页",
-        "Preview": "预览"
+        "Preview": "预览",
+        "Refresh": "刷新"
     },
     "Type": "类别",
     "Create": "创建",

@@ -27,7 +27,8 @@
         "Reset": "RESET",
         "ReturnToList": "RETURN TO LIST",
         "ListView": "LIST VIEW",
-        "Preview": "PREVIEW"
+        "Preview": "PREVIEW",
+        "Refresh": "REFRESH"
     },
     "Type": "Type",
     "Create": "Create",

@@ -2,8 +2,9 @@
     <span>{{'ExerciseItem' | transloco}}</span>
     <span class="toolbar-spacer"></span>
     <section>
-        <a mat-stroked-button routerLink="create">{{'Create' | transloco}}</a>
+        <a mat-stroked-button routerLink="create">{{'Common.Create' | transloco}}</a>
         <a mat-stroked-button (click)="onGoToPreview()" [disabled]="dataSource.length <= 0">{{'Common.Preview' | transloco}}</a>
+        <a mat-stroked-button (click)="onRefreshList()">{{'Common.Refresh' | transloco}}</a>
     </section>
 </mat-toolbar-row>
 
@@ -20,8 +21,9 @@
                 <td mat-cell *matCellDef="let row">
                     <div>
                         {{row.ID}}
-                        <a mat-button routerLink="display/{{row.ID}}">{{'Display' | transloco}}</a>
-                        <a mat-button routerLink="edit/{{row.ID}}">{{'Change' | transloco}}</a>
+                        <a mat-button routerLink="display/{{row.ID}}">{{'Common.Display' | transloco}}</a>
+                        <a mat-button routerLink="edit/{{row.ID}}">{{'Common.Change' | transloco}}</a>
+                        <a mat-button (click)="onDeleteItem(row.ID)">{{'Common.Delete' | transloco}}</a>
                     </div>
                 </td>
             </ng-container>

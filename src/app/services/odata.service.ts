@@ -56,6 +56,9 @@ export class ODataService {
     }
   }
 
+  //
+  // Knowledge items
+  //
   public getKnowledgeItems(top = 30, skip = 0, sort?: string, order?: string): Observable<{
     totalCount: number;
     items: KnowledgeItem[];}> {
@@ -212,6 +215,34 @@ export class ODataService {
       ));
   }
 
+  public deleteKnowledgeItem(itemid: number): Observable<boolean> {
+    if (environment.mockdata) {
+      return throwError('Cannot delete in mock mode');
+    }
+
+    let headers: HttpHeaders = new HttpHeaders();
+    headers = headers.append('Content-Type', 'application/json')
+      .append('Accept', 'application/json');
+
+    return this.http.delete(`${this.apiUrl}KnowledgeItems(${itemid})`, {
+      headers
+    })
+      .pipe(map(response => {
+        // Clear it from the buffer
+        const bufidx = this.bufferedKnowledgeItems.findIndex(val => val.ID === itemid);
+        if (bufidx !== -1) {
+          this.bufferedKnowledgeItems.splice(bufidx, 1);
+        }
+
+        return true;
+      }),
+      catchError((error: HttpErrorResponse) => throwError(error.statusText + '; ' + error.error + '; ' + error.message)
+      ));
+  }
+
+  //
+  // Exercise items
+  //
   public getExerciseItems(top = 30, skip = 0, sort?: string, order?: string): Observable<{ totalCount: number; items: ExerciseItem[] }> {
     if (environment.mockdata && this.mockedExerciseItem.length > 0) {
       return of({
@@ -361,6 +392,31 @@ export class ODataService {
       catchError((error: HttpErrorResponse) => throwError(error.statusText + '; ' + error.error + '; ' + error.message) ));
   }
 
+  public deleteExerciseItem(itemid: number): Observable<boolean> {
+    if (environment.mockdata) {
+      return throwError('Cannot delete in mock mode');
+    }
+
+    let headers: HttpHeaders = new HttpHeaders();
+    headers = headers.append('Content-Type', 'application/json')
+      .append('Accept', 'application/json');
+
+    return this.http.delete(`${this.apiUrl}ExerciseItems(${itemid})`, {
+      headers
+    })
+      .pipe(map(response => {
+        // Clear it from the buffer
+        const bufidx = this.bufferedExerciseItems.findIndex(val => val.ID === itemid);
+        if (bufidx !== -1) {
+          this.bufferedExerciseItems.splice(bufidx, 1);
+        }
+
+        return true;
+      }),
+      catchError((error: HttpErrorResponse) => throwError(error.statusText + '; ' + error.error + '; ' + error.message)
+      ));
+  }
+
   public uploadFiles(files: Set<File>): { [key: string]: { result: Observable<any> } } {
 
     // this will be the our resulting map
@@ -408,7 +464,7 @@ export class ODataService {
     return status;
   }
 
-  public getTagCounts(): Observable<{ totalCount: number, items: TagCount[] }> {
+  public getTagCounts(): Observable<{ totalCount: number; items: TagCount[] }> {
     let headers: HttpHeaders = new HttpHeaders();
     headers = headers.append('Content-Type', 'application/json')
       .append('Accept', 'application/json');
@@ -445,7 +501,7 @@ export class ODataService {
       catchError((error: HttpErrorResponse) => throwError(error.statusText + '; ' + error.error + '; ' + error.message) ));
   }
 
-  public getTags(term: string, reftype?: TagReferenceType): Observable<{ totalCount: number, items: Tag[] }> {
+  public getTags(term: string, reftype?: TagReferenceType): Observable<{ totalCount: number; items: Tag[] }> {
     let headers: HttpHeaders = new HttpHeaders();
     headers = headers.append('Content-Type', 'application/json')
       .append('Accept', 'application/json');

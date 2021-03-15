@@ -11,11 +11,7 @@
     <mat-list>
       <mat-list-item *ngFor="let file of files">
         <h4 mat-line>{{file.name}}</h4>
-        <mat-progress-bar
-          *ngIf="results"
-          mode="determinate"
-          value="100"
-        ></mat-progress-bar>
+        <mat-progress-bar *ngIf="results" mode="determinate" value="100"></mat-progress-bar>
         <!-- [value]="results[file.name].progress | async" -->
       </mat-list-item>
     </mat-list>

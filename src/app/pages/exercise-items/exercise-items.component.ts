@@ -1,4 +1,4 @@
-import { Component, OnInit, ViewChild, AfterViewInit } from '@angular/core';
+import { Component, OnInit, ViewChild, AfterViewInit, EventEmitter } from '@angular/core';
 import { MatPaginator } from '@angular/material/paginator';
 import { MatSort } from '@angular/material/sort';
 import { Router } from '@angular/router';
@@ -20,6 +20,7 @@ export class ExerciseItemsComponent implements AfterViewInit {
 
   resultsLength = 0;
   isLoadingResults = true;
+  refreshEvent: EventEmitter<any> = new EventEmitter();
 
   @ViewChild(MatPaginator) paginator!: MatPaginator;
   @ViewChild(MatSort) sort!: MatSort;
@@ -35,7 +36,7 @@ export class ExerciseItemsComponent implements AfterViewInit {
     // If the user changes the sort order, reset back to the first page.
     this.sort.sortChange.subscribe(() => this.paginator.pageIndex = 0);
 
-    merge(this.sort.sortChange, this.paginator.page)
+    merge(this.sort.sortChange, this.paginator.page, this.refreshEvent)
       .pipe(
         startWith({}),
         switchMap(() => {
@@ -69,6 +70,22 @@ export class ExerciseItemsComponent implements AfterViewInit {
     });
     this.odataService.previewObjList = arobj;
     this.router.navigate(['preview']);
+  }
+
+  public onDeleteItem(itemid: number): void {
+    this.odataService.deleteExerciseItem(itemid).subscribe({
+      next: val => {
+        // Delete the item specified.
+        this.onRefreshList();
+      },
+      error: err => {
+        console.error(err);
+      }
+    });
+  }
+
+  onRefreshList(): void {
+    this.refreshEvent.emit();
   }
 
   resetPaging(): void {
