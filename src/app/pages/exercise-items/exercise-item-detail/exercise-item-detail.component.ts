@@ -64,7 +64,9 @@ export class ExerciseItemDetailComponent implements OnInit, OnDestroy {
         value: null,
         disabled: true
       }),
-      typeControl: new FormControl(),
+      typeControl: new FormControl({
+        value: ExerciseItemType.Question
+      }),
       createdAtControl: new FormControl({
         value: null,
         disabled: true
@@ -138,7 +140,7 @@ export class ExerciseItemDetailComponent implements OnInit, OnDestroy {
 
       // Create a new exercise item
       this.itemObject = new ExerciseItem();
-      this.itemObject.ItemType = this.itemFormGroup.get('typeControl')!.value as ExerciseItemType;
+      this.itemObject.ItemType = this.itemFormGroup.get('typeControl')?.value as ExerciseItemType;
       this.itemObject.Content = this.content;
       this.itemObject.Tags = this.tags;
       this.itemObject.Answer = this.answerContent;
@@ -249,7 +251,7 @@ export class ExerciseItemDetailComponent implements OnInit, OnDestroy {
   onSetItemData(val: ExerciseItem): void {
     this.itemFormGroup.get('idControl')?.setValue(val.ID);
     this.itemFormGroup.get('idControl')?.disable();
-    this.itemFormGroup.get('typeControl')?.setValue(val.ItemType);
+    this.itemFormGroup.get('typeControl')?.setValue(+val.ItemType);
     this.itemFormGroup.get('createdAtControl')?.setValue(val.CreatedAt);
     this.itemFormGroup.get('modifiedAtControl')?.setValue(val.ModifiedAt);
     this.content = val.Content;

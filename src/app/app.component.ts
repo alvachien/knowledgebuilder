@@ -17,7 +17,7 @@ export class AppComponent implements OnDestroy {
     { displayas: 'Languages.en', value: 'en' },
     { displayas: 'Languages.zh', value: 'zh' }
   ];
-  public selectedLanguage: string = 'zh';
+  public selectedLanguage = 'zh';
 
   private _mobileQueryListener: () => void;
 

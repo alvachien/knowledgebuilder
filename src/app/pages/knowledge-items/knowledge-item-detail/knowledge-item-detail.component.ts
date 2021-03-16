@@ -102,7 +102,7 @@ export class KnowledgeItemDetailComponent implements OnInit, OnDestroy {
               next: val2 => {
                 this.itemFormGroup.get('idControl')?.setValue(val2.ID);
                 this.itemFormGroup.get('titleControl')?.setValue(val2.Title);
-                this.itemFormGroup.get('ctgyControl')?.setValue(val2.ItemCategory);
+                this.itemFormGroup.get('ctgyControl')?.setValue(+val2.ItemCategory);
                 this.itemFormGroup.get('createdAtControl')?.setValue(val2.CreatedAt);
                 this.itemFormGroup.get('modifiedAtControl')?.setValue(val2.ModifiedAt);
                 this.content = val2.Content;

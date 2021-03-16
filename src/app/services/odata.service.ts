@@ -173,6 +173,9 @@ export class ODataService {
         const rsp = response as any;
         const kitem = new KnowledgeItem();
         kitem.parseData(rsp);
+        if (ki.Tags.length > 0) {
+          kitem.Tags = ki.Tags;
+        }
 
         // Add to buffer
         this.bufferedKnowledgeItems.push(kitem);
@@ -201,6 +204,9 @@ export class ODataService {
         const rsp = response as any;
         const kitem = new KnowledgeItem();
         kitem.parseData(rsp);
+        if (ki.Tags.length > 0) {
+          kitem.Tags = ki.Tags;
+        }
 
         const bufidx = this.bufferedKnowledgeItems.findIndex(val => val.ID === kitem.ID);
         if (bufidx === -1) {
@@ -314,6 +320,12 @@ export class ODataService {
         const rjs = response as any;
         const rtn = new ExerciseItem();
         rtn.parseData(rjs);
+        if (qbi.Tags.length > 0) {
+          rtn.Tags = qbi.Tags.slice();
+        }
+        if (qbi.Answer) {
+          rtn.Answer = qbi.Answer;
+        }
 
         // Add to buffer
         this.bufferedExerciseItems.push(rtn);
@@ -339,6 +351,12 @@ export class ODataService {
         const rjs = response as any;
         const rtn = new ExerciseItem();
         rtn.parseData(rjs);
+        if (qbi.Tags.length > 0) {
+          rtn.Tags = qbi.Tags.slice();
+        }
+        if (qbi.Answer) {
+          rtn.Answer = qbi.Answer;
+        }
 
         const bufidx = this.bufferedExerciseItems.findIndex(val => val.ID === rtn.ID);
         if (bufidx === -1) {
