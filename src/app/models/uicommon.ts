@@ -1,3 +1,4 @@
+import { NativeDateAdapter } from "@angular/material/core";
 
 /**
   * Date range
@@ -41,3 +42,22 @@ export interface AppLanguage {
   displayas: string;
   value: string;
 }
+
+export class AppDateAdapter extends NativeDateAdapter {format(date: Date, displayFormat: any): string {
+  if (displayFormat === 'DISPLAY') {
+    return date.toISOString();
+  }
+  return date.toDateString();
+}}
+
+export const MY_DATE_FORMATS = {
+  parse: {
+    dateInput: 'PARSE',
+  },
+  display: {
+    dateInput: 'DISPLAY',
+    monthYearLabel: 'MMM YYYY',
+    dateA11yLabel: 'LL',
+    monthYearA11yLabel: 'MMMM YYYY',
+  },
+};

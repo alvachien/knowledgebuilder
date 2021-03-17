@@ -106,10 +106,10 @@ export class ExerciseItem {
             this.Content = val.Content;
         }
         if (val && val.CreatedAt) {
-            this.CreatedAt = Date(val.CreatedAt);
+            this.CreatedAt = new Date(val.CreatedAt);
         }
         if (val && val.ModifiedAt) {
-            this.ModifiedAt = Date(val.ModifiedAt);
+            this.ModifiedAt = new Date(val.ModifiedAt);
         }
         // Answer
         if (val && val.Answer) {

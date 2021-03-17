@@ -58,8 +58,6 @@ import { QuizFailureDailogComponent } from './pages/quiz-failure-dailog';
       })
     },
     translocoLoader,
-    { provide: MAT_DATE_LOCALE, useValue: 'en-US' },
-    { provide: MAT_DATE_FORMATS, useValue: MY_DATE_FORMATS },
   ],
   entryComponents: [
     QuizFailureDailogComponent
