@@ -1,12 +1,14 @@
 ///
 /// Knowledge item
 ///
+
 export enum KnowledgeItemCategory {
     Concept     = 0,
     Formula     = 1,
 }
 
-export function getKnowledgeItemCategoryName(ctgy: KnowledgeItemCategory): string {
+
+export const getKnowledgeItemCategoryName = (ctgy: KnowledgeItemCategory): string => {
     let rtn = '';
     switch (ctgy) {
         case KnowledgeItemCategory.Formula:
@@ -19,7 +21,25 @@ export function getKnowledgeItemCategoryName(ctgy: KnowledgeItemCategory): strin
             break;
     }
     return rtn;
-}
+};
+
+export const getKnowledgeItemCategoryNames = (): any[] => {
+    const rtn = [];
+
+    for (const se in KnowledgeItemCategory) {
+      if (Number.isNaN(+se)) {
+        // Do nothing
+      } else {
+        rtn.push({
+          value: +se,
+          i18nterm: getKnowledgeItemCategoryName(+se),
+          displaystring: '',
+        });
+      }
+    }
+
+    return rtn;
+};
 
 export class KnowledgeItem {
     private _id!: number;
@@ -39,13 +59,13 @@ export class KnowledgeItem {
     get ItemCategory(): KnowledgeItemCategory   { return this._itemCtgy;    }
     set ItemCategory(ic: KnowledgeItemCategory) { this._itemCtgy = ic;      }
     get Tags(): string[]                        { return this._tags;        }
-    set Tags(tag: string[]) { 
+    set Tags(tag: string[]) {
         this._tags = tag.slice();
     }
     get CreatedAt(): Date | undefined   { return this._createdAt;   }
     set CreatedAt(ca: Date | undefined) { this._createdAt = ca;     }
     get ModifiedAt(): Date | undefined   { return this._modifiedAt;   }
-    set ModifiedAt(ua: Date | undefined) { this._modifiedAt = ua;     } 
+    set ModifiedAt(ua: Date | undefined) { this._modifiedAt = ua;     }
 
     public parseData(val: any) {
         if (val && val.ID) {

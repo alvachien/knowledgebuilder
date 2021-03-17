@@ -20,9 +20,8 @@
             <!-- Category -->
             <mat-form-field appearance="fill" class="control-full-width">
                 <mat-label>{{'Category' | transloco}}</mat-label>
-                <mat-select required formControlName="ctgyControl">
-                    <mat-option value="0">{{'KnowledgeItemCategory.Concept' | transloco}}</mat-option>
-                    <mat-option value="1">{{'KnowledgeItemCategory.Formula' | transloco}}</mat-option>
+                <mat-select required formControlName="ctgyControl">                    
+                    <mat-option *ngFor="let ctgy of arKnowledgeCtgies" [value]="ctgy.value">{{ctgy.i18nterm | transloco}}</mat-option>
                 </mat-select>
             </mat-form-field>
             
@@ -78,5 +77,6 @@
     <mat-card-actions>
         <button mat-button (click)="onOK()" [disabled]="!(isEditable && itemFormGroup.valid)">{{'Save' | transloco}}</button>
         <button mat-button (click)="onReturnToList()">{{'Common.ReturnToList' | transloco}}</button>
+        <button mat-button (click)="onCreateNewOne()" [disabled]="!isDisplayMode">{{'Common.CreateAnotherOne' | transloco}}</button>
     </mat-card-actions>
 </mat-card>

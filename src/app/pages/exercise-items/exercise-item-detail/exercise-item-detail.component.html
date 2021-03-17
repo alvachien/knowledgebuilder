@@ -15,11 +15,7 @@
             <mat-form-field appearance="fill" class="control-full-width">
                 <mat-label>{{'Type' | transloco}}</mat-label>
                 <mat-select required formControlName="typeControl">
-                    <mat-option value="0">{{'ExerciseItemType.Question' | transloco}}</mat-option>
-                    <mat-option value="1">{{'ExerciseItemType.SingleChoice' | transloco}}</mat-option>
-                    <mat-option value="2">{{'ExerciseItemType.MultipleChoices' | transloco}}</mat-option>
-                    <mat-option value="3">{{'ExerciseItemType.ShortAnswer' | transloco}}</mat-option>
-                    <mat-option value="4">{{'ExerciseItemType.EssayQuestion' | transloco}}</mat-option>
+                    <mat-option *ngFor="let et of arExerciseTypes" [value]="et.value">{{et.i18nterm | transloco}}</mat-option>
                 </mat-select>
             </mat-form-field>
 
@@ -98,5 +94,6 @@
     <mat-card-actions>
         <button mat-button (click)="onOK()" [disabled]="!(isEditable && itemFormGroup.valid)">{{'Save' | transloco}}</button>
         <button mat-button (click)="onReturnToList()">{{'Common.ReturnToList' | transloco}}</button>
+        <button mat-button (click)="onCreateNewOne()" [disabled]="!isDisplayMode">{{'Common.CreateAnotherOne' | transloco}}</button>
     </mat-card-actions>
 </mat-card>

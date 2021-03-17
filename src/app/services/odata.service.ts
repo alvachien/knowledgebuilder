@@ -133,7 +133,7 @@ export class ODataService {
       .append('Accept', 'application/json');
 
     let params: HttpParams = new HttpParams();
-    params = params.append('$select', 'ID,Category,Title,Content');
+    params = params.append('$select', 'ID,Category,Title,Content,CreatedAt,ModifiedAt');
     params = params.append('$expand', 'Tags');
     return this.http.get(`${this.apiUrl}KnowledgeItems(${kid})`, {
       headers,

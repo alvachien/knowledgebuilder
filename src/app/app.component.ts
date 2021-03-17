@@ -1,6 +1,7 @@
 import {ChangeDetectorRef, Component, OnDestroy} from '@angular/core';
 import { MediaMatcher } from '@angular/cdk/layout';
 import { TranslocoService } from '@ngneat/transloco';
+import { DateAdapter } from '@angular/material/core';
 
 import { AppNavItem, AppLanguage, AppNavItemGroupEnum } from './models';
 
@@ -24,6 +25,7 @@ export class AppComponent implements OnDestroy {
   constructor(changeDetectorRef: ChangeDetectorRef,
     media: MediaMatcher,
     private translocoService: TranslocoService,
+    private dateAdapter: DateAdapter<any>
   ) {
     this.mobileQuery = media.matchMedia('(max-width: 600px)');
     this._mobileQueryListener = () => changeDetectorRef.detectChanges();
@@ -57,8 +59,10 @@ export class AppComponent implements OnDestroy {
     this.selectedLanguage = lang;
     if (lang === 'en') {
       this.translocoService.setActiveLang('en');
+      this.dateAdapter.setLocale('en');
     } else {
       this.translocoService.setActiveLang('zh');
+      this.dateAdapter.setLocale('zh');
     }
   }
 

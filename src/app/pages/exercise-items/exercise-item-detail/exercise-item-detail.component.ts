@@ -8,7 +8,7 @@ import { KatexOptions } from 'ngx-markdown';
 import { MatChipInputEvent } from '@angular/material/chips';
 import { UIMode } from 'actslib';
 
-import { ExerciseItem, ExerciseItemType } from '../../../models/exercise-item';
+import { ExerciseItem, ExerciseItemType, getExerciseItemTypeNames } from '../../../models/exercise-item';
 import { ODataService } from '../../../services';
 import { ImageUploadComponent } from '../../image-upload/image-upload.component';
 
@@ -39,7 +39,8 @@ export class ExerciseItemDetailComponent implements OnInit, OnDestroy {
   selectable = true;
   addOnBlur = true;
   readonly separatorKeysCodes: number[] = [ENTER, COMMA];
-  public tags: string[] = [];
+  tags: string[] = [];
+  arExerciseTypes: any[] = [];
 
   get isDisplayMode(): boolean {
     return this.uiMode === UIMode.Display;
@@ -59,7 +60,8 @@ export class ExerciseItemDetailComponent implements OnInit, OnDestroy {
     private activateRoute: ActivatedRoute,
     private router: Router,
     private odataService: ODataService) {
-    this.itemFormGroup = new FormGroup({
+      this.arExerciseTypes = getExerciseItemTypeNames();
+      this.itemFormGroup = new FormGroup({
       idControl: new FormControl({
         value: null,
         disabled: true
@@ -266,5 +268,9 @@ export class ExerciseItemDetailComponent implements OnInit, OnDestroy {
 
   onReturnToList() {
     this.router.navigate(['exercise-item']);
+  }
+
+  onCreateNewOne(): void {
+    this.router.navigate(['exercise-item', 'create']);
   }
 }

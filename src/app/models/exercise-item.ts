@@ -38,6 +38,24 @@ export const getExerciseItemTypeName = (reftype: ExerciseItemType): string => {
     return rtn;
 };
 
+export const getExerciseItemTypeNames = (): any[] => {
+    const rtn = [];
+
+    for (const se in ExerciseItemType) {
+      if (Number.isNaN(+se)) {
+        // Do nothing
+      } else {
+        rtn.push({
+          value: +se,
+          i18nterm: getExerciseItemTypeName(+se),
+          displaystring: '',
+        });
+      }
+    }
+
+    return rtn;
+};
+
 //
 // Exercise Item
 //
@@ -88,10 +106,10 @@ export class ExerciseItem {
             this.Content = val.Content;
         }
         if (val && val.CreatedAt) {
-            this.CreatedAt = new Date(val.CreatedAt);
+            this.CreatedAt = Date(val.CreatedAt);
         }
         if (val && val.ModifiedAt) {
-            this.ModifiedAt = new Date(val.ModifiedAt);
+            this.ModifiedAt = Date(val.ModifiedAt);
         }
         // Answer
         if (val && val.Answer) {

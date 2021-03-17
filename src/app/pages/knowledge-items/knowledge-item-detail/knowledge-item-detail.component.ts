@@ -10,7 +10,7 @@ import { UIMode } from 'actslib';
 
 import { ODataService } from '../../../services';
 import { ImageUploadComponent } from '../../image-upload/image-upload.component';
-import { KnowledgeItemCategory, KnowledgeItem, } from 'src/app/models';
+import { KnowledgeItemCategory, KnowledgeItem, getKnowledgeItemCategoryNames, } from 'src/app/models';
 
 @Component({
   selector: 'app-knowledge-item-detail',
@@ -36,7 +36,8 @@ export class KnowledgeItemDetailComponent implements OnInit, OnDestroy {
   selectable = true;
   addOnBlur = true;
   readonly separatorKeysCodes: number[] = [ENTER, COMMA];
-  public tags: string[] = [];
+  tags: string[] = [];
+  arKnowledgeCtgies: any[] = [];
 
   get isDisplayMode(): boolean {
     return this.uiMode === UIMode.Display;
@@ -56,13 +57,16 @@ export class KnowledgeItemDetailComponent implements OnInit, OnDestroy {
     private activateRoute: ActivatedRoute,
     private router: Router,
     private odataService: ODataService) {
+    this.arKnowledgeCtgies = getKnowledgeItemCategoryNames();
     this.itemFormGroup = new FormGroup({
       idControl: new FormControl({
         value: null,
         disabled: true
       }),
       titleControl: new FormControl('', Validators.required),
-      ctgyControl: new FormControl(),
+      ctgyControl: new FormControl({
+        value: KnowledgeItemCategory.Concept,
+      }),
       createdAtControl: new FormControl({
         value: null,
         disabled: true
@@ -121,6 +125,10 @@ export class KnowledgeItemDetailComponent implements OnInit, OnDestroy {
         } else {
           this.itemFormGroup.get('idControl')?.setValue('NEW');
           this.itemFormGroup.get('idControl')?.disable();
+          this.itemFormGroup.get('createdAtControl')?.setValue(Date.now);
+          this.itemFormGroup.get('modifiedAtControl')?.disable();
+          this.itemFormGroup.markAsPristine();
+          this.itemFormGroup.markAsUntouched();
         }
       },
       error: err => {
@@ -149,7 +157,7 @@ export class KnowledgeItemDetailComponent implements OnInit, OnDestroy {
 
       // Create a new knowlege item
       const kitem = new KnowledgeItem();
-      kitem.ItemCategory = KnowledgeItemCategory.Concept;
+      kitem.ItemCategory = this.itemFormGroup.get('ctgyControl')?.value;;
       kitem.Content = this.content;
       kitem.Title = this.itemFormGroup.get('titleControl')?.value;
       kitem.Tags = this.tags;
@@ -160,6 +168,7 @@ export class KnowledgeItemDetailComponent implements OnInit, OnDestroy {
         },
         error: err => {
           // Error
+          console.error(err);
         }
       });
     } else if(this.isUpdateMode) {
@@ -171,20 +180,21 @@ export class KnowledgeItemDetailComponent implements OnInit, OnDestroy {
         return;
       }
 
-      // Create a new knowlege item
+      // Update a new knowlege item
       const kitem = new KnowledgeItem();
       kitem.ID = this.itemFormGroup.get('idControl')?.value;
-      kitem.ItemCategory = KnowledgeItemCategory.Concept;
+      kitem.ItemCategory = this.itemFormGroup.get('ctgyControl')?.value;;
       kitem.Content = this.content;
       kitem.Title = this.itemFormGroup.get('titleControl')?.value;
       kitem.Tags = this.tags;
       this.odataService.changeKnowledgeItem(kitem).subscribe({
         next: val => {
           // Succeed
-          this.router.navigate(['knowledge-item/display', kitem.ID]);
+          this.router.navigate(['knowledge-item/display', val.ID]);
         },
         error: err => {
           // Error
+          console.error(err);
         }
       });
     }
@@ -235,5 +245,8 @@ export class KnowledgeItemDetailComponent implements OnInit, OnDestroy {
   }
   onReturnToList() {
     this.router.navigate(['knowledge-item']);
+  }
+  onCreateNewOne(): void {
+    this.router.navigate(['knowledge-item', 'create']);
   }
 }
