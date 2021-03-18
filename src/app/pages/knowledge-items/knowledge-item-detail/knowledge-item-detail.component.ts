@@ -185,7 +185,7 @@ export class KnowledgeItemDetailComponent implements OnInit, OnDestroy {
             // Error
             console.error(err);
           }
-        });  
+        });
       }
     }
   }

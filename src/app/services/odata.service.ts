@@ -15,8 +15,8 @@ export interface PreviewObject {
   providedIn: 'root'
 })
 export class ODataService {
-  apiUrl = `${environment.apiurl_root}/odata/`;
-  uploadUrl = `${environment.apiurl_root}/api/ImageUpload`;
+  apiUrl = `${environment.apiurlRoot}/odata/`;
+  uploadUrl = `${environment.apiurlRoot}/api/ImageUpload`;
 
   private isMetadataLoaded = false;
   private metadataInfo = '';
@@ -197,25 +197,17 @@ export class ODataService {
 
     const jdata = ki.generateString(true);
     return this.http.put(`${this.apiUrl}KnowledgeItems(${ki.ID})`, jdata, {
-      headers
-      // params,
-    })
+        headers
+      })
       .pipe(map(response => {
-        const rsp = response as any;
-        const kitem = new KnowledgeItem();
-        kitem.parseData(rsp);
-        if (ki.Tags.length > 0) {
-          kitem.Tags = ki.Tags;
-        }
-
-        const bufidx = this.bufferedKnowledgeItems.findIndex(val => val.ID === kitem.ID);
+        const bufidx = this.bufferedKnowledgeItems.findIndex(val => val.ID === ki.ID);
         if (bufidx === -1) {
-          this.bufferedKnowledgeItems.push(kitem);
+          this.bufferedKnowledgeItems.push(ki);
         } else {
-          this.bufferedKnowledgeItems[bufidx] = kitem;
+          this.bufferedKnowledgeItems[bufidx] = ki;
         }
 
-        return kitem;
+        return ki;
       }),
       catchError((error: HttpErrorResponse) => throwError(error.statusText + '; ' + error.error + '; ' + error.message)
       ));
@@ -348,24 +340,14 @@ export class ODataService {
       headers,
     })
       .pipe(map(response => {
-        const rjs = response as any;
-        const rtn = new ExerciseItem();
-        rtn.parseData(rjs);
-        if (qbi.Tags.length > 0) {
-          rtn.Tags = qbi.Tags.slice();
-        }
-        if (qbi.Answer) {
-          rtn.Answer = qbi.Answer;
-        }
-
-        const bufidx = this.bufferedExerciseItems.findIndex(val => val.ID === rtn.ID);
+        const bufidx = this.bufferedExerciseItems.findIndex(val => val.ID === qbi.ID);
         if (bufidx === -1) {
-          this.bufferedExerciseItems.push(rtn);
+          this.bufferedExerciseItems.push(qbi);
         } else {
-          this.bufferedExerciseItems[bufidx] = rtn;
+          this.bufferedExerciseItems[bufidx] = qbi;
         }
 
-        return rtn;
+        return qbi;
       }),
       catchError((error: HttpErrorResponse) => throwError(error.statusText + '; ' + error.error + '; ' + error.message) ));
   }
@@ -459,13 +441,13 @@ export class ODataService {
           const body = bodys[0];
           result.next({
             delete_type: body.delete_type,
-            delete_url: `${environment.apiurl_root}${body.delete_url}`,
+            delete_url: `${environment.apiurlRoot}${body.delete_url}`,
             name: body.name,
             progress: 1,
             size: body.size,
-            thumbnail_url: `${environment.apiurl_root}${body.thumbnail_url}`,
+            thumbnail_url: `${environment.apiurlRoot}${body.thumbnail_url}`,
             type: body.type,
-            url: `${environment.apiurl_root}${body.url}`,
+            url: `${environment.apiurlRoot}${body.url}`,
           });
 
           result.complete();
