@@ -11,7 +11,7 @@ import { ImageUploadModule } from '../image-upload/image-upload.module';
 import { ExerciseItemsRoutingModule } from './exercise-items-routing.module';
 import { ExerciseItemsComponent } from './exercise-items.component';
 import { ExerciseItemDetailComponent } from './exercise-item-detail';
-import { MY_DATE_FORMATS, AppDateAdapter, } from 'src/app/models';
+// import { MY_DATE_FORMATS, AppDateAdapter, } from 'src/app/models';
 
 @NgModule({
   declarations: [
@@ -30,8 +30,8 @@ import { MY_DATE_FORMATS, AppDateAdapter, } from 'src/app/models';
     TranslocoModule,
   ],
   providers: [
-    { provide: DateAdapter, useClass: AppDateAdapter },
-    { provide: MAT_DATE_FORMATS, useValue: MY_DATE_FORMATS },
+    // { provide: DateAdapter, useClass: AppDateAdapter },
+    // { provide: MAT_DATE_FORMATS, useValue: MY_DATE_FORMATS },
   ]
 })
 export class ExerciseItemsModule { }

@@ -1,4 +1,6 @@
+import { Injectable } from "@angular/core";
 import { NativeDateAdapter } from "@angular/material/core";
+import { MatPaginatorIntl } from '@angular/material/paginator';
 
 /**
   * Date range
@@ -43,21 +45,42 @@ export interface AppLanguage {
   value: string;
 }
 
-export class AppDateAdapter extends NativeDateAdapter {format(date: Date, displayFormat: any): string {
-  if (displayFormat === 'DISPLAY') {
-    return date.toISOString();
-  }
-  return date.toDateString();
-}}
+// @Injectable()
+// export class AppDateAdapter extends NativeDateAdapter {format(date: Date, displayFormat: any): string {
+//   if (displayFormat === 'DISPLAY') {
+//     return date.toISOString();
+//   }
+//   return date.toDateString();
+// }}
 
-export const MY_DATE_FORMATS = {
-  parse: {
-    dateInput: 'PARSE',
-  },
-  display: {
-    dateInput: 'DISPLAY',
-    monthYearLabel: 'MMM YYYY',
-    dateA11yLabel: 'LL',
-    monthYearA11yLabel: 'MMMM YYYY',
-  },
-};
+// export const MY_DATE_FORMATS = {
+//   parse: {
+//     dateInput: 'PARSE',
+//   },
+//   display: {
+//     dateInput: 'DISPLAY',
+//     monthYearLabel: 'MMM YYYY',
+//     dateA11yLabel: 'LL',
+//     monthYearA11yLabel: 'MMMM YYYY',
+//   },
+// };
+
+// @Injectable()
+// export class MatPaginatorIntlCro extends MatPaginatorIntl {
+//   itemsPerPageLabel = 'Stavki po stranici';
+//   nextPageLabel     = 'Slijedeća stranica';
+//   previousPageLabel = 'Prethodna stranica';
+
+//   getRangeLabel = function (page, pageSize, length) {
+//     if (length === 0 || pageSize === 0) {
+//       return '0 od ' + length;
+//     }
+//     length = Math.max(length, 0);
+//     const startIndex = page * pageSize;
+//     // If the start index exceeds the list length, do not try and fix the end index to the end.
+//     const endIndex = startIndex < length ?
+//       Math.min(startIndex + pageSize, length) :
+//       startIndex + pageSize;
+//     return startIndex + 1 + ' - ' + endIndex + ' od ' + length;
+//   };
+// }

@@ -38,6 +38,7 @@ export class KnowledgeItemDetailComponent implements OnInit, OnDestroy {
   readonly separatorKeysCodes: number[] = [ENTER, COMMA];
   tags: string[] = [];
   arKnowledgeCtgies: any[] = [];
+  currentItem: KnowledgeItem | undefined;
 
   get isDisplayMode(): boolean {
     return this.uiMode === UIMode.Display;
@@ -66,14 +67,6 @@ export class KnowledgeItemDetailComponent implements OnInit, OnDestroy {
       titleControl: new FormControl('', Validators.required),
       ctgyControl: new FormControl({
         value: KnowledgeItemCategory.Concept,
-      }),
-      createdAtControl: new FormControl({
-        value: null,
-        disabled: true
-      }),
-      modifiedAtControl: new FormControl({
-        value: null,
-        disabled: true
       }),
       tagControl: new FormControl(),
     });
@@ -107,10 +100,9 @@ export class KnowledgeItemDetailComponent implements OnInit, OnDestroy {
                 this.itemFormGroup.get('idControl')?.setValue(val2.ID);
                 this.itemFormGroup.get('titleControl')?.setValue(val2.Title);
                 this.itemFormGroup.get('ctgyControl')?.setValue(+val2.ItemCategory);
-                this.itemFormGroup.get('createdAtControl')?.setValue(val2.CreatedAt);
-                this.itemFormGroup.get('modifiedAtControl')?.setValue(val2.ModifiedAt);
                 this.content = val2.Content;
                 this.tags = val2.Tags;
+                this.currentItem = val2;
 
                 if (this.isDisplayMode) {
                   this.itemFormGroup.disable(); // Readonly mode
@@ -125,8 +117,6 @@ export class KnowledgeItemDetailComponent implements OnInit, OnDestroy {
         } else {
           this.itemFormGroup.get('idControl')?.setValue('NEW');
           this.itemFormGroup.get('idControl')?.disable();
-          this.itemFormGroup.get('createdAtControl')?.setValue(Date.now);
-          this.itemFormGroup.get('modifiedAtControl')?.disable();
           this.itemFormGroup.markAsPristine();
           this.itemFormGroup.markAsUntouched();
         }
@@ -181,22 +171,22 @@ export class KnowledgeItemDetailComponent implements OnInit, OnDestroy {
       }
 
       // Update a new knowlege item
-      const kitem = new KnowledgeItem();
-      kitem.ID = this.itemFormGroup.get('idControl')?.value;
-      kitem.ItemCategory = this.itemFormGroup.get('ctgyControl')?.value;;
-      kitem.Content = this.content;
-      kitem.Title = this.itemFormGroup.get('titleControl')?.value;
-      kitem.Tags = this.tags;
-      this.odataService.changeKnowledgeItem(kitem).subscribe({
-        next: val => {
-          // Succeed
-          this.router.navigate(['knowledge-item/display', val.ID]);
-        },
-        error: err => {
-          // Error
-          console.error(err);
-        }
-      });
+      if (this.currentItem) {
+        this.currentItem.ItemCategory = this.itemFormGroup.get('ctgyControl')?.value;;
+        this.currentItem.Content = this.content;
+        this.currentItem.Title = this.itemFormGroup.get('titleControl')?.value;
+        this.currentItem.Tags = this.tags;
+        this.odataService.changeKnowledgeItem(this.currentItem).subscribe({
+          next: val => {
+            // Succeed
+            this.router.navigate(['knowledge-item/display', val.ID]);
+          },
+          error: err => {
+            // Error
+            console.error(err);
+          }
+        });  
+      }
     }
   }
 

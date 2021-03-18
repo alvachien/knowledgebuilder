@@ -12,7 +12,7 @@ import { ImageUploadModule } from '../image-upload/image-upload.module';
 import { KnowledgeItemsRoutingModule } from './knowledge-items-routing.module';
 import { KnowledgeItemsComponent } from './knowledge-items.component';
 import { KnowledgeItemDetailComponent } from './knowledge-item-detail/knowledge-item-detail.component';
-import { MY_DATE_FORMATS, AppDateAdapter, } from 'src/app/models';
+// import { MY_DATE_FORMATS, AppDateAdapter, } from 'src/app/models';
 
 @NgModule({
   declarations: [
@@ -31,8 +31,8 @@ import { MY_DATE_FORMATS, AppDateAdapter, } from 'src/app/models';
     TranslocoModule,
   ],
   providers: [
-    { provide: DateAdapter, useClass: AppDateAdapter },
-    { provide: MAT_DATE_FORMATS, useValue: MY_DATE_FORMATS },
+    // { provide: DateAdapter, useClass: AppDateAdapter },
+    // { provide: MAT_DATE_FORMATS, useValue: MY_DATE_FORMATS },
   ]
 })
 export class KnowledgeItemsModule { }

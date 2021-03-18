@@ -28,7 +28,8 @@
         "ReturnToList": "返回列表页",
         "ListView": "列表页",
         "Preview": "预览",
-        "Refresh": "刷新"
+        "Refresh": "刷新",
+        "CreateAnotherOne": "新建一条"
     },
     "Type": "类别",
     "Create": "创建",

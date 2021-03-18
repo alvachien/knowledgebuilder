@@ -91,4 +91,7 @@ export class KnowledgeItemsComponent implements AfterViewInit {
   resetPaging(): void {
     this.paginator.pageIndex = 0;
   }
+
+  // public applyFilter(): void {
+  // }
 }

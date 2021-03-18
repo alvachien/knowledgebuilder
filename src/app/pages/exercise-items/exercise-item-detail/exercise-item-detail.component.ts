@@ -21,7 +21,7 @@ export class ExerciseItemDetailComponent implements OnInit, OnDestroy {
 
   private destroyed$?: ReplaySubject<boolean>;
   private routerID = -1;
-  private itemObject: ExerciseItem | undefined;
+  itemObject: ExerciseItem | undefined;
 
   uiMode: UIMode = UIMode.Create;
   currentMode = '';
@@ -68,14 +68,6 @@ export class ExerciseItemDetailComponent implements OnInit, OnDestroy {
       }),
       typeControl: new FormControl({
         value: ExerciseItemType.Question
-      }),
-      createdAtControl: new FormControl({
-        value: null,
-        disabled: true
-      }),
-      modifiedAtControl: new FormControl({
-        value: null,
-        disabled: true
       }),
       knowledgeControl: new FormControl(),
       tagControl: new FormControl(),
@@ -165,7 +157,7 @@ export class ExerciseItemDetailComponent implements OnInit, OnDestroy {
         return;
       }
 
-      // Create a new exercise item
+      // Update existing exercise item
       if (this.itemObject) {
         this.itemObject.ItemType = this.itemFormGroup.get('typeControl')!.value as ExerciseItemType;
         this.itemObject.Content = this.content;
@@ -254,8 +246,6 @@ export class ExerciseItemDetailComponent implements OnInit, OnDestroy {
     this.itemFormGroup.get('idControl')?.setValue(val.ID);
     this.itemFormGroup.get('idControl')?.disable();
     this.itemFormGroup.get('typeControl')?.setValue(+val.ItemType);
-    this.itemFormGroup.get('createdAtControl')?.setValue(val.CreatedAt);
-    this.itemFormGroup.get('modifiedAtControl')?.setValue(val.ModifiedAt);
     this.content = val.Content;
     this.tags = val.Tags;
 

@@ -19,22 +19,6 @@
                 </mat-select>
             </mat-form-field>
 
-            <!-- Created At -->
-            <mat-form-field appearance="fill" class="control-full-width">
-                <mat-label>{{'CreatedAt' | transloco}}</mat-label>
-                <input matInput [matDatepicker]="createdAt" formControlName="createdAtControl">
-                <mat-datepicker-toggle matSuffix [for]="createdAt"></mat-datepicker-toggle>
-                <mat-datepicker #createdAt></mat-datepicker>
-            </mat-form-field>
-
-            <!-- Modified At -->
-            <mat-form-field appearance="fill" class="control-full-width">
-                <mat-label>{{'ModifiedAt' | transloco}}</mat-label>
-                <input matInput [matDatepicker]="modifiedAt" formControlName="modifiedAtControl">
-                <mat-datepicker-toggle matSuffix [for]="modifiedAt"></mat-datepicker-toggle>
-                <mat-datepicker #modifiedAt></mat-datepicker>
-            </mat-form-field>
-
             <!-- Tags -->
             <mat-form-field appearance="fill" class="control-full-width">
                 <mat-label>{{'Tags' | transloco}}</mat-label>
@@ -56,6 +40,23 @@
                 <input matInput type="text" placeholder="Knowledge ID" formControlName="knowledgeControl">
             </mat-form-field>
         </form>
+
+        <!-- Administrive fields -->
+        <div *ngIf="!isCreateMode && itemObject" fxLayout="row" class="control-full-width">
+            <div fxFlex="50">
+                <mat-form-field appearance="fill" class="control-full-width">
+                    <mat-label>{{'CreatedAt' | transloco}}</mat-label>
+                    <input matInput type="text" disabled placeholder="{{'CreatedAt' | transloco}}" [ngModel]="itemObject.CreatedAt | date: 'yyyy-M-d HH:mm:ss'">
+                </mat-form-field>
+            </div>
+
+            <div fxFlex="50">
+                <mat-form-field appearance="fill" class="control-full-width">
+                    <mat-label>{{'ModifiedAt' | transloco}}</mat-label>
+                    <input matInput type="text" disabled placeholder="{{'ModifiedAt' | transloco}}" [ngModel]="itemObject.ModifiedAt | date: 'yyyy-M-d HH:mm:ss'">
+                </mat-form-field>
+            </div>
+        </div>
 
         <!-- Content -->
         <mat-toolbar *ngIf="isCreateMode">

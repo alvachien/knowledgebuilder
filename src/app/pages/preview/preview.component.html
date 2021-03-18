@@ -5,46 +5,26 @@
 
 <mat-divider></mat-divider>
 
-<div *ngIf="selectedObj && selectedObj.refType === 1" style="margin: 8px;">
+<div *ngIf="selectedObj && selectedObj.refType === 1 && selectedKnowledge" style="margin: 8px;">
     <!-- Knowledge Item-->
-    <ul>
-        <li>
-            <mat-form-field>
-                <mat-label>ID</mat-label>
-                <input matInput disabled [ngModel]="selectedKnowledge!.ID">
-            </mat-form-field>
-        </li>
-        <li>
-            <mat-form-field>
-                <mat-label>{{'Title' | transloco}}</mat-label>
-                <input matInput disabled [ngModel]="selectedKnowledge!.Title">
-            </mat-form-field>
-        </li>
-        <li>
-            <markdown emoji [data]="selectedKnowledge!.Content" katex [katexOptions]="mathOptions"></markdown>
-        </li>
-    </ul>
+    <div class="control-full-width"><span>ID: </span>{{selectedKnowledge.ID}}</div>
+    <mat-divider></mat-divider>
+    <div class="control-full-width"><span>{{'Title' | transloco}}: </span>{{selectedKnowledge.Title}}</div>
+    <mat-divider></mat-divider>
+    <div class="control-full-width">
+        <markdown emoji [data]="selectedKnowledge.Content" katex [katexOptions]="mathOptions"></markdown>
+    </div>
 </div>
 
-<div *ngIf="selectedObj && selectedObj.refType === 2" style="margin: 8px;">
+<div *ngIf="selectedObj && selectedObj.refType === 2 && selectedExercise" style="margin: 8px;">
     <!-- Exercise Item-->
-    <ul>
-        <li>
-            <mat-form-field>
-                <mat-label>ID</mat-label>
-                <input matInput disabled [ngModel]="selectedExercise!.ID">
-            </mat-form-field>
-        </li>
-        <li>
-            <mat-form-field>
-                <mat-label>{{'Tag' | transloco}}</mat-label>
-                <input matInput disabled [ngModel]="selectedExercise!.Tags.toString()">
-            </mat-form-field>
-        </li>
-        <li>
-            <markdown emoji [data]="selectedExercise!.Content" katex [katexOptions]="mathOptions"></markdown>
-        </li>
-    </ul>
+    <div class="control-full-width"><span>ID: </span>{{selectedExercise.ID}}</div>
+    <mat-divider></mat-divider>
+    <div class="control-full-width"><span>{{'Tags' | transloco}}: </span>{{selectedExercise.Tags.toString()}}</div>
+    <mat-divider></mat-divider>
+    <div class="control-full-width">
+        <markdown emoji [data]="selectedExercise.Content" katex [katexOptions]="mathOptions"></markdown>
+    </div>
 </div>
 
 <mat-divider></mat-divider>

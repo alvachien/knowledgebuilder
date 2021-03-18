@@ -28,7 +28,8 @@
         "ReturnToList": "RETURN TO LIST",
         "ListView": "LIST VIEW",
         "Preview": "PREVIEW",
-        "Refresh": "REFRESH"
+        "Refresh": "REFRESH",
+        "CreateAnotherOne": "CREATE ANOTHER ONE"
     },
     "Type": "Type",
     "Create": "Create",
