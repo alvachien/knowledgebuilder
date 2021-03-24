@@ -20,8 +20,10 @@ export class DivisionExerciseComponent implements OnInit, OnDestroy, CanDeactiva
   quizControlFormGroup: FormGroup = new FormGroup({
     countControl: new FormControl(20, [Validators.required, Validators.min(1), Validators.max(1000)]),
     failedFactorControl: new FormControl(2, [Validators.min(0), Validators.max(10)]),
-    leftNumberControl: new FormControl(0),
+    leftNumberControl: new FormControl(1),
     rightNumberControl: new FormControl(100),
+    leftNumber2Control: new FormControl(1),
+    rightNumber2Control: new FormControl(10),
     decControl: new FormControl(0, [Validators.min(0), Validators.max(5)])
   }, { validators: this.basicValidator });
   QuizItems: DivisionQuizItem[] = [];
@@ -107,9 +109,6 @@ export class DivisionExerciseComponent implements OnInit, OnDestroy, CanDeactiva
         const failedfactor = this.quizControlFormGroup.get('failedFactorControl')!.value;
 
         if (failedItems.length > 0 && failedfactor > 0) {
-          // this.snackBar.open(`Failed items: ${failedItems.length}, please retry`, undefined, {
-          //   duration: 2000,
-          // });
           this.quizService.FailedQuizItems = failedItems;
           this.quizService.CurrentScore = (this.QuizItems.length - failedItems.length) / this.QuizItems.length;
           const dialogRef = this.dialog.open(QuizFailureDailogComponent, {
@@ -161,12 +160,14 @@ export class DivisionExerciseComponent implements OnInit, OnDestroy, CanDeactiva
     }
   }
 
-  private getNumber(): number {
+  private getNumber(isdivisor = false): number {
     let mfactor = 0;
     const decplace = this.quizControlFormGroup.get('decControl')!.value;
     mfactor = Math.pow(10, decplace);
-    const leftNumb = mfactor * this.quizControlFormGroup.get('leftNumberControl')!.value;
-    const rightNumb = mfactor * this.quizControlFormGroup.get('rightNumberControl')!.value;
+    const leftNumb = isdivisor ? mfactor * this.quizControlFormGroup.get('leftNumber2Control')!.value
+      : mfactor * this.quizControlFormGroup.get('leftNumberControl')!.value;
+    const rightNumb = isdivisor ? mfactor * this.quizControlFormGroup.get('rightNumber2Control')!.value
+      : mfactor * this.quizControlFormGroup.get('rightNumberControl')!.value;
 
     let rnum1 = Math.round(Math.random() * ( rightNumb - leftNumb )) + leftNumb;
     if (mfactor !== 0) {
@@ -177,7 +178,7 @@ export class DivisionExerciseComponent implements OnInit, OnDestroy, CanDeactiva
   private generateQuizItem(idx: number): DivisionQuizItem {
     const decplace = this.quizControlFormGroup.get('decControl')!.value;
 
-    const qz: DivisionQuizItem = new DivisionQuizItem(this.getNumber(), this.getNumber(), decplace);
+    const qz: DivisionQuizItem = new DivisionQuizItem(this.getNumber(), this.getNumber(true), decplace);
     qz.QuizIndex = idx;
     return qz;
   }

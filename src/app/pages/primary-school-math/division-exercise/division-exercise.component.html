@@ -16,15 +16,29 @@
       </mat-form-field>
 
       <div class="control-full-width" fxLayout="row">
-        <div fxFlex="50">
-          <mat-form-field>
-            <input matInput type="number" placeholder="{{ 'MathExercise.Number' | transloco }}" formControlName="leftNumberControl" required />
-          </mat-form-field>
+        <div fxFlex="50" fxLayout="row">
+          <div fxFlex="50">
+            <mat-form-field>
+              <input matInput type="number" placeholder="{{ 'MathExercise.Dividend' | transloco }}" formControlName="leftNumberControl" required />
+            </mat-form-field>
+          </div>
+          <div fxFlex>
+            <mat-form-field>
+              <input matInput type="number" placeholder="{{ 'MathExercise.Dividend' | transloco }}" formControlName="rightNumberControl" required />
+            </mat-form-field>
+          </div>
         </div>
         <div fxFlex>
-          <mat-form-field>
-            <input matInput type="number" placeholder="{{ 'MathExercise.Number' | transloco }}" formControlName="rightNumberControl" required />
-          </mat-form-field>
+          <div fxFlex="50">
+            <mat-form-field>
+              <input matInput type="number" placeholder="{{ 'MathExercise.Divisor' | transloco }}" formControlName="leftNumber2Control" required />
+            </mat-form-field>
+          </div>
+          <div fxFlex>
+            <mat-form-field>
+              <input matInput type="number" placeholder="{{ 'MathExercise.Divisor' | transloco }}" formControlName="rightNumber2Control" required />
+            </mat-form-field>
+          </div>          
         </div>
       </div>
       <mat-form-field>
