@@ -11,12 +11,16 @@ import { ImageUploadModule } from '../image-upload/image-upload.module';
 import { ExerciseItemsRoutingModule } from './exercise-items-routing.module';
 import { ExerciseItemsComponent } from './exercise-items.component';
 import { ExerciseItemDetailComponent } from './exercise-item-detail';
+import { ExerciseItemSearchComponent } from './exercise-item-search';
+import { OperatorFilterPipe } from 'src/app/pipes';
 // import { MY_DATE_FORMATS, AppDateAdapter, } from 'src/app/models';
 
 @NgModule({
   declarations: [
     ExerciseItemsComponent,
     ExerciseItemDetailComponent,
+    ExerciseItemSearchComponent,
+    OperatorFilterPipe,
   ],
   imports: [
     CommonModule,

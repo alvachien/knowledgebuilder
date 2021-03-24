@@ -71,6 +71,9 @@ export class KnowledgeItemsComponent implements AfterViewInit {
     this.odataService.previewObjList = arobj;
     this.router.navigate(['preview']);
   }
+  onGoToSearch(): void {
+    this.router.navigate(['knowledge-item', 'search']);
+  }
 
   public onDeleteItem(itemid: number): void {
     this.odataService.deleteExerciseItem(itemid).subscribe({

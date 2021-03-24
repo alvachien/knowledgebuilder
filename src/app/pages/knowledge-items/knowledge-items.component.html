@@ -3,6 +3,7 @@
   <span class="toolbar-spacer"></span>
   <section>
     <a mat-stroked-button routerLink="create">{{'Common.Create' | transloco}}</a>
+    <a mat-stroked-button (click)="onGoToSearch()" [disabled]="dataSource.length <= 0">{{'Common.Search' | transloco}}</a>
     <a mat-stroked-button (click)="onGoToPreview()" [disabled]="dataSource.length <= 0">{{'Common.Preview' | transloco}}</a>
     <a mat-stroked-button (click)="onRefreshList()">{{'Common.Refresh' | transloco}}</a>
   </section>

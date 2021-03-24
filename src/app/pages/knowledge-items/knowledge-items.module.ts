@@ -11,13 +11,15 @@ import { MaterialModulesModule } from '../../material-modules';
 import { ImageUploadModule } from '../image-upload/image-upload.module';
 import { KnowledgeItemsRoutingModule } from './knowledge-items-routing.module';
 import { KnowledgeItemsComponent } from './knowledge-items.component';
-import { KnowledgeItemDetailComponent } from './knowledge-item-detail/knowledge-item-detail.component';
+import { KnowledgeItemDetailComponent } from './knowledge-item-detail';
+import { KnowledgeItemSearchComponent } from './knowledge-item-search';
 // import { MY_DATE_FORMATS, AppDateAdapter, } from 'src/app/models';
 
 @NgModule({
   declarations: [
     KnowledgeItemsComponent,
     KnowledgeItemDetailComponent,
+    KnowledgeItemSearchComponent,
   ],
   imports: [
     CommonModule,

@@ -1,4 +1,3 @@
-import { Injectable } from "@angular/core";
 import { NativeDateAdapter } from "@angular/material/core";
 import { MatPaginatorIntl } from '@angular/material/paginator';
 
@@ -44,6 +43,95 @@ export interface AppLanguage {
   displayas: string;
   value: string;
 }
+
+// Filter operator
+export enum GeneralFilterOperatorEnum {
+  Equal = 1,
+  NotEqual = 2,
+  Between = 3,
+  LargerThan = 4,
+  LargerEqual = 5,
+  LessThan = 6,
+  LessEqual = 7,
+  Like = 8, // Like
+}
+
+/**
+ * Value type for filter
+ */
+ export enum GeneralFilterValueType {
+  number = 1,
+  string = 2,
+  date = 3,
+  boolean = 4,
+}
+
+/**
+ * Filter item
+ */
+export class GeneralFilterItem {
+  fieldName: string;
+  operator: GeneralFilterOperatorEnum;
+  value: any[];
+  valueType: GeneralFilterValueType;
+
+  constructor() {
+    this.fieldName = '';
+    this.operator = GeneralFilterOperatorEnum.Equal;
+    this.valueType = GeneralFilterValueType.string;
+    this.value = [undefined, undefined];
+  }
+}
+
+/**
+ * UI Display string
+ */
+export class UIDisplayString {
+  public value: GeneralFilterOperatorEnum;
+  public i18nterm: string;
+  public displaystring: string;
+
+  constructor() {
+    this.value = GeneralFilterOperatorEnum.Equal;
+    this.i18nterm = '';
+    this.displaystring = '';
+  }
+}
+
+
+export class UIDisplayStringUtil {
+  public static getGeneralFilterOperatorDisplayStrings(): UIDisplayString[] {
+    const arrst: UIDisplayString[] = [];
+
+    for (const rfe in GeneralFilterOperatorEnum) {
+      if (Number.isNaN(+rfe)) {
+        // Do nothing
+      } else {
+        arrst.push({
+          value: +rfe,
+          i18nterm: UIDisplayStringUtil.getGeneralFilterOperatorDisplayString(+rfe),
+          displaystring: '',
+        });
+      }
+    }
+
+    return arrst;
+  }
+  public static getGeneralFilterOperatorDisplayString(opte: GeneralFilterOperatorEnum): string {
+    switch (opte) {
+      case GeneralFilterOperatorEnum.Between: return 'Sys.Operator.Between';
+      case GeneralFilterOperatorEnum.Equal: return 'Sys.Operator.Equal';
+      case GeneralFilterOperatorEnum.LargerEqual: return 'Sys.Operator.LargerEqual';
+      case GeneralFilterOperatorEnum.LargerThan: return 'Sys.Operator.LargerThan';
+      case GeneralFilterOperatorEnum.LessEqual: return 'Sys.Operator.LessEqual';
+      case GeneralFilterOperatorEnum.LessThan: return 'Sys.Operator.LessThan';
+      case GeneralFilterOperatorEnum.NotEqual: return 'Sys.Operator.NotEqual';
+      case GeneralFilterOperatorEnum.Like: return 'Sys.Operator.Like';
+      default: return '';
+    }
+  }
+}
+
 
 // @Injectable()
 // export class AppDateAdapter extends NativeDateAdapter {format(date: Date, displayFormat: any): string {

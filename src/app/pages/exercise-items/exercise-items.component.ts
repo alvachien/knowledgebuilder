@@ -71,6 +71,9 @@ export class ExerciseItemsComponent implements AfterViewInit {
     this.odataService.previewObjList = arobj;
     this.router.navigate(['preview']);
   }
+  onGoToSearch(): void {
+    this.router.navigate(['exercise-item', 'search']);
+  }
 
   public onDeleteItem(itemid: number): void {
     this.odataService.deleteExerciseItem(itemid).subscribe({

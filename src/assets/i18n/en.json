@@ -29,6 +29,7 @@
         "ListView": "LIST VIEW",
         "Preview": "PREVIEW",
         "Refresh": "REFRESH",
+        "Search": "SEARCH",
         "CreateAnotherOne": "CREATE ANOTHER ONE"
     },
     "Type": "Type",
@@ -148,5 +149,21 @@
         "InvalidNumberRange": "Invalid number range",
         "InvalidNumberOfCopy": "Invalid number of copy, input a positive number",
         "InvalidFontSize": "Invalid font size, input a number between 10-30"    
-    }
+    },
+    "Sys":{
+        "Operator": {
+          "Between": "Between",
+          "Equal": "Equal",
+          "LargerEqual": "Larger or Equal",
+          "LargerThan": "Larger than",
+          "LessEqual": "Less or Equal",
+          "LessThan": "Less than",
+          "NotEqual": "Not Equal",
+          "Like": "Like"
+        }, 
+        "UserAuth": {
+          "All": "All",
+          "OwnerOnly": "Only for Owner"
+        }
+    }    
 }

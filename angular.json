@@ -36,7 +36,6 @@
             ],
             "scripts": [
               "./node_modules/marked/lib/marked.js",
-              "./node_modules/emoji-toolkit/lib/js/joypixels.min.js",
               "./node_modules/katex/dist/katex.min.js",
               "./node_modules/jspdf/dist/jspdf.umd.min.js"
             ]
@@ -55,7 +54,7 @@
               "sourceMap": false,
               "namedChunks": false,
               "extractLicenses": true,
-              "vendorChunk": false,
+              "vendorChunk": true,
               "buildOptimizer": true,
               "budgets": [
                 {
@@ -83,7 +82,7 @@
               "sourceMap": false,
               "namedChunks": false,
               "extractLicenses": true,
-              "vendorChunk": false,
+              "vendorChunk": true,
               "buildOptimizer": true,
               "budgets": [
                 {
@@ -139,7 +138,6 @@
             ],
             "scripts": [
               "./node_modules/marked/lib/marked.js",
-              "./node_modules/emoji-toolkit/lib/js/joypixels.min.js",
               "./node_modules/katex/dist/katex.min.js",
               "./node_modules/jspdf/dist/jspdf.umd.min.js"
             ]
