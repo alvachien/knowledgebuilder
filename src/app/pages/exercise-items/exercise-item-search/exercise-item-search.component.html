@@ -68,6 +68,11 @@
         <mat-divider></mat-divider>
 
         <div class="table-container mat-elevation-z8">
+            <mat-toolbar color="primary">
+                <mat-toolbar-row>
+                    <button mat-flat-button color="primary" (click)="onGoToPreview()">{{'Common.Preview' | transloco}}</button>
+                </mat-toolbar-row>
+            </mat-toolbar>            
             <div class="table-container">
                 <table mat-table [dataSource]="dataSource" class="mat-elevation-z8">
                     <!-- ID Column -->
@@ -76,7 +81,7 @@
                         <td mat-cell *matCellDef="let row">
                             <div>
                                 {{row.ID}}
-                                <a mat-button routerLink="display/{{row.ID}}">{{'Common.Display' | transloco}}</a>
+                                <a mat-button (click)="onDisplayItem(row.ID)">{{'Common.Display' | transloco}}</a>
                             </div>
                         </td>
                     </ng-container>

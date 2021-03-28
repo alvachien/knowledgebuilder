@@ -12,7 +12,7 @@
     <div class="control-full-width"><span>{{'Title' | transloco}}: </span>{{selectedKnowledge.Title}}</div>
     <mat-divider></mat-divider>
     <div class="control-full-width">
-        <markdown emoji [data]="selectedKnowledge.Content" katex [katexOptions]="mathOptions"></markdown>
+        <markdown [data]="selectedKnowledge.Content" katex [katexOptions]="mathOptions"></markdown>
     </div>
 </div>
 
@@ -23,7 +23,7 @@
     <div class="control-full-width"><span>{{'Tags' | transloco}}: </span>{{selectedExercise.Tags.toString()}}</div>
     <mat-divider></mat-divider>
     <div class="control-full-width">
-        <markdown emoji [data]="selectedExercise.Content" katex [katexOptions]="mathOptions"></markdown>
+        <markdown [data]="selectedExercise.Content" katex [katexOptions]="mathOptions"></markdown>
     </div>
 </div>
 

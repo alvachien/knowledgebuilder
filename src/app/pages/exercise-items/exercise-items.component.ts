@@ -52,9 +52,7 @@ export class ExerciseItemsComponent implements AfterViewInit {
 
           return data.items;
         }),
-        catchError(() => {
-          return observableOf([]);
-        })
+        catchError(() => observableOf([]))
       ).subscribe({
         next: data => this.dataSource = data,
         error: err => console.log(err)
@@ -94,5 +92,11 @@ export class ExerciseItemsComponent implements AfterViewInit {
 
   resetPaging(): void {
     this.paginator.pageIndex = 0;
+  }
+  onDisplayItem(rid: number): void {
+    this.router.navigate(['exercise-item', 'display', rid.toString()]);
+  }
+  onChangeItem(rid: number): void {
+    this.router.navigate(['exercise-item', 'edit', rid.toString()]);
   }
 }

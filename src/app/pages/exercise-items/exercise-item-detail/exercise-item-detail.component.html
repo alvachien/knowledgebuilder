@@ -70,7 +70,7 @@
                 </ngx-monaco-editor>
             </div>
             <div fxFlex style="height: 100%; overflow-y: scroll;">
-                <markdown emoji [data]="content" katex [katexOptions]="mathOptions"></markdown>
+                <markdown [data]="content" katex [katexOptions]="mathOptions"></markdown>
             </div>
         </div>
 
@@ -88,7 +88,7 @@
                 </ngx-monaco-editor>
             </div>
             <div fxFlex style="height: 100%; overflow-y: scroll;">
-                <markdown emoji [data]="answerContent" katex [katexOptions]="mathOptions"></markdown>
+                <markdown [data]="answerContent" katex [katexOptions]="mathOptions"></markdown>
             </div>
         </div>
     </mat-card-content>

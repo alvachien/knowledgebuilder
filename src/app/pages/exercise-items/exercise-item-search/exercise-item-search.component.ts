@@ -1,23 +1,24 @@
-import { HttpErrorResponse } from '@angular/common/http';
-import { AfterViewInit, Component, OnDestroy, OnInit, ViewChild } from '@angular/core';
+import { AfterViewInit, Component, OnInit, ViewChild } from '@angular/core';
 import { MatPaginator } from '@angular/material/paginator';
+import { Router } from '@angular/router';
 import { BehaviorSubject, merge, of as observableOf, scheduled } from 'rxjs';
 import { catchError, finalize, map, mergeAll, startWith, switchMap } from 'rxjs/operators';
 
-import { ExerciseItem, ExerciseItemType, GeneralFilterItem, GeneralFilterOperatorEnum, GeneralFilterValueType, getExerciseItemTypeName, UIDisplayString, UIDisplayStringUtil } from 'src/app/models';
-import { ODataService } from 'src/app/services';
+import { ExerciseItem, ExerciseItemType, GeneralFilterItem, GeneralFilterOperatorEnum, GeneralFilterValueType,
+  getExerciseItemTypeName, TagReferenceType, UIDisplayString, UIDisplayStringUtil } from 'src/app/models';
+import { ODataService, PreviewObject } from 'src/app/services';
 
 @Component({
   selector: 'app-exercise-item-search',
   templateUrl: './exercise-item-search.component.html',
   styleUrls: ['./exercise-item-search.component.scss']
 })
-export class ExerciseItemSearchComponent implements OnInit, AfterViewInit, OnDestroy {
+export class ExerciseItemSearchComponent implements OnInit, AfterViewInit {
   filters: GeneralFilterItem[] = [];
   allOperators: UIDisplayString[] = [];
   allFields: any[] = [];
   filterEditable = true;
-  
+
   @ViewChild(MatPaginator, { static: true }) paginator!: MatPaginator;
   pageSize = 20;
   pageSizeOptions = [20, 40, 60, 100];
@@ -28,7 +29,8 @@ export class ExerciseItemSearchComponent implements OnInit, AfterViewInit, OnDes
   displayedColumns: string[] = ['id', 'itemtype', 'tags', 'knowledgeitem', 'createdat'];
   dataSource: ExerciseItem[] = [];
 
-  constructor(private odataService: ODataService) {
+  constructor(private odataService: ODataService,
+    private router: Router) {
     this.resultsLength = 0;
     this.allOperators = UIDisplayStringUtil.getGeneralFilterOperatorDisplayStrings();
     this.allFields = [{
@@ -64,7 +66,7 @@ export class ExerciseItemSearchComponent implements OnInit, AfterViewInit, OnDes
 
           this.isLoadingResults = true;
           // Prepare filters
-          let filter = this.prepareFilters(this.subjFilters.value);
+          const filter = this.prepareFilters(this.subjFilters.value);
           const top = this.paginator.pageSize;
           const skip = top * this.paginator.pageIndex;
 
@@ -109,9 +111,11 @@ export class ExerciseItemSearchComponent implements OnInit, AfterViewInit, OnDes
     arFilter.forEach(flt => {
       if (flt.fieldName === 'Content') {
         if (flt.operator === GeneralFilterOperatorEnum.Equal) {
-          rstfilter = rstfilter ? `${rstfilter} and ${flt.fieldName} eq '${flt.lowValue}'` : `${flt.fieldName} eq '${flt.lowValue}'`;
+          rstfilter = rstfilter ? `${rstfilter} and ${flt.fieldName} eq '${flt.lowValue}'`
+            : `${flt.fieldName} eq '${flt.lowValue}'`;
         } else if(flt.operator === GeneralFilterOperatorEnum.Like) {
-          rstfilter = rstfilter ? `${rstfilter} and contains(${flt.fieldName},'${flt.lowValue}')` : `contains(${flt.fieldName},'${flt.lowValue}')`;
+          rstfilter = rstfilter ? `${rstfilter} and contains(${flt.fieldName},'${flt.lowValue}')`
+            : `contains(${flt.fieldName},'${flt.lowValue}')`;
         }
       }
     });
@@ -119,9 +123,9 @@ export class ExerciseItemSearchComponent implements OnInit, AfterViewInit, OnDes
   }
   public onSearch(): void {
     // Do the translate first
-    let arRealFilter: any[] = [];
+    const arRealFilter: any[] = [];
     this.filters.forEach((value: GeneralFilterItem) => {
-      let val: any = {};
+      const val: any = {};
       val.valueType = +value.valueType;
       switch (value.valueType) {
         case GeneralFilterValueType.boolean: {
@@ -181,10 +185,18 @@ export class ExerciseItemSearchComponent implements OnInit, AfterViewInit, OnDes
     // Do the real search
     this.subjFilters.next(arRealFilter);
   }
-
-  ngOnDestroy(): void {
-    // this._watcherMedia.unsubscribe();
-    // this._destroyed$.next(true);
-    // this._destroyed$.complete();
+  public onDisplayItem(itemid: number): void {
+    this.router.navigate(['exercise-item', 'display', itemid.toString()]);
+  }
+  public onGoToPreview(): void {
+    const arobj: PreviewObject[] = [];
+    this.dataSource.forEach(val => {
+      arobj.push({
+        refType: TagReferenceType.ExerciseItem,
+        refId: val.ID,
+      });
+    });
+    this.odataService.previewObjList = arobj;
+    this.router.navigate(['preview']);
   }
 }
