@@ -3,7 +3,7 @@ import { MatPaginator } from '@angular/material/paginator';
 import { MatSort } from '@angular/material/sort';
 import { Router } from '@angular/router';
 import { merge, Observable, of as observableOf } from 'rxjs';
-import { catchError, map, startWith, switchMap } from 'rxjs/operators';
+import { catchError, finalize, map, startWith, switchMap } from 'rxjs/operators';
 import { TagReferenceType } from 'src/app/models';
 
 import { ExerciseItem, ExerciseItemType, getExerciseItemTypeName, } from '../../models/exercise-item';
@@ -46,18 +46,19 @@ export class ExerciseItemsComponent implements AfterViewInit {
           return this.odataService.getExerciseItems(top, skip, this.sort.active, this.sort.direction
           );
         }),
+        finalize(() => this.isLoadingResults = false),
         map(data => {
-          // Flip flag to show that loading has finished.
-          this.isLoadingResults = false;
           this.resultsLength = data.totalCount;
 
           return data.items;
         }),
         catchError(() => {
-          this.isLoadingResults = false;
           return observableOf([]);
         })
-      ).subscribe(data => this.dataSource = data);
+      ).subscribe({
+        next: data => this.dataSource = data,
+        error: err => console.log(err)
+      });
   }
 
   public onGoToPreview(): void {

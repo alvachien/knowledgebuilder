@@ -241,7 +241,7 @@ export class ODataService {
   //
   // Exercise items
   //
-  public getExerciseItems(top = 30, skip = 0, sort?: string, order?: string): Observable<{ totalCount: number; items: ExerciseItem[] }> {
+  public getExerciseItems(top = 30, skip = 0, sort?: string, order?: string, filter?: string): Observable<{ totalCount: number; items: ExerciseItem[] }> {
     if (environment.mockdata && this.mockedExerciseItem.length > 0) {
       return of({
         totalCount: this.mockedExerciseItem.length,
@@ -263,6 +263,9 @@ export class ODataService {
       }
     }
     params = params.append('$select', 'ID,KnowledgeItemID,ExerciseType,CreatedAt');
+    if (filter) {
+      params = params.append('$filter', filter);
+    }
     params = params.append('$expand', 'Tags');
     let apiurl = `${this.apiUrl}ExerciseItems`;
     if (environment.mockdata) {

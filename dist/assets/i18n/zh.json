@@ -29,6 +29,7 @@
         "ListView": "列表页",
         "Preview": "预览",
         "Refresh": "刷新",
+        "Search": "搜索",
         "CreateAnotherOne": "新建一条"
     },
     "Type": "类别",
@@ -50,6 +51,9 @@
     "Close": "关闭",
     "WelcomePage": "欢迎页",
     "Count": "总计",
+    "Field": "字段",
+    "Operator": "操作符",
+    "Value": "值",
     "NewKnowledgeItem": "新建知识点",
     "NewExerciseItem": "新建练习题",
     "FullScreen": "全屏",
@@ -148,5 +152,21 @@
         "InvalidNumberRange": "无效的数字范围",
         "InvalidNumberOfCopy": "无效的拷贝份数，请输入一个正数",
         "InvalidFontSize": "无效的字体大小，请输入一个10-30之间的数值"
-    }
+    },
+    "Sys":{
+        "Operator": {
+          "Between": "介于",
+          "Equal": "等于",
+          "LargerEqual": "大于或等于",
+          "LargerThan": "大于",
+          "LessEqual": "小于或等于",
+          "LessThan": "小于",
+          "NotEqual": "不等于",
+          "Like": "LIKE (SQL)"
+        }, 
+        "UserAuth": {
+          "All": "全部项",
+          "OwnerOnly": "仅当本人是所有者"
+        }
+    }    
 }

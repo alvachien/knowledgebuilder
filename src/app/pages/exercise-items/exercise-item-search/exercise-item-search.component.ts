@@ -1,10 +1,10 @@
 import { HttpErrorResponse } from '@angular/common/http';
 import { AfterViewInit, Component, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { MatPaginator } from '@angular/material/paginator';
-import { BehaviorSubject, merge, of as observableOf } from 'rxjs';
-import { catchError, finalize, map, startWith, switchMap } from 'rxjs/operators';
+import { BehaviorSubject, merge, of as observableOf, scheduled } from 'rxjs';
+import { catchError, finalize, map, mergeAll, startWith, switchMap } from 'rxjs/operators';
 
-import { GeneralFilterItem, GeneralFilterOperatorEnum, GeneralFilterValueType, UIDisplayString, UIDisplayStringUtil } from 'src/app/models';
+import { ExerciseItem, ExerciseItemType, GeneralFilterItem, GeneralFilterOperatorEnum, GeneralFilterValueType, getExerciseItemTypeName, UIDisplayString, UIDisplayStringUtil } from 'src/app/models';
 import { ODataService } from 'src/app/services';
 
 @Component({
@@ -18,12 +18,15 @@ export class ExerciseItemSearchComponent implements OnInit, AfterViewInit, OnDes
   allFields: any[] = [];
   filterEditable = true;
   
-  @ViewChild(MatPaginator, { static: true }) paginator: MatPaginator;
+  @ViewChild(MatPaginator, { static: true }) paginator!: MatPaginator;
   pageSize = 20;
   pageSizeOptions = [20, 40, 60, 100];
   isLoadingResults = false;
   resultsLength: number;
   subjFilters: BehaviorSubject<any> = new BehaviorSubject([]);
+  // Result
+  displayedColumns: string[] = ['id', 'itemtype', 'tags', 'knowledgeitem', 'createdat'];
+  dataSource: ExerciseItem[] = [];
 
   constructor(private odataService: ODataService) {
     this.resultsLength = 0;
@@ -48,6 +51,8 @@ export class ExerciseItemSearchComponent implements OnInit, AfterViewInit, OnDes
     // this.dataSource.paginator = this.paginator;
     this.subjFilters.subscribe(() => this.paginator.pageIndex = 0);
 
+    // scheduled([this.subjFilters, this.paginator.page], scheduled)
+    //   .pipe(mergeAll())
     merge(this.subjFilters, this.paginator.page)
       .pipe(
         // takeUntil(this._destroyed$),
@@ -58,36 +63,27 @@ export class ExerciseItemSearchComponent implements OnInit, AfterViewInit, OnDes
           }
 
           this.isLoadingResults = true;
+          // Prepare filters
+          let filter = this.prepareFilters(this.subjFilters.value);
+          const top = this.paginator.pageSize;
+          const skip = top * this.paginator.pageIndex;
 
-          return this.odataService.getExerciseItems(30, 0);
+          return this.odataService.getExerciseItems(top, skip, undefined, undefined, filter);
         }),
         finalize(() => this.isLoadingResults = false),
         map((data: any) => {
-          // Flip flag to show that loading has finished.
-          this.isLoadingResults = false;
-          if (data && data.totalCount) {
-            this.resultsLength = data.totalCount;
-          }
+          this.resultsLength = data.totalCount;
 
-          return data && data.contentList;
+          return data.items;
         }),
         catchError(() => observableOf(undefined)),
-    ).subscribe((photolist: any) => {
-      // this.photos = [];
-      // if (photolist && photolist instanceof Array) {
-      //   for (const ce of photolist) {
-      //     const pi: Photo = new Photo();
-      //     pi.init(ce);
-      //     this.photos.push(pi);
-      //   }
-      // }
-    }, (error: HttpErrorResponse) => {
-      // this._snackBar.open('Error occurred: ' + error.message, undefined, {
-      //   duration: 3000,
-      // });
-    }, () => {
-      // Do nothing
+    ).subscribe({
+      next: data => this.dataSource = data,
+      error: err => console.log(err)
     });
+  }
+  getExerciseItemTypeName(itemtype: ExerciseItemType): string {
+    return getExerciseItemTypeName(itemtype);
   }
 
   public onAddFilter(): void {
@@ -105,6 +101,21 @@ export class ExerciseItemSearchComponent implements OnInit, AfterViewInit, OnDes
         filter.valueType = value.valueType;
       }
     });
+  }
+  prepareFilters(arFilter: any[]): string {
+    let rstfilter = '';
+    arFilter.sort((a, b) => a.fieldName.localeCompare(b.fieldName));
+
+    arFilter.forEach(flt => {
+      if (flt.fieldName === 'Content') {
+        if (flt.operator === GeneralFilterOperatorEnum.Equal) {
+          rstfilter = rstfilter ? `${rstfilter} and ${flt.fieldName} eq '${flt.lowValue}'` : `${flt.fieldName} eq '${flt.lowValue}'`;
+        } else if(flt.operator === GeneralFilterOperatorEnum.Like) {
+          rstfilter = rstfilter ? `${rstfilter} and contains(${flt.fieldName},'${flt.lowValue}')` : `contains(${flt.fieldName},'${flt.lowValue}')`;
+        }
+      }
+    });
+    return rstfilter;
   }
   public onSearch(): void {
     // Do the translate first
