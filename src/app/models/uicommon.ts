@@ -1,5 +1,6 @@
-import { NativeDateAdapter } from "@angular/material/core";
-import { MatPaginatorIntl } from '@angular/material/paginator';
+// import { NativeDateAdapter } from "@angular/material/core";
+// import { MatPaginatorIntl } from '@angular/material/paginator';
+import moment from 'moment';
 
 /**
   * Date range
@@ -172,3 +173,86 @@ export class UIDisplayStringUtil {
 //     return startIndex + 1 + ' - ' + endIndex + ' od ' + length;
 //   };
 // }
+
+export class EnumUtility {
+  private constructor() {
+  }
+
+  static getNamesAndValues<T extends number>(e: any) {
+    return EnumUtility.getNames(e).map(n => ({ name: n, value: e[n] as T }));
+  }
+
+  static getNames(e: any) {
+    return Object.keys(e).filter(k => typeof e[k] === 'number') as string[];
+  }
+
+  static getValues<T extends number>(e: any) {
+    return Object.keys(e)
+      .map(k => e[k])
+      .filter(v => typeof v === 'number') as T[];
+  }
+}
+
+export enum MessageType {
+  Success = 0,
+  Info = 1,
+  Warning = 2,
+  Error = 3 }
+
+/**
+ * Info message class
+ */
+export class InfoMessage {
+  // tslint:disable:variable-name
+  private _msgType: MessageType;
+  private _msgTime: moment.Moment;
+  private _msgTitle: string;
+  private _msgContent: string;
+  constructor(msgtype?: MessageType, msgtitle?: string, msgcontent?: string) {
+    this.MsgTime = moment();
+    if (msgtype) {
+      this.MsgType = msgtype;
+    }
+    if (msgtitle) {
+      this.MsgTitle = msgtitle;
+    }
+    if (msgcontent) {
+      this.MsgContent = msgcontent;
+    }
+  }
+
+  get MsgType(): MessageType {
+    return this._msgType;
+  }
+  set MsgType(mt: MessageType) {
+    this._msgType = mt;
+  }
+  get MsgTime(): moment.Moment {
+    return this._msgTime;
+  }
+  set MsgTime(mt: moment.Moment) {
+    this._msgTime = mt;
+  }
+  get MsgTitle(): string {
+    return this._msgTitle;
+  }
+  set MsgTitle(mt: string) {
+    this._msgTitle = mt;
+  }
+  get MsgContent(): string {
+    return this._msgContent;
+  }
+  set MsgContent(mc: string) {
+    this._msgContent = mc;
+  }
+
+  get IsError(): boolean {
+    return this.MsgType === MessageType.Error;
+  }
+  get IsWarning(): boolean {
+    return this.MsgType === MessageType.Warning;
+  }
+  get IsInfo(): boolean {
+    return this.MsgType === MessageType.Info;
+  }
+}
