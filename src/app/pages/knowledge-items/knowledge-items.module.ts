@@ -14,6 +14,7 @@ import { KnowledgeItemsComponent } from './knowledge-items.component';
 import { KnowledgeItemDetailComponent } from './knowledge-item-detail';
 import { KnowledgeItemSearchComponent } from './knowledge-item-search';
 // import { MY_DATE_FORMATS, AppDateAdapter, } from 'src/app/models';
+import { AppUIModule } from 'src/app/app-ui.module';
 
 @NgModule({
   declarations: [
@@ -31,6 +32,7 @@ import { KnowledgeItemSearchComponent } from './knowledge-item-search';
     MarkdownModule.forChild(),
     KnowledgeItemsRoutingModule,
     TranslocoModule,
+    AppUIModule,
   ],
   providers: [
     // { provide: DateAdapter, useClass: AppDateAdapter },

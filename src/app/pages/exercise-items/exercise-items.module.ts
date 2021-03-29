@@ -12,7 +12,7 @@ import { ExerciseItemsRoutingModule } from './exercise-items-routing.module';
 import { ExerciseItemsComponent } from './exercise-items.component';
 import { ExerciseItemDetailComponent } from './exercise-item-detail';
 import { ExerciseItemSearchComponent } from './exercise-item-search';
-import { OperatorFilterPipe } from 'src/app/pipes';
+import { AppUIModule } from 'src/app/app-ui.module';
 // import { MY_DATE_FORMATS, AppDateAdapter, } from 'src/app/models';
 
 @NgModule({
@@ -20,7 +20,6 @@ import { OperatorFilterPipe } from 'src/app/pipes';
     ExerciseItemsComponent,
     ExerciseItemDetailComponent,
     ExerciseItemSearchComponent,
-    OperatorFilterPipe,
   ],
   imports: [
     CommonModule,
@@ -32,6 +31,7 @@ import { OperatorFilterPipe } from 'src/app/pipes';
     MarkdownModule.forChild(),
     ExerciseItemsRoutingModule,
     TranslocoModule,
+    AppUIModule
   ],
   providers: [
     // { provide: DateAdapter, useClass: AppDateAdapter },

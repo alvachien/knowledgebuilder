@@ -59,7 +59,7 @@ export class ODataService {
   //
   // Knowledge items
   //
-  public getKnowledgeItems(top = 30, skip = 0, sort?: string, order?: string): Observable<{
+  public getKnowledgeItems(top = 30, skip = 0, sort?: string, order?: string, filter?: string): Observable<{
     totalCount: number;
     items: KnowledgeItem[];}> {
 
@@ -84,6 +84,9 @@ export class ODataService {
       }
     }
     params = params.append('$select', 'ID,Category,Title,CreatedAt,ModifiedAt');
+    if (filter) {
+      params = params.append('$filter', filter);
+    }
     let apiurl = `${this.apiUrl}KnowledgeItems`;
     if (environment.mockdata) {
       apiurl = `${environment.basehref}assets/mockdata/knowledge-items.json`;
