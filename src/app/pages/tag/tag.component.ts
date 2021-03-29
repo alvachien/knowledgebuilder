@@ -58,6 +58,12 @@ export class TagComponent implements AfterViewInit {
 
   public onCountClicked(row: TagCount): void {
     // console.log(`Count link clicked: ${row}`);
-    this.router.navigate(['/tag/display', row.TagTerm]);
+    if (row.RefType === TagReferenceType.KnowledgeItem) {
+      this.router.navigate(['/tag/displayki', row.TagTerm]);
+    } else if (row.RefType === TagReferenceType.ExerciseItem) {
+      this.router.navigate(['/tag/displayei', row.TagTerm]);
+    } else {
+      this.router.navigate(['/tag/display', row.TagTerm]);
+    }
   }
 }

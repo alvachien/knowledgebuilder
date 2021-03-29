@@ -21,6 +21,7 @@ export class TagDetailComponent implements OnInit, AfterViewInit {
 
   resultsLength = 0;
   isLoadingResults = true;
+  refType: TagReferenceType | undefined = undefined;
 
   getTagReferenceTypeName = getTagReferenceTypeName;
 
@@ -39,7 +40,14 @@ export class TagDetailComponent implements OnInit, AfterViewInit {
         if (val instanceof Array && val.length > 0) {
           if (val[0].path === 'display') {
             this.currenttag = val[1].path;
-          }
+            this.refType = undefined;
+          } else if (val[0].path === 'displayki') {
+            this.currenttag = val[1].path;
+            this.refType = TagReferenceType.KnowledgeItem;
+          } else if (val[0].path === 'displayei') {
+            this.currenttag = val[1].path;
+            this.refType = TagReferenceType.ExerciseItem;
+          } 
         }
       },
       error: err => {
@@ -57,7 +65,7 @@ export class TagDetailComponent implements OnInit, AfterViewInit {
         startWith({}),
         switchMap(() => {
           this.isLoadingResults = true;
-          return this.odataService.getTags(this.currenttag);
+          return this.odataService.getTags(this.currenttag, this.refType);
         }),
         map(data => {
           // Flip flag to show that loading has finished.

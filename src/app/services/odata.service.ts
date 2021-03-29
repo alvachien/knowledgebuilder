@@ -515,7 +515,13 @@ export class ODataService {
     let params: HttpParams = new HttpParams();
     params = params.append('$top', '100');
     params = params.append('$count', 'true');
-    params = params.append('$filter', `TagTerm eq '${term}'`);
+    let filter = `TagTerm eq '${term}'`;
+    if (reftype === TagReferenceType.KnowledgeItem) {
+      filter = `${filter} and RefType eq 'KnowledgeItem'`;
+    } else if(reftype === TagReferenceType.ExerciseItem) {
+      filter = `${filter} and RefType eq 'ExerciseItem'`;
+    }
+    params = params.append('$filter', filter);
 
     let apiurl = `${this.apiUrl}Tags`;
     if (environment.mockdata) {
