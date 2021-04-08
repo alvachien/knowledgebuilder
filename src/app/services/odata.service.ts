@@ -15,7 +15,7 @@ export interface PreviewObject {
   providedIn: 'root'
 })
 export class ODataService {
-  apiUrl = `${environment.apiurlRoot}/odata/`;
+  apiUrl = `${environment.apiurlRoot}/`;
   uploadUrl = `${environment.apiurlRoot}/api/ImageUpload`;
 
   private isMetadataLoaded = false;
@@ -244,7 +244,8 @@ export class ODataService {
   //
   // Exercise items
   //
-  public getExerciseItems(top = 30, skip = 0, sort?: string, order?: string, filter?: string): Observable<{ totalCount: number; items: ExerciseItem[] }> {
+  public getExerciseItems(top = 30, skip = 0, sort?: string,
+    order?: string, filter?: string): Observable<{ totalCount: number; items: ExerciseItem[] }> {
     if (environment.mockdata && this.mockedExerciseItem.length > 0) {
       return of({
         totalCount: this.mockedExerciseItem.length,
