@@ -1,9 +1,10 @@
+/* eslint-disable @typescript-eslint/naming-convention */
 import { Injectable } from '@angular/core';
 import { HttpParams, HttpClient, HttpHeaders, HttpResponse, HttpRequest, HttpErrorResponse, HttpEventType } from '@angular/common/http';
 import { Observable, throwError, Subject, of } from 'rxjs';
 import { map, catchError } from 'rxjs/operators';
 
-import { ExerciseItem, TagCount, Tag, KnowledgeItem, TagReferenceType, OverviewInfo } from '../models';
+import { ExerciseItem, ExerciseItemSearchResult, TagCount, Tag, KnowledgeItem, TagReferenceType, OverviewInfo } from '../models';
 import { environment } from '../../environments/environment';
 
 export interface PreviewObject {
@@ -423,7 +424,61 @@ export class ODataService {
       catchError((error: HttpErrorResponse) => throwError(error.statusText + '; ' + error.error + '; ' + error.message)
       ));
   }
+  public searchExerciseItems(top = 30, skip = 0, filter?: string): Observable<{ totalCount: number; items: ExerciseItemSearchResult[] }> {
+    // if (environment.mockdata && this.mockedExerciseItem.length > 0) {
+    //   return of({
+    //     totalCount: this.mockedExerciseItem.length,
+    //     items: this.mockedExerciseItem
+    //   });
+    // }
 
+    let headers: HttpHeaders = new HttpHeaders();
+    headers = headers.append('Content-Type', 'application/json')
+      .append('Accept', 'application/json');
+
+    let params: HttpParams = new HttpParams();
+    params = params.append('$top', top.toString());
+    params = params.append('$skip', skip.toString());
+    params = params.append('$count', 'true');
+    params = params.append('$select', 'ID,KnowledgeItemID,ExerciseType,Tags');
+    if (filter) {
+      params = params.append('$filter', filter);
+    }
+    //params = params.append('$expand', 'Tags');
+    let apiurl = `${this.apiUrl}ExerciseItemWithTagViews`;
+    if (environment.mockdata) {
+      apiurl = `${environment.basehref}assets/mockdata/exercise-items.json`;
+      params = new HttpParams();
+    }
+
+    return this.http.get(apiurl, {
+      headers,
+      params,
+    })
+      .pipe(map(response => {
+        const rjs = response as any;
+        const ritems = rjs.value as any[];
+        const items: ExerciseItemSearchResult[] = [];
+        ritems.forEach(item => {
+          const rit: ExerciseItemSearchResult = new ExerciseItemSearchResult();
+          rit.parseData(item);
+          items.push(rit);
+        });
+
+        // TBD: Mock data
+        // if (environment.mockdata) {
+        //   this.mockedExerciseItem = items.slice();
+        // }
+
+        return {
+          totalCount: rjs['@odata.count'],
+          items,
+        };
+      }),
+      catchError((error: HttpErrorResponse) => throwError(error.statusText + '; ' + error.error + '; ' + error.message) ));
+  }
+
+  // File upload
   public uploadFiles(files: Set<File>): { [key: string]: { result: Observable<any> } } {
 
     // this will be the our resulting map

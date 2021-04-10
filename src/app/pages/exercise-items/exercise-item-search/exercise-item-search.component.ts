@@ -4,7 +4,7 @@ import { Router } from '@angular/router';
 import { BehaviorSubject, merge, of as observableOf, scheduled } from 'rxjs';
 import { catchError, finalize, map, mergeAll, startWith, switchMap } from 'rxjs/operators';
 
-import { ExerciseItem, ExerciseItemType, GeneralFilterItem, GeneralFilterOperatorEnum, GeneralFilterValueType,
+import { ExerciseItemSearchResult, ExerciseItemType, GeneralFilterItem, GeneralFilterOperatorEnum, GeneralFilterValueType,
   getExerciseItemTypeName, TagReferenceType, UIDisplayString, UIDisplayStringUtil } from 'src/app/models';
 import { ODataService, PreviewObject } from 'src/app/services';
 
@@ -27,7 +27,7 @@ export class ExerciseItemSearchComponent implements OnInit, AfterViewInit {
   subjFilters: BehaviorSubject<any> = new BehaviorSubject([]);
   // Result
   displayedColumns: string[] = ['id', 'itemtype', 'tags', 'knowledgeitem', 'createdat'];
-  dataSource: ExerciseItem[] = [];
+  dataSource: ExerciseItemSearchResult[] = [];
 
   constructor(private odataService: ODataService,
     private router: Router) {
@@ -36,6 +36,10 @@ export class ExerciseItemSearchComponent implements OnInit, AfterViewInit {
     this.allFields = [{
       displayas: 'Content',
       value: 'Content',
+      valueType: 2,
+    }, {
+      displayas: 'Tag',
+      value: 'Tags',
       valueType: 2,
     },
     ];
@@ -70,7 +74,7 @@ export class ExerciseItemSearchComponent implements OnInit, AfterViewInit {
           const top = this.paginator.pageSize;
           const skip = top * this.paginator.pageIndex;
 
-          return this.odataService.getExerciseItems(top, skip, undefined, undefined, filter);
+          return this.odataService.searchExerciseItems(top, skip, filter);
         }),
         finalize(() => this.isLoadingResults = false),
         map((data: any) => {
@@ -107,17 +111,26 @@ export class ExerciseItemSearchComponent implements OnInit, AfterViewInit {
   prepareFilters(arFilter: any[]): string {
     let rstfilter = '';
     arFilter.sort((a, b) => a.fieldName.localeCompare(b.fieldName));
+    let arfieldNames = arFilter.map(val => val.fieldName);
+    arfieldNames = Array.from(new Set(arfieldNames));
 
-    arFilter.forEach(flt => {
-      if (flt.fieldName === 'Content') {
-        if (flt.operator === GeneralFilterOperatorEnum.Equal) {
-          rstfilter = rstfilter ? `${rstfilter} and ${flt.fieldName} eq '${flt.lowValue}'`
-            : `${flt.fieldName} eq '${flt.lowValue}'`;
-        } else if(flt.operator === GeneralFilterOperatorEnum.Like) {
-          rstfilter = rstfilter ? `${rstfilter} and contains(${flt.fieldName},'${flt.lowValue}')`
-            : `contains(${flt.fieldName},'${flt.lowValue}')`;
+    arfieldNames.forEach(fname => {
+      let substring = '';
+      arFilter.forEach(flt => {
+        if (flt.fieldName === fname) {
+          if (flt.fieldName === 'Content' || flt.fieldName === 'Tags') {
+            if (flt.operator === GeneralFilterOperatorEnum.Equal) {
+              substring = substring ? `${substring} or ${flt.fieldName} eq '${flt.lowValue}'`
+                : `${flt.fieldName} eq '${flt.lowValue}'`;
+            } else if(flt.operator === GeneralFilterOperatorEnum.Like) {
+              substring = substring ? `${substring} or contains(${flt.fieldName},'${flt.lowValue}')`
+                : `contains(${flt.fieldName},'${flt.lowValue}')`;
+            }
+          }
         }
-      }
+      });
+
+      rstfilter = rstfilter ? `${rstfilter} and ${substring}` : `${substring}`;
     });
     return rstfilter;
   }

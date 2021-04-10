@@ -193,66 +193,66 @@ export class EnumUtility {
   }
 }
 
-export enum MessageType {
-  Success = 0,
-  Info = 1,
-  Warning = 2,
-  Error = 3 }
+// export enum MessageType {
+//   Success = 0,
+//   Info = 1,
+//   Warning = 2,
+//   Error = 3 }
 
-/**
- * Info message class
- */
-export class InfoMessage {
-  // tslint:disable:variable-name
-  private _msgType: MessageType;
-  private _msgTime: moment.Moment;
-  private _msgTitle: string;
-  private _msgContent: string;
-  constructor(msgtype?: MessageType, msgtitle?: string, msgcontent?: string) {
-    this.MsgTime = moment();
-    if (msgtype) {
-      this.MsgType = msgtype;
-    }
-    if (msgtitle) {
-      this.MsgTitle = msgtitle;
-    }
-    if (msgcontent) {
-      this.MsgContent = msgcontent;
-    }
-  }
+// /**
+//  * Info message class
+//  */
+// export class InfoMessage {
+//   // tslint:disable:variable-name
+//   private _msgType: MessageType;
+//   private _msgTime: moment.Moment;
+//   private _msgTitle: string;
+//   private _msgContent: string;
+//   constructor(msgtype?: MessageType, msgtitle?: string, msgcontent?: string) {
+//     this.MsgTime = moment();
+//     if (msgtype) {
+//       this.MsgType = msgtype;
+//     }
+//     if (msgtitle) {
+//       this.MsgTitle = msgtitle;
+//     }
+//     if (msgcontent) {
+//       this.MsgContent = msgcontent;
+//     }
+//   }
 
-  get MsgType(): MessageType {
-    return this._msgType;
-  }
-  set MsgType(mt: MessageType) {
-    this._msgType = mt;
-  }
-  get MsgTime(): moment.Moment {
-    return this._msgTime;
-  }
-  set MsgTime(mt: moment.Moment) {
-    this._msgTime = mt;
-  }
-  get MsgTitle(): string {
-    return this._msgTitle;
-  }
-  set MsgTitle(mt: string) {
-    this._msgTitle = mt;
-  }
-  get MsgContent(): string {
-    return this._msgContent;
-  }
-  set MsgContent(mc: string) {
-    this._msgContent = mc;
-  }
+//   get MsgType(): MessageType {
+//     return this._msgType;
+//   }
+//   set MsgType(mt: MessageType) {
+//     this._msgType = mt;
+//   }
+//   get MsgTime(): moment.Moment {
+//     return this._msgTime;
+//   }
+//   set MsgTime(mt: moment.Moment) {
+//     this._msgTime = mt;
+//   }
+//   get MsgTitle(): string {
+//     return this._msgTitle;
+//   }
+//   set MsgTitle(mt: string) {
+//     this._msgTitle = mt;
+//   }
+//   get MsgContent(): string {
+//     return this._msgContent;
+//   }
+//   set MsgContent(mc: string) {
+//     this._msgContent = mc;
+//   }
 
-  get IsError(): boolean {
-    return this.MsgType === MessageType.Error;
-  }
-  get IsWarning(): boolean {
-    return this.MsgType === MessageType.Warning;
-  }
-  get IsInfo(): boolean {
-    return this.MsgType === MessageType.Info;
-  }
-}
+//   get IsError(): boolean {
+//     return this.MsgType === MessageType.Error;
+//   }
+//   get IsWarning(): boolean {
+//     return this.MsgType === MessageType.Warning;
+//   }
+//   get IsInfo(): boolean {
+//     return this.MsgType === MessageType.Info;
+//   }
+// }

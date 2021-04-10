@@ -1,8 +1,10 @@
+/* eslint-disable no-underscore-dangle */
 /* eslint-disable @typescript-eslint/naming-convention */
 ///
 /// Exercise item
 ///
 
+// eslint-disable-next-line no-shadow
 export enum ExerciseItemType {
     Question = 0,
     SingleChoice = 1,
@@ -156,5 +158,31 @@ export class ExerciseItem {
         }
 
         return JSON && JSON.stringify(exobj);
+    }
+}
+
+export class ExerciseItemSearchResult {
+    public ID = -1;
+    public Content = '';
+    public ItemType: ExerciseItemType = ExerciseItemType.Question;
+    public Tags = '';
+
+    public parseData(data: any): void {
+        if (data && data.ID) {
+            this.ID = data.ID;
+        }
+        if (data && data.Content) {
+            this.Content = data.Content;
+        }
+        if (data && data.ExerciseType) {
+            if (isNaN(+data.ExerciseType)) {
+                this.ItemType = ExerciseItemType[data.ExerciseType as keyof typeof ExerciseItemType];
+            } else {
+                this.ItemType = +data.ExerciseType;
+            }
+        }
+        if (data && data.Tags) {
+            this.Tags = data.Tags;
+        }
     }
 }
