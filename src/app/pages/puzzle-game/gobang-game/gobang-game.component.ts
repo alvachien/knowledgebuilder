@@ -1,10 +1,11 @@
 import { AfterContentInit, Component, ElementRef, EventEmitter, HostListener,
   Input, OnInit, Output, ViewChild } from '@angular/core';
-import { MatSnackBar } from '@angular/material/snack-bar';
 
 import { Gobang } from 'src/app/models';
 import { CanvasCellPositionInf, getCanvasCellPosition, getCanvasMouseEventPosition } from 'actslib';
 import { environment } from 'src/environments/environment';
+import { MatDialog } from '@angular/material/dialog';
+import { ResultDialogComponent } from '../result-dialog/result-dialog.component';
 
 @Component({
   selector: 'app-gobang-game',
@@ -21,16 +22,6 @@ export class GobangGameComponent implements OnInit, AfterContentInit {
   // Canvas
   @ViewChild('canvasgobang', {static: true}) canvasGobang!: ElementRef;
 
-  /**
-   * Started event
-   */
-  @Output() startedEvent: EventEmitter<any> = new EventEmitter();
-
-  /**
-   * Finish event
-   */
-  @Output() finishedEvent: EventEmitter<boolean> = new EventEmitter();
-
   @HostListener('mousedown', ['$event'])
   public onGobangCanvasMouseDown(evt: MouseEvent) {
     const loc = getCanvasMouseEventPosition(evt.target, evt);
@@ -38,16 +29,9 @@ export class GobangGameComponent implements OnInit, AfterContentInit {
 
     // Process step
     this.onProcessStep(cellloc);
-    if (this._userStep === false) {
-      // AI step - set 0.5secons interval here.
-      setTimeout(() => {
-        const nextPos = this._instance.workoutNextCellAIPosition();
-        this.onProcessStep(nextPos);
-      }, (500));
-    }
   }
 
-  constructor(public snackBar: MatSnackBar) {
+  constructor(public dialog: MatDialog) {
     // Hard coded width and height
     this._cellheight = 40;
     this._cellwidth = 40;
@@ -62,7 +46,6 @@ export class GobangGameComponent implements OnInit, AfterContentInit {
   ngAfterContentInit(): void {
     this._instance.Dimension = this._cellsize;
     this._instance.init();
-    this.startedEvent.emit();
 
     // Resize the canvas size
     this.canvasGobang.nativeElement.width = this._cellwidth * this._cellsize;
@@ -111,23 +94,52 @@ export class GobangGameComponent implements OnInit, AfterContentInit {
   }
 
   private onProcessStep(cellloc: CanvasCellPositionInf) {
-    if (!this._instance.isCellHasValue(cellloc.row, cellloc.column)) {
+    if (this._instance.Finished) {
+      return;
+    }
+
+    if (!this._instance.isCellHasValue(cellloc.row, cellloc.column)) {      
       this.drawChess(cellloc);
 
       this._instance.setCellValue(cellloc.row, cellloc.column, this._userStep);
 
       if (this._instance.Finished) {
-        let snackBarRef: any = this.snackBar.open(this._userStep ? 'You Win' : 'Computer Win', 'CLOSE', {
-          duration: 2000
+        let retry = false;
+        let isWin = this._userStep ? true : false;
+
+        const dialogRef = this.dialog.open(ResultDialogComponent, {
+          width: '300px',
+          data: { youWin : isWin }
         });
-        snackBarRef.onAction().subscribe(() => {
-          snackBarRef.dismiss();
-        });
-        snackBarRef.afterDismissed().subscribe(() => {
-          this.finishedEvent.emit(this._userStep ? true : false);
+
+        dialogRef.afterClosed().subscribe(result => {
+          console.log(result);
+          retry = result;
+          if (retry) {
+            this._userStep = true;
+            this._instance = new Gobang();
+            this._instance.Dimension = this._cellsize;
+            this._instance.init();
+        
+            // Resize the canvas size
+            this.canvasGobang.nativeElement.width = this._cellwidth * this._cellsize;
+            this.canvasGobang.nativeElement.height = this._cellheight * this._cellsize;
+        
+            // Draw the border
+            this.drawWholeRect();
+          } else {
+            this._userStep = false;
+          }
         });
       } else {
         this._userStep = !this._userStep;
+        if (this._userStep === false) {
+          // AI step - set 0.5secons interval here.
+          setTimeout(() => {
+            const nextPos = this._instance.workoutNextCellAIPosition();
+            this.onProcessStep(nextPos);
+          }, (500));
+        }
       }
     }
   }

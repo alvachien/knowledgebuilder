@@ -10,6 +10,7 @@ import { TypingGameComponent } from './typing-game';
 import { Calculate24Component } from './calculate24';
 import { GobangGameComponent } from './gobang-game';
 import { SudouComponent } from './sudou';
+import { ResultDialogComponent } from './result-dialog/result-dialog.component';
 
 @NgModule({
   declarations: [
@@ -18,6 +19,7 @@ import { SudouComponent } from './sudou';
     Calculate24Component,
     GobangGameComponent,
     SudouComponent,
+    ResultDialogComponent,
   ],
   imports: [
     CommonModule,

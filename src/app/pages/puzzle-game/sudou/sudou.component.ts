@@ -3,6 +3,8 @@ import { AfterContentInit, AfterViewInit, Component, ElementRef, EventEmitter, H
 import { generateValidSudou, Sudou, SudouSize } from 'src/app/models';
 
 import { getCanvasCellPosition, getCanvasMouseEventPosition } from 'actslib';
+import { MatDialog } from '@angular/material/dialog';
+import { ResultDialogComponent } from '../result-dialog/result-dialog.component';
 
 /**
  * UI Cell for Sudou
@@ -140,12 +142,7 @@ export class SudouComponent implements OnInit, AfterContentInit, OnDestroy {
   private _dataCells: any = [];
   private _started = false;
 
-  /**
-   * Finish event
-   */
-  @Output() finishEvent: EventEmitter<any> = new EventEmitter();
-
-  constructor() {
+  constructor(public dialog: MatDialog) {
   }
 
   ngOnInit(): void {
@@ -159,6 +156,13 @@ export class SudouComponent implements OnInit, AfterContentInit, OnDestroy {
     this._itemWidth = this._width / SudouSize;
     this._itemHeight = this._height / SudouSize;
 
+    this.onStartCore();
+  }
+
+  ngOnDestroy(): void {
+  }
+
+  private onStartCore() {
     if (this._started && this._objSudou != null) {
       const datrst = this._objSudou.getDataCells();
       this._dataCells = [];
@@ -224,9 +228,6 @@ export class SudouComponent implements OnInit, AfterContentInit, OnDestroy {
 
       this.onDraw();
     }
-  }
-
-  ngOnDestroy(): void {
   }
 
   private onDraw(): void {
@@ -336,7 +337,25 @@ export class SudouComponent implements OnInit, AfterContentInit, OnDestroy {
       this.onDraw();
 
       if (this.checkFinish()) {
-        this.finishEvent.emit(null);
+        // this.finishEvent.emit(null);
+        let retry = false;
+        let isWin = true;
+        const dialogRef = this.dialog.open(ResultDialogComponent, {
+          width: '300px',
+          data: { youWin : isWin }
+        });
+        dialogRef.afterClosed().subscribe(result => {
+          console.log(result);
+          retry = result;
+
+          if (retry) {
+            this._started = true;
+            this._objSudou = generateValidSudou();
+            this.onStartCore();  
+          } else {
+            this._started = false;
+          }
+        });
       }
     }
   }

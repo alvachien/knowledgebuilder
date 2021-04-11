@@ -1,5 +1,7 @@
 import { Component, ElementRef, OnInit, ViewChild } from '@angular/core';
+import { MatDialog } from '@angular/material/dialog';
 import { RPN } from 'actslib';
+import { ResultDialogComponent } from '../result-dialog/result-dialog.component';
 
 @Component({
   selector: 'app-calculate24',
@@ -14,7 +16,7 @@ export class Calculate24Component implements OnInit {
   private Cal24NumberRangeEnd = 9;
   Cal24SurrendString = '';
 
-  constructor() { }
+  constructor(public dialog: MatDialog) { }
 
   ngOnInit(): void {
   }
@@ -22,35 +24,35 @@ export class Calculate24Component implements OnInit {
   /**
    * Cal24 part
    */
-  private Cal24(arnum: any[], nlen: number, targetNum: number): boolean {
-    const opArr = new Array('+', '-', '*', '/');
-    for (let i = 0; i < nlen; i++) {
-      for (let j = i + 1; j < nlen; j++) {
-        const numij = [arnum[i], arnum[j]];
-        arnum[j] = arnum[nlen - 1];
-        for (let k = 0; k < opArr.length; k++) {
-          const k1: number = k % 2;
-          let k2 = 0;
-          if (!k1) {
-            k2 = 1;
-          }
-          arnum[i] = '(' + numij[k1] + opArr[k] + numij[k2] + ')';
-          if (this.Cal24(arnum, nlen - 1, targetNum)) {
-            this.Cal24SurrendString = arnum[0];
-            return true;
-          }
-        }
-        arnum[i] = numij[0];
-        arnum[j] = numij[1];
-      }
-    }
+  // private Cal24(arnum: any[], nlen: number, targetNum: number): boolean {
+  //   const opArr = new Array('+', '-', '*', '/');
+  //   for (let i = 0; i < nlen; i++) {
+  //     for (let j = i + 1; j < nlen; j++) {
+  //       const numij = [arnum[i], arnum[j]];
+  //       arnum[j] = arnum[nlen - 1];
+  //       for (let k = 0; k < opArr.length; k++) {
+  //         const k1: number = k % 2;
+  //         let k2 = 0;
+  //         if (!k1) {
+  //           k2 = 1;
+  //         }
+  //         arnum[i] = '(' + numij[k1] + opArr[k] + numij[k2] + ')';
+  //         if (this.Cal24(arnum, nlen - 1, targetNum)) {
+  //           this.Cal24SurrendString = arnum[0];
+  //           return true;
+  //         }
+  //       }
+  //       arnum[i] = numij[0];
+  //       arnum[j] = numij[1];
+  //     }
+  //   }
 
-    const objRN = new RPN();
-    const tmprest = objRN.buildExpress(arnum[0]);
-    const result = objRN.WorkoutResult();
+  //   const objRN = new RPN();
+  //   const tmprest = objRN.buildExpress(arnum[0]);
+  //   const result = objRN.WorkoutResult();
 
-    return (nlen === 1) && (result === targetNum);
-  }
+  //   return (nlen === 1) && (result === targetNum);
+  // }
 
   public CanCal24Start(): boolean {
     if (this.isStarted) {
@@ -119,21 +121,25 @@ export class Calculate24Component implements OnInit {
       errmsg = exp.toString();
     }
 
+    let retry = false;
+    let isWin = false;
     if (rst !== 24) {
-      // const dlginfo: MessageDialogInfo = {
-      //   Header: 'Home.Error',
-      //   Content: errmsg ? errmsg : (this.Cal24Input + ' = ' + rst.toString() + ' != 24'),
-      //   Button: MessageDialogButtonEnum.onlyok
-      // };
-
-      // this._dialog.open(MessageDialogComponent, {
-      //   disableClose: false,
-      //   width: '500px',
-      //   data: dlginfo
-      // }).afterClosed().subscribe(x => {
-      // });
     } else {
+      isWin = true;
     }
+    const dialogRef = this.dialog.open(ResultDialogComponent, {
+      width: '300px',
+      data: { youWin : isWin }
+    });
+    dialogRef.afterClosed().subscribe(result => {
+      console.log(result);
+      retry = result;
+      if (retry) {
+        this.OnCal24Start();
+      } else {
+        this.isStarted = false;
+      }
+    });
   }
 
   public OnCal24Surrender(): void {
