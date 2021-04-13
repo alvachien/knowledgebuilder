@@ -41,6 +41,10 @@ export class ExerciseItemSearchComponent implements OnInit, AfterViewInit {
       displayas: 'Tag',
       value: 'Tags',
       valueType: 2,
+    }, {
+      displayas: 'Type',
+      value: 'ExerciseType',
+      valueType: 2,
     },
     ];
   }

@@ -7,6 +7,7 @@ import { MatDialog } from '@angular/material/dialog';
 import { KatexOptions } from 'ngx-markdown';
 import { MatChipInputEvent } from '@angular/material/chips';
 import { UIMode } from 'actslib';
+import { MonacoEditorConstructionOptions } from '@materia-ui/ngx-monaco-editor';
 
 import { ExerciseItem, ExerciseItemType, getExerciseItemTypeNames } from '../../../models/exercise-item';
 import { ODataService } from '../../../services';
@@ -27,7 +28,11 @@ export class ExerciseItemDetailComponent implements OnInit, OnDestroy {
   currentMode = '';
   // Generic info
   public itemFormGroup: FormGroup;
-  editorOptions = { theme: 'vs-dark' };
+  editorOptions: MonacoEditorConstructionOptions = {
+    theme: 'vs-dark',
+    wordWrap: 'on',
+    roundedSelection: true
+  };
   content = `New Exercise Item`;
   answerContent = ``;
   public mathOptions: KatexOptions = {
@@ -159,7 +164,7 @@ export class ExerciseItemDetailComponent implements OnInit, OnDestroy {
 
       // Update existing exercise item
       if (this.itemObject) {
-        this.itemObject.ItemType = this.itemFormGroup.get('typeControl')!.value as ExerciseItemType;
+        this.itemObject.ItemType = this.itemFormGroup.get('typeControl')?.value as ExerciseItemType;
         this.itemObject.Content = this.content;
         this.itemObject.Tags = this.tags;
         this.itemObject.Answer = this.answerContent;

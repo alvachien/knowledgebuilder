@@ -23,11 +23,11 @@
     <div class="control-full-width"><span>{{'Tags' | transloco}}: </span>{{selectedExercise.Tags.toString()}}</div>
     <mat-divider></mat-divider>
     <div class="control-full-width">
-        <markdown [data]="selectedExercise.Content" katex [katexOptions]="mathOptions"></markdown>
+        <markdown ngPreserveWhitespaces [data]="selectedExercise.Content" katex [katexOptions]="mathOptions"></markdown>
     </div>
     <mat-divider></mat-divider>
     <div class="control-full-width">
-        <markdown [data]="selectedExercise.Answer" katex [katexOptions]="mathOptions"></markdown>
+        <markdown ngPreserveWhitespaces [data]="selectedExercise.Answer" katex [katexOptions]="mathOptions"></markdown>
     </div>
 </div>
 

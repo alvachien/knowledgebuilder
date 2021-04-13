@@ -72,7 +72,7 @@
                 <ngx-monaco-editor [options]="editorOptions" [(ngModel)]="content" style="height: 100%;"></ngx-monaco-editor>
             </div>
             <div fxFlex style="height: 100%; overflow-y: scroll;">
-                <markdown [data]="content" katex [katexOptions]="mathOptions"></markdown>
+                <markdown ngPreserveWhitespaces [data]="content" katex [katexOptions]="mathOptions"></markdown>
             </div>
         </div>
     </mat-card-content>
