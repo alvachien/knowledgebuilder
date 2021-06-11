@@ -153,6 +153,12 @@
         "InvalidNumberOfCopy": "无效的拷贝份数，请输入一个正数",
         "InvalidFontSize": "无效的字体大小，请输入一个10-30之间的数值"
     },
+    "Award": {
+        "Award": "奖励",
+        "Awards": "奖励",
+        "Rules": "奖励规则",
+        "DailyActivity": "日常活动"
+    },
     "Sys":{
         "Operator": {
           "Between": "介于",

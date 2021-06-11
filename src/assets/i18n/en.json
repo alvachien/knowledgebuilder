@@ -153,6 +153,12 @@
         "InvalidNumberOfCopy": "Invalid number of copy, input a positive number",
         "InvalidFontSize": "Invalid font size, input a number between 10-30"    
     },
+    "Award": {
+        "Award": "Award",
+        "Awards": "Awards",
+        "Rules": "Rules",
+        "DailyActivity": "Daily Activity"
+    },
     "Sys":{
         "Operator": {
           "Between": "Between",

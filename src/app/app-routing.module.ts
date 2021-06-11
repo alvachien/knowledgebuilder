@@ -34,6 +34,10 @@ const routes: Routes = [
     loadChildren: () => import('./pages/quiz-summary/quiz-summary.module').then(m => m.QuizSummaryModule),
   },
   {
+    path: 'award',
+    loadChildren: () => import('./pages/award/award.module').then(m => m.AwardModule),
+  },
+  {
     path: 'preview',
     loadChildren: () => import('./pages/preview/preview.module').then(m => m.PreviewModule),
   },

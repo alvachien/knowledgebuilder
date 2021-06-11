@@ -1,0 +1,9 @@
+<mat-card>
+    <mat-card-header>
+        <mat-card-title>{{'Award.DailyActivity' | transloco}}</mat-card-title>
+    </mat-card-header>
+    <mat-card-content>
+        <mat-calendar (selectedChange)="selected = $event"></mat-calendar>
+    </mat-card-content>
+</mat-card>
+

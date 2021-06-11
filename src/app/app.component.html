@@ -80,6 +80,18 @@
       <mat-expansion-panel hideToggle="false">
         <mat-expansion-panel-header>
           <mat-panel-title>
+            <mat-icon color="primary">card_membership</mat-icon>{{'Award.Awards' | transloco}}
+          </mat-panel-title>
+        </mat-expansion-panel-header>
+        <mat-nav-list>
+          <a *ngFor="let navItem of navItems | navItemFilter: 4" mat-list-item [routerLink]="[navItem.route]">
+            {{navItem.name | transloco}}
+          </a>
+        </mat-nav-list>
+      </mat-expansion-panel>
+      <mat-expansion-panel hideToggle="false">
+        <mat-expansion-panel-header>
+          <mat-panel-title>
             <mat-icon color="primary">help_outline</mat-icon>{{'Help.About' | transloco}}
           </mat-panel-title>
         </mat-expansion-panel-header>
