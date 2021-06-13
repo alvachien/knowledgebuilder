@@ -3,7 +3,21 @@
         <mat-card-title>{{'Award.DailyActivity' | transloco}}</mat-card-title>
     </mat-card-header>
     <mat-card-content>
-        <mat-calendar (selectedChange)="selected = $event"></mat-calendar>
+        <div class="calendar">
+            <mat-calendar (selectedChange)="selected = $event"></mat-calendar>
+        </div>
+        <mat-toolbar>
+            <h3>{{'Content' | transloco}}</h3>
+            <div class="toolbar-spacer"></div>
+            <button mat-raised-button >Upload</button>
+        </mat-toolbar>
+        <form>
+            <!-- ID -->
+            <mat-form-field appearance="fill" class="control-full-width">
+                <mat-label>#</mat-label>
+                <input matInput type="text" placeholder="ID" formControlName="idControl">
+            </mat-form-field>
+        </form> 
     </mat-card-content>
 </mat-card>
 

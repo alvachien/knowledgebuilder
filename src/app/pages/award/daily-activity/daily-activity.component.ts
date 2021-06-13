@@ -6,7 +6,7 @@ import { Component, OnInit } from '@angular/core';
   styleUrls: ['./daily-activity.component.scss']
 })
 export class DailyActivityComponent implements OnInit {
-  selected: Date | null;
+  selected: Date | null = null;
   constructor() { }
 
   ngOnInit(): void {
