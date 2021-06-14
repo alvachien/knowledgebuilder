@@ -3,27 +3,34 @@
  * Daily Behavior
  */
 export class DailyBehavior {
-    private _date: Date | undefined;
-    private _goToBedTime: number | undefined;
-    private _schoolWorkTime: number | undefined;
+    private _user: string | null = null;
+    private _date: Date | null = null;
+    private _goToBedTime: number = 0;
+    private _schoolWorkTime: number = 0;
     private _additioanlWorkCount = 0;
 
-    get currentDate(): Date | undefined {
+    get user(): string | null {
+        return this._user;
+    }
+    set user(ur: string | null) {
+        this._user = ur;
+    }
+    get currentDate(): Date | null {
         return this._date;
     }
-    set currentDate(dt: Date | undefined) {
+    set currentDate(dt: Date | null) {
         this._date = dt;
     }
-    get goToBedTime(): number | undefined {
+    get goToBedTime(): number {
         return this._goToBedTime;
     }
-    set goToBedTime(stime: number | undefined) {
+    set goToBedTime(stime: number) {
         this._goToBedTime = stime;
     }
-    get schoolWorkTime(): number | undefined {
+    get schoolWorkTime(): number {
         return this._schoolWorkTime;
     }
-    set schoolWorkTime(swtime: number | undefined) {
+    set schoolWorkTime(swtime: number) {
         this._schoolWorkTime = swtime;
     }
     get additionalWorkCount(): number {
@@ -41,16 +48,30 @@ export enum RuleType {
     additionalWorkCount     = 3,
 }
 
-export class DailyAwardRule {
-    private _point = 0;
-    get point(): number {
-        return this._point;
-    }
-    set point(pt: number) {
-        this._point = pt;
-    }
+export interface AwardPoint {
+    days: number;
+    point: number;
+}
 
-    private _ruleType : RuleType;
+export interface ActivityTimeRange {
+    taskstart: number;
+    taskend: number;
+}
+
+export interface DailyAwardResult {
+    user: string;
+    currentDate: Date;
+    goToBedPoint: number;
+    schoolWorkPoint: number;
+    goToBedContinousDays: number;
+    schoolWorkContinousDays: number;
+}
+
+export class DailyAwardRule {
+    public points: AwardPoint[] = [];
+    public range: ActivityTimeRange | null = null;
+
+    private _ruleType: RuleType = RuleType.goToBedTime;
     get ruleType(): RuleType    { return this._ruleType;    }
     set ruleType(rt: RuleType)  { this._ruleType = rt;      }
 }

@@ -4,20 +4,44 @@
     </mat-card-header>
     <mat-card-content>
         <div class="calendar">
-            <mat-calendar (selectedChange)="selected = $event"></mat-calendar>
+            <mat-calendar (selectedChange)="onDateSelected($event)"></mat-calendar>
         </div>
         <mat-toolbar>
-            <h3>{{'Content' | transloco}}</h3>
+            <h3>{{selected | date:'yyyy-MM-dd'}}</h3>
             <div class="toolbar-spacer"></div>
-            <button mat-raised-button >Upload</button>
+            <button mat-raised-button (click)="onAdd()">Add</button>
+            <button mat-raised-button (click)="onEdit()">Edit</button>
+            <button mat-raised-button (click)="onDelete()">Delete</button>
         </mat-toolbar>
-        <form>
-            <!-- ID -->
+        <form [formGroup]="itemFormGroup">
+            <!-- User -->
+            <!-- <mat-form-field appearance="fill" class="control-full-width">
+                <mat-label>User</mat-label>
+                <input matInput type="text" placeholder="User" formControlName="userControl">
+            </mat-form-field> -->
+
+            <!-- Go to bed -->
             <mat-form-field appearance="fill" class="control-full-width">
-                <mat-label>#</mat-label>
-                <input matInput type="text" placeholder="ID" formControlName="idControl">
+                <mat-label>Go to bed</mat-label>
+                <input matInput type="number" placeholder="Go To End" formControlName="bedControl">
             </mat-form-field>
-        </form> 
+
+            <!-- School work -->
+            <mat-form-field appearance="fill" class="control-full-width">
+                <mat-label>School Work</mat-label>
+                <input matInput type="number" placeholder="School work" formControlName="swControl">
+            </mat-form-field>
+        </form>        
+        <div class="example-button-row">
+            <button mat-raised-button color="primary" (click)="onSave()">Save</button>
+            <button mat-raised-button color="accent">Accent</button>
+            <button mat-raised-button color="warn">Warn</button>
+            <button mat-raised-button disabled>Disabled</button>
+        </div>
+        <div>
+            <div>{{goToBedContinousDays}} Days, Point: {{goToBedPoint}}</div>
+            <div>{{schoolWorkContinousDays}} Days, Point: {{schoolWorkPoint}}</div>
+        </div>
     </mat-card-content>
 </mat-card>
 
