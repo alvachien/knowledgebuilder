@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/prefer-for-of */
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
 import { Component, OnInit } from '@angular/core';
 import { FormControl, FormGroup } from '@angular/forms';
@@ -149,25 +150,29 @@ export class DailyActivityComponent implements OnInit {
         this.dailyAwardRule.forEach(val => {
           if (val.ruleType === RuleType.goToBedTime) {
             if (val.range?.taskstart! <= db.goToBedTime && val.range?.taskend! >= db.goToBedTime) {
-              val.points.forEach(pnt => {
-                if (pnt.days >= prv?.goToBedContinousDays! + 1) {
-                  drst.goToBedContinousDays = pnt.days + 1;
-                  drst.goToBedPoint = pnt.point;
+              for (let i = 0; i < val.points.length; i ++) {
+                if (val.points[i].days === prv?.goToBedContinousDays! + 1) {
+                  drst.goToBedContinousDays = val.points[i].days;
+                  drst.goToBedPoint = val.points[i].point;
                 }
-              });
+              }
             }
           } else if (val.ruleType === RuleType.schoolWorkTime) {
             if (val.range?.taskstart! <= db.schoolWorkTime && val.range?.taskend! >= db.schoolWorkTime) {
-              val.points.forEach(pnt => {
-                if (pnt.days >= prv?.schoolWorkContinousDays! + 1) {
-                  drst.schoolWorkContinousDays = pnt.days + 1;
-                  drst.schoolWorkPoint = pnt.point;
+              for (let i = 0; i < val.points.length; i ++) {
+                if (val.points[i].days === prv?.schoolWorkContinousDays! + 1) {
+                  drst.schoolWorkContinousDays = val.points[i].days;
+                  drst.schoolWorkPoint = val.points[i].point;
                 }
-              });
+              }
             }
           }
         });
 
+        this.goToBedPoint = drst.goToBedPoint;
+        this.schoolWorkPoint = drst.schoolWorkPoint;
+        this.goToBedContinousDays = drst.goToBedContinousDays;
+        this.schoolWorkContinousDays = drst.schoolWorkContinousDays;
         this.dailyAwardResult.push(drst);
       } else {
         const drst: DailyAwardResult = {
@@ -200,6 +205,10 @@ export class DailyActivityComponent implements OnInit {
           }
         });
 
+        this.goToBedPoint = drst.goToBedPoint;
+        this.schoolWorkPoint = drst.schoolWorkPoint;
+        this.goToBedContinousDays = drst.goToBedContinousDays;
+        this.schoolWorkContinousDays = drst.schoolWorkContinousDays;
         this.dailyAwardResult.push(drst);
       }
       // 3. Update the following days;
@@ -213,6 +222,11 @@ export class DailyActivityComponent implements OnInit {
         schoolWorkContinousDays: 1,
       };
       this.dailyAwardResult.push(drst);
+
+      this.goToBedPoint = 0;
+      this.schoolWorkPoint = 0;
+      this.goToBedContinousDays = 0;
+      this.schoolWorkContinousDays = 0;
     }
   }
 
