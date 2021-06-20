@@ -1,11 +1,15 @@
 import { Component, OnInit } from '@angular/core';
+import { RuleType } from 'src/app/models/award';
 import { QuizService } from 'src/app/services';
 
-export interface PeriodicElement {
-  name: string;
-  position: number;
-  weight: number;
-  symbol: string;
+export interface dbawardrule {
+  user: string;
+  ruletype: RuleType;
+  timefrom: number;
+  timeto: number;
+  dayfrom: number;
+  dayto: number;
+  point: number;
 }
 
 @Component({
@@ -15,11 +19,39 @@ export interface PeriodicElement {
 })
 export class AwardRuleComponent implements OnInit {
 
-  displayedColumns: string[] = ['rule', 'day1', 'day2', 'day3', 'day4'];
-  dataSource = ELEMENT_DATA;
+  displayedColumns: string[] = ['user', 'ruletype', 'timefrom', 'timeto', 'dayfrom', 'dayto', 'point'];
+  dataSource: dbawardrule[] = [];
 
   constructor(private quizSrv: QuizService) { }
 
   ngOnInit(): void {
+    this.dataSource = [];
+    this.dataSource.push({
+      user: 'AAA',
+      ruletype: RuleType.goToBedTime,
+      timefrom: 20,
+      timeto: 21,
+      dayfrom: 1,
+      dayto: 1,
+      point: 1
+    });
+    this.dataSource.push({
+      user: 'AAA',
+      ruletype: RuleType.goToBedTime,
+      timefrom: 20,
+      timeto: 21,
+      dayfrom: 2,
+      dayto: 2,
+      point: 3
+    });
+    this.dataSource.push({
+      user: 'AAA',
+      ruletype: RuleType.goToBedTime,
+      timefrom: 20,
+      timeto: 21,
+      dayfrom: 3,
+      dayto: 3,
+      point: 5
+    });
   }
 }

@@ -4,30 +4,48 @@
     </mat-card-header>
     <mat-card-content>
         <table mat-table [dataSource]="dataSource" class="mat-elevation-z8">
-            <!-- Position Column -->
-            <ng-container matColumnDef="position">
-              <th mat-header-cell *matHeaderCellDef> No. </th>
-              <td mat-cell *matCellDef="let element"> {{element.position}} </td>
+            <!-- User Column -->
+            <ng-container matColumnDef="user">
+              <th mat-header-cell *matHeaderCellDef> User </th>
+              <td mat-cell *matCellDef="let element"> {{element.user}} </td>
             </ng-container>
           
-            <!-- Name Column -->
-            <ng-container matColumnDef="name">
-              <th mat-header-cell *matHeaderCellDef> Name </th>
-              <td mat-cell *matCellDef="let element"> {{element.name}} </td>
+            <!-- Rule Type Column -->
+            <ng-container matColumnDef="ruletype">
+              <th mat-header-cell *matHeaderCellDef> Rule </th>
+              <td mat-cell *matCellDef="let element"> {{element.ruletype}} </td>
             </ng-container>
           
-            <!-- Weight Column -->
-            <ng-container matColumnDef="weight">
-              <th mat-header-cell *matHeaderCellDef> Weight </th>
-              <td mat-cell *matCellDef="let element"> {{element.weight}} </td>
+            <!-- Time from Column -->
+            <ng-container matColumnDef="timefrom">
+              <th mat-header-cell *matHeaderCellDef> From </th>
+              <td mat-cell *matCellDef="let element"> {{element.timefrom}} </td>
             </ng-container>
           
-            <!-- Symbol Column -->
-            <ng-container matColumnDef="symbol">
-              <th mat-header-cell *matHeaderCellDef> Symbol </th>
-              <td mat-cell *matCellDef="let element"> {{element.symbol}} </td>
+            <!-- Time to Column -->
+            <ng-container matColumnDef="timeto">
+              <th mat-header-cell *matHeaderCellDef> To </th>
+              <td mat-cell *matCellDef="let element"> {{element.timeto}} </td>
             </ng-container>
-          
+
+            <!-- Day from Column -->
+            <ng-container matColumnDef="dayfrom">
+                <th mat-header-cell *matHeaderCellDef> Days from </th>
+                <td mat-cell *matCellDef="let element"> {{element.dayfrom}} </td>
+            </ng-container>
+            
+            <!-- Day to Column -->
+            <ng-container matColumnDef="dayto">
+                <th mat-header-cell *matHeaderCellDef> To </th>
+                <td mat-cell *matCellDef="let element"> {{element.dayto}} </td>
+            </ng-container>
+            
+            <!-- Point Column -->
+            <ng-container matColumnDef="point">
+                <th mat-header-cell *matHeaderCellDef> Point </th>
+                <td mat-cell *matCellDef="let element"> {{element.point}} </td>
+            </ng-container>
+
             <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
             <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
           </table>        
