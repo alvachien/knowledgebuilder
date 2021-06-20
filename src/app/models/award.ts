@@ -1,3 +1,4 @@
+/* eslint-disable no-underscore-dangle */
 
 /***
  * Daily Behavior
@@ -5,8 +6,8 @@
 export class DailyBehavior {
     private _user: string | null = null;
     private _date: Date | null = null;
-    private _goToBedTime: number = 0;
-    private _schoolWorkTime: number = 0;
+    private _goToBedTime = 0;
+    private _schoolWorkTime = 0;
     private _additioanlWorkCount = 0;
 
     get user(): string | null {
@@ -49,13 +50,16 @@ export enum RuleType {
 }
 
 export interface AwardPoint {
-    days: number;
+    daysFrom: number;
+    daysTo: number;
     point: number;
 }
 
 export interface ActivityTimeRange {
     taskstart: number;
     taskend: number;
+
+    points: AwardPoint[];
 }
 
 export interface DailyAwardResult {
@@ -68,8 +72,7 @@ export interface DailyAwardResult {
 }
 
 export class DailyAwardRule {
-    public points: AwardPoint[] = [];
-    public range: ActivityTimeRange | null = null;
+    public ranges: ActivityTimeRange[] = [];
 
     private _ruleType: RuleType = RuleType.goToBedTime;
     get ruleType(): RuleType    { return this._ruleType;    }

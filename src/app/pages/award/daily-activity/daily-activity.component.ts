@@ -2,6 +2,7 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
 import { Component, OnInit } from '@angular/core';
 import { FormControl, FormGroup } from '@angular/forms';
+import moment from 'moment';
 import { DailyAwardRule, DailyBehavior, OneTimeAwardRule, RuleType, DailyAwardResult, } from 'src/app/models/award';
 
 @Component({
@@ -33,29 +34,73 @@ export class DailyActivityComponent implements OnInit {
   ngOnInit(): void {
     // Add rules
     let rule = new DailyAwardRule();
-    rule.range = {
+    rule.ranges = [{
       taskstart: 18,
       taskend: 21,
-    };
+      points: [
+        { daysFrom: 1, daysTo: 1, point: 1},
+        { daysFrom: 2, daysTo: 2, point: 3},
+        { daysFrom: 3, daysTo: 3, point: 5},
+        { daysFrom: 4, daysTo: 4, point: 8},
+        { daysFrom: 5, daysTo: 9999, point: 12},
+      ],
+    }, {
+      taskstart: 21,
+      taskend: 22,
+      points: [
+        { daysFrom: 1, daysTo: 1, point: -1},
+        { daysFrom: 2, daysTo: 2, point: -3},
+        { daysFrom: 3, daysTo: 3, point: -5},
+        { daysFrom: 4, daysTo: 4, point: -8},
+        { daysFrom: 5, daysTo: 9999, point: -12},
+      ],
+    }, {
+      taskstart: 22,
+      taskend: 23,
+      points: [
+        { daysFrom: 1, daysTo: 1, point: -5},
+        { daysFrom: 2, daysTo: 2, point: -10},
+        { daysFrom: 3, daysTo: 3, point: -15},
+        { daysFrom: 4, daysTo: 4, point: -20},
+        { daysFrom: 5, daysTo: 9999, point: -30},
+      ],
+    }];
     rule.ruleType = RuleType.goToBedTime;
-    rule.points.push({ days: 1, point: 1});
-    rule.points.push({ days: 2, point: 3});
-    rule.points.push({ days: 3, point: 5});
-    rule.points.push({ days: 4, point: 8});
-    rule.points.push({ days: 5, point: 12});
     this.dailyAwardRule.push(rule);
 
     rule = new DailyAwardRule();
-    rule.range = {
+    rule.ranges = [{
       taskstart: 16,
       taskend: 19,
-    };
+      points: [
+        { daysFrom: 1, daysTo: 1, point: 1},
+        { daysFrom: 2, daysTo: 2, point: 3},
+        { daysFrom: 3, daysTo: 3, point: 5},
+        { daysFrom: 4, daysTo: 4, point: 8},
+        { daysFrom: 5, daysTo: 9999, point: 12},
+      ],
+    }, {
+      taskstart: 19,
+      taskend: 20,
+      points: [
+        { daysFrom: 1, daysTo: 1, point: -1},
+        { daysFrom: 2, daysTo: 2, point: -3},
+        { daysFrom: 3, daysTo: 3, point: -5},
+        { daysFrom: 4, daysTo: 4, point: -8},
+        { daysFrom: 5, daysTo: 9999, point: -12},
+      ],
+    }, {
+      taskstart: 20,
+      taskend: 22,
+      points: [
+        { daysFrom: 1, daysTo: 1, point: -5},
+        { daysFrom: 2, daysTo: 2, point: -10},
+        { daysFrom: 3, daysTo: 3, point: -15},
+        { daysFrom: 4, daysTo: 4, point: -20},
+        { daysFrom: 5, daysTo: 9999, point: -30},
+      ],
+    }];
     rule.ruleType = RuleType.schoolWorkTime;
-    rule.points.push({ days: 1, point: 1});
-    rule.points.push({ days: 2, point: 3});
-    rule.points.push({ days: 3, point: 5});
-    rule.points.push({ days: 4, point: 8});
-    rule.points.push({ days: 5, point: 12});
     this.dailyAwardRule.push(rule);
   }
 
@@ -94,140 +139,93 @@ export class DailyActivityComponent implements OnInit {
 
   }
   onDelete(): void {
-
   }
+
   onSave(): void {
+    // 1. Save behavior
     const db: DailyBehavior = new DailyBehavior();
     db.currentDate = this.selected;
     // db.user = this.itemFormGroup.get('userControl')?.value;
     db.user = this.curUser;
     db.goToBedTime = this.itemFormGroup.get('bedControl')?.value;
     db.schoolWorkTime = this.itemFormGroup.get('swControl')?.value;
-
-    if (this.isRecordExist(db.user, db.currentDate)) {
-      alert('Existed');
-    }
-
     this.dailyActivities.push(db);
 
-    // Calculate the points if necessary
-    let bNeedCal = false;
+    // 2. Calculate the points.
+    // 2.1. Find the last day.
+    let prvrst: DailyAwardResult | null = null;
+    let prvbeh: DailyBehavior | null = null;
+    if (db.currentDate !== null) {
+      const curmoment = moment(db.currentDate);
+      const prvmoment = curmoment.subtract(1, 'days');
+      this.dailyAwardResult.forEach(val => {
+        const valmoment = moment(val.currentDate);
+        if (val.user === this.curUser && valmoment.isSame(prvmoment, 'day')) {
+          prvrst = val;
+        }
+      });
+      this.dailyActivities.forEach(val => {
+        const valmoment = moment(val.currentDate!);
+        if (val.user === this.curUser && valmoment.isSame(prvmoment, 'day')) {
+          prvbeh = val;
+        }
+      });
+    }
+    // 2.2 Calculate the points.
+    const drst: DailyAwardResult = {
+      currentDate: db.currentDate!,
+      user: this.curUser,
+      goToBedPoint: 0,
+      schoolWorkPoint: 0,
+      goToBedContinousDays: 0,
+      schoolWorkContinousDays: 0,
+    };
     this.dailyAwardRule.forEach(val => {
       if (val.ruleType === RuleType.goToBedTime) {
-        if (val.range?.taskstart! <= db.goToBedTime && val.range?.taskend! >= db.goToBedTime) {
-          bNeedCal = true;
-        }
+        val.ranges.forEach(range => {
+          // Current date
+          if (range.taskstart! <= db.goToBedTime && range.taskend! > db.goToBedTime) {
+            // Prv day
+            if (prvrst !== null && prvbeh !== null && range.taskstart! <= prvbeh?.goToBedTime! && range.taskend! > prvbeh?.goToBedTime!) {
+              drst.goToBedContinousDays = prvrst?.goToBedContinousDays! + 1;
+            } else {
+              drst.goToBedContinousDays = 1;
+            }
+
+            range.points.forEach(pnt => {
+              if (pnt.daysFrom <= drst.goToBedContinousDays && pnt.daysTo >= drst.goToBedContinousDays) {
+                drst.goToBedPoint = pnt.point;
+              }
+            });
+          }
+        });
       } else if (val.ruleType === RuleType.schoolWorkTime) {
-        if (val.range?.taskstart! <= db.schoolWorkTime && val.range?.taskend! >= db.schoolWorkTime) {
-          bNeedCal = true;
-        }
+        val.ranges.forEach(range => {
+          // Current date
+          if (range.taskstart! <= db.schoolWorkTime && range.taskend! > db.schoolWorkTime) {
+            // Prv day
+            if (prvrst !== null && prvbeh !== null && range.taskstart! <= prvbeh?.schoolWorkTime!
+              && range.taskend! > prvbeh?.schoolWorkTime!) {
+              drst.schoolWorkContinousDays = prvrst?.schoolWorkContinousDays! + 1;
+            } else {
+              drst.schoolWorkContinousDays = 1;
+            }
+
+            range.points.forEach(pnt => {
+              if (pnt.daysFrom <= drst.schoolWorkContinousDays && pnt.daysTo >= drst.schoolWorkContinousDays) {
+                drst.schoolWorkPoint = pnt.point;
+              }
+            });
+          }
+        });
       }
     });
 
-    if (bNeedCal) {
-      // 1. Find the last day.
-      let prv: DailyAwardResult | null = null;
-      if (db.currentDate !== null) {
-        const prvdate = new Date(db.currentDate?.getTime() - 1000*60*60*24);
-        this.dailyAwardResult.forEach(val => {
-          if (val.user === this.curUser && val.currentDate?.getFullYear() === prvdate?.getFullYear()
-            && val.currentDate?.getMonth() === prvdate?.getMonth()
-            && val.currentDate?.getDate() === prvdate?.getDate()) {
-            prv = val;
-          }
-        });
-      }
-      // 2. Update the today;
-      if (prv) {
-        const drst: DailyAwardResult = {
-          currentDate: db.currentDate!,
-          user: this.curUser,
-          goToBedPoint: 0,
-          schoolWorkPoint: 0,
-          goToBedContinousDays: 0,
-          schoolWorkContinousDays: 0,
-        };
-        this.dailyAwardRule.forEach(val => {
-          if (val.ruleType === RuleType.goToBedTime) {
-            if (val.range?.taskstart! <= db.goToBedTime && val.range?.taskend! >= db.goToBedTime) {
-              for (let i = 0; i < val.points.length; i ++) {
-                if (val.points[i].days === prv?.goToBedContinousDays! + 1) {
-                  drst.goToBedContinousDays = val.points[i].days;
-                  drst.goToBedPoint = val.points[i].point;
-                }
-              }
-            }
-          } else if (val.ruleType === RuleType.schoolWorkTime) {
-            if (val.range?.taskstart! <= db.schoolWorkTime && val.range?.taskend! >= db.schoolWorkTime) {
-              for (let i = 0; i < val.points.length; i ++) {
-                if (val.points[i].days === prv?.schoolWorkContinousDays! + 1) {
-                  drst.schoolWorkContinousDays = val.points[i].days;
-                  drst.schoolWorkPoint = val.points[i].point;
-                }
-              }
-            }
-          }
-        });
-
-        this.goToBedPoint = drst.goToBedPoint;
-        this.schoolWorkPoint = drst.schoolWorkPoint;
-        this.goToBedContinousDays = drst.goToBedContinousDays;
-        this.schoolWorkContinousDays = drst.schoolWorkContinousDays;
-        this.dailyAwardResult.push(drst);
-      } else {
-        const drst: DailyAwardResult = {
-          currentDate: db.currentDate!,
-          user: this.curUser,
-          goToBedPoint: 0,
-          schoolWorkPoint: 0,
-          goToBedContinousDays: 0,
-          schoolWorkContinousDays: 0,
-        };
-        this.dailyAwardRule.forEach(val => {
-          if (val.ruleType === RuleType.goToBedTime) {
-            if (val.range?.taskstart! <= db.goToBedTime && val.range?.taskend! >= db.goToBedTime) {
-              val.points.forEach(pnt => {
-                if (pnt.days === 1) {
-                  drst.goToBedContinousDays = 1;
-                  drst.goToBedPoint = pnt.point;
-                }
-              });
-            }
-          } else if (val.ruleType === RuleType.schoolWorkTime) {
-            if (val.range?.taskstart! <= db.schoolWorkTime && val.range?.taskend! >= db.schoolWorkTime) {
-              val.points.forEach(pnt => {
-                if (pnt.days === 1) {
-                  drst.schoolWorkContinousDays = 1;
-                  drst.schoolWorkPoint = pnt.point;
-                }
-              });
-            }
-          }
-        });
-
-        this.goToBedPoint = drst.goToBedPoint;
-        this.schoolWorkPoint = drst.schoolWorkPoint;
-        this.goToBedContinousDays = drst.goToBedContinousDays;
-        this.schoolWorkContinousDays = drst.schoolWorkContinousDays;
-        this.dailyAwardResult.push(drst);
-      }
-      // 3. Update the following days;
-    } else {
-      const drst: DailyAwardResult = {
-        currentDate: db.currentDate!,
-        user: this.curUser,
-        goToBedPoint: 0,
-        schoolWorkPoint: 0,
-        goToBedContinousDays: 1,
-        schoolWorkContinousDays: 1,
-      };
-      this.dailyAwardResult.push(drst);
-
-      this.goToBedPoint = 0;
-      this.schoolWorkPoint = 0;
-      this.goToBedContinousDays = 0;
-      this.schoolWorkContinousDays = 0;
-    }
+    this.goToBedPoint = drst.goToBedPoint;
+    this.schoolWorkPoint = drst.schoolWorkPoint;
+    this.goToBedContinousDays = drst.goToBedContinousDays;
+    this.schoolWorkContinousDays = drst.schoolWorkContinousDays;
+    this.dailyAwardResult.push(drst);
   }
 
   private isRecordExist(usr: string | null, dat: Date | null): boolean {
