@@ -4,7 +4,9 @@ import { HttpParams, HttpClient, HttpHeaders, HttpResponse, HttpRequest, HttpErr
 import { Observable, throwError, Subject, of } from 'rxjs';
 import { map, catchError } from 'rxjs/operators';
 
-import { ExerciseItem, ExerciseItemSearchResult, TagCount, Tag, KnowledgeItem, TagReferenceType, OverviewInfo } from '../models';
+import { ExerciseItem, ExerciseItemSearchResult, TagCount, Tag, KnowledgeItem, TagReferenceType, OverviewInfo,
+  AwardRule,
+  DailyTrace, } from '../models';
 import { environment } from '../../environments/environment';
 
 export interface PreviewObject {
@@ -476,6 +478,69 @@ export class ODataService {
         };
       }),
       catchError((error: HttpErrorResponse) => throwError(error.statusText + '; ' + error.error + '; ' + error.message) ));
+  }
+
+  // Award Rule
+  public getAwardRules(top = 30, skip = 0, sort?: string, filter?: string):
+    Observable<{ totalCount: number; items: AwardRule[] }> {
+    // if (environment.mockdata && this.mockedExerciseItem.length > 0) {
+    //   return of({
+    //     totalCount: this.mockedExerciseItem.length,
+    //     items: this.mockedExerciseItem
+    //   });
+    // }
+
+    let headers: HttpHeaders = new HttpHeaders();
+    headers = headers.append('Content-Type', 'application/json')
+      .append('Accept', 'application/json');
+
+    let params: HttpParams = new HttpParams();
+    params = params.append('$top', top.toString());
+    params = params.append('$skip', skip.toString());
+    params = params.append('$count', 'true');
+    params = params.append('$select',
+      'ID,RuleType,TargetUser,Desp,ValidFrom,ValidTo,CountOfFactLow,CountOfFactHigh,DoneOfFact,TimeStart,TimeEnd,DaysFrom,DaysTo,Point');
+    if (filter) {
+      params = params.append('$filter', filter);
+    }
+    const apiurl = `${this.apiUrl}AwardRules`;
+    // if (environment.mockdata) {
+    //   apiurl = `${environment.basehref}assets/mockdata/exercise-items.json`;
+    //   params = new HttpParams();
+    // }
+
+    return this.http.get(apiurl, {
+      headers,
+      params,
+    })
+      .pipe(map(response => {
+        const rjs = response as any;
+        const ritems = rjs.value as any[];
+        const items: AwardRule[] = [];
+        ritems.forEach(item => {
+          const rit: AwardRule = new AwardRule();
+          rit.parseData(item);
+          items.push(rit);
+        });
+
+        return {
+          totalCount: rjs['@odata.count'],
+          items,
+        };
+      }),
+      catchError((error: HttpErrorResponse) => throwError(error.statusText + '; ' + error.error + '; ' + error.message) ));
+  }
+
+  // Daily trace
+  public getDailyTrace(top = 30, skip = 0, sort?: string, filter?: string):
+    Observable<{ totalCount: number; items: DailyTrace[] }> {
+
+  }
+
+  // Award points
+  public getAwardPoints(top = 30, skip = 0, sort?: string, filter?: string):
+    Observable<{ totalCount: number; items: AwardPoint[] }> {
+
   }
 
   // File upload

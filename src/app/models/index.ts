@@ -7,4 +7,5 @@ export * from './uicommon';
 export * from './quizconcept';
 export * from './puzzle-game';
 export * from './gobang';
+export * from './award';
 

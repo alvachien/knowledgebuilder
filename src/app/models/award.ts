@@ -1,69 +1,82 @@
 /* eslint-disable no-underscore-dangle */
+/* eslint-disable no-shadow */
+
+import moment from 'moment';
 
 /**
  * Award Rule
  */
 export enum AwardRuleTypeEnum {
-    GoToBedTime = 1,
-    SchoolWorkTime = 2,
-    HomeWorkCount = 3,
-    BodyExerciseCount = 4,
-    ErrorCollectionHabit = 5,
-    CleanDeakHabit = 6,
-    HouseKeepingCount = 7,
-    PoliteBehavior = 8,
-    HandWritingHabit = 9,
+    goToBedTime = 1,
+    schoolWorkTime = 2,
+    homeWorkCount = 3,
+    bodyExerciseCount = 4,
+    errorCollectionHabit = 5,
+    cleanDeakHabit = 6,
+    houseKeepingCount = 7,
+    politeBehavior = 8,
+    handWritingHabit = 9,
 }
 
-
 export class AwardRule {
-    ID: number;
-    RuleType: AwardRuleTypeEnum;
-    TargetUser: string;
-    Desp: string;
-    ValidFrom: moment.Moment;
-    ValidTo: moment.Moment;
-    CoutOfFactLow?: number;
-    CoutOfFactHigh?: number;
-    DoneOfFact?: boolean;
-    TimeStart?: number;
-    TimeEnd?: number;
-    DaysFrom?: number;
-    DaysTo?: number;
-    Point: number;
+    id = -1;
+    ruleType: AwardRuleTypeEnum = AwardRuleTypeEnum.goToBedTime;
+    targetUser = '';
+    desp = '';
+    validFrom: moment.Moment = moment();
+    validTo: moment.Moment = moment();
+    countOfFactLow?: number;
+    countOfFactHigh?: number;
+    doneOfFact?: boolean;
+    timeStart?: number;
+    timeEnd?: number;
+    daysFrom?: number;
+    daysTo?: number;
+    point = 0;
 
-    public IsValid(): boolean {
-        if (!this.TargetUser) {
+    public isValid(): boolean {
+        if (!this.targetUser) {
             return false;
         }
-        if (!this.Desp) {
+        if (!this.desp) {
             return false;
         }
 
-        switch (RuleType) {
-            case AwardRuleTypeEnum.GoToBedTime:
-            case AwardRuleTypeEnum.SchoolWorkTime:
-                if (this.TimeStart === undefined || this.TimeEnd === undefined
-                    || this.TimeStart > this.TimeEnd)
-                    return false;
+        switch (this.ruleType) {
+            case AwardRuleTypeEnum.goToBedTime:
+            case AwardRuleTypeEnum.schoolWorkTime:
+                {
+                    if (this.timeStart === undefined || this.timeEnd === undefined
+                        || this.timeStart > this.timeEnd) {
+                        return false;
+                    }
+                }
                 break;
 
-            case AwardRuleTypeEnum.HomeWorkCount:
-            case AwardRuleTypeEnum.BodyExerciseCount:
-            case AwardRuleTypeEnum.HouseKeepingCount:
-            case AwardRuleTypeEnum.PoliteBehavior:
-                if (this.CountOfFactLow === undefined)
-                    return false;
-                if (this.CountOfFactHigh === undefined)
-                    return false;
-                if (this.CountOfFactLow > this.CountOfFactHigh)
-                    return false;
+            case AwardRuleTypeEnum.homeWorkCount:
+            case AwardRuleTypeEnum.bodyExerciseCount:
+            case AwardRuleTypeEnum.houseKeepingCount:
+            case AwardRuleTypeEnum.politeBehavior:
+                {
+                    if (this.countOfFactLow === undefined) {
+                        return false;
+                    }
+                    if (this.countOfFactHigh === undefined) {
+                        return false;
+                    }
+                    if (this.countOfFactLow > this.countOfFactHigh) {
+                        return false;
+                    }
+                }
                 break;
 
-            case AwardRuleTypeEnum.ErrorCollectionHabit:
-            case AwardRuleTypeEnum.CleanDeakHabit:
-                if (this.DoneOfFact === undefined)
-                    return false;
+            case AwardRuleTypeEnum.errorCollectionHabit:
+            case AwardRuleTypeEnum.cleanDeakHabit:
+                {
+                    if (this.doneOfFact === undefined) {
+                        return false;
+                    }
+                }
                 break;
 
             default:
@@ -72,31 +85,89 @@ export class AwardRule {
 
         return true;
     }
+
+    public parseData(val: any): void {
+        if (val && val.ID) {
+            this.id = +val.ID;
+        }
+        if (val && val.RuleType)
+        {
+            if (isNaN(+val.RuleType)) {
+                this.ruleType = AwardRuleTypeEnum[val.RuleType as keyof typeof AwardRuleTypeEnum];
+            } else {
+                this.ruleType = +val.RuleType;
+            }
+        }
+        if (val && val.TargetUser) {
+            this.targetUser = val.TargetUser;
+        }
+        if (val && val.Desp) {
+            this.desp = val.Desp;
+        }
+        if (val && val.ValidFrom) {
+            this.validFrom = moment(val.ValidFrom);
+        }
+        if (val && val.ValidTo) {
+            this.validTo = moment(val.ValidTo);
+        }
+        if (val && val.CountOfFactLow) {
+            this.countOfFactLow = val.CountOfFactLow;
+        }
+        if (val && val.CountOfFactHigh) {
+            this.countOfFactHigh = val.CountOfFactHigh;
+        }
+        if (val && val.DoneOfFact) {
+            this.doneOfFact = val.DoneOfFact;
+        }
+        if (val && val.TimeStart) {
+            this.timeStart = val.TimeStart;
+        }
+        if (val && val.TimeEnd) {
+            this.timeEnd = val.TimeEnd;
+        }
+        if (val && val.DaysFrom) {
+            this.daysFrom = val.DaysFrom;
+        }
+        if (val && val.DaysTo) {
+            this.daysTo = val.DaysTo;
+        }
+        if (val && val.Point) {
+            this.point = val.Point;
+        }
+    }
 }
 
 export class DailyTrace {
-    TargetUser: string;
-    RecordDate: moment.Moment;
-    SchoolWorkTime?: number;
-    GoToBedTime?: number;
-    HomeWorkCount?: number;
-    BodyExerciseCount?: number;
-    ErrorsCollection?: boolean;
-    HandWriting?: boolean;
-    CleanDesk?: boolean;
-    HouseKeepingCount?: number;
-    PoliteBehavior?: number;
-    Comment: string;
+    targetUser = '';
+    recordDate: moment.Moment = moment();
+    schoolWorkTime?: number;
+    goToBedTime?: number;
+    homeWorkCount?: number;
+    bodyExerciseCount?: number;
+    errorsCollection?: boolean;
+    handWriting?: boolean;
+    cleanDesk?: boolean;
+    houseKeepingCount?: number;
+    politeBehavior?: number;
+    comment = '';
+
+    public parseData(val: any): void {
+
+    }
 }
 
 export class AwardPoint {
-    ID: number;
-    TargetUser: string;
-    RecordDate: moment.Moment;
-    MatchedRuleID?: number;
-    CountOfDay?: number;
-    Point: number;
-    Comment: string;
+    id =1;
+    targetUser = '';
+    recordDate: moment.Moment = moment();
+    matchedRuleID?: number;
+    countOfDay?: number;
+    point = 0;
+    comment = '';
+
+    public parseData(val: any): void {
+        
+    }
 }
 
 /***
