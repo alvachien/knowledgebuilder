@@ -152,7 +152,42 @@ export class DailyTrace {
     comment = '';
 
     public parseData(val: any): void {
-
+        if (val && val.TargetUser) {
+            this.targetUser = val.TargetUser;
+        }
+        if (val && val.RecordDate) {
+            this.recordDate = moment(val.RecordDate);
+        }
+        if (val && val.GoToBedTime) {
+            this.goToBedTime = val.GoToBedTime;
+        }
+        if (val && val.SchoolWorkTime) {
+            this.schoolWorkTime = val.SchoolWorkTime;
+        }
+        if (val && val.HomeWorkCount) {
+            this.homeWorkCount = val.HomeWorkCount;
+        }
+        if (val && val.BodyExerciseCount) {
+            this.bodyExerciseCount = val.BodyExerciseCount;
+        }
+        if (val && val.errorsCollection) {
+            this.errorsCollection = val.ErrorsCollection;
+        }
+        if (val && val.HandWriting) {
+            this.handWriting = val.HandWriting;
+        }
+        if (val && val.CleanDesk) {
+            this.cleanDesk = val.CleanDesk;
+        }
+        if (val && val.HouseKeepingCount) {
+            this.houseKeepingCount = val.HouseKeepingCount;
+        }
+        if (val && val.PoliteBehavior) {
+            this.politeBehavior = val.PoliteBehavior;
+        }
+        if (val && val.Comment) {
+            this.comment = val.Comment;
+        }
     }
 }
 
@@ -166,7 +201,27 @@ export class AwardPoint {
     comment = '';
 
     public parseData(val: any): void {
-        
+        if (val && val.ID) {
+            this.id = val.ID;
+        }
+        if (val && val.TargetUser) {
+            this.targetUser = val.TargetUser;
+        }
+        if (val && val.RecordDate) {
+            this.recordDate = moment(val.RecordDate);
+        }
+        if (val && val.MatchedRuleID) {
+            this.matchedRuleID = val.MatchedRuleID;
+        }
+        if (val && val.CountOfDay) {
+            this.countOfDay = val.CountOfDay;
+        }
+        if (val && val.Point) {
+            this.point = val.Point;
+        }
+        if (val && val.Comment) {
+            this.comment = val.Comment;
+        }
     }
 }
 
