@@ -2,6 +2,7 @@
 /* eslint-disable no-shadow */
 
 import moment from 'moment';
+import { momentDateFormat } from './uicommon';
 
 /**
  * Award Rule
@@ -90,8 +91,7 @@ export class AwardRule {
         if (val && val.ID) {
             this.id = +val.ID;
         }
-        if (val && val.RuleType)
-        {
+        if (val && val.RuleType) {
             if (isNaN(+val.RuleType)) {
                 this.ruleType = AwardRuleTypeEnum[val.RuleType as keyof typeof AwardRuleTypeEnum];
             } else {
@@ -140,15 +140,15 @@ export class AwardRule {
 export class DailyTrace {
     targetUser = '';
     recordDate: moment.Moment = moment();
-    schoolWorkTime?: number;
-    goToBedTime?: number;
-    homeWorkCount?: number;
-    bodyExerciseCount?: number;
-    errorsCollection?: boolean;
-    handWriting?: boolean;
-    cleanDesk?: boolean;
-    houseKeepingCount?: number;
-    politeBehavior?: number;
+    schoolWorkTime: number | null = null;
+    goToBedTime: number | null = null;
+    homeWorkCount: number | null = null;
+    bodyExerciseCount: number | null = null;
+    errorsCollection: boolean | null = null;
+    handWriting: boolean | null = null;
+    cleanDesk: boolean | null = null;
+    houseKeepingCount: number | null = null;
+    politeBehavior: number | null = null;
     comment = '';
 
     public parseData(val: any): void {
@@ -158,41 +158,81 @@ export class DailyTrace {
         if (val && val.RecordDate) {
             this.recordDate = moment(val.RecordDate);
         }
-        if (val && val.GoToBedTime) {
+        if (val && val.GoToBedTime !== undefined) {
             this.goToBedTime = val.GoToBedTime;
         }
-        if (val && val.SchoolWorkTime) {
+        if (val && val.SchoolWorkTime !== undefined) {
             this.schoolWorkTime = val.SchoolWorkTime;
         }
-        if (val && val.HomeWorkCount) {
+        if (val && val.HomeWorkCount !== undefined) {
             this.homeWorkCount = val.HomeWorkCount;
         }
-        if (val && val.BodyExerciseCount) {
+        if (val && val.BodyExerciseCount !== undefined) {
             this.bodyExerciseCount = val.BodyExerciseCount;
         }
-        if (val && val.errorsCollection) {
+        if (val && val.errorsCollection !== undefined) {
             this.errorsCollection = val.ErrorsCollection;
         }
-        if (val && val.HandWriting) {
+        if (val && val.HandWriting !== undefined) {
             this.handWriting = val.HandWriting;
         }
-        if (val && val.CleanDesk) {
+        if (val && val.CleanDesk !== undefined) {
             this.cleanDesk = val.CleanDesk;
         }
-        if (val && val.HouseKeepingCount) {
+        if (val && val.HouseKeepingCount !== undefined) {
             this.houseKeepingCount = val.HouseKeepingCount;
         }
-        if (val && val.PoliteBehavior) {
+        if (val && val.PoliteBehavior !== undefined) {
             this.politeBehavior = val.PoliteBehavior;
         }
-        if (val && val.Comment) {
+        if (val && val.Comment !== undefined) {
             this.comment = val.Comment;
         }
+    }
+    public writeJSONObject(): any {
+        const jobj: any =  { };
+        jobj.TargetUser = this.targetUser;
+        jobj.RecordDate = this.recordDate.format(momentDateFormat);
+        if (this.goToBedTime !== null) {
+            jobj.GoToBedTime = this.goToBedTime;
+        }
+        if (this.schoolWorkTime !== null) {
+            jobj.SchoolWorkTime = this.schoolWorkTime;
+        }
+        if (this.homeWorkCount !== null) {
+            jobj.HomeWorkCount = this.homeWorkCount;
+        }
+        if (this.bodyExerciseCount !== null) {
+            jobj.BodyExerciseCount = this.bodyExerciseCount;
+        }
+        if (this.errorsCollection !== null) {
+            jobj.ErrorsCollection = this.errorsCollection;
+        }
+        if (this.handWriting !== null) {
+            jobj.HandWriting = this.handWriting;
+        }
+        if (this.cleanDesk !== null) {
+            jobj.CleanDesk = this.cleanDesk;
+        }
+        if (this.houseKeepingCount !== null) {
+            jobj.HouseKeepingCount = this.houseKeepingCount;
+        }
+        if (this.politeBehavior !== null) {
+            jobj.PoliteBehavior = this.politeBehavior;
+        }
+        if (this.comment) {
+            jobj.Comment = this.comment;
+        }
+
+        return jobj;
+    }
+    public writeJSONString(): string {
+        return JSON && JSON.stringify(this.writeJSONObject());
     }
 }
 
 export class AwardPoint {
-    id =1;
+    id = 1;
     targetUser = '';
     recordDate: moment.Moment = moment();
     matchedRuleID?: number;

@@ -5,8 +5,7 @@ import { Observable, throwError, Subject, of } from 'rxjs';
 import { map, catchError } from 'rxjs/operators';
 
 import { ExerciseItem, ExerciseItemSearchResult, TagCount, Tag, KnowledgeItem, TagReferenceType, OverviewInfo,
-  AwardRule,
-  DailyTrace, } from '../models';
+  AwardRule, DailyTrace, AwardPoint, } from '../models';
 import { environment } from '../../environments/environment';
 
 export interface PreviewObject {
@@ -534,13 +533,111 @@ export class ODataService {
   // Daily trace
   public getDailyTrace(top = 30, skip = 0, sort?: string, filter?: string):
     Observable<{ totalCount: number; items: DailyTrace[] }> {
+      let headers: HttpHeaders = new HttpHeaders();
+      headers = headers.append('Content-Type', 'application/json')
+        .append('Accept', 'application/json');
 
+      let params: HttpParams = new HttpParams();
+      params = params.append('$top', top.toString());
+      params = params.append('$skip', skip.toString());
+      params = params.append('$count', 'true');
+      params = params.append('$select',
+        'RecordDate,TargetUser,SchoolWorkTime,GoToBedTime,HomeWorkCount,BodyExerciseCount,ErrorsCollection,HandWriting,CleanDesk,HouseKeepingCount,PoliteBehavior,Comment');
+      if (filter) {
+        params = params.append('$filter', filter);
+      }
+      const apiurl = `${this.apiUrl}DailyTraces`;
+
+      return this.http.get(apiurl, {
+        headers,
+        params,
+      })
+        .pipe(map(response => {
+          const rjs = response as any;
+          const ritems = rjs.value as any[];
+          const items: DailyTrace[] = [];
+          ritems.forEach(item => {
+            const rit: DailyTrace = new DailyTrace();
+            rit.parseData(item);
+            items.push(rit);
+          });
+
+          return {
+            totalCount: rjs['@odata.count'],
+            items,
+          };
+        }),
+        catchError((error: HttpErrorResponse) => throwError(error.statusText + '; ' + error.error + '; ' + error.message) ));
+  }
+
+  public simulatePoint(trace: DailyTrace): Observable<AwardPoint[]> {
+    let headers: HttpHeaders = new HttpHeaders();
+    headers = headers.append('Content-Type', 'application/json')
+      .append('Accept', 'application/json');
+
+    const params = new HttpParams();
+    const apiurl = `${this.apiUrl}DailyTraces/SimulatePoints`;
+
+    const jdata = {
+      dt: trace.writeJSONObject()
+    };
+    return this.http.post(apiurl, jdata, {
+      headers,
+      params,
+    })
+      .pipe(map(response => {
+        const rjs = response as any;
+        const ritems = rjs.value as any[];
+        const items: AwardPoint[] = [];
+        ritems.forEach(item => {
+          const rit: AwardPoint = new AwardPoint();
+          rit.parseData(item);
+          items.push(rit);
+        });
+
+        return items;
+      }),
+      catchError((error: HttpErrorResponse) => throwError(error.statusText + '; ' + error.error + '; ' + error.message) ));
   }
 
   // Award points
   public getAwardPoints(top = 30, skip = 0, sort?: string, filter?: string):
     Observable<{ totalCount: number; items: AwardPoint[] }> {
+      let headers: HttpHeaders = new HttpHeaders();
+      headers = headers.append('Content-Type', 'application/json')
+        .append('Accept', 'application/json');
 
+      let params: HttpParams = new HttpParams();
+      params = params.append('$top', top.toString());
+      params = params.append('$skip', skip.toString());
+      params = params.append('$count', 'true');
+      params = params.append('$select',
+        'ID,RecordDate,TargetUser,MatchedRuleID,CountOfDay,Point,Comment');
+      if (filter) {
+        params = params.append('$filter', filter);
+      }
+      const apiurl = `${this.apiUrl}AwardPoints`;
+
+      return this.http.get(apiurl, {
+        headers,
+        params,
+      })
+        .pipe(map(response => {
+          const rjs = response as any;
+          const ritems = rjs.value as any[];
+          const items: AwardPoint[] = [];
+          ritems.forEach(item => {
+            const rit: AwardPoint = new AwardPoint();
+            rit.parseData(item);
+            items.push(rit);
+          });
+
+          return {
+            totalCount: rjs['@odata.count'],
+            items,
+          };
+        }),
+        catchError((error: HttpErrorResponse) => throwError(error.statusText + '; ' + error.error + '; ' + error.message) ));
   }
 
   // File upload

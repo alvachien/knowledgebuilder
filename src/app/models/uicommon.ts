@@ -1,6 +1,9 @@
 // import { NativeDateAdapter } from "@angular/material/core";
 // import { MatPaginatorIntl } from '@angular/material/paginator';
+
 import moment from 'moment';
+
+export const momentDateFormat: string = 'YYYY-MM-DD';
 
 /**
   * Date range
