@@ -3,6 +3,12 @@
       <mat-card-title>{{'Award.Overview' | transloco}}</mat-card-title>
     </mat-card-header>
     <mat-card-content>
+      <mat-toolbar>
+        <h3>{{'Content' | transloco}}</h3>
+        <div class="toolbar-spacer"></div>
+        <button mat-raised-button (click)="onCreateAward()">Create</button>
+      </mat-toolbar>
+
       <div class="example-container mat-elevation-z8">
         <div class="table-container">
           <table mat-table [dataSource]="dataSource" class="mat-elevation-z8">

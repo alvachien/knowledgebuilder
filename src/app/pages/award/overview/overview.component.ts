@@ -25,4 +25,7 @@ export class OverviewComponent implements OnInit {
       }
     });
   }
+
+  public onCreateAward(): void {
+  }
 }
