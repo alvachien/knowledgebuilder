@@ -1,0 +1,67 @@
+<h1 mat-dialog-title>CREATE DAILY TRACE</h1>
+<div mat-dialog-content>
+    <form class="example-form">
+        <!-- Target user -->
+        <mat-form-field class="control-full-width" appearance="fill">
+          <mat-label>Target User</mat-label>
+          <input matInput [(ngModel)]="data.targetUser" name="targetuser">
+        </mat-form-field>
+
+        <!-- Record date -->
+        <mat-form-field appearance="fill">
+            <mat-label>Record Date</mat-label>
+            <input matInput [matDatepicker]="picker" [(ngModel)]="data.recordDate" name="recorddate">
+            <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
+            <mat-datepicker #picker></mat-datepicker>
+        </mat-form-field>
+
+        <!-- School work time  -->
+        <mat-form-field class="control-full-width" appearance="fill">
+            <mat-label>School work Time</mat-label>
+            <input matInput type="number" [(ngModel)]="data.schoolWorkTime" name="schoolworktime">
+        </mat-form-field>
+
+        <!-- Gotobed time  -->
+        <mat-form-field class="control-full-width" appearance="fill">
+            <mat-label>Go to bed Time</mat-label>
+            <input matInput type="number" [(ngModel)]="data.goToBedTime" name="gotobedtime">
+        </mat-form-field>
+
+        <!-- Homework count  -->
+        <mat-form-field class="control-full-width" appearance="fill">
+            <mat-label>Homework count</mat-label>
+            <input matInput type="number" [(ngModel)]="data.homeWorkCount" name="homeworkcount">
+        </mat-form-field>
+
+        <!-- Homework count  -->
+        <mat-form-field class="control-full-width" appearance="fill">
+            <mat-label>Body exercise count</mat-label>
+            <input matInput type="number" [(ngModel)]="data.bodyExerciseCount" name="bodyexercisecount">
+        </mat-form-field>
+
+        <!-- Error collection  -->
+        <mat-checkbox class="example-margin" [(ngModel)]="data.errorsCollection" name="errorcollection">Error Collection</mat-checkbox>
+
+        <!-- Handwriting  -->
+        <mat-checkbox class="example-margin" [(ngModel)]="data.handWriting" name="handwriting">Hand writing</mat-checkbox>
+
+        <!-- Clean desk  -->
+        <mat-checkbox class="example-margin" [(ngModel)]="data.cleanDesk" name="cleandesk">Clean desk</mat-checkbox>
+
+        <!-- House keeping count  -->
+        <mat-form-field class="control-full-width" appearance="fill">
+            <mat-label>House keeping count</mat-label>
+            <input matInput type="number" [(ngModel)]="data.houseKeepingCount" name="housekeepingcount">
+        </mat-form-field>
+
+        <!-- Polite behavior -->
+        <mat-form-field class="control-full-width" appearance="fill">
+            <mat-label>Polite Behavior</mat-label>
+            <input matInput type="number" [(ngModel)]="data.politeBehavior" name="politebehavior">
+        </mat-form-field>
+    </form>
+</div>
+<div mat-dialog-actions>
+  <button mat-button (click)="onNoClick()">No Thanks</button>
+  <button mat-button [disabled]="!data.isValid()" [mat-dialog-close]="data" cdkFocusInitial>Ok</button>
+</div>

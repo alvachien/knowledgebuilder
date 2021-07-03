@@ -10,6 +10,7 @@ import { MonacoEditorModule } from '@materia-ui/ngx-monaco-editor';
 import { MarkdownModule, MarkedOptions } from 'ngx-markdown';
 import { translocoLoader } from './transloco-loader';
 import { translocoConfig, TranslocoModule, TRANSLOCO_CONFIG } from '@ngneat/transloco';
+import { MAT_MOMENT_DATE_FORMATS, MomentDateAdapter } from '@angular/material-moment-adapter';
 import { DateAdapter, MAT_DATE_FORMATS, MAT_DATE_LOCALE } from '@angular/material/core';
 
 import { ODataService, QuizService } from './services';
@@ -59,9 +60,9 @@ import { QuizFailureDailogComponent } from './pages/quiz-failure-dailog';
     },
     translocoLoader,
   ],
-  entryComponents: [
-    QuizFailureDailogComponent
-  ],
+  // entryComponents: [
+  //   QuizFailureDailogComponent
+  // ],
   bootstrap: [AppComponent]
 })
 export class AppModule { }

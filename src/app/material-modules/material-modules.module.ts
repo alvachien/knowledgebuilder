@@ -43,6 +43,7 @@ import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatTreeModule } from '@angular/material/tree';
 import { FlexLayoutModule } from '@angular/flex-layout';
+import { MatMomentDateModule } from '@angular/material-moment-adapter';
 
 // import { MonacoEditorModule } from 'ngx-monaco-editor';
 
@@ -93,6 +94,7 @@ import { FlexLayoutModule } from '@angular/flex-layout';
     ScrollingModule,
     FlexLayoutModule,
     // MonacoEditorModule,
+    MatMomentDateModule,
   ]
 })
 export class MaterialModulesModule { }

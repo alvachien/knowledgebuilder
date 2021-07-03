@@ -1,60 +1,108 @@
 <mat-card>
-    <mat-card-header>
-        <mat-card-title>{{'Award.Rules' | transloco}}</mat-card-title>
-    </mat-card-header>
-    <mat-card-content>
-      <mat-tab-group animationDuration="200ms">
-        <!-- Go to bed time -->
-        <mat-tab label="Go To Bed Time">
-          <div class="example-container mat-elevation-z8">
-            <div class="table-container">
-                <table mat-table [dataSource]="dataSourceGoToBedRule" matSort class="mat-elevation-z8">
-                    <!-- ID Column -->
-                    <ng-container matColumnDef="id">
-                        <th mat-header-cell *matHeaderCellDef>#</th>
-                        <td mat-cell *matCellDef="let row">{{row.ID}}</td>
-                    </ng-container>
-        
-                    <!-- Target user Column -->
-                    <ng-container matColumnDef="targetUser">
-                        <th mat-header-cell *matHeaderCellDef>{{'User' | transloco}}</th>
-                        <td mat-cell *matCellDef="let row">{{row.targetUser}}</td>
-                    </ng-container>
+  <mat-card-header>
+    <mat-card-title>{{'Award.Rules' | transloco}}</mat-card-title>
+  </mat-card-header>
+  <mat-card-content>
+    <mat-tab-group animationDuration="200ms">
+      <!-- Go to bed time -->
+      <mat-tab label="Go To Bed Time">
+        <div class="example-container mat-elevation-z8">
+          <div class="table-container">
+            <table mat-table [dataSource]="dataSourceGoToBedRule" class="mat-elevation-z8">
+              <!-- ID Column -->
+              <ng-container matColumnDef="id">
+                <th mat-header-cell *matHeaderCellDef>#</th>
+                <td mat-cell *matCellDef="let row">{{row.id}}</td>
+              </ng-container>
 
-                    <!-- Point -->
-                    <ng-container matColumnDef="point">
-                      <th mat-header-cell *matHeaderCellDef mat-sort-header>Point</th>
-                      <td mat-cell *matCellDef="let row">{{row.Point}}</td>
-                    </ng-container>
-                  
-                    <!-- Validity Column -->
-                    <ng-container matColumnDef="validity">
-                      <th mat-header-cell *matHeaderCellDef>Validity</th>
-                      <td mat-cell *matCellDef="let row">{{row.validity}}</td>
-                    </ng-container>
+              <!-- Target user Column -->
+              <ng-container matColumnDef="targetUser">
+                <th mat-header-cell *matHeaderCellDef>User</th>
+                <td mat-cell *matCellDef="let row">{{row.targetUser}}</td>
+              </ng-container>
 
-                    <!-- Time range Column -->
-                    <ng-container matColumnDef="timeRange">
-                      <th mat-header-cell *matHeaderCellDef>Time range</th>
-                      <td mat-cell *matCellDef="let row">{{row.timeRange}}</td>
-                    </ng-container>
-                  
-                    <tr mat-header-row *matHeaderRowDef="displayedGoToBedRuleColumns"></tr>
-                    <tr mat-row *matRowDef="let row; columns: displayedGoToBedRuleColumns;"></tr>
-                </table>
-            </div>
-            <mat-paginator [length]="goToBedRulesLength" [pageSize]="20"></mat-paginator>
+              <!-- Point -->
+              <ng-container matColumnDef="point">
+                <th mat-header-cell *matHeaderCellDef>Point</th>
+                <td mat-cell *matCellDef="let row">{{row.point}}</td>
+              </ng-container>
+
+              <!-- Validity Column -->
+              <ng-container matColumnDef="validity">
+                <th mat-header-cell *matHeaderCellDef>Validity</th>
+                <td mat-cell *matCellDef="let row">{{row.validity}}</td>
+              </ng-container>
+
+              <!-- Time range Column -->
+              <ng-container matColumnDef="timeRange">
+                <th mat-header-cell *matHeaderCellDef>Time range</th>
+                <td mat-cell *matCellDef="let row">{{row.timeRange}}</td>
+              </ng-container>
+
+              <!-- Count of days column -->
+              <ng-container matColumnDef="countOfDays">
+                <th mat-header-cell *matHeaderCellDef>Count of days</th>
+                <td mat-cell *matCellDef="let row">{{row.countOfDays}}</td>
+              </ng-container>
+
+              <tr mat-header-row *matHeaderRowDef="displayedTimeRuleColumns"></tr>
+              <tr mat-row *matRowDef="let row; columns: displayedTimeRuleColumns;"></tr>
+            </table>
+          </div>
+          <mat-paginator [length]="goToBedRulesLength" [pageSize]="20"></mat-paginator>
         </div>
-        
-        </mat-tab>
-        
-        <!-- School work time -->
-        <mat-tab label="School Work Time">
+      </mat-tab>
 
-        </mat-tab>
+      <!-- School work time -->
+      <mat-tab label="School Work Time">
+        <div class="example-container mat-elevation-z8">
+          <div class="table-container">
+            <table mat-table [dataSource]="dataSourceSchoolWorkRule" class="mat-elevation-z8">
+              <!-- ID Column -->
+              <ng-container matColumnDef="id">
+                <th mat-header-cell *matHeaderCellDef>#</th>
+                <td mat-cell *matCellDef="let row">{{row.id}}</td>
+              </ng-container>
 
-        <mat-tab label="Third">Content 3</mat-tab>
-      </mat-tab-group>
-    </mat-card-content>
+              <!-- Target user Column -->
+              <ng-container matColumnDef="targetUser">
+                <th mat-header-cell *matHeaderCellDef>User</th>
+                <td mat-cell *matCellDef="let row">{{row.targetUser}}</td>
+              </ng-container>
+
+              <!-- Point -->
+              <ng-container matColumnDef="point">
+                <th mat-header-cell *matHeaderCellDef>Point</th>
+                <td mat-cell *matCellDef="let row">{{row.point}}</td>
+              </ng-container>
+
+              <!-- Validity Column -->
+              <ng-container matColumnDef="validity">
+                <th mat-header-cell *matHeaderCellDef>Validity</th>
+                <td mat-cell *matCellDef="let row">{{row.validity}}</td>
+              </ng-container>
+
+              <!-- Time range Column -->
+              <ng-container matColumnDef="timeRange">
+                <th mat-header-cell *matHeaderCellDef>Time range</th>
+                <td mat-cell *matCellDef="let row">{{row.timeRange}}</td>
+              </ng-container>
+
+              <!-- Count of days column -->
+              <ng-container matColumnDef="countOfDays">
+                <th mat-header-cell *matHeaderCellDef>Count of days</th>
+                <td mat-cell *matCellDef="let row">{{row.countOfDays}}</td>
+              </ng-container>
+
+              <tr mat-header-row *matHeaderRowDef="displayedTimeRuleColumns"></tr>
+              <tr mat-row *matRowDef="let row; columns: displayedTimeRuleColumns;"></tr>
+            </table>
+          </div>
+          <mat-paginator [length]="schoolWorkRulesLength" [pageSize]="20"></mat-paginator>
+        </div>
+      </mat-tab>
+
+      <mat-tab label="Third">Content 3</mat-tab>
+    </mat-tab-group>
+  </mat-card-content>
 </mat-card>
-

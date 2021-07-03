@@ -3,12 +3,12 @@ import { RouterModule, Routes } from '@angular/router';
 
 import { OverviewComponent } from './overview/overview.component';
 import { AwardRuleComponent } from './award-rule/award-rule.component';
-import { DailyActivityComponent } from './daily-activity/daily-activity.component';
+import { DailyTraceComponent } from './daily-trace/daily-trace.component';
 
 const routes: Routes = [
   { path: '', component:  OverviewComponent },
   { path: 'rules', component:  AwardRuleComponent },
-  { path: 'dailyact', component:  DailyActivityComponent },  
+  { path: 'dailytrace', component: DailyTraceComponent },
 ];
 
 @NgModule({

@@ -1,20 +1,20 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { DailyActivityComponent } from './daily-activity.component';
+import { DailyTraceComponent } from './daily-trace.component';
 
-describe('DailyActivityComponent', () => {
-  let component: DailyActivityComponent;
-  let fixture: ComponentFixture<DailyActivityComponent>;
+describe('DailyTraceComponent', () => {
+  let component: DailyTraceComponent;
+  let fixture: ComponentFixture<DailyTraceComponent>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [ DailyActivityComponent ]
+      declarations: [ DailyTraceComponent ]
     })
     .compileComponents();
   });
 
   beforeEach(() => {
-    fixture = TestBed.createComponent(DailyActivityComponent);
+    fixture = TestBed.createComponent(DailyTraceComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });

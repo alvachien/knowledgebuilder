@@ -1,13 +1,14 @@
 import { Component, OnInit } from '@angular/core';
 import { momentDateFormat } from 'src/app/models';
-import { AwardRuleTypeEnum, RuleType } from 'src/app/models/award';
+import { AwardRuleTypeEnum, } from 'src/app/models/award';
 import { ODataService, QuizService } from 'src/app/services';
 
-export interface AwardGoToBedRuleUI {
+export interface AwardTimeRuleUI {
   id: number;
   targetUser: string;
   point: number;
   validity: string;
+  countOfDays: string;
   timeRange: string;
 }
 
@@ -18,28 +19,45 @@ export interface AwardGoToBedRuleUI {
 })
 export class AwardRuleComponent implements OnInit {
 
-  dataSourceGoToBedRule: AwardGoToBedRuleUI[] = [];
-  displayedGoToBedRuleColumns: string[] = ['id', 'targetUser', 'point', 'validity', 'timeRange'];
+  dataSourceGoToBedRule: AwardTimeRuleUI[] = [];
+  displayedTimeRuleColumns: string[] = ['id', 'targetUser', 'point', 'validity', 'timeRange', 'countOfDays'];
   goToBedRulesLength = 0;
+  dataSourceSchoolWorkRule: AwardTimeRuleUI[] = [];
+  schoolWorkRulesLength = 0;
 
   constructor(private odataSrv: ODataService) { }
 
   ngOnInit(): void {
-    this.dataSourceGoToBedRule = [];
     this.odataSrv.getAwardRules(100, 0, undefined).subscribe({
       next: val => {
+        this.dataSourceGoToBedRule = [];
+        this.dataSourceSchoolWorkRule = [];
+
         val.items.forEach(item => {
-          if (item.ruleType === AwardRuleTypeEnum.goToBedTime) {
-            const nrule: AwardGoToBedRuleUI = {
+          if (item.ruleType === AwardRuleTypeEnum.GoToBedTime) {
+            const nrule: AwardTimeRuleUI = {
               id: item.id,
               targetUser: item.targetUser,
               point: item.point,
               validity: item.validFrom.format(momentDateFormat) + ' - ' + item.validTo.format(momentDateFormat),
-              timeRange: item.timeStart?.toString() + ' - ' + item.timeEnd?.toString()
+              timeRange: item.timeStart?.toString() + ' - ' + item.timeEnd?.toString(),
+              countOfDays: item.daysFrom?.toString() + ' - ' + item.daysTo?.toString(),
             };
             this.dataSourceGoToBedRule.push(nrule);
+          } else if (item.ruleType === AwardRuleTypeEnum.SchoolWorkTime) {
+            const nrule: AwardTimeRuleUI = {
+              id: item.id,
+              targetUser: item.targetUser,
+              point: item.point,
+              validity: item.validFrom.format(momentDateFormat) + ' - ' + item.validTo.format(momentDateFormat),
+              timeRange: item.timeStart?.toString() + ' - ' + item.timeEnd?.toString(),
+              countOfDays: item.daysFrom?.toString() + ' - ' + item.daysTo?.toString(),
+            };
+            this.dataSourceSchoolWorkRule.push(nrule);
           }
+
           this.goToBedRulesLength = this.dataSourceGoToBedRule.length;
+          this.schoolWorkRulesLength = this.dataSourceSchoolWorkRule.length;
         });
       },
       error: err => {

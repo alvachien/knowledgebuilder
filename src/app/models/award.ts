@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/no-unused-expressions */
+/* eslint-disable @typescript-eslint/naming-convention */
 /* eslint-disable no-underscore-dangle */
 /* eslint-disable no-shadow */
 
@@ -8,20 +10,20 @@ import { momentDateFormat } from './uicommon';
  * Award Rule
  */
 export enum AwardRuleTypeEnum {
-    goToBedTime = 1,
-    schoolWorkTime = 2,
-    homeWorkCount = 3,
-    bodyExerciseCount = 4,
-    errorCollectionHabit = 5,
-    cleanDeakHabit = 6,
-    houseKeepingCount = 7,
-    politeBehavior = 8,
-    handWritingHabit = 9,
+    GoToBedTime = 1,
+    SchoolWorkTime = 2,
+    HomeWorkCount = 3,
+    BodyExerciseCount = 4,
+    ErrorCollectionHabit = 5,
+    CleanDeakHabit = 6,
+    HouseKeepingCount = 7,
+    PoliteBehavior = 8,
+    HandWritingHabit = 9,
 }
 
 export class AwardRule {
     id = -1;
-    ruleType: AwardRuleTypeEnum = AwardRuleTypeEnum.goToBedTime;
+    ruleType: AwardRuleTypeEnum = AwardRuleTypeEnum.GoToBedTime;
     targetUser = '';
     desp = '';
     validFrom: moment.Moment = moment();
@@ -44,8 +46,8 @@ export class AwardRule {
         }
 
         switch (this.ruleType) {
-            case AwardRuleTypeEnum.goToBedTime:
-            case AwardRuleTypeEnum.schoolWorkTime:
+            case AwardRuleTypeEnum.GoToBedTime:
+            case AwardRuleTypeEnum.SchoolWorkTime:
                 {
                     if (this.timeStart === undefined || this.timeEnd === undefined
                         || this.timeStart > this.timeEnd) {
@@ -54,10 +56,10 @@ export class AwardRule {
                 }
                 break;
 
-            case AwardRuleTypeEnum.homeWorkCount:
-            case AwardRuleTypeEnum.bodyExerciseCount:
-            case AwardRuleTypeEnum.houseKeepingCount:
-            case AwardRuleTypeEnum.politeBehavior:
+            case AwardRuleTypeEnum.HomeWorkCount:
+            case AwardRuleTypeEnum.BodyExerciseCount:
+            case AwardRuleTypeEnum.HouseKeepingCount:
+            case AwardRuleTypeEnum.PoliteBehavior:
                 {
                     if (this.countOfFactLow === undefined) {
                         return false;
@@ -71,8 +73,8 @@ export class AwardRule {
                 }
                 break;
 
-            case AwardRuleTypeEnum.errorCollectionHabit:
-            case AwardRuleTypeEnum.cleanDeakHabit:
+            case AwardRuleTypeEnum.ErrorCollectionHabit:
+            case AwardRuleTypeEnum.CleanDeakHabit:
                 {
                     if (this.doneOfFact === undefined) {
                         return false;
@@ -189,6 +191,28 @@ export class DailyTrace {
     politeBehavior: number | null = null;
     comment = '';
 
+    public getRecordDateDisplayString(): string {
+        return this.recordDate.format(momentDateFormat);
+    }
+
+    public isValid(): boolean {
+        if (!this.targetUser) {
+            return false;
+        }
+        if (this.schoolWorkTime === null
+            && this.goToBedTime === null
+            && this.homeWorkCount === null
+            && this.bodyExerciseCount === null
+            && this.errorsCollection === null
+            && this.handWriting === null
+            && this.cleanDesk === null
+            && this.houseKeepingCount === null
+            && this.politeBehavior === null) {
+            return false;
+        }
+        return true;
+    }
+
     public parseData(val: any): void {
         if (val && val.TargetUser) {
             this.targetUser = val.TargetUser;
@@ -278,6 +302,10 @@ export class AwardPoint {
     point = 0;
     comment = '';
 
+    public getRecordDateDisplayString(): string {
+        return this.recordDate.format(momentDateFormat);
+    }
+
     public parseData(val: any): void {
         if (val && val.ID) {
             this.id = val.ID;
@@ -303,91 +331,23 @@ export class AwardPoint {
     }
 }
 
-/***
- * Daily Behavior
- */
-export class DailyBehavior {
-    private _user: string | null = null;
-    private _date: Date | null = null;
-    private _goToBedTime = 0;
-    private _schoolWorkTime = 0;
-    private _additioanlWorkCount = 0;
+export class AwardPointReport {
+    targetUser = '';
+    recordDate: moment.Moment = moment();
+    point = 0;
 
-    get user(): string | null {
-        return this._user;
+    public getRecordDateDisplayString(): string {
+        return this.recordDate.format(momentDateFormat);
     }
-    set user(ur: string | null) {
-        this._user = ur;
-    }
-    get currentDate(): Date | null {
-        return this._date;
-    }
-    set currentDate(dt: Date | null) {
-        this._date = dt;
-    }
-    get goToBedTime(): number {
-        return this._goToBedTime;
-    }
-    set goToBedTime(stime: number) {
-        this._goToBedTime = stime;
-    }
-    get schoolWorkTime(): number {
-        return this._schoolWorkTime;
-    }
-    set schoolWorkTime(swtime: number) {
-        this._schoolWorkTime = swtime;
-    }
-    get additionalWorkCount(): number {
-        return this._additioanlWorkCount;
-    }
-    set additionalWorkCount(cnt: number) {
-        this._additioanlWorkCount = cnt;
-    }
-}
-
-// eslint-disable-next-line no-shadow
-export enum RuleType {
-    goToBedTime = 1,
-    schoolWorkTime = 2,
-    additionalWorkCount = 3,
-}
-
-export interface AwardPoint {
-    daysFrom: number;
-    daysTo: number;
-    point: number;
-}
-
-export interface ActivityTimeRange {
-    taskstart: number;
-    taskend: number;
-
-    points: AwardPoint[];
-}
-
-export interface DailyAwardResult {
-    user: string;
-    currentDate: Date;
-    goToBedPoint: number;
-    schoolWorkPoint: number;
-    goToBedContinousDays: number;
-    schoolWorkContinousDays: number;
-}
-
-export class DailyAwardRule {
-    public ranges: ActivityTimeRange[] = [];
-
-    private _ruleType: RuleType = RuleType.goToBedTime;
-    get ruleType(): RuleType { return this._ruleType; }
-    set ruleType(rt: RuleType) { this._ruleType = rt; }
-}
-
-export class OneTimeAwardRule {
-    private _point = 0;
-    get point(): number {
-        return this._point;
-    }
-    set point(pt: number) {
-        this._point = pt;
+    public parseData(val: any): void {
+        if (val && val.TargetUser) {
+            this.targetUser = val.TargetUser;
+        }
+        if (val && val.RecordDate) {
+            this.recordDate = moment(val.RecordDate);
+        }
+        if (val && val.Point) {
+            this.point = val.Point;
+        }
     }
 }

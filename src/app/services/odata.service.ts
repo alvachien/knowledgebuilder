@@ -5,7 +5,7 @@ import { Observable, throwError, Subject, of } from 'rxjs';
 import { map, catchError } from 'rxjs/operators';
 
 import { ExerciseItem, ExerciseItemSearchResult, TagCount, Tag, KnowledgeItem, TagReferenceType, OverviewInfo,
-  AwardRule, DailyTrace, AwardPoint, } from '../models';
+  AwardRule, DailyTrace, AwardPoint, AwardPointReport, } from '../models';
 import { environment } from '../../environments/environment';
 
 export interface PreviewObject {
@@ -563,6 +563,7 @@ export class ODataService {
       params = params.append('$skip', skip.toString());
       params = params.append('$count', 'true');
       params = params.append('$select',
+        // eslint-disable-next-line max-len
         'RecordDate,TargetUser,SchoolWorkTime,GoToBedTime,HomeWorkCount,BodyExerciseCount,ErrorsCollection,HandWriting,CleanDesk,HouseKeepingCount,PoliteBehavior,Comment');
       if (filter) {
         params = params.append('$filter', filter);
@@ -670,6 +671,44 @@ export class ODataService {
           const items: AwardPoint[] = [];
           ritems.forEach(item => {
             const rit: AwardPoint = new AwardPoint();
+            rit.parseData(item);
+            items.push(rit);
+          });
+
+          return {
+            totalCount: rjs['@odata.count'],
+            items,
+          };
+        }),
+        catchError((error: HttpErrorResponse) => throwError(error.statusText + '; ' + error.error + '; ' + error.message) ));
+  }
+
+  public getAwardPointReports(top = 30, skip = 0, sort?: string, filter?: string):
+    Observable<{ totalCount: number; items: AwardPointReport[] }> {
+      let headers: HttpHeaders = new HttpHeaders();
+      headers = headers.append('Content-Type', 'application/json')
+        .append('Accept', 'application/json');
+
+      let params: HttpParams = new HttpParams();
+      params = params.append('$top', top.toString());
+      params = params.append('$skip', skip.toString());
+      params = params.append('$count', 'true');
+      params = params.append('$select', 'TargetUser,RecordDate,Point');
+      if (filter) {
+        params = params.append('$filter', filter);
+      }
+      const apiurl = `${this.apiUrl}AwardPointReports`;
+
+      return this.http.get(apiurl, {
+        headers,
+        params,
+      })
+        .pipe(map(response => {
+          const rjs = response as any;
+          const ritems = rjs.value as any[];
+          const items: AwardPointReport[] = [];
+          ritems.forEach(item => {
+            const rit: AwardPointReport = new AwardPointReport();
             rit.parseData(item);
             items.push(rit);
           });

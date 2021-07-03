@@ -156,8 +156,18 @@
     "Award": {
         "Award": "奖励",
         "Awards": "奖励",
+        "Overview": "总览",
         "Rules": "奖励规则",
-        "DailyActivity": "日常活动"
+        "DailyTrace": "日常活动记录",
+        "HomeworkCount": "家庭作业次数",
+        "GoToBedTime": "上床睡觉时间",
+        "SchoolWorkTime": "学校作业完成时间",
+        "BodyExerciseCount": "体育锻炼次数",
+        "ErrorsCollection": "错题本归集",
+        "HandWriting": "书写工整",
+        "CleanDesk": "桌面整洁",
+        "HouseKeepingCount": "家务次数",
+        "PoliteBehavior": "礼貌规范"
     },
     "Sys":{
         "Operator": {

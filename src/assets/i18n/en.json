@@ -156,8 +156,18 @@
     "Award": {
         "Award": "Award",
         "Awards": "Awards",
+        "Overview": "总览",
         "Rules": "Rules",
-        "DailyActivity": "Daily Activity"
+        "DailyTrace": "Daily Trace",
+        "HomeworkCount": "Homework Count",
+        "GoToBedTime": "Go to bed time",
+        "SchoolWorkTime": "School work time",
+        "BodyExerciseCount": "Body exercise count",
+        "ErrorsCollection": "Error Collection",
+        "HandWriting": "Handwriting",
+        "CleanDesk": "Clean desk",
+        "HouseKeepingCount": "House keeping count",
+        "PoliteBehavior": "Polite behavior"
     },
     "Sys":{
         "Operator": {
