@@ -6,10 +6,53 @@
       <mat-tab-group animationDuration="200ms">
         <!-- Go to bed time -->
         <mat-tab label="Go To Bed Time">
-          
+          <div class="example-container mat-elevation-z8">
+            <div class="table-container">
+                <table mat-table [dataSource]="dataSourceGoToBedRule" matSort class="mat-elevation-z8">
+                    <!-- ID Column -->
+                    <ng-container matColumnDef="id">
+                        <th mat-header-cell *matHeaderCellDef>#</th>
+                        <td mat-cell *matCellDef="let row">{{row.ID}}</td>
+                    </ng-container>
+        
+                    <!-- Target user Column -->
+                    <ng-container matColumnDef="targetUser">
+                        <th mat-header-cell *matHeaderCellDef>{{'User' | transloco}}</th>
+                        <td mat-cell *matCellDef="let row">{{row.targetUser}}</td>
+                    </ng-container>
+
+                    <!-- Point -->
+                    <ng-container matColumnDef="point">
+                      <th mat-header-cell *matHeaderCellDef mat-sort-header>Point</th>
+                      <td mat-cell *matCellDef="let row">{{row.Point}}</td>
+                    </ng-container>
+                  
+                    <!-- Validity Column -->
+                    <ng-container matColumnDef="validity">
+                      <th mat-header-cell *matHeaderCellDef>Validity</th>
+                      <td mat-cell *matCellDef="let row">{{row.validity}}</td>
+                    </ng-container>
+
+                    <!-- Time range Column -->
+                    <ng-container matColumnDef="timeRange">
+                      <th mat-header-cell *matHeaderCellDef>Time range</th>
+                      <td mat-cell *matCellDef="let row">{{row.timeRange}}</td>
+                    </ng-container>
+                  
+                    <tr mat-header-row *matHeaderRowDef="displayedGoToBedRuleColumns"></tr>
+                    <tr mat-row *matRowDef="let row; columns: displayedGoToBedRuleColumns;"></tr>
+                </table>
+            </div>
+            <mat-paginator [length]="goToBedRulesLength" [pageSize]="20"></mat-paginator>
+        </div>
+        
         </mat-tab>
         
-        <mat-tab label="School Work Time">Content 2</mat-tab>
+        <!-- School work time -->
+        <mat-tab label="School Work Time">
+
+        </mat-tab>
+
         <mat-tab label="Third">Content 3</mat-tab>
       </mat-tab-group>
     </mat-card-content>

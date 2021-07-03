@@ -67,5 +67,4 @@ export class DailyActivityComponent implements OnInit {
   onSave(): void {
 
   }
-
 }

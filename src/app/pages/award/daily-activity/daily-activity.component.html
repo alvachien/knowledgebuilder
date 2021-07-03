@@ -3,6 +3,10 @@
         <mat-card-title>{{'Award.DailyActivity' | transloco}}</mat-card-title>
     </mat-card-header>
     <mat-card-content>
+        <mat-toolbar>
+            <div class="toolbar-spacer"></div>
+            <button mat-raised-button>Upload</button>
+        </mat-toolbar>
         <form [formGroup]="itemFormGroup">
             <!-- User -->
             <!-- <mat-form-field appearance="fill" class="control-full-width">

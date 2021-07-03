@@ -1,15 +1,14 @@
 import { Component, OnInit } from '@angular/core';
-import { RuleType } from 'src/app/models/award';
-import { QuizService } from 'src/app/services';
+import { momentDateFormat } from 'src/app/models';
+import { AwardRuleTypeEnum, RuleType } from 'src/app/models/award';
+import { ODataService, QuizService } from 'src/app/services';
 
-export interface dbawardrule {
-  user: string;
-  ruletype: RuleType;
-  timefrom: number;
-  timeto: number;
-  dayfrom: number;
-  dayto: number;
+export interface AwardGoToBedRuleUI {
+  id: number;
+  targetUser: string;
   point: number;
+  validity: string;
+  timeRange: string;
 }
 
 @Component({
@@ -19,39 +18,33 @@ export interface dbawardrule {
 })
 export class AwardRuleComponent implements OnInit {
 
-  displayedColumns: string[] = ['user', 'ruletype', 'timefrom', 'timeto', 'dayfrom', 'dayto', 'point'];
-  dataSource: dbawardrule[] = [];
+  dataSourceGoToBedRule: AwardGoToBedRuleUI[] = [];
+  displayedGoToBedRuleColumns: string[] = ['id', 'targetUser', 'point', 'validity', 'timeRange'];
+  goToBedRulesLength = 0;
 
-  constructor(private quizSrv: QuizService) { }
+  constructor(private odataSrv: ODataService) { }
 
   ngOnInit(): void {
-    this.dataSource = [];
-    this.dataSource.push({
-      user: 'AAA',
-      ruletype: RuleType.goToBedTime,
-      timefrom: 20,
-      timeto: 21,
-      dayfrom: 1,
-      dayto: 1,
-      point: 1
-    });
-    this.dataSource.push({
-      user: 'AAA',
-      ruletype: RuleType.goToBedTime,
-      timefrom: 20,
-      timeto: 21,
-      dayfrom: 2,
-      dayto: 2,
-      point: 3
-    });
-    this.dataSource.push({
-      user: 'AAA',
-      ruletype: RuleType.goToBedTime,
-      timefrom: 20,
-      timeto: 21,
-      dayfrom: 3,
-      dayto: 3,
-      point: 5
+    this.dataSourceGoToBedRule = [];
+    this.odataSrv.getAwardRules(100, 0, undefined).subscribe({
+      next: val => {
+        val.items.forEach(item => {
+          if (item.ruleType === AwardRuleTypeEnum.goToBedTime) {
+            const nrule: AwardGoToBedRuleUI = {
+              id: item.id,
+              targetUser: item.targetUser,
+              point: item.point,
+              validity: item.validFrom.format(momentDateFormat) + ' - ' + item.validTo.format(momentDateFormat),
+              timeRange: item.timeStart?.toString() + ' - ' + item.timeEnd?.toString()
+            };
+            this.dataSourceGoToBedRule.push(nrule);
+          }
+          this.goToBedRulesLength = this.dataSourceGoToBedRule.length;
+        });
+      },
+      error: err => {
+
+      }
     });
   }
 }

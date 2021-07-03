@@ -135,6 +135,44 @@ export class AwardRule {
             this.point = val.Point;
         }
     }
+    public writeJSONObject(isCreatedMode = true): any {
+        const jobj: any =  { };
+        if (!isCreatedMode) {
+            jobj.ID = this.id;
+        }
+        jobj.RuleType = AwardRuleTypeEnum[this.ruleType],
+        jobj.TargetUser = this.targetUser;
+        jobj.Desp = this.desp;
+        jobj.ValidFrom = this.validFrom.format(momentDateFormat);
+        jobj.ValidTo = this.validTo.format(momentDateFormat);
+        if (this.countOfFactLow) {
+            jobj.CountOfFactLow = this.countOfFactLow;
+        }
+        if (this.countOfFactHigh) {
+            jobj.CountOfFactHigh = this.countOfFactHigh;
+        }
+        if (this.doneOfFact) {
+            jobj.DoneOfFact = this.doneOfFact;
+        }
+        if (this.timeStart) {
+            jobj.TimeStart = this.timeStart;
+        }
+        if (this.timeEnd) {
+            jobj.TimeEnd = this.timeEnd;
+        }
+        if (this.daysFrom) {
+            jobj.DaysFrom = this.daysFrom;
+        }
+        if (this.daysTo) {
+            jobj.DaysTo = this.daysTo;
+        }
+        jobj.Point = this.point;
+
+        return jobj;
+    }
+    public writeJSONString(isCreatedMode = true): string {
+        return JSON && JSON.stringify(this.writeJSONObject(isCreatedMode));
+    }
 }
 
 export class DailyTrace {

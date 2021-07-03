@@ -529,6 +529,27 @@ export class ODataService {
       }),
       catchError((error: HttpErrorResponse) => throwError(error.statusText + '; ' + error.error + '; ' + error.message) ));
   }
+  public createAwardRule(rule: AwardRule): Observable<AwardRule> {
+    if (environment.mockdata) {
+      return throwError('Cannot create in mock mode');
+    }
+    let headers: HttpHeaders = new HttpHeaders();
+    headers = headers.append('Content-Type', 'application/json')
+      .append('Accept', 'application/json');
+
+    const jdata = rule.writeJSONString(true);
+    return this.http.post(`${this.apiUrl}AwardRules`, jdata, {
+      headers,
+    })
+      .pipe(map(response => {
+        const rjs = response as any;
+        const rtn = new AwardRule();
+        rtn.parseData(rjs);
+
+        return rtn;
+      }),
+      catchError((error: HttpErrorResponse) => throwError(error.statusText + '; ' + error.error + '; ' + error.message) ));
+  }
 
   // Daily trace
   public getDailyTrace(top = 30, skip = 0, sort?: string, filter?: string):
@@ -596,6 +617,27 @@ export class ODataService {
         });
 
         return items;
+      }),
+      catchError((error: HttpErrorResponse) => throwError(error.statusText + '; ' + error.error + '; ' + error.message) ));
+  }
+  public createDailyTrace(dt: DailyTrace): Observable<DailyTrace> {
+    if (environment.mockdata) {
+      return throwError('Cannot create in mock mode');
+    }
+    let headers: HttpHeaders = new HttpHeaders();
+    headers = headers.append('Content-Type', 'application/json')
+      .append('Accept', 'application/json');
+
+    const jdata = dt.writeJSONString();
+    return this.http.post(`${this.apiUrl}DailyTraces`, jdata, {
+      headers,
+    })
+      .pipe(map(response => {
+        const rjs = response as any;
+        const rtn = new DailyTrace();
+        rtn.parseData(rjs);
+
+        return rtn;
       }),
       catchError((error: HttpErrorResponse) => throwError(error.statusText + '; ' + error.error + '; ' + error.message) ));
   }
