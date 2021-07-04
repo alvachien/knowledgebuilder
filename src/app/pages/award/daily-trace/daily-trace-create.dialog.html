@@ -3,7 +3,7 @@
     <form class="example-form">
         <!-- Target user -->
         <mat-form-field class="control-full-width" appearance="fill">
-          <mat-label>Target User</mat-label>
+          <mat-label>{{'Award.TargetUser' | transloco}}</mat-label>
           <input matInput [(ngModel)]="data.targetUser" name="targetuser">
         </mat-form-field>
 
@@ -17,51 +17,51 @@
 
         <!-- School work time  -->
         <mat-form-field class="control-full-width" appearance="fill">
-            <mat-label>School work Time</mat-label>
+            <mat-label>{{'Award.SchoolWorkTime' | transloco}}</mat-label>
             <input matInput type="number" [(ngModel)]="data.schoolWorkTime" name="schoolworktime">
         </mat-form-field>
 
         <!-- Gotobed time  -->
         <mat-form-field class="control-full-width" appearance="fill">
-            <mat-label>Go to bed Time</mat-label>
+            <mat-label>{{'Award.GoToBedTime' | transloco}}</mat-label>
             <input matInput type="number" [(ngModel)]="data.goToBedTime" name="gotobedtime">
         </mat-form-field>
 
         <!-- Homework count  -->
         <mat-form-field class="control-full-width" appearance="fill">
-            <mat-label>Homework count</mat-label>
+            <mat-label>{{'Award.HomeworkCount' | transloco}}</mat-label>
             <input matInput type="number" [(ngModel)]="data.homeWorkCount" name="homeworkcount">
         </mat-form-field>
 
-        <!-- Homework count  -->
+        <!-- Body exercise count  -->
         <mat-form-field class="control-full-width" appearance="fill">
-            <mat-label>Body exercise count</mat-label>
+            <mat-label>{{'Award.BodyExerciseCount' | transloco}}</mat-label>
             <input matInput type="number" [(ngModel)]="data.bodyExerciseCount" name="bodyexercisecount">
         </mat-form-field>
 
         <!-- Error collection  -->
-        <mat-checkbox class="example-margin" [(ngModel)]="data.errorsCollection" name="errorcollection">Error Collection</mat-checkbox>
+        <mat-checkbox class="example-margin" [(ngModel)]="data.errorsCollection" name="errorcollection">{{'Award.ErrorsCollection' | transloco}}</mat-checkbox>
 
         <!-- Handwriting  -->
-        <mat-checkbox class="example-margin" [(ngModel)]="data.handWriting" name="handwriting">Hand writing</mat-checkbox>
+        <mat-checkbox class="example-margin" [(ngModel)]="data.handWriting" name="handwriting">{{'Award.HandWriting' | transloco}}</mat-checkbox>
 
         <!-- Clean desk  -->
-        <mat-checkbox class="example-margin" [(ngModel)]="data.cleanDesk" name="cleandesk">Clean desk</mat-checkbox>
+        <mat-checkbox class="example-margin" [(ngModel)]="data.cleanDesk" name="cleandesk">{{'Award.CleanDesk' | transloco}}</mat-checkbox>
 
         <!-- House keeping count  -->
         <mat-form-field class="control-full-width" appearance="fill">
-            <mat-label>House keeping count</mat-label>
+            <mat-label>{{'Award.HouseKeepingCount' | transloco}}</mat-label>
             <input matInput type="number" [(ngModel)]="data.houseKeepingCount" name="housekeepingcount">
         </mat-form-field>
 
         <!-- Polite behavior -->
         <mat-form-field class="control-full-width" appearance="fill">
-            <mat-label>Polite Behavior</mat-label>
+            <mat-label>{{'Award.PoliteBehavior' | transloco}}</mat-label>
             <input matInput type="number" [(ngModel)]="data.politeBehavior" name="politebehavior">
         </mat-form-field>
     </form>
 </div>
 <div mat-dialog-actions>
   <button mat-button (click)="onNoClick()">No Thanks</button>
-  <button mat-button [disabled]="!data.isValid()" [mat-dialog-close]="data" cdkFocusInitial>Ok</button>
+  <button mat-button [disabled]="!data.isValid()" [mat-dialog-close]="data" cdkFocusInitial>OK</button>
 </div>

@@ -1,0 +1,105 @@
+<h1 mat-dialog-title>CREATE AWARD RULE</h1>
+<div mat-dialog-content>
+    <form class="example-form">
+        <!-- Target user -->
+        <mat-form-field class="control-full-width" appearance="fill">
+            <mat-label>{{'Award.TargetUser' | transloco}}</mat-label>
+            <input matInput [(ngModel)]="data.targetUser" name="targetuser">
+        </mat-form-field>
+
+        <!-- Validity range -->
+        <mat-form-field appearance="fill">
+            <mat-label>{{'Award.Validity' | transloco}}</mat-label>
+            <mat-date-range-input [rangePicker]="picker">
+            <input matStartDate [(ngModel)]="data.validFrom" placeholder="Start date" name="validfrom">
+            <input matEndDate  [(ngModel)]="data.validTo" placeholder="End date" name="validto">
+            </mat-date-range-input>
+            <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
+            <mat-date-range-picker #picker></mat-date-range-picker>
+            <!-- <mat-error *ngIf="range.controls.start.hasError('matStartDateInvalid')">Invalid start date</mat-error>
+            <mat-error *ngIf="range.controls.end.hasError('matEndDateInvalid')">Invalid end date</mat-error> -->
+        </mat-form-field>
+
+        <mat-form-field appearance="fill" class="control-full-width">
+            <mat-label>{{'Type' | transloco}}</mat-label>
+            <mat-select required [(ngModel)]="data.ruleType" name="ruletype">
+                <mat-option *ngFor="let et of arRuleTypes" [value]="et.value">{{et.i18nterm | transloco}}</mat-option>
+            </mat-select>
+        </mat-form-field>
+
+        <!-- Time range -->
+        <table class="example-full-width" cellspacing="0" *ngIf="isTimeRangeNeed">
+            <tr>
+                <td>
+                    <mat-form-field class="example-full-width">
+                        <mat-label>{{'Award.TimeStart' | transloco}}</mat-label>
+                        <input matInput type="number" [(ngModel)]="data.timeStart" name="timestart">
+                    </mat-form-field>
+                </td>
+                <td>
+                    <mat-form-field class="example-full-width">
+                        <mat-label>{{'Award.TimeEnd' | transloco}}</mat-label>
+                        <input matInput type="number" [(ngModel)]="data.timeEnd" name="timeend">
+                    </mat-form-field>
+                </td>
+            </tr>
+        </table>
+
+        <!-- Count range -->
+        <table class="example-full-width" cellspacing="0" *ngIf="isCountNeed">
+            <tr>
+                <td>
+                    <mat-form-field class="example-full-width">
+                        <mat-label>Count from</mat-label>
+                        <input matInput type="number" [(ngModel)]="data.countOfFactLow" name="countlow">
+                    </mat-form-field>
+                </td>
+                <td>
+                    <mat-form-field class="example-full-width">
+                        <mat-label>Count to</mat-label>
+                        <input matInput type="number" [(ngModel)]="data.countOfFactHigh" name="counthigh">
+                    </mat-form-field>
+                </td>
+            </tr>
+        </table>
+
+        <!-- Done range -->
+        <mat-form-field class="example-full-width" *ngIf="isDoneNeed">
+            <mat-checkbox [(ngModel)]="data.doneOfFact" name="donecrit">Done criteria</mat-checkbox>
+        </mat-form-field>
+
+        <!-- Days range -->
+        <table class="example-full-width" cellspacing="0">
+            <tr>
+                <td>
+                    <mat-form-field class="example-full-width">
+                        <mat-label>{{'Award.ContinuousDays' | transloco}}</mat-label>
+                        <input matInput type="number" [(ngModel)]="data.daysFrom" name="dayfrom">
+                    </mat-form-field>
+                </td>
+                <td>
+                    <mat-form-field class="example-full-width">
+                        <mat-label>{{'Award.ContinuousDays' | transloco}}</mat-label>
+                        <input matInput type="number" [(ngModel)]="data.daysTo" name="dayto">
+                    </mat-form-field>
+                </td>
+            </tr>
+        </table>
+
+        <!-- Point count  -->
+        <mat-form-field class="control-full-width" appearance="fill">
+            <mat-label>{{'Award.Point' | transloco}}</mat-label>
+            <input matInput type="number" [(ngModel)]="data.point" name="point">
+        </mat-form-field>
+
+        <!-- Desp count  -->
+        <mat-form-field class="control-full-width" appearance="fill">
+            <mat-label>{{'Common.Description' | transloco}}</mat-label>
+            <input matInput [(ngModel)]="data.desp" name="comment">
+        </mat-form-field>
+    </form>
+</div>
+<div mat-dialog-actions>
+    <button mat-button (click)="onNoClick()">No Thanks</button>
+    <button mat-button [disabled]="!data.isValid()" [mat-dialog-close]="data" cdkFocusInitial>OK</button>
+</div>

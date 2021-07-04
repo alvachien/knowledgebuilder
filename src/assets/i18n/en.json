@@ -30,7 +30,12 @@
         "Preview": "PREVIEW",
         "Refresh": "REFRESH",
         "Search": "SEARCH",
-        "CreateAnotherOne": "CREATE ANOTHER ONE"
+        "CreateAnotherOne": "CREATE ANOTHER ONE",
+        "Detail": "DETAIL",
+        "Hide": "HIDE",
+        "Comment": "COMMENT",
+        "Description": "DESCRIPTION",
+        "Copy": "COPY"
     },
     "Type": "Type",
     "Create": "Create",
@@ -156,7 +161,7 @@
     "Award": {
         "Award": "Award",
         "Awards": "Awards",
-        "Overview": "总览",
+        "Overview": "Overview",
         "Rules": "Rules",
         "DailyTrace": "Daily Trace",
         "HomeworkCount": "Homework Count",
@@ -167,7 +172,14 @@
         "HandWriting": "Handwriting",
         "CleanDesk": "Clean desk",
         "HouseKeepingCount": "House keeping count",
-        "PoliteBehavior": "Polite behavior"
+        "PoliteBehavior": "Polite behavior",
+        "TargetUser": "Target User",
+        "TimeStart": "Time start",
+        "TimeEnd": "Time end",
+        "Validity": "Validity",
+        "Point": "Point",
+        "AggregatedPoints": "Aggregated Points",
+        "ContinuousDays": "Continuous days"
     },
     "Sys":{
         "Operator": {

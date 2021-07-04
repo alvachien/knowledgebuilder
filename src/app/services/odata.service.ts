@@ -5,8 +5,9 @@ import { Observable, throwError, Subject, of } from 'rxjs';
 import { map, catchError } from 'rxjs/operators';
 
 import { ExerciseItem, ExerciseItemSearchResult, TagCount, Tag, KnowledgeItem, TagReferenceType, OverviewInfo,
-  AwardRule, DailyTrace, AwardPoint, AwardPointReport, } from '../models';
+  AwardRule, DailyTrace, AwardPoint, AwardPointReport, momentDateFormat, } from '../models';
 import { environment } from '../../environments/environment';
+import moment from 'moment';
 
 export interface PreviewObject {
   refType: TagReferenceType;
@@ -550,6 +551,24 @@ export class ODataService {
       }),
       catchError((error: HttpErrorResponse) => throwError(error.statusText + '; ' + error.error + '; ' + error.message) ));
   }
+  public deleteAwardRule(rid: number): Observable<boolean> {
+    if (environment.mockdata) {
+      return throwError('Cannot delete in mock mode');
+    }
+
+    let headers: HttpHeaders = new HttpHeaders();
+    headers = headers.append('Content-Type', 'application/json')
+      .append('Accept', 'application/json');
+
+    return this.http.delete(`${this.apiUrl}AwardRules(${rid})`, {
+      headers
+    })
+      .pipe(map(response => {
+        return true;
+      }),
+      catchError((error: HttpErrorResponse) => throwError(error.statusText + '; ' + error.error + '; ' + error.message)
+      ));
+  }
 
   // Daily trace
   public getDailyTrace(top = 30, skip = 0, sort?: string, filter?: string):
@@ -642,6 +661,24 @@ export class ODataService {
       }),
       catchError((error: HttpErrorResponse) => throwError(error.statusText + '; ' + error.error + '; ' + error.message) ));
   }
+  public deleteDailyTrace(tuser: string, rdate: moment.Moment): Observable<boolean> {
+    if (environment.mockdata) {
+      return throwError('Cannot delete in mock mode');
+    }
+
+    let headers: HttpHeaders = new HttpHeaders();
+    headers = headers.append('Content-Type', 'application/json')
+      .append('Accept', 'application/json');
+
+    return this.http.delete(`${this.apiUrl}DailyTraces(RecordDate=${rdate.format(momentDateFormat)},TargetUser='${tuser}')`, {
+      headers
+    })
+      .pipe(map(response => {
+        return true;
+      }),
+      catchError((error: HttpErrorResponse) => throwError(error.statusText + '; ' + error.error + '; ' + error.message)
+      ));
+  }
 
   // Award points
   public getAwardPoints(top = 30, skip = 0, sort?: string, filter?: string):
@@ -683,6 +720,46 @@ export class ODataService {
         catchError((error: HttpErrorResponse) => throwError(error.statusText + '; ' + error.error + '; ' + error.message) ));
   }
 
+  public createAwardPoint(pnt: AwardPoint): Observable<AwardPoint> {
+    if (environment.mockdata) {
+      return throwError('Cannot create in mock mode');
+    }
+    let headers: HttpHeaders = new HttpHeaders();
+    headers = headers.append('Content-Type', 'application/json')
+      .append('Accept', 'application/json');
+
+    const jdata = pnt.writeJSONString(true);
+    return this.http.post(`${this.apiUrl}AwardPoints`, jdata, {
+      headers,
+    })
+      .pipe(map(response => {
+        const rjs = response as any;
+        const rtn = new AwardPoint();
+        rtn.parseData(rjs);
+
+        return rtn;
+      }),
+      catchError((error: HttpErrorResponse) => throwError(error.statusText + '; ' + error.error + '; ' + error.message) ));
+  }
+  public deleteAwardPoint(pid: number): Observable<boolean> {
+    if (environment.mockdata) {
+      return throwError('Cannot delete in mock mode');
+    }
+
+    let headers: HttpHeaders = new HttpHeaders();
+    headers = headers.append('Content-Type', 'application/json')
+      .append('Accept', 'application/json');
+
+    return this.http.delete(`${this.apiUrl}AwardPoints(${pid})`, {
+      headers
+    })
+      .pipe(map(response => {
+        return true;
+      }),
+      catchError((error: HttpErrorResponse) => throwError(error.statusText + '; ' + error.error + '; ' + error.message)
+      ));
+  }
+
   public getAwardPointReports(top = 30, skip = 0, sort?: string, filter?: string):
     Observable<{ totalCount: number; items: AwardPointReport[] }> {
       let headers: HttpHeaders = new HttpHeaders();
@@ -693,7 +770,6 @@ export class ODataService {
       params = params.append('$top', top.toString());
       params = params.append('$skip', skip.toString());
       params = params.append('$count', 'true');
-      params = params.append('$select', 'TargetUser,RecordDate,Point');
       if (filter) {
         params = params.append('$filter', filter);
       }

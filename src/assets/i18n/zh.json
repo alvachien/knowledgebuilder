@@ -30,7 +30,12 @@
         "Preview": "预览",
         "Refresh": "刷新",
         "Search": "搜索",
-        "CreateAnotherOne": "新建一条"
+        "CreateAnotherOne": "新建一条",
+        "Detail": "详细",
+        "Hide": "隐藏",
+        "Comment": "注释",
+        "Description": "说明",
+        "Copy": "复制"
     },
     "Type": "类别",
     "Create": "创建",
@@ -167,7 +172,14 @@
         "HandWriting": "书写工整",
         "CleanDesk": "桌面整洁",
         "HouseKeepingCount": "家务次数",
-        "PoliteBehavior": "礼貌规范"
+        "PoliteBehavior": "礼貌规范",
+        "TargetUser": "适用者",
+        "TimeStart": "开始时间",
+        "TimeEnd": "结束时间",
+        "Validity": "有效期间",
+        "Point": "点数",
+        "AggregatedPoints": "累计点数",
+        "ContinuousDays": "连续天数"
     },
     "Sys":{
         "Operator": {

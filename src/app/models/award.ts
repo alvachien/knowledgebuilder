@@ -21,6 +21,64 @@ export enum AwardRuleTypeEnum {
     HandWritingHabit = 9,
 }
 
+export const getAwardRuleTypeName = (ruletype: AwardRuleTypeEnum): string => {
+    let rtn = '';
+    switch (ruletype) {
+        case AwardRuleTypeEnum.GoToBedTime:
+            rtn = 'Award.GoToBedTime';
+            break;
+
+        case AwardRuleTypeEnum.SchoolWorkTime:
+            rtn = 'Award.SchoolWorkTime';
+            break;
+
+        case AwardRuleTypeEnum.HomeWorkCount:
+            rtn = 'Award.HomeworkCount';
+            break;
+
+        case AwardRuleTypeEnum.BodyExerciseCount:
+            rtn = 'Award.BodyExerciseCount';
+            break;
+
+        case AwardRuleTypeEnum.ErrorCollectionHabit:
+            rtn = 'Award.ErrorsCollection';
+            break;
+        case AwardRuleTypeEnum.CleanDeakHabit:
+            rtn = 'Award.CleanDesk';
+            break;
+        case AwardRuleTypeEnum.HouseKeepingCount:
+            rtn = 'Award.HouseKeepingCount';
+            break;
+        case AwardRuleTypeEnum.PoliteBehavior:
+            rtn = 'Award.PoliteBehavior';
+            break;
+        case AwardRuleTypeEnum.HandWritingHabit:
+            rtn = 'Award.HandWriting';
+            break;
+        default:
+            rtn = '';
+            break;
+     }
+    return rtn;    
+}
+export const getAwardRuleTypeNames = (): any[] => {
+    const rtn = [];
+
+    for (const se in AwardRuleTypeEnum) {
+      if (Number.isNaN(+se)) {
+        // Do nothing
+      } else {
+        rtn.push({
+          value: +se,
+          i18nterm: getAwardRuleTypeName(+se),
+          displaystring: '',
+        });
+      }
+    }
+
+    return rtn;
+};
+
 export class AwardRule {
     id = -1;
     ruleType: AwardRuleTypeEnum = AwardRuleTypeEnum.GoToBedTime;
@@ -37,6 +95,21 @@ export class AwardRule {
     daysTo?: number;
     point = 0;
 
+    public copyFrom(oldrule: AwardRule) {
+        this.ruleType = oldrule.ruleType;
+        this.targetUser = oldrule.targetUser;
+        this.desp = oldrule.desp;
+        this.validFrom = moment(oldrule.validFrom.format(momentDateFormat));
+        this.validTo = moment(oldrule.validTo.format(momentDateFormat));
+        this.countOfFactLow = oldrule.countOfFactLow;
+        this.countOfFactHigh = oldrule.countOfFactHigh;
+        this.doneOfFact = oldrule.doneOfFact;
+        this.timeStart = oldrule.timeStart;
+        this.timeEnd = oldrule.timeEnd;
+        this.daysFrom = oldrule.daysFrom;
+        this.daysTo = oldrule.daysTo;
+        this.point = oldrule.point;
+    }
     public isValid(): boolean {
         if (!this.targetUser) {
             return false;
@@ -305,6 +378,15 @@ export class AwardPoint {
     public getRecordDateDisplayString(): string {
         return this.recordDate.format(momentDateFormat);
     }
+    public isValid(): boolean {
+        if (!this.targetUser) {
+            return false;
+        }
+        if (this.point === 0) {
+            return false;
+        }
+        return true;
+    }
 
     public parseData(val: any): void {
         if (val && val.ID) {
@@ -329,12 +411,28 @@ export class AwardPoint {
             this.comment = val.Comment;
         }
     }
+    public writeJSONObject(createdMode = true): any {
+        const jobj: any =  { };
+        if (!createdMode) {
+            jobj.ID = this.id;
+        }
+        jobj.TargetUser = this.targetUser;
+        jobj.RecordDate = this.recordDate.format(momentDateFormat);
+        jobj.Point = this.point;
+        jobj.Comment = this.comment;
+
+        return jobj;
+    }
+    public writeJSONString(createdMode = true): string {
+        return JSON && JSON.stringify(this.writeJSONObject(createdMode));
+    }
 }
 
 export class AwardPointReport {
     targetUser = '';
     recordDate: moment.Moment = moment();
     point = 0;
+    aggPoint = 0;
 
     public getRecordDateDisplayString(): string {
         return this.recordDate.format(momentDateFormat);
@@ -347,7 +445,10 @@ export class AwardPointReport {
             this.recordDate = moment(val.RecordDate);
         }
         if (val && val.Point) {
-            this.point = val.Point;
+            this.point = +val.Point;
+        }
+        if (val && val.AggPoint) {
+            this.aggPoint = +val.AggPoint;
         }
     }
 }

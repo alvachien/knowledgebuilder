@@ -1,87 +1,150 @@
-<mat-card>
-    <mat-card-header>
-        <mat-card-title>{{'Award.DailyTrace' | transloco}}</mat-card-title>
-    </mat-card-header>
-    <mat-card-content>
-        <mat-toolbar>
-            <h3>{{'Content' | transloco}}</h3>
-            <div class="toolbar-spacer"></div>
-            <button mat-raised-button (click)="onCreateTrace()">Create</button>
-        </mat-toolbar>
-        <div class="example-container mat-elevation-z8">
-            <div class="table-container">
-                <table mat-table [dataSource]="dataSourceTrace" class="mat-elevation-z8">
-                    <!-- Target user Column -->
-                    <ng-container matColumnDef="targetUser">
-                        <th mat-header-cell *matHeaderCellDef>User</th>
-                        <td mat-cell *matCellDef="let row">{{row.targetUser}}</td>
-                    </ng-container>
+<mat-toolbar>
+    <h3>{{'Award.DailyTrace' | transloco}}</h3>
+    <div class="toolbar-spacer"></div>
+    <button mat-raised-button (click)="onCreateTrace()">{{'Common.Create' | transloco}}</button>
+</mat-toolbar>
+<div class="example-container mat-elevation-z8">
+    <div class="table-container">
+        <table mat-table [dataSource]="dataSourceTrace" class="mat-elevation-z8">
+            <!-- Action Column -->
+            <ng-container matColumnDef="action">
+                <th mat-header-cell *matHeaderCellDef></th>
+                <td mat-cell *matCellDef="let row">
+                    <button mat-raised-button (click)="onGetPoints(row.targetUser, row.recordDate)">{{'Award.Point' | transloco}}</button>
+                    <button mat-raised-button (click)="onDeleteTrace(row.targetUser, row.recordDate)">{{'Common.Delete' | transloco}}</button>
+                </td>
+            </ng-container>
 
-                    <!-- Record date Column -->
-                    <ng-container matColumnDef="recordDate">
-                        <th mat-header-cell *matHeaderCellDef>{{'Quiz.Date' | transloco}}</th>
-                        <td mat-cell *matCellDef="let row">{{row.getRecordDateDisplayString()}}</td>
-                    </ng-container>
+            <!-- Target user Column -->
+            <ng-container matColumnDef="targetUser">
+                <th mat-header-cell *matHeaderCellDef>{{'Award.TargetUser' | transloco}}</th>
+                <td mat-cell *matCellDef="let row">{{row.targetUser}}</td>
+            </ng-container>
 
-                    <!-- School work time Column -->
-                    <ng-container matColumnDef="schoolWorkTime">
-                        <th mat-header-cell *matHeaderCellDef>{{'Award.SchoolWorkTime' | transloco}}</th>
-                        <td mat-cell *matCellDef="let row">{{row.schoolWorkTime}}</td>
-                    </ng-container>
+            <!-- Record date Column -->
+            <ng-container matColumnDef="recordDate">
+                <th mat-header-cell *matHeaderCellDef>{{'Quiz.Date' | transloco}}</th>
+                <td mat-cell *matCellDef="let row">{{row.getRecordDateDisplayString()}}</td>
+            </ng-container>
 
-                    <!-- Goto bed time Column -->
-                    <ng-container matColumnDef="goToBedTime">
-                        <th mat-header-cell *matHeaderCellDef>{{'Award.GoToBedTime' | transloco}}</th>
-                        <td mat-cell *matCellDef="let row">{{row.goToBedTime}}</td>
-                    </ng-container>
+            <!-- School work time Column -->
+            <ng-container matColumnDef="schoolWorkTime">
+                <th mat-header-cell *matHeaderCellDef>{{'Award.SchoolWorkTime' | transloco}}</th>
+                <td mat-cell *matCellDef="let row">{{row.schoolWorkTime}}</td>
+            </ng-container>
 
-                    <!-- Homework count Column -->
-                    <ng-container matColumnDef="homeWorkCount">
-                        <th mat-header-cell *matHeaderCellDef>{{'Award.HomeworkCount' | transloco}}</th>
-                        <td mat-cell *matCellDef="let row">{{row.homeWorkCount}}</td>
-                    </ng-container>
+            <!-- Goto bed time Column -->
+            <ng-container matColumnDef="goToBedTime">
+                <th mat-header-cell *matHeaderCellDef>{{'Award.GoToBedTime' | transloco}}</th>
+                <td mat-cell *matCellDef="let row">{{row.goToBedTime}}</td>
+            </ng-container>
 
-                    <!-- Body exerices count Column -->
-                    <ng-container matColumnDef="bodyExerciseCount">
-                        <th mat-header-cell *matHeaderCellDef>{{'Award.BodyExerciseCount' | transloco}}</th>
-                        <td mat-cell *matCellDef="let row">{{row.bodyExerciseCount}}</td>                        
-                    </ng-container>
+            <!-- Homework count Column -->
+            <ng-container matColumnDef="homeWorkCount">
+                <th mat-header-cell *matHeaderCellDef>{{'Award.HomeworkCount' | transloco}}</th>
+                <td mat-cell *matCellDef="let row">{{row.homeWorkCount}}</td>
+            </ng-container>
 
-                    <!-- Errors Collection Column -->
-                    <ng-container matColumnDef="errorsCollection">
-                        <th mat-header-cell *matHeaderCellDef>{{'Award.ErrorsCollection' | transloco}}</th>
-                        <td mat-cell *matCellDef="let row">{{row.errorsCollection}}</td>
-                    </ng-container>
+            <!-- Body exerices count Column -->
+            <ng-container matColumnDef="bodyExerciseCount">
+                <th mat-header-cell *matHeaderCellDef>{{'Award.BodyExerciseCount' | transloco}}</th>
+                <td mat-cell *matCellDef="let row">{{row.bodyExerciseCount}}</td>
+            </ng-container>
 
-                    <!-- HandWriting Column -->
-                    <ng-container matColumnDef="handWriting">
-                        <th mat-header-cell *matHeaderCellDef>{{'Award.HandWriting' | transloco}}</th>
-                        <td mat-cell *matCellDef="let row">{{row.handWriting}}</td>
-                    </ng-container>
+            <!-- Errors Collection Column -->
+            <ng-container matColumnDef="errorsCollection">
+                <th mat-header-cell *matHeaderCellDef>{{'Award.ErrorsCollection' | transloco}}</th>
+                <td mat-cell *matCellDef="let row">{{row.errorsCollection}}</td>
+            </ng-container>
 
-                    <!-- Clean Desk Column -->
-                    <ng-container matColumnDef="cleanDesk">
-                        <th mat-header-cell *matHeaderCellDef>{{'Award.CleanDesk' | transloco}}</th>
-                        <td mat-cell *matCellDef="let row">{{row.cleanDesk}}</td>
-                    </ng-container>
+            <!-- HandWriting Column -->
+            <ng-container matColumnDef="handWriting">
+                <th mat-header-cell *matHeaderCellDef>{{'Award.HandWriting' | transloco}}</th>
+                <td mat-cell *matCellDef="let row">{{row.handWriting}}</td>
+            </ng-container>
 
-                    <!-- House Keeping Count Column -->
-                    <ng-container matColumnDef="houseKeepingCount">
-                        <th mat-header-cell *matHeaderCellDef>{{'Award.HouseKeepingCount' | transloco}}</th>
-                        <td mat-cell *matCellDef="let row">{{row.houseKeepingCount}}</td>
-                    </ng-container>
+            <!-- Clean Desk Column -->
+            <ng-container matColumnDef="cleanDesk">
+                <th mat-header-cell *matHeaderCellDef>{{'Award.CleanDesk' | transloco}}</th>
+                <td mat-cell *matCellDef="let row">{{row.cleanDesk}}</td>
+            </ng-container>
 
-                    <!-- Polite Behavior Column -->
-                    <ng-container matColumnDef="politeBehavior">
-                        <th mat-header-cell *matHeaderCellDef>{{'Award.PoliteBehavior' | transloco}}</th>
-                        <td mat-cell *matCellDef="let row">{{row.politeBehavior}}</td>
-                    </ng-container>
-                    
-                    <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
-                    <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
-                </table>
-            </div>
-            <mat-paginator [length]="traceLength" [pageSize]="20"></mat-paginator>
+            <!-- House Keeping Count Column -->
+            <ng-container matColumnDef="houseKeepingCount">
+                <th mat-header-cell *matHeaderCellDef>{{'Award.HouseKeepingCount' | transloco}}</th>
+                <td mat-cell *matCellDef="let row">{{row.houseKeepingCount}}</td>
+            </ng-container>
+
+            <!-- Polite Behavior Column -->
+            <ng-container matColumnDef="politeBehavior">
+                <th mat-header-cell *matHeaderCellDef>{{'Award.PoliteBehavior' | transloco}}</th>
+                <td mat-cell *matCellDef="let row">{{row.politeBehavior}}</td>
+            </ng-container>
+
+            <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+            <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+        </table>
+    </div>
+    <mat-paginator [length]="traceLength" [pageSize]="20"></mat-paginator>
+</div>
+<mat-divider></mat-divider>
+<div *ngIf="isPointShow">
+    <mat-toolbar>
+        <h3>{{'Award.Point' | transloco}}, {{selectedUser}}, {{selectedDate}}</h3>
+        <div class="toolbar-spacer"></div>
+        <button mat-raised-button (click)="onHidePoints()">{{'Common.Hide' | transloco}}</button>
+    </mat-toolbar>
+
+    <div class="example-container mat-elevation-z8">
+        <div class="table-container">
+            <table mat-table [dataSource]="dataSourcePoints" class="mat-elevation-z8">
+                <!-- Action Column -->
+                <ng-container matColumnDef="action">
+                    <th mat-header-cell *matHeaderCellDef>#</th>
+                    <td mat-cell *matCellDef="let row">
+                        <button *ngIf="!row.matchedRuleID" mat-raised-button (click)="onDeletePoint(row.id)">{{'Common.Delete' | transloco}}</button>
+                    </td>
+                </ng-container>
+
+                <!-- Target user Column -->
+                <ng-container matColumnDef="targetUser">
+                    <th mat-header-cell *matHeaderCellDef>{{'Award.TargetUser' | transloco}}</th>
+                    <td mat-cell *matCellDef="let row">{{row.targetUser}}</td>
+                </ng-container>
+
+                <!-- Record date Column -->
+                <ng-container matColumnDef="recordDate">
+                    <th mat-header-cell *matHeaderCellDef>{{'Quiz.Date' | transloco}}</th>
+                    <td mat-cell *matCellDef="let row">{{row.getRecordDateDisplayString()}}</td>
+                </ng-container>
+
+                <!-- Matched rule ID Column -->
+                <ng-container matColumnDef="matchedRuleID">
+                    <th mat-header-cell *matHeaderCellDef>Rule ID</th>
+                    <td mat-cell *matCellDef="let row">{{row.matchedRuleID}}</td>
+                </ng-container>
+
+                <!-- Count of day -->
+                <ng-container matColumnDef="countOfDay">
+                    <th mat-header-cell *matHeaderCellDef>{{'Award.ContinuousDays' | transloco}}</th>
+                    <td mat-cell *matCellDef="let row">{{row.countOfDay}}</td>
+                </ng-container>
+
+                <!-- Point Column -->
+                <ng-container matColumnDef="point">
+                    <th mat-header-cell *matHeaderCellDef>{{'Award.Point' | transloco}}</th>
+                    <td mat-cell *matCellDef="let row">{{row.point}}</td>
+                </ng-container>
+
+                <!-- Comment Column -->
+                <ng-container matColumnDef="comment">
+                    <th mat-header-cell *matHeaderCellDef>{{'Common.Comment' | transloco}}</th>
+                    <td mat-cell *matCellDef="let row">{{row.comment}}</td>
+                </ng-container>
+
+                <tr mat-header-row *matHeaderRowDef="displayedPointColumns"></tr>
+                <tr mat-row *matRowDef="let row; columns: displayedPointColumns;"></tr>
+            </table>
         </div>
-    </mat-card-content>
-</mat-card>
+    </div>    
+</div>
