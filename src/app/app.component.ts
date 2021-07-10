@@ -1,10 +1,13 @@
 /* eslint-disable no-underscore-dangle */
-import {ChangeDetectorRef, Component, OnDestroy} from '@angular/core';
+import { ChangeDetectorRef, Component, Inject, OnDestroy } from '@angular/core';
+import { MatDialog, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
+import { MatSnackBar } from '@angular/material/snack-bar';
 import { MediaMatcher } from '@angular/cdk/layout';
 import { TranslocoService } from '@ngneat/transloco';
 import { DateAdapter } from '@angular/material/core';
 
 import { AppNavItem, AppLanguage, AppNavItemGroupEnum } from './models';
+import { ODataService } from './services';
 
 @Component({
   selector: 'app-root',
@@ -26,7 +29,10 @@ export class AppComponent implements OnDestroy {
   constructor(changeDetectorRef: ChangeDetectorRef,
     media: MediaMatcher,
     private translocoService: TranslocoService,
-    private dateAdapter: DateAdapter<any>
+    private dateAdapter: DateAdapter<any>,
+    public dialog: MatDialog,
+    private oDataSrv: ODataService,
+    private snackBar: MatSnackBar,
   ) {
     this.mobileQuery = media.matchMedia('(max-width: 600px)');
     this._mobileQueryListener = () => changeDetectorRef.detectChanges();
@@ -82,5 +88,50 @@ export class AppComponent implements OnDestroy {
   openCodeRepo(): void {
     // Open github repo.
     window.open('https://github.com/alvachien/knowledgebuilder', '_blank');
+  }
+  launchExpertMode(): void {
+    // Create new trace
+    const dialogRef = this.dialog.open(ExpertAccessCodeDialog, {
+      width: '600px',
+      closeOnNavigation: false,
+      data: {
+        accessCode: '',
+      },
+    });
+
+    dialogRef.afterClosed().subscribe(result => {
+      console.log(`The dialog was closed with result: ${result}`);
+
+      if (result) {
+        this.oDataSrv.enterExpertMode(result.accessCode).subscribe({
+          next: val => {
+            this.snackBar.open('Expert Mode is ON', undefined, {
+              duration: 2000,
+            });
+          },
+          error: err => {
+            this.snackBar.open(err, undefined, { duration: 2000 });
+          }
+        });
+      }
+    });
+  }
+
+}
+
+@Component({
+  selector: 'app-expert-accesscode-dlg',
+  templateUrl: 'app-expert-mode.dialog.html',
+})
+// eslint-disable-next-line @angular-eslint/component-class-suffix
+export class ExpertAccessCodeDialog {
+
+  constructor(public dialogRef: MatDialogRef<ExpertAccessCodeDialog>,
+    @Inject(MAT_DIALOG_DATA) public data: {
+      accessCode: string;
+    }) {}
+
+  onNoClick(): void {
+    this.dialogRef.close();
   }
 }

@@ -62,6 +62,8 @@
     "NewKnowledgeItem": "New Knowledge Item",
     "NewExerciseItem": "New Exercise Item",
     "FullScreen": "Full screen",
+    "ExpertMode": "Expert Mode",
+    "AccessCode": "Access Code",
     "ExerciseItemType": {
         "SingleChoice": "Single Choice",
         "MultipleChoices": "Multiple Choices",
@@ -179,7 +181,9 @@
         "Validity": "Validity",
         "Point": "Point",
         "AggregatedPoints": "Aggregated Points",
-        "ContinuousDays": "Continuous days"
+        "ContinuousDays": "Continuous days",
+        "TimeRange": "Range of time",
+        "CountRange": "Range of count"
     },
     "Sys":{
         "Operator": {

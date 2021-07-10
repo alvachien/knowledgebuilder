@@ -21,6 +21,7 @@ export class ODataService {
   apiUrl = `${environment.apiurlRoot}/`;
   uploadUrl = `${environment.apiurlRoot}/api/ImageUpload`;
 
+  expertMode = false;
   private isMetadataLoaded = false;
   private metadataInfo = '';
   // Mockdata - knowledge item
@@ -32,7 +33,9 @@ export class ODataService {
   bufferedKnowledgeItems: KnowledgeItem[] = [];
   bufferedExerciseItems: ExerciseItem[] = [];
 
-  constructor(private http: HttpClient,) { }
+  constructor(private http: HttpClient,) {
+    this.expertMode = false;
+  }
 
   public getMetadata(forceReload?: boolean): Observable<any> {
     if (!this.isMetadataLoaded || forceReload) {
@@ -59,6 +62,25 @@ export class ODataService {
     }
   }
 
+  public enterExpertMode(accessCode: string): Observable<any> {
+    let headers: HttpHeaders = new HttpHeaders();
+    headers = headers.append('Content-Type', 'application/json')
+      .append('Accept', 'application/json');
+
+    const params: HttpParams = new HttpParams();
+    const apiurl = `${this.apiUrl}api/AccessCode?accessCode=${accessCode}`;
+
+    return this.http.post(apiurl, undefined, {
+      headers,
+      params,
+    })
+      .pipe(map(response => {
+        this.expertMode = true;
+        return this.expertMode;
+      }),
+      catchError((error: HttpErrorResponse) => throwError(error.statusText + '; ' + error.error + '; ' + error.message) ));
+  }
+
   //
   // Knowledge items
   //
@@ -71,6 +93,13 @@ export class ODataService {
         totalCount: this.mockedKnowledgeItem.length,
         items: this.mockedKnowledgeItem
       });
+    } else {
+      if (!this.expertMode) {
+        return of({
+          totalCount: 0,
+          items: []
+        });
+      }
     }
 
     let headers: HttpHeaders = new HttpHeaders();
@@ -127,6 +156,10 @@ export class ODataService {
         return of(this.mockedKnowledgeItem[idx]);
       }
       return of(new KnowledgeItem());
+    } else {
+      if (!this.expertMode) {
+        return throwError('Cannot read in non expert mode');
+      }
     }
 
     const bufidx = this.bufferedKnowledgeItems.findIndex(val => val.ID === kid);
@@ -164,6 +197,10 @@ export class ODataService {
   public createKnowledgeItem(ki: KnowledgeItem): Observable<KnowledgeItem> {
     if (environment.mockdata) {
       return throwError('Cannot create in mock mode');
+    } else {
+      if (!this.expertMode) {
+        return throwError('Cannot create in non expert mode');
+      }
     }
 
     let headers: HttpHeaders = new HttpHeaders();
@@ -195,6 +232,10 @@ export class ODataService {
   public changeKnowledgeItem(ki: KnowledgeItem): Observable<KnowledgeItem> {
     if (environment.mockdata) {
       return throwError('Cannot change in mock mode');
+    } else {
+      if (!this.expertMode) {
+        return throwError('Cannot change in non expert mode');
+      }
     }
 
     let headers: HttpHeaders = new HttpHeaders();
@@ -222,6 +263,10 @@ export class ODataService {
   public deleteKnowledgeItem(itemid: number): Observable<boolean> {
     if (environment.mockdata) {
       return throwError('Cannot delete in mock mode');
+    } else {
+      if (!this.expertMode) {
+        return throwError('Cannot delete in non expert mode');
+      }
     }
 
     let headers: HttpHeaders = new HttpHeaders();
@@ -254,6 +299,10 @@ export class ODataService {
         totalCount: this.mockedExerciseItem.length,
         items: this.mockedExerciseItem
       });
+    } else {
+      if (!this.expertMode) {
+        return of({totalCount: 0, items: []});
+      }
     }
 
     let headers: HttpHeaders = new HttpHeaders();
@@ -309,7 +358,12 @@ export class ODataService {
   public createExerciseItem(qbi: ExerciseItem): Observable<ExerciseItem> {
     if (environment.mockdata) {
       return throwError('Cannot create in mock mode');
+    } else {
+      if (!this.expertMode) {
+        return throwError('Cannot create in non expert mode');
+      }
     }
+
     let headers: HttpHeaders = new HttpHeaders();
     headers = headers.append('Content-Type', 'application/json')
       .append('Accept', 'application/json');
@@ -340,7 +394,12 @@ export class ODataService {
   public changeExerciseItem(qbi: ExerciseItem): Observable<ExerciseItem> {
     if (environment.mockdata) {
       return throwError('Cannot change in mock mode');
+    } else {
+      if (!this.expertMode) {
+        return throwError('Cannot change in non expert mode');
+      }
     }
+
     let headers: HttpHeaders = new HttpHeaders();
     headers = headers.append('Content-Type', 'application/json')
       .append('Accept', 'application/json');
@@ -369,6 +428,10 @@ export class ODataService {
         return of(this.mockedExerciseItem[idx]);
       }
       return of(new ExerciseItem());
+    } else {
+      if (!this.expertMode) {
+        return throwError('Cannot read in non expert mode');
+      }
     }
 
     const bufidx = this.bufferedExerciseItems.findIndex(val => val.ID === qbid);
@@ -405,6 +468,10 @@ export class ODataService {
   public deleteExerciseItem(itemid: number): Observable<boolean> {
     if (environment.mockdata) {
       return throwError('Cannot delete in mock mode');
+    } else {
+      if (!this.expertMode) {
+        return throwError('Cannot delete in non expert mode');
+      }
     }
 
     let headers: HttpHeaders = new HttpHeaders();
@@ -433,6 +500,9 @@ export class ODataService {
     //     items: this.mockedExerciseItem
     //   });
     // }
+    if (!this.expertMode) {
+      return throwError('Cannot search in non expert mode');
+    }
 
     let headers: HttpHeaders = new HttpHeaders();
     headers = headers.append('Content-Type', 'application/json')
@@ -489,6 +559,12 @@ export class ODataService {
     //     items: this.mockedExerciseItem
     //   });
     // }
+    if (!this.expertMode) {
+      return of({
+        totalCount: 0,
+        items: []
+      });
+    }
 
     let headers: HttpHeaders = new HttpHeaders();
     headers = headers.append('Content-Type', 'application/json')
@@ -533,6 +609,10 @@ export class ODataService {
   public createAwardRule(rule: AwardRule): Observable<AwardRule> {
     if (environment.mockdata) {
       return throwError('Cannot create in mock mode');
+    } else {
+      if (!this.expertMode) {
+        return throwError('Cannot create in non expert mode');
+      }
     }
     let headers: HttpHeaders = new HttpHeaders();
     headers = headers.append('Content-Type', 'application/json')
@@ -554,6 +634,10 @@ export class ODataService {
   public deleteAwardRule(rid: number): Observable<boolean> {
     if (environment.mockdata) {
       return throwError('Cannot delete in mock mode');
+    } else {
+      if (!this.expertMode) {
+        return throwError('Cannot delete in non expert mode');
+      }
     }
 
     let headers: HttpHeaders = new HttpHeaders();
@@ -563,9 +647,7 @@ export class ODataService {
     return this.http.delete(`${this.apiUrl}AwardRules(${rid})`, {
       headers
     })
-      .pipe(map(response => {
-        return true;
-      }),
+      .pipe(map(response => true),
       catchError((error: HttpErrorResponse) => throwError(error.statusText + '; ' + error.error + '; ' + error.message)
       ));
   }
@@ -573,6 +655,10 @@ export class ODataService {
   // Daily trace
   public getDailyTrace(top = 30, skip = 0, sort?: string, filter?: string):
     Observable<{ totalCount: number; items: DailyTrace[] }> {
+      if (!this.expertMode) {
+        return of({ totalCount: 0, items: [] });
+      }
+
       let headers: HttpHeaders = new HttpHeaders();
       headers = headers.append('Content-Type', 'application/json')
         .append('Accept', 'application/json');
@@ -612,6 +698,10 @@ export class ODataService {
   }
 
   public simulatePoint(trace: DailyTrace): Observable<AwardPoint[]> {
+    if (!this.expertMode) {
+      return throwError('Cannot create in non expert mode');
+    }
+
     let headers: HttpHeaders = new HttpHeaders();
     headers = headers.append('Content-Type', 'application/json')
       .append('Accept', 'application/json');
@@ -643,6 +733,10 @@ export class ODataService {
   public createDailyTrace(dt: DailyTrace): Observable<DailyTrace> {
     if (environment.mockdata) {
       return throwError('Cannot create in mock mode');
+    } else {
+      if (!this.expertMode) {
+        return throwError('Cannot create in non expert mode');
+      }
     }
     let headers: HttpHeaders = new HttpHeaders();
     headers = headers.append('Content-Type', 'application/json')
@@ -664,6 +758,10 @@ export class ODataService {
   public deleteDailyTrace(tuser: string, rdate: moment.Moment): Observable<boolean> {
     if (environment.mockdata) {
       return throwError('Cannot delete in mock mode');
+    } else {
+      if (!this.expertMode) {
+        return throwError('Cannot delete in non expert mode');
+      }
     }
 
     let headers: HttpHeaders = new HttpHeaders();
@@ -673,9 +771,7 @@ export class ODataService {
     return this.http.delete(`${this.apiUrl}DailyTraces(RecordDate=${rdate.format(momentDateFormat)},TargetUser='${tuser}')`, {
       headers
     })
-      .pipe(map(response => {
-        return true;
-      }),
+      .pipe(map(response => true),
       catchError((error: HttpErrorResponse) => throwError(error.statusText + '; ' + error.error + '; ' + error.message)
       ));
   }
@@ -683,6 +779,10 @@ export class ODataService {
   // Award points
   public getAwardPoints(top = 30, skip = 0, sort?: string, filter?: string):
     Observable<{ totalCount: number; items: AwardPoint[] }> {
+      if (!this.expertMode) {
+        return of({totalCount: 0, items: []});
+      }
+
       let headers: HttpHeaders = new HttpHeaders();
       headers = headers.append('Content-Type', 'application/json')
         .append('Accept', 'application/json');
@@ -723,6 +823,10 @@ export class ODataService {
   public createAwardPoint(pnt: AwardPoint): Observable<AwardPoint> {
     if (environment.mockdata) {
       return throwError('Cannot create in mock mode');
+    } else {
+      if (!this.expertMode) {
+        return throwError('Cannot create in non expert mode');
+      }
     }
     let headers: HttpHeaders = new HttpHeaders();
     headers = headers.append('Content-Type', 'application/json')
@@ -744,6 +848,10 @@ export class ODataService {
   public deleteAwardPoint(pid: number): Observable<boolean> {
     if (environment.mockdata) {
       return throwError('Cannot delete in mock mode');
+    } else {
+      if (!this.expertMode) {
+        return throwError('Cannot delete in non expert mode');
+      }
     }
 
     let headers: HttpHeaders = new HttpHeaders();
@@ -753,15 +861,17 @@ export class ODataService {
     return this.http.delete(`${this.apiUrl}AwardPoints(${pid})`, {
       headers
     })
-      .pipe(map(response => {
-        return true;
-      }),
+      .pipe(map(response => true),
       catchError((error: HttpErrorResponse) => throwError(error.statusText + '; ' + error.error + '; ' + error.message)
       ));
   }
 
   public getAwardPointReports(top = 30, skip = 0, sort?: string, filter?: string):
     Observable<{ totalCount: number; items: AwardPointReport[] }> {
+      if (!this.expertMode) {
+        return of({totalCount: 0, items: []});
+      }
+
       let headers: HttpHeaders = new HttpHeaders();
       headers = headers.append('Content-Type', 'application/json')
         .append('Accept', 'application/json');
@@ -799,6 +909,10 @@ export class ODataService {
 
   // File upload
   public uploadFiles(files: Set<File>): { [key: string]: { result: Observable<any> } } {
+    if (!this.expertMode) {
+      // eslint-disable-next-line no-throw-literal
+      throw 'Cannot create in non expert mode';
+    }
 
     // this will be the our resulting map
     const status: { [key: string]: { result: Observable<any> } } = {};
@@ -846,6 +960,10 @@ export class ODataService {
   }
 
   public getTagCounts(): Observable<{ totalCount: number; items: TagCount[] }> {
+    if (!this.expertMode) {
+      return of({totalCount: 0, items:[]});
+    }
+
     let headers: HttpHeaders = new HttpHeaders();
     headers = headers.append('Content-Type', 'application/json')
       .append('Accept', 'application/json');
@@ -883,6 +1001,10 @@ export class ODataService {
   }
 
   public getTags(term: string, reftype?: TagReferenceType): Observable<{ totalCount: number; items: Tag[] }> {
+    if (!this.expertMode) {
+      return throwError('Cannot create in non expert mode');
+    }
+
     let headers: HttpHeaders = new HttpHeaders();
     headers = headers.append('Content-Type', 'application/json')
       .append('Accept', 'application/json');
@@ -926,6 +1048,10 @@ export class ODataService {
   }
 
   public getOverviewInfo(): Observable<OverviewInfo[]> {
+    if (!this.expertMode) {
+      return throwError('Cannot create in non expert mode');
+    }
+
     let headers: HttpHeaders = new HttpHeaders();
     headers = headers.append('Content-Type', 'application/json')
       .append('Accept', 'application/json');

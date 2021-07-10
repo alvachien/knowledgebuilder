@@ -30,6 +30,9 @@ export class KnowledgeItemsComponent implements AfterViewInit {
   getKnowledgeItemCategoryName(ctgy: KnowledgeItemCategory): string {
     return getKnowledgeItemCategoryName(ctgy);
   }
+  get isExpertMode(): boolean {
+    return this.odataService.expertMode;
+  }
 
   ngAfterViewInit() {
     // If the user changes the sort order, reset back to the first page.

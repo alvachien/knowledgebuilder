@@ -62,6 +62,8 @@
     "NewKnowledgeItem": "新建知识点",
     "NewExerciseItem": "新建练习题",
     "FullScreen": "全屏",
+    "ExpertMode": "专家模式",
+    "AccessCode": "邀请码",
     "ExerciseItemType": {
         "SingleChoice": "单选题",
         "MultipleChoices": "多选题",
@@ -179,7 +181,9 @@
         "Validity": "有效期间",
         "Point": "点数",
         "AggregatedPoints": "累计点数",
-        "ContinuousDays": "连续天数"
+        "ContinuousDays": "连续天数",
+        "TimeRange": "时间范围",
+        "CountRange": "次数范围"
     },
     "Sys":{
         "Operator": {

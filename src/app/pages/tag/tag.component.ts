@@ -18,7 +18,7 @@ export class TagComponent implements AfterViewInit {
   data: TagCount[] = [];
 
   resultsLength = 0;
-  isLoadingResults = true;
+  isLoadingResults = false;
 
   @ViewChild(MatPaginator) paginator!: MatPaginator;
   @ViewChild(MatSort) sort!: MatSort;
@@ -28,6 +28,9 @@ export class TagComponent implements AfterViewInit {
 
   getTagReferenceTypeName(reftype: TagReferenceType): string {
     return getTagReferenceTypeName(reftype);
+  }
+  get isExpertMode(): boolean {
+    return this.odataService.expertMode;
   }
 
   ngAfterViewInit() {

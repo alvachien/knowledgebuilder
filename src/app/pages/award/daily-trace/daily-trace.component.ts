@@ -31,6 +31,9 @@ export class DailyTraceComponent implements OnInit {
   ngOnInit(): void {
     this.refreshList();
   }
+  get isExpertMode(): boolean {
+    return this.odataSrv.expertMode;
+  }
 
   onCreateTrace(): void {
     // Create new trace
@@ -69,7 +72,8 @@ export class DailyTraceComponent implements OnInit {
     });
   }
   onGetPoints(targetUser: string, recordDate: moment.Moment) {
-    this.odataSrv.getAwardPoints(100, 0, undefined, `TargetUser eq '${targetUser}' AND RecordDate eq ${recordDate.format(momentDateFormat)}`).subscribe({
+    this.odataSrv.getAwardPoints(100, 0, undefined,
+      `TargetUser eq '${targetUser}' AND RecordDate eq ${recordDate.format(momentDateFormat)}`).subscribe({
       next: val => {
         this.selectedUser = targetUser;
         this.selectedDate = recordDate.format(momentDateFormat);

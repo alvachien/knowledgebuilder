@@ -19,11 +19,15 @@
       <mat-icon>fullscreen</mat-icon>
     </button>
 
+    <button mat-icon-button (click)="launchExpertMode()" title="Expert Mode" matTooltip="{{'ExpertMode' | transloco }}">
+      <mat-icon>people</mat-icon>
+    </button>
+
     <button mat-icon-button (click)="openCodeRepo()">
       <mat-icon aria-hidden="false" aria-label="Code Repo">code</mat-icon>
     </button>
 
-    <span>0.1.68</span>
+    <span>0.1.70</span>
   </mat-toolbar>
 
   <mat-sidenav-container class="example-sidenav-container" [style.marginTop.px]="mobileQuery.matches ? 56 : 0">

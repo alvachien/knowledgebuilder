@@ -1,9 +1,11 @@
 import { BrowserModule } from '@angular/platform-browser';
 import { NgModule } from '@angular/core';
 import { HttpClientModule, HttpClient } from '@angular/common/http';
+import { CommonModule } from '@angular/common';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 
 import { AppRoutingModule } from './app-routing.module';
-import { AppComponent } from './app.component';
+import { AppComponent, ExpertAccessCodeDialog } from './app.component';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { MaterialModulesModule } from './material-modules';
 import { MonacoEditorModule } from '@materia-ui/ngx-monaco-editor';
@@ -21,10 +23,14 @@ import { QuizFailureDailogComponent } from './pages/quiz-failure-dailog';
 @NgModule({
   declarations: [
     AppComponent,
+    ExpertAccessCodeDialog,
     NavItemFilterPipe,
     QuizFailureDailogComponent,
   ],
   imports: [
+    CommonModule,
+    FormsModule,
+    ReactiveFormsModule,
     BrowserModule,
     AppRoutingModule,
     BrowserAnimationsModule,

@@ -71,6 +71,10 @@ export class AwardRuleComponent implements OnInit {
     this.refreshList();
   }
 
+  get isExpertMode(): boolean {
+    return this.odataSrv.expertMode;
+  }
+
   public onCreateRule(): void {
     const dialogRef = this.dialog.open(AwardRuleCreateDialog, {
       width: '600px',
@@ -220,19 +224,19 @@ export class AwardRuleComponent implements OnInit {
   }
 
   public onCopyRule(oldrid: number): void {
-    let oldrule = this.originRules.find(p => p.id === oldrid);
+    const oldrule = this.originRules.find(p => p.id === oldrid);
     if (oldrule !== undefined) {
-      let nrule = new AwardRule();
+      const nrule = new AwardRule();
       nrule.copyFrom(oldrule);
       const dialogRef = this.dialog.open(AwardRuleCreateDialog, {
         width: '600px',
         closeOnNavigation: false,
         data: nrule,
       });
-  
+
       dialogRef.afterClosed().subscribe(result => {
         console.log(`The dialog was closed with result: ${result}`);
-  
+
         if (result) {
           this.odataSrv.createAwardRule(result).subscribe({
             next: val => {
@@ -244,7 +248,7 @@ export class AwardRuleComponent implements OnInit {
             }
           });
         }
-      });  
+      });
     }
   }
   public onDeleteRule(rid: number): void {
@@ -264,6 +268,7 @@ export class AwardRuleComponent implements OnInit {
   templateUrl: 'award-rule-create.dialog.html',
   styleUrls: ['./award-rule.component.scss'],
 })
+// eslint-disable-next-line @angular-eslint/component-class-suffix
 export class AwardRuleCreateDialog {
 
   arRuleTypes: any[] = [];

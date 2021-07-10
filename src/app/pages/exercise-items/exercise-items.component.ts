@@ -31,6 +31,9 @@ export class ExerciseItemsComponent implements AfterViewInit {
   getExerciseItemTypeName(itemtype: ExerciseItemType): string {
     return getExerciseItemTypeName(itemtype);
   }
+  get isExpertMode(): boolean {
+    return this.odataService.expertMode;
+  }
 
   ngAfterViewInit() {
     // If the user changes the sort order, reset back to the first page.

@@ -1,8 +1,9 @@
 import { Component, Inject, OnInit } from '@angular/core';
 import { MatDialog, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
+import moment from 'moment';
 
-import { AwardPoint, AwardPointReport } from 'src/app/models';
+import { AwardPoint, AwardPointReport, momentDateFormat } from 'src/app/models';
 import { ODataService } from 'src/app/services';
 
 @Component({
@@ -13,8 +14,13 @@ import { ODataService } from 'src/app/services';
 export class OverviewComponent implements OnInit {
 
   dataSource: AwardPointReport[] = [];
+  dataSourcePoints: AwardPoint[] = [];
   recordCount = 0;
   displayedColumns: string[] = ['targetUser', 'recordDate', 'point', 'aggpoint'];
+  displayedPointColumns: string[] = ['action', 'targetUser', 'recordDate', 'matchedRuleID', 'countOfDay', 'point', 'comment'];
+  selectedUser = '';
+  selectedDate = '';
+  isPointShow = false;
 
   constructor(private oDataSrv: ODataService,
     public dialog: MatDialog,
@@ -22,6 +28,9 @@ export class OverviewComponent implements OnInit {
 
   ngOnInit(): void {
     this.refreshList();
+  }
+  get isExpertMode(): boolean {
+    return this.oDataSrv.expertMode;
   }
 
   public onCreateAward(): void {
@@ -59,6 +68,42 @@ export class OverviewComponent implements OnInit {
       }
     });
   }
+  onGetPoints(targetUser: string, recordDate: moment.Moment) {
+    this.oDataSrv.getAwardPoints(100, 0, undefined,
+      `TargetUser eq '${targetUser}' AND RecordDate eq ${recordDate.format(momentDateFormat)}`).subscribe({
+      next: val => {
+        this.selectedUser = targetUser;
+        this.selectedDate = recordDate.format(momentDateFormat);
+
+        this.dataSourcePoints = [];
+        this.dataSourcePoints = val.items.slice();
+        // console.log(val);
+
+        this.isPointShow = true;
+      },
+      error: err => {
+        this.snackBar.open(err, undefined, { duration: 2000 });
+      }
+    });
+  }
+  onHidePoints(): void {
+    this.selectedDate = '';
+    this.selectedUser = '';
+    this.dataSourcePoints = [];
+
+    this.isPointShow = false;
+  }
+  onDeletePoint(pid: number): void {
+    this.oDataSrv.deleteAwardPoint(pid).subscribe({
+      next: val => {
+        // Refresh
+        this.onGetPoints(this.selectedUser, moment(this.selectedDate));
+      },
+      error: err => {
+        this.snackBar.open(err, undefined, { duration: 2000 });
+      }
+    });
+  }
 }
 
 @Component({
@@ -66,6 +111,7 @@ export class OverviewComponent implements OnInit {
   templateUrl: 'award-point-create.dialog.html',
   styleUrls: ['./overview.component.scss'],
 })
+// eslint-disable-next-line @angular-eslint/component-class-suffix
 export class AwardPointCreateDialog {
 
   constructor(public dialogRef: MatDialogRef<AwardPointCreateDialog>,
