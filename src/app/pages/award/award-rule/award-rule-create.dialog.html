@@ -1,6 +1,6 @@
 <h1 mat-dialog-title>CREATE AWARD RULE</h1>
 <div mat-dialog-content>
-    <form class="example-form">
+    <form>
         <!-- Target user -->
         <mat-form-field class="control-full-width" appearance="fill">
             <mat-label>{{'Award.TargetUser' | transloco}}</mat-label>
@@ -28,16 +28,16 @@
         </mat-form-field>
 
         <!-- Time range -->
-        <table class="example-full-width" cellspacing="0" *ngIf="isTimeRangeNeed">
+        <table class="control-full-width" cellspacing="0" *ngIf="isTimeRangeNeed">
             <tr>
                 <td>
-                    <mat-form-field class="example-full-width">
+                    <mat-form-field class="control-full-width">
                         <mat-label>{{'Award.TimeStart' | transloco}}</mat-label>
                         <input matInput type="number" [(ngModel)]="data.timeStart" name="timestart">
                     </mat-form-field>
                 </td>
                 <td>
-                    <mat-form-field class="example-full-width">
+                    <mat-form-field class="control-full-width">
                         <mat-label>{{'Award.TimeEnd' | transloco}}</mat-label>
                         <input matInput type="number" [(ngModel)]="data.timeEnd" name="timeend">
                     </mat-form-field>
@@ -46,16 +46,16 @@
         </table>
 
         <!-- Count range -->
-        <table class="example-full-width" cellspacing="0" *ngIf="isCountNeed">
+        <table class="control-full-width" cellspacing="0" *ngIf="isCountNeed">
             <tr>
                 <td>
-                    <mat-form-field class="example-full-width">
+                    <mat-form-field class="control-full-width">
                         <mat-label>Count from</mat-label>
                         <input matInput type="number" [(ngModel)]="data.countOfFactLow" name="countlow">
                     </mat-form-field>
                 </td>
                 <td>
-                    <mat-form-field class="example-full-width">
+                    <mat-form-field class="control-full-width">
                         <mat-label>Count to</mat-label>
                         <input matInput type="number" [(ngModel)]="data.countOfFactHigh" name="counthigh">
                     </mat-form-field>
@@ -64,21 +64,21 @@
         </table>
 
         <!-- Done range -->
-        <mat-form-field class="example-full-width" *ngIf="isDoneNeed">
+        <mat-form-field class="control-full-width" *ngIf="isDoneNeed">
             <mat-checkbox [(ngModel)]="data.doneOfFact" name="donecrit">Done criteria</mat-checkbox>
         </mat-form-field>
 
         <!-- Days range -->
-        <table class="example-full-width" cellspacing="0">
+        <table class="control-full-width" cellspacing="0">
             <tr>
                 <td>
-                    <mat-form-field class="example-full-width">
+                    <mat-form-field class="control-full-width">
                         <mat-label>{{'Award.ContinuousDays' | transloco}}</mat-label>
                         <input matInput type="number" [(ngModel)]="data.daysFrom" name="dayfrom">
                     </mat-form-field>
                 </td>
                 <td>
-                    <mat-form-field class="example-full-width">
+                    <mat-form-field class="control-full-width">
                         <mat-label>{{'Award.ContinuousDays' | transloco}}</mat-label>
                         <input matInput type="number" [(ngModel)]="data.daysTo" name="dayto">
                     </mat-form-field>

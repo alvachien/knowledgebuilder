@@ -59,8 +59,8 @@ export const getAwardRuleTypeName = (ruletype: AwardRuleTypeEnum): string => {
             rtn = '';
             break;
      }
-    return rtn;    
-}
+    return rtn;
+};
 export const getAwardRuleTypeNames = (): any[] => {
     const rtn = [];
 

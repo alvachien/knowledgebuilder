@@ -1,3 +1,4 @@
+/* eslint-disable quote-props */
 import { Component, Inject, OnInit } from '@angular/core';
 import { MatDialog, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
@@ -95,6 +96,29 @@ export class AwardRuleComponent implements OnInit {
             this.snackBar.open(err, undefined, { duration: 2000 });
           }
         });
+      }
+    });
+  }
+  public onCreateRuleEx(): void {
+    const dialogRef = this.dialog.open(AwardRuleCreateExDialog, {
+      width: '600px',
+      closeOnNavigation: false,
+      data: [],
+    });
+
+    dialogRef.afterClosed().subscribe(result => {
+      console.log(`The dialog was closed with result: ${result}`);
+
+      if (result) {
+        // this.odataSrv.createAwardRule(result).subscribe({
+        //   next: val => {
+        //     // Refresh the list page
+        //     this.refreshList();
+        //   },
+        //   error: err => {
+        //     this.snackBar.open(err, undefined, { duration: 2000 });
+        //   }
+        // });
       }
     });
   }
@@ -291,6 +315,41 @@ export class AwardRuleCreateDialog {
   constructor(public dialogRef: MatDialogRef<AwardRuleCreateDialog>,
     @Inject(MAT_DIALOG_DATA) public data: AwardRule) {
     this.arRuleTypes = getAwardRuleTypeNames();
+  }
+
+  onNoClick(): void {
+    this.dialogRef.close();
+  }
+}
+
+@Component({
+  selector: 'app-award-rule-create-ex-dialog',
+  templateUrl: 'award-rule-create-ex.dialog.html',
+})
+// eslint-disable-next-line @angular-eslint/component-class-suffix
+export class AwardRuleCreateExDialog {
+  displayedColumns: string[] = ['desp', 'validFrom', 'validTo', 'countOfFactLow', 'countOfFactHigh', 'timeStart', 'timeEnd',
+    'daysFrom', 'daysTo', 'point', 'edit'];
+  dataSource: AwardRule[] = [];
+  dataSchema = {
+    // ruleType: AwardRuleTypeEnum = AwardRuleTypeEnum.GoToBedTime;
+    // 'targetUser': 'text',
+    'desp': 'text',
+    'validFrom': 'date',
+    'validTo': 'date',
+    'countOfFactLow': 'number',
+    'countOfFactHigh': 'number',
+    // 'doneOfFact': 'boolean',
+    'timeStart': 'number',
+    'timeEnd': 'number',
+    'daysFrom': 'number',
+    'daysTo': 'number',
+    'point': 'number',
+    'edit': 'edit',
+  };
+
+  constructor(public dialogRef: MatDialogRef<AwardRuleCreateDialog>,
+    @Inject(MAT_DIALOG_DATA) public data: any[]) {
   }
 
   onNoClick(): void {
