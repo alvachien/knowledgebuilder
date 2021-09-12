@@ -331,7 +331,7 @@ export class AwardRuleCreateExDialog {
   displayedColumns: string[] = ['desp', 'validFrom', 'validTo', 'countOfFactLow', 'countOfFactHigh', 'timeStart', 'timeEnd',
     'daysFrom', 'daysTo', 'point', 'edit'];
   dataSource: AwardRule[] = [];
-  dataSchema = {
+  dataSchema: { [key: string]: any } = {
     // ruleType: AwardRuleTypeEnum = AwardRuleTypeEnum.GoToBedTime;
     // 'targetUser': 'text',
     'desp': 'text',

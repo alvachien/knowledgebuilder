@@ -1,9 +1,12 @@
 
 .button-row {
-    margin: auto;   
-    width: 80%;
+    // margin: auto;
+    // width: 80%;
+	display: flex;
+	justify-content: center;
+	align-items: center;    
 }
 
 .button-row button {
-    margin: 8px;
+    margin: 16px;
 }

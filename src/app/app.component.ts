@@ -77,10 +77,6 @@ export class AppComponent implements OnDestroy {
     }
   }
 
-  toggleFullscreen() {
-    // TBD.
-  }
-
   ngOnDestroy(): void {
     this.mobileQuery.removeEventListener('change', this._mobileQueryListener);
   }

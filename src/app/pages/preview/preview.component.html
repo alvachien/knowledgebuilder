@@ -1,32 +1,40 @@
 <div class="button-row">
+    <div> {{previewIdx + 1}} / {{listPreviewObjects.length}}</div>
     <button mat-raised-button (click)="onPreviousPreviewItem()" [disabled]="!isPreviousButtonEnabled">{{'Common.Previous' | transloco}}</button>
     <button mat-raised-button (click)="onNextPreviewItem()" [disabled]="!isNextPreviewButtonEnabled">{{'Common.Next' | transloco}}</button>
 </div>
 
 <mat-divider></mat-divider>
 
-<div *ngIf="selectedObj && selectedObj.refType === 1 && selectedKnowledge" style="margin: 8px;">
+<div *ngIf="selectedObj && selectedObj.refType === 1 && selectedKnowledge" class="mat-typography" style="margin: 16px;">
     <!-- Knowledge Item-->
-    <div class="control-full-width"><span>ID: </span>{{selectedKnowledge.ID}}</div>
+    <h3>ID: {{selectedKnowledge.ID}}</h3>
     <mat-divider></mat-divider>
-    <div class="control-full-width"><span>{{'Title' | transloco}}: </span>{{selectedKnowledge.Title}}</div>
+    <h3>{{'Title' | transloco}}: {{selectedKnowledge.Title}}</h3>
     <mat-divider></mat-divider>
-    <div class="control-full-width">
+    <div class="control-full-width" style="margin-top: 16px; font-size: large;">
         <markdown [data]="selectedKnowledge.Content" katex [katexOptions]="mathOptions"></markdown>
     </div>
 </div>
 
-<div *ngIf="selectedObj && selectedObj.refType === 2 && selectedExercise" style="margin: 8px;">
+<div *ngIf="selectedObj && selectedObj.refType === 2 && selectedExercise" class="mat-typography" style="margin: 16px;">
+    <div class="button-row" style="margin: 16px;">
+        <mat-slide-toggle color="primary" [(ngModel)]="hideAnswer">{{'QuizMode' | transloco}}</mat-slide-toggle>
+    </div>    
+    <mat-divider></mat-divider>
     <!-- Exercise Item-->
-    <div class="control-full-width"><span>ID: </span>{{selectedExercise.ID}}</div>
+    <h3>ID: {{selectedExercise.ID}}</h3>
+    <h3>{{'Type' | transloco}}: {{getExerciseItemTypeName(selectedExercise.ItemType) | transloco}}</h3>
+    <h3>{{'Tags' | transloco}}: {{selectedExercise.Tags.toString()}}</h3>
     <mat-divider></mat-divider>
-    <div class="control-full-width"><span>{{'Tags' | transloco}}: </span>{{selectedExercise.Tags.toString()}}</div>
-    <mat-divider></mat-divider>
-    <div class="control-full-width">
+    <div class="control-full-width" style="margin-top: 16px; font-size: large;">
+        <h3>{{'Content' | transloco}}</h3>
         <markdown ngPreserveWhitespaces [data]="selectedExercise.Content" katex [katexOptions]="mathOptions"></markdown>
     </div>
-    <mat-divider></mat-divider>
-    <div class="control-full-width">
+
+    <div *ngIf="!hideAnswer" class="control-full-width" style="margin-top: 16px; font-size: large;">
+        <mat-divider></mat-divider>
+        <h3>{{'Answer' | transloco}}</h3>
         <markdown ngPreserveWhitespaces [data]="selectedExercise.Answer" katex [katexOptions]="mathOptions"></markdown>
     </div>
 </div>
@@ -34,6 +42,7 @@
 <mat-divider></mat-divider>
 
 <div class="button-row">
+    <div> {{previewIdx + 1}} / {{listPreviewObjects.length}}</div>
     <button mat-raised-button (click)="onPreviousPreviewItem()" [disabled]="!isPreviousButtonEnabled">{{'Common.Previous' | transloco}}</button>
     <button mat-raised-button (click)="onNextPreviewItem()" [disabled]="!isNextPreviewButtonEnabled">{{'Common.Next' | transloco}}</button>
 </div>

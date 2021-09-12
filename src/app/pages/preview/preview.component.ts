@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { KatexOptions } from 'ngx-markdown';
 
-import { KnowledgeItem, Tag, ExerciseItem, TagReferenceType, } from 'src/app/models';
+import { KnowledgeItem, Tag, ExerciseItem, TagReferenceType, ExerciseItemType, getExerciseItemTypeName, } from 'src/app/models';
 import { ODataService, PreviewObject } from 'src/app/services';
 
 @Component({
@@ -20,9 +20,14 @@ export class PreviewComponent implements OnInit {
     throwOnError: false,
     errorColor: '#cc0000',
   };
+  hideAnswer = false; // Hide the answer
 
   constructor(private odataSvc: ODataService) {
     this.previewIdx = -1;
+  }
+
+  getExerciseItemTypeName(reftype: ExerciseItemType): string {
+    return getExerciseItemTypeName(reftype);
   }
 
   ngOnInit(): void {
