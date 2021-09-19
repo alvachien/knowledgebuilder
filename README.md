@@ -47,19 +47,28 @@ ng g c pages\primary-school-math\MixedOperations -m pages\primary-school-math
 - Generate a module:
 
 ```Powershell
-ng g m pages\puzzle-game\PuzzleGame --routing
+ng g m pages\UserCollection --routing
 ```
+
+In this case:   
+- Folder 'user-collection' will be created under 'pages';
+- Module 'UserCollection' will be created in file 'user-collection.module.ts';
+- Module 'UserCollectionRoutingModule' will be created in file 'user-collection-routing.module.ts';
+
 
 ## Todos
 
 |Functioanlity | Status | Comment |
 |--|--|--|
-|Printable Quiz Generator|In Process|Make the quiz printable, via PDFs, and can be downloaded.|
+|Printable Quiz Generator|Done|Make the quiz printable, via PDFs, and can be downloaded.|
 |Puzzle Games: Sudou|In Process|Traiditonal Sudou games|
 |Puzzle Games: Typing game|In process|Typing games|
 |Puzzle Games: Gobang game|In Process|Gobang|
+|Review of Exercise Items|Done|Review of exercise items|
+|User collection|Done|User collection of exercise items|
+|Expert mode|Done|Inviation to expert mode in API layer|
 |Full screen|TBD|Full screen mode|
-|Mock data for Github pages|DONE|Mock data when deploying to Github pages.|
+|Mock data for Github pages|Done|Mock data when deploying to Github pages.|
 
 
 ## Credits

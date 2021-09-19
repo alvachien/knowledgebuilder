@@ -18,6 +18,10 @@ const routes: Routes = [
     loadChildren: () => import('./pages/tag/tag.module').then(m => m.TagModule),
   },
   {
+    path: 'user-collection',
+    loadChildren: () => import('./pages/user-collection/user-collection.module').then(m => m.UserCollectionModule),
+  },
+  {
     path: 'help',
     loadChildren: () => import('./pages/help/help.module').then(m => m.HelpModule),
   },

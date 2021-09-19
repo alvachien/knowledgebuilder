@@ -13,6 +13,7 @@ import { ExerciseItemsComponent } from './exercise-items.component';
 import { ExerciseItemDetailComponent } from './exercise-item-detail';
 import { ExerciseItemSearchComponent } from './exercise-item-search';
 import { AppUIModule } from 'src/app/app-ui.module';
+import { ExerciseItemScoreComponent } from './exercise-item-score/exercise-item-score.component';
 // import { MY_DATE_FORMATS, AppDateAdapter, } from 'src/app/models';
 
 @NgModule({
@@ -20,6 +21,7 @@ import { AppUIModule } from 'src/app/app-ui.module';
     ExerciseItemsComponent,
     ExerciseItemDetailComponent,
     ExerciseItemSearchComponent,
+    ExerciseItemScoreComponent,
   ],
   imports: [
     CommonModule,

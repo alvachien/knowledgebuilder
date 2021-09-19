@@ -51,6 +51,7 @@ export class AppComponent implements OnDestroy {
       { name: 'KnowledgeItem', route: '/knowledge-item', group: AppNavItemGroupEnum.knowledge },
       { name: 'ExerciseItem', route: '/exercise-item', group: AppNavItemGroupEnum.knowledge },
       { name: 'Tags', route: '/tag', group: AppNavItemGroupEnum.knowledge },
+      { name: 'UserCollections', route: '/user-collection', group: AppNavItemGroupEnum.knowledge },
 
       { name: 'PuzzleGames.Calculate24', route: '/puzzle-games/cal24', group: AppNavItemGroupEnum.games },
       { name: 'PuzzleGames.Sudou', route: '/puzzle-games/sudou', group: AppNavItemGroupEnum.games },
