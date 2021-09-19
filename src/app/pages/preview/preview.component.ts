@@ -20,7 +20,9 @@ export class PreviewComponent implements OnInit {
     throwOnError: false,
     errorColor: '#cc0000',
   };
+  focusMode = false; // Focus mode
   hideAnswer = false; // Hide the answer
+  fontSize = 20;
 
   constructor(private odataSvc: ODataService) {
     this.previewIdx = -1;

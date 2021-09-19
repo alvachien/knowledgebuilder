@@ -32,6 +32,8 @@ export class ODataService {
   previewObjList: PreviewObject[] = [];
   bufferedKnowledgeItems: KnowledgeItem[] = [];
   bufferedExerciseItems: ExerciseItem[] = [];
+  // Current user
+  currentUser: string = '';
 
   constructor(private http: HttpClient,) {
     this.expertMode = false;

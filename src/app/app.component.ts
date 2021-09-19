@@ -85,34 +85,44 @@ export class AppComponent implements OnDestroy {
     // Open github repo.
     window.open('https://github.com/alvachien/knowledgebuilder', '_blank');
   }
-  launchExpertMode(): void {
-    // Create new trace
-    const dialogRef = this.dialog.open(ExpertAccessCodeDialog, {
-      width: '600px',
-      closeOnNavigation: false,
-      data: {
-        accessCode: '',
-      },
-    });
-
-    dialogRef.afterClosed().subscribe(result => {
-      console.log(`The dialog was closed with result: ${result}`);
-
-      if (result) {
-        this.oDataSrv.enterExpertMode(result.accessCode).subscribe({
-          next: val => {
-            this.snackBar.open('Expert Mode is ON', undefined, {
-              duration: 2000,
-            });
-          },
-          error: err => {
-            this.snackBar.open(err, undefined, { duration: 2000 });
-          }
-        });
-      }
-    });
+  get isExpertMode(): boolean {
+    return this.oDataSrv.currentUser.length > 0? true : false;
   }
 
+  launchExpertMode(): void {
+    if (this.oDataSrv.currentUser.length > 0) {
+      this.snackBar.open('Expert Mode is ON', undefined, {
+        duration: 2000,
+      });
+    } else {
+      // Create new trace
+      const dialogRef = this.dialog.open(ExpertAccessCodeDialog, {
+        width: '600px',
+        closeOnNavigation: false,
+        data: {
+          accessCode: '',
+        },
+      });
+
+      dialogRef.afterClosed().subscribe(result => {
+        console.log(`The dialog was closed with result: ${result}`);
+
+        if (result) {
+          this.oDataSrv.enterExpertMode(result.accessCode).subscribe({
+            next: val => {
+              this.oDataSrv.currentUser = val;
+              this.snackBar.open('Expert Mode is ON', undefined, {
+                duration: 2000,
+              });
+            },
+            error: err => {
+              this.snackBar.open(err, undefined, { duration: 2000 });
+            }
+          });
+        }
+      });
+    }
+  }
 }
 
 @Component({

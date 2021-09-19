@@ -9,6 +9,7 @@
     "KnowledgeItems": "知识点",
     "ExerciseItems": "练习题",
     "Category": "种类",
+    "FontSize": "字体大小",
     "Common": {
         "Create": "创建",
         "Change": "修改",
@@ -49,6 +50,8 @@
     "Answer": "答案与提示",
     "CreatedAt": "创建于",
     "QuizMode": "测试模式",
+    "HideAnswer": "隐藏答案与提示",
+    "FocusMode": "专注模式",
     "ModifiedAt": "修改于",
     "Tags": "标签",
     "Save": "保存",

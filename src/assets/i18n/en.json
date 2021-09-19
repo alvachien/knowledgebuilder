@@ -9,6 +9,7 @@
     "KnowledgeItems": "Knowledge Items",
     "ExerciseItems": "Exercise Items",
     "Category": "Category",
+    "FontSize": "Font Size",
     "Common": {
         "Create": "CREATE",
         "Change": "CHANGE",
@@ -48,6 +49,8 @@
     "Content": "Content",
     "Answer": "Answer",
     "QuizMode": "Quiz Mode",
+    "HideAnswer": "Hide Answer",
+    "FocusMode": "Focus Mode",
     "CreatedAt": "Created At",
     "ModifiedAt": "Modified At",
     "Tags": "Tags",

@@ -18,21 +18,26 @@
 </div>
 
 <div *ngIf="selectedObj && selectedObj.refType === 2 && selectedExercise" class="mat-typography" style="margin: 16px;">
-    <div class="button-row" style="margin: 16px;">
-        <mat-slide-toggle color="primary" [(ngModel)]="hideAnswer">{{'QuizMode' | transloco}}</mat-slide-toggle>
-    </div>    
+    <form class="button-row" style="margin: 16px;">
+        <mat-slide-toggle color="primary" name="focusmode" [(ngModel)]="focusMode">{{'FocusMode' | transloco}}</mat-slide-toggle>
+        <mat-slide-toggle color="primary" name="quizmode" [(ngModel)]="hideAnswer" style="margin-left: 16px;">{{'QuizMode' | transloco}}</mat-slide-toggle>
+        <mat-form-field class="input-fontsize">
+            <mat-label>{{'FontSize' | transloco}}</mat-label>
+            <input matInput type="number" [(ngModel)]="fontSize" [ngModelOptions]="{standalone: true}">
+        </mat-form-field>
+    </form>
     <mat-divider></mat-divider>
     <!-- Exercise Item-->
-    <h3>ID: {{selectedExercise.ID}}</h3>
-    <h3>{{'Type' | transloco}}: {{getExerciseItemTypeName(selectedExercise.ItemType) | transloco}}</h3>
-    <h3>{{'Tags' | transloco}}: {{selectedExercise.Tags.toString()}}</h3>
-    <mat-divider></mat-divider>
-    <div class="control-full-width" style="margin-top: 16px; font-size: large;">
+    <h3 *ngIf="!focusMode">ID: {{selectedExercise.ID}}</h3>
+    <h3 *ngIf="!focusMode">{{'Type' | transloco}}: {{getExerciseItemTypeName(selectedExercise.ItemType) | transloco}}</h3>
+    <h3 *ngIf="!focusMode">{{'Tags' | transloco}}: {{selectedExercise.Tags.toString()}}</h3>
+    <mat-divider *ngIf="!focusMode"></mat-divider>
+    <div class="control-full-width" style="margin-top: 16px;" [style.font-size.px]="fontSize">
         <h3>{{'Content' | transloco}}</h3>
         <markdown ngPreserveWhitespaces [data]="selectedExercise.Content" katex [katexOptions]="mathOptions"></markdown>
     </div>
 
-    <div *ngIf="!hideAnswer" class="control-full-width" style="margin-top: 16px; font-size: large;">
+    <div *ngIf="!hideAnswer" class="control-full-width" style="margin-top: 16px;" [style.font-size.px]="fontSize">
         <mat-divider></mat-divider>
         <h3>{{'Answer' | transloco}}</h3>
         <markdown ngPreserveWhitespaces [data]="selectedExercise.Answer" katex [katexOptions]="mathOptions"></markdown>
