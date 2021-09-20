@@ -3,9 +3,10 @@
     <span class="toolbar-spacer"></span>
     <section>
         <a mat-stroked-button [disabled]="!isExpertMode" routerLink="create">{{'Common.Create' | transloco}}</a>
-        <a mat-stroked-button (click)="onGoToSearch()" [disabled]="!isExpertMode || dataSource.length <= 0">{{'Common.Search' | transloco}}</a>
+        <a mat-stroked-button style="margin-left: 12px" (click)="onGoToSearch()" [disabled]="!isExpertMode || dataSource.length <= 0">{{'Common.Search' | transloco}}</a>
+        <a mat-stroked-button style="margin-left: 12px" [disabled]="!isExpertMode" routerLink="score">{{'PracticeHistories' | transloco}}</a>
         <a mat-stroked-button (click)="onGoToPreview()" [disabled]="!isExpertMode || dataSource.length <= 0">{{'Common.Preview' | transloco}}</a>
-        <a mat-stroked-button [disabled]="!isExpertMode" (click)="onRefreshList()">{{'Common.Refresh' | transloco}}</a>
+        <a mat-stroked-button style="margin-left: 12px" [disabled]="!isExpertMode" (click)="onRefreshList()">{{'Common.Refresh' | transloco}}</a>
     </section>
 </mat-toolbar-row>
 

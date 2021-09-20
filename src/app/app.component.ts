@@ -111,10 +111,11 @@ export class AppComponent implements OnDestroy {
         if (result) {
           this.oDataSrv.enterExpertMode(result.accessCode).subscribe({
             next: val => {
-              this.oDataSrv.currentUser = val;
-              this.snackBar.open('Expert Mode is ON', undefined, {
-                duration: 2000,
-              });
+              if (val) {
+                this.snackBar.open(`Expert Mode is ON`, undefined, {
+                  duration: 2000,
+                });
+              }
             },
             error: err => {
               this.snackBar.open(err, undefined, { duration: 2000 });

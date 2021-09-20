@@ -36,7 +36,8 @@
         "Hide": "HIDE",
         "Comment": "COMMENT",
         "Description": "DESCRIPTION",
-        "Copy": "COPY"
+        "Copy": "COPY",
+        "Name": "NAME"
     },
     "Type": "Type",
     "Create": "Create",
@@ -54,6 +55,9 @@
     "CreatedAt": "Created At",
     "ModifiedAt": "Modified At",
     "UserCollections": "User Collections",
+    "UserCollection": "User Collection",
+    "PracticeHistories": "Practice Histories",
+    "PracticeHistory": "Practice History",
     "Tags": "Tags",
     "Save": "Save",
     "Cancel": "Cancel",

@@ -29,10 +29,13 @@ export class ODataService {
   private mockedKnowledgeItem: KnowledgeItem[] = [];
   // Mockdata - exercise item
   private mockedExerciseItem: ExerciseItem[] = [];
+  // Mockdata - user collection
+  private mockedUserCollection: UserCollection[] = [];
   // Preview objects
   previewObjList: PreviewObject[] = [];
   bufferedKnowledgeItems: KnowledgeItem[] = [];
   bufferedExerciseItems: ExerciseItem[] = [];
+  bufferedUserCollection: UserCollection[] = [];
   // Current user
   public currentUser: string;
 
@@ -42,7 +45,7 @@ export class ODataService {
   }
 
   get expertMode(): boolean {
-    return this.currentUser && this.currentUser.length > 0 ? true : false;
+    return (this.currentUser && this.currentUser.length > 0)? true : false;
   }
 
   public getMetadata(forceReload?: boolean): Observable<any> {
@@ -83,7 +86,6 @@ export class ODataService {
       params,
     })
       .pipe(map(response => {
-        // this.expertMode = true;
         this.currentUser = response as any as string;
         return this.expertMode;
       }),
@@ -1104,9 +1106,9 @@ export class ODataService {
       params = params.append('$count', 'true');
       params = params.append('$expand', 'Items');
       if (filter) {
-        params = params.append('$filter', `${filter} and User eq ${this.currentUser}`);
+        params = params.append('$filter', `${filter} and User eq '${this.currentUser}'`);
       } else {
-        params = params.append('$filter', `User eq ${this.currentUser}`)
+        params = params.append('$filter', `User eq '${this.currentUser}'`);
       }
       const apiurl = `${this.apiUrl}UserCollections`;
 
@@ -1144,7 +1146,7 @@ export class ODataService {
     headers = headers.append('Content-Type', 'application/json')
       .append('Accept', 'application/json');
 
-    const jdata = coll.writeJSONString(true);
+    const jdata = coll.writeJSONString();
     return this.http.post(`${this.apiUrl}UserCollections`, jdata, {
       headers,
     })
@@ -1155,7 +1157,53 @@ export class ODataService {
 
         return rtn;
       }),
-      catchError((error: HttpErrorResponse) => throwError(error.statusText + '; ' + error.error + '; ' + error.message) ));    
+      catchError((error: HttpErrorResponse) => throwError(error.statusText + '; ' + error.error + '; ' + error.message) ));
+  }
+
+  public readUserCollection(collid: number, forceLoad = false): Observable<UserCollection> {
+    if (environment.mockdata) {
+      const idx = this.mockedUserCollection.findIndex(val => val.ID === collid);
+      if (idx !== -1) {
+        return of(this.mockedUserCollection[idx]);
+      }
+      return of(new UserCollection());
+    } else {
+      if (!this.expertMode) {
+        return throwError('Cannot read in non expert mode');
+      }
+    }
+
+    const bufidx = this.bufferedUserCollection.findIndex(val => val.ID === collid);
+    if (!forceLoad && bufidx !== -1) {
+      return of(this.bufferedUserCollection[bufidx]);
+    }
+
+    let headers: HttpHeaders = new HttpHeaders();
+    headers = headers.append('Content-Type', 'application/json')
+      .append('Accept', 'application/json');
+
+    let params: HttpParams = new HttpParams();
+    // params = params.append('$select', 'ID,Category,Title,Content,CreatedAt,ModifiedAt');
+    params = params.append('$expand', 'Items');
+    params = params.append('$filter', `User eq '${this.currentUser}'`);
+    return this.http.get(`${this.apiUrl}UserCollections(${collid})`, {
+      headers,
+      params,
+    })
+      .pipe(map(response => {
+        const rsp = response as any;
+        const kitem = new UserCollection();
+        kitem.parseData(rsp);
+
+        if (bufidx === -1) {
+          this.bufferedUserCollection.push(kitem);
+        } else {
+          this.bufferedUserCollection[bufidx] = kitem;
+        }
+
+        return kitem;
+      }),
+      catchError((error: HttpErrorResponse) => throwError(error.statusText + '; ' + error.error + '; ' + error.message) ));
   }
 
   // Exercise item user score
@@ -1174,9 +1222,9 @@ export class ODataService {
     params = params.append('$skip', skip.toString());
     params = params.append('$count', 'true');
     if (filter) {
-      params = params.append('$filter', `${filter} and User eq ${this.currentUser}`);
+      params = params.append('$filter', `${filter} and User eq '${this.currentUser}'`);
     } else {
-      params = params.append('$filter', `User eq ${this.currentUser}`)
+      params = params.append('$filter', `User eq '${this.currentUser}'`);
     }
     const apiurl = `${this.apiUrl}ExerciseItemUserScores`;
 

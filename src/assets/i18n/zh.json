@@ -36,7 +36,8 @@
         "Hide": "隐藏",
         "Comment": "注释",
         "Description": "说明",
-        "Copy": "复制"
+        "Copy": "复制",
+        "Name": "名称"
     },
     "Type": "类别",
     "Create": "创建",
@@ -54,6 +55,9 @@
     "FocusMode": "专注模式",
     "ModifiedAt": "修改于",
     "UserCollections": "自定义合集",
+    "UserCollection": "自定义合集",
+    "PracticeHistories": "练习记录",
+    "PracticeHistory": "练习记录",
     "Tags": "标签",
     "Save": "保存",
     "Cancel": "取消",

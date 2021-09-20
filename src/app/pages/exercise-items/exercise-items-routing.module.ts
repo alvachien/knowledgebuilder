@@ -12,7 +12,7 @@ const routes: Routes = [
   { path: 'display/:id', component: ExerciseItemDetailComponent },
   { path: 'edit/:id', component: ExerciseItemDetailComponent },
   { path: 'search', component: ExerciseItemSearchComponent },
-  { path: 'score', component: ExerciseItemSearchComponent },
+  { path: 'score', component: ExerciseItemScoreComponent },
 ];
 
 @NgModule({
