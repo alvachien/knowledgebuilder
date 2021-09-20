@@ -186,3 +186,35 @@ export class ExerciseItemSearchResult {
         }
     }
 }
+
+export class ExerciseItemUserScore {
+    constructor() {
+        this.ID = -1;
+        this.User = '';
+        this.RefID = -1;
+        this.Score = 0;
+    }
+    public ID: number;
+    public User: string;
+    public RefID: number;
+    public TakenDate?: Date;
+    public Score: number;
+
+    public parseData(data: any): void {
+        if (data && data.ID) {
+            this.ID = data.ID;
+        }
+        if (data && data.User) {
+            this.User = data.User;
+        }
+        if (data && data.RefID) {
+            this.RefID = data.RefID;
+        }
+        if (data && data.Score) {
+            this.Score = data.Score;
+        }
+        if (data && data.TakenDate) {
+            this.TakenDate = new Date(data.TakenDate);
+        }
+    }
+}

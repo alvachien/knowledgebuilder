@@ -5,7 +5,8 @@ import { Observable, throwError, Subject, of } from 'rxjs';
 import { map, catchError } from 'rxjs/operators';
 
 import { ExerciseItem, ExerciseItemSearchResult, TagCount, Tag, KnowledgeItem, TagReferenceType, OverviewInfo,
-  AwardRule, DailyTrace, AwardPoint, AwardPointReport, momentDateFormat, } from '../models';
+  AwardRule, DailyTrace, AwardPoint, AwardPointReport, momentDateFormat,
+  UserCollection, ExerciseItemUserScore, } from '../models';
 import { environment } from '../../environments/environment';
 import moment from 'moment';
 
@@ -21,7 +22,7 @@ export class ODataService {
   apiUrl = `${environment.apiurlRoot}/`;
   uploadUrl = `${environment.apiurlRoot}/api/ImageUpload`;
 
-  expertMode = false;
+  // expertMode = false;
   private isMetadataLoaded = false;
   private metadataInfo = '';
   // Mockdata - knowledge item
@@ -33,10 +34,15 @@ export class ODataService {
   bufferedKnowledgeItems: KnowledgeItem[] = [];
   bufferedExerciseItems: ExerciseItem[] = [];
   // Current user
-  currentUser: string = '';
+  public currentUser: string;
 
   constructor(private http: HttpClient,) {
-    this.expertMode = false;
+    // this.expertMode = false;
+    this.currentUser = '';
+  }
+
+  get expertMode(): boolean {
+    return this.currentUser && this.currentUser.length > 0 ? true : false;
   }
 
   public getMetadata(forceReload?: boolean): Observable<any> {
@@ -77,7 +83,8 @@ export class ODataService {
       params,
     })
       .pipe(map(response => {
-        this.expertMode = true;
+        // this.expertMode = true;
+        this.currentUser = response as any as string;
         return this.expertMode;
       }),
       catchError((error: HttpErrorResponse) => throwError(error.statusText + '; ' + error.error + '; ' + error.message) ));
@@ -1076,6 +1083,121 @@ export class ODataService {
         });
 
         return items;
+      }),
+      catchError((error: HttpErrorResponse) => throwError(error.statusText + '; ' + error.error + '; ' + error.message) ));
+  }
+
+  // User collection
+  public getUserCollections(top = 30, skip = 0, sort?: string, filter?: string):
+    Observable<{ totalCount: number; items: UserCollection[] }> {
+      if (!this.expertMode) {
+        return of({totalCount: 0, items: []});
+      }
+
+      let headers: HttpHeaders = new HttpHeaders();
+      headers = headers.append('Content-Type', 'application/json')
+        .append('Accept', 'application/json');
+
+      let params: HttpParams = new HttpParams();
+      params = params.append('$top', top.toString());
+      params = params.append('$skip', skip.toString());
+      params = params.append('$count', 'true');
+      params = params.append('$expand', 'Items');
+      if (filter) {
+        params = params.append('$filter', `${filter} and User eq ${this.currentUser}`);
+      } else {
+        params = params.append('$filter', `User eq ${this.currentUser}`)
+      }
+      const apiurl = `${this.apiUrl}UserCollections`;
+
+      return this.http.get(apiurl, {
+        headers,
+        params,
+      })
+        .pipe(map(response => {
+          const rjs = response as any;
+          const ritems = rjs.value as any[];
+          const items: UserCollection[] = [];
+          ritems.forEach(item => {
+            const rit: UserCollection = new UserCollection();
+            rit.parseData(item);
+            items.push(rit);
+          });
+
+          return {
+            totalCount: rjs['@odata.count'],
+            items,
+          };
+        }),
+        catchError((error: HttpErrorResponse) => throwError(error.statusText + '; ' + error.error + '; ' + error.message) ));
+  }
+
+  public createUserCollection(coll: UserCollection): Observable<UserCollection> {
+    if (environment.mockdata) {
+      return throwError('Cannot create in mock mode');
+    } else {
+      if (!this.expertMode) {
+        return throwError('Cannot create in non expert mode');
+      }
+    }
+    let headers: HttpHeaders = new HttpHeaders();
+    headers = headers.append('Content-Type', 'application/json')
+      .append('Accept', 'application/json');
+
+    const jdata = coll.writeJSONString(true);
+    return this.http.post(`${this.apiUrl}UserCollections`, jdata, {
+      headers,
+    })
+      .pipe(map(response => {
+        const rjs = response as any;
+        const rtn = new UserCollection();
+        rtn.parseData(rjs);
+
+        return rtn;
+      }),
+      catchError((error: HttpErrorResponse) => throwError(error.statusText + '; ' + error.error + '; ' + error.message) ));    
+  }
+
+  // Exercise item user score
+  public getExerciseItemUserScores(top = 30, skip = 0, sort?: string, filter?: string):
+    Observable<{ totalCount: number; items: ExerciseItemUserScore[] }> {
+    if (!this.expertMode) {
+      return of({totalCount: 0, items: []});
+    }
+
+    let headers: HttpHeaders = new HttpHeaders();
+    headers = headers.append('Content-Type', 'application/json')
+      .append('Accept', 'application/json');
+
+    let params: HttpParams = new HttpParams();
+    params = params.append('$top', top.toString());
+    params = params.append('$skip', skip.toString());
+    params = params.append('$count', 'true');
+    if (filter) {
+      params = params.append('$filter', `${filter} and User eq ${this.currentUser}`);
+    } else {
+      params = params.append('$filter', `User eq ${this.currentUser}`)
+    }
+    const apiurl = `${this.apiUrl}ExerciseItemUserScores`;
+
+    return this.http.get(apiurl, {
+      headers,
+      params,
+    })
+      .pipe(map(response => {
+        const rjs = response as any;
+        const ritems = rjs.value as any[];
+        const items: ExerciseItemUserScore[] = [];
+        ritems.forEach(item => {
+          const rit: ExerciseItemUserScore = new ExerciseItemUserScore();
+          rit.parseData(item);
+          items.push(rit);
+        });
+
+        return {
+          totalCount: rjs['@odata.count'],
+          items,
+        };
       }),
       catchError((error: HttpErrorResponse) => throwError(error.statusText + '; ' + error.error + '; ' + error.message) ));
   }
