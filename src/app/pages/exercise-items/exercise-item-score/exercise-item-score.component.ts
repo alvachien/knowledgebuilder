@@ -14,7 +14,7 @@ import { ODataService, PreviewObject } from '../../../services';
   styleUrls: ['./exercise-item-score.component.scss']
 })
 export class ExerciseItemScoreComponent implements  AfterViewInit {
-  displayedColumns: string[] = ['id', 'refid', 'takendate', 'score', 'createdat'];
+  displayedColumns: string[] = ['id', 'refid', 'takendate', 'score'];
   dataSource: ExerciseItemUserScore[] = [];
   resultsLength = 0;
   isLoadingResults = true;
@@ -59,8 +59,11 @@ export class ExerciseItemScoreComponent implements  AfterViewInit {
       ).subscribe(data => this.dataSource = data);
   }
 
-  onGoToSearch(): void {
+  public onGoToSearch(): void {
     // this.router.navigate(['knowledge-item', 'search']);
+  }
+  public onGoToExerciseItems(): void {
+    this.router.navigate(['exercise-item']);
   }
 
   public onPreview(collid: number): void {
@@ -71,7 +74,7 @@ export class ExerciseItemScoreComponent implements  AfterViewInit {
     //       arobj.push({
     //         refType: item.RefType,
     //         refId: item.RefID,
-    //       });    
+    //       });
     //     });
     //   }
     // });
@@ -89,7 +92,6 @@ export class ExerciseItemScoreComponent implements  AfterViewInit {
     //     console.error(err);
     //   }
     // });
-    
   }
 
   onRefreshList(): void {

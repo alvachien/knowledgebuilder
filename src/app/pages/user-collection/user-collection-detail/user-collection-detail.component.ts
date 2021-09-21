@@ -8,7 +8,7 @@ import { KatexOptions } from 'ngx-markdown';
 import { MatChipInputEvent } from '@angular/material/chips';
 
 import { UIMode } from 'actslib';
-import { UserCollection } from 'src/app/models';
+import { UserCollection, UserCollectionItem } from 'src/app/models';
 import { ODataService } from 'src/app/services';
 
 @Component({
@@ -20,6 +20,11 @@ export class UserCollectionDetailComponent implements OnInit, OnDestroy {
   private destroyed$?: ReplaySubject<boolean>;
   private routerID = -1;
   itemObject: UserCollection | undefined;
+  displayedColumns: string[] = ['refid', 'createdat'];
+  dataSource: UserCollectionItem[] = [];
+
+  resultsLength = 0;
+  isLoadingResults = true;
 
   uiMode: UIMode = UIMode.Create;
   currentMode = '';
@@ -83,6 +88,7 @@ export class UserCollectionDetailComponent implements OnInit, OnDestroy {
               next: exitem => {
                 this.onSetHeaderData(exitem);
                 this.itemObject = exitem;
+                this.dataSource = exitem.Items;
               },
               error: err => {
                 console.error(err);
@@ -150,5 +156,9 @@ export class UserCollectionDetailComponent implements OnInit, OnDestroy {
   }
   public onCreateNewOne(): void {
     this.router.navigate(['user-collection', 'create']);
+  }
+  public onCreateItem(): void {
+  }
+  public onDeleteItem(refId: number): void {
   }
 }

@@ -8,7 +8,7 @@ import { merge, Observable, of as observableOf } from 'rxjs';
 import { catchError, finalize, map, startWith, switchMap } from 'rxjs/operators';
 import { TagReferenceType } from 'src/app/models';
 
-import { ExerciseItem, ExerciseItemType, getExerciseItemTypeName, } from '../../models/exercise-item';
+import { ExerciseItem, ExerciseItemType, ExerciseItemUserScore, getExerciseItemTypeName, } from '../../models/exercise-item';
 import { ODataService, PreviewObject } from '../../services';
 import { ExerciseItemAddToCollDialog } from './exercise-items-add-coll-dlg.component';
 import { ExerciseItemNewPracticeDialog } from './exercise-items-newpractice-dlg.component';
@@ -121,15 +121,12 @@ export class ExerciseItemsComponent implements AfterViewInit {
             collid: undefined,
           },
         });
-    
+
         dialogRef.afterClosed().subscribe(result => {
-          console.log(result);
-          // Now submit!
-    
-          const colidx = arColls.findIndex(coll => coll.ID === result.collid);
+          const colidx = arColls.findIndex(coll => coll.ID === +result.collid);
           if (colidx !== -1) {
             this.odataService.addExerciseItemToCollection(rid, arColls[colidx]).subscribe({
-              next: val => {
+              next: val2 => {
                 this.snackBar.open('DONE', undefined, { duration: 2000 });
               },
               error: err => {
@@ -137,7 +134,7 @@ export class ExerciseItemsComponent implements AfterViewInit {
               }
             });
           }
-        });    
+        });
       },
       error: err => {
         this.snackBar.open(err, undefined, { duration: 2000 });
@@ -156,8 +153,20 @@ export class ExerciseItemsComponent implements AfterViewInit {
     });
 
     dialogRef.afterClosed().subscribe(result => {
-      console.log(result);
       // Now submit!
+      const nscore = new ExerciseItemUserScore();
+      nscore.RefID = result.excitemid;
+      nscore.Score = result.score;
+      nscore.TakenDate = new Date();
+      nscore.User = this.odataService.currentUser;
+      this.odataService.createExerciseItemUserScore(nscore).subscribe({
+        next: val => {
+          this.snackBar.open('DONE', undefined, { duration: 2000 });
+        },
+        error: err => {
+          this.snackBar.open(err, undefined, { duration: 2000 });
+        }
+      });
     });
   }
 }

@@ -1224,8 +1224,8 @@ export class ODataService {
     collitem.RefType = TagReferenceType.ExerciseItem;
     collitem.RefID = execitemid;
     collObj.Items.push(collitem);
-    const jdata = collObj.writeJSONString();
-    let params: HttpParams = new HttpParams();
+    const jdata = collObj.writeJSONString(true);
+    const params: HttpParams = new HttpParams();
     return this.http.put(`${this.apiUrl}UserCollections(${collObj.ID})`, jdata, {
       headers,
       params,
@@ -1283,6 +1283,7 @@ export class ODataService {
       }),
       catchError((error: HttpErrorResponse) => throwError(error.statusText + '; ' + error.error + '; ' + error.message) ));
   }
+
   public createExerciseItemUserScore(nscore: ExerciseItemUserScore): Observable<ExerciseItemUserScore> {
     if (environment.mockdata) {
       return throwError('Cannot create in mock mode');

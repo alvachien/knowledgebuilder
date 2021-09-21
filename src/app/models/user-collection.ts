@@ -118,11 +118,14 @@ export class UserCollectionItem {
     }
     public writeJSONString(isupdate?: boolean): string {
         const item: any = {
-            RefType: this.RefType,
+            RefType: TagReferenceType[this.RefType],
             RefID: this.RefID,
         };
         if (isupdate) {
             item.ID = this.ID;
+        }
+        if (this.CreatedAt) {
+            item.CreatedAt = this.CreatedAt.toISOString().slice(0, 10);
         }
 
         return JSON && JSON.stringify(item);
