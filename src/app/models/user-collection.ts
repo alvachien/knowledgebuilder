@@ -77,7 +77,7 @@ export class UserCollection {
         if (this.Items && this.Items.length > 0) {
             coll.Items = [];
             this.Items.forEach(it => {
-                coll.Items.push(it.writeJSONString(isupdate));
+                coll.Items.push(it.writeJSONObject(isupdate));
             });
         }
 
@@ -115,6 +115,20 @@ export class UserCollectionItem {
         if (data && data.CreatedAt) {
             this.CreatedAt = new Date(data.CreatedAt);
         }
+    }
+    public writeJSONObject(isupdate?: boolean): any {
+        const item: any = {
+            RefType: TagReferenceType[this.RefType],
+            RefID: this.RefID,
+        };
+        if (isupdate) {
+            item.ID = this.ID;
+        }
+        if (this.CreatedAt) {
+            item.CreatedAt = this.CreatedAt.toISOString().slice(0, 10);
+        }
+
+        return item;
     }
     public writeJSONString(isupdate?: boolean): string {
         const item: any = {

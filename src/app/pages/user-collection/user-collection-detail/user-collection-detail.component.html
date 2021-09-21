@@ -51,7 +51,7 @@
         <mat-toolbar-row>
             <span class="toolbar-spacer"></span>
             <section>
-                <button mat-icon-button color="primary" [disabled]="!isExpertMode" (click)="onCreateItem()" matTooltip="{{'Common.Create' | transloco}}">
+                <button mat-icon-button color="primary" (click)="onCreateItem()" matTooltip="{{'Common.Create' | transloco}}">
                     <mat-icon>add_circle</mat-icon>
                 </button>
             </section>
@@ -65,7 +65,7 @@
                         <th mat-header-cell *matHeaderCellDef>ID</th>
                         <td mat-cell *matCellDef="let row">
                             {{row.RefID}}
-                            <button mat-icon-button color="warn" [disabled]="!isExpertMode" (click)="onDeleteItem(row.RefID)" matTooltip="{{'Common.Delete' | transloco}}">
+                            <button mat-icon-button color="warn" (click)="onDeleteItem(row.RefID)" matTooltip="{{'Common.Delete' | transloco}}">
                                 <mat-icon>remove_circle</mat-icon>
                             </button>    
                         </td>
