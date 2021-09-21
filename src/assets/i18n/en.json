@@ -37,7 +37,8 @@
         "Comment": "COMMENT",
         "Description": "DESCRIPTION",
         "Copy": "COPY",
-        "Name": "NAME"
+        "Name": "NAME",
+        "NoThanks": "NO, THANKS"
     },
     "Type": "Type",
     "Create": "Create",
@@ -58,6 +59,8 @@
     "UserCollection": "User Collection",
     "PracticeHistories": "Practice Histories",
     "PracticeHistory": "Practice History",
+    "NewPractice": "New Practice",
+    "AddToCollection": "Add to Collection",
     "Tags": "Tags",
     "Save": "Save",
     "Cancel": "Cancel",
@@ -68,6 +71,7 @@
     "Field": "Field",
     "Operator": "Operator",
     "Value": "Value",
+    "KnowledgeAndExercise": "Knowledge & Exercises",
     "NewKnowledgeItem": "New Knowledge Item",
     "NewExerciseItem": "New Exercise Item",
     "FullScreen": "Full screen",

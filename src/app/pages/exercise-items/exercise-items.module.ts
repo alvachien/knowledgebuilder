@@ -14,6 +14,9 @@ import { ExerciseItemDetailComponent } from './exercise-item-detail';
 import { ExerciseItemSearchComponent } from './exercise-item-search';
 import { AppUIModule } from 'src/app/app-ui.module';
 import { ExerciseItemScoreComponent } from './exercise-item-score/exercise-item-score.component';
+import { ExerciseItemAddToCollDialog } from './exercise-items-add-coll-dlg.component';
+import { ExerciseItemNewPracticeDialog } from './exercise-items-newpractice-dlg.component';
+
 // import { MY_DATE_FORMATS, AppDateAdapter, } from 'src/app/models';
 
 @NgModule({
@@ -22,6 +25,8 @@ import { ExerciseItemScoreComponent } from './exercise-item-score/exercise-item-
     ExerciseItemDetailComponent,
     ExerciseItemSearchComponent,
     ExerciseItemScoreComponent,
+    ExerciseItemAddToCollDialog,
+    ExerciseItemNewPracticeDialog,
   ],
   imports: [
     CommonModule,

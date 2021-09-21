@@ -59,19 +59,24 @@ export class UserCollectionComponent implements AfterViewInit {
       ).subscribe(data => this.dataSource = data);
   }
 
-  public onGoToPreview(): void {
-    // const arobj: PreviewObject[] = [];
-    // this.dataSource.forEach(val => {
-    //   arobj.push({
-    //     refType: TagReferenceType.KnowledgeItem,
-    //     refId: val.ID,
-    //   });
-    // });
-    // this.odataService.previewObjList = arobj;
-    // this.router.navigate(['preview']);
-  }
   onGoToSearch(): void {
     // this.router.navigate(['knowledge-item', 'search']);
+  }
+
+  public onPreview(collid: number): void {
+    const arobj: PreviewObject[] = [];
+    this.dataSource.forEach(coll => {
+      if (coll.ID === collid) {
+        coll.Items.forEach(item => {
+          arobj.push({
+            refType: item.RefType,
+            refId: item.RefID,
+          });    
+        });
+      }
+    });
+    this.odataService.previewObjList = arobj;
+    this.router.navigate(['preview']);
   }
 
   public onDeleteItem(itemid: number): void {
@@ -84,6 +89,7 @@ export class UserCollectionComponent implements AfterViewInit {
     //     console.error(err);
     //   }
     // });
+    
   }
 
   onRefreshList(): void {

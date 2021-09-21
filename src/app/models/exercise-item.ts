@@ -217,4 +217,15 @@ export class ExerciseItemUserScore {
             this.TakenDate = new Date(data.TakenDate);
         }
     }
+    public writeJSONString(isupdate?: boolean): string {
+        const exobj: any = {
+            User: this.User,
+            RefID: this.RefID,
+            Score: this.Score,
+        };
+        if (isupdate) {
+            exobj.ID = this.ID;
+        }
+        return JSON && JSON.stringify(exobj);
+    }
 }

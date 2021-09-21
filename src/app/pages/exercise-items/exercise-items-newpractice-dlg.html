@@ -1,0 +1,26 @@
+<h1 mat-dialog-title>{{'NewPractice' | transloco}}</h1>
+<div mat-dialog-content>
+    <form>
+        <!-- Exercise Item Number -->
+        <mat-form-field class="control-full-width" appearance="fill">
+            <mat-label>ID</mat-label>
+            <input matInput disabled [(ngModel)]="data.excitemid" name="excitemid">
+        </mat-form-field>
+
+        <!-- Exercise Item Number -->
+        <mat-form-field class="control-full-width" appearance="fill">
+            <mat-label>Date</mat-label>
+            <input matInput disabled [(ngModel)]="data.pracDate" name="date">
+        </mat-form-field>
+
+        <!-- Score -->
+        <mat-form-field class="control-full-width" appearance="fill">
+            <mat-label>{{'Quiz.Score' | transloco}}</mat-label>
+            <input matInput type="number" [(ngModel)]="data.score" name="score">
+        </mat-form-field>
+    </form>
+</div>
+<div mat-dialog-actions>
+    <button mat-button (click)="onNoClick()">{{'Common.NoThanks' | transloco}}</button>
+    <button mat-button [disabled]="isOKDisabled" [mat-dialog-close]="data" cdkFocusInitial>OK</button>
+</div>

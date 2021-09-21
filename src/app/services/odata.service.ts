@@ -6,7 +6,7 @@ import { map, catchError } from 'rxjs/operators';
 
 import { ExerciseItem, ExerciseItemSearchResult, TagCount, Tag, KnowledgeItem, TagReferenceType, OverviewInfo,
   AwardRule, DailyTrace, AwardPoint, AwardPointReport, momentDateFormat,
-  UserCollection, ExerciseItemUserScore, } from '../models';
+  UserCollection, ExerciseItemUserScore, UserCollectionItem, } from '../models';
 import { environment } from '../../environments/environment';
 import moment from 'moment';
 
@@ -1206,6 +1206,40 @@ export class ODataService {
       catchError((error: HttpErrorResponse) => throwError(error.statusText + '; ' + error.error + '; ' + error.message) ));
   }
 
+  public addExerciseItemToCollection(execitemid: number, collObj: UserCollection): Observable<UserCollection> {
+    if (environment.mockdata) {
+      return throwError('Cannot add in mock mode');
+    } else {
+      if (!this.expertMode) {
+        return throwError('Cannot add in non expert mode');
+      }
+    }
+
+    let headers: HttpHeaders = new HttpHeaders();
+    headers = headers.append('Content-Type', 'application/json')
+      .append('Accept', 'application/json');
+
+    const collitem = new UserCollectionItem();
+    collitem.ID = collObj.ID;
+    collitem.RefType = TagReferenceType.ExerciseItem;
+    collitem.RefID = execitemid;
+    collObj.Items.push(collitem);
+    const jdata = collObj.writeJSONString();
+    let params: HttpParams = new HttpParams();
+    return this.http.put(`${this.apiUrl}UserCollections(${collObj.ID})`, jdata, {
+      headers,
+      params,
+    })
+      .pipe(map(response => {
+        const rsp = response as any;
+        const newcoll = new UserCollection();
+        newcoll.parseData(rsp);
+
+        return newcoll;
+      }),
+      catchError((error: HttpErrorResponse) => throwError(error.statusText + '; ' + error.error + '; ' + error.message) ));
+  }
+
   // Exercise item user score
   public getExerciseItemUserScores(top = 30, skip = 0, sort?: string, filter?: string):
     Observable<{ totalCount: number; items: ExerciseItemUserScore[] }> {
@@ -1246,6 +1280,31 @@ export class ODataService {
           totalCount: rjs['@odata.count'],
           items,
         };
+      }),
+      catchError((error: HttpErrorResponse) => throwError(error.statusText + '; ' + error.error + '; ' + error.message) ));
+  }
+  public createExerciseItemUserScore(nscore: ExerciseItemUserScore): Observable<ExerciseItemUserScore> {
+    if (environment.mockdata) {
+      return throwError('Cannot create in mock mode');
+    } else {
+      if (!this.expertMode) {
+        return throwError('Cannot create in non expert mode');
+      }
+    }
+    let headers: HttpHeaders = new HttpHeaders();
+    headers = headers.append('Content-Type', 'application/json')
+      .append('Accept', 'application/json');
+
+    const jdata = nscore.writeJSONString();
+    return this.http.post(`${this.apiUrl}ExerciseItemUserScores`, jdata, {
+      headers,
+    })
+      .pipe(map(response => {
+        const rjs = response as any;
+        const rtn = new ExerciseItemUserScore();
+        rtn.parseData(rjs);
+
+        return rtn;
       }),
       catchError((error: HttpErrorResponse) => throwError(error.statusText + '; ' + error.error + '; ' + error.message) ));
   }

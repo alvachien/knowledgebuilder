@@ -1,5 +1,7 @@
 import { Component, OnInit, ViewChild, AfterViewInit, EventEmitter } from '@angular/core';
+import { MatDialog } from '@angular/material/dialog';
 import { MatPaginator } from '@angular/material/paginator';
+import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatSort } from '@angular/material/sort';
 import { Router } from '@angular/router';
 import { merge, Observable, of as observableOf } from 'rxjs';
@@ -8,6 +10,8 @@ import { TagReferenceType } from 'src/app/models';
 
 import { ExerciseItem, ExerciseItemType, getExerciseItemTypeName, } from '../../models/exercise-item';
 import { ODataService, PreviewObject } from '../../services';
+import { ExerciseItemAddToCollDialog } from './exercise-items-add-coll-dlg.component';
+import { ExerciseItemNewPracticeDialog } from './exercise-items-newpractice-dlg.component';
 
 @Component({
   selector: 'app-exercise-items',
@@ -26,6 +30,8 @@ export class ExerciseItemsComponent implements AfterViewInit {
   @ViewChild(MatSort) sort!: MatSort;
 
   constructor(private odataService: ODataService,
+    private dialog: MatDialog,
+    private snackBar: MatSnackBar,
     private router: Router) {}
 
   getExerciseItemTypeName(itemtype: ExerciseItemType): string {
@@ -73,7 +79,7 @@ export class ExerciseItemsComponent implements AfterViewInit {
     this.odataService.previewObjList = arobj;
     this.router.navigate(['preview']);
   }
-  onGoToSearch(): void {
+  public onGoToSearch(): void {
     this.router.navigate(['exercise-item', 'search']);
   }
 
@@ -89,17 +95,69 @@ export class ExerciseItemsComponent implements AfterViewInit {
     });
   }
 
-  onRefreshList(): void {
+  public onRefreshList(): void {
     this.refreshEvent.emit();
   }
 
   resetPaging(): void {
     this.paginator.pageIndex = 0;
   }
-  onDisplayItem(rid: number): void {
+  public onDisplayItem(rid: number): void {
     this.router.navigate(['exercise-item', 'display', rid.toString()]);
   }
-  onChangeItem(rid: number): void {
+  public onChangeItem(rid: number): void {
     this.router.navigate(['exercise-item', 'edit', rid.toString()]);
+  }
+  public onAddToCollection(rid: number): void {
+    this.odataService.getUserCollections().subscribe({
+      next: val => {
+        const arColls = val.items;
+        const dialogRef = this.dialog.open(ExerciseItemAddToCollDialog, {
+          width: '600px',
+          closeOnNavigation: false,
+          data: {
+            excitemid: rid,
+            availableColls: arColls,
+            collid: undefined,
+          },
+        });
+    
+        dialogRef.afterClosed().subscribe(result => {
+          console.log(result);
+          // Now submit!
+    
+          const colidx = arColls.findIndex(coll => coll.ID === result.collid);
+          if (colidx !== -1) {
+            this.odataService.addExerciseItemToCollection(rid, arColls[colidx]).subscribe({
+              next: val => {
+                this.snackBar.open('DONE', undefined, { duration: 2000 });
+              },
+              error: err => {
+                this.snackBar.open(err, undefined, { duration: 2000 });
+              }
+            });
+          }
+        });    
+      },
+      error: err => {
+        this.snackBar.open(err, undefined, { duration: 2000 });
+      }
+    });
+  }
+  public onNewPractice(rid: number): void {
+    const dialogRef = this.dialog.open(ExerciseItemNewPracticeDialog, {
+      width: '600px',
+      closeOnNavigation: false,
+      data: {
+        excitemid: rid,
+        pracDate: new Date().toDateString(),
+        score: undefined,
+      },
+    });
+
+    dialogRef.afterClosed().subscribe(result => {
+      console.log(result);
+      // Now submit!
+    });
   }
 }

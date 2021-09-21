@@ -1,8 +1,63 @@
-<mat-card>
-    <mat-card-header>
-        <mat-card-title>{{'PracticeHistories' | transloco}}</mat-card-title>
-    </mat-card-header>
-    <mat-card-content>
-    </mat-card-content>
-</mat-card>
+<mat-toolbar-row>
+    <span>{{'PracticeHistories' | transloco}}</span>
+    <span class="toolbar-spacer"></span>
+    <section>
+      <button mat-icon-button color="primary" [disabled]="!isExpertMode" routerLink="create" matTooltip="{{'Common.Create' | transloco}}">
+        <mat-icon>add_circle</mat-icon>
+      </button>
+      <button mat-icon-button color="accent" (click)="onGoToSearch()" [disabled]="!isExpertMode || dataSource.length <= 0" matTooltip="{{'Common.Search' | transloco}}">
+        <mat-icon>search</mat-icon>
+      </button>
+      <button mat-icon-button color="accent" [disabled]="!isExpertMode" (click)="onRefreshList()" matTooltip="{{'Common.Refresh' | transloco}}">
+        <mat-icon>refresh</mat-icon>
+      </button>
+    </section>
+  </mat-toolbar-row>
+  
+  <div class="example-container mat-elevation-z8">
+    <div class="example-table-container">
+      <table mat-table [dataSource]="dataSource" class="example-table" matSort (matSortChange)="resetPaging()">
+        <!-- ID Column -->
+        <ng-container matColumnDef="id">
+          <th mat-header-cell *matHeaderCellDef>#</th>
+          <td mat-cell *matCellDef="let row">
+            <div>
+              {{row.ID}}
+              <button mat-icon-button color="warn" [disabled]="!isExpertMode" (click)="onDeleteItem(row.ID)" matTooltip="{{'Common.Delete' | transloco}}">
+                <mat-icon>remove_circle</mat-icon>
+              </button>
+            </div>
+          </td>
+        </ng-container>
+  
+        <!-- RefID Column -->
+        <ng-container matColumnDef="refid">
+          <th mat-header-cell *matHeaderCellDef>ID</th>
+          <td mat-cell *matCellDef="let row">{{row.RefID}}</td>
+        </ng-container>
+  
+        <!-- Taken Date Column -->
+        <ng-container matColumnDef="takendate">
+          <th mat-header-cell *matHeaderCellDef>{{'Common.Date' | transloco}}</th>
+          <td mat-cell *matCellDef="let row">{{row.TakenDate}}</td>
+        </ng-container>
 
+        <!-- Score Column -->
+        <ng-container matColumnDef="score">
+          <th mat-header-cell *matHeaderCellDef>{{'Quiz.Score' | transloco}}</th>
+          <td mat-cell *matCellDef="let row">{{row.Score}}</td>
+        </ng-container>
+          
+        <!-- Created At Column -->
+        <ng-container matColumnDef="createdat">
+          <th mat-header-cell *matHeaderCellDef mat-sort-header>{{'CreatedAt' | transloco}}</th>
+          <td mat-cell *matCellDef="let row">{{row.CreatedAt | date: 'yyyy-M-d HH:mm:ss'}}</td>
+        </ng-container>
+  
+        <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+        <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+      </table>
+    </div>
+  
+    <mat-paginator [length]="resultsLength" [pageSize]="20"></mat-paginator>
+  </div>

@@ -1,0 +1,23 @@
+<h1 mat-dialog-title>{{'AddToCollection' | transloco}}</h1>
+<div mat-dialog-content>
+    <form>
+        <!-- Exercise Item Number -->
+        <mat-form-field class="control-full-width" appearance="fill">
+            <mat-label>ID</mat-label>
+            <input matInput disabled [(ngModel)]="data.excitemid" name="excitemid">
+        </mat-form-field>
+
+        <!-- Collection ID -->
+        <mat-form-field class="control-full-width" appearance="fill">
+            <mat-label>{{'UserCollection' | transloco}}</mat-label>
+            <select matNativeControl [(ngModel)]="data.collid" name="collid">
+                <option value="" selected></option>
+                <option *ngFor="let coll of data.availableColls" [value]="coll.ID">{{coll.Name}}</option>
+            </select>
+        </mat-form-field>
+    </form>
+</div>
+<div mat-dialog-actions>
+    <button mat-button (click)="onNoClick()">{{'Common.NoThanks' | transloco}}</button>
+    <button mat-button [disabled]="!data.collid" [mat-dialog-close]="data" cdkFocusInitial>OK</button>
+</div>
