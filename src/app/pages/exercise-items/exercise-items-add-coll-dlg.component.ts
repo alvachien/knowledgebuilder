@@ -1,5 +1,6 @@
-import { Component, Inject } from '@angular/core';
+import { AfterViewInit, Component, Inject, ViewChild } from '@angular/core';
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
+import { MatSelectionList } from '@angular/material/list';
 import { TagReferenceType, UserCollection } from 'src/app/models';
 
 @Component({
@@ -7,15 +8,29 @@ import { TagReferenceType, UserCollection } from 'src/app/models';
     templateUrl: 'exercise-items-add-coll-dlg.html',
 })
 // eslint-disable-next-line @angular-eslint/component-class-suffix
-export class ExerciseItemAddToCollDialog {
+export class ExerciseItemAddToCollDialog implements AfterViewInit {
 
     constructor(public dialogRef: MatDialogRef<ExerciseItemAddToCollDialog>,
         @Inject(MAT_DIALOG_DATA) public data: {
             excitemid: number;
             availableColls: UserCollection[];
-            collid?: number;
+            collids: number[];
         }) { }
+    @ViewChild('colls') colls!: MatSelectionList;
 
+    ngAfterViewInit() {
+        this.colls.selectionChange.subscribe({
+            next: (val: any) => {
+                this.data.collids = [];
+                this.colls.selectedOptions.selected.forEach(sel => {
+                    this.data.collids.push(+sel.value);
+                });
+            },
+            error: (err: any) => {
+                // Error handling
+            }
+        });
+    }
     onNoClick(): void {
         this.dialogRef.close();
     }

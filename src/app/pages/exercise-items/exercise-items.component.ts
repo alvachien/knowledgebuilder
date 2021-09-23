@@ -118,13 +118,13 @@ export class ExerciseItemsComponent implements AfterViewInit {
           data: {
             excitemid: rid,
             availableColls: arColls,
-            collid: undefined,
+            collids: [],
           },
         });
 
-        dialogRef.afterClosed().subscribe(result => {
-          if (result.collid) {
-            const colidx = arColls.findIndex(coll => coll.ID === +result.collid);
+        dialogRef.afterClosed().subscribe((result: any) => {
+          result.collids.forEach((collid: any) => {
+            const colidx = arColls.findIndex(coll => coll.ID === +collid);
             if (colidx !== -1) {
               this.odataService.addExerciseItemToCollection(rid, arColls[colidx]).subscribe({
                 next: val2 => {
@@ -135,7 +135,7 @@ export class ExerciseItemsComponent implements AfterViewInit {
                 }
               });
             }
-          }
+          });
         });
       },
       error: err => {
