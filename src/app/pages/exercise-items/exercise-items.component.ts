@@ -123,16 +123,18 @@ export class ExerciseItemsComponent implements AfterViewInit {
         });
 
         dialogRef.afterClosed().subscribe(result => {
-          const colidx = arColls.findIndex(coll => coll.ID === +result.collid);
-          if (colidx !== -1) {
-            this.odataService.addExerciseItemToCollection(rid, arColls[colidx]).subscribe({
-              next: val2 => {
-                this.snackBar.open('DONE', undefined, { duration: 2000 });
-              },
-              error: err => {
-                this.snackBar.open(err, undefined, { duration: 2000 });
-              }
-            });
+          if (result.collid) {
+            const colidx = arColls.findIndex(coll => coll.ID === +result.collid);
+            if (colidx !== -1) {
+              this.odataService.addExerciseItemToCollection(rid, arColls[colidx]).subscribe({
+                next: val2 => {
+                  this.snackBar.open('DONE', undefined, { duration: 2000 });
+                },
+                error: err => {
+                  this.snackBar.open(err, undefined, { duration: 2000 });
+                }
+              });
+            }
           }
         });
       },

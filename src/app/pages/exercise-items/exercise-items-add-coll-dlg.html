@@ -10,10 +10,10 @@
         <!-- Collection ID -->
         <mat-form-field class="control-full-width" appearance="fill">
             <mat-label>{{'UserCollection' | transloco}}</mat-label>
-            <select matNativeControl [(ngModel)]="data.collid" name="collid">
-                <option value="" selected></option>
-                <option *ngFor="let coll of data.availableColls" [value]="coll.ID">{{coll.Name}}</option>
-            </select>
+            <mat-select [(ngModel)]="data.collid" name="collid">
+                <mat-option value="" selected></mat-option>
+                <mat-option *ngFor="let coll of data.availableColls" [disabled]="isItemExistedInColl(coll)" [value]="coll.ID">{{coll.Name}}</mat-option>
+            </mat-select>
         </mat-form-field>
     </form>
 </div>

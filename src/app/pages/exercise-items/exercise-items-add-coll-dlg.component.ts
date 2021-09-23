@@ -1,6 +1,6 @@
 import { Component, Inject } from '@angular/core';
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
-import { UserCollection } from 'src/app/models';
+import { TagReferenceType, UserCollection } from 'src/app/models';
 
 @Component({
     selector: 'app-exercise-item-addcoll-dlg',
@@ -18,5 +18,9 @@ export class ExerciseItemAddToCollDialog {
 
     onNoClick(): void {
         this.dialogRef.close();
+    }
+
+    public isItemExistedInColl(coll: UserCollection): boolean {
+        return coll.Items.findIndex(item => item.RefID === this.data.excitemid && item.RefType === TagReferenceType.ExerciseItem) !== -1;
     }
 }

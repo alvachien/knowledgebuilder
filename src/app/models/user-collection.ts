@@ -53,7 +53,7 @@ export class UserCollection {
             items.forEach(tg => {
                 const item = new UserCollectionItem();
                 item.parseData(tg);
-                this.Items.push(tg);
+                this.Items.push(item);
             });
         }
     }
@@ -110,7 +110,7 @@ export class UserCollectionItem {
             }
         }
         if (data && data.RefID) {
-            this.RefID = data.refID;
+            this.RefID = data.RefID;
         }
         if (data && data.CreatedAt) {
             this.CreatedAt = new Date(data.CreatedAt);

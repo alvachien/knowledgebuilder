@@ -42,8 +42,7 @@ export class UserCollectionComponent implements AfterViewInit {
 
           const top = this.paginator.pageSize;
           const skip = top * this.paginator.pageIndex;
-          return this.odataService.getUserCollections(top, skip, this.sort.active, this.sort.direction
-          );
+          return this.odataService.getUserCollections(top, skip, this.sort.active, this.sort.direction);
         }),
         map(data => {
           // Flip flag to show that loading has finished.
@@ -71,7 +70,7 @@ export class UserCollectionComponent implements AfterViewInit {
           arobj.push({
             refType: item.RefType,
             refId: item.RefID,
-          });    
+          });
         });
       }
     });
@@ -89,7 +88,6 @@ export class UserCollectionComponent implements AfterViewInit {
     //     console.error(err);
     //   }
     // });
-    
   }
 
   onRefreshList(): void {
