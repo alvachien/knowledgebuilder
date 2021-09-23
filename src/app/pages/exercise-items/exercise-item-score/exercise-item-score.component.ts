@@ -1,11 +1,12 @@
-import { Component, EventEmitter, ViewChild, AfterViewInit } from '@angular/core';
+import { Component, EventEmitter, ViewChild, AfterViewInit, OnInit } from '@angular/core';
 import { MatPaginator } from '@angular/material/paginator';
 import { MatSort } from '@angular/material/sort';
 import { Router } from '@angular/router';
 import { merge, Observable, of as observableOf } from 'rxjs';
 import { catchError, map, startWith, switchMap } from 'rxjs/operators';
 
-import { TagReferenceType, ExerciseItemUserScore } from 'src/app/models';
+import { ExerciseItemSearchResult, ExerciseItemType, GeneralFilterItem, GeneralFilterOperatorEnum, GeneralFilterValueType,
+  getExerciseItemTypeName, UIDisplayString, UIDisplayStringUtil, ExerciseItemUserScore } from 'src/app/models';
 import { ODataService, PreviewObject } from '../../../services';
 
 @Component({
@@ -13,7 +14,12 @@ import { ODataService, PreviewObject } from '../../../services';
   templateUrl: './exercise-item-score.component.html',
   styleUrls: ['./exercise-item-score.component.scss']
 })
-export class ExerciseItemScoreComponent implements  AfterViewInit {
+export class ExerciseItemScoreComponent implements OnInit, AfterViewInit {
+  public filters: GeneralFilterItem[] = [];
+  public allOperators: UIDisplayString[] = [];
+  public allFields: any[] = [];
+  filterEditable = true;
+
   displayedColumns: string[] = ['id', 'refid', 'takendate', 'score'];
   dataSource: ExerciseItemUserScore[] = [];
   resultsLength = 0;
@@ -24,10 +30,33 @@ export class ExerciseItemScoreComponent implements  AfterViewInit {
   @ViewChild(MatSort) sort!: MatSort;
 
   constructor(private odataService: ODataService,
-    private router: Router) {}
+    private router: Router) {
+    this.allOperators = UIDisplayStringUtil.getGeneralFilterOperatorDisplayStrings();
+    this.allFields = [{
+      displayas: 'Content',
+      value: 'Content',
+      valueType: 2,
+    }, {
+      displayas: 'Quiz.Date',
+      value: 'TakenDate',
+      valueType: 3,
+    }, {
+      displayas: 'Quiz.Score',
+      value: 'Score',
+      valueType: 1,
+    }, {
+      displayas: 'Type',
+      value: 'ExerciseType',
+      valueType: 2,
+    },
+    ];
+  }
 
   get isExpertMode(): boolean {
     return this.odataService.expertMode;
+  }
+  ngOnInit(): void {
+    this.onAddFilter();
   }
 
   ngAfterViewInit() {
@@ -58,7 +87,68 @@ export class ExerciseItemScoreComponent implements  AfterViewInit {
         })
       ).subscribe(data => this.dataSource = data);
   }
+  public onAddFilter(): void {
+    this.filters.push(new GeneralFilterItem());
+  }
+  public onRemoveFilter(idx: number): void {
+    this.filters.splice(idx, 1);
+    if (this.filters.length === 0) {
+      this.onAddFilter();
+    }
+  }
+  public onFieldSelectionChanged(filter: GeneralFilterItem): void {
+    this.allFields.forEach((value: any) => {
+      if (value.value === filter.fieldName) {
+        filter.valueType = value.valueType;
+      }
+    });
+  }
+  prepareFilters(arFilter: any[]): string {
+    let rstfilter = '';
+    arFilter.sort((a, b) => a.fieldName.localeCompare(b.fieldName));
+    let arfieldNames = arFilter.map(val => val.fieldName);
+    arfieldNames = Array.from(new Set(arfieldNames));
 
+    arfieldNames.forEach(fname => {
+      let substring = '';
+      arFilter.forEach(flt => {
+        if (flt.fieldName === fname) {
+          if (flt.fieldName === 'Content' || flt.fieldName === 'Tags') {
+            if (flt.operator === GeneralFilterOperatorEnum.Equal) {
+              substring = substring ? `${substring} or ${flt.fieldName} eq '${flt.lowValue}'`
+                : `${flt.fieldName} eq '${flt.lowValue}'`;
+            } else if(flt.operator === GeneralFilterOperatorEnum.Like) {
+              substring = substring ? `${substring} or contains(${flt.fieldName},'${flt.lowValue}')`
+                : `contains(${flt.fieldName},'${flt.lowValue}')`;
+            }
+          } else if (flt.fieldName === 'Score') {
+            if (flt.operator === GeneralFilterOperatorEnum.Equal) {
+              substring = substring ? `${substring} or ${flt.fieldName} eq ${flt.lowValue}`
+                : `${flt.fieldName} eq ${flt.lowValue}`;
+            } else if(flt.operator === GeneralFilterOperatorEnum.Between) {
+              substring = substring ? `${substring} or ${flt.fieldName} bt ${flt.lowValue} and ${flt.highValue})`
+                : `contains(${flt.fieldName},'${flt.lowValue}')`;
+            }
+
+          } else if (flt.fieldName === 'TakenDate') {
+            if (flt.operator === GeneralFilterOperatorEnum.Equal) {
+              substring = substring ? `${substring} or ${flt.fieldName} eq '${flt.lowValue}'`
+                : `${flt.fieldName} eq '${flt.lowValue}'`;
+            } else if(flt.operator === GeneralFilterOperatorEnum.Like) {
+              substring = substring ? `${substring} or contains(${flt.fieldName},'${flt.lowValue}')`
+                : `contains(${flt.fieldName},'${flt.lowValue}')`;
+            }
+
+          }
+        }
+      });
+
+      rstfilter = rstfilter ? `${rstfilter} and ${substring}` : `${substring}`;
+    });
+    return rstfilter;
+  }
+  public onSearch(): void {
+  }
   public onGoToSearch(): void {
     // this.router.navigate(['knowledge-item', 'search']);
   }

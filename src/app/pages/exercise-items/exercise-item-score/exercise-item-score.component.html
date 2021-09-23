@@ -11,7 +11,57 @@
     </button>
   </section>
 </mat-toolbar-row>
-  
+
+<div>
+  <div *ngFor="let filter of filters; let idxfilter = index" class="control-full-width">
+    <mat-form-field>
+      <mat-select placeholder="{{'Field' | transloco}}" [(ngModel)]="filter.fieldName" (selectionChange)="onFieldSelectionChanged(filter)">
+        <mat-option *ngFor="let field of allFields" [value]="field.value">{{ field.displayas | transloco }}</mat-option>
+      </mat-select>
+    </mat-form-field>
+    <mat-form-field>
+      <mat-select placeholder="{{'Operator' | transloco}}" [(ngModel)]="filter.operator">
+        <mat-option *ngFor="let opr of allOperators | operatorFilter: filter.valueType" [value]="opr.value">{{ opr.i18nterm | transloco }}</mat-option>
+      </mat-select>
+    </mat-form-field>
+    <mat-form-field *ngIf="filter.valueType === 1">
+      <input matInput type="number" placeholder="{{'Value' | transloco}}" name="lvalue_1" [(ngModel)]="filter.value[0]">
+    </mat-form-field>
+    <mat-form-field *ngIf="filter.valueType === 1">
+      <input matInput type="number" placeholder="{{'Value' | transloco}}" name="hvalue_1" [(ngModel)]="filter.value[1]">
+    </mat-form-field>
+    <mat-form-field *ngIf="filter.valueType === 2">
+      <input matInput type="text" placeholder="{{'Value' | transloco}}" name="lvalue_2" [(ngModel)]="filter.value[0]">
+    </mat-form-field>
+    <mat-form-field *ngIf="filter.valueType === 3">
+      <input matInput [(ngModel)]="filter.value[0]" [matDatepicker]="lvpicker" placeholder="{{'Value' | transloco}}">
+      <mat-datepicker-toggle matSuffix [for]="lvpicker"></mat-datepicker-toggle>
+      <mat-datepicker #lvpicker></mat-datepicker>
+    </mat-form-field>
+    <mat-form-field *ngIf="filter.valueType === 3">
+      <input matInput [(ngModel)]="filter.value[1]" [matDatepicker]="hvpicker" placeholder="{{'Value' | transloco}}">
+      <mat-datepicker-toggle matSuffix [for]="hvpicker"></mat-datepicker-toggle>
+      <mat-datepicker #hvpicker></mat-datepicker>
+    </mat-form-field>
+    <div class="typechkbox" *ngIf="filter.valueType === 4">
+      <mat-checkbox [(ngModel)]="filter.value[0]">
+      </mat-checkbox>
+    </div>
+    <button mat-button mat-icon-button aria-label="Add" (click)="onAddFilter()">
+      <mat-icon>add</mat-icon>
+    </button>
+    <button mat-button mat-icon-button aria-label="Clear" (click)="onRemoveFilter(idxfilter)">
+      <mat-icon>close</mat-icon>
+    </button>
+  </div>
+  <div class="control-full-width">
+    <button mat-button aria-label="Search" color="primary" (click)="onSearch()">
+      <mat-icon>search</mat-icon>
+      {{'Common.Search' | transloco}}
+    </button>
+  </div>
+</div>
+
 <div class="example-container mat-elevation-z8">
   <div class="example-table-container">
     <table mat-table [dataSource]="dataSource" class="example-table" matSort (matSortChange)="resetPaging()">

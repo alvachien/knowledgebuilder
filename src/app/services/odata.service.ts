@@ -1119,16 +1119,16 @@ export class ODataService {
         .pipe(map(response => {
           const rjs = response as any;
           const ritems = rjs.value as any[];
-          const items: UserCollection[] = [];
+          this.bufferedUserCollection = [];
           ritems.forEach(item => {
             const rit: UserCollection = new UserCollection();
             rit.parseData(item);
-            items.push(rit);
+            this.bufferedUserCollection.push(rit);
           });
 
           return {
             totalCount: rjs['@odata.count'],
-            items,
+            items: this.bufferedUserCollection,
           };
         }),
         catchError((error: HttpErrorResponse) => throwError(error.statusText + '; ' + error.error + '; ' + error.message) ));
