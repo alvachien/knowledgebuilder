@@ -1241,7 +1241,7 @@ export class ODataService {
   }
 
   // Exercise item user score
-  public getExerciseItemUserScores(top = 30, skip = 0, sort?: string, filter?: string):
+  public getExerciseItemUserScores(top = 30, skip = 0, filter?: string):
     Observable<{ totalCount: number; items: ExerciseItemUserScore[] }> {
     if (!this.expertMode) {
       return of({totalCount: 0, items: []});

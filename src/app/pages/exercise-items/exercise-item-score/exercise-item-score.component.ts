@@ -2,11 +2,12 @@ import { Component, EventEmitter, ViewChild, AfterViewInit, OnInit } from '@angu
 import { MatPaginator } from '@angular/material/paginator';
 import { MatSort } from '@angular/material/sort';
 import { Router } from '@angular/router';
-import { merge, Observable, of as observableOf } from 'rxjs';
+import moment from 'moment';
+import { BehaviorSubject, merge, Observable, of as observableOf } from 'rxjs';
 import { catchError, map, startWith, switchMap } from 'rxjs/operators';
 
-import { ExerciseItemSearchResult, ExerciseItemType, GeneralFilterItem, GeneralFilterOperatorEnum, GeneralFilterValueType,
-  getExerciseItemTypeName, UIDisplayString, UIDisplayStringUtil, ExerciseItemUserScore } from 'src/app/models';
+import { GeneralFilterItem, GeneralFilterOperatorEnum, GeneralFilterValueType,
+  UIDisplayString, UIDisplayStringUtil, ExerciseItemUserScore } from 'src/app/models';
 import { ODataService, PreviewObject } from '../../../services';
 
 @Component({
@@ -25,6 +26,7 @@ export class ExerciseItemScoreComponent implements OnInit, AfterViewInit {
   resultsLength = 0;
   isLoadingResults = true;
   refreshEvent: EventEmitter<any> = new EventEmitter();
+  subjFilters: BehaviorSubject<any> = new BehaviorSubject([]);
 
   @ViewChild(MatPaginator) paginator!: MatPaginator;
   @ViewChild(MatSort) sort!: MatSort;
@@ -63,18 +65,21 @@ export class ExerciseItemScoreComponent implements OnInit, AfterViewInit {
     // If the user changes the sort order, reset back to the first page.
     this.sort.sortChange.subscribe(() => this.paginator.pageIndex = 0);
 
-    merge(this.sort.sortChange, this.paginator.page, this.refreshEvent)
+    merge(this.sort.sortChange, this.paginator.page, this.refreshEvent, this.subjFilters)
       .pipe(
         startWith({}),
         switchMap(() => {
+          if (this.subjFilters.value.length <= 0) {
+            return observableOf([]);
+          }
           this.isLoadingResults = true;
 
+          const filter = this.prepareFilters(this.subjFilters.value);
           const top = this.paginator.pageSize;
           const skip = top * this.paginator.pageIndex;
-          return this.odataService.getExerciseItemUserScores(top, skip, this.sort.active, this.sort.direction
-          );
+          return this.odataService.getExerciseItemUserScores(top, skip, filter);
         }),
-        map(data => {
+        map((data: any) => {
           // Flip flag to show that loading has finished.
           this.isLoadingResults = false;
           this.resultsLength = data.totalCount;
@@ -125,20 +130,42 @@ export class ExerciseItemScoreComponent implements OnInit, AfterViewInit {
             if (flt.operator === GeneralFilterOperatorEnum.Equal) {
               substring = substring ? `${substring} or ${flt.fieldName} eq ${flt.lowValue}`
                 : `${flt.fieldName} eq ${flt.lowValue}`;
-            } else if(flt.operator === GeneralFilterOperatorEnum.Between) {
-              substring = substring ? `${substring} or ${flt.fieldName} bt ${flt.lowValue} and ${flt.highValue})`
-                : `contains(${flt.fieldName},'${flt.lowValue}')`;
+            } else if(flt.operator === GeneralFilterOperatorEnum.LargerEqual) {
+              substring = substring ? `${substring} or ${flt.fieldName} ge ${flt.lowValue}`
+                : `${flt.fieldName} ge ${flt.lowValue}`;
+            } else if(flt.operator === GeneralFilterOperatorEnum.LargerThan) {
+              substring = substring ? `${substring} or ${flt.fieldName} gt ${flt.lowValue}`
+                : `${flt.fieldName} gt ${flt.lowValue}`;
+            } else if(flt.operator === GeneralFilterOperatorEnum.LessEqual) {
+              substring = substring ? `${substring} or ${flt.fieldName} le ${flt.lowValue}`
+                : `${flt.fieldName} le ${flt.lowValue}`;
+            } else if(flt.operator === GeneralFilterOperatorEnum.LessThan) {
+              substring = substring ? `${substring} or ${flt.fieldName} lt ${flt.lowValue}`
+                : `${flt.fieldName} lt ${flt.lowValue}`;
+            } else if(flt.operator === GeneralFilterOperatorEnum.NotEqual) {
+              substring = substring ? `${substring} or ${flt.fieldName} ne ${flt.lowValue}`
+                : `${flt.fieldName} ne ${flt.lowValue}`;
             }
-
           } else if (flt.fieldName === 'TakenDate') {
             if (flt.operator === GeneralFilterOperatorEnum.Equal) {
-              substring = substring ? `${substring} or ${flt.fieldName} eq '${flt.lowValue}'`
-                : `${flt.fieldName} eq '${flt.lowValue}'`;
-            } else if(flt.operator === GeneralFilterOperatorEnum.Like) {
-              substring = substring ? `${substring} or contains(${flt.fieldName},'${flt.lowValue}')`
-                : `contains(${flt.fieldName},'${flt.lowValue}')`;
+              substring = substring ? `${substring} or ${flt.fieldName} eq ${flt.lowValue}`
+                : `${flt.fieldName} eq ${flt.lowValue}`;
+            } else if(flt.operator === GeneralFilterOperatorEnum.LargerEqual) {
+              substring = substring ? `${substring} or ${flt.fieldName} ge '${flt.lowValue}'`
+                : `${flt.fieldName} ge '${flt.lowValue}'`;
+            } else if(flt.operator === GeneralFilterOperatorEnum.LargerThan) {
+              substring = substring ? `${substring} or ${flt.fieldName} gt '${flt.lowValue}'`
+                : `${flt.fieldName} gt '${flt.lowValue}'`;
+            } else if(flt.operator === GeneralFilterOperatorEnum.LessEqual) {
+              substring = substring ? `${substring} or ${flt.fieldName} le ${flt.lowValue}`
+                : `${flt.fieldName} le ${flt.lowValue}`;
+            } else if(flt.operator === GeneralFilterOperatorEnum.LessThan) {
+              substring = substring ? `${substring} or ${flt.fieldName} lt ${flt.lowValue}`
+                : `${flt.fieldName} lt ${flt.lowValue}`;
+            } else if(flt.operator === GeneralFilterOperatorEnum.NotEqual) {
+              substring = substring ? `${substring} or ${flt.fieldName} ne ${flt.lowValue}`
+                : `${flt.fieldName} ne ${flt.lowValue}`;
             }
-
           }
         }
       });
@@ -148,6 +175,60 @@ export class ExerciseItemScoreComponent implements OnInit, AfterViewInit {
     return rstfilter;
   }
   public onSearch(): void {
+    // Do the translate first
+    const arRealFilter: any[] = [];
+    this.filters.forEach((value: GeneralFilterItem) => {
+      const val: any = {};
+      val.valueType = +value.valueType;
+      switch (value.valueType) {
+        case GeneralFilterValueType.boolean: {
+          break;
+        }
+
+        case GeneralFilterValueType.date: {
+          val.fieldName = value.fieldName;
+          val.operator = +value.operator;
+          val.lowValue = moment(value.value[0]).format('YYYYMMDD');
+          if (value.operator === GeneralFilterOperatorEnum.Between) {
+            val.highValue = moment(value.value[1]).format('YYYYMMDD');
+          } else {
+            val.highValue = '';
+          }
+          break;
+        }
+
+        case GeneralFilterValueType.number: {
+          val.fieldName = value.fieldName;
+          val.operator = +value.operator;
+          val.lowValue = +value.value[0];
+          if (value.operator === GeneralFilterOperatorEnum.Between) {
+            val.highValue = +value.value[1];
+          } else {
+            val.highValue = '';
+          }
+          break;
+        }
+
+        case GeneralFilterValueType.string: {
+          val.fieldName = value.fieldName;
+          val.operator = +value.operator;
+          val.lowValue = value.value[0];
+          if (value.operator === GeneralFilterOperatorEnum.Between) {
+            val.highValue = value.value[1];
+          } else {
+            val.highValue = '';
+          }
+          break;
+        }
+
+        default:
+          break;
+      }
+      arRealFilter.push(val);
+    });
+
+    // Do the real search
+    this.subjFilters.next(arRealFilter);
   }
   public onGoToSearch(): void {
     // this.router.navigate(['knowledge-item', 'search']);
