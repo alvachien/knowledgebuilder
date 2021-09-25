@@ -82,13 +82,13 @@ export class ExerciseItemSearchComponent implements OnInit, AfterViewInit {
         }),
         finalize(() => this.isLoadingResults = false),
         map((data: any) => {
-          this.resultsLength = data.totalCount;
+          this.resultsLength = data.totalCount ? data.totalCount : 0;
 
           return data.items;
         }),
         catchError(() => observableOf(undefined)),
     ).subscribe({
-      next: data => this.dataSource = data,
+      next: data => this.dataSource = data ? data : [],
       error: err => console.log(err)
     });
   }

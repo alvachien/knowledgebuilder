@@ -26,14 +26,16 @@ export class OperatorFilterPipe implements PipeTransform {
           }
 
           case GeneralFilterValueType.number: {
-            if (value.value === GeneralFilterOperatorEnum.Like) {
+            if (value.value === GeneralFilterOperatorEnum.Like
+              || value.value === GeneralFilterOperatorEnum.Between) {
               return false;
             }
             return true;
           }
 
           case GeneralFilterValueType.date: {
-            if (value.value === GeneralFilterOperatorEnum.Like) {
+            if (value.value === GeneralFilterOperatorEnum.Like
+              || value.value === GeneralFilterOperatorEnum.Between) {
               return false;
             }
             return true;
