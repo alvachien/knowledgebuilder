@@ -99,7 +99,7 @@
       <!-- Taken Date Column -->
       <ng-container matColumnDef="takendate">
         <th mat-header-cell *matHeaderCellDef>{{'Quiz.Date' | transloco}}</th>
-        <td mat-cell *matCellDef="let row">{{row.TakenDate | date: 'yyyy-M-d HH:mm:ss'}}</td>
+        <td mat-cell *matCellDef="let row">{{row.TakenDate | date: 'yyyy-M-d'}}</td>
       </ng-container>
 
       <!-- Score Column -->

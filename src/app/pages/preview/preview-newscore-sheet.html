@@ -1,0 +1,14 @@
+<mat-nav-list>
+    <a mat-list-item (click)="createNewScore(0, $event)">
+        <span mat-line>{{'NewPractice' | transloco}}: 0</span>
+        <span mat-line>Add a new score of 0</span>
+    </a>
+    <a mat-list-item (click)="createNewScore(60, $event)">
+        <span mat-line>{{'NewPractice' | transloco}}: 60</span>
+        <span mat-line>Add a new score of 60</span>
+    </a>
+    <a mat-list-item (click)="createNewScore(100, $event)">
+        <span mat-line>{{'NewPractice' | transloco}}: 100</span>
+        <span mat-line>Add a new score of 100</span>
+    </a>
+</mat-nav-list>

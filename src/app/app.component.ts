@@ -107,7 +107,7 @@ export class AppComponent implements OnDestroy {
       });
 
       dialogRef.afterClosed().subscribe(result => {
-        console.log(`The dialog was closed with result: ${result}`);
+        // console.log(`The dialog was closed with result: ${result}`);
 
         if (result) {
           this.oDataSrv.enterExpertMode(result.accessCode).subscribe({

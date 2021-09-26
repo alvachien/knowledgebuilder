@@ -6,7 +6,7 @@
 
 <mat-divider></mat-divider>
 
-<div *ngIf="selectedObj && selectedObj.refType === 1 && selectedKnowledge" class="mat-typography" style="margin: 16px;">
+<div *ngIf="selectedObj && selectedObj.refType === 1 && selectedKnowledge" class="mat-typography" style="margin: 8px;">
     <!-- Knowledge Item-->
     <h3>ID: {{selectedKnowledge.ID}}</h3>
     <mat-divider></mat-divider>
@@ -17,12 +17,16 @@
     </div>
 </div>
 
-<div *ngIf="selectedObj && selectedObj.refType === 2 && selectedExercise" class="mat-typography" style="margin: 16px;">
-    <div class="button-row" style="margin: 16px;">
-        <mat-slide-toggle color="primary" name="focusmode" [(ngModel)]="focusMode">{{'FocusMode' | transloco}}</mat-slide-toggle>
-        <mat-slide-toggle color="primary" name="quizmode" [(ngModel)]="hideAnswer" style="margin-left: 16px;">{{'QuizMode' | transloco}}</mat-slide-toggle>
-        <mat-label>{{'FontSize' | transloco}}</mat-label>
-        <mat-slider thumbLabel step="2" min="10" max="40" [(ngModel)]="fontSize"></mat-slider>
+<div *ngIf="selectedObj && selectedObj.refType === 2 && selectedExercise" class="mat-typography" style="margin: 8px;">
+    <div class="button-row" style="margin: 8px;">
+        <mat-checkbox color="primary" name="focusmode" [(ngModel)]="focusMode" style="margin-left: 4px;" matTooltip="{{'FocusMode' | transloco }}">{{'FocusMode' | transloco}}</mat-checkbox>
+        <mat-checkbox color="primary" name="quizmode" [(ngModel)]="hideAnswer" style="margin-left: 4px;" matTooltip="{{'QuizMode' | transloco }}">{{'QuizMode' | transloco}}</mat-checkbox>
+        <mat-label style="margin-left: 4px;" *ngIf="!mobileQuery.matches">{{'FontSize' | transloco}}</mat-label>
+        <mat-slider thumbLabel step="2" min="10" max="40" [(ngModel)]="fontSize" matTooltip="{{'FontSize' | transloco }}"></mat-slider>
+    </div>
+    <div class="button-row" style="margin: 8px;">
+        <mat-label *ngIf="selectedExerciseUserScore"><span [class]="isSuccessScore? 'success-score' : 'fail-score'">{{selectedExerciseUserScore.Score}}</span> ({{selectedExerciseUserScore.TakenDate | date: 'yyyy-M-d'}})</mat-label>
+        <button mat-raised-button (click)="onNewScore()">{{'NewPractice' | transloco}}</button>
     </div>
     <mat-divider></mat-divider>
     <!-- Exercise Item-->

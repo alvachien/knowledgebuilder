@@ -1,18 +1,23 @@
-import { Component, OnInit } from '@angular/core';
+import { MediaMatcher } from '@angular/cdk/layout';
+import { ChangeDetectorRef, Component, OnDestroy, OnInit } from '@angular/core';
+import { MatBottomSheet } from '@angular/material/bottom-sheet';
+import { MatSnackBar } from '@angular/material/snack-bar';
 import { KatexOptions } from 'ngx-markdown';
 
-import { KnowledgeItem, Tag, ExerciseItem, TagReferenceType, ExerciseItemType, getExerciseItemTypeName, } from 'src/app/models';
+import { KnowledgeItem, Tag, ExerciseItem, TagReferenceType, ExerciseItemType, getExerciseItemTypeName, ExerciseItemUserScore, } from 'src/app/models';
 import { ODataService, PreviewObject } from 'src/app/services';
+import { PreviewNewScoreSheet } from './preview-newscore-sheet';
 
 @Component({
   selector: 'app-preview',
   templateUrl: './preview.component.html',
   styleUrls: ['./preview.component.scss'],
 })
-export class PreviewComponent implements OnInit {
+export class PreviewComponent implements OnInit, OnDestroy {
   previewIdx: number;
   selectedKnowledge: KnowledgeItem | undefined;
   selectedExercise: ExerciseItem | undefined;
+  selectedExerciseUserScore: ExerciseItemUserScore | null = null;
   listPreviewObjects: PreviewObject[] = [];
   selectedObj: PreviewObject | undefined;
   public mathOptions: KatexOptions = {
@@ -23,16 +28,31 @@ export class PreviewComponent implements OnInit {
   focusMode = false; // Focus mode
   hideAnswer = false; // Hide the answer
   fontSize = 20;
+  mobileQuery: MediaQueryList;
+  private _mobileQueryListener: () => void;
 
-  constructor(private odataSvc: ODataService) {
+  constructor(private odataSvc: ODataService,
+    changeDetectorRef: ChangeDetectorRef,
+    media: MediaMatcher,
+    private _bottomSheet: MatBottomSheet,
+    private _snackbar: MatSnackBar) {
+    this.mobileQuery = media.matchMedia('(max-width: 600px)');
+    this._mobileQueryListener = () => changeDetectorRef.detectChanges();
     this.previewIdx = -1;
   }
 
   getExerciseItemTypeName(reftype: ExerciseItemType): string {
     return getExerciseItemTypeName(reftype);
   }
+  get isSuccessScore(): boolean {
+    if (this.selectedExerciseUserScore !== null && this.selectedExerciseUserScore.Score >= 60)
+      return true;
+    return false;
+  }
 
   ngOnInit(): void {
+    this.mobileQuery.addEventListener('change', this._mobileQueryListener);
+
     this.listPreviewObjects = this.odataSvc.previewObjList.slice();
     this.odataSvc.previewObjList = [];
 
@@ -40,6 +60,9 @@ export class PreviewComponent implements OnInit {
       this.previewIdx = -1;
       this.onNextPreviewItem();
     }
+  }
+  ngOnDestroy(): void {
+    this.mobileQuery.removeEventListener('change', this._mobileQueryListener);
   }
 
   public onPreviousPreviewItem(): void {
@@ -86,7 +109,33 @@ export class PreviewComponent implements OnInit {
             console.error(err);
           }
         });
+        this.odataSvc.getLastestExerciseItemUserScore(this.listPreviewObjects[this.previewIdx].refId).subscribe({
+          next: val => {
+            this.selectedExerciseUserScore = val;
+          },
+          error: err => {
+            console.error(err);
+          }
+        });
       }
     }
+  }
+  public onNewScore() {
+    let rst = this._bottomSheet.open(PreviewNewScoreSheet, {
+      data: {
+        excitemid: this.selectedExercise?.ID,
+      }
+    });
+
+    rst.afterDismissed().subscribe(val => {
+      if (val.resultFlag) {
+        if (val.newScore) {
+          this.selectedExerciseUserScore = val.newScore;
+        }
+      } else {
+        // this.selectedExerciseUserScore = null;
+        this._snackbar.open(val.errorInfo, undefined, { duration: 1500 });
+      }
+    });
   }
 }

@@ -1348,4 +1348,35 @@ export class ODataService {
       .pipe(map(response => true),
       catchError((error: HttpErrorResponse) => throwError(error.statusText + '; ' + error.error + '; ' + error.message) ));
   }
+  public getLastestExerciseItemUserScore(refid: number): Observable<ExerciseItemUserScore | null> {
+    if (environment.mockdata) {
+      return throwError(this.mockModeFailMsg);
+    } else {
+      if (!this.expertMode) {
+        return throwError(this.expertModeFailMsg);
+      }
+    }
+    let headers: HttpHeaders = new HttpHeaders();
+    headers = headers.append('Content-Type', 'application/json')
+      .append('Accept', 'application/json');
+
+    const jdata = {
+      User: this.currentUser,
+      RefID: refid,
+    };
+    return this.http.post(`${this.apiUrl}ExerciseItemUserScores/LatestUserScore`, jdata,  {
+      headers,
+    })
+      .pipe(map(response => {
+        const rjs = response as any;
+        if (rjs) {
+          const rtn = new ExerciseItemUserScore();
+          rtn.parseData(rjs);
+          return rtn;
+        }
+
+        return null;
+      }),
+      catchError((error: HttpErrorResponse) => throwError(error.statusText + '; ' + error.error + '; ' + error.message) ));
+  }
 }

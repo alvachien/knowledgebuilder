@@ -5,6 +5,7 @@
 export const environment = {
   production: false,
   mockdata: false,
+  version: '0.1.78',
   basehref: '/',
   apiurlRoot: 'https://localhost:44355'
 };

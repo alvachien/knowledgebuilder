@@ -7,11 +7,12 @@ import { MaterialModulesModule } from '../../material-modules';
 import { PreviewRoutingModule } from './preview-routing.module';
 import { PreviewComponent } from './preview.component';
 import { MarkdownModule } from 'ngx-markdown';
-
+import { PreviewNewScoreSheet } from './preview-newscore-sheet';
 
 @NgModule({
   declarations: [
-    PreviewComponent
+    PreviewComponent,
+    PreviewNewScoreSheet,
   ],
   imports: [
     CommonModule,
