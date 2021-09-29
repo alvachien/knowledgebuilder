@@ -6,7 +6,7 @@ import { MatSort } from '@angular/material/sort';
 import { Router } from '@angular/router';
 import { merge, Observable, of as observableOf } from 'rxjs';
 import { catchError, finalize, map, startWith, switchMap } from 'rxjs/operators';
-import { TagReferenceType } from 'src/app/models';
+import { TagReferenceType, UserCollectionItem } from 'src/app/models';
 
 import { ExerciseItem, ExerciseItemType, ExerciseItemUserScore, getExerciseItemTypeName, } from '../../models/exercise-item';
 import { ODataService, PreviewObject } from '../../services';
@@ -123,19 +123,28 @@ export class ExerciseItemsComponent implements AfterViewInit {
         });
 
         dialogRef.afterClosed().subscribe((result: any) => {
+          const collitems: UserCollectionItem[] = [];
           result.collids.forEach((collid: any) => {
             const colidx = arColls.findIndex(coll => coll.ID === +collid);
             if (colidx !== -1) {
-              this.odataService.addExerciseItemToCollection(rid, arColls[colidx]).subscribe({
-                next: val2 => {
-                  this.snackBar.open('DONE', undefined, { duration: 2000 });
-                },
-                error: err => {
-                  this.snackBar.open(err, undefined, { duration: 2000 });
-                }
-              });
+              const collitem: UserCollectionItem = new UserCollectionItem();
+              collitem.ID = arColls[colidx].ID;
+              collitem.RefID = rid;
+              collitem.RefType = TagReferenceType.ExerciseItem;
+              collitems.push(collitem);
             }
           });
+
+          if (collitems.length > 0) {
+            this.odataService.addExerciseItemToCollection(collitems).subscribe({
+              next: val2 => {
+                this.snackBar.open('DONE', undefined, { duration: 2000 });
+              },
+              error: err => {
+                this.snackBar.open(err, undefined, { duration: 2000 });
+              }
+            });
+          }
         });
       },
       error: err => {

@@ -1206,8 +1206,7 @@ export class ODataService {
       }),
       catchError((error: HttpErrorResponse) => throwError(error.statusText + '; ' + error.error + '; ' + error.message) ));
   }
-
-  public addExerciseItemToCollection(execitemid: number, collObj: UserCollection): Observable<UserCollection> {
+  public addExerciseItemToCollection(collItems: UserCollectionItem[]): Observable<UserCollectionItem[]> {
     if (environment.mockdata) {
       return throwError(this.mockModeFailMsg);
     } else {
@@ -1220,23 +1219,62 @@ export class ODataService {
     headers = headers.append('Content-Type', 'application/json')
       .append('Accept', 'application/json');
 
-    const collitem = new UserCollectionItem();
-    collitem.ID = collObj.ID;
-    collitem.RefType = TagReferenceType.ExerciseItem;
-    collitem.RefID = execitemid;
-    collObj.Items.push(collitem);
-    const jdata = collObj.writeJSONString(true);
+    const jdata: any = {
+      User: this.currentUser,
+      UserCollectionItems: []
+    };
+    collItems.forEach(ci => {
+      jdata.UserCollectionItems.push(ci.writeJSONObject(true));
+    });
     const params: HttpParams = new HttpParams();
-    return this.http.put(`${this.apiUrl}UserCollections(${collObj.ID})`, jdata, {
+    return this.http.post(`${this.apiUrl}UserCollectionItems/AddItemToCollectionEx`, jdata, {
       headers,
       params,
     })
       .pipe(map(response => {
-        const rsp = response as any;
-        const newcoll = new UserCollection();
-        newcoll.parseData(rsp);
+        const rjs = response as any;
+        const ritems = rjs.value as any[];
+        const items: UserCollectionItem[] = [];
 
-        return newcoll;
+        ritems.forEach(item => {
+          const rit: UserCollectionItem = new UserCollectionItem();
+          rit.parseData(item);
+          items.push(rit);
+        });
+
+        return items;
+      }),
+      catchError((error: HttpErrorResponse) => throwError(error.statusText + '; ' + error.error + '; ' + error.message) ));
+  }
+  public removeExerciseItemFromCollection(collItem: UserCollectionItem): Observable<boolean> {
+    if (environment.mockdata) {
+      return throwError(this.mockModeFailMsg);
+    } else {
+      if (!this.expertMode) {
+        return throwError(this.expertModeFailMsg);
+      }
+    }
+
+    let headers: HttpHeaders = new HttpHeaders();
+    headers = headers.append('Content-Type', 'application/json')
+      .append('Accept', 'application/json');
+
+    const jdata: any = {
+      User: this.currentUser,
+      ID: collItem.ID,
+      RefID: collItem.RefID,
+      RefType: TagReferenceType[collItem.RefType]
+    };
+    const params: HttpParams = new HttpParams();
+    return this.http.post(`${this.apiUrl}UserCollectionItems/RemoveItemFromCollection`, jdata, {
+      headers,
+      params,
+    })
+      .pipe(map(response => {
+        const rjs = response as any;
+        const rtn = rjs.value as boolean;
+
+        return rtn;
       }),
       catchError((error: HttpErrorResponse) => throwError(error.statusText + '; ' + error.error + '; ' + error.message) ));
   }

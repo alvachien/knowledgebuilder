@@ -10,6 +10,7 @@ import { MatChipInputEvent } from '@angular/material/chips';
 import { UIMode } from 'actslib';
 import { UserCollection, UserCollectionItem } from 'src/app/models';
 import { ODataService } from 'src/app/services';
+import { MatSnackBar } from '@angular/material/snack-bar';
 
 @Component({
   selector: 'app-user-collection-detail',
@@ -44,6 +45,7 @@ export class UserCollectionDetailComponent implements OnInit, OnDestroy {
   }
 
   constructor(public dialog: MatDialog,
+    private snackBar: MatSnackBar,
     private activateRoute: ActivatedRoute,
     private router: Router,
     private odataService: ODataService) {
@@ -159,6 +161,18 @@ export class UserCollectionDetailComponent implements OnInit, OnDestroy {
   }
   public onCreateItem(): void {
   }
-  public onDeleteItem(refId: number): void {
+  public onDeleteItem(row: UserCollectionItem): void {
+    this.odataService.removeExerciseItemFromCollection(row).subscribe({
+      next: val => {
+        this.snackBar.open('DONE', undefined, { duration: 2000 });
+        const idx = this.dataSource.findIndex(item => item.RefID === row.RefID && item.RefType === row.RefType);
+        if (idx !== -1) {
+          this.dataSource.splice(idx, 1);
+        }
+      },
+      error: err => {
+        this.snackBar.open(err, undefined, { duration: 2000 });
+      }
+    });
   }
 }
