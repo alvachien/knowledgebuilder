@@ -8,6 +8,7 @@ import { DateAdapter } from '@angular/material/core';
 
 import { AppNavItem, AppLanguage, AppNavItemGroupEnum } from './models';
 import { ODataService } from './services';
+import { environment } from 'src/environments/environment';
 
 @Component({
   selector: 'app-root',
@@ -89,6 +90,9 @@ export class AppComponent implements OnDestroy {
   }
   get isExpertMode(): boolean {
     return this.oDataSrv.currentUser.length > 0? true : false;
+  }
+  get versionInfo(): string {
+    return environment.version;
   }
 
   launchExpertMode(): void {
