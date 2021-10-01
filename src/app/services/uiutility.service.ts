@@ -67,8 +67,11 @@ export class UIUtilityService {
   public navigateUserCollectionDisplayPage(collid: number): void {
     this.router.navigate(['user-collection', 'display', collid.toString()]);
   }
+  public navigateAwardRuleGenerationPage(): void {
+    this.router.navigate(['award', 'rule-generation']);
+  }
 
   public showSnackInfo(info: string, duration = 2000): void {
-    this.snack.open(info, undefined, { duration: duration});
+    this.snack.open(info, undefined, { duration });
   }
 }

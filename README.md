@@ -55,6 +55,14 @@ In this case:
 - Module 'UserCollection' will be created in file 'user-collection.module.ts';
 - Module 'UserCollectionRoutingModule' will be created in file 'user-collection-routing.module.ts';
 
+- Generate a service:
+
+```Powershell
+ng g service service\UIUtil
+```
+
+In this case, file 'uiutil.service.ts' will be created under folder 'services';
+
 
 ## Todos
 

@@ -6,9 +6,10 @@ import { TranslocoModule } from '@ngneat/transloco';
 import { MaterialModulesModule } from '../../material-modules';
 import { AppUIModule } from 'src/app/app-ui.module';
 import { AwardRoutingModule } from './award-routing.module';
-import { AwardRuleComponent, AwardRuleCreateDialog, AwardRuleCreateExDialog } from './award-rule/award-rule.component';
+import { AwardRuleComponent, AwardRuleCreateDialog, } from './award-rule/award-rule.component';
 import { OverviewComponent, AwardPointCreateDialog } from './overview/overview.component';
 import { DailyTraceComponent, DailyTraceCreateDialog, } from './daily-trace/daily-trace.component';
+import { AwardRuleGenerationComponent } from './award-rule-generation/award-rule-generation.component';
 
 
 @NgModule({
@@ -17,9 +18,9 @@ import { DailyTraceComponent, DailyTraceCreateDialog, } from './daily-trace/dail
     OverviewComponent,
     DailyTraceComponent,
     AwardRuleCreateDialog,
-    AwardRuleCreateExDialog,
     DailyTraceCreateDialog,
     AwardPointCreateDialog,
+    AwardRuleGenerationComponent,
   ],
   imports: [
     CommonModule,
