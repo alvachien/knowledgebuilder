@@ -1,12 +1,11 @@
 import { Component, EventEmitter, ViewChild, AfterViewInit } from '@angular/core';
 import { MatPaginator } from '@angular/material/paginator';
 import { MatSort } from '@angular/material/sort';
-import { Router } from '@angular/router';
 import { merge, Observable, of as observableOf } from 'rxjs';
 import { catchError, map, startWith, switchMap } from 'rxjs/operators';
 
 import { KnowledgeItemCategory, getKnowledgeItemCategoryName, KnowledgeItem, TagReferenceType } from 'src/app/models';
-import { ODataService, PreviewObject } from '../../services';
+import { ODataService, PreviewObject, UIUtilityService, } from '../../services';
 
 @Component({
   selector: 'app-knowledge-items',
@@ -25,7 +24,7 @@ export class KnowledgeItemsComponent implements AfterViewInit {
   @ViewChild(MatSort) sort!: MatSort;
 
   constructor(private odataService: ODataService,
-    private router: Router) {}
+    private uiUtilSrv: UIUtilityService) {}
 
   getKnowledgeItemCategoryName(ctgy: KnowledgeItemCategory): string {
     return getKnowledgeItemCategoryName(ctgy);
@@ -71,11 +70,10 @@ export class KnowledgeItemsComponent implements AfterViewInit {
         refId: val.ID,
       });
     });
-    this.odataService.previewObjList = arobj;
-    this.router.navigate(['preview']);
+    this.uiUtilSrv.navigatePreviewPage(arobj);
   }
   onGoToSearch(): void {
-    this.router.navigate(['knowledge-item', 'search']);
+    this.uiUtilSrv.navigateKnowledgeItemSearchPage();
   }
 
   public onDeleteItem(itemid: number): void {
@@ -85,7 +83,7 @@ export class KnowledgeItemsComponent implements AfterViewInit {
         this.onRefreshList();
       },
       error: err => {
-        console.error(err);
+        this.uiUtilSrv.showSnackInfo(err);
       }
     });
   }
@@ -97,7 +95,4 @@ export class KnowledgeItemsComponent implements AfterViewInit {
   resetPaging(): void {
     this.paginator.pageIndex = 0;
   }
-
-  // public applyFilter(): void {
-  // }
 }

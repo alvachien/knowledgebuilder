@@ -1,17 +1,16 @@
 import { AfterViewInit, Component, OnInit, ViewChild } from '@angular/core';
 import { MatPaginator } from '@angular/material/paginator';
-import { Router } from '@angular/router';
 import { BehaviorSubject, merge, of as observableOf, scheduled } from 'rxjs';
 import { catchError, finalize, map, mergeAll, startWith, switchMap } from 'rxjs/operators';
 
 import { KnowledgeItem, GeneralFilterItem, GeneralFilterOperatorEnum, GeneralFilterValueType,
   TagReferenceType, UIDisplayString, UIDisplayStringUtil, getKnowledgeItemCategoryName, KnowledgeItemCategory } from 'src/app/models';
-import { ODataService, PreviewObject } from 'src/app/services';
+import { ODataService, PreviewObject, UIUtilityService } from 'src/app/services';
 
 @Component({
   selector: 'app-knowledge-item-search',
   templateUrl: './knowledge-item-search.component.html',
-  styleUrls: ['./knowledge-item-search.component.scss']
+  styleUrls: ['./knowledge-item-search.component.scss'],
 })
 export class KnowledgeItemSearchComponent implements OnInit, AfterViewInit {
   filters: GeneralFilterItem[] = [];
@@ -30,7 +29,7 @@ export class KnowledgeItemSearchComponent implements OnInit, AfterViewInit {
   dataSource: KnowledgeItem[] = [];
 
   constructor(private odataService: ODataService,
-    private router: Router) {
+    private uiUtilSrv: UIUtilityService) {
     this.resultsLength = 0;
     this.allOperators = UIDisplayStringUtil.getGeneralFilterOperatorDisplayStrings();
     this.allFields = [{
@@ -81,7 +80,7 @@ export class KnowledgeItemSearchComponent implements OnInit, AfterViewInit {
         catchError(() => observableOf(undefined)),
     ).subscribe({
       next: data => this.dataSource = data,
-      error: err => console.log(err)
+      error: err => this.uiUtilSrv.showSnackInfo(err)
     });
   }
   getKnowledgeItemCategoryName(ctgy: KnowledgeItemCategory): string {
@@ -186,7 +185,7 @@ export class KnowledgeItemSearchComponent implements OnInit, AfterViewInit {
     this.subjFilters.next(arRealFilter);
   }
   public onDisplayItem(itemid: number): void {
-    this.router.navigate(['knowledge-item', 'display', itemid.toString()]);
+    this.uiUtilSrv.navigateKnowledgeItemDisplayPage(itemid);
   }
   public onGoToPreview(): void {
     const arobj: PreviewObject[] = [];
@@ -196,7 +195,6 @@ export class KnowledgeItemSearchComponent implements OnInit, AfterViewInit {
         refId: val.ID,
       });
     });
-    this.odataService.previewObjList = arobj;
-    this.router.navigate(['preview']);
+    this.uiUtilSrv.navigatePreviewPage(arobj);
   }
 }

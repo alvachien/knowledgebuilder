@@ -1,15 +1,13 @@
 import { Component, EventEmitter, ViewChild, AfterViewInit, OnInit } from '@angular/core';
 import { MatPaginator } from '@angular/material/paginator';
-import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatSort } from '@angular/material/sort';
-import { Router } from '@angular/router';
 import moment from 'moment';
 import { BehaviorSubject, merge, Observable, of as observableOf } from 'rxjs';
 import { catchError, map, startWith, switchMap } from 'rxjs/operators';
 
 import { GeneralFilterItem, GeneralFilterOperatorEnum, GeneralFilterValueType,
   UIDisplayString, UIDisplayStringUtil, ExerciseItemUserScore, TagReferenceType } from 'src/app/models';
-import { ODataService, PreviewObject } from '../../../services';
+import { ODataService, PreviewObject, UIUtilityService, } from '../../../services';
 
 @Component({
   selector: 'app-exercise-item-score',
@@ -33,8 +31,7 @@ export class ExerciseItemScoreComponent implements OnInit, AfterViewInit {
   @ViewChild(MatSort) sort!: MatSort;
 
   constructor(private odataService: ODataService,
-    private snackBar: MatSnackBar,
-    private router: Router) {
+    private uiUtilSrv: UIUtilityService,) {
     this.allOperators = UIDisplayStringUtil.getGeneralFilterOperatorDisplayStrings();
     this.allFields = [{
       displayas: 'Content',
@@ -93,7 +90,7 @@ export class ExerciseItemScoreComponent implements OnInit, AfterViewInit {
           return observableOf([]);
         })
       ).subscribe(data => this.dataSource = data ? data : []);
-  }
+  }  
   public onAddFilter(): void {
     this.filters.push(new GeneralFilterItem());
   }
@@ -233,17 +230,23 @@ export class ExerciseItemScoreComponent implements OnInit, AfterViewInit {
     this.subjFilters.next(arRealFilter);
   }
   public onGoToExerciseItems(): void {
-    this.router.navigate(['exercise-item']);
+    this.uiUtilSrv.navigateExerciseItemListPage();
+  }
+  public onDisplayExerciseItem(rid: number): void {
+    this.uiUtilSrv.navigateExerciseItemDisplayPage(rid);
+  }
+  public onChangeExerciseItem(rid: number): void {
+    this.uiUtilSrv.navigateKnowledgeItemChangePage(rid);
   }
   public onDeleteItem(itemid: number): void {
     // Delete item
     this.odataService.deleteExerciseItemUserScore(itemid).subscribe({
       next: val => {
-        this.snackBar.open('DONE', undefined, { duration: 2000 });
+        this.uiUtilSrv.showSnackInfo('DONE');
         this.onRefreshList();
       },
       error: err => {
-        this.snackBar.open(err, undefined, { duration: 2000 });
+        this.uiUtilSrv.showSnackInfo(err);
       }
     });
   }
@@ -255,8 +258,7 @@ export class ExerciseItemScoreComponent implements OnInit, AfterViewInit {
         refId: item.RefID,
       });
     });
-    this.odataService.previewObjList = arobj;
-    this.router.navigate(['preview']);
+    this.uiUtilSrv.navigatePreviewPage(arobj);
   }
 
   onRefreshList(): void {

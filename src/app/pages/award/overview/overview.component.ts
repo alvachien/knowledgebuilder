@@ -1,10 +1,9 @@
 import { Component, Inject, OnInit } from '@angular/core';
 import { MatDialog, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
-import { MatSnackBar } from '@angular/material/snack-bar';
 import moment from 'moment';
 
 import { AwardPoint, AwardPointReport, momentDateFormat } from 'src/app/models';
-import { ODataService } from 'src/app/services';
+import { ODataService, UIUtilityService } from 'src/app/services';
 
 @Component({
   selector: 'app-overview',
@@ -24,7 +23,7 @@ export class OverviewComponent implements OnInit {
 
   constructor(private oDataSrv: ODataService,
     public dialog: MatDialog,
-    public snackBar: MatSnackBar) { }
+    private uiUtilSrv: UIUtilityService) { }
 
   ngOnInit(): void {
     this.refreshList();
@@ -51,7 +50,7 @@ export class OverviewComponent implements OnInit {
             this.refreshList();
           },
           error: err => {
-            this.snackBar.open(err, undefined, { duration: 2000 });
+            this.uiUtilSrv.showSnackInfo(err);
           }
         });
       }
@@ -64,7 +63,7 @@ export class OverviewComponent implements OnInit {
         this.recordCount = val.totalCount;
       },
       error: err => {
-        this.snackBar.open(err, undefined, { duration: 2000 });
+        this.uiUtilSrv.showSnackInfo(err);
       }
     });
   }
@@ -82,7 +81,7 @@ export class OverviewComponent implements OnInit {
         this.isPointShow = true;
       },
       error: err => {
-        this.snackBar.open(err, undefined, { duration: 2000 });
+        this.uiUtilSrv.showSnackInfo(err);
       }
     });
   }
@@ -100,7 +99,7 @@ export class OverviewComponent implements OnInit {
         this.onGetPoints(this.selectedUser, moment(this.selectedDate));
       },
       error: err => {
-        this.snackBar.open(err, undefined, { duration: 2000 });
+        this.uiUtilSrv.showSnackInfo(err);
       }
     });
   }

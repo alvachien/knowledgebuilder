@@ -1,12 +1,11 @@
 import { AfterViewInit, Component, OnInit, ViewChild } from '@angular/core';
 import { MatPaginator } from '@angular/material/paginator';
-import { Router } from '@angular/router';
 import { BehaviorSubject, merge, of as observableOf, scheduled } from 'rxjs';
 import { catchError, finalize, map, mergeAll, startWith, switchMap } from 'rxjs/operators';
 
 import { ExerciseItemSearchResult, ExerciseItemType, GeneralFilterItem, GeneralFilterOperatorEnum, GeneralFilterValueType,
   getExerciseItemTypeName, TagReferenceType, UIDisplayString, UIDisplayStringUtil } from 'src/app/models';
-import { ODataService, PreviewObject } from 'src/app/services';
+import { ODataService, PreviewObject, UIUtilityService } from 'src/app/services';
 
 @Component({
   selector: 'app-exercise-item-search',
@@ -30,7 +29,7 @@ export class ExerciseItemSearchComponent implements OnInit, AfterViewInit {
   dataSource: ExerciseItemSearchResult[] = [];
 
   constructor(private odataService: ODataService,
-    private router: Router) {
+    private uiUtilSrv: UIUtilityService) {
     this.resultsLength = 0;
     this.allOperators = UIDisplayStringUtil.getGeneralFilterOperatorDisplayStrings();
     this.allFields = [{
@@ -89,7 +88,7 @@ export class ExerciseItemSearchComponent implements OnInit, AfterViewInit {
         catchError(() => observableOf(undefined)),
     ).subscribe({
       next: data => this.dataSource = data ? data : [],
-      error: err => console.log(err)
+      error: err => this.uiUtilSrv.showSnackInfo(err)
     });
   }
   getExerciseItemTypeName(itemtype: ExerciseItemType): string {
@@ -203,7 +202,7 @@ export class ExerciseItemSearchComponent implements OnInit, AfterViewInit {
     this.subjFilters.next(arRealFilter);
   }
   public onDisplayItem(itemid: number): void {
-    this.router.navigate(['exercise-item', 'display', itemid.toString()]);
+    this.uiUtilSrv.navigateExerciseItemDisplayPage(itemid);
   }
   public onGoToPreview(): void {
     const arobj: PreviewObject[] = [];
@@ -213,7 +212,6 @@ export class ExerciseItemSearchComponent implements OnInit, AfterViewInit {
         refId: val.ID,
       });
     });
-    this.odataService.previewObjList = arobj;
-    this.router.navigate(['preview']);
+    this.uiUtilSrv.navigatePreviewPage(arobj);
   }
 }

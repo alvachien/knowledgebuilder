@@ -77,6 +77,10 @@
     "FullScreen": "Full screen",
     "ExpertMode": "Expert Mode",
     "AccessCode": "Access Code",
+    "Header": "Header",
+    "HeaderInfo": "Header information",
+    "Administrative": "Administrative",
+    "AdministrativeInfo": "Administrative information",
     "ExerciseItemType": {
         "SingleChoice": "Single Choice",
         "MultipleChoices": "Multiple Choices",

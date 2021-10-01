@@ -1,11 +1,10 @@
 /* eslint-disable quote-props */
 import { Component, Inject, OnInit } from '@angular/core';
 import { MatDialog, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
-import { MatSnackBar } from '@angular/material/snack-bar';
 
 import { momentDateFormat } from 'src/app/models';
 import { AwardRule, AwardRuleTypeEnum, getAwardRuleTypeNames, } from 'src/app/models/award';
-import { ODataService, QuizService } from 'src/app/services';
+import { ODataService, QuizService, UIUtilityService } from 'src/app/services';
 
 export interface AwardTimeRuleUI {
   id: number;
@@ -66,7 +65,7 @@ export class AwardRuleComponent implements OnInit {
 
   constructor(private odataSrv: ODataService,
     public dialog: MatDialog,
-    public snackBar: MatSnackBar) { }
+    public uiUtilSrv: UIUtilityService) { }
 
   ngOnInit(): void {
     this.refreshList();
@@ -93,7 +92,7 @@ export class AwardRuleComponent implements OnInit {
             this.refreshList();
           },
           error: err => {
-            this.snackBar.open(err, undefined, { duration: 2000 });
+            this.uiUtilSrv.showSnackInfo(err);
           }
         });
       }
@@ -242,7 +241,7 @@ export class AwardRuleComponent implements OnInit {
         });
       },
       error: err => {
-        this.snackBar.open(err, undefined, { duration: 2000 });
+        this.uiUtilSrv.showSnackInfo(err);
       }
     });
   }
@@ -268,7 +267,7 @@ export class AwardRuleComponent implements OnInit {
               this.refreshList();
             },
             error: err => {
-              this.snackBar.open(err, undefined, { duration: 2000 });
+              this.uiUtilSrv.showSnackInfo(err);
             }
           });
         }
@@ -281,7 +280,7 @@ export class AwardRuleComponent implements OnInit {
         this.refreshList();
       },
       error: err => {
-        this.snackBar.open(err, undefined, { duration: 2000 });
+        this.uiUtilSrv.showSnackInfo(err);
       }
     });
   }

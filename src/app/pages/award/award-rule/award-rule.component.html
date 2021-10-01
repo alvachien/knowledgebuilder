@@ -1,8 +1,12 @@
 <mat-toolbar>
   <h3>{{'Award.Rules' | transloco}}</h3>
   <div class="toolbar-spacer"></div>
-  <button mat-raised-button [disabled]="!isExpertMode" (click)="onCreateRule()">{{'Common.Create' | transloco}}</button>
-  <button mat-raised-button [disabled]="!isExpertMode" (click)="onCreateRuleEx()">Create Ex</button>
+  <button mat-icon-button color="primary" [disabled]="!isExpertMode" (click)="onCreateRule()" matTooltip="{{'Common.Create' | transloco}}">
+    <mat-icon>add_circle</mat-icon>
+  </button>
+  <button mat-icon-button color="primary" [disabled]="!isExpertMode" (click)="onCreateRuleEx()" matTooltip="{{'Common.Create' | transloco}}">
+    <mat-icon>add_box</mat-icon>
+  </button>
 </mat-toolbar>
 
 <mat-tab-group animationDuration="200ms">
@@ -15,8 +19,13 @@
           <ng-container matColumnDef="id">
             <th mat-header-cell *matHeaderCellDef>#</th>
             <td mat-cell *matCellDef="let row">{{row.id}} |
-              <button mat-raised-button [disabled]="!isExpertMode" (click)="onCopyRule(row.id)">{{'Common.Copy' | transloco}}</button> 
-              <button mat-raised-button [disabled]="!isExpertMode" (click)="onDeleteRule(row.id)">{{'Common.Delete' | transloco}}</button></td>
+              <button mat-icon-button color="primary" (click)="onCopyRule(row.id)" matTooltip="{{'Common.Copy' | transloco}}">
+                <mat-icon>file_copy</mat-icon>
+              </button>
+              <button mat-icon-button color="warn" (click)="onDeleteRule(row.id)" matTooltip="{{'Common.Delete' | transloco}}">
+                <mat-icon>remove_circle</mat-icon>
+              </button>
+            </td>
           </ng-container>
 
           <!-- Target user Column -->
@@ -66,8 +75,12 @@
           <ng-container matColumnDef="id">
             <th mat-header-cell *matHeaderCellDef>#</th>
             <td mat-cell *matCellDef="let row">{{row.id}} | 
-              <button mat-raised-button [disabled]="!isExpertMode" (click)="onCopyRule(row.id)">{{'Common.Copy' | transloco}}</button> 
-              <button mat-raised-button [disabled]="!isExpertMode" (click)="onDeleteRule(row.id)">{{'Common.Delete' | transloco}}</button>
+              <button mat-icon-button color="primary" (click)="onCopyRule(row.id)" matTooltip="{{'Common.Copy' | transloco}}">
+                <mat-icon>file_copy</mat-icon>
+              </button>
+              <button mat-icon-button color="warn" (click)="onDeleteRule(row.id)" matTooltip="{{'Common.Delete' | transloco}}">
+                <mat-icon>remove_circle</mat-icon>
+              </button>
             </td>
           </ng-container>
 
@@ -118,8 +131,12 @@
           <ng-container matColumnDef="id">
             <th mat-header-cell *matHeaderCellDef>#</th>
             <td mat-cell *matCellDef="let row">{{row.id}} | 
-              <button mat-raised-button [disabled]="!isExpertMode" (click)="onCopyRule(row.id)">{{'Common.Copy' | transloco}}</button> 
-              <button mat-raised-button [disabled]="!isExpertMode" (click)="onDeleteRule(row.id)">{{'Common.Delete' | transloco}}</button>
+              <button mat-icon-button color="primary" (click)="onCopyRule(row.id)" matTooltip="{{'Common.Copy' | transloco}}">
+                <mat-icon>file_copy</mat-icon>
+              </button>
+              <button mat-icon-button color="warn" (click)="onDeleteRule(row.id)" matTooltip="{{'Common.Delete' | transloco}}">
+                <mat-icon>remove_circle</mat-icon>
+              </button>
             </td>
           </ng-container>
 
@@ -170,8 +187,12 @@
           <ng-container matColumnDef="id">
             <th mat-header-cell *matHeaderCellDef>#</th>
             <td mat-cell *matCellDef="let row">{{row.id}} | 
-              <button mat-raised-button [disabled]="!isExpertMode" (click)="onCopyRule(row.id)">{{'Common.Copy' | transloco}}</button> 
-              <button mat-raised-button [disabled]="!isExpertMode" (click)="onDeleteRule(row.id)">{{'Common.Delete' | transloco}}</button>
+              <button mat-icon-button color="primary" (click)="onCopyRule(row.id)" matTooltip="{{'Common.Copy' | transloco}}">
+                <mat-icon>file_copy</mat-icon>
+              </button>
+              <button mat-icon-button color="warn" (click)="onDeleteRule(row.id)" matTooltip="{{'Common.Delete' | transloco}}">
+                <mat-icon>remove_circle</mat-icon>
+              </button>
             </td>
           </ng-container>
 
@@ -222,8 +243,12 @@
           <ng-container matColumnDef="id">
             <th mat-header-cell *matHeaderCellDef>#</th>
             <td mat-cell *matCellDef="let row">{{row.id}} | 
-              <button mat-raised-button [disabled]="!isExpertMode" (click)="onCopyRule(row.id)">{{'Common.Copy' | transloco}}</button> 
-              <button mat-raised-button [disabled]="!isExpertMode" (click)="onDeleteRule(row.id)">{{'Common.Delete' | transloco}}</button>
+              <button mat-icon-button color="primary" (click)="onCopyRule(row.id)" matTooltip="{{'Common.Copy' | transloco}}">
+                <mat-icon>file_copy</mat-icon>
+              </button>
+              <button mat-icon-button color="warn" (click)="onDeleteRule(row.id)" matTooltip="{{'Common.Delete' | transloco}}">
+                <mat-icon>remove_circle</mat-icon>
+              </button>
             </td>
           </ng-container>
 
@@ -274,8 +299,12 @@
           <ng-container matColumnDef="id">
             <th mat-header-cell *matHeaderCellDef>#</th>
             <td mat-cell *matCellDef="let row">{{row.id}} | 
-              <button mat-raised-button [disabled]="!isExpertMode" (click)="onCopyRule(row.id)">{{'Common.Copy' | transloco}}</button> 
-              <button mat-raised-button [disabled]="!isExpertMode" (click)="onDeleteRule(row.id)">{{'Common.Delete' | transloco}}</button>
+              <button mat-icon-button color="primary" (click)="onCopyRule(row.id)" matTooltip="{{'Common.Copy' | transloco}}">
+                <mat-icon>file_copy</mat-icon>
+              </button>
+              <button mat-icon-button color="warn" (click)="onDeleteRule(row.id)" matTooltip="{{'Common.Delete' | transloco}}">
+                <mat-icon>remove_circle</mat-icon>
+              </button>
             </td>
           </ng-container>
 
@@ -326,8 +355,12 @@
           <ng-container matColumnDef="id">
             <th mat-header-cell *matHeaderCellDef>#</th>
             <td mat-cell *matCellDef="let row">{{row.id}} | 
-              <button mat-raised-button [disabled]="!isExpertMode" (click)="onCopyRule(row.id)">{{'Common.Copy' | transloco}}</button> 
-              <button mat-raised-button [disabled]="!isExpertMode" (click)="onDeleteRule(row.id)">{{'Common.Delete' | transloco}}</button>
+              <button mat-icon-button color="primary" (click)="onCopyRule(row.id)" matTooltip="{{'Common.Copy' | transloco}}">
+                <mat-icon>file_copy</mat-icon>
+              </button>
+              <button mat-icon-button color="warn" (click)="onDeleteRule(row.id)" matTooltip="{{'Common.Delete' | transloco}}">
+                <mat-icon>remove_circle</mat-icon>
+              </button>
             </td>
           </ng-container>
 
@@ -378,8 +411,12 @@
           <ng-container matColumnDef="id">
             <th mat-header-cell *matHeaderCellDef>#</th>
             <td mat-cell *matCellDef="let row">{{row.id}} | 
-              <button mat-raised-button [disabled]="!isExpertMode" (click)="onCopyRule(row.id)">{{'Common.Copy' | transloco}}</button> 
-              <button mat-raised-button [disabled]="!isExpertMode" (click)="onDeleteRule(row.id)">{{'Common.Delete' | transloco}}</button>
+              <button mat-icon-button color="primary" (click)="onCopyRule(row.id)" matTooltip="{{'Common.Copy' | transloco}}">
+                <mat-icon>file_copy</mat-icon>
+              </button>
+              <button mat-icon-button color="warn" (click)="onDeleteRule(row.id)" matTooltip="{{'Common.Delete' | transloco}}">
+                <mat-icon>remove_circle</mat-icon>
+              </button>
             </td>
           </ng-container>
 
@@ -430,8 +467,12 @@
           <ng-container matColumnDef="id">
             <th mat-header-cell *matHeaderCellDef>#</th>
             <td mat-cell *matCellDef="let row">{{row.id}} | 
-              <button mat-raised-button [disabled]="!isExpertMode" (click)="onCopyRule(row.id)">{{'Common.Copy' | transloco}}</button> 
-              <button mat-raised-button [disabled]="!isExpertMode" (click)="onDeleteRule(row.id)">{{'Common.Delete' | transloco}}</button>
+              <button mat-icon-button color="primary" (click)="onCopyRule(row.id)" matTooltip="{{'Common.Copy' | transloco}}">
+                <mat-icon>file_copy</mat-icon>
+              </button>
+              <button mat-icon-button color="warn" (click)="onDeleteRule(row.id)" matTooltip="{{'Common.Delete' | transloco}}">
+                <mat-icon>remove_circle</mat-icon>
+              </button>
             </td>
           </ng-container>
 

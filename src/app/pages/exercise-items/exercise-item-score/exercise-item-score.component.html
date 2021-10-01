@@ -93,7 +93,18 @@
       <!-- RefID Column -->
       <ng-container matColumnDef="refid">
         <th mat-header-cell *matHeaderCellDef>{{'ExerciseItem' | transloco}}</th>
-        <td mat-cell *matCellDef="let row">{{row.RefID}}</td>
+        <td mat-cell *matCellDef="let row">
+          {{row.RefID}}
+          <button mat-icon-button color="primary" [disabled]="!isExpertMode" (click)="onDisplayExerciseItem(row.RefID)" matTooltip="{{'Common.Display' | transloco}}">
+            <mat-icon>launch</mat-icon>
+          </button>
+          <button mat-icon-button color="accent" [disabled]="!isExpertMode" (click)="onChangeExerciseItem(row.RefID)" matTooltip="{{'Common.Change' | transloco}}">
+            <mat-icon>edit</mat-icon>
+          </button>
+          <!-- <button mat-icon-button color="accent" [disabled]="!isExpertMode" (click)="onAddToCollection(row.RefID)" matTooltip="{{'AddToCollection' | transloco}}">
+            <mat-icon>add_to_queue</mat-icon>
+          </button> -->
+        </td>
       </ng-container>
 
       <!-- Taken Date Column -->
@@ -105,7 +116,7 @@
       <!-- Score Column -->
       <ng-container matColumnDef="score">
         <th mat-header-cell *matHeaderCellDef>{{'Quiz.Score' | transloco}}</th>
-        <td mat-cell *matCellDef="let row">{{row.Score}}</td>
+        <td mat-cell *matCellDef="let row"><span [class]="row.Score >= 60 ? 'success-score' : 'fail-score'">{{row.Score}}</span></td>
       </ng-container>
 
       <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>

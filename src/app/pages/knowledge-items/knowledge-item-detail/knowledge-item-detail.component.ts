@@ -1,7 +1,7 @@
 import { Component, OnInit, OnDestroy, ViewChild } from '@angular/core';
 import { FormGroup, FormControl, Validators } from '@angular/forms';
 import { ReplaySubject } from 'rxjs';
-import { ActivatedRoute, Router } from '@angular/router';
+import { ActivatedRoute, } from '@angular/router';
 import { MatDialog } from '@angular/material/dialog';
 import { KatexOptions } from 'ngx-markdown';
 import { COMMA, ENTER } from '@angular/cdk/keycodes';
@@ -9,7 +9,7 @@ import { MatChipInputEvent } from '@angular/material/chips';
 import { UIMode } from 'actslib';
 import { MonacoEditorConstructionOptions } from '@materia-ui/ngx-monaco-editor';
 
-import { ODataService } from '../../../services';
+import { ODataService, UIUtilityService, } from '../../../services';
 import { ImageUploadComponent } from '../../image-upload/image-upload.component';
 import { KnowledgeItemCategory, KnowledgeItem, getKnowledgeItemCategoryNames, } from 'src/app/models';
 
@@ -57,10 +57,9 @@ export class KnowledgeItemDetailComponent implements OnInit, OnDestroy {
     return this.uiMode === UIMode.Create || this.uiMode === UIMode.Update;
   }
 
-  constructor(
-    public dialog: MatDialog,
+  constructor(public dialog: MatDialog,
     private activateRoute: ActivatedRoute,
-    private router: Router,
+    private uiUtilSrv: UIUtilityService,
     private odataService: ODataService) {
     this.arKnowledgeCtgies = getKnowledgeItemCategoryNames();
     this.itemFormGroup = new FormGroup({
@@ -126,7 +125,7 @@ export class KnowledgeItemDetailComponent implements OnInit, OnDestroy {
         }
       },
       error: err => {
-        console.error(err);
+        this.uiUtilSrv.showSnackInfo(err);
       }
     });
   }
@@ -144,7 +143,7 @@ export class KnowledgeItemDetailComponent implements OnInit, OnDestroy {
       if (!this.itemFormGroup.valid) {
         if (this.itemFormGroup.errors) {
           const err = this.itemFormGroup.errors;
-          console.log(err);
+          this.uiUtilSrv.showSnackInfo(err.toString());
         }
         return;
       }
@@ -158,18 +157,17 @@ export class KnowledgeItemDetailComponent implements OnInit, OnDestroy {
       this.odataService.createKnowledgeItem(kitem).subscribe({
         next: val => {
           // Succeed
-          this.router.navigate(['knowledge-item/display', val.ID]);
+          this.uiUtilSrv.navigateKnowledgeItemDisplayPage(val.ID);
         },
         error: err => {
-          // Error
-          console.error(err);
+          this.uiUtilSrv.showSnackInfo(err);
         }
       });
     } else if(this.isUpdateMode) {
       if (!this.itemFormGroup.valid) {
         if (this.itemFormGroup.errors) {
           const err = this.itemFormGroup.errors;
-          console.log(err);
+          this.uiUtilSrv.showSnackInfo(err.toString());
         }
         return;
       }
@@ -183,11 +181,10 @@ export class KnowledgeItemDetailComponent implements OnInit, OnDestroy {
         this.odataService.changeKnowledgeItem(this.currentItem).subscribe({
           next: val => {
             // Succeed
-            this.router.navigate(['knowledge-item/display', val.ID]);
+            this.uiUtilSrv.navigateKnowledgeItemDisplayPage(val.ID);
           },
           error: err => {
-            // Error
-            console.error(err);
+            this.uiUtilSrv.showSnackInfo(err);
           }
         });
       }
@@ -238,9 +235,9 @@ export class KnowledgeItemDetailComponent implements OnInit, OnDestroy {
     }
   }
   onReturnToList() {
-    this.router.navigate(['knowledge-item']);
+    this.uiUtilSrv.navigateKnowledgeItemListPage();
   }
   onCreateNewOne(): void {
-    this.router.navigate(['knowledge-item', 'create']);
+    this.uiUtilSrv.navigateKnowledgeItemCreatePage();
   }
 }

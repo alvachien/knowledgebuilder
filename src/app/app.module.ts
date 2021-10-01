@@ -15,7 +15,7 @@ import { translocoConfig, TranslocoModule, TRANSLOCO_CONFIG } from '@ngneat/tran
 import { MAT_MOMENT_DATE_FORMATS, MomentDateAdapter } from '@angular/material-moment-adapter';
 import { DateAdapter, MAT_DATE_FORMATS, MAT_DATE_LOCALE } from '@angular/material/core';
 
-import { ODataService, QuizService } from './services';
+import { ODataService, QuizService, UIUtilityService } from './services';
 import { environment } from 'src/environments/environment';
 import { NavItemFilterPipe } from './pipes';
 import { QuizFailureDailogComponent } from './pages/quiz-failure-dailog';
@@ -54,6 +54,7 @@ import { QuizFailureDailogComponent } from './pages/quiz-failure-dailog';
   ],
   providers: [
     ODataService,
+    UIUtilityService,
     QuizService,
     {
       provide: TRANSLOCO_CONFIG,

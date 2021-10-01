@@ -1,15 +1,13 @@
 import { Component, OnInit, ViewChild, AfterViewInit, EventEmitter } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { MatPaginator } from '@angular/material/paginator';
-import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatSort } from '@angular/material/sort';
-import { Router } from '@angular/router';
 import { merge, Observable, of as observableOf } from 'rxjs';
 import { catchError, finalize, map, startWith, switchMap } from 'rxjs/operators';
 import { TagReferenceType, UserCollectionItem } from 'src/app/models';
 
 import { ExerciseItem, ExerciseItemType, ExerciseItemUserScore, getExerciseItemTypeName, } from '../../models/exercise-item';
-import { ODataService, PreviewObject } from '../../services';
+import { ODataService, PreviewObject, UIUtilityService, } from '../../services';
 import { ExerciseItemAddToCollDialog } from './exercise-items-add-coll-dlg.component';
 import { ExerciseItemNewPracticeDialog } from './exercise-items-newpractice-dlg.component';
 
@@ -31,8 +29,7 @@ export class ExerciseItemsComponent implements AfterViewInit {
 
   constructor(private odataService: ODataService,
     private dialog: MatDialog,
-    private snackBar: MatSnackBar,
-    private router: Router) {}
+    private uiUtilSrv: UIUtilityService) {}
 
   getExerciseItemTypeName(itemtype: ExerciseItemType): string {
     return getExerciseItemTypeName(itemtype);
@@ -64,7 +61,7 @@ export class ExerciseItemsComponent implements AfterViewInit {
         catchError(() => observableOf([]))
       ).subscribe({
         next: data => this.dataSource = data,
-        error: err => console.log(err)
+        error: err => this.uiUtilSrv.showSnackInfo(err)
       });
   }
 
@@ -76,11 +73,10 @@ export class ExerciseItemsComponent implements AfterViewInit {
         refId: val.ID,
       });
     });
-    this.odataService.previewObjList = arobj;
-    this.router.navigate(['preview']);
+    this.uiUtilSrv.navigatePreviewPage(arobj);
   }
   public onGoToSearch(): void {
-    this.router.navigate(['exercise-item', 'search']);
+    this.uiUtilSrv.navigateExerciseItemSearchPage();
   }
 
   public onDeleteItem(itemid: number): void {
@@ -90,7 +86,7 @@ export class ExerciseItemsComponent implements AfterViewInit {
         this.onRefreshList();
       },
       error: err => {
-        console.error(err);
+        this.uiUtilSrv.showSnackInfo(err);
       }
     });
   }
@@ -103,10 +99,10 @@ export class ExerciseItemsComponent implements AfterViewInit {
     this.paginator.pageIndex = 0;
   }
   public onDisplayItem(rid: number): void {
-    this.router.navigate(['exercise-item', 'display', rid.toString()]);
+    this.uiUtilSrv.navigateExerciseItemDisplayPage(rid);
   }
   public onChangeItem(rid: number): void {
-    this.router.navigate(['exercise-item', 'edit', rid.toString()]);
+    this.uiUtilSrv.navigateExerciseItemChangePage(rid);
   }
   public onAddToCollection(rid: number): void {
     this.odataService.getUserCollections().subscribe({
@@ -138,17 +134,17 @@ export class ExerciseItemsComponent implements AfterViewInit {
           if (collitems.length > 0) {
             this.odataService.addExerciseItemToCollection(collitems).subscribe({
               next: val2 => {
-                this.snackBar.open('DONE', undefined, { duration: 2000 });
+                this.uiUtilSrv.showSnackInfo('DONE');
               },
               error: err => {
-                this.snackBar.open(err, undefined, { duration: 2000 });
+                this.uiUtilSrv.showSnackInfo(err);
               }
             });
           }
         });
       },
       error: err => {
-        this.snackBar.open(err, undefined, { duration: 2000 });
+        this.uiUtilSrv.showSnackInfo(err);
       }
     });
   }
@@ -172,10 +168,10 @@ export class ExerciseItemsComponent implements AfterViewInit {
       nscore.User = this.odataService.currentUser;
       this.odataService.createExerciseItemUserScore(nscore).subscribe({
         next: val => {
-          this.snackBar.open('DONE', undefined, { duration: 2000 });
+          this.uiUtilSrv.showSnackInfo('DONE');
         },
         error: err => {
-          this.snackBar.open(err, undefined, { duration: 2000 });
+          this.uiUtilSrv.showSnackInfo(err);
         }
       });
     });

@@ -1,13 +1,12 @@
 import { Component, OnInit, ViewChild, AfterViewInit } from '@angular/core';
 import { MatPaginator } from '@angular/material/paginator';
 import { MatSort } from '@angular/material/sort';
-import { ActivatedRoute, Router } from '@angular/router';
-import { KatexOptions } from 'ngx-markdown';
+import { ActivatedRoute, } from '@angular/router';
 import { merge, Observable, of as observableOf } from 'rxjs';
 import { catchError, map, startWith, switchMap } from 'rxjs/operators';
 
 import { TagCount, Tag, TagReferenceType, getTagReferenceTypeName } from 'src/app/models';
-import { PreviewObject, ODataService } from 'src/app/services';
+import { PreviewObject, UIUtilityService, ODataService } from 'src/app/services';
 
 @Component({
   selector: 'app-tag-detail',
@@ -31,7 +30,7 @@ export class TagDetailComponent implements OnInit, AfterViewInit {
   constructor(
     private odataService: ODataService,
     private activateRoute: ActivatedRoute,
-    private router: Router) {
+    private uiUtilSrv: UIUtilityService) {
   }
 
   ngOnInit(): void {
@@ -84,9 +83,9 @@ export class TagDetailComponent implements OnInit, AfterViewInit {
   public onRefIDClicked(row: Tag): void {
     // console.log(`Count link clicked: ${row}`);
     if (row.RefType === TagReferenceType.ExerciseItem) {
-      this.router.navigate(['exercise-item/display', row.RefID]);
+      this.uiUtilSrv.navigateExerciseItemDisplayPage(row.RefID!);
     } else if (row.RefType === TagReferenceType.KnowledgeItem) {
-      this.router.navigate(['knowledge-item/display', row.RefID]);
+      this.uiUtilSrv.navigateKnowledgeItemDisplayPage(row.RefID!);
     }
   }
   public onGoToPreview(): void {
@@ -99,7 +98,6 @@ export class TagDetailComponent implements OnInit, AfterViewInit {
         });
       }
     });
-    this.odataService.previewObjList = arobj;
-    this.router.navigate(['preview']);
+    this.uiUtilSrv.navigatePreviewPage(arobj);
   }
 }

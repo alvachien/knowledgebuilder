@@ -4,48 +4,63 @@
         <mat-card-subtitle>{{currentMode | transloco}}</mat-card-subtitle>
     </mat-card-header>
     <mat-card-content>
-        <form [formGroup]="itemFormGroup">
-            <!-- ID -->
-            <mat-form-field appearance="fill" class="control-full-width">
-                <mat-label>#</mat-label>
-                <input matInput type="text" placeholder="ID" formControlName="idControl">
-            </mat-form-field>
+        <mat-accordion class="example-headers-align" multi>
+            <mat-expansion-panel expanded>
+                <mat-expansion-panel-header>
+                    <mat-panel-title>{{'Header' | transloco}}</mat-panel-title>
+                    <mat-panel-description>{{'HeaderInfo' | transloco}}<mat-icon>public</mat-icon></mat-panel-description>
+                </mat-expansion-panel-header>
+                <form [formGroup]="itemFormGroup">
+                    <!-- ID -->
+                    <mat-form-field appearance="fill" class="control-full-width">
+                        <mat-label>#</mat-label>
+                        <input matInput type="text" placeholder="ID" formControlName="idControl">
+                    </mat-form-field>
 
-            <!-- User -->
-            <mat-form-field appearance="fill" class="control-full-width">
-                <mat-label>User</mat-label>
-                <input matInput type="text" placeholder="User" formControlName="userControl">
-            </mat-form-field>
+                    <!-- User -->
+                    <mat-form-field appearance="fill" class="control-full-width">
+                        <mat-label>User</mat-label>
+                        <input matInput type="text" placeholder="User" formControlName="userControl">
+                    </mat-form-field>
 
-            <!-- Name -->
-            <mat-form-field appearance="fill" class="control-full-width">
-                <mat-label>{{'Common.Name' | transloco}}</mat-label>
-                <input matInput type="text" placeholder="Name" formControlName="nameControl">
-            </mat-form-field>
+                    <!-- Name -->
+                    <mat-form-field appearance="fill" class="control-full-width">
+                        <mat-label>{{'Common.Name' | transloco}}</mat-label>
+                        <input matInput type="text" placeholder="Name" formControlName="nameControl">
+                    </mat-form-field>
 
-            <!-- Comment -->
-            <mat-form-field appearance="fill" class="control-full-width">
-                <mat-label>{{'Common.Comment' | transloco}}</mat-label>
-                <input matInput type="text" placeholder="Comment" formControlName="commentControl">
-            </mat-form-field>
-        </form>
+                    <!-- Comment -->
+                    <mat-form-field appearance="fill" class="control-full-width">
+                        <mat-label>{{'Common.Comment' | transloco}}</mat-label>
+                        <input matInput type="text" placeholder="Comment" formControlName="commentControl">
+                    </mat-form-field>
+                </form>
+            </mat-expansion-panel>
 
-        <!-- Administrive fields -->
-        <div *ngIf="!isCreateMode && itemObject" fxLayout="row" class="control-full-width">
-            <div fxFlex="50">
-                <mat-form-field appearance="fill" class="control-full-width">
-                    <mat-label>{{'CreatedAt' | transloco}}</mat-label>
-                    <input matInput type="text" disabled placeholder="{{'CreatedAt' | transloco}}" [ngModel]="itemObject.CreatedAt | date: 'yyyy-M-d HH:mm:ss'">
-                </mat-form-field>
-            </div>
+            <mat-expansion-panel *ngIf="!isCreateMode && itemObject">
+                <mat-expansion-panel-header>
+                    <mat-panel-title>{{'Administrative' | transloco}}</mat-panel-title>
+                    <mat-panel-description>{{'AdministrativeInfo' | transloco}}<mat-icon>info</mat-icon></mat-panel-description>
+                </mat-expansion-panel-header>
 
-            <div fxFlex="50">
-                <mat-form-field appearance="fill" class="control-full-width">
-                    <mat-label>{{'ModifiedAt' | transloco}}</mat-label>
-                    <input matInput type="text" disabled placeholder="{{'ModifiedAt' | transloco}}" [ngModel]="itemObject.ModifiedAt | date: 'yyyy-M-d HH:mm:ss'">
-                </mat-form-field>
-            </div>
-        </div>
+                <!-- Administrive fields -->
+                <div fxLayout="row" class="control-full-width">
+                    <div fxFlex="50">
+                        <mat-form-field appearance="fill" class="control-full-width">
+                            <mat-label>{{'CreatedAt' | transloco}}</mat-label>
+                            <input matInput type="text" disabled placeholder="{{'CreatedAt' | transloco}}" [ngModel]="itemObject.CreatedAt | date: 'yyyy-M-d HH:mm:ss'">
+                        </mat-form-field>
+                    </div>
+
+                    <div fxFlex="50">
+                        <mat-form-field appearance="fill" class="control-full-width">
+                            <mat-label>{{'ModifiedAt' | transloco}}</mat-label>
+                            <input matInput type="text" disabled placeholder="{{'ModifiedAt' | transloco}}" [ngModel]="itemObject.ModifiedAt | date: 'yyyy-M-d HH:mm:ss'">
+                        </mat-form-field>
+                    </div>
+                </div>
+            </mat-expansion-panel>
+        </mat-accordion>
 
         <!-- Items -->
         <mat-toolbar-row>
@@ -65,8 +80,14 @@
                         <th mat-header-cell *matHeaderCellDef>ID</th>
                         <td mat-cell *matCellDef="let row">
                             {{row.RefID}}
-                            <button mat-icon-button color="warn" [disabled]="!isEditable" (click)="onDeleteItem(row)" matTooltip="{{'Common.Delete' | transloco}}">
-                                <mat-icon>remove_circle</mat-icon>
+                            <button mat-icon-button color="primary" (click)="onDisplayExerciseItem(row.RefID)" matTooltip="{{'Common.Display' | transloco}}">
+                              <mat-icon>launch</mat-icon>
+                            </button>
+                            <button mat-icon-button color="accent" (click)="onChangeExerciseItem(row.RefID)" matTooltip="{{'Common.Change' | transloco}}">
+                              <mat-icon>edit</mat-icon>
+                            </button>
+                            <button mat-icon-button color="warn" (click)="onDeleteCollItem(row)" matTooltip="{{'Common.Delete' | transloco}}">
+                              <mat-icon>remove_circle</mat-icon>
                             </button>    
                         </td>
                     </ng-container>

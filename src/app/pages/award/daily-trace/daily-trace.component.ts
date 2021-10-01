@@ -2,10 +2,9 @@
 import { Component, Inject, OnInit } from '@angular/core';
 import { MatDialog, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import moment from 'moment';
-import { MatSnackBar } from '@angular/material/snack-bar';
 
 import { AwardPoint, DailyTrace, momentDateFormat } from 'src/app/models';
-import { ODataService } from 'src/app/services';
+import { ODataService, UIUtilityService } from 'src/app/services';
 
 @Component({
   selector: 'app-daily-trace',
@@ -26,7 +25,7 @@ export class DailyTraceComponent implements OnInit {
 
   constructor(private odataSrv: ODataService,
     public dialog: MatDialog,
-    public snackBar: MatSnackBar) { }
+    private uiUtilSrv: UIUtilityService,) { }
 
   ngOnInit(): void {
     this.refreshList();
@@ -53,7 +52,7 @@ export class DailyTraceComponent implements OnInit {
             this.refreshList();
           },
           error: err => {
-            this.snackBar.open(err, undefined, { duration: 2000 });
+            this.uiUtilSrv.showSnackInfo(err);
           }
         });
       }
@@ -67,7 +66,7 @@ export class DailyTraceComponent implements OnInit {
         this.traceLength = val.totalCount;
       },
       error: err => {
-        this.snackBar.open(err, undefined, { duration: 2000 });
+        this.uiUtilSrv.showSnackInfo(err);
       }
     });
   }
@@ -85,7 +84,7 @@ export class DailyTraceComponent implements OnInit {
         this.isPointShow = true;
       },
       error: err => {
-        this.snackBar.open(err, undefined, { duration: 2000 });
+        this.uiUtilSrv.showSnackInfo(err);
       }
     });
   }
@@ -96,7 +95,7 @@ export class DailyTraceComponent implements OnInit {
         this.refreshList();
       },
       error: err => {
-        this.snackBar.open(err, undefined, { duration: 2000 });
+        this.uiUtilSrv.showSnackInfo(err);
       }
     });
   }
@@ -114,7 +113,7 @@ export class DailyTraceComponent implements OnInit {
         this.onGetPoints(this.selectedUser, moment(this.selectedDate));
       },
       error: err => {
-        this.snackBar.open(err, undefined, { duration: 2000 });
+        this.uiUtilSrv.showSnackInfo(err);
       }
     });
   }

@@ -1,16 +1,12 @@
 import { Component, OnInit, OnDestroy, ViewChild } from '@angular/core';
 import { FormGroup, FormControl, Validators } from '@angular/forms';
 import { ReplaySubject } from 'rxjs';
-import { COMMA, ENTER } from '@angular/cdk/keycodes';
-import { ActivatedRoute, Router } from '@angular/router';
+import { ActivatedRoute, } from '@angular/router';
 import { MatDialog } from '@angular/material/dialog';
-import { KatexOptions } from 'ngx-markdown';
-import { MatChipInputEvent } from '@angular/material/chips';
 
 import { UIMode } from 'actslib';
 import { UserCollection, UserCollectionItem } from 'src/app/models';
-import { ODataService } from 'src/app/services';
-import { MatSnackBar } from '@angular/material/snack-bar';
+import { ODataService, UIUtilityService, } from 'src/app/services';
 
 @Component({
   selector: 'app-user-collection-detail',
@@ -45,9 +41,8 @@ export class UserCollectionDetailComponent implements OnInit, OnDestroy {
   }
 
   constructor(public dialog: MatDialog,
-    private snackBar: MatSnackBar,
     private activateRoute: ActivatedRoute,
-    private router: Router,
+    private uiUtilSrv: UIUtilityService,
     private odataService: ODataService) {
       this.itemFormGroup = new FormGroup({
       idControl: new FormControl({
@@ -93,13 +88,13 @@ export class UserCollectionDetailComponent implements OnInit, OnDestroy {
                 this.dataSource = exitem.Items;
               },
               error: err => {
-                console.error(err);
+                this.uiUtilSrv.showSnackInfo(err);
               }
             });
         }
       },
       error: err => {
-        console.error(err);
+        this.uiUtilSrv.showSnackInfo(err);
       }
     });
   }
@@ -130,7 +125,7 @@ export class UserCollectionDetailComponent implements OnInit, OnDestroy {
       if (!this.itemFormGroup.valid) {
         if (this.itemFormGroup.errors) {
           const err = this.itemFormGroup.errors;
-          console.error(err);
+          this.uiUtilSrv.showSnackInfo(err.toString());
         }
         return;
       }
@@ -143,36 +138,41 @@ export class UserCollectionDetailComponent implements OnInit, OnDestroy {
       this.odataService.createUserCollection(this.itemObject).subscribe({
         next: val => {
           // Display current collection
-          this.router.navigate(['/user-collection/display', val.ID]);
+          this.uiUtilSrv.navigateUserCollectionDisplayPage(val.ID); ;
         },
         error: err => {
-          // Error
-          console.error(err);
+          this.uiUtilSrv.showSnackInfo(err);
         }
       });
     } else if (this.isUpdateMode) {
     }
   }
   public onReturnToList(): void {
-    this.router.navigate(['user-collection']);
+    this.uiUtilSrv.navigateUserCollectionListPage();
   }
   public onCreateNewOne(): void {
-    this.router.navigate(['user-collection', 'create']);
+    this.uiUtilSrv.navigateUserCollectionCreatePage();
   }
   public onCreateItem(): void {
   }
-  public onDeleteItem(row: UserCollectionItem): void {
+  public onDeleteCollItem(row: UserCollectionItem): void {
     this.odataService.removeExerciseItemFromCollection(row).subscribe({
       next: val => {
-        this.snackBar.open('DONE', undefined, { duration: 2000 });
+        this.uiUtilSrv.showSnackInfo('DONE');
         const idx = this.dataSource.findIndex(item => item.RefID === row.RefID && item.RefType === row.RefType);
         if (idx !== -1) {
           this.dataSource.splice(idx, 1);
         }
       },
       error: err => {
-        this.snackBar.open(err, undefined, { duration: 2000 });
+        this.uiUtilSrv.showSnackInfo(err);
       }
     });
+  }
+  public onDisplayExerciseItem(rid: number): void {
+    this.uiUtilSrv.navigateExerciseItemDisplayPage(rid);
+  }
+  public onChangeExerciseItem(rid: number): void {
+    this.uiUtilSrv.navigateExerciseItemChangePage(rid);
   }
 }

@@ -1,12 +1,11 @@
 import { Component, EventEmitter, ViewChild, AfterViewInit } from '@angular/core';
 import { MatPaginator } from '@angular/material/paginator';
 import { MatSort } from '@angular/material/sort';
-import { Router } from '@angular/router';
 import { merge, Observable, of as observableOf } from 'rxjs';
 import { catchError, map, startWith, switchMap } from 'rxjs/operators';
 
 import { TagReferenceType, UserCollection } from 'src/app/models';
-import { ODataService, PreviewObject } from '../../../services';
+import { ODataService, PreviewObject, UIUtilityService, } from '../../../services';
 
 @Component({
   selector: 'app-user-collection',
@@ -24,7 +23,7 @@ export class UserCollectionComponent implements AfterViewInit {
   @ViewChild(MatSort) sort!: MatSort;
 
   constructor(private odataService: ODataService,
-    private router: Router) {}
+    private uiUtilSrv: UIUtilityService) {}
 
   get isExpertMode(): boolean {
     return this.odataService.expertMode;
@@ -74,8 +73,7 @@ export class UserCollectionComponent implements AfterViewInit {
         });
       }
     });
-    this.odataService.previewObjList = arobj;
-    this.router.navigate(['preview']);
+    this.uiUtilSrv.navigatePreviewPage(arobj);
   }
 
   public onDeleteItem(itemid: number): void {

@@ -2,7 +2,7 @@ import { Component, OnInit, OnDestroy, ViewChild } from '@angular/core';
 import { FormGroup, FormControl, Validators } from '@angular/forms';
 import { ReplaySubject } from 'rxjs';
 import { COMMA, ENTER } from '@angular/cdk/keycodes';
-import { ActivatedRoute, Router } from '@angular/router';
+import { ActivatedRoute, } from '@angular/router';
 import { MatDialog } from '@angular/material/dialog';
 import { KatexOptions } from 'ngx-markdown';
 import { MatChipInputEvent } from '@angular/material/chips';
@@ -10,7 +10,7 @@ import { UIMode } from 'actslib';
 import { MonacoEditorConstructionOptions } from '@materia-ui/ngx-monaco-editor';
 
 import { ExerciseItem, ExerciseItemType, getExerciseItemTypeNames } from '../../../models/exercise-item';
-import { ODataService } from '../../../services';
+import { ODataService, UIUtilityService, } from '../../../services';
 import { ImageUploadComponent } from '../../image-upload/image-upload.component';
 
 @Component({
@@ -60,10 +60,9 @@ export class ExerciseItemDetailComponent implements OnInit, OnDestroy {
     return this.uiMode === UIMode.Create || this.uiMode === UIMode.Update;
   }
 
-  constructor(
-    public dialog: MatDialog,
+  constructor(public dialog: MatDialog,
     private activateRoute: ActivatedRoute,
-    private router: Router,
+    private uiUtilSrv: UIUtilityService,
     private odataService: ODataService) {
       this.arExerciseTypes = getExerciseItemTypeNames();
       this.itemFormGroup = new FormGroup({
@@ -114,7 +113,7 @@ export class ExerciseItemDetailComponent implements OnInit, OnDestroy {
         }
       },
       error: err => {
-        console.error(err);
+        this.uiUtilSrv.showSnackInfo(err);
       }
     });
   }
@@ -145,12 +144,11 @@ export class ExerciseItemDetailComponent implements OnInit, OnDestroy {
       this.itemObject.Answer = this.answerContent;
       this.odataService.createExerciseItem(this.itemObject).subscribe({
         next: val => {
-          // Display current reason
-          this.router.navigate(['/exercise-item/display', val.ID]);
+          // Display current exercise item
+          this.uiUtilSrv.navigateExerciseItemDisplayPage(val.ID);
         },
         error: err => {
-          // Error
-          console.error(err);
+          this.uiUtilSrv.showSnackInfo(err);
         }
       });
     } else if (this.isUpdateMode) {
@@ -170,12 +168,11 @@ export class ExerciseItemDetailComponent implements OnInit, OnDestroy {
         this.itemObject.Answer = this.answerContent;
         this.odataService.changeExerciseItem(this.itemObject).subscribe({
           next: val => {
-            // Display current reason
-            this.router.navigate(['/exercise-item/display', val.ID]);
+            // Display current exercise item
+            this.uiUtilSrv.navigateExerciseItemDisplayPage(val.ID);
           },
           error: err => {
-            // Error
-            console.error(err);
+            this.uiUtilSrv.showSnackInfo(err);
           }
         });
       }
@@ -262,10 +259,10 @@ export class ExerciseItemDetailComponent implements OnInit, OnDestroy {
   }
 
   onReturnToList() {
-    this.router.navigate(['exercise-item']);
+    this.uiUtilSrv.navigateExerciseItemListPage();
   }
 
   onCreateNewOne(): void {
-    this.router.navigate(['exercise-item', 'create']);
+    this.uiUtilSrv.navigateExerciseItemCreatePage();
   }
 }

@@ -81,9 +81,16 @@ In this case:
 - monaco-editor
 
 
-# Author  
+## Author
 
-Alva Chien | 钱红俊
+**Alva Chien | 钱红俊**
 
+A programmer, a Photographer, and a father. 
 
+Contact me:
 
+1. Via mail: alvachien@163.com. Or,
+2. [Check my website](https://www.alvachien.com). 
+ 
+## License
+MIT

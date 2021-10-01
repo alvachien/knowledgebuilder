@@ -4,59 +4,72 @@
         <mat-card-subtitle>{{currentMode | transloco}}</mat-card-subtitle>
     </mat-card-header>
     <mat-card-content>
-        <form [formGroup]="itemFormGroup">
-            <!-- ID -->
-            <mat-form-field appearance="fill" class="control-full-width">
-                <mat-label>#</mat-label>
-                <input matInput type="text" placeholder="ID" formControlName="idControl">
-            </mat-form-field>
-
-            <!-- Item Type -->
-            <mat-form-field appearance="fill" class="control-full-width">
-                <mat-label>{{'Type' | transloco}}</mat-label>
-                <mat-select required formControlName="typeControl">
-                    <mat-option *ngFor="let et of arExerciseTypes" [value]="et.value">{{et.i18nterm | transloco}}</mat-option>
-                </mat-select>
-            </mat-form-field>
-
-            <!-- Tags -->
-            <mat-form-field appearance="fill" class="control-full-width">
-                <mat-label>{{'Tags' | transloco}}</mat-label>
-                <mat-chip-list #chipList formControlName="tagControl">
-                    <mat-chip *ngFor="let tag of tags" [selectable]="selectable" [removable]="isEditable"
-                        (removed)="removeTag(tag)">
-                        {{tag}}
-                        <mat-icon matChipRemove *ngIf="isEditable">cancel</mat-icon>
-                    </mat-chip>
-                    <input placeholder="New tag..." [matChipInputFor]="chipList"
-                        [matChipInputSeparatorKeyCodes]="separatorKeysCodes" [matChipInputAddOnBlur]="addOnBlur"
-                        (matChipInputTokenEnd)="addTag($event)">
-                </mat-chip-list>
-            </mat-form-field>
-
-            <!-- Knowledge Item -->
-            <mat-form-field appearance="fill" class="control-full-width">
-                <mat-label>{{'KnowledgeItem' | transloco}}</mat-label>
-                <input matInput type="text" placeholder="Knowledge ID" formControlName="knowledgeControl">
-            </mat-form-field>
-        </form>
-
-        <!-- Administrive fields -->
-        <div *ngIf="!isCreateMode && itemObject" fxLayout="row" class="control-full-width">
-            <div fxFlex="50">
-                <mat-form-field appearance="fill" class="control-full-width">
-                    <mat-label>{{'CreatedAt' | transloco}}</mat-label>
-                    <input matInput type="text" disabled placeholder="{{'CreatedAt' | transloco}}" [ngModel]="itemObject.CreatedAt | date: 'yyyy-M-d HH:mm:ss'">
-                </mat-form-field>
-            </div>
-
-            <div fxFlex="50">
-                <mat-form-field appearance="fill" class="control-full-width">
-                    <mat-label>{{'ModifiedAt' | transloco}}</mat-label>
-                    <input matInput type="text" disabled placeholder="{{'ModifiedAt' | transloco}}" [ngModel]="itemObject.ModifiedAt | date: 'yyyy-M-d HH:mm:ss'">
-                </mat-form-field>
-            </div>
-        </div>
+        <mat-accordion class="example-headers-align" multi>
+            <mat-expansion-panel expanded>
+                <mat-expansion-panel-header>
+                    <mat-panel-title>{{'Header' | transloco}}</mat-panel-title>
+                    <mat-panel-description>{{'HeaderInfo' | transloco}}<mat-icon>public</mat-icon></mat-panel-description>
+                </mat-expansion-panel-header>
+                <form [formGroup]="itemFormGroup">
+                    <!-- ID -->
+                    <mat-form-field appearance="fill" class="control-full-width">
+                        <mat-label>#</mat-label>
+                        <input matInput type="text" placeholder="ID" formControlName="idControl">
+                    </mat-form-field>
+        
+                    <!-- Item Type -->
+                    <mat-form-field appearance="fill" class="control-full-width">
+                        <mat-label>{{'Type' | transloco}}</mat-label>
+                        <mat-select required formControlName="typeControl">
+                            <mat-option *ngFor="let et of arExerciseTypes" [value]="et.value">{{et.i18nterm | transloco}}</mat-option>
+                        </mat-select>
+                    </mat-form-field>
+        
+                    <!-- Tags -->
+                    <mat-form-field appearance="fill" class="control-full-width">
+                        <mat-label>{{'Tags' | transloco}}</mat-label>
+                        <mat-chip-list #chipList formControlName="tagControl">
+                            <mat-chip *ngFor="let tag of tags" [selectable]="selectable" [removable]="isEditable"
+                                (removed)="removeTag(tag)">
+                                {{tag}}
+                                <mat-icon matChipRemove *ngIf="isEditable">cancel</mat-icon>
+                            </mat-chip>
+                            <input placeholder="New tag..." [matChipInputFor]="chipList"
+                                [matChipInputSeparatorKeyCodes]="separatorKeysCodes" [matChipInputAddOnBlur]="addOnBlur"
+                                (matChipInputTokenEnd)="addTag($event)">
+                        </mat-chip-list>
+                    </mat-form-field>
+        
+                    <!-- Knowledge Item -->
+                    <mat-form-field appearance="fill" class="control-full-width">
+                        <mat-label>{{'KnowledgeItem' | transloco}}</mat-label>
+                        <input matInput type="text" placeholder="Knowledge ID" formControlName="knowledgeControl">
+                    </mat-form-field>
+                </form>
+            </mat-expansion-panel>
+            <mat-expansion-panel *ngIf="!isCreateMode && itemObject">
+                <mat-expansion-panel-header>
+                    <mat-panel-title>{{'Administrative' | transloco}}</mat-panel-title>
+                    <mat-panel-description>{{'AdministrativeInfo' | transloco}}<mat-icon>info</mat-icon></mat-panel-description>
+                </mat-expansion-panel-header>
+                <!-- Administrive fields -->
+                <div  fxLayout="row" class="control-full-width">
+                    <div fxFlex="50">
+                        <mat-form-field appearance="fill" class="control-full-width">
+                            <mat-label>{{'CreatedAt' | transloco}}</mat-label>
+                            <input matInput type="text" disabled placeholder="{{'CreatedAt' | transloco}}" [ngModel]="itemObject.CreatedAt | date: 'yyyy-M-d HH:mm:ss'">
+                        </mat-form-field>
+                    </div>
+        
+                    <div fxFlex="50">
+                        <mat-form-field appearance="fill" class="control-full-width">
+                            <mat-label>{{'ModifiedAt' | transloco}}</mat-label>
+                            <input matInput type="text" disabled placeholder="{{'ModifiedAt' | transloco}}" [ngModel]="itemObject.ModifiedAt | date: 'yyyy-M-d HH:mm:ss'">
+                        </mat-form-field>
+                    </div>
+                </div>
+            </mat-expansion-panel>
+        </mat-accordion>
 
         <!-- Content -->
         <mat-toolbar *ngIf="isCreateMode">

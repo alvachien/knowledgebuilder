@@ -10,11 +10,6 @@ import { ExerciseItem, ExerciseItemSearchResult, TagCount, Tag, KnowledgeItem, T
 import { environment } from '../../environments/environment';
 import moment from 'moment';
 
-export interface PreviewObject {
-  refType: TagReferenceType;
-  refId: number;
-}
-
 @Injectable({
   providedIn: 'root'
 })
@@ -31,8 +26,7 @@ export class ODataService {
   private mockedExerciseItem: ExerciseItem[] = [];
   // Mockdata - user collection
   private mockedUserCollection: UserCollection[] = [];
-  // Preview objects
-  previewObjList: PreviewObject[] = [];
+  // Buffers
   bufferedKnowledgeItems: KnowledgeItem[] = [];
   bufferedExerciseItems: ExerciseItem[] = [];
   bufferedUserCollection: UserCollection[] = [];
