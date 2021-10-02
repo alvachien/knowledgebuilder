@@ -1,121 +1,131 @@
 <mat-toolbar>
-    <h3>RULE GENERATION</h3>
+    <h3>AWARD RULE GENERATION</h3>
     <div class="toolbar-spacer"></div>
 </mat-toolbar>
 
-<mat-accordion class="example-headers-align">
-  <mat-expansion-panel [expanded]="step === 0" (opened)="setStep(0)" hideToggle>
-    <mat-expansion-panel-header>
-      <mat-panel-title>
-        Personal data
-      </mat-panel-title>
-      <mat-panel-description>
-        Type your name and age
-        <mat-icon>account_circle</mat-icon>
-      </mat-panel-description>
-    </mat-expansion-panel-header>
-    <form>
+<mat-vertical-stepper linear #stepper>
+  <mat-step [stepControl]="firstFormGroup">
+    <form [formGroup]="firstFormGroup">
+      <ng-template matStepLabel>HEADER</ng-template>
       <!-- Target user -->
       <mat-form-field class="control-full-width" appearance="fill">
-          <mat-label>{{'Award.TargetUser' | transloco}}</mat-label>
-          <input matInput [(ngModel)]="data.targetUser" name="targetuser">
+        <mat-label>{{'Award.TargetUser' | transloco}}</mat-label>
+        <input matInput [(ngModel)]="targetUser" name="targetuser">
       </mat-form-field>
 
       <!-- Validity range -->
       <mat-form-field appearance="fill">
-          <mat-label>{{'Award.Validity' | transloco}}</mat-label>
-          <mat-date-range-input [rangePicker]="picker">
-          <input matStartDate [(ngModel)]="data.validFrom" placeholder="Start date" name="validfrom">
-          <input matEndDate  [(ngModel)]="data.validTo" placeholder="End date" name="validto">
-          </mat-date-range-input>
-          <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
-          <mat-date-range-picker #picker></mat-date-range-picker>
-          <!-- <mat-error *ngIf="range.controls.start.hasError('matStartDateInvalid')">Invalid start date</mat-error>
-          <mat-error *ngIf="range.controls.end.hasError('matEndDateInvalid')">Invalid end date</mat-error> -->
+        <mat-label>{{'Award.Validity' | transloco}}</mat-label>
+        <mat-date-range-input [rangePicker]="picker">
+        <input matStartDate [(ngModel)]="validFrom" placeholder="Start date" name="validfrom">
+        <input matEndDate [(ngModel)]="validTo" placeholder="End date" name="validto">
+        </mat-date-range-input>
+        <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
+        <mat-date-range-picker #picker></mat-date-range-picker>
+        <!-- <mat-error *ngIf="range.controls.start.hasError('matStartDateInvalid')">Invalid start date</mat-error>
+        <mat-error *ngIf="range.controls.end.hasError('matEndDateInvalid')">Invalid end date</mat-error> -->
       </mat-form-field>
 
       <mat-form-field appearance="fill" class="control-full-width">
-          <mat-label>{{'Type' | transloco}}</mat-label>
-          <mat-select required [(ngModel)]="data.ruleType" name="ruletype">
-              <mat-option *ngFor="let et of arRuleTypes" [value]="et.value">{{et.i18nterm | transloco}}</mat-option>
-          </mat-select>
+        <mat-label>{{'Type' | transloco}}</mat-label>
+        <mat-select required [(ngModel)]="selectedRuleType" name="ruletype">
+          <mat-option *ngFor="let et of arRuleTypes" [value]="et.value">{{et.i18nterm | transloco}}</mat-option>
+        </mat-select>
       </mat-form-field>
+      <div>
+        <button mat-button color="primary" matStepperNext>Next</button>
+      </div>
     </form>
-    <mat-action-row>
-      <button mat-button color="primary" (click)="nextStep()">Next</button>
-    </mat-action-row>
-  </mat-expansion-panel>
+  </mat-step>
 
-  <mat-expansion-panel [expanded]="step === 1" (opened)="setStep(1)" hideToggle>
-    <mat-expansion-panel-header>
-      <mat-panel-title>
-        Destination
-      </mat-panel-title>
-      <mat-panel-description>
-        Type the country name
-        <mat-icon>map</mat-icon>
-      </mat-panel-description>
-    </mat-expansion-panel-header>
-    <mat-form-field>
-      <mat-label>Country</mat-label>
-      <input matInput>
-    </mat-form-field>
-    <mat-action-row>
-      <button mat-button color="warn" (click)="prevStep()">Previous</button>
-      <button mat-button color="primary" (click)="nextStep()">Next</button>
-    </mat-action-row>
-  </mat-expansion-panel>
+  <mat-step [stepControl]="secondFormGroup">
+    <form [formGroup]="secondFormGroup">
+      <ng-template matStepLabel>DIMENSION</ng-template>
+      <mat-form-field>
+        <mat-label>Dimension</mat-label>
+        <input matInput [(ngModel)]="rawDimension" (ngModelChange)="onDimensionChange($event)">
+      </mat-form-field>
+      <mat-list dense *ngFor="let dim of dimensions">
+        <mat-list-item>{{dim.toString()}}</mat-list-item>
+      </mat-list>
+      <div>
+        <button mat-button matStepperPrevious>Back</button>
+        <button mat-button color="primary" matStepperNext>Next</button>
+      </div>
+    </form>
+  </mat-step>
 
-  <mat-expansion-panel [expanded]="step === 2" (opened)="setStep(2)" hideToggle>
-    <mat-expansion-panel-header>
-      <mat-panel-title>
-        Day of the trip
-      </mat-panel-title>
-      <mat-panel-description>
-        Inform the date you wish to travel
-        <mat-icon>date_range</mat-icon>
-      </mat-panel-description>
-    </mat-expansion-panel-header>
-    <table mat-table [dataSource]="dataSource">
-      <ng-container [matColumnDef]="col" *ngFor="let col of displayedColumns">
-        <th mat-header-cell *matHeaderCellDef>
-          <span *ngIf="col !== 'edit'">
-            {{col}}
-          </span>
-        </th>
-        <td mat-cell *matCellDef="let element">
-          <div *ngIf="!element.isEdit">
-            <div class="btn-edit" *ngIf="col === 'edit'; spanHeader">
-              <button (click)="element.isEdit = !element.isEdit">Edit</button>
-            </div>
-            <span #spanHeader>
-              {{element[col]}}
+  <mat-step [stepControl]="thirdFormGroup">
+    <form [formGroup]="thirdFormGroup">
+      <ng-template matStepLabel>DAYS</ng-template>
+      <mat-form-field>
+        <mat-label>Continued Days</mat-label>
+        <input matInput [(ngModel)]="rawContDay" (ngModelChange)="onContDayChange($event)">
+      </mat-form-field>
+      <mat-list dense *ngFor="let cd of contDays">
+        <mat-list-item>{{cd.toString()}}</mat-list-item>
+      </mat-list>
+      <div>
+        <button mat-button matStepperPrevious>Back</button>
+        <button mat-button color="primary" matStepperNext>Next</button>
+      </div>
+    </form>
+  </mat-step>
+
+  <mat-step>
+    <ng-template matStepLabel>POINTS</ng-template>
+    <ng-template matStepContent>
+      <table mat-table [dataSource]="dataSource">
+        <ng-container [matColumnDef]="col" *ngFor="let col of displayedColumns">
+          <th mat-header-cell *matHeaderCellDef>
+            <span *ngIf="col !== 'edit'">
+              {{col}}
             </span>
-          </div>
-          <div [ngSwitch]="dataSchema[col]" *ngIf="element.isEdit">
-            <div class="btn-edit" *ngSwitchCase="'edit'">
-              <button (click)="element.isEdit = !element.isEdit">Done</button>
+          </th>
+          <td mat-cell *matCellDef="let element">
+            <div *ngIf="!element.isEdit">
+              <div class="btn-edit" *ngIf="col === 'edit'; spanHeader">
+                <button (click)="element.isEdit = !element.isEdit">Edit</button>
+              </div>
+              <span #spanHeader>
+                {{element[col]}}
+              </span>
             </div>
-            <mat-form-field *ngSwitchCase="'date'" appearance="fill">
-              <mat-label>Choose a date</mat-label>
-              <input matInput [matDatepicker]="picker" [(ngModel)]="element[col]">
-              <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
-              <mat-datepicker #picker></mat-datepicker>
-            </mat-form-field>
-            <mat-form-field *ngSwitchDefault>
-              <mat-label>{{col}}</mat-label>
-              <input [type]="dataSchema[col]" matInput [(ngModel)]="element[col]">
-            </mat-form-field>
-          </div>
-        </td>
-      </ng-container>
-      <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
-      <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
-    </table>    
-    <mat-action-row>
-      <button mat-button color="warn" (click)="prevStep()">Previous</button>
-      <button mat-button color="primary" (click)="nextStep()">End</button>
-    </mat-action-row>
-  </mat-expansion-panel>
-</mat-accordion>
+            <div [ngSwitch]="dataSchema[col]" *ngIf="element.isEdit">
+              <div class="btn-edit" *ngSwitchCase="'edit'">
+                <button (click)="element.isEdit = !element.isEdit">Done</button>
+              </div>
+              <mat-form-field *ngSwitchCase="'date'" appearance="fill">
+                <mat-label>Choose a date</mat-label>
+                <input matInput [matDatepicker]="picker" [(ngModel)]="element[col]">
+                <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
+                <mat-datepicker #picker></mat-datepicker>
+              </mat-form-field>
+              <mat-form-field *ngSwitchDefault>
+                <mat-label>{{col}}</mat-label>
+                <input [type]="dataSchema[col]" matInput [(ngModel)]="element[col]">
+              </mat-form-field>
+            </div>
+          </td>
+        </ng-container>
+        <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+        <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+      </table>    
+  
+      <button mat-button matStepperPrevious>Back</button>
+      <button mat-button color="primary" matStepperNext>Next</button>
+    </ng-template>
+  </mat-step>
+
+  <mat-step>
+    <ng-template matStepLabel>POINTS</ng-template>
+    <ng-template matStepContent>
+      <p>You are now done.</p>
+      <div>
+        <button mat-button matStepperPrevious>Back</button>
+        <button mat-button (click)="stepper.reset()">Reset</button>
+      </div>
+    </ng-template>
+  </mat-step>
+</mat-vertical-stepper>
 
