@@ -25,16 +25,14 @@ class ContinuedDaysInfo {
 
 class PointInfo {
   dimInfo: DimensionInfo;
+  // dataSchema: { [key: string]: any } = {
+  //   point: 'number',
+  //   edit: 'edit',
+  // };
   // condInfo: ContinuedDaysInfo;
-  points: {index: number; point: number}[] = [];
+  points: { [key: string]: number } = {};
   isEdit = false;
 
-  public getPoints(col: string): number {
-    if (col && col.startsWith('days')) {
-      return +col.replace('days', '');
-    }
-    return -1;
-  }
   constructor(dim: DimensionInfo, ) {
     this.dimInfo = dim;
   }
@@ -43,7 +41,7 @@ class PointInfo {
 @Component({
   selector: 'app-award-rule-generation',
   templateUrl: './award-rule-generation.component.html',
-  styleUrls: ['./award-rule-generation.component.scss']
+  styleUrls: ['./award-rule-generation.component.scss'],
 })
 export class AwardRuleGenerationComponent implements OnInit {
   // Step 1: HEADER
@@ -57,11 +55,8 @@ export class AwardRuleGenerationComponent implements OnInit {
   contDays: ContinuedDaysInfo[] = [];
   // Step 4: POINTS
   displayedColumns: string[] = ['dimension'];
-  dataSchema: { [key: string]: any } = {
-    point: 'number',
-    edit: 'edit',
-  };
   dataSource: PointInfo[] = [];
+  pointCompleted = false;
   // Step 5.
 
   constructor(private _formBuilder: FormBuilder,
@@ -184,21 +179,43 @@ export class AwardRuleGenerationComponent implements OnInit {
     this.displayedColumns = ['dimension'];
 
     // Columns
+    const arDays: string[] = [];
     for(let i = 0; i < this.contDays.length; i ++) {
-      this.displayedColumns.push(`days${i}`);
+      arDays.push(`days${i}`);
     }
+    this.displayedColumns.push(...arDays);
 
     // Initialize data
     this.dimensions.forEach(dim => {
       const pi = new PointInfo(dim);
-      for(let i = 0; i < this.contDays.length; i ++) {
-        pi.points.push({
-          index: i,
-          point: 0
-        });
-      }
+      arDays.forEach(ad => {
+        pi.points[ad] = 0;
+      });
       this.dataSource.push(pi);
     });
+  }
+  public onPointCellChanged(event: any): void {
+    let failcnt = 0;
+    this.dataSource.forEach(row => {
+      //let cells = '';
+      // for (const k in row.points) {
+      //   const s = row.points[k];
+      //   cells = `${cells} ${s}`;
+      // }
+      Object.keys(row.points).forEach(key => {
+        if (isNaN(row.points[key])) {
+          failcnt++;
+        } else {
+          if (row.points[key] === 0) {
+            failcnt++;
+          }
+        }
+        // cells = `${cells} ${row.points[key]}`;
+      });
+      // console.log(`${row.dimInfo.toString()}: ${cells}`);
+    });
+
+    this.pointCompleted = failcnt === 0 ? true : false;
   }
   public getColumnHeaderForDays(col: string): string {
     if (col && col.startsWith('days')) {

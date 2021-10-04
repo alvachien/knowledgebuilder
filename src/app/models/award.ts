@@ -78,6 +78,27 @@ export const getAwardRuleTypeNames = (): any[] => {
 
     return rtn;
 };
+export class AwardRuleHeader {
+    id = -1;
+    ruleType: AwardRuleTypeEnum = AwardRuleTypeEnum.GoToBedTime;
+    targetUser = '';
+    desp = '';
+    validFrom: moment.Moment = moment();
+    validTo: moment.Moment = moment();
+}
+
+export class AwardRuleDetail {
+    ruleID = -1;
+    DetailID = -1;
+    countOfFactLow?: number;
+    countOfFactHigh?: number;
+    doneOfFact?: boolean;
+    timeStart?: number;
+    timeEnd?: number;
+    daysFrom?: number;
+    daysTo?: number;
+    point = 0;
+}
 
 export class AwardRule {
     id = -1;

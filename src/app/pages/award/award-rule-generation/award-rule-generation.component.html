@@ -72,7 +72,7 @@
     </form>
   </mat-step>
 
-  <mat-step>
+  <mat-step [completed]="pointCompleted">
     <ng-template matStepLabel>POINTS</ng-template>
     <mat-toolbar>
       <button mat-raised-button>RESET RULES</button>
@@ -93,7 +93,7 @@
             {{element.dimInfo.toString()}}
           </span>
           <span *ngIf="col !== 'dimension'">
-            <input matInput type="number" [(ngModel)]="element.points[element.getPoints(col)].point">
+            <input matInput type="number" [(ngModel)]="element.points[col]" (ngModelChange)="onPointCellChanged($event)">
           </span>
         </td>
       </ng-container>
@@ -102,7 +102,7 @@
     </table>    
 
     <button mat-button matStepperPrevious>BACK</button>
-    <button mat-button color="primary" matStepperNext>NEXT</button>
+    <button mat-button color="primary" [disabled]="!pointCompleted" matStepperNext>NEXT</button>
   </mat-step>
 
   <mat-step>
@@ -111,7 +111,8 @@
       <p>You are now done.</p>
       <div>
         <button mat-button matStepperPrevious>BACK</button>
-        <button mat-button (click)="stepper.reset()">RESET</button>
+        <button mat-button color="primary" (click)="">SAVE</button>
+        <button mat-button color="warn" (click)="stepper.reset()">RESET</button>
       </div>
     </ng-template>
   </mat-step>
