@@ -525,3 +525,8 @@ export class AwardPointReport {
         }
     }
 }
+
+export class AwardUser {
+    public targetUser = '';
+    public supervisor = '';
+}

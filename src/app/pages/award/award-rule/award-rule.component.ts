@@ -86,4 +86,7 @@ export class AwardRuleComponent implements OnInit {
       }
     });
   }
+  public onDisplayRuleGroup(gid: number): void {
+    // Display the group
+  }
 }

@@ -73,6 +73,9 @@ export class UIUtilityService {
   public navigateAwardRuleGroupListPage(): void {
     this.router.navigate(['award', 'rules']);
   }
+  public navigateAwardRuleGroupDisplayPage(gid: number): void {
+    this.router.navigate(['award', 'rule-group-display', gid.toString()]);
+  }
 
   public showSnackInfo(info: string, duration = 2000): void {
     this.snack.open(info, undefined, { duration });

@@ -6,7 +6,7 @@ import { map, catchError } from 'rxjs/operators';
 
 import { ExerciseItem, ExerciseItemSearchResult, TagCount, Tag, KnowledgeItem, TagReferenceType, OverviewInfo,
   AwardRuleGroup, AwardRuleDetail, AwardRule, DailyTrace, AwardPoint, AwardPointReport, momentDateFormat,
-  UserCollection, ExerciseItemUserScore, UserCollectionItem, } from '../models';
+  UserCollection, ExerciseItemUserScore, UserCollectionItem, AwardUser, } from '../models';
 import { environment } from '../../environments/environment';
 import moment from 'moment';
 
@@ -30,6 +30,8 @@ export class ODataService {
   bufferedKnowledgeItems: KnowledgeItem[] = [];
   bufferedExerciseItems: ExerciseItem[] = [];
   bufferedUserCollection: UserCollection[] = [];
+  bufferedAwardUser: AwardUser[] = [];
+  bufferedAwardRuleGroup: AwardRuleGroup[] = [];
   // Current user
   public currentUser: string;
   private mockModeFailMsg = 'Cannot perform required opertion in mock mode';
@@ -696,17 +698,55 @@ export class ODataService {
       .pipe(map(response => {
         const rjs = response as any;
         const ritems = rjs.value as any[];
-        const items: AwardRuleGroup[] = [];
+        this.bufferedAwardRuleGroup = [];
         ritems.forEach(item => {
           const rit: AwardRuleGroup = new AwardRuleGroup();
           rit.parseData(item);
-          items.push(rit);
+          this.bufferedAwardRuleGroup.push(rit);
         });
 
         return {
           totalCount: rjs['@odata.count'],
-          items,
+          items: this.bufferedAwardRuleGroup,
         };
+      }),
+      catchError((error: HttpErrorResponse) => throwError(error.statusText + '; ' + error.error + '; ' + error.message) ));
+  }
+  public getAwardRuleGroup(grpid: number): Observable<AwardRuleGroup> {
+    if (environment.mockdata) {
+      return throwError(this.mockModeFailMsg);
+    } else {
+      if (!this.expertMode) {
+        return throwError(this.expertModeFailMsg);
+      }
+    }
+
+    const idx = this.bufferedAwardRuleGroup.findIndex(rg => rg.id === grpid);
+    if (idx !== -1) {
+      return of(this.bufferedAwardRuleGroup[idx]);
+    }
+
+    let headers: HttpHeaders = new HttpHeaders();
+    headers = headers.append('Content-Type', 'application/json')
+      .append('Accept', 'application/json');
+    let params: HttpParams = new HttpParams();
+    params = params.append('$expand', 'Rules');
+    params = params.append('$filter', `ID eq ${grpid}`);
+    const apiurl = `${this.apiUrl}AwardRuleGroups`;
+
+    return this.http.get(apiurl, {
+      headers,
+      params,
+    })
+      .pipe(map(response => {
+        const rjs = response as any;
+        const ritem = rjs.value as any;
+        const rit: AwardRuleGroup = new AwardRuleGroup();
+        rit.parseData(ritem);
+
+        this.bufferedAwardRuleGroup.push(rit);
+
+        return rit;
       }),
       catchError((error: HttpErrorResponse) => throwError(error.statusText + '; ' + error.error + '; ' + error.message) ));
   }
@@ -751,7 +791,14 @@ export class ODataService {
     return this.http.delete(`${this.apiUrl}AwardRuleGroups(${rid})`, {
       headers
     })
-      .pipe(map(response => true),
+      .pipe(map(response => {
+        const idx = this.bufferedAwardRuleGroup.findIndex(rg => rg.id === rid);
+        if (idx !== -1) {
+          this.bufferedAwardRuleGroup.splice(idx, 1);
+        }
+
+        return true;
+      }),
       catchError((error: HttpErrorResponse) => throwError(error.statusText + '; ' + error.error + '; ' + error.message)
       ));
   }
@@ -1505,6 +1552,46 @@ export class ODataService {
         }
 
         return null;
+      }),
+      catchError((error: HttpErrorResponse) => throwError(error.statusText + '; ' + error.error + '; ' + error.message) ));
+  }
+
+  public getAwardUsers(): Observable<{ totalCount: number; items: AwardUser[] }> {
+    if (!this.expertMode) {
+      return of({totalCount: 0, items: []});
+    }
+
+    let headers: HttpHeaders = new HttpHeaders();
+    headers = headers.append('Content-Type', 'application/json')
+      .append('Accept', 'application/json');
+
+    let params: HttpParams = new HttpParams();
+    params = params.append('$count', 'true');
+    if (filter) {
+      params = params.append('$filter', `${filter} and User eq '${this.currentUser}'`);
+    } else {
+      params = params.append('$filter', `User eq '${this.currentUser}'`);
+    }
+    const apiurl = `${this.apiUrl}AwardUsers`;
+
+    return this.http.get(apiurl, {
+      headers,
+      params,
+    })
+      .pipe(map(response => {
+        const rjs = response as any;
+        const ritems = rjs.value as any[];
+        const items: ExerciseItemUserScore[] = [];
+        ritems.forEach(item => {
+          const rit: ExerciseItemUserScore = new ExerciseItemUserScore();
+          rit.parseData(item);
+          items.push(rit);
+        });
+
+        return {
+          totalCount: rjs['@odata.count'],
+          items,
+        };
       }),
       catchError((error: HttpErrorResponse) => throwError(error.statusText + '; ' + error.error + '; ' + error.message) ));
   }
