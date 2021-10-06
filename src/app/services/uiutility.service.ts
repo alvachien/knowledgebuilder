@@ -70,6 +70,9 @@ export class UIUtilityService {
   public navigateAwardRuleGenerationPage(): void {
     this.router.navigate(['award', 'rule-generation']);
   }
+  public navigateAwardRuleGroupListPage(): void {
+    this.router.navigate(['award', 'rules']);
+  }
 
   public showSnackInfo(info: string, duration = 2000): void {
     this.snack.open(info, undefined, { duration });

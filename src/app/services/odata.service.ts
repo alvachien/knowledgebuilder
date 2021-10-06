@@ -5,7 +5,7 @@ import { Observable, throwError, Subject, of } from 'rxjs';
 import { map, catchError } from 'rxjs/operators';
 
 import { ExerciseItem, ExerciseItemSearchResult, TagCount, Tag, KnowledgeItem, TagReferenceType, OverviewInfo,
-  AwardRule, DailyTrace, AwardPoint, AwardPointReport, momentDateFormat,
+  AwardRuleGroup, AwardRuleDetail, AwardRule, DailyTrace, AwardPoint, AwardPointReport, momentDateFormat,
   UserCollection, ExerciseItemUserScore, UserCollectionItem, } from '../models';
 import { environment } from '../../environments/environment';
 import moment from 'moment';
@@ -652,6 +652,103 @@ export class ODataService {
       .append('Accept', 'application/json');
 
     return this.http.delete(`${this.apiUrl}AwardRules(${rid})`, {
+      headers
+    })
+      .pipe(map(response => true),
+      catchError((error: HttpErrorResponse) => throwError(error.statusText + '; ' + error.error + '; ' + error.message)
+      ));
+  }
+
+  // Award Rule Group and Award Rule Detail
+  public getAwardRuleGroups(top = 30, skip = 0, sort?: string, filter?: string):
+    Observable<{ totalCount: number; items: AwardRuleGroup[] }> {
+    if (!this.expertMode) {
+      return of({
+        totalCount: 0,
+        items: []
+      });
+    }
+
+    let headers: HttpHeaders = new HttpHeaders();
+    headers = headers.append('Content-Type', 'application/json')
+      .append('Accept', 'application/json');
+
+    let params: HttpParams = new HttpParams();
+    params = params.append('$top', top.toString());
+    params = params.append('$skip', skip.toString());
+    params = params.append('$count', 'true');
+    params = params.append('$expand', 'Rules');
+    // params = params.append('$select',
+    //   'ID,RuleType,TargetUser,Desp,ValidFrom,ValidTo,CountOfFactLow,CountOfFactHigh,DoneOfFact,TimeStart,TimeEnd,DaysFrom,DaysTo,Point');
+    if (filter) {
+      params = params.append('$filter', filter);
+    }
+    const apiurl = `${this.apiUrl}AwardRuleGroups`;
+    // if (environment.mockdata) {
+    //   apiurl = `${environment.basehref}assets/mockdata/exercise-items.json`;
+    //   params = new HttpParams();
+    // }
+
+    return this.http.get(apiurl, {
+      headers,
+      params,
+    })
+      .pipe(map(response => {
+        const rjs = response as any;
+        const ritems = rjs.value as any[];
+        const items: AwardRuleGroup[] = [];
+        ritems.forEach(item => {
+          const rit: AwardRuleGroup = new AwardRuleGroup();
+          rit.parseData(item);
+          items.push(rit);
+        });
+
+        return {
+          totalCount: rjs['@odata.count'],
+          items,
+        };
+      }),
+      catchError((error: HttpErrorResponse) => throwError(error.statusText + '; ' + error.error + '; ' + error.message) ));
+  }
+  public createAwardRuleGroup(grp: AwardRuleGroup): Observable<AwardRuleGroup> {
+    if (environment.mockdata) {
+      return throwError(this.mockModeFailMsg);
+    } else {
+      if (!this.expertMode) {
+        return throwError(this.expertModeFailMsg);
+      }
+    }
+    let headers: HttpHeaders = new HttpHeaders();
+    headers = headers.append('Content-Type', 'application/json')
+      .append('Accept', 'application/json');
+
+    const jdata = grp.writeJSONString(true);
+    return this.http.post(`${this.apiUrl}AwardRuleGroups`, jdata, {
+      headers,
+    })
+      .pipe(map(response => {
+        const rjs = response as any;
+        const rtn = new AwardRuleGroup();
+        rtn.parseData(rjs);
+
+        return rtn;
+      }),
+      catchError((error: HttpErrorResponse) => throwError(error.statusText + '; ' + error.error + '; ' + error.message) ));
+  }
+  public deleteAwardRuleGroup(rid: number): Observable<boolean> {
+    if (environment.mockdata) {
+      return throwError(this.mockModeFailMsg);
+    } else {
+      if (!this.expertMode) {
+        return throwError(this.expertModeFailMsg);
+      }
+    }
+
+    let headers: HttpHeaders = new HttpHeaders();
+    headers = headers.append('Content-Type', 'application/json')
+      .append('Accept', 'application/json');
+
+    return this.http.delete(`${this.apiUrl}AwardRuleGroups(${rid})`, {
       headers
     })
       .pipe(map(response => true),

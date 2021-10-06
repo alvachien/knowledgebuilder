@@ -178,6 +178,7 @@
         "InvalidFontSize": "无效的字体大小，请输入一个10-30之间的数值"
     },
     "Award": {
+        "HabitBuilder": "习惯养成器",
         "Award": "奖励",
         "Awards": "奖励",
         "Overview": "总览",

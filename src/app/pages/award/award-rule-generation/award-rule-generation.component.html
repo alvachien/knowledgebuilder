@@ -26,12 +26,20 @@
         <mat-error *ngIf="range.controls.end.hasError('matEndDateInvalid')">Invalid end date</mat-error> -->
       </mat-form-field>
 
+      <!-- Rule type -->
       <mat-form-field appearance="fill" class="control-full-width">
         <mat-label>{{'Type' | transloco}}</mat-label>
         <mat-select required formControlName="ruleTypeCtrl">
           <mat-option *ngFor="let et of arRuleTypes" [value]="et.value">{{et.i18nterm | transloco}}</mat-option>
         </mat-select>
       </mat-form-field>
+
+      <!-- Desp -->
+      <mat-form-field class="control-full-width" appearance="fill">
+        <mat-label>{{'Common.Description' | transloco}}</mat-label>
+        <input matInput required formControlName="despCtrl">
+      </mat-form-field>
+
       <div>
         <button mat-button color="primary" matStepperNext>NEXT</button>
       </div>
@@ -102,19 +110,16 @@
     </table>    
 
     <button mat-button matStepperPrevious>BACK</button>
-    <button mat-button color="primary" [disabled]="!pointCompleted" matStepperNext>NEXT</button>
+    <button mat-button color="primary" [disabled]="!pointCompleted" (click)="onSave()" matStepperNext>NEXT</button>
   </mat-step>
 
   <mat-step>
     <ng-template matStepLabel>REVIEW</ng-template>
-    <ng-template matStepContent>
-      <p>You are now done.</p>
-      <div>
-        <button mat-button matStepperPrevious>BACK</button>
-        <button mat-button color="primary" (click)="">SAVE</button>
-        <button mat-button color="warn" (click)="stepper.reset()">RESET</button>
-      </div>
-    </ng-template>
+    <p>You are now done.</p>
+    <div>
+      <button mat-button matStepperPrevious>BACK</button>
+      <button mat-button color="warn" (click)="stepper.reset()">RESET</button>
+    </div>
   </mat-step>
 </mat-vertical-stepper>
 

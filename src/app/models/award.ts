@@ -78,59 +78,16 @@ export const getAwardRuleTypeNames = (): any[] => {
 
     return rtn;
 };
-export class AwardRuleHeader {
+
+export class AwardRuleGroup {
     id = -1;
     ruleType: AwardRuleTypeEnum = AwardRuleTypeEnum.GoToBedTime;
     targetUser = '';
     desp = '';
     validFrom: moment.Moment = moment();
     validTo: moment.Moment = moment();
-}
+    rules: AwardRuleDetail[] = [];
 
-export class AwardRuleDetail {
-    ruleID = -1;
-    DetailID = -1;
-    countOfFactLow?: number;
-    countOfFactHigh?: number;
-    doneOfFact?: boolean;
-    timeStart?: number;
-    timeEnd?: number;
-    daysFrom?: number;
-    daysTo?: number;
-    point = 0;
-}
-
-export class AwardRule {
-    id = -1;
-    ruleType: AwardRuleTypeEnum = AwardRuleTypeEnum.GoToBedTime;
-    targetUser = '';
-    desp = '';
-    validFrom: moment.Moment = moment();
-    validTo: moment.Moment = moment();
-    countOfFactLow?: number;
-    countOfFactHigh?: number;
-    doneOfFact?: boolean;
-    timeStart?: number;
-    timeEnd?: number;
-    daysFrom?: number;
-    daysTo?: number;
-    point = 0;
-
-    public copyFrom(oldrule: AwardRule) {
-        this.ruleType = oldrule.ruleType;
-        this.targetUser = oldrule.targetUser;
-        this.desp = oldrule.desp;
-        this.validFrom = moment(oldrule.validFrom.format(momentDateFormat));
-        this.validTo = moment(oldrule.validTo.format(momentDateFormat));
-        this.countOfFactLow = oldrule.countOfFactLow;
-        this.countOfFactHigh = oldrule.countOfFactHigh;
-        this.doneOfFact = oldrule.doneOfFact;
-        this.timeStart = oldrule.timeStart;
-        this.timeEnd = oldrule.timeEnd;
-        this.daysFrom = oldrule.daysFrom;
-        this.daysTo = oldrule.daysTo;
-        this.point = oldrule.point;
-    }
     public isValid(): boolean {
         if (!this.targetUser) {
             return false;
@@ -139,7 +96,79 @@ export class AwardRule {
             return false;
         }
 
-        switch (this.ruleType) {
+        return true;
+    }
+    public parseData(val: any): void {
+        if (val && val.ID) {
+            this.id = +val.ID;
+        }
+        if (val && val.RuleType) {
+            if (isNaN(+val.RuleType)) {
+                this.ruleType = AwardRuleTypeEnum[val.RuleType as keyof typeof AwardRuleTypeEnum];
+            } else {
+                this.ruleType = +val.RuleType;
+            }
+        }
+        if (val && val.TargetUser) {
+            this.targetUser = val.TargetUser;
+        }
+        if (val && val.Desp) {
+            this.desp = val.Desp;
+        }
+        if (val && val.ValidFrom) {
+            this.validFrom = moment(val.ValidFrom);
+        }
+        if (val && val.ValidTo) {
+            this.validTo = moment(val.ValidTo);
+        }
+        this.rules = [];
+        if (val && val.Rules) {
+            const items: any[] = val.Rules as any[];
+            items.forEach(tg => {
+                const item = new AwardRuleDetail();
+                item.parseData(tg);
+                this.rules.push(item);
+            });
+        }
+    }
+    public writeJSONObject(isCreatedMode = true): any {
+        const jobj: any =  { };
+        if (!isCreatedMode) {
+            jobj.ID = this.id;
+        }
+        jobj.RuleType = AwardRuleTypeEnum[this.ruleType],
+        jobj.TargetUser = this.targetUser;
+        jobj.Desp = this.desp;
+        jobj.ValidFrom = this.validFrom.format(momentDateFormat);
+        jobj.ValidTo = this.validTo.format(momentDateFormat);
+        if (this.rules && this.rules.length > 0) {
+            jobj.Rules = [];
+            this.rules.forEach(it => {
+                jobj.Rules.push(it.writeJSONObject(isCreatedMode));
+            });
+        }
+
+        return jobj;
+    }
+    public writeJSONString(isCreatedMode = true): string {
+        return JSON && JSON.stringify(this.writeJSONObject(isCreatedMode));
+    }
+}
+
+export class AwardRuleDetail {
+    id = -1;
+    groupID = -1;
+    countOfFactLow?: number;
+    countOfFactHigh?: number;
+    doneOfFact?: boolean;
+    timeStart?: number;
+    timeEnd?: number;
+    daysFrom?: number;
+    daysTo?: number;
+    point = 0;
+
+    public isValid(ruleType: AwardRuleTypeEnum): boolean {
+        switch (ruleType) {
             case AwardRuleTypeEnum.GoToBedTime:
             case AwardRuleTypeEnum.SchoolWorkTime:
                 {
@@ -187,24 +216,8 @@ export class AwardRule {
         if (val && val.ID) {
             this.id = +val.ID;
         }
-        if (val && val.RuleType) {
-            if (isNaN(+val.RuleType)) {
-                this.ruleType = AwardRuleTypeEnum[val.RuleType as keyof typeof AwardRuleTypeEnum];
-            } else {
-                this.ruleType = +val.RuleType;
-            }
-        }
-        if (val && val.TargetUser) {
-            this.targetUser = val.TargetUser;
-        }
-        if (val && val.Desp) {
-            this.desp = val.Desp;
-        }
-        if (val && val.ValidFrom) {
-            this.validFrom = moment(val.ValidFrom);
-        }
-        if (val && val.ValidTo) {
-            this.validTo = moment(val.ValidTo);
+        if (val && val.GroupID) {
+            this.groupID = +val.GroupID;
         }
         if (val && val.CountOfFactLow) {
             this.countOfFactLow = val.CountOfFactLow;
@@ -235,12 +248,8 @@ export class AwardRule {
         const jobj: any =  { };
         if (!isCreatedMode) {
             jobj.ID = this.id;
+            jobj.GroupID = this.groupID;
         }
-        jobj.RuleType = AwardRuleTypeEnum[this.ruleType],
-        jobj.TargetUser = this.targetUser;
-        jobj.Desp = this.desp;
-        jobj.ValidFrom = this.validFrom.format(momentDateFormat);
-        jobj.ValidTo = this.validTo.format(momentDateFormat);
         if (this.countOfFactLow) {
             jobj.CountOfFactLow = this.countOfFactLow;
         }
@@ -264,6 +273,49 @@ export class AwardRule {
         }
         jobj.Point = this.point;
 
+        return jobj;
+    }
+    public writeJSONString(isCreatedMode = true): string {
+        return JSON && JSON.stringify(this.writeJSONObject(isCreatedMode));
+    }
+}
+
+export class AwardRule {
+    id = -1;
+    ruleType: AwardRuleTypeEnum = AwardRuleTypeEnum.GoToBedTime;
+    targetUser = '';
+    desp = '';
+    validFrom: moment.Moment = moment();
+    validTo: moment.Moment = moment();
+    countOfFactLow?: number;
+    countOfFactHigh?: number;
+    doneOfFact?: boolean;
+    timeStart?: number;
+    timeEnd?: number;
+    daysFrom?: number;
+    daysTo?: number;
+    point = 0;
+
+    public copyFrom(oldrule: AwardRule) {
+        this.ruleType = oldrule.ruleType;
+        this.targetUser = oldrule.targetUser;
+        this.desp = oldrule.desp;
+        this.validFrom = moment(oldrule.validFrom.format(momentDateFormat));
+        this.validTo = moment(oldrule.validTo.format(momentDateFormat));
+        this.countOfFactLow = oldrule.countOfFactLow;
+        this.countOfFactHigh = oldrule.countOfFactHigh;
+        this.doneOfFact = oldrule.doneOfFact;
+        this.timeStart = oldrule.timeStart;
+        this.timeEnd = oldrule.timeEnd;
+        this.daysFrom = oldrule.daysFrom;
+        this.daysTo = oldrule.daysTo;
+        this.point = oldrule.point;
+    }
+
+    public parseData(val: any): void {
+    }
+    public writeJSONObject(isCreatedMode = true): any {
+        const jobj: any =  { };
         return jobj;
     }
     public writeJSONString(isCreatedMode = true): string {

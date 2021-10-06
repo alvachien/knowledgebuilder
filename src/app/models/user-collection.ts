@@ -47,9 +47,9 @@ export class UserCollection {
         if (data && data.ModifiedAt) {
             this.ModifiedAt = new Date(data.ModifiedAt);
         }
+        this.Items = [];
         if (data && data.Items) {
             const items: any[] = data.Items as any[];
-            this.Items = [];
             items.forEach(tg => {
                 const item = new UserCollectionItem();
                 item.parseData(tg);

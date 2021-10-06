@@ -3,8 +3,8 @@ import { Component, OnInit } from '@angular/core';
 import {FormBuilder, FormGroup, Validators} from '@angular/forms';
 import moment from 'moment';
 
-import { AwardRule, AwardRuleTypeEnum, getAwardRuleTypeNames } from 'src/app/models';
-import { ODataService } from 'src/app/services';
+import { AwardRuleTypeEnum, getAwardRuleTypeNames, AwardRuleGroup, AwardRuleDetail, } from 'src/app/models';
+import { ODataService, UIUtilityService } from 'src/app/services';
 
 class DimensionInfo {
   from = 0;
@@ -25,11 +25,6 @@ class ContinuedDaysInfo {
 
 class PointInfo {
   dimInfo: DimensionInfo;
-  // dataSchema: { [key: string]: any } = {
-  //   point: 'number',
-  //   edit: 'edit',
-  // };
-  // condInfo: ContinuedDaysInfo;
   points: { [key: string]: number } = {};
   isEdit = false;
 
@@ -60,6 +55,7 @@ export class AwardRuleGenerationComponent implements OnInit {
   // Step 5.
 
   constructor(private _formBuilder: FormBuilder,
+    private uiUtilSrv: UIUtilityService,
     private odataSrv: ODataService) {
     this.arRuleTypes = getAwardRuleTypeNames();
 
@@ -67,7 +63,8 @@ export class AwardRuleGenerationComponent implements OnInit {
       targetuserCtrl: ['', Validators.required],
       validFromCtrl: [undefined, Validators.required],
       validToCtrl: [undefined, Validators.required],
-      ruleTypeCtrl: [AwardRuleTypeEnum.GoToBedTime, Validators.required]
+      ruleTypeCtrl: [AwardRuleTypeEnum.GoToBedTime, Validators.required],
+      despCtrl: ['', Validators.required],
     });
     this.secondFormGroup = this._formBuilder.group({
       rawCtrl: ['', Validators.required]
@@ -197,11 +194,6 @@ export class AwardRuleGenerationComponent implements OnInit {
   public onPointCellChanged(event: any): void {
     let failcnt = 0;
     this.dataSource.forEach(row => {
-      //let cells = '';
-      // for (const k in row.points) {
-      //   const s = row.points[k];
-      //   cells = `${cells} ${s}`;
-      // }
       Object.keys(row.points).forEach(key => {
         if (isNaN(row.points[key])) {
           failcnt++;
@@ -210,9 +202,7 @@ export class AwardRuleGenerationComponent implements OnInit {
             failcnt++;
           }
         }
-        // cells = `${cells} ${row.points[key]}`;
       });
-      // console.log(`${row.dimInfo.toString()}: ${cells}`);
     });
 
     this.pointCompleted = failcnt === 0 ? true : false;
@@ -223,5 +213,52 @@ export class AwardRuleGenerationComponent implements OnInit {
       return this.contDays[idx].toString();
     }
     return '';
+  }
+  public onSave(): void {
+    // Perform the saving.
+    const grp: AwardRuleGroup = new AwardRuleGroup();
+    grp.desp = this.firstFormGroup.get('despCtrl')?.value;
+    grp.ruleType = this.selectedRuleType;
+    grp.targetUser = this.firstFormGroup.get('targetuserCtrl')?.value;
+    grp.validFrom = this.firstFormGroup.get('validFromCtrl')?.value;
+    grp.validTo = this.firstFormGroup.get('validToCtrl')?.value;
+    switch(grp.ruleType) {
+      case AwardRuleTypeEnum.GoToBedTime:
+        default: {
+          this.dataSource.forEach(ds => {
+            Object.keys(ds.points).forEach(key => {
+              const ritem: AwardRuleDetail = new AwardRuleDetail();
+              // Dimension
+              ritem.timeStart = ds.dimInfo.from;
+              if (ds.dimInfo.to !== Number.POSITIVE_INFINITY) {
+                ritem.timeEnd = ds.dimInfo.to;
+              }
+
+              // continues days
+              const cidx = +key.replace('days', '');
+              ritem.daysFrom = this.contDays[cidx].from;
+              if (this.contDays[cidx].to !== Number.POSITIVE_INFINITY) {
+                ritem.daysTo = this.contDays[cidx].to;
+              }
+
+              ritem.point = ds.points[key];
+              grp.rules.push(ritem);
+            });
+          });
+          break;
+        }
+    }
+
+    if (grp.isValid()) {
+      this.odataSrv.createAwardRuleGroup(grp).subscribe({
+        next: val => {
+          // Navigate back to list.
+          // this.uiUtilSrv.navigateAwardRuleGroupListPage();
+        },
+        error: err => {
+          this.uiUtilSrv.showSnackInfo(err);
+        }
+      });
+    }
   }
 }

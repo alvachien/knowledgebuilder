@@ -178,6 +178,7 @@
         "InvalidFontSize": "Invalid font size, input a number between 10-30"    
     },
     "Award": {
+        "HabitBuilder": "Habit Builder",
         "Award": "Award",
         "Awards": "Awards",
         "Overview": "Overview",
