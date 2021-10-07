@@ -32,6 +32,7 @@ export class ODataService {
   bufferedUserCollection: UserCollection[] = [];
   bufferedAwardUser: AwardUser[] = [];
   bufferedAwardRuleGroup: AwardRuleGroup[] = [];
+  hasAwardUserBuffered = false;
   // Current user
   public currentUser: string;
   private mockModeFailMsg = 'Cannot perform required opertion in mock mode';
@@ -712,7 +713,7 @@ export class ODataService {
       }),
       catchError((error: HttpErrorResponse) => throwError(error.statusText + '; ' + error.error + '; ' + error.message) ));
   }
-  public getAwardRuleGroup(grpid: number): Observable<AwardRuleGroup> {
+  public readAwardRuleGroup(grpid: number): Observable<AwardRuleGroup> {
     if (environment.mockdata) {
       return throwError(this.mockModeFailMsg);
     } else {
@@ -1561,17 +1562,19 @@ export class ODataService {
       return of({totalCount: 0, items: []});
     }
 
+    if (this.hasAwardUserBuffered) {
+      return of({
+        totalCount: this.bufferedAwardUser.length,
+        items: this.bufferedAwardUser
+      });
+    }
+
     let headers: HttpHeaders = new HttpHeaders();
     headers = headers.append('Content-Type', 'application/json')
       .append('Accept', 'application/json');
 
     let params: HttpParams = new HttpParams();
     params = params.append('$count', 'true');
-    if (filter) {
-      params = params.append('$filter', `${filter} and User eq '${this.currentUser}'`);
-    } else {
-      params = params.append('$filter', `User eq '${this.currentUser}'`);
-    }
     const apiurl = `${this.apiUrl}AwardUsers`;
 
     return this.http.get(apiurl, {
@@ -1581,16 +1584,17 @@ export class ODataService {
       .pipe(map(response => {
         const rjs = response as any;
         const ritems = rjs.value as any[];
-        const items: ExerciseItemUserScore[] = [];
+        this.bufferedAwardUser = [];
         ritems.forEach(item => {
-          const rit: ExerciseItemUserScore = new ExerciseItemUserScore();
+          const rit: AwardUser = new AwardUser();
           rit.parseData(item);
-          items.push(rit);
+          this.bufferedAwardUser.push(rit);
         });
+        this.hasAwardUserBuffered = true;
 
         return {
           totalCount: rjs['@odata.count'],
-          items,
+          items: this.bufferedAwardUser,
         };
       }),
       catchError((error: HttpErrorResponse) => throwError(error.statusText + '; ' + error.error + '; ' + error.message) ));

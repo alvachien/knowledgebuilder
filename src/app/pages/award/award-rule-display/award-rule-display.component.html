@@ -1,1 +1,106 @@
-<p>award-rule-display works!</p>
+<mat-card>
+  <mat-card-header>
+    <mat-card-title>AWARD RULE DISPLAY</mat-card-title>
+  </mat-card-header>
+  <mat-card-content>
+    <mat-accordion class="example-headers-align" multi>
+      <mat-expansion-panel expanded>
+          <mat-expansion-panel-header>
+              <mat-panel-title>{{'Header' | transloco}}</mat-panel-title>
+              <mat-panel-description>{{'HeaderInfo' | transloco}}<mat-icon>public</mat-icon></mat-panel-description>
+          </mat-expansion-panel-header>
+
+          <form [formGroup]="headerFormGroup">
+              <!-- Target user -->
+              <mat-form-field class="control-full-width" appearance="fill">
+                <mat-label>{{'Award.TargetUser' | transloco}}</mat-label>
+                <mat-select required formControlName="targetuserCtrl">
+                  <mat-option *ngFor="let tu of arTargetUsers" [value]="tu.targetUser">{{tu.targetUser}}</mat-option>
+                </mat-select>
+              </mat-form-field>
+        
+              <!-- Validity range -->
+              <mat-form-field appearance="fill">
+                <mat-label>{{'Award.Validity' | transloco}}</mat-label>
+                <mat-date-range-input [rangePicker]="picker">
+                <input matStartDate formControlName="validFromCtrl" placeholder="Start date">
+                <input matEndDate formControlName="validToCtrl" placeholder="End date">
+                </mat-date-range-input>
+                <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
+                <mat-date-range-picker #picker></mat-date-range-picker>
+                <!-- <mat-error *ngIf="range.controls.start.hasError('matStartDateInvalid')">Invalid start date</mat-error>
+                <mat-error *ngIf="range.controls.end.hasError('matEndDateInvalid')">Invalid end date</mat-error> -->
+              </mat-form-field>
+        
+              <!-- Rule type -->
+              <mat-form-field appearance="fill" class="control-full-width">
+                <mat-label>{{'Type' | transloco}}</mat-label>
+                <mat-select required formControlName="ruleTypeCtrl">
+                  <mat-option *ngFor="let et of arRuleTypes" [value]="et.value">{{et.i18nterm | transloco}}</mat-option>
+                </mat-select>
+              </mat-form-field>
+        
+              <!-- Desp -->
+              <mat-form-field class="control-full-width" appearance="fill">
+                <mat-label>{{'Common.Description' | transloco}}</mat-label>
+                <input matInput required formControlName="despCtrl">
+              </mat-form-field>              
+          </form>
+      </mat-expansion-panel>
+      <mat-expansion-panel>
+        <mat-expansion-panel-header>
+          <mat-panel-title>RULES</mat-panel-title>
+        </mat-expansion-panel-header>
+
+        <div class="example-container mat-elevation-z8">
+          <div class="table-container">
+            <table mat-table [dataSource]="dataSource" class="mat-elevation-z8">
+              <!-- ID Column -->
+              <ng-container matColumnDef="id">
+                <th mat-header-cell *matHeaderCellDef>#</th>
+                <td mat-cell *matCellDef="let row">{{row.id}}</td>
+              </ng-container>
+        
+              <!-- Count of fact Column -->
+              <ng-container matColumnDef="count">
+                <th mat-header-cell *matHeaderCellDef>COUNT</th>
+                <td mat-cell *matCellDef="let row">{{row.countString}}</td>
+              </ng-container>
+        
+              <!-- Done Column -->
+              <ng-container matColumnDef="done">
+                <th mat-header-cell *matHeaderCellDef>DONE</th>
+                <td mat-cell *matCellDef="let row">{{row.doneString}}</td>
+              </ng-container>
+        
+              <!-- Time Column -->
+              <ng-container matColumnDef="time">
+                <th mat-header-cell *matHeaderCellDef>TIME</th>
+                <td mat-cell *matCellDef="let row">{{row.timeString}}</td>
+              </ng-container>
+        
+              <!-- Days. Column -->
+              <ng-container matColumnDef="days">
+                <th mat-header-cell *matHeaderCellDef>DAYS</th>
+                <td mat-cell *matCellDef="let row">{{row.dayString}}</td>
+              </ng-container>
+
+              <!-- Point Column -->
+              <ng-container matColumnDef="point">
+                <th mat-header-cell *matHeaderCellDef>POINT</th>
+                <td mat-cell *matCellDef="let row">{{row.point}}</td>
+              </ng-container>
+        
+              <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+              <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+            </table>
+          </div>
+        </div>        
+      </mat-expansion-panel>
+    </mat-accordion>
+  </mat-card-content>
+  <mat-card-actions>
+    <button mat-button (click)="onReturnToList()">{{'Common.ReturnToList' | transloco}}</button>
+    <button mat-button (click)="onCreateNewOne()">{{'Common.CreateAnotherOne' | transloco}}</button>
+  </mat-card-actions>
+</mat-card>

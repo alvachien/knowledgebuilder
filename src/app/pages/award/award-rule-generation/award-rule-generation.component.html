@@ -1,6 +1,6 @@
 <mat-toolbar>
-    <h3>AWARD RULE GENERATION</h3>
-    <div class="toolbar-spacer"></div>
+  <h3>AWARD RULE GENERATION</h3>
+  <div class="toolbar-spacer"></div>
 </mat-toolbar>
 
 <mat-vertical-stepper linear #stepper>
@@ -10,7 +10,9 @@
       <!-- Target user -->
       <mat-form-field class="control-full-width" appearance="fill">
         <mat-label>{{'Award.TargetUser' | transloco}}</mat-label>
-        <input matInput required formControlName="targetuserCtrl">
+        <mat-select required formControlName="targetuserCtrl">
+          <mat-option *ngFor="let tu of arTargetUsers" [value]="tu.targetUser">{{tu.targetUser}}</mat-option>
+        </mat-select>
       </mat-form-field>
 
       <!-- Validity range -->
@@ -114,11 +116,12 @@
   </mat-step>
 
   <mat-step>
-    <ng-template matStepLabel>REVIEW</ng-template>
-    <p>You are now done.</p>
+    <ng-template matStepLabel>DONE</ng-template>
+    <p>Group {{createdGroupID}} is just create done.</p>
+    <p>You can either open the group for review or create another one.</p>
     <div>
-      <button mat-button matStepperPrevious>BACK</button>
-      <button mat-button color="warn" (click)="stepper.reset()">RESET</button>
+      <button mat-button (click)="openGroup()">OPEN</button>
+      <button mat-button color="warn" (click)="stepper.reset()">CREATE ANOTHER ONE</button>
     </div>
   </mat-step>
 </mat-vertical-stepper>

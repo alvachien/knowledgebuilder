@@ -22,6 +22,8 @@ export class AwardRuleComponent implements OnInit {
     public uiUtilSrv: UIUtilityService) { }
 
   ngOnInit(): void {
+    this.odataSrv.getAwardUsers().subscribe();
+
     this.refreshList();
   }
 
@@ -87,6 +89,6 @@ export class AwardRuleComponent implements OnInit {
     });
   }
   public onDisplayRuleGroup(gid: number): void {
-    // Display the group
+    this.uiUtilSrv.navigateAwardRuleGroupDisplayPage(gid);
   }
 }

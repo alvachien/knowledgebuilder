@@ -26,6 +26,7 @@ export class OverviewComponent implements OnInit {
     private uiUtilSrv: UIUtilityService) { }
 
   ngOnInit(): void {
+    this.oDataSrv.getAwardUsers().subscribe();
     this.refreshList();
   }
   get isExpertMode(): boolean {

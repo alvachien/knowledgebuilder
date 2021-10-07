@@ -10,15 +10,15 @@ import { momentDateFormat } from './uicommon';
  * Award Rule
  */
 export enum AwardRuleTypeEnum {
-    GoToBedTime = 1,
-    SchoolWorkTime = 2,
-    HomeWorkCount = 3,
-    BodyExerciseCount = 4,
-    ErrorCollectionHabit = 5,
-    CleanDeakHabit = 6,
-    HouseKeepingCount = 7,
-    PoliteBehavior = 8,
-    HandWritingHabit = 9,
+    GoToBedTime = 1,        // TIME
+    SchoolWorkTime = 2,     // TIME
+    HomeWorkCount = 3,      // COUNT
+    BodyExerciseCount = 4,  // COUNT
+    ErrorCollectionHabit = 5,   // YES or NO
+    CleanDeakHabit = 6,     // YES or NO
+    HouseKeepingCount = 7,  // COUNT
+    PoliteBehavior = 8,     // COUNT
+    HandWritingHabit = 9,   // YES or NO
 }
 
 export const getAwardRuleTypeName = (ruletype: AwardRuleTypeEnum): string => {
@@ -167,6 +167,19 @@ export class AwardRuleDetail {
     daysTo?: number;
     point = 0;
 
+    get countString(): string {
+        return `${this.countOfFactLow} - ${this.countOfFactHigh}`;
+    }
+    get doneString(): string {
+        return `${this.doneOfFact}`;
+    }
+    get timeString(): string {
+        return `${this.timeStart} - ${this.timeEnd}`;
+    }
+    get dayString(): string {
+        return `${this.daysFrom} - ${this.daysTo}`;
+    }
+
     public isValid(ruleType: AwardRuleTypeEnum): boolean {
         switch (ruleType) {
             case AwardRuleTypeEnum.GoToBedTime:
@@ -250,19 +263,19 @@ export class AwardRuleDetail {
             jobj.ID = this.id;
             jobj.GroupID = this.groupID;
         }
-        if (this.countOfFactLow) {
+        if (this.countOfFactLow !== undefined && this.countOfFactLow !== null) {
             jobj.CountOfFactLow = this.countOfFactLow;
         }
-        if (this.countOfFactHigh) {
+        if (this.countOfFactHigh !== undefined && this.countOfFactHigh !== null) {
             jobj.CountOfFactHigh = this.countOfFactHigh;
         }
-        if (this.doneOfFact) {
+        if (this.doneOfFact !== undefined && this.doneOfFact !== null) {
             jobj.DoneOfFact = this.doneOfFact;
         }
-        if (this.timeStart) {
+        if (this.timeStart !== undefined && this.timeStart !== null) {
             jobj.TimeStart = this.timeStart;
         }
-        if (this.timeEnd) {
+        if (this.timeEnd !== undefined && this.timeEnd !== null) {
             jobj.TimeEnd = this.timeEnd;
         }
         if (this.daysFrom) {
@@ -529,4 +542,12 @@ export class AwardPointReport {
 export class AwardUser {
     public targetUser = '';
     public supervisor = '';
+    public parseData(val: any): void {
+        if (val && val.TargetUser) {
+            this.targetUser = val.TargetUser;
+        }
+        if (val && val.Supervisor) {
+            this.supervisor = val.Supervisor;
+        }
+    }
 }

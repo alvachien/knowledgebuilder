@@ -3,7 +3,7 @@ import { Component, Inject, OnInit } from '@angular/core';
 import { MatDialog, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import moment from 'moment';
 
-import { AwardPoint, DailyTrace, momentDateFormat } from 'src/app/models';
+import { AwardPoint, AwardUser, DailyTrace, momentDateFormat } from 'src/app/models';
 import { ODataService, UIUtilityService } from 'src/app/services';
 
 @Component({
@@ -28,6 +28,8 @@ export class DailyTraceComponent implements OnInit {
     private uiUtilSrv: UIUtilityService,) { }
 
   ngOnInit(): void {
+    this.odataSrv.getAwardUsers().subscribe();
+
     this.refreshList();
   }
   get isExpertMode(): boolean {
@@ -125,8 +127,12 @@ export class DailyTraceComponent implements OnInit {
   styleUrls: ['./daily-trace.component.scss'],
 })
 export class DailyTraceCreateDialog {
+  get arTargetUsers(): AwardUser[] {
+    return this.odataSrv.bufferedAwardUser.filter(au => au.supervisor === this.odataSrv.currentUser);
+  }
 
   constructor(public dialogRef: MatDialogRef<DailyTraceCreateDialog>,
+    private odataSrv: ODataService,
     @Inject(MAT_DIALOG_DATA) public data: DailyTrace) {}
 
   onNoClick(): void {

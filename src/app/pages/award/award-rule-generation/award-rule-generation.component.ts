@@ -3,15 +3,17 @@ import { Component, OnInit } from '@angular/core';
 import {FormBuilder, FormGroup, Validators} from '@angular/forms';
 import moment from 'moment';
 
-import { AwardRuleTypeEnum, getAwardRuleTypeNames, AwardRuleGroup, AwardRuleDetail, } from 'src/app/models';
+import { AwardRuleTypeEnum, getAwardRuleTypeNames, AwardRuleGroup, AwardRuleDetail, AwardUser, } from 'src/app/models';
 import { ODataService, UIUtilityService } from 'src/app/services';
 
 class DimensionInfo {
   from = 0;
   to = 0;
+  typeIsNumber = true;
+  cond = false;
 
   public toString(): string {
-    return `[${this.from} - ${this.to})`;
+    return this.typeIsNumber ? `[${this.from} - ${this.to})` : this.cond.toString();
   }
 }
 
@@ -53,6 +55,7 @@ export class AwardRuleGenerationComponent implements OnInit {
   dataSource: PointInfo[] = [];
   pointCompleted = false;
   // Step 5.
+  createdGroupID = -1;
 
   constructor(private _formBuilder: FormBuilder,
     private uiUtilSrv: UIUtilityService,
@@ -74,13 +77,19 @@ export class AwardRuleGenerationComponent implements OnInit {
     });
   }
 
+  get arTargetUsers(): AwardUser[] {
+    return this.odataSrv.bufferedAwardUser.filter(au => au.supervisor === this.odataSrv.currentUser);
+  }
+
   get isExpertMode(): boolean {
     return this.odataSrv.expertMode;
   }
 
   public ngOnInit(): void {
+    this.odataSrv.getAwardUsers().subscribe();
+
     this.firstFormGroup.get('validFromCtrl')?.setValue(moment());
-    this.firstFormGroup.get('validToCtrl')?.setValue(moment());
+    this.firstFormGroup.get('validToCtrl')?.setValue(moment().add(1, 'month'));
 
     this.secondFormGroup.get('rawCtrl')?.valueChanges.subscribe(val => {
       this.onDimensionChange(val);
@@ -105,9 +114,55 @@ export class AwardRuleGenerationComponent implements OnInit {
       const subd = val.split(';');
       switch(this.selectedRuleType) {
         case AwardRuleTypeEnum.BodyExerciseCount:
+        case AwardRuleTypeEnum.HomeWorkCount:
+        case AwardRuleTypeEnum.HouseKeepingCount:
+        case AwardRuleTypeEnum.PoliteBehavior: {
+          // COUNT
+          let submap = subd.map((v: string | number) => {
+            if (v) {
+              const tp = +v;
+              if (!isNaN(tp)) {
+                if (tp > 0) {
+                  return Math.trunc(tp);
+                }
+              }
+            }
+            return 0;
+          });
+          submap = submap.filter((v: number) => v > 0);
+          submap.sort();
+          let tpcur = 0;
+          submap.forEach((sd: number) => {
+            const di = new DimensionInfo();
+            di.from = tpcur;
+            di.to = sd;
+            this.dimensions.push(di);
+            tpcur = sd;
+          });
+          const di2 = new DimensionInfo();
+          di2.from = tpcur;
+          di2.to = 24;
+          this.dimensions.push(di2);
           break;
+        }
+
+        case AwardRuleTypeEnum.HandWritingHabit:
+        case AwardRuleTypeEnum.CleanDeakHabit:
+        case AwardRuleTypeEnum.ErrorCollectionHabit: {
+          // Done or not done.
+          const di = new DimensionInfo();
+          di.typeIsNumber = false;
+          di.cond = true;
+          this.dimensions.push(di);
+          const di2 = new DimensionInfo();
+          di2.typeIsNumber = false;
+          di2.cond = false;
+          this.dimensions.push(di2);
+          break;
+        }
 
         case AwardRuleTypeEnum.GoToBedTime:
+        case AwardRuleTypeEnum.SchoolWorkTime:
         default: {
           let submap = subd.map((v: string | number) => {
             if (v) {
@@ -149,7 +204,7 @@ export class AwardRuleGenerationComponent implements OnInit {
           const tp = +v;
           if (!isNaN(tp)) {
             if (tp > 0) {
-              return tp;
+              return Math.trunc(tp);
             }
           }
         }
@@ -159,15 +214,17 @@ export class AwardRuleGenerationComponent implements OnInit {
       submap.sort();
       let daycur = 0;
       submap.forEach((sd: number) => {
-        const di = new ContinuedDaysInfo();
-        di.from = daycur;
-        di.to = sd;
-        this.contDays.push(di);
+        if (daycur !== 0) {
+          const di = new ContinuedDaysInfo();
+          di.from = daycur;
+          di.to = sd;
+          this.contDays.push(di);
+        }
         daycur = sd;
       });
       const di2 = new ContinuedDaysInfo();
       di2.from = daycur;
-      di2.to = Number.POSITIVE_INFINITY;
+      di2.to = 9999;
       this.contDays.push(di2);
     }
   }
@@ -223,23 +280,66 @@ export class AwardRuleGenerationComponent implements OnInit {
     grp.validFrom = this.firstFormGroup.get('validFromCtrl')?.value;
     grp.validTo = this.firstFormGroup.get('validToCtrl')?.value;
     switch(grp.ruleType) {
+      case AwardRuleTypeEnum.BodyExerciseCount:
+      case AwardRuleTypeEnum.HomeWorkCount:
+      case AwardRuleTypeEnum.HouseKeepingCount:
+      case AwardRuleTypeEnum.PoliteBehavior: {
+        this.dataSource.forEach(ds => {
+          Object.keys(ds.points).forEach(key => {
+            const ritem: AwardRuleDetail = new AwardRuleDetail();
+            // Dimension
+            ritem.countOfFactLow = ds.dimInfo.from;
+            ritem.countOfFactHigh = ds.dimInfo.to;
+
+            // Continues days
+            const cidx = +key.replace('days', '');
+            ritem.daysFrom = this.contDays[cidx].from;
+            if (this.contDays[cidx].to !== Number.POSITIVE_INFINITY) {
+              ritem.daysTo = this.contDays[cidx].to;
+            }
+
+            ritem.point = ds.points[key];
+            grp.rules.push(ritem);
+          });
+        });
+        break;
+      }
+
+      case AwardRuleTypeEnum.HandWritingHabit:
+      case AwardRuleTypeEnum.CleanDeakHabit:
+      case AwardRuleTypeEnum.ErrorCollectionHabit: {
+        this.dataSource.forEach(ds => {
+          Object.keys(ds.points).forEach(key => {
+            const ritem: AwardRuleDetail = new AwardRuleDetail();
+            // Dimension
+            ritem.doneOfFact = ds.dimInfo.cond;
+
+            // Continues days
+            const cidx = +key.replace('days', '');
+            ritem.daysFrom = this.contDays[cidx].from;
+            ritem.daysTo = this.contDays[cidx].to;
+
+            ritem.point = ds.points[key];
+            grp.rules.push(ritem);
+          });
+        });
+        break;
+      }
+
       case AwardRuleTypeEnum.GoToBedTime:
+      case AwardRuleTypeEnum.SchoolWorkTime:
         default: {
           this.dataSource.forEach(ds => {
             Object.keys(ds.points).forEach(key => {
               const ritem: AwardRuleDetail = new AwardRuleDetail();
               // Dimension
               ritem.timeStart = ds.dimInfo.from;
-              if (ds.dimInfo.to !== Number.POSITIVE_INFINITY) {
-                ritem.timeEnd = ds.dimInfo.to;
-              }
+              ritem.timeEnd = ds.dimInfo.to;
 
-              // continues days
+              // Continues days
               const cidx = +key.replace('days', '');
               ritem.daysFrom = this.contDays[cidx].from;
-              if (this.contDays[cidx].to !== Number.POSITIVE_INFINITY) {
-                ritem.daysTo = this.contDays[cidx].to;
-              }
+              ritem.daysTo = this.contDays[cidx].to;
 
               ritem.point = ds.points[key];
               grp.rules.push(ritem);
@@ -252,13 +352,15 @@ export class AwardRuleGenerationComponent implements OnInit {
     if (grp.isValid()) {
       this.odataSrv.createAwardRuleGroup(grp).subscribe({
         next: val => {
-          // Navigate back to list.
-          // this.uiUtilSrv.navigateAwardRuleGroupListPage();
+          this.createdGroupID = val.id;
         },
         error: err => {
           this.uiUtilSrv.showSnackInfo(err);
         }
       });
     }
+  }
+  public openGroup(): void {
+    this.uiUtilSrv.navigateAwardRuleGroupDisplayPage(this.createdGroupID);
   }
 }

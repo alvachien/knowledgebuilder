@@ -4,7 +4,9 @@
         <!-- Target user -->
         <mat-form-field class="control-full-width" appearance="fill">
           <mat-label>{{'Award.TargetUser' | transloco}}</mat-label>
-          <input matInput [(ngModel)]="data.targetUser" name="targetuser">
+          <mat-select required [(ngModel)]="data.targetUser" name="targetuser">
+            <mat-option *ngFor="let tu of arTargetUsers" [value]="tu.targetUser">{{tu.targetUser}}</mat-option>
+          </mat-select>
         </mat-form-field>
 
         <!-- Record date -->
@@ -62,6 +64,6 @@
     </form>
 </div>
 <div mat-dialog-actions>
-  <button mat-button (click)="onNoClick()">No Thanks</button>
+  <button mat-button (click)="onNoClick()">NO THANKS</button>
   <button mat-button [disabled]="!data.isValid()" [mat-dialog-close]="data" cdkFocusInitial>OK</button>
 </div>
