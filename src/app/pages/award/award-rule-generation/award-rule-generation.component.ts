@@ -106,17 +106,52 @@ export class AwardRuleGenerationComponent implements OnInit {
     }
     return AwardRuleTypeEnum.GoToBedTime;
   }
+  public onInitialDimensions(): void {
+    switch (this.selectedRuleType) {
+      case AwardRuleTypeEnum.HandWritingHabit:
+      case AwardRuleTypeEnum.CleanDeakHabit:
+      case AwardRuleTypeEnum.ErrorCollectionHabit: {
+        this.secondFormGroup.get('rawCtrl')?.disable();
+        break;
+      }
 
+      default: {
+        this.secondFormGroup.get('rawCtrl')?.disable();
+        break;
+      }
+    }
+  }
+  public onDimensionCompleted(): void {
+    switch(this.selectedRuleType){
+      case AwardRuleTypeEnum.HandWritingHabit:
+      case AwardRuleTypeEnum.CleanDeakHabit:
+      case AwardRuleTypeEnum.ErrorCollectionHabit: {
+        // Done or not done.
+        const di = new DimensionInfo();
+        di.typeIsNumber = false;
+        di.cond = true;
+        this.dimensions.push(di);
+        const di2 = new DimensionInfo();
+        di2.typeIsNumber = false;
+        di2.cond = false;
+        this.dimensions.push(di2);
+        break;
+      }
+
+      default:
+        break;
+    }
+  }
   public onDimensionChange(val: any) {
     this.dimensions = [];
 
-    if (val) {
-      const subd = val.split(';');
-      switch(this.selectedRuleType) {
-        case AwardRuleTypeEnum.BodyExerciseCount:
-        case AwardRuleTypeEnum.HomeWorkCount:
-        case AwardRuleTypeEnum.HouseKeepingCount:
-        case AwardRuleTypeEnum.PoliteBehavior: {
+    switch(this.selectedRuleType) {
+      case AwardRuleTypeEnum.BodyExerciseCount:
+      case AwardRuleTypeEnum.HomeWorkCount:
+      case AwardRuleTypeEnum.HouseKeepingCount:
+      case AwardRuleTypeEnum.PoliteBehavior: {
+        if(val) {
+          const subd = val.split(';');
           // COUNT
           let submap = subd.map((v: string | number) => {
             if (v) {
@@ -145,27 +180,24 @@ export class AwardRuleGenerationComponent implements OnInit {
           di2.from = tpcur;
           di2.to = 9999;
           this.dimensions.push(di2);
-          break;
-        }
 
-        case AwardRuleTypeEnum.HandWritingHabit:
-        case AwardRuleTypeEnum.CleanDeakHabit:
-        case AwardRuleTypeEnum.ErrorCollectionHabit: {
-          // Done or not done.
-          const di = new DimensionInfo();
-          di.typeIsNumber = false;
-          di.cond = true;
-          this.dimensions.push(di);
-          const di2 = new DimensionInfo();
-          di2.typeIsNumber = false;
-          di2.cond = false;
-          this.dimensions.push(di2);
-          break;
         }
+        break;
+      }
 
-        case AwardRuleTypeEnum.GoToBedTime:
-        case AwardRuleTypeEnum.SchoolWorkTime:
-        default: {
+      case AwardRuleTypeEnum.HandWritingHabit:
+      case AwardRuleTypeEnum.CleanDeakHabit:
+      case AwardRuleTypeEnum.ErrorCollectionHabit: {
+        // Do nothing
+        break;
+      }
+
+      case AwardRuleTypeEnum.GoToBedTime:
+      case AwardRuleTypeEnum.SchoolWorkTime:
+      default: {
+        if(val) {
+          const subd = val.split(';');
+
           let submap = subd.map((v: string | number) => {
             if (v) {
               const tp = +v;
@@ -191,8 +223,8 @@ export class AwardRuleGenerationComponent implements OnInit {
           di2.from = tpcur;
           di2.to = 24;
           this.dimensions.push(di2);
-          break;
         }
+        break;
       }
     }
   }

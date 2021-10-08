@@ -379,34 +379,34 @@ export class DailyTrace {
         if (val && val.RecordDate) {
             this.recordDate = moment(val.RecordDate);
         }
-        if (val && val.GoToBedTime !== undefined) {
+        if (val && val.GoToBedTime !== undefined && val.GoToBedTime !== null) {
             this.goToBedTime = val.GoToBedTime;
         }
-        if (val && val.SchoolWorkTime !== undefined) {
+        if (val && val.SchoolWorkTime !== undefined && val.SchoolWorkTime !== null) {
             this.schoolWorkTime = val.SchoolWorkTime;
         }
-        if (val && val.HomeWorkCount !== undefined) {
+        if (val && val.HomeWorkCount !== undefined && val.HomeWorkCount !== null) {
             this.homeWorkCount = val.HomeWorkCount;
         }
-        if (val && val.BodyExerciseCount !== undefined) {
+        if (val && val.BodyExerciseCount !== undefined && val.BodyExerciseCount !== null) {
             this.bodyExerciseCount = val.BodyExerciseCount;
         }
-        if (val && val.errorsCollection !== undefined) {
+        if (val && val.ErrorsCollection !== undefined && val.ErrorsCollection !== null) {
             this.errorsCollection = val.ErrorsCollection;
         }
-        if (val && val.HandWriting !== undefined) {
+        if (val && val.HandWriting !== undefined && val.HandWriting !== null) {
             this.handWriting = val.HandWriting;
         }
-        if (val && val.CleanDesk !== undefined) {
+        if (val && val.CleanDesk !== undefined && val.CleanDesk !== null) {
             this.cleanDesk = val.CleanDesk;
         }
-        if (val && val.HouseKeepingCount !== undefined) {
-            this.houseKeepingCount = val.HouseKeepingCount;
+        if (val && val.HouseKeepingCount !== undefined && val.HouseKeepingCount !== null) {
+            this.houseKeepingCount = +val.HouseKeepingCount;
         }
-        if (val && val.PoliteBehavior !== undefined) {
+        if (val && val.PoliteBehavior !== undefined && val.PoliteBehavior !== null) {
             this.politeBehavior = val.PoliteBehavior;
         }
-        if (val && val.Comment !== undefined) {
+        if (val && val.Comment) {
             this.comment = val.Comment;
         }
     }

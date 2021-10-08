@@ -43,7 +43,7 @@
       </mat-form-field>
 
       <div>
-        <button mat-button color="primary" matStepperNext>NEXT</button>
+        <button mat-button color="primary" (click)="onInitialDimensions()" matStepperNext>NEXT</button>
       </div>
     </form>
   </mat-step>
@@ -60,7 +60,7 @@
       </mat-list>
       <div>
         <button mat-button matStepperPrevious>BACK</button>
-        <button mat-button color="primary" matStepperNext>NEXT</button>
+        <button mat-button color="primary" (click)="onDimensionCompleted()" matStepperNext>NEXT</button>
       </div>
     </form>
   </mat-step>

@@ -60,19 +60,19 @@
             <!-- Errors Collection Column -->
             <ng-container matColumnDef="errorsCollection">
                 <th mat-header-cell *matHeaderCellDef>{{'Award.ErrorsCollection' | transloco}}</th>
-                <td mat-cell *matCellDef="let row">{{row.errorsCollection}}</td>
+                <td mat-cell *matCellDef="let row"><mat-checkbox disabled [(ngModel)]="row.errorsCollection"></mat-checkbox></td>
             </ng-container>
 
             <!-- HandWriting Column -->
             <ng-container matColumnDef="handWriting">
                 <th mat-header-cell *matHeaderCellDef>{{'Award.HandWriting' | transloco}}</th>
-                <td mat-cell *matCellDef="let row">{{row.handWriting}}</td>
+                <td mat-cell *matCellDef="let row"><mat-checkbox disabled [(ngModel)]="row.handWriting"></mat-checkbox></td>
             </ng-container>
 
             <!-- Clean Desk Column -->
             <ng-container matColumnDef="cleanDesk">
                 <th mat-header-cell *matHeaderCellDef>{{'Award.CleanDesk' | transloco}}</th>
-                <td mat-cell *matCellDef="let row">{{row.cleanDesk}}</td>
+                <td mat-cell *matCellDef="let row"><mat-checkbox disabled [(ngModel)]="row.cleanDesk"></mat-checkbox></td>
             </ng-container>
 
             <!-- House Keeping Count Column -->
