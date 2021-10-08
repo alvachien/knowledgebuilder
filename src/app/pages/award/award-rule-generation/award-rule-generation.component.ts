@@ -133,15 +133,17 @@ export class AwardRuleGenerationComponent implements OnInit {
           submap.sort();
           let tpcur = 0;
           submap.forEach((sd: number) => {
-            const di = new DimensionInfo();
-            di.from = tpcur;
-            di.to = sd;
-            this.dimensions.push(di);
+            if (tpcur !== 0) {
+              const di = new DimensionInfo();
+              di.from = tpcur;
+              di.to = sd;
+              this.dimensions.push(di);
+            }
             tpcur = sd;
           });
           const di2 = new DimensionInfo();
           di2.from = tpcur;
-          di2.to = 24;
+          di2.to = 9999;
           this.dimensions.push(di2);
           break;
         }
