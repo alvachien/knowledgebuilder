@@ -28,7 +28,7 @@ export class DailyTraceComponent implements OnInit {
     private uiUtilSrv: UIUtilityService,) { }
 
   ngOnInit(): void {
-    this.odataSrv.getAwardUsers().subscribe();
+    this.odataSrv.getAwardUserViews().subscribe();
 
     this.refreshList();
   }
@@ -128,7 +128,7 @@ export class DailyTraceComponent implements OnInit {
 })
 export class DailyTraceCreateDialog {
   get arTargetUsers(): AwardUser[] {
-    return this.odataSrv.bufferedAwardUser.filter(au => au.supervisor === this.odataSrv.currentUser);
+    return this.odataSrv.bufferedAwardUser.filter(au => au.supervisor === this.odataSrv.currentUser?.userID);
   }
 
   constructor(public dialogRef: MatDialogRef<DailyTraceCreateDialog>,

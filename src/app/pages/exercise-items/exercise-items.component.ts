@@ -165,7 +165,8 @@ export class ExerciseItemsComponent implements AfterViewInit {
       nscore.RefID = result.excitemid;
       nscore.Score = result.score;
       nscore.TakenDate = new Date();
-      nscore.User = this.odataService.currentUser;
+      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+      nscore.User = this.odataService.currentUser!.userID;
       this.odataService.createExerciseItemUserScore(nscore).subscribe({
         next: val => {
           this.uiUtilSrv.showSnackInfo('DONE');

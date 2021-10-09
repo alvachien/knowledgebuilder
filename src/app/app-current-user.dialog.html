@@ -1,0 +1,37 @@
+<h1 mat-dialog-title>{{'Common.CurrentUser' | transloco}}</h1>
+<div mat-dialog-content>
+    <form>
+        <mat-form-field class="control-full-width" appearance="fill">
+            <mat-label>{{'Common.ID' | transloco}}</mat-label>
+            <input matInput disabled [(ngModel)]="oDataSrv.currentUser!.userID" name="usrid">
+        </mat-form-field>
+
+        <mat-form-field class="control-full-width" appearance="fill">
+            <mat-label>{{'Common.Name' | transloco}}</mat-label>
+            <input matInput disabled [ngModel]="oDataSrv.currentUser!.userName" name="usrname">
+        </mat-form-field>
+
+        <mat-form-field class="control-full-width" appearance="fill">
+            <mat-label>{{'Common.DisplayAs' | transloco}}</mat-label>
+            <input matInput disabled [ngModel]="oDataSrv.currentUser!.displayAs" name="displayas">
+        </mat-form-field>
+
+        <mat-form-field class="control-full-width" appearance="fill">
+            <mat-label>{{'Common.DisplayAs' | transloco}}</mat-label>
+            <input matInput disabled [ngModel]="oDataSrv.currentUser!.displayAs" name="displayas">
+        </mat-form-field>
+
+        <mat-form-field class="control-full-width" appearance="fill">
+            <mat-label>{{'CreatedAt' | transloco}}</mat-label>
+            <input matInput disabled [ngModel]="oDataSrv.currentUser!.createdAtString" name="createdat">
+        </mat-form-field>
+
+        <mat-form-field class="control-full-width" appearance="fill">
+            <mat-label>{{'CreatedAt' | transloco}}</mat-label>
+            <input matInput disabled [ngModel]="oDataSrv.currentUser!.lastLogonAtString" name="lastlogon">
+        </mat-form-field>
+    </form>
+</div>
+<div mat-dialog-actions>
+    <button mat-button mat-dialog-close cdkFocusInitial>OK</button>
+</div>

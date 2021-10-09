@@ -35,7 +35,7 @@ export class AwardRuleDisplayComponent implements OnInit, OnDestroy {
   }
 
   get arTargetUsers(): AwardUser[] {
-    return this.odataSrv.bufferedAwardUser.filter(au => au.supervisor === this.odataSrv.currentUser);
+    return this.odataSrv.bufferedAwardUser.filter(au => au.supervisor === this.odataSrv.currentUser?.userID);
   }
 
   get isExpertMode(): boolean {
@@ -44,7 +44,7 @@ export class AwardRuleDisplayComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     this.destroyed$ = new ReplaySubject(1);
-    this.odataSrv.getAwardUsers().subscribe();
+    this.odataSrv.getAwardUserViews().subscribe();
 
     this.activateRoute.url.subscribe({
       next: val => {

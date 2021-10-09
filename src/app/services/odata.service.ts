@@ -1,12 +1,12 @@
 /* eslint-disable @typescript-eslint/naming-convention */
 import { Injectable } from '@angular/core';
-import { HttpParams, HttpClient, HttpHeaders, HttpResponse, HttpRequest, HttpErrorResponse, HttpEventType } from '@angular/common/http';
+import { HttpParams, HttpClient, HttpHeaders, HttpResponse, HttpRequest, HttpErrorResponse, } from '@angular/common/http';
 import { Observable, throwError, Subject, of } from 'rxjs';
 import { map, catchError } from 'rxjs/operators';
 
 import { ExerciseItem, ExerciseItemSearchResult, TagCount, Tag, KnowledgeItem, TagReferenceType, OverviewInfo,
   AwardRuleGroup, AwardRuleDetail, AwardRule, DailyTrace, AwardPoint, AwardPointReport, momentDateFormat,
-  UserCollection, ExerciseItemUserScore, UserCollectionItem, AwardUser, } from '../models';
+  UserCollection, ExerciseItemUserScore, UserCollectionItem, AwardUser, InvitedUser, AwardUserView, } from '../models';
 import { environment } from '../../environments/environment';
 import moment from 'moment';
 
@@ -30,21 +30,21 @@ export class ODataService {
   bufferedKnowledgeItems: KnowledgeItem[] = [];
   bufferedExerciseItems: ExerciseItem[] = [];
   bufferedUserCollection: UserCollection[] = [];
-  bufferedAwardUser: AwardUser[] = [];
+  bufferedAwardUser: AwardUserView[] = [];
   bufferedAwardRuleGroup: AwardRuleGroup[] = [];
   hasAwardUserBuffered = false;
   // Current user
-  public currentUser: string;
+  public currentUser: InvitedUser | null;
   private mockModeFailMsg = 'Cannot perform required opertion in mock mode';
   private expertModeFailMsg = 'Cannot perform required opertion, need access code to expert mode';
 
   constructor(private http: HttpClient,) {
     // this.expertMode = false;
-    this.currentUser = '';
+    this.currentUser = null;
   }
 
   get expertMode(): boolean {
-    return (this.currentUser && this.currentUser.length > 0)? true : false;
+    return this.currentUser !== null;
   }
 
   public getMetadata(forceReload?: boolean): Observable<any> {
@@ -78,17 +78,19 @@ export class ODataService {
       .append('Accept', 'application/json');
 
     const params: HttpParams = new HttpParams();
-    const apiurl = `${this.apiUrl}api/InvitedUsers/ValidInvitationCode`;
+    const apiurl = `${this.apiUrl}InvitedUsers/ValidInvitationCode`;
 
     const jdata = {
-      "InvitationCode": `${accessCode}`
+      InvitationCode: `${accessCode}`
     };
     return this.http.post(apiurl, jdata, {
       headers,
       params,
     })
       .pipe(map(response => {
-        this.currentUser = response as any as string;
+        this.currentUser = new InvitedUser();
+        this.currentUser.parseData(response as any);
+
         return this.expertMode;
       }),
       catchError((error: HttpErrorResponse) => throwError(error.statusText + '; ' + error.error + '; ' + error.message) ));
@@ -1249,9 +1251,9 @@ export class ODataService {
       params = params.append('$count', 'true');
       params = params.append('$expand', 'Items');
       if (filter) {
-        params = params.append('$filter', `${filter} and User eq '${this.currentUser}'`);
+        params = params.append('$filter', `${filter} and User eq '${this.currentUser?.userID}'`);
       } else {
-        params = params.append('$filter', `User eq '${this.currentUser}'`);
+        params = params.append('$filter', `User eq '${this.currentUser?.userID}'`);
       }
       const apiurl = `${this.apiUrl}UserCollections`;
 
@@ -1328,7 +1330,7 @@ export class ODataService {
     let params: HttpParams = new HttpParams();
     // params = params.append('$select', 'ID,Category,Title,Content,CreatedAt,ModifiedAt');
     params = params.append('$expand', 'Items');
-    params = params.append('$filter', `User eq '${this.currentUser}'`);
+    params = params.append('$filter', `User eq '${this.currentUser?.userID}'`);
     return this.http.get(`${this.apiUrl}UserCollections(${collid})`, {
       headers,
       params,
@@ -1362,7 +1364,7 @@ export class ODataService {
       .append('Accept', 'application/json');
 
     const jdata: any = {
-      User: this.currentUser,
+      User: this.currentUser?.userID,
       UserCollectionItems: []
     };
     collItems.forEach(ci => {
@@ -1402,7 +1404,7 @@ export class ODataService {
       .append('Accept', 'application/json');
 
     const jdata: any = {
-      User: this.currentUser,
+      User: this.currentUser?.userID,
       ID: collItem.ID,
       RefID: collItem.RefID,
       RefType: TagReferenceType[collItem.RefType]
@@ -1457,9 +1459,9 @@ export class ODataService {
     params = params.append('$skip', skip.toString());
     params = params.append('$count', 'true');
     if (filter) {
-      params = params.append('$filter', `${filter} and User eq '${this.currentUser}'`);
+      params = params.append('$filter', `${filter} and User eq '${this.currentUser?.userID}'`);
     } else {
-      params = params.append('$filter', `User eq '${this.currentUser}'`);
+      params = params.append('$filter', `User eq '${this.currentUser?.userID}'`);
     }
     const apiurl = `${this.apiUrl}ExerciseItemUserScores`;
 
@@ -1541,7 +1543,7 @@ export class ODataService {
       .append('Accept', 'application/json');
 
     const jdata = {
-      User: this.currentUser,
+      User: this.currentUser?.userID,
       RefID: refid,
     };
     return this.http.post(`${this.apiUrl}ExerciseItemUserScores/LatestUserScore`, jdata,  {
@@ -1560,7 +1562,49 @@ export class ODataService {
       catchError((error: HttpErrorResponse) => throwError(error.statusText + '; ' + error.error + '; ' + error.message) ));
   }
 
-  public getAwardUsers(): Observable<{ totalCount: number; items: AwardUser[] }> {
+  // public getAwardUsers(): Observable<{ totalCount: number; items: AwardUser[] }> {
+  //   if (!this.expertMode) {
+  //     return of({totalCount: 0, items: []});
+  //   }
+
+  //   if (this.hasAwardUserBuffered) {
+  //     return of({
+  //       totalCount: this.bufferedAwardUser.length,
+  //       items: this.bufferedAwardUser
+  //     });
+  //   }
+
+  //   let headers: HttpHeaders = new HttpHeaders();
+  //   headers = headers.append('Content-Type', 'application/json')
+  //     .append('Accept', 'application/json');
+
+  //   let params: HttpParams = new HttpParams();
+  //   params = params.append('$count', 'true');
+  //   const apiurl = `${this.apiUrl}AwardUsers`;
+
+  //   return this.http.get(apiurl, {
+  //     headers,
+  //     params,
+  //   })
+  //     .pipe(map(response => {
+  //       const rjs = response as any;
+  //       const ritems = rjs.value as any[];
+  //       this.bufferedAwardUser = [];
+  //       ritems.forEach(item => {
+  //         const rit: AwardUser = new AwardUser();
+  //         rit.parseData(item);
+  //         this.bufferedAwardUser.push(rit);
+  //       });
+  //       this.hasAwardUserBuffered = true;
+
+  //       return {
+  //         totalCount: rjs['@odata.count'],
+  //         items: this.bufferedAwardUser,
+  //       };
+  //     }),
+  //     catchError((error: HttpErrorResponse) => throwError(error.statusText + '; ' + error.error + '; ' + error.message) ));
+  // }
+  public getAwardUserViews(): Observable<{ totalCount: number; items: AwardUserView[] }> {
     if (!this.expertMode) {
       return of({totalCount: 0, items: []});
     }
@@ -1578,7 +1622,7 @@ export class ODataService {
 
     let params: HttpParams = new HttpParams();
     params = params.append('$count', 'true');
-    const apiurl = `${this.apiUrl}AwardUsers`;
+    const apiurl = `${this.apiUrl}AwardUserViews`;
 
     return this.http.get(apiurl, {
       headers,
@@ -1589,7 +1633,7 @@ export class ODataService {
         const ritems = rjs.value as any[];
         this.bufferedAwardUser = [];
         ritems.forEach(item => {
-          const rit: AwardUser = new AwardUser();
+          const rit: AwardUserView = new AwardUserView();
           rit.parseData(item);
           this.bufferedAwardUser.push(rit);
         });

@@ -3,7 +3,7 @@ import { Component, OnInit } from '@angular/core';
 import {FormBuilder, FormGroup, Validators} from '@angular/forms';
 import moment from 'moment';
 
-import { AwardRuleTypeEnum, getAwardRuleTypeNames, AwardRuleGroup, AwardRuleDetail, AwardUser, } from 'src/app/models';
+import { AwardRuleTypeEnum, getAwardRuleTypeNames, AwardRuleGroup, AwardRuleDetail, AwardUserView, } from 'src/app/models';
 import { ODataService, UIUtilityService } from 'src/app/services';
 
 class DimensionInfo {
@@ -77,8 +77,8 @@ export class AwardRuleGenerationComponent implements OnInit {
     });
   }
 
-  get arTargetUsers(): AwardUser[] {
-    return this.odataSrv.bufferedAwardUser.filter(au => au.supervisor === this.odataSrv.currentUser);
+  get arTargetUsers(): AwardUserView[] {
+    return this.odataSrv.bufferedAwardUser.filter(au => au.supervisor === this.odataSrv.currentUser?.userID);
   }
 
   get isExpertMode(): boolean {
@@ -86,7 +86,7 @@ export class AwardRuleGenerationComponent implements OnInit {
   }
 
   public ngOnInit(): void {
-    this.odataSrv.getAwardUsers().subscribe();
+    this.odataSrv.getAwardUserViews().subscribe();
 
     this.firstFormGroup.get('validFromCtrl')?.setValue(moment());
     this.firstFormGroup.get('validToCtrl')?.setValue(moment().add(1, 'month'));

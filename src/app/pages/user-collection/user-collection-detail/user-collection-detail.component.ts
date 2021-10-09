@@ -50,7 +50,7 @@ export class UserCollectionDetailComponent implements OnInit, OnDestroy {
         disabled: true
       }),
       userControl: new FormControl({
-        value: this.odataService.currentUser,
+        value: this.odataService.currentUser?.userID,
         disabled: true
       }),
       nameControl: new FormControl(),
@@ -108,7 +108,7 @@ export class UserCollectionDetailComponent implements OnInit, OnDestroy {
   onSetHeaderData(val: UserCollection): void {
     this.itemFormGroup.get('idControl')?.setValue(val.ID);
     this.itemFormGroup.get('idControl')?.disable();
-    this.itemFormGroup.get('userControl')?.setValue(this.odataService.currentUser);
+    this.itemFormGroup.get('userControl')?.setValue(this.odataService.currentUser?.userID);
     this.itemFormGroup.get('userControl')?.disable();
     this.itemFormGroup.get('nameControl')?.setValue(val.Name);
     this.itemFormGroup.get('commentControl')?.setValue(val.Comment);
@@ -134,7 +134,8 @@ export class UserCollectionDetailComponent implements OnInit, OnDestroy {
       this.itemObject = new UserCollection();
       this.itemObject.Name = this.itemFormGroup.get('nameControl')?.value;
       this.itemObject.Comment = this.itemFormGroup.get('commentControl')?.value;
-      this.itemObject.User = this.odataService.currentUser;
+      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+      this.itemObject.User = this.odataService.currentUser!.userID;
       this.odataService.createUserCollection(this.itemObject).subscribe({
         next: val => {
           // Display current collection

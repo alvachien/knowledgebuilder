@@ -1,8 +1,10 @@
-import { Component, Inject } from "@angular/core";
-import { MatBottomSheetRef, MAT_BOTTOM_SHEET_DATA } from "@angular/material/bottom-sheet";
+/* eslint-disable @angular-eslint/component-class-suffix */
+/* eslint-disable no-underscore-dangle */
+import { Component, Inject } from '@angular/core';
+import { MatBottomSheetRef, MAT_BOTTOM_SHEET_DATA } from '@angular/material/bottom-sheet';
 
-import { ExerciseItemUserScore } from "src/app/models";
-import { ODataService } from "src/app/services";
+import { ExerciseItemUserScore } from 'src/app/models';
+import { ODataService } from 'src/app/services';
 
 @Component({
     selector: 'app-preview-newscore-sheet',
@@ -17,14 +19,15 @@ export class PreviewNewScoreSheet {
             newScore: ExerciseItemUserScore | null;
             errorInfo: string;
         }) {}
-    
+
     createNewScore(score: number, event: MouseEvent): void {
-        event.preventDefault();        
+        event.preventDefault();
 
         const nscore = new ExerciseItemUserScore();
         nscore.RefID = this.data.excitemid;
         nscore.Score = score;
-        nscore.User = this.odataSrv.currentUser;
+        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+        nscore.User = this.odataSrv.currentUser!.userID;
 
         this.odataSrv.createExerciseItemUserScore(nscore).subscribe({
             next: val => {

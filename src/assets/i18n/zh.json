@@ -38,7 +38,10 @@
         "Description": "说明",
         "Copy": "复制",
         "Name": "名称",
-        "NoThanks": "不了, 谢谢"
+        "NoThanks": "不了, 谢谢",
+        "CurrentUser": "当前用户",
+        "ID": "ID",
+        "DisplayAs": "昵称"
     },
     "Type": "类别",
     "Create": "创建",

@@ -11,7 +11,7 @@
       <mat-form-field class="control-full-width" appearance="fill">
         <mat-label>{{'Award.TargetUser' | transloco}}</mat-label>
         <mat-select required formControlName="targetuserCtrl">
-          <mat-option *ngFor="let tu of arTargetUsers" [value]="tu.targetUser">{{tu.targetUser}}</mat-option>
+          <mat-option *ngFor="let tu of arTargetUsers" [value]="tu.targetUser">{{tu.displayAs}}</mat-option>
         </mat-select>
       </mat-form-field>
 

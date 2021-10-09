@@ -89,46 +89,45 @@ export class AppComponent implements OnDestroy {
     window.open('https://github.com/alvachien/knowledgebuilder', '_blank');
   }
   get isExpertMode(): boolean {
-    return this.oDataSrv.currentUser.length > 0? true : false;
+    return this.oDataSrv.expertMode;
   }
   get versionInfo(): string {
     return environment.version;
   }
 
+  displayUserInfo(): void {
+    const dialogRef = this.dialog.open(CurrentUserDialog, {
+      width: '600px',
+      closeOnNavigation: false
+    });
+    dialogRef.afterClosed().subscribe();
+  }
   launchExpertMode(): void {
-    if (this.oDataSrv.currentUser.length > 0) {
-      this.snackBar.open('Expert Mode is ON', undefined, {
-        duration: 2000,
-      });
-    } else {
-      // Create new trace
-      const dialogRef = this.dialog.open(ExpertAccessCodeDialog, {
-        width: '600px',
-        closeOnNavigation: false,
-        data: {
-          accessCode: '',
-        },
-      });
+    // Create new trace
+    const dialogRef = this.dialog.open(ExpertAccessCodeDialog, {
+      width: '600px',
+      closeOnNavigation: false,
+      data: {
+        accessCode: '',
+      },
+    });
 
-      dialogRef.afterClosed().subscribe(result => {
-        // console.log(`The dialog was closed with result: ${result}`);
-
-        if (result) {
-          this.oDataSrv.enterExpertMode(result.accessCode).subscribe({
-            next: val => {
-              if (val) {
-                this.snackBar.open(`Expert Mode is ON`, undefined, {
-                  duration: 2000,
-                });
-              }
-            },
-            error: err => {
-              this.snackBar.open(err, undefined, { duration: 2000 });
+    dialogRef.afterClosed().subscribe(result => {
+      if (result) {
+        this.oDataSrv.enterExpertMode(result.accessCode).subscribe({
+          next: val => {
+            if (val) {
+              this.snackBar.open(`Expert Mode is ON`, undefined, {
+                duration: 2000,
+              });
             }
-          });
-        }
-      });
-    }
+          },
+          error: err => {
+            this.snackBar.open(err, undefined, { duration: 2000 });
+          }
+        });
+      }
+    });
   }
 }
 
@@ -147,4 +146,15 @@ export class ExpertAccessCodeDialog {
   onNoClick(): void {
     this.dialogRef.close();
   }
+}
+
+@Component({
+  selector: 'app-current-user-dlg',
+  templateUrl: 'app-current-user.dialog.html',
+})
+// eslint-disable-next-line @angular-eslint/component-class-suffix
+export class CurrentUserDialog {
+
+  constructor(public dialogRef: MatDialogRef<CurrentUserDialog>,
+    public oDataSrv: ODataService) {}
 }

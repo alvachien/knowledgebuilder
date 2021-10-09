@@ -551,3 +551,18 @@ export class AwardUser {
         }
     }
 }
+
+export class AwardUserView extends AwardUser {
+    public userName = '';
+    public displayAs = '';
+
+    public parseData(val: any): void {
+        super.parseData(val);
+        if (val && val.UserName) {
+            this.userName = val.UserName;
+        }
+        if (val && val.DisplayAs) {
+            this.displayAs = val.DisplayAs;
+        }
+    }
+}
