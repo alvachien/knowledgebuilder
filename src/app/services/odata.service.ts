@@ -78,9 +78,12 @@ export class ODataService {
       .append('Accept', 'application/json');
 
     const params: HttpParams = new HttpParams();
-    const apiurl = `${this.apiUrl}api/AccessCode?accessCode=${accessCode}`;
+    const apiurl = `${this.apiUrl}api/InvitedUsers/ValidInvitationCode`;
 
-    return this.http.post(apiurl, undefined, {
+    const jdata = {
+      "InvitationCode": `${accessCode}`
+    };
+    return this.http.post(apiurl, jdata, {
       headers,
       params,
     })
