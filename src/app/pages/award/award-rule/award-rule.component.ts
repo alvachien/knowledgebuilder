@@ -2,7 +2,6 @@
 import { Component, Inject, OnInit } from '@angular/core';
 import { MatDialog, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 
-import { momentDateFormat } from 'src/app/models';
 import { AwardRuleGroup, AwardRule, AwardRuleTypeEnum, getAwardRuleTypeName, } from 'src/app/models/award';
 import { ODataService, QuizService, UIUtilityService } from 'src/app/services';
 
@@ -50,34 +49,6 @@ export class AwardRuleComponent implements OnInit {
     });
   }
 
-  public onCopyRuleGroup(oldgid: number): void {
-    // const oldrule = this.originRules.find(p => p.id === oldrid);
-    // if (oldrule !== undefined) {
-    //   const nrule = new AwardRule();
-    //   nrule.copyFrom(oldrule);
-    //   const dialogRef = this.dialog.open(AwardRuleCreateDialog, {
-    //     width: '600px',
-    //     closeOnNavigation: false,
-    //     data: nrule,
-    //   });
-
-    //   dialogRef.afterClosed().subscribe(result => {
-    //     console.log(`The dialog was closed with result: ${result}`);
-
-    //     if (result) {
-    //       this.odataSrv.createAwardRule(result).subscribe({
-    //         next: val => {
-    //           // Refresh the list page
-    //           this.refreshList();
-    //         },
-    //         error: err => {
-    //           this.uiUtilSrv.showSnackInfo(err);
-    //         }
-    //       });
-    //     }
-    //   });
-    // }
-  }
   public onDeleteRuleGroup(rid: number): void {
     this.odataSrv.deleteAwardRuleGroup(rid).subscribe({
       next: val => {
