@@ -7,6 +7,12 @@ export const environment = {
   mockdata: false,
   version: '0.1.90',
   basehref: '/',
+
+  idServerUrl: 'https://localhost:44353/',
+  loginCallbackUrl: 'https://localhost:29521/logincallback.html',
+  logoutCallbackUrl: 'https://localhost:29521',
+  loginSlientRevewCallbackUrl: 'https://localhost:29521/silentrenewcallback.html',
+
   apiurlRoot: 'https://localhost:44355'
 };
 

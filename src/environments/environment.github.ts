@@ -3,5 +3,10 @@ export const environment = {
   version: '0.1.90',
   mockdata: true,
   basehref: '/knowledgebuilder/',
+
+  idServerUrl: '',
+  loginCallbackUrl: '',
+  logoutCallbackUrl: '',
+  loginSlientRevewCallbackUrl: '',
   apiurlRoot: ''
 };

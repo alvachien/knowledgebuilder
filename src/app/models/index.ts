@@ -10,3 +10,5 @@ export * from './gobang';
 export * from './award';
 export * from './user-collection';
 export * from './inviteduser';
+export * from './userinfo';
+
