@@ -1,5 +1,6 @@
 import { NgModule } from '@angular/core';
 import { Routes, RouterModule } from '@angular/router';
+import { AuthGuardService } from './services';
 
 
 const routes: Routes = [
@@ -7,10 +8,12 @@ const routes: Routes = [
   { path: 'welcome', loadChildren: () => import('./pages/welcome/welcome.module').then(m => m.WelcomeModule) },
   {
     path: 'knowledge-item',
+    canActivate: [AuthGuardService],
     loadChildren: () => import('./pages/knowledge-items/knowledge-items.module').then(m => m.KnowledgeItemsModule),
   },
   {
     path: 'exercise-item',
+    canActivate: [AuthGuardService],
     loadChildren: () => import('./pages/exercise-items/exercise-items.module').then(m => m.ExerciseItemsModule),
   },
   {
@@ -19,6 +22,7 @@ const routes: Routes = [
   },
   {
     path: 'user-collection',
+    canActivate: [AuthGuardService],
     loadChildren: () => import('./pages/user-collection/user-collection.module').then(m => m.UserCollectionModule),
   },
   {
@@ -39,6 +43,7 @@ const routes: Routes = [
   },
   {
     path: 'award',
+    canActivate: [AuthGuardService],
     loadChildren: () => import('./pages/award/award.module').then(m => m.AwardModule),
   },
   {

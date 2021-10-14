@@ -5,10 +5,10 @@ import { User } from 'oidc-client';
  * User detail
  */
 export class UserDetail {
-  public UserId: string;
-  public DisplayAs: string;
-  public Email: string;
-  public Others: string;
+  public UserId = '';
+  public DisplayAs = '';
+  public Email = '';
+  public Others = '';
 
   public onSetData(data: any): void {
     this.UserId = data.userID;
@@ -32,13 +32,13 @@ export class UserDetail {
  * User Auth Info
  */
 export class UserAuthInfo {
-  private currentUser: User;
-  private userName: string;
-  private userId: string;
-  private userMailbox: string;
-  private accessToken: string;
+  private currentUser: User | null = null;
+  private userName: string | undefined = '';
+  private userId = '';
+  private userMailbox = '';
+  private accessToken = '';
 
-  public isAuthorized: boolean;
+  public isAuthorized = false;
 
   public setContent(user: User): void {
     if (user) {
@@ -55,16 +55,16 @@ export class UserAuthInfo {
   }
 
   public cleanContent(): void {
-    this.currentUser = undefined;
+    this.currentUser = null;
     this.isAuthorized = false;
-    this.userName = undefined;
-    this.userId = undefined;
-    this.userMailbox = undefined;
-    this.accessToken = undefined;
+    this.userName = '';
+    this.userId = '';
+    this.userMailbox = '';
+    this.accessToken = '';
 }
 
   public getUserName(): string {
-    return this.userName;
+    return this.userName ? this.userName : '';
   }
   public getUserId(): string {
     return this.userId;

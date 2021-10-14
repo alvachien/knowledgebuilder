@@ -1,18 +1,18 @@
 /* eslint-disable @typescript-eslint/naming-convention */
 import { EventEmitter, Injectable } from '@angular/core';
-
+import { UserAuthInfo } from 'src/app/models';
 import { environment } from 'src/environments/environment';
 import { UserManager, Log, MetadataService, User } from 'oidc-client';
 import { BehaviorSubject, Observable } from 'rxjs';
 
 const authSettings: any = {
   authority: environment.idServerUrl,
-  client_id: 'acexercise.math',
+  client_id: 'knowledgebuilder.js',
   redirect_uri: environment.loginCallbackUrl,
   post_logout_redirect_uri: environment.logoutCallbackUrl,
   response_type: 'id_token token',
   // response_type: 'code',
-  scope: 'openid profile api.acquiz',
+  scope: 'openid profile api.knowledgebuilder',
 
   silent_redirect_uri: environment.loginSlientRevewCallbackUrl,
   automaticSilentRenew: true,
@@ -29,7 +29,7 @@ const authSettings: any = {
 export class AuthService {
 
   private mgr: UserManager;
-  private authHeaders: Headers;
+  private authHeaders: Headers | null = null;
 
   public authSubject: BehaviorSubject<UserAuthInfo> = new BehaviorSubject(new UserAuthInfo());
   public authContent: Observable<UserAuthInfo> = this.authSubject.asObservable();

@@ -9,9 +9,9 @@ export const environment = {
   basehref: '/',
 
   idServerUrl: 'https://localhost:44353/',
-  loginCallbackUrl: 'https://localhost:29521/logincallback.html',
-  logoutCallbackUrl: 'https://localhost:29521',
-  loginSlientRevewCallbackUrl: 'https://localhost:29521/silentrenewcallback.html',
+  loginCallbackUrl: 'https://localhost:44367/logincallback.html',
+  logoutCallbackUrl: 'https://localhost:44367',
+  loginSlientRevewCallbackUrl: 'https://localhost:44367/silentrenewcallback.html',
 
   apiurlRoot: 'https://localhost:44355'
 };

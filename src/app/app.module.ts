@@ -13,7 +13,7 @@ import { MarkdownModule, MarkedOptions } from 'ngx-markdown';
 import { translocoLoader } from './transloco-loader';
 import { translocoConfig, TranslocoModule, TRANSLOCO_CONFIG } from '@ngneat/transloco';
 
-import { ODataService, QuizService, UIUtilityService } from './services';
+import { ODataService, QuizService, UIUtilityService, AuthService, AuthGuardService, } from './services';
 import { environment } from 'src/environments/environment';
 import { NavItemFilterPipe } from './pipes';
 import { QuizFailureDailogComponent } from './pages/quiz-failure-dailog';
@@ -55,6 +55,8 @@ import { QuizFailureDailogComponent } from './pages/quiz-failure-dailog';
     ODataService,
     UIUtilityService,
     QuizService,
+    AuthService,
+    AuthGuardService,
     {
       provide: TRANSLOCO_CONFIG,
       useValue: translocoConfig({
