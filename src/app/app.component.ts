@@ -1,13 +1,13 @@
 /* eslint-disable no-underscore-dangle */
-import { ChangeDetectorRef, Component, Inject, OnDestroy } from '@angular/core';
+import { ChangeDetectorRef, Component, Inject, NgZone, OnDestroy } from '@angular/core';
 import { MatDialog, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { MediaMatcher } from '@angular/cdk/layout';
 import { TranslocoService } from '@ngneat/transloco';
 import { DateAdapter } from '@angular/material/core';
 
-import { AppNavItem, AppLanguage, AppNavItemGroupEnum } from './models';
-import { ODataService } from './services';
+import { AppNavItem, AppLanguage, AppNavItemGroupEnum, UserAuthInfo } from './models';
+import { AuthService, ODataService } from './services';
 import { environment } from 'src/environments/environment';
 
 @Component({
@@ -32,7 +32,9 @@ export class AppComponent implements OnDestroy {
     private translocoService: TranslocoService,
     private dateAdapter: DateAdapter<any>,
     public dialog: MatDialog,
-    private oDataSrv: ODataService,
+    public oDataSrv: ODataService,
+    private authSrv: AuthService,
+    private zone: NgZone,
     private snackBar: MatSnackBar,
   ) {
     this.mobileQuery = media.matchMedia('(max-width: 600px)');
@@ -67,6 +69,12 @@ export class AppComponent implements OnDestroy {
       { name: 'Help.About', route: '/help/about', group: AppNavItemGroupEnum.help },
       { name: 'Help.Credits', route: '/help/credits', group: AppNavItemGroupEnum.help },
     ];
+
+    this.authSrv.authContent.subscribe((x: UserAuthInfo) => {
+      this.zone.run(() => {
+        this.oDataSrv.currentUser = x;
+      });
+    });
   }
 
   switchLanguage(lang: string) {
@@ -87,9 +95,6 @@ export class AppComponent implements OnDestroy {
   openCodeRepo(): void {
     // Open github repo.
     window.open('https://github.com/alvachien/knowledgebuilder', '_blank');
-  }
-  get isExpertMode(): boolean {
-    return this.oDataSrv.expertMode;
   }
   get versionInfo(): string {
     return environment.version;

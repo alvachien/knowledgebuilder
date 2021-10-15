@@ -30,7 +30,7 @@ export class TagComponent implements AfterViewInit {
     return getTagReferenceTypeName(reftype);
   }
   get isExpertMode(): boolean {
-    return this.odataService.expertMode;
+    return this.odataService.isLoggedin;
   }
 
   ngAfterViewInit() {

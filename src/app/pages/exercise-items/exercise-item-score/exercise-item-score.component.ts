@@ -54,7 +54,7 @@ export class ExerciseItemScoreComponent implements OnInit, AfterViewInit {
   }
 
   get isExpertMode(): boolean {
-    return this.odataService.expertMode;
+    return this.odataService.isLoggedin;
   }
   ngOnInit(): void {
     this.onAddFilter();

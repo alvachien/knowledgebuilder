@@ -3,12 +3,12 @@
     <form>
         <mat-form-field class="control-full-width" appearance="fill">
             <mat-label>{{'Common.ID' | transloco}}</mat-label>
-            <input matInput disabled [(ngModel)]="oDataSrv.currentUser!.userID" name="usrid">
+            <input matInput disabled [(ngModel)]="oDataSrv.currentUser!.getUserId()" name="usrid">
         </mat-form-field>
 
         <mat-form-field class="control-full-width" appearance="fill">
             <mat-label>{{'Common.Name' | transloco}}</mat-label>
-            <input matInput disabled [ngModel]="oDataSrv.currentUser!.userName" name="usrname">
+            <input matInput disabled [ngModel]="oDataSrv.currentUser!.getUserName()" name="usrname">
         </mat-form-field>
 
         <mat-form-field class="control-full-width" appearance="fill">

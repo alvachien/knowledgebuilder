@@ -30,7 +30,7 @@ export class KnowledgeItemsComponent implements AfterViewInit {
     return getKnowledgeItemCategoryName(ctgy);
   }
   get isExpertMode(): boolean {
-    return this.odataService.expertMode;
+    return this.odataService.isLoggedin;
   }
 
   ngAfterViewInit() {

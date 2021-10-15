@@ -27,7 +27,7 @@ export class PreviewNewScoreSheet {
         nscore.RefID = this.data.excitemid;
         nscore.Score = score;
         // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-        nscore.User = this.odataSrv.currentUser!.userID;
+        nscore.User = this.odataSrv.currentUser!.getUserId();
 
         this.odataSrv.createExerciseItemUserScore(nscore).subscribe({
             next: val => {

@@ -27,7 +27,7 @@ export class AwardRuleComponent implements OnInit {
   }
 
   get isExpertMode(): boolean {
-    return this.odataSrv.expertMode;
+    return this.odataSrv.isLoggedin;
   }
   public getAwardRuleTypeName(ruleType: AwardRuleTypeEnum): string {
     return getAwardRuleTypeName(ruleType);

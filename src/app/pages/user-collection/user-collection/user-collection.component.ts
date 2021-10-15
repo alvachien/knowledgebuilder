@@ -26,7 +26,7 @@ export class UserCollectionComponent implements AfterViewInit {
     private uiUtilSrv: UIUtilityService) {}
 
   get isExpertMode(): boolean {
-    return this.odataService.expertMode;
+    return this.odataService.isLoggedin;
   }
 
   ngAfterViewInit() {

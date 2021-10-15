@@ -35,11 +35,11 @@ export class AwardRuleDisplayComponent implements OnInit, OnDestroy {
   }
 
   get arTargetUsers(): AwardUser[] {
-    return this.odataSrv.bufferedAwardUser.filter(au => au.supervisor === this.odataSrv.currentUser?.userID);
+    return this.odataSrv.bufferedAwardUser.filter(au => au.supervisor === this.odataSrv.currentUser?.getUserId());
   }
 
   get isExpertMode(): boolean {
-    return this.odataSrv.expertMode;
+    return this.odataSrv.isLoggedin;
   }
 
   ngOnInit(): void {

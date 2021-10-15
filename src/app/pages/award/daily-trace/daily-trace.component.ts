@@ -33,7 +33,7 @@ export class DailyTraceComponent implements OnInit {
     this.refreshList();
   }
   get isExpertMode(): boolean {
-    return this.odataSrv.expertMode;
+    return this.odataSrv.isLoggedin;
   }
 
   onCreateTrace(): void {
@@ -128,7 +128,7 @@ export class DailyTraceComponent implements OnInit {
 })
 export class DailyTraceCreateDialog {
   get arTargetUsers(): AwardUser[] {
-    return this.odataSrv.bufferedAwardUser.filter(au => au.supervisor === this.odataSrv.currentUser?.userID);
+    return this.odataSrv.bufferedAwardUser.filter(au => au.supervisor === this.odataSrv.currentUser?.getUserId());
   }
 
   constructor(public dialogRef: MatDialogRef<DailyTraceCreateDialog>,

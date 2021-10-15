@@ -78,11 +78,11 @@ export class AwardRuleGenerationComponent implements OnInit {
   }
 
   get arTargetUsers(): AwardUserView[] {
-    return this.odataSrv.bufferedAwardUser.filter(au => au.supervisor === this.odataSrv.currentUser?.userID);
+    return this.odataSrv.bufferedAwardUser.filter(au => au.supervisor === this.odataSrv.currentUser?.getUserId());
   }
 
   get isExpertMode(): boolean {
-    return this.odataSrv.expertMode;
+    return this.odataSrv.isLoggedin;
   }
 
   public ngOnInit(): void {

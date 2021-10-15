@@ -35,7 +35,7 @@ export class ExerciseItemsComponent implements AfterViewInit {
     return getExerciseItemTypeName(itemtype);
   }
   get isExpertMode(): boolean {
-    return this.odataService.expertMode;
+    return this.odataService.isLoggedin;
   }
 
   ngAfterViewInit() {
@@ -166,7 +166,7 @@ export class ExerciseItemsComponent implements AfterViewInit {
       nscore.Score = result.score;
       nscore.TakenDate = new Date();
       // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-      nscore.User = this.odataService.currentUser!.userID;
+      nscore.User = this.odataService.currentUser!.getUserId();
       this.odataService.createExerciseItemUserScore(nscore).subscribe({
         next: val => {
           this.uiUtilSrv.showSnackInfo('DONE');

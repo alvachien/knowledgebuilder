@@ -6,7 +6,7 @@ import { map, catchError } from 'rxjs/operators';
 
 import { ExerciseItem, ExerciseItemSearchResult, TagCount, Tag, KnowledgeItem, TagReferenceType, OverviewInfo,
   AwardRuleGroup, AwardRuleDetail, AwardRule, DailyTrace, AwardPoint, AwardPointReport, momentDateFormat,
-  UserCollection, ExerciseItemUserScore, UserCollectionItem, AwardUser, InvitedUser, AwardUserView, } from '../models';
+  UserCollection, ExerciseItemUserScore, UserCollectionItem, AwardUser, InvitedUser, AwardUserView, UserAuthInfo, } from '../models';
 import { environment } from '../../environments/environment';
 import moment from 'moment';
 
@@ -34,7 +34,7 @@ export class ODataService {
   bufferedAwardRuleGroup: AwardRuleGroup[] = [];
   hasAwardUserBuffered = false;
   // Current user
-  public currentUser: InvitedUser | null;
+  public currentUser: UserAuthInfo | null;
   private mockModeFailMsg = 'Cannot perform required opertion in mock mode';
   private expertModeFailMsg = 'Cannot perform required opertion, need access code to expert mode';
 
@@ -43,7 +43,7 @@ export class ODataService {
     this.currentUser = null;
   }
 
-  get expertMode(): boolean {
+  get isLoggedin(): boolean {
     return this.currentUser !== null;
   }
 
@@ -87,11 +87,12 @@ export class ODataService {
       headers,
       params,
     })
+      // eslint-disable-next-line arrow-body-style
       .pipe(map(response => {
-        this.currentUser = new InvitedUser();
-        this.currentUser.parseData(response as any);
+        // this.currentUser = new InvitedUser();
+        // this.currentUser.parseData(response as any);
 
-        return this.expertMode;
+        return this.isLoggedin;
       }),
       catchError((error: HttpErrorResponse) => throwError(error.statusText + '; ' + error.error + '; ' + error.message) ));
   }
@@ -109,7 +110,7 @@ export class ODataService {
         items: this.mockedKnowledgeItem
       });
     } else {
-      if (!this.expertMode) {
+      if (!this.isLoggedin) {
         return of({
           totalCount: 0,
           items: []
@@ -172,7 +173,7 @@ export class ODataService {
       }
       return of(new KnowledgeItem());
     } else {
-      if (!this.expertMode) {
+      if (!this.isLoggedin) {
         return throwError(this.expertModeFailMsg);
       }
     }
@@ -213,7 +214,7 @@ export class ODataService {
     if (environment.mockdata) {
       return throwError(this.mockModeFailMsg);
     } else {
-      if (!this.expertMode) {
+      if (!this.isLoggedin) {
         return throwError(this.expertModeFailMsg);
       }
     }
@@ -248,7 +249,7 @@ export class ODataService {
     if (environment.mockdata) {
       return throwError(this.mockModeFailMsg);
     } else {
-      if (!this.expertMode) {
+      if (!this.isLoggedin) {
         return throwError(this.expertModeFailMsg);
       }
     }
@@ -279,7 +280,7 @@ export class ODataService {
     if (environment.mockdata) {
       return throwError(this.mockModeFailMsg);
     } else {
-      if (!this.expertMode) {
+      if (!this.isLoggedin) {
         return throwError(this.expertModeFailMsg);
       }
     }
@@ -315,7 +316,7 @@ export class ODataService {
         items: this.mockedExerciseItem
       });
     } else {
-      if (!this.expertMode) {
+      if (!this.isLoggedin) {
         return of({totalCount: 0, items: []});
       }
     }
@@ -374,7 +375,7 @@ export class ODataService {
     if (environment.mockdata) {
       return throwError(this.mockModeFailMsg);
     } else {
-      if (!this.expertMode) {
+      if (!this.isLoggedin) {
         return throwError(this.expertModeFailMsg);
       }
     }
@@ -410,7 +411,7 @@ export class ODataService {
     if (environment.mockdata) {
       return throwError(this.mockModeFailMsg);
     } else {
-      if (!this.expertMode) {
+      if (!this.isLoggedin) {
         return throwError(this.expertModeFailMsg);
       }
     }
@@ -444,7 +445,7 @@ export class ODataService {
       }
       return of(new ExerciseItem());
     } else {
-      if (!this.expertMode) {
+      if (!this.isLoggedin) {
         return throwError(this.expertModeFailMsg);
       }
     }
@@ -484,7 +485,7 @@ export class ODataService {
     if (environment.mockdata) {
       return throwError(this.mockModeFailMsg);
     } else {
-      if (!this.expertMode) {
+      if (!this.isLoggedin) {
         return throwError(this.expertModeFailMsg);
       }
     }
@@ -515,7 +516,7 @@ export class ODataService {
     //     items: this.mockedExerciseItem
     //   });
     // }
-    if (!this.expertMode) {
+    if (!this.isLoggedin) {
       return throwError(this.expertModeFailMsg);
     }
 
@@ -574,7 +575,7 @@ export class ODataService {
     //     items: this.mockedExerciseItem
     //   });
     // }
-    if (!this.expertMode) {
+    if (!this.isLoggedin) {
       return of({
         totalCount: 0,
         items: []
@@ -625,7 +626,7 @@ export class ODataService {
     if (environment.mockdata) {
       return throwError(this.mockModeFailMsg);
     } else {
-      if (!this.expertMode) {
+      if (!this.isLoggedin) {
         return throwError(this.expertModeFailMsg);
       }
     }
@@ -650,7 +651,7 @@ export class ODataService {
     if (environment.mockdata) {
       return throwError(this.mockModeFailMsg);
     } else {
-      if (!this.expertMode) {
+      if (!this.isLoggedin) {
         return throwError(this.expertModeFailMsg);
       }
     }
@@ -670,7 +671,7 @@ export class ODataService {
   // Award Rule Group and Award Rule Detail
   public getAwardRuleGroups(top = 30, skip = 0, sort?: string, filter?: string):
     Observable<{ totalCount: number; items: AwardRuleGroup[] }> {
-    if (!this.expertMode) {
+    if (!this.isLoggedin) {
       return of({
         totalCount: 0,
         items: []
@@ -722,7 +723,7 @@ export class ODataService {
     if (environment.mockdata) {
       return throwError(this.mockModeFailMsg);
     } else {
-      if (!this.expertMode) {
+      if (!this.isLoggedin) {
         return throwError(this.expertModeFailMsg);
       }
     }
@@ -760,7 +761,7 @@ export class ODataService {
     if (environment.mockdata) {
       return throwError(this.mockModeFailMsg);
     } else {
-      if (!this.expertMode) {
+      if (!this.isLoggedin) {
         return throwError(this.expertModeFailMsg);
       }
     }
@@ -785,7 +786,7 @@ export class ODataService {
     if (environment.mockdata) {
       return throwError(this.mockModeFailMsg);
     } else {
-      if (!this.expertMode) {
+      if (!this.isLoggedin) {
         return throwError(this.expertModeFailMsg);
       }
     }
@@ -812,7 +813,7 @@ export class ODataService {
   // Daily trace
   public getDailyTrace(top = 30, skip = 0, sort?: string, filter?: string):
     Observable<{ totalCount: number; items: DailyTrace[] }> {
-      if (!this.expertMode) {
+      if (!this.isLoggedin) {
         return of({ totalCount: 0, items: [] });
       }
 
@@ -855,7 +856,7 @@ export class ODataService {
   }
 
   public simulatePoint(trace: DailyTrace): Observable<AwardPoint[]> {
-    if (!this.expertMode) {
+    if (!this.isLoggedin) {
       return throwError(this.expertModeFailMsg);
     }
 
@@ -891,7 +892,7 @@ export class ODataService {
     if (environment.mockdata) {
       return throwError(this.mockModeFailMsg);
     } else {
-      if (!this.expertMode) {
+      if (!this.isLoggedin) {
         return throwError(this.expertModeFailMsg);
       }
     }
@@ -916,7 +917,7 @@ export class ODataService {
     if (environment.mockdata) {
       return throwError(this.mockModeFailMsg);
     } else {
-      if (!this.expertMode) {
+      if (!this.isLoggedin) {
         return throwError(this.expertModeFailMsg);
       }
     }
@@ -936,7 +937,7 @@ export class ODataService {
   // Award points
   public getAwardPoints(top = 30, skip = 0, sort?: string, filter?: string):
     Observable<{ totalCount: number; items: AwardPoint[] }> {
-      if (!this.expertMode) {
+      if (!this.isLoggedin) {
         return of({totalCount: 0, items: []});
       }
 
@@ -981,7 +982,7 @@ export class ODataService {
     if (environment.mockdata) {
       return throwError(this.mockModeFailMsg);
     } else {
-      if (!this.expertMode) {
+      if (!this.isLoggedin) {
         return throwError(this.expertModeFailMsg);
       }
     }
@@ -1006,7 +1007,7 @@ export class ODataService {
     if (environment.mockdata) {
       return throwError(this.mockModeFailMsg);
     } else {
-      if (!this.expertMode) {
+      if (!this.isLoggedin) {
         return throwError(this.expertModeFailMsg);
       }
     }
@@ -1025,7 +1026,7 @@ export class ODataService {
 
   public getAwardPointReports(top = 30, skip = 0, sort?: string, filter?: string):
     Observable<{ totalCount: number; items: AwardPointReport[] }> {
-      if (!this.expertMode) {
+      if (!this.isLoggedin) {
         return of({totalCount: 0, items: []});
       }
 
@@ -1066,7 +1067,7 @@ export class ODataService {
 
   // File upload
   public uploadFiles(files: Set<File>): { [key: string]: { result: Observable<any> } } {
-    if (!this.expertMode) {
+    if (!this.isLoggedin) {
       throw this.expertModeFailMsg;
     }
 
@@ -1116,7 +1117,7 @@ export class ODataService {
   }
 
   public getTagCounts(): Observable<{ totalCount: number; items: TagCount[] }> {
-    if (!this.expertMode) {
+    if (!this.isLoggedin) {
       return of({totalCount: 0, items:[]});
     }
 
@@ -1157,7 +1158,7 @@ export class ODataService {
   }
 
   public getTags(term: string, reftype?: TagReferenceType): Observable<{ totalCount: number; items: Tag[] }> {
-    if (!this.expertMode) {
+    if (!this.isLoggedin) {
       return throwError(this.expertModeFailMsg);
     }
 
@@ -1204,7 +1205,7 @@ export class ODataService {
   }
 
   public getOverviewInfo(): Observable<OverviewInfo[]> {
-    if (!this.expertMode) {
+    if (!this.isLoggedin) {
       return throwError(this.expertModeFailMsg);
     }
 
@@ -1237,7 +1238,7 @@ export class ODataService {
   // User collection
   public getUserCollections(top = 30, skip = 0, sort?: string, filter?: string):
     Observable<{ totalCount: number; items: UserCollection[] }> {
-      if (!this.expertMode) {
+      if (!this.isLoggedin) {
         return of({totalCount: 0, items: []});
       }
 
@@ -1251,9 +1252,9 @@ export class ODataService {
       params = params.append('$count', 'true');
       params = params.append('$expand', 'Items');
       if (filter) {
-        params = params.append('$filter', `${filter} and User eq '${this.currentUser?.userID}'`);
+        params = params.append('$filter', `${filter} and User eq '${this.currentUser?.getUserId()}'`);
       } else {
-        params = params.append('$filter', `User eq '${this.currentUser?.userID}'`);
+        params = params.append('$filter', `User eq '${this.currentUser?.getUserId()}'`);
       }
       const apiurl = `${this.apiUrl}UserCollections`;
 
@@ -1283,7 +1284,7 @@ export class ODataService {
     if (environment.mockdata) {
       return throwError(this.mockModeFailMsg);
     } else {
-      if (!this.expertMode) {
+      if (!this.isLoggedin) {
         return throwError(this.expertModeFailMsg);
       }
     }
@@ -1313,7 +1314,7 @@ export class ODataService {
       }
       return of(new UserCollection());
     } else {
-      if (!this.expertMode) {
+      if (!this.isLoggedin) {
         return throwError(this.expertModeFailMsg);
       }
     }
@@ -1330,7 +1331,7 @@ export class ODataService {
     let params: HttpParams = new HttpParams();
     // params = params.append('$select', 'ID,Category,Title,Content,CreatedAt,ModifiedAt');
     params = params.append('$expand', 'Items');
-    params = params.append('$filter', `User eq '${this.currentUser?.userID}'`);
+    params = params.append('$filter', `User eq '${this.currentUser?.getUserId()}'`);
     return this.http.get(`${this.apiUrl}UserCollections(${collid})`, {
       headers,
       params,
@@ -1354,7 +1355,7 @@ export class ODataService {
     if (environment.mockdata) {
       return throwError(this.mockModeFailMsg);
     } else {
-      if (!this.expertMode) {
+      if (!this.isLoggedin) {
         return throwError(this.expertModeFailMsg);
       }
     }
@@ -1364,7 +1365,7 @@ export class ODataService {
       .append('Accept', 'application/json');
 
     const jdata: any = {
-      User: this.currentUser?.userID,
+      User: this.currentUser?.getUserId(),
       UserCollectionItems: []
     };
     collItems.forEach(ci => {
@@ -1394,7 +1395,7 @@ export class ODataService {
     if (environment.mockdata) {
       return throwError(this.mockModeFailMsg);
     } else {
-      if (!this.expertMode) {
+      if (!this.isLoggedin) {
         return throwError(this.expertModeFailMsg);
       }
     }
@@ -1404,7 +1405,7 @@ export class ODataService {
       .append('Accept', 'application/json');
 
     const jdata: any = {
-      User: this.currentUser?.userID,
+      User: this.currentUser?.getUserId(),
       ID: collItem.ID,
       RefID: collItem.RefID,
       RefType: TagReferenceType[collItem.RefType]
@@ -1427,7 +1428,7 @@ export class ODataService {
     if (environment.mockdata) {
       return throwError(this.mockModeFailMsg);
     } else {
-      if (!this.expertMode) {
+      if (!this.isLoggedin) {
         return throwError(this.expertModeFailMsg);
       }
     }
@@ -1446,7 +1447,7 @@ export class ODataService {
   // Exercise item user score
   public getExerciseItemUserScores(top = 30, skip = 0, filter?: string):
     Observable<{ totalCount: number; items: ExerciseItemUserScore[] }> {
-    if (!this.expertMode) {
+    if (!this.isLoggedin) {
       return of({totalCount: 0, items: []});
     }
 
@@ -1459,9 +1460,9 @@ export class ODataService {
     params = params.append('$skip', skip.toString());
     params = params.append('$count', 'true');
     if (filter) {
-      params = params.append('$filter', `${filter} and User eq '${this.currentUser?.userID}'`);
+      params = params.append('$filter', `${filter} and User eq '${this.currentUser?.getUserId()}'`);
     } else {
-      params = params.append('$filter', `User eq '${this.currentUser?.userID}'`);
+      params = params.append('$filter', `User eq '${this.currentUser?.getUserId()}'`);
     }
     const apiurl = `${this.apiUrl}ExerciseItemUserScores`;
 
@@ -1491,7 +1492,7 @@ export class ODataService {
     if (environment.mockdata) {
       return throwError(this.mockModeFailMsg);
     } else {
-      if (!this.expertMode) {
+      if (!this.isLoggedin) {
         return throwError(this.expertModeFailMsg);
       }
     }
@@ -1516,7 +1517,7 @@ export class ODataService {
     if (environment.mockdata) {
       return throwError(this.mockModeFailMsg);
     } else {
-      if (!this.expertMode) {
+      if (!this.isLoggedin) {
         return throwError(this.expertModeFailMsg);
       }
     }
@@ -1534,7 +1535,7 @@ export class ODataService {
     if (environment.mockdata) {
       return throwError(this.mockModeFailMsg);
     } else {
-      if (!this.expertMode) {
+      if (!this.isLoggedin) {
         return throwError(this.expertModeFailMsg);
       }
     }
@@ -1543,7 +1544,7 @@ export class ODataService {
       .append('Accept', 'application/json');
 
     const jdata = {
-      User: this.currentUser?.userID,
+      User: this.currentUser?.getUserId(),
       RefID: refid,
     };
     return this.http.post(`${this.apiUrl}ExerciseItemUserScores/LatestUserScore`, jdata,  {
@@ -1605,7 +1606,7 @@ export class ODataService {
   //     catchError((error: HttpErrorResponse) => throwError(error.statusText + '; ' + error.error + '; ' + error.message) ));
   // }
   public getAwardUserViews(): Observable<{ totalCount: number; items: AwardUserView[] }> {
-    if (!this.expertMode) {
+    if (!this.isLoggedin) {
       return of({totalCount: 0, items: []});
     }
 

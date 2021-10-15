@@ -30,7 +30,7 @@ export class OverviewComponent implements OnInit {
     this.refreshList();
   }
   get isExpertMode(): boolean {
-    return this.oDataSrv.expertMode;
+    return this.oDataSrv.isLoggedin;
   }
 
   public onCreateAward(): void {
