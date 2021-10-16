@@ -3,32 +3,27 @@
     <form>
         <mat-form-field class="control-full-width" appearance="fill">
             <mat-label>{{'Common.ID' | transloco}}</mat-label>
-            <input matInput disabled [(ngModel)]="oDataSrv.currentUser!.getUserId()" name="usrid">
+            <input matInput disabled [(ngModel)]="oDataSrv.currentUserDetail!.userID" name="usrid">
         </mat-form-field>
 
         <mat-form-field class="control-full-width" appearance="fill">
             <mat-label>{{'Common.Name' | transloco}}</mat-label>
-            <input matInput disabled [ngModel]="oDataSrv.currentUser!.getUserName()" name="usrname">
+            <input matInput disabled [ngModel]="oDataSrv.currentUserDetail!.userName" name="usrname">
         </mat-form-field>
 
         <mat-form-field class="control-full-width" appearance="fill">
             <mat-label>{{'Common.DisplayAs' | transloco}}</mat-label>
-            <input matInput disabled [ngModel]="oDataSrv.currentUser!.displayAs" name="displayas">
-        </mat-form-field>
-
-        <mat-form-field class="control-full-width" appearance="fill">
-            <mat-label>{{'Common.DisplayAs' | transloco}}</mat-label>
-            <input matInput disabled [ngModel]="oDataSrv.currentUser!.displayAs" name="displayas">
+            <input matInput disabled [ngModel]="oDataSrv.currentUserDetail!.displayAs" name="displayas">
         </mat-form-field>
 
         <mat-form-field class="control-full-width" appearance="fill">
             <mat-label>{{'CreatedAt' | transloco}}</mat-label>
-            <input matInput disabled [ngModel]="oDataSrv.currentUser!.createdAtString" name="createdat">
+            <input matInput disabled [ngModel]="oDataSrv.currentUserDetail!.createdAtString" name="createdat">
         </mat-form-field>
 
         <mat-form-field class="control-full-width" appearance="fill">
             <mat-label>{{'CreatedAt' | transloco}}</mat-label>
-            <input matInput disabled [ngModel]="oDataSrv.currentUser!.lastLogonAtString" name="lastlogon">
+            <input matInput disabled [ngModel]="oDataSrv.currentUserDetail!.lastLogonAtString" name="lastlogon">
         </mat-form-field>
     </form>
 </div>

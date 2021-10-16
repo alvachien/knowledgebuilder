@@ -3,12 +3,14 @@ import { Injectable } from '@angular/core';
 import { HttpParams, HttpClient, HttpHeaders, HttpResponse, HttpRequest, HttpErrorResponse, } from '@angular/common/http';
 import { Observable, throwError, Subject, of } from 'rxjs';
 import { map, catchError } from 'rxjs/operators';
+import moment from 'moment';
 
 import { ExerciseItem, ExerciseItemSearchResult, TagCount, Tag, KnowledgeItem, TagReferenceType, OverviewInfo,
   AwardRuleGroup, AwardRuleDetail, AwardRule, DailyTrace, AwardPoint, AwardPointReport, momentDateFormat,
-  UserCollection, ExerciseItemUserScore, UserCollectionItem, AwardUser, InvitedUser, AwardUserView, UserAuthInfo, } from '../models';
+  UserCollection, ExerciseItemUserScore, UserCollectionItem, AwardUser, InvitedUser, AwardUserView,
+  UserAuthInfo, } from '../models';
 import { environment } from '../../environments/environment';
-import moment from 'moment';
+import { AuthService } from './auth.service';
 
 @Injectable({
   providedIn: 'root'
@@ -34,13 +36,16 @@ export class ODataService {
   bufferedAwardRuleGroup: AwardRuleGroup[] = [];
   hasAwardUserBuffered = false;
   // Current user
-  public currentUser: UserAuthInfo | null;
+  public currentUser: UserAuthInfo | null = null;
+  public currentUserDetail: InvitedUser | null = null;
   private mockModeFailMsg = 'Cannot perform required opertion in mock mode';
   private expertModeFailMsg = 'Cannot perform required opertion, need access code to expert mode';
+  private contentType = 'Content-Type';
+  private appJson = 'application/json';
+  private strAccept = 'Accept';
 
-  constructor(private http: HttpClient,) {
-    // this.expertMode = false;
-    this.currentUser = null;
+  constructor(private http: HttpClient,
+    private authService: AuthService) {
   }
 
   get isLoggedin(): boolean {
@@ -50,8 +55,8 @@ export class ODataService {
   public getMetadata(forceReload?: boolean): Observable<any> {
     if (!this.isMetadataLoaded || forceReload) {
       let headers: HttpHeaders = new HttpHeaders();
-      headers = headers.append('Content-Type', 'application/xml,application/json')
-        .append('Accept', 'text/html,application/xhtml+xml,application/xml');
+      headers = headers.append(this.contentType, 'application/xml,application/json')
+        .append(this.strAccept, 'text/html,application/xhtml+xml,application/xml');
 
       let apiurl = `${this.apiUrl}$metadata`;
       if (environment.mockdata) {
@@ -74,8 +79,9 @@ export class ODataService {
 
   public enterExpertMode(accessCode: string): Observable<any> {
     let headers: HttpHeaders = new HttpHeaders();
-    headers = headers.append('Content-Type', 'application/json')
-      .append('Accept', 'application/json');
+    headers = headers.append(this.contentType, this.appJson)
+      .append(this.strAccept, this.appJson);
+      // .append('Authorization', 'Bearer ' + this.authService.authSubject.getValue().getAccessToken());
 
     const params: HttpParams = new HttpParams();
     const apiurl = `${this.apiUrl}InvitedUsers/ValidInvitationCode`;
@@ -119,8 +125,8 @@ export class ODataService {
     }
 
     let headers: HttpHeaders = new HttpHeaders();
-    headers = headers.append('Content-Type', 'application/json')
-      .append('Accept', 'application/json');
+    headers = headers.append(this.contentType, this.appJson)
+      .append(this.strAccept, this.appJson);
 
     let params: HttpParams = new HttpParams();
     params = params.append('$top', top.toString());
@@ -184,8 +190,8 @@ export class ODataService {
     }
 
     let headers: HttpHeaders = new HttpHeaders();
-    headers = headers.append('Content-Type', 'application/json')
-      .append('Accept', 'application/json');
+    headers = headers.append(this.contentType, this.appJson)
+      .append(this.strAccept, this.appJson);
 
     let params: HttpParams = new HttpParams();
     params = params.append('$select', 'ID,Category,Title,Content,CreatedAt,ModifiedAt');
@@ -220,8 +226,8 @@ export class ODataService {
     }
 
     let headers: HttpHeaders = new HttpHeaders();
-    headers = headers.append('Content-Type', 'application/json')
-      .append('Accept', 'application/json');
+    headers = headers.append(this.contentType, this.appJson)
+      .append(this.strAccept, this.appJson);
 
     const jdata = ki.generateString();
     return this.http.post(`${this.apiUrl}KnowledgeItems`, jdata, {
@@ -255,8 +261,8 @@ export class ODataService {
     }
 
     let headers: HttpHeaders = new HttpHeaders();
-    headers = headers.append('Content-Type', 'application/json')
-      .append('Accept', 'application/json');
+    headers = headers.append(this.contentType, this.appJson)
+      .append(this.strAccept, this.appJson);
 
     const jdata = ki.generateString(true);
     return this.http.put(`${this.apiUrl}KnowledgeItems(${ki.ID})`, jdata, {
@@ -286,8 +292,8 @@ export class ODataService {
     }
 
     let headers: HttpHeaders = new HttpHeaders();
-    headers = headers.append('Content-Type', 'application/json')
-      .append('Accept', 'application/json');
+    headers = headers.append(this.contentType, this.appJson)
+      .append(this.strAccept, this.appJson);
 
     return this.http.delete(`${this.apiUrl}KnowledgeItems(${itemid})`, {
       headers
@@ -322,8 +328,8 @@ export class ODataService {
     }
 
     let headers: HttpHeaders = new HttpHeaders();
-    headers = headers.append('Content-Type', 'application/json')
-      .append('Accept', 'application/json');
+    headers = headers.append(this.contentType, this.appJson)
+      .append(this.strAccept, this.appJson);
 
     let params: HttpParams = new HttpParams();
     params = params.append('$top', top.toString());
@@ -381,8 +387,8 @@ export class ODataService {
     }
 
     let headers: HttpHeaders = new HttpHeaders();
-    headers = headers.append('Content-Type', 'application/json')
-      .append('Accept', 'application/json');
+    headers = headers.append(this.contentType, this.appJson)
+      .append(this.strAccept, this.appJson);
 
     const jdata = qbi.generateString();
     return this.http.post(`${this.apiUrl}ExerciseItems`, jdata, {
@@ -417,8 +423,8 @@ export class ODataService {
     }
 
     let headers: HttpHeaders = new HttpHeaders();
-    headers = headers.append('Content-Type', 'application/json')
-      .append('Accept', 'application/json');
+    headers = headers.append(this.contentType, this.appJson)
+      .append(this.strAccept, this.appJson);
 
     const jdata = qbi.generateString(true);
     return this.http.put(`${this.apiUrl}ExerciseItems(${qbi.ID})`, jdata, {
@@ -456,8 +462,8 @@ export class ODataService {
     }
 
     let headers: HttpHeaders = new HttpHeaders();
-    headers = headers.append('Content-Type', 'application/json')
-      .append('Accept', 'application/json');
+    headers = headers.append(this.contentType, this.appJson)
+      .append(this.strAccept, this.appJson);
 
     let params: HttpParams = new HttpParams();
     params = params.append('$select', 'ID,KnowledgeItemID,ExerciseType,Content,CreatedAt,ModifiedAt');
@@ -491,8 +497,8 @@ export class ODataService {
     }
 
     let headers: HttpHeaders = new HttpHeaders();
-    headers = headers.append('Content-Type', 'application/json')
-      .append('Accept', 'application/json');
+    headers = headers.append(this.contentType, this.appJson)
+      .append(this.strAccept, this.appJson);
 
     return this.http.delete(`${this.apiUrl}ExerciseItems(${itemid})`, {
       headers
@@ -521,8 +527,8 @@ export class ODataService {
     }
 
     let headers: HttpHeaders = new HttpHeaders();
-    headers = headers.append('Content-Type', 'application/json')
-      .append('Accept', 'application/json');
+    headers = headers.append(this.contentType, this.appJson)
+      .append(this.strAccept, this.appJson);
 
     let params: HttpParams = new HttpParams();
     params = params.append('$top', top.toString());
@@ -583,8 +589,8 @@ export class ODataService {
     }
 
     let headers: HttpHeaders = new HttpHeaders();
-    headers = headers.append('Content-Type', 'application/json')
-      .append('Accept', 'application/json');
+    headers = headers.append(this.contentType, this.appJson)
+      .append(this.strAccept, this.appJson);
 
     let params: HttpParams = new HttpParams();
     params = params.append('$top', top.toString());
@@ -631,8 +637,8 @@ export class ODataService {
       }
     }
     let headers: HttpHeaders = new HttpHeaders();
-    headers = headers.append('Content-Type', 'application/json')
-      .append('Accept', 'application/json');
+    headers = headers.append(this.contentType, this.appJson)
+      .append(this.strAccept, this.appJson);
 
     const jdata = rule.writeJSONString(true);
     return this.http.post(`${this.apiUrl}AwardRules`, jdata, {
@@ -657,8 +663,8 @@ export class ODataService {
     }
 
     let headers: HttpHeaders = new HttpHeaders();
-    headers = headers.append('Content-Type', 'application/json')
-      .append('Accept', 'application/json');
+    headers = headers.append(this.contentType, this.appJson)
+      .append(this.strAccept, this.appJson);
 
     return this.http.delete(`${this.apiUrl}AwardRules(${rid})`, {
       headers
@@ -679,8 +685,8 @@ export class ODataService {
     }
 
     let headers: HttpHeaders = new HttpHeaders();
-    headers = headers.append('Content-Type', 'application/json')
-      .append('Accept', 'application/json');
+    headers = headers.append(this.contentType, this.appJson)
+      .append(this.strAccept, this.appJson);
 
     let params: HttpParams = new HttpParams();
     params = params.append('$top', top.toString());
@@ -734,8 +740,8 @@ export class ODataService {
     }
 
     let headers: HttpHeaders = new HttpHeaders();
-    headers = headers.append('Content-Type', 'application/json')
-      .append('Accept', 'application/json');
+    headers = headers.append(this.contentType, this.appJson)
+      .append(this.strAccept, this.appJson);
     let params: HttpParams = new HttpParams();
     params = params.append('$expand', 'Rules');
     params = params.append('$filter', `ID eq ${grpid}`);
@@ -766,8 +772,8 @@ export class ODataService {
       }
     }
     let headers: HttpHeaders = new HttpHeaders();
-    headers = headers.append('Content-Type', 'application/json')
-      .append('Accept', 'application/json');
+    headers = headers.append(this.contentType, this.appJson)
+      .append(this.strAccept, this.appJson);
 
     const jdata = grp.writeJSONString(true);
     return this.http.post(`${this.apiUrl}AwardRuleGroups`, jdata, {
@@ -792,8 +798,8 @@ export class ODataService {
     }
 
     let headers: HttpHeaders = new HttpHeaders();
-    headers = headers.append('Content-Type', 'application/json')
-      .append('Accept', 'application/json');
+    headers = headers.append(this.contentType, this.appJson)
+      .append(this.strAccept, this.appJson);
 
     return this.http.delete(`${this.apiUrl}AwardRuleGroups(${rid})`, {
       headers
@@ -818,8 +824,8 @@ export class ODataService {
       }
 
       let headers: HttpHeaders = new HttpHeaders();
-      headers = headers.append('Content-Type', 'application/json')
-        .append('Accept', 'application/json');
+      headers = headers.append(this.contentType, this.appJson)
+        .append(this.strAccept, this.appJson);
 
       let params: HttpParams = new HttpParams();
       params = params.append('$top', top.toString());
@@ -861,8 +867,8 @@ export class ODataService {
     }
 
     let headers: HttpHeaders = new HttpHeaders();
-    headers = headers.append('Content-Type', 'application/json')
-      .append('Accept', 'application/json');
+    headers = headers.append(this.contentType, this.appJson)
+      .append(this.strAccept, this.appJson);
 
     const params = new HttpParams();
     const apiurl = `${this.apiUrl}DailyTraces/SimulatePoints`;
@@ -897,8 +903,8 @@ export class ODataService {
       }
     }
     let headers: HttpHeaders = new HttpHeaders();
-    headers = headers.append('Content-Type', 'application/json')
-      .append('Accept', 'application/json');
+    headers = headers.append(this.contentType, this.appJson)
+      .append(this.strAccept, this.appJson);
 
     const jdata = dt.writeJSONString();
     return this.http.post(`${this.apiUrl}DailyTraces`, jdata, {
@@ -923,8 +929,8 @@ export class ODataService {
     }
 
     let headers: HttpHeaders = new HttpHeaders();
-    headers = headers.append('Content-Type', 'application/json')
-      .append('Accept', 'application/json');
+    headers = headers.append(this.contentType, this.appJson)
+      .append(this.strAccept, this.appJson);
 
     return this.http.delete(`${this.apiUrl}DailyTraces(RecordDate=${rdate.format(momentDateFormat)},TargetUser='${tuser}')`, {
       headers
@@ -942,8 +948,8 @@ export class ODataService {
       }
 
       let headers: HttpHeaders = new HttpHeaders();
-      headers = headers.append('Content-Type', 'application/json')
-        .append('Accept', 'application/json');
+      headers = headers.append(this.contentType, this.appJson)
+        .append(this.strAccept, this.appJson);
 
       let params: HttpParams = new HttpParams();
       params = params.append('$top', top.toString());
@@ -987,8 +993,8 @@ export class ODataService {
       }
     }
     let headers: HttpHeaders = new HttpHeaders();
-    headers = headers.append('Content-Type', 'application/json')
-      .append('Accept', 'application/json');
+    headers = headers.append(this.contentType, this.appJson)
+      .append(this.strAccept, this.appJson);
 
     const jdata = pnt.writeJSONString(true);
     return this.http.post(`${this.apiUrl}AwardPoints`, jdata, {
@@ -1013,8 +1019,8 @@ export class ODataService {
     }
 
     let headers: HttpHeaders = new HttpHeaders();
-    headers = headers.append('Content-Type', 'application/json')
-      .append('Accept', 'application/json');
+    headers = headers.append(this.contentType, this.appJson)
+      .append(this.strAccept, this.appJson);
 
     return this.http.delete(`${this.apiUrl}AwardPoints(${pid})`, {
       headers
@@ -1031,8 +1037,8 @@ export class ODataService {
       }
 
       let headers: HttpHeaders = new HttpHeaders();
-      headers = headers.append('Content-Type', 'application/json')
-        .append('Accept', 'application/json');
+      headers = headers.append(this.contentType, this.appJson)
+        .append(this.strAccept, this.appJson);
 
       let params: HttpParams = new HttpParams();
       params = params.append('$top', top.toString());
@@ -1122,8 +1128,8 @@ export class ODataService {
     }
 
     let headers: HttpHeaders = new HttpHeaders();
-    headers = headers.append('Content-Type', 'application/json')
-      .append('Accept', 'application/json');
+    headers = headers.append(this.contentType, this.appJson)
+      .append(this.strAccept, this.appJson);
 
     let params: HttpParams = new HttpParams();
     params = params.append('$top', '100');
@@ -1163,8 +1169,8 @@ export class ODataService {
     }
 
     let headers: HttpHeaders = new HttpHeaders();
-    headers = headers.append('Content-Type', 'application/json')
-      .append('Accept', 'application/json');
+    headers = headers.append(this.contentType, this.appJson)
+      .append(this.strAccept, this.appJson);
 
     let params: HttpParams = new HttpParams();
     params = params.append('$top', '100');
@@ -1210,8 +1216,8 @@ export class ODataService {
     }
 
     let headers: HttpHeaders = new HttpHeaders();
-    headers = headers.append('Content-Type', 'application/json')
-      .append('Accept', 'application/json');
+    headers = headers.append(this.contentType, this.appJson)
+      .append(this.strAccept, this.appJson);
 
     let apiurl = `${this.apiUrl}OverviewInfos`;
     if (environment.mockdata) {
@@ -1243,8 +1249,8 @@ export class ODataService {
       }
 
       let headers: HttpHeaders = new HttpHeaders();
-      headers = headers.append('Content-Type', 'application/json')
-        .append('Accept', 'application/json');
+      headers = headers.append(this.contentType, this.appJson)
+        .append(this.strAccept, this.appJson);
 
       let params: HttpParams = new HttpParams();
       params = params.append('$top', top.toString());
@@ -1289,8 +1295,8 @@ export class ODataService {
       }
     }
     let headers: HttpHeaders = new HttpHeaders();
-    headers = headers.append('Content-Type', 'application/json')
-      .append('Accept', 'application/json');
+    headers = headers.append(this.contentType, this.appJson)
+      .append(this.strAccept, this.appJson);
 
     const jdata = coll.writeJSONString();
     return this.http.post(`${this.apiUrl}UserCollections`, jdata, {
@@ -1325,8 +1331,8 @@ export class ODataService {
     }
 
     let headers: HttpHeaders = new HttpHeaders();
-    headers = headers.append('Content-Type', 'application/json')
-      .append('Accept', 'application/json');
+    headers = headers.append(this.contentType, this.appJson)
+      .append(this.strAccept, this.appJson);
 
     let params: HttpParams = new HttpParams();
     // params = params.append('$select', 'ID,Category,Title,Content,CreatedAt,ModifiedAt');
@@ -1361,8 +1367,8 @@ export class ODataService {
     }
 
     let headers: HttpHeaders = new HttpHeaders();
-    headers = headers.append('Content-Type', 'application/json')
-      .append('Accept', 'application/json');
+    headers = headers.append(this.contentType, this.appJson)
+      .append(this.strAccept, this.appJson);
 
     const jdata: any = {
       User: this.currentUser?.getUserId(),
@@ -1401,8 +1407,8 @@ export class ODataService {
     }
 
     let headers: HttpHeaders = new HttpHeaders();
-    headers = headers.append('Content-Type', 'application/json')
-      .append('Accept', 'application/json');
+    headers = headers.append(this.contentType, this.appJson)
+      .append(this.strAccept, this.appJson);
 
     const jdata: any = {
       User: this.currentUser?.getUserId(),
@@ -1434,8 +1440,8 @@ export class ODataService {
     }
 
     let headers: HttpHeaders = new HttpHeaders();
-    headers = headers.append('Content-Type', 'application/json')
-      .append('Accept', 'application/json');
+    headers = headers.append(this.contentType, this.appJson)
+      .append(this.strAccept, this.appJson);
 
     return this.http.delete(`${this.apiUrl}UserCollections(${collid})`,  {
       headers,
@@ -1452,8 +1458,8 @@ export class ODataService {
     }
 
     let headers: HttpHeaders = new HttpHeaders();
-    headers = headers.append('Content-Type', 'application/json')
-      .append('Accept', 'application/json');
+    headers = headers.append(this.contentType, this.appJson)
+      .append(this.strAccept, this.appJson);
 
     let params: HttpParams = new HttpParams();
     params = params.append('$top', top.toString());
@@ -1497,8 +1503,8 @@ export class ODataService {
       }
     }
     let headers: HttpHeaders = new HttpHeaders();
-    headers = headers.append('Content-Type', 'application/json')
-      .append('Accept', 'application/json');
+    headers = headers.append(this.contentType, this.appJson)
+      .append(this.strAccept, this.appJson);
 
     const jdata = nscore.writeJSONString();
     return this.http.post(`${this.apiUrl}ExerciseItemUserScores`, jdata, {
@@ -1522,8 +1528,8 @@ export class ODataService {
       }
     }
     let headers: HttpHeaders = new HttpHeaders();
-    headers = headers.append('Content-Type', 'application/json')
-      .append('Accept', 'application/json');
+    headers = headers.append(this.contentType, this.appJson)
+      .append(this.strAccept, this.appJson);
 
     return this.http.delete(`${this.apiUrl}ExerciseItemUserScores(${scoreid})`,  {
       headers,
@@ -1540,8 +1546,8 @@ export class ODataService {
       }
     }
     let headers: HttpHeaders = new HttpHeaders();
-    headers = headers.append('Content-Type', 'application/json')
-      .append('Accept', 'application/json');
+    headers = headers.append(this.contentType, this.appJson)
+      .append(this.strAccept, this.appJson);
 
     const jdata = {
       User: this.currentUser?.getUserId(),
@@ -1576,8 +1582,8 @@ export class ODataService {
   //   }
 
   //   let headers: HttpHeaders = new HttpHeaders();
-  //   headers = headers.append('Content-Type', 'application/json')
-  //     .append('Accept', 'application/json');
+  //   headers = headers.append(this.contentType, this.appJson)
+  //     .append(this.strAccept, this.appJson);
 
   //   let params: HttpParams = new HttpParams();
   //   params = params.append('$count', 'true');
@@ -1618,8 +1624,8 @@ export class ODataService {
     }
 
     let headers: HttpHeaders = new HttpHeaders();
-    headers = headers.append('Content-Type', 'application/json')
-      .append('Accept', 'application/json');
+    headers = headers.append(this.contentType, this.appJson)
+      .append(this.strAccept, this.appJson);
 
     let params: HttpParams = new HttpParams();
     params = params.append('$count', 'true');

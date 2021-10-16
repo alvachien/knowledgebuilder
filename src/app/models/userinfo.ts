@@ -2,33 +2,6 @@
 import { User } from 'oidc-client';
 
 /**
- * User detail
- */
-export class UserDetail {
-  public UserId = '';
-  public DisplayAs = '';
-  public Email = '';
-  public Others = '';
-
-  public onSetData(data: any): void {
-    this.UserId = data.userID;
-    this.DisplayAs = data.displayAs;
-    this.Email = data.email;
-    this.Others = data.others;
-  }
-
-  public onGetData(): any {
-    const data: any = {};
-    data.userID = this.UserId;
-    data.displayAs = this.DisplayAs;
-    data.email = this.Email;
-    data.others = this.Others;
-
-    return data;
-  }
-}
-
-/**
  * User Auth Info
  */
 export class UserAuthInfo {

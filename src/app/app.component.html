@@ -16,12 +16,8 @@
       </button>
     </mat-menu>
 
-    <button mat-icon-button *ngIf="!oDataSrv.isLoggedin" color="primary" (click)="launchExpertMode()" title="Expert Mode" matTooltip="{{'ExpertMode' | transloco }}">
-      <mat-icon>people</mat-icon>
-    </button>
-
-    <button mat-icon-button *ngIf="oDataSrv.isLoggedin" color="primary" (click)="displayUserInfo()" title="Expert Mode" matTooltip="{{'ExpertMode' | transloco }}">
-      <mat-icon>account_box</mat-icon>
+    <button mat-icon-button color="primary" (click)="launchExpertMode()" title="Expert Mode" matTooltip="{{'ExpertMode' | transloco }}">
+      <mat-icon color="primary">account_box</mat-icon>
     </button>
 
     <button mat-icon-button (click)="openCodeRepo()">
