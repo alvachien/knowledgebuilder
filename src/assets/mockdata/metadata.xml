@@ -1,139 +1,357 @@
-<?xml version="1.0" encoding="utf-8"?>
-<edmx:Edmx Version="4.0" xmlns:edmx="http://docs.oasis-open.org/odata/ns/edmx">
-    <edmx:DataServices>
-        <Schema Namespace="knowledgebuilderapi.Models" xmlns="http://docs.oasis-open.org/odata/ns/edm">
-            <EntityType Name="KnowledgeItem">
-                <Key>
-                    <PropertyRef Name="ID" />
-                </Key>
-                <Property Name="ID" Type="Edm.Int32" Nullable="false" />
-                <Property Name="Category" Type="knowledgebuilderapi.Models.KnowledgeItemCategory" Nullable="false" />
-                <Property Name="Title" Type="Edm.String" Nullable="false" MaxLength="50" />
-                <Property Name="Content" Type="Edm.String" Nullable="false" />
-                <Property Name="CreatedAt" Type="Edm.DateTimeOffset" />
-                <Property Name="ModifiedAt" Type="Edm.DateTimeOffset" />
-                <NavigationProperty Name="Exercises" Type="Collection(knowledgebuilderapi.Models.ExerciseItem)" />
-                <NavigationProperty Name="Tags" Type="Collection(knowledgebuilderapi.Models.KnowledgeTag)" />
-            </EntityType>
-            <EntityType Name="ExerciseItem">
-                <Key>
-                    <PropertyRef Name="ID" />
-                </Key>
-                <Property Name="ID" Type="Edm.Int32" Nullable="false" />
-                <Property Name="KnowledgeItemID" Type="Edm.Int32" />
-                <Property Name="ExerciseType" Type="knowledgebuilderapi.Models.ExerciseItemType" Nullable="false" />
-                <Property Name="Content" Type="Edm.String" Nullable="false" />
-                <Property Name="CreatedAt" Type="Edm.DateTimeOffset" />
-                <Property Name="ModifiedAt" Type="Edm.DateTimeOffset" />
-                <NavigationProperty Name="CurrentKnowledgeItem" Type="knowledgebuilderapi.Models.KnowledgeItem">
-                    <ReferentialConstraint Property="KnowledgeItemID" ReferencedProperty="ID" />
-                </NavigationProperty>
-                <NavigationProperty Name="Answer" Type="knowledgebuilderapi.Models.ExerciseItemAnswer" />
-                <NavigationProperty Name="Tags" Type="Collection(knowledgebuilderapi.Models.ExerciseTag)" />
-            </EntityType>
-            <EntityType Name="ExerciseItemAnswer">
-                <Key>
-                    <PropertyRef Name="ID" />
-                </Key>
-                <Property Name="ID" Type="Edm.Int32" Nullable="false" />
-                <Property Name="Content" Type="Edm.String" Nullable="false" />
-                <Property Name="CreatedAt" Type="Edm.DateTimeOffset" />
-                <Property Name="ModifiedAt" Type="Edm.DateTimeOffset" />
-                <NavigationProperty Name="ExerciseItem" Type="knowledgebuilderapi.Models.ExerciseItem" />
-            </EntityType>
-            <EntityType Name="KnowledgeTag">
-                <Key>
-                    <PropertyRef Name="RefID" />
-                    <PropertyRef Name="TagTerm" />
-                </Key>
-                <Property Name="TagTerm" Type="Edm.String" Nullable="false" MaxLength="20" />
-                <Property Name="RefID" Type="Edm.Int32" Nullable="false" />
-                <NavigationProperty Name="CurrentKnowledgeItem" Type="knowledgebuilderapi.Models.KnowledgeItem" />
-            </EntityType>
-            <EntityType Name="ExerciseTag">
-                <Key>
-                    <PropertyRef Name="RefID" />
-                    <PropertyRef Name="TagTerm" />
-                </Key>
-                <Property Name="TagTerm" Type="Edm.String" Nullable="false" MaxLength="20" />
-                <Property Name="RefID" Type="Edm.Int32" Nullable="false" />
-                <NavigationProperty Name="CurrentExerciseItem" Type="knowledgebuilderapi.Models.ExerciseItem" />
-            </EntityType>
-            <EntityType Name="Tag">
-                <Key>
-                    <PropertyRef Name="TagTerm" />
-                </Key>
-                <Property Name="TagTerm" Type="Edm.String" Nullable="false" />
-                <Property Name="RefType" Type="knowledgebuilderapi.Models.TagRefType" Nullable="false" />
-                <Property Name="RefID" Type="Edm.Int32" Nullable="false" />
-            </EntityType>
-            <EntityType Name="TagCount">
-                <Key>
-                    <PropertyRef Name="RefType" />
-                    <PropertyRef Name="Tag" />
-                </Key>
-                <Property Name="Tag" Type="Edm.String" Nullable="false" />
-                <Property Name="RefType" Type="knowledgebuilderapi.Models.TagRefType" Nullable="false" />
-                <Property Name="Count" Type="Edm.Int32" Nullable="false" />
-            </EntityType>
-            <EntityType Name="TagCountByRefType">
-                <Key>
-                    <PropertyRef Name="RefType" />
-                </Key>
-                <Property Name="RefType" Type="knowledgebuilderapi.Models.TagRefType" Nullable="false" />
-                <Property Name="TagCount" Type="Edm.Int32" Nullable="false" />
-            </EntityType>
-            <EntityType Name="OverviewInfo">
-                <Key>
-                    <PropertyRef Name="RefType" />
-                </Key>
-                <Property Name="RefType" Type="knowledgebuilderapi.Models.TagRefType" Nullable="false" />
-                <Property Name="Count" Type="Edm.Int32" Nullable="false" />
-            </EntityType>
-            <EnumType Name="KnowledgeItemCategory" UnderlyingType="Edm.Int16">
-                <Member Name="Concept" Value="0" />
-                <Member Name="Formula" Value="1" />
-            </EnumType>
-            <EnumType Name="ExerciseItemType" UnderlyingType="Edm.Int16">
-                <Member Name="Question" Value="0" />
-                <Member Name="SingleChoice" Value="1" />
-                <Member Name="MultipleChoice" Value="2" />
-                <Member Name="ShortAnswer" Value="3" />
-                <Member Name="EssayQuestions" Value="4" />
-            </EnumType>
-            <EnumType Name="TagRefType" UnderlyingType="Edm.Int16">
-                <Member Name="KnowledgeItem" Value="1" />
-                <Member Name="ExerciseItem" Value="2" />
-            </EnumType>
-            <EntityContainer Name="Container">
-                <EntitySet Name="KnowledgeItems" EntityType="knowledgebuilderapi.Models.KnowledgeItem">
-                    <NavigationPropertyBinding Path="Exercises" Target="ExerciseItems" />
-                    <NavigationPropertyBinding Path="Tags" Target="KnowledgeTags" />
-                    <Annotation Term="Org.OData.Core.V1.OptimisticConcurrency">
-                        <Collection>
-                            <PropertyPath>Title</PropertyPath>
-                        </Collection>
-                    </Annotation>
-                </EntitySet>
-                <EntitySet Name="ExerciseItems" EntityType="knowledgebuilderapi.Models.ExerciseItem">
-                    <NavigationPropertyBinding Path="Answer" Target="ExerciseItemAnswers" />
-                    <NavigationPropertyBinding Path="CurrentKnowledgeItem" Target="KnowledgeItems" />
-                    <NavigationPropertyBinding Path="Tags" Target="ExerciseTags" />
-                </EntitySet>
-                <EntitySet Name="ExerciseItemAnswers" EntityType="knowledgebuilderapi.Models.ExerciseItemAnswer">
-                    <NavigationPropertyBinding Path="ExerciseItem" Target="ExerciseItems" />
-                </EntitySet>
-                <EntitySet Name="KnowledgeTags" EntityType="knowledgebuilderapi.Models.KnowledgeTag">
-                    <NavigationPropertyBinding Path="CurrentKnowledgeItem" Target="KnowledgeItems" />
-                </EntitySet>
-                <EntitySet Name="ExerciseTags" EntityType="knowledgebuilderapi.Models.ExerciseTag">
-                    <NavigationPropertyBinding Path="CurrentExerciseItem" Target="ExerciseItems" />
-                </EntitySet>
-                <EntitySet Name="Tags" EntityType="knowledgebuilderapi.Models.Tag" />
-                <EntitySet Name="TagCounts" EntityType="knowledgebuilderapi.Models.TagCount" />
-                <EntitySet Name="TagCountByRefTypes" EntityType="knowledgebuilderapi.Models.TagCountByRefType" />
-                <EntitySet Name="OverviewInfos" EntityType="knowledgebuilderapi.Models.OverviewInfo" />
-            </EntityContainer>
-        </Schema>
-    </edmx:DataServices>
+<edmx:Edmx xmlns:edmx="http://docs.oasis-open.org/odata/ns/edmx" Version="4.0">
+<edmx:DataServices>
+<Schema xmlns="http://docs.oasis-open.org/odata/ns/edm" Namespace="knowledgebuilderapi.Models">
+<EntityType Name="KnowledgeItem">
+<Key>
+<PropertyRef Name="ID"/>
+</Key>
+<Property Name="ID" Type="Edm.Int32" Nullable="false"/>
+<Property Name="Category" Type="knowledgebuilderapi.Models.KnowledgeItemCategory" Nullable="false"/>
+<Property Name="Title" Type="Edm.String" Nullable="false" MaxLength="50"/>
+<Property Name="Content" Type="Edm.String" Nullable="false"/>
+<Property Name="CreatedAt" Type="Edm.DateTimeOffset"/>
+<Property Name="ModifiedAt" Type="Edm.DateTimeOffset"/>
+<NavigationProperty Name="Exercises" Type="Collection(knowledgebuilderapi.Models.ExerciseItem)"/>
+<NavigationProperty Name="Tags" Type="Collection(knowledgebuilderapi.Models.KnowledgeTag)"/>
+</EntityType>
+<EntityType Name="ExerciseItem">
+<Key>
+<PropertyRef Name="ID"/>
+</Key>
+<Property Name="ID" Type="Edm.Int32" Nullable="false"/>
+<Property Name="KnowledgeItemID" Type="Edm.Int32"/>
+<Property Name="ExerciseType" Type="knowledgebuilderapi.Models.ExerciseItemType" Nullable="false"/>
+<Property Name="Content" Type="Edm.String" Nullable="false"/>
+<Property Name="CreatedAt" Type="Edm.DateTimeOffset"/>
+<Property Name="ModifiedAt" Type="Edm.DateTimeOffset"/>
+<NavigationProperty Name="CurrentKnowledgeItem" Type="knowledgebuilderapi.Models.KnowledgeItem">
+<ReferentialConstraint Property="KnowledgeItemID" ReferencedProperty="ID"/>
+</NavigationProperty>
+<NavigationProperty Name="Answer" Type="knowledgebuilderapi.Models.ExerciseItemAnswer"/>
+<NavigationProperty Name="Tags" Type="Collection(knowledgebuilderapi.Models.ExerciseTag)"/>
+<NavigationProperty Name="UserScores" Type="Collection(knowledgebuilderapi.Models.ExerciseItemUserScore)"/>
+</EntityType>
+<EntityType Name="ExerciseItemAnswer">
+<Key>
+<PropertyRef Name="ID"/>
+</Key>
+<Property Name="ID" Type="Edm.Int32" Nullable="false"/>
+<Property Name="Content" Type="Edm.String" Nullable="false"/>
+<Property Name="CreatedAt" Type="Edm.DateTimeOffset"/>
+<Property Name="ModifiedAt" Type="Edm.DateTimeOffset"/>
+<NavigationProperty Name="ExerciseItem" Type="knowledgebuilderapi.Models.ExerciseItem"/>
+</EntityType>
+<EntityType Name="KnowledgeTag">
+<Key>
+<PropertyRef Name="RefID"/>
+<PropertyRef Name="TagTerm"/>
+</Key>
+<Property Name="TagTerm" Type="Edm.String" Nullable="false" MaxLength="20"/>
+<Property Name="RefID" Type="Edm.Int32" Nullable="false"/>
+<NavigationProperty Name="CurrentKnowledgeItem" Type="knowledgebuilderapi.Models.KnowledgeItem"/>
+</EntityType>
+<EntityType Name="ExerciseTag">
+<Key>
+<PropertyRef Name="RefID"/>
+<PropertyRef Name="TagTerm"/>
+</Key>
+<Property Name="TagTerm" Type="Edm.String" Nullable="false" MaxLength="20"/>
+<Property Name="RefID" Type="Edm.Int32" Nullable="false"/>
+<NavigationProperty Name="CurrentExerciseItem" Type="knowledgebuilderapi.Models.ExerciseItem"/>
+</EntityType>
+<EntityType Name="AwardRuleGroup">
+<Key>
+<PropertyRef Name="ID"/>
+</Key>
+<Property Name="ID" Type="Edm.Int32" Nullable="false"/>
+<Property Name="RuleType" Type="knowledgebuilderapi.Models.AwardRuleType" Nullable="false"/>
+<Property Name="TargetUser" Type="Edm.String"/>
+<Property Name="Desp" Type="Edm.String"/>
+<Property Name="ValidFrom" Type="Edm.DateTimeOffset" Nullable="false"/>
+<Property Name="ValidTo" Type="Edm.DateTimeOffset" Nullable="false"/>
+<NavigationProperty Name="Rules" Type="Collection(knowledgebuilderapi.Models.AwardRule)"/>
+</EntityType>
+<EntityType Name="AwardRule">
+<Key>
+<PropertyRef Name="ID"/>
+</Key>
+<Property Name="ID" Type="Edm.Int32" Nullable="false"/>
+<Property Name="GroupID" Type="Edm.Int32" Nullable="false"/>
+<Property Name="CountOfFactLow" Type="Edm.Int32"/>
+<Property Name="CountOfFactHigh" Type="Edm.Int32"/>
+<Property Name="DoneOfFact" Type="Edm.Boolean"/>
+<Property Name="TimeStart" Type="Edm.Decimal"/>
+<Property Name="TimeEnd" Type="Edm.Decimal"/>
+<Property Name="DaysFrom" Type="Edm.Int32"/>
+<Property Name="DaysTo" Type="Edm.Int32"/>
+<Property Name="Point" Type="Edm.Int32" Nullable="false"/>
+<NavigationProperty Name="CurrentGroup" Type="knowledgebuilderapi.Models.AwardRuleGroup"/>
+</EntityType>
+<EntityType Name="DailyTrace">
+<Key>
+<PropertyRef Name="RecordDate"/>
+<PropertyRef Name="TargetUser"/>
+</Key>
+<Property Name="RecordDate" Type="Edm.Date" Nullable="false"/>
+<Property Name="TargetUser" Type="Edm.String" Nullable="false"/>
+<Property Name="SchoolWorkTime" Type="Edm.Decimal"/>
+<Property Name="GoToBedTime" Type="Edm.Decimal"/>
+<Property Name="HomeWorkCount" Type="Edm.Int16"/>
+<Property Name="BodyExerciseCount" Type="Edm.Int16"/>
+<Property Name="ErrorsCollection" Type="Edm.Boolean"/>
+<Property Name="HandWriting" Type="Edm.Boolean"/>
+<Property Name="CleanDesk" Type="Edm.Boolean"/>
+<Property Name="HouseKeepingCount" Type="Edm.Int16"/>
+<Property Name="PoliteBehavior" Type="Edm.Int16"/>
+<Property Name="Comment" Type="Edm.String"/>
+</EntityType>
+<EntityType Name="AwardPoint">
+<Key>
+<PropertyRef Name="ID"/>
+</Key>
+<Property Name="RecordDate" Type="Edm.Date" Nullable="false"/>
+<Property Name="ID" Type="Edm.Int32" Nullable="false"/>
+<Property Name="TargetUser" Type="Edm.String"/>
+<Property Name="MatchedRuleID" Type="Edm.Int32"/>
+<Property Name="CountOfDay" Type="Edm.Int32"/>
+<Property Name="Point" Type="Edm.Int32" Nullable="false"/>
+<Property Name="Comment" Type="Edm.String"/>
+</EntityType>
+<EntityType Name="AwardUser">
+<Key>
+<PropertyRef Name="Supervisor"/>
+<PropertyRef Name="TargetUser"/>
+</Key>
+<Property Name="TargetUser" Type="Edm.String" Nullable="false"/>
+<Property Name="Supervisor" Type="Edm.String" Nullable="false"/>
+</EntityType>
+<EntityType Name="AwardUserView">
+<Key>
+<PropertyRef Name="TargetUser"/>
+</Key>
+<Property Name="TargetUser" Type="Edm.String" Nullable="false"/>
+<Property Name="Supervisor" Type="Edm.String"/>
+<Property Name="UserName" Type="Edm.String"/>
+<Property Name="DisplayAs" Type="Edm.String"/>
+</EntityType>
+<EntityType Name="AwardPointReport">
+<Key>
+<PropertyRef Name="TargetUser"/>
+</Key>
+<Property Name="TargetUser" Type="Edm.String" Nullable="false"/>
+<Property Name="RecordDate" Type="Edm.Date" Nullable="false"/>
+<Property Name="Point" Type="Edm.Int32" Nullable="false"/>
+<Property Name="AggPoint" Type="Edm.Int32" Nullable="false"/>
+</EntityType>
+<EntityType Name="Tag">
+<Key>
+<PropertyRef Name="TagTerm"/>
+</Key>
+<Property Name="TagTerm" Type="Edm.String" Nullable="false"/>
+<Property Name="RefType" Type="knowledgebuilderapi.Models.TagRefType" Nullable="false"/>
+<Property Name="RefID" Type="Edm.Int32" Nullable="false"/>
+</EntityType>
+<EntityType Name="TagCount">
+<Key>
+<PropertyRef Name="RefType"/>
+<PropertyRef Name="Tag"/>
+</Key>
+<Property Name="Tag" Type="Edm.String" Nullable="false"/>
+<Property Name="RefType" Type="knowledgebuilderapi.Models.TagRefType" Nullable="false"/>
+<Property Name="Count" Type="Edm.Int32" Nullable="false"/>
+</EntityType>
+<EntityType Name="TagCountByRefType">
+<Key>
+<PropertyRef Name="RefType"/>
+</Key>
+<Property Name="RefType" Type="knowledgebuilderapi.Models.TagRefType" Nullable="false"/>
+<Property Name="TagCount" Type="Edm.Int32" Nullable="false"/>
+</EntityType>
+<EntityType Name="OverviewInfo">
+<Key>
+<PropertyRef Name="RefType"/>
+</Key>
+<Property Name="RefType" Type="knowledgebuilderapi.Models.TagRefType" Nullable="false"/>
+<Property Name="Count" Type="Edm.Int32" Nullable="false"/>
+</EntityType>
+<EntityType Name="ExerciseItemWithTagView">
+<Key>
+<PropertyRef Name="ID"/>
+</Key>
+<Property Name="ID" Type="Edm.Int32" Nullable="false"/>
+<Property Name="KnowledgeItemID" Type="Edm.Int32"/>
+<Property Name="ExerciseType" Type="knowledgebuilderapi.Models.ExerciseItemType" Nullable="false"/>
+<Property Name="Content" Type="Edm.String"/>
+<Property Name="Tags" Type="Edm.String"/>
+</EntityType>
+<EntityType Name="KnowledgeItemWithTagView">
+<Key>
+<PropertyRef Name="ID"/>
+</Key>
+<Property Name="ID" Type="Edm.Int32" Nullable="false"/>
+<Property Name="Category" Type="knowledgebuilderapi.Models.KnowledgeItemCategory" Nullable="false"/>
+<Property Name="Title" Type="Edm.String"/>
+<Property Name="Content" Type="Edm.String"/>
+<Property Name="Tags" Type="Edm.String"/>
+</EntityType>
+<EntityType Name="UserCollection">
+<Key>
+<PropertyRef Name="ID"/>
+</Key>
+<Property Name="ID" Type="Edm.Int32" Nullable="false"/>
+<Property Name="User" Type="Edm.String" Nullable="false"/>
+<Property Name="Name" Type="Edm.String" Nullable="false"/>
+<Property Name="Comment" Type="Edm.String"/>
+<Property Name="CreatedAt" Type="Edm.DateTimeOffset"/>
+<Property Name="ModifiedAt" Type="Edm.DateTimeOffset"/>
+<NavigationProperty Name="Items" Type="Collection(knowledgebuilderapi.Models.UserCollectionItem)"/>
+</EntityType>
+<EntityType Name="UserCollectionItem">
+<Key>
+<PropertyRef Name="ID"/>
+<PropertyRef Name="RefID"/>
+<PropertyRef Name="RefType"/>
+</Key>
+<Property Name="CreatedAt" Type="Edm.Date"/>
+<Property Name="ID" Type="Edm.Int32" Nullable="false"/>
+<Property Name="RefType" Type="knowledgebuilderapi.Models.TagRefType" Nullable="false"/>
+<Property Name="RefID" Type="Edm.Int32" Nullable="false"/>
+<NavigationProperty Name="Collection" Type="knowledgebuilderapi.Models.UserCollection"/>
+</EntityType>
+<EntityType Name="ExerciseItemUserScore">
+<Key>
+<PropertyRef Name="ID"/>
+</Key>
+<Property Name="TakenDate" Type="Edm.Date"/>
+<Property Name="ID" Type="Edm.Int32" Nullable="false"/>
+<Property Name="User" Type="Edm.String" Nullable="false"/>
+<Property Name="RefID" Type="Edm.Int32" Nullable="false"/>
+<Property Name="Score" Type="Edm.Int32" Nullable="false"/>
+<NavigationProperty Name="ReferenceItem" Type="knowledgebuilderapi.Models.ExerciseItem"/>
+</EntityType>
+<EntityType Name="InvitedUser">
+<Key>
+<PropertyRef Name="UserID"/>
+</Key>
+<Property Name="CreatedAt" Type="Edm.Date" Nullable="false"/>
+<Property Name="LastLoginAt" Type="Edm.Date" Nullable="false"/>
+<Property Name="UserID" Type="Edm.String" Nullable="false"/>
+<Property Name="UserName" Type="Edm.String" Nullable="false"/>
+<Property Name="DisplayAs" Type="Edm.String" Nullable="false"/>
+</EntityType>
+<EnumType Name="AwardRuleType" UnderlyingType="Edm.Int16">
+<Member Name="GoToBedTime" Value="1"/>
+<Member Name="SchoolWorkTime" Value="2"/>
+<Member Name="HomeWorkCount" Value="3"/>
+<Member Name="BodyExerciseCount" Value="4"/>
+<Member Name="ErrorCollectionHabit" Value="5"/>
+<Member Name="CleanDeakHabit" Value="6"/>
+<Member Name="HouseKeepingCount" Value="7"/>
+<Member Name="PoliteBehavior" Value="8"/>
+<Member Name="HandWritingHabit" Value="9"/>
+</EnumType>
+<EnumType Name="TagRefType" UnderlyingType="Edm.Int16">
+<Member Name="KnowledgeItem" Value="1"/>
+<Member Name="ExerciseItem" Value="2"/>
+</EnumType>
+<EnumType Name="KnowledgeItemCategory" UnderlyingType="Edm.Int16">
+<Member Name="Concept" Value="0"/>
+<Member Name="Formula" Value="1"/>
+</EnumType>
+<EnumType Name="ExerciseItemType" UnderlyingType="Edm.Int16">
+<Member Name="Question" Value="0"/>
+<Member Name="SingleChoice" Value="1"/>
+<Member Name="MultipleChoice" Value="2"/>
+<Member Name="ShortAnswer" Value="3"/>
+<Member Name="EssayQuestions" Value="4"/>
+</EnumType>
+<Action Name="SimulatePoints" IsBound="true">
+<Parameter Name="bindingParameter" Type="Collection(knowledgebuilderapi.Models.DailyTrace)"/>
+<Parameter Name="dt" Type="knowledgebuilderapi.Models.DailyTrace"/>
+<ReturnType Type="Collection(knowledgebuilderapi.Models.AwardPoint)"/>
+</Action>
+<Action Name="AddItemToCollection" IsBound="true">
+<Parameter Name="bindingParameter" Type="Collection(knowledgebuilderapi.Models.UserCollectionItem)"/>
+<Parameter Name="User" Type="Edm.String"/>
+<Parameter Name="ID" Type="Edm.Int32" Nullable="false"/>
+<Parameter Name="RefType" Type="knowledgebuilderapi.Models.TagRefType" Nullable="false"/>
+<Parameter Name="RefID" Type="Edm.Int32" Nullable="false"/>
+<Parameter Name="CreatedAt" Type="Edm.DateTimeOffset"/>
+<ReturnType Type="knowledgebuilderapi.Models.UserCollectionItem"/>
+</Action>
+<Action Name="RemoveItemFromCollection" IsBound="true">
+<Parameter Name="bindingParameter" Type="Collection(knowledgebuilderapi.Models.UserCollectionItem)"/>
+<Parameter Name="User" Type="Edm.String"/>
+<Parameter Name="ID" Type="Edm.Int32" Nullable="false"/>
+<Parameter Name="RefType" Type="knowledgebuilderapi.Models.TagRefType" Nullable="false"/>
+<Parameter Name="RefID" Type="Edm.Int32" Nullable="false"/>
+<ReturnType Type="Edm.Boolean" Nullable="false"/>
+</Action>
+<Action Name="AddItemToCollectionEx" IsBound="true">
+<Parameter Name="bindingParameter" Type="Collection(knowledgebuilderapi.Models.UserCollectionItem)"/>
+<Parameter Name="User" Type="Edm.String"/>
+<Parameter Name="UserCollectionItems" Type="Collection(knowledgebuilderapi.Models.UserCollectionItem)"/>
+<ReturnType Type="knowledgebuilderapi.Models.UserCollectionItem"/>
+</Action>
+<Action Name="LatestUserScore" IsBound="true">
+<Parameter Name="bindingParameter" Type="Collection(knowledgebuilderapi.Models.ExerciseItemUserScore)"/>
+<Parameter Name="User" Type="Edm.String"/>
+<Parameter Name="RefID" Type="Edm.Int32" Nullable="false"/>
+<ReturnType Type="knowledgebuilderapi.Models.ExerciseItemUserScore"/>
+</Action>
+<EntityContainer Name="Container">
+<EntitySet Name="KnowledgeItems" EntityType="knowledgebuilderapi.Models.KnowledgeItem">
+<NavigationPropertyBinding Path="Exercises" Target="ExerciseItems"/>
+<NavigationPropertyBinding Path="Tags" Target="KnowledgeTags"/>
+<Annotation Term="Org.OData.Core.V1.OptimisticConcurrency">
+<Collection>
+<PropertyPath>Title</PropertyPath>
+</Collection>
+</Annotation>
+</EntitySet>
+<EntitySet Name="ExerciseItems" EntityType="knowledgebuilderapi.Models.ExerciseItem">
+<NavigationPropertyBinding Path="Answer" Target="ExerciseItemAnswers"/>
+<NavigationPropertyBinding Path="CurrentKnowledgeItem" Target="KnowledgeItems"/>
+<NavigationPropertyBinding Path="Tags" Target="ExerciseTags"/>
+<NavigationPropertyBinding Path="UserScores" Target="ExerciseItemUserScores"/>
+</EntitySet>
+<EntitySet Name="ExerciseItemAnswers" EntityType="knowledgebuilderapi.Models.ExerciseItemAnswer">
+<NavigationPropertyBinding Path="ExerciseItem" Target="ExerciseItems"/>
+</EntitySet>
+<EntitySet Name="KnowledgeTags" EntityType="knowledgebuilderapi.Models.KnowledgeTag">
+<NavigationPropertyBinding Path="CurrentKnowledgeItem" Target="KnowledgeItems"/>
+</EntitySet>
+<EntitySet Name="ExerciseTags" EntityType="knowledgebuilderapi.Models.ExerciseTag">
+<NavigationPropertyBinding Path="CurrentExerciseItem" Target="ExerciseItems"/>
+</EntitySet>
+<EntitySet Name="AwardRuleGroups" EntityType="knowledgebuilderapi.Models.AwardRuleGroup">
+<NavigationPropertyBinding Path="Rules" Target="AwardRules"/>
+</EntitySet>
+<EntitySet Name="AwardRules" EntityType="knowledgebuilderapi.Models.AwardRule">
+<NavigationPropertyBinding Path="CurrentGroup" Target="AwardRuleGroups"/>
+</EntitySet>
+<EntitySet Name="DailyTraces" EntityType="knowledgebuilderapi.Models.DailyTrace"/>
+<EntitySet Name="AwardPoints" EntityType="knowledgebuilderapi.Models.AwardPoint"/>
+<EntitySet Name="AwardUsers" EntityType="knowledgebuilderapi.Models.AwardUser"/>
+<EntitySet Name="AwardUserViews" EntityType="knowledgebuilderapi.Models.AwardUserView"/>
+<EntitySet Name="AwardPointReports" EntityType="knowledgebuilderapi.Models.AwardPointReport"/>
+<EntitySet Name="Tags" EntityType="knowledgebuilderapi.Models.Tag"/>
+<EntitySet Name="TagCounts" EntityType="knowledgebuilderapi.Models.TagCount"/>
+<EntitySet Name="TagCountByRefTypes" EntityType="knowledgebuilderapi.Models.TagCountByRefType"/>
+<EntitySet Name="OverviewInfos" EntityType="knowledgebuilderapi.Models.OverviewInfo"/>
+<EntitySet Name="ExerciseItemWithTagViews" EntityType="knowledgebuilderapi.Models.ExerciseItemWithTagView"/>
+<EntitySet Name="KnowledgeItemWithTagViews" EntityType="knowledgebuilderapi.Models.KnowledgeItemWithTagView"/>
+<EntitySet Name="UserCollections" EntityType="knowledgebuilderapi.Models.UserCollection">
+<NavigationPropertyBinding Path="Items" Target="UserCollectionItems"/>
+</EntitySet>
+<EntitySet Name="UserCollectionItems" EntityType="knowledgebuilderapi.Models.UserCollectionItem">
+<NavigationPropertyBinding Path="Collection" Target="UserCollections"/>
+</EntitySet>
+<EntitySet Name="ExerciseItemUserScores" EntityType="knowledgebuilderapi.Models.ExerciseItemUserScore">
+<NavigationPropertyBinding Path="ReferenceItem" Target="ExerciseItems"/>
+</EntitySet>
+<EntitySet Name="InvitedUsers" EntityType="knowledgebuilderapi.Models.InvitedUser"/>
+</EntityContainer>
+</Schema>
+</edmx:DataServices>
 </edmx:Edmx>

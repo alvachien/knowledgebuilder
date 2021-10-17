@@ -1,13 +1,12 @@
 /* eslint-disable no-underscore-dangle */
 import { ChangeDetectorRef, Component, Inject, NgZone, OnDestroy } from '@angular/core';
 import { MatDialog, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
-import { MatSnackBar } from '@angular/material/snack-bar';
 import { MediaMatcher } from '@angular/cdk/layout';
 import { TranslocoService } from '@ngneat/transloco';
 import { DateAdapter } from '@angular/material/core';
 
 import { AppNavItem, AppLanguage, AppNavItemGroupEnum, UserAuthInfo } from './models';
-import { AuthService, ODataService } from './services';
+import { AuthService, ODataService, UIUtilityService } from './services';
 import { environment } from 'src/environments/environment';
 
 @Component({
@@ -35,7 +34,7 @@ export class AppComponent implements OnDestroy {
     public oDataSrv: ODataService,
     private authSrv: AuthService,
     private zone: NgZone,
-    private snackBar: MatSnackBar,
+    private uiUtilSrv: UIUtilityService,
   ) {
     this.mobileQuery = media.matchMedia('(max-width: 600px)');
     this._mobileQueryListener = () => changeDetectorRef.detectChanges();
@@ -72,7 +71,9 @@ export class AppComponent implements OnDestroy {
 
     this.authSrv.authContent.subscribe((x: UserAuthInfo) => {
       this.zone.run(() => {
-        this.oDataSrv.currentUser = x;
+        if (x && x.isAuthorized) {
+          this.oDataSrv.currentUser = x;
+        }
       });
     });
   }
@@ -100,39 +101,23 @@ export class AppComponent implements OnDestroy {
     return environment.version;
   }
 
-  displayUserInfo(): void {
-    const dialogRef = this.dialog.open(CurrentUserDialog, {
-      width: '600px',
-      closeOnNavigation: false
-    });
-    dialogRef.afterClosed().subscribe();
-  }
-  launchExpertMode(): void {
-    // Create new trace
-    const dialogRef = this.dialog.open(ExpertAccessCodeDialog, {
-      width: '600px',
-      closeOnNavigation: false,
-      data: {
-        accessCode: '',
-      },
-    });
-
-    dialogRef.afterClosed().subscribe(result => {
-      if (result) {
-        this.oDataSrv.enterExpertMode(result.accessCode).subscribe({
-          next: val => {
-            if (val) {
-              this.snackBar.open(`Expert Mode is ON`, undefined, {
-                duration: 2000,
-              });
-            }
-          },
-          error: err => {
-            this.snackBar.open(err, undefined, { duration: 2000 });
-          }
-        });
-      }
-    });
+  public onUserInfo(): void {
+    if (this.oDataSrv.isLoggedin) {
+      this.oDataSrv.getUserDetail().subscribe({
+        next: val => {
+          const dialogRef = this.dialog.open(CurrentUserDialog, {
+            width: '600px',
+            closeOnNavigation: false
+          });
+          dialogRef.afterClosed().subscribe();
+        },
+        error: err => {
+          this.uiUtilSrv.showSnackInfo(err);
+        }
+      });
+    } else {
+      this.authSrv.doLogin();
+    }
   }
 }
 

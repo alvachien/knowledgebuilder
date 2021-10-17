@@ -1,0 +1,12 @@
+{
+    "@odata.context":"https://localhost:44355/$metadata#InvitedUsers",
+    "value":[
+        {
+            "CreatedAt":"2021-10-09",
+            "LastLoginAt":"2021-10-10",
+            "UserID":"test1",
+            "UserName":"Tester1",
+            "DisplayAs":"Tester1"
+        }
+    ]
+}

@@ -22,6 +22,8 @@ export class ODataService {
   // expertMode = false;
   private isMetadataLoaded = false;
   private metadataInfo = '';
+  // Mockdata - User Detail
+  private mockedUserDetail: InvitedUser | null = null;
   // Mockdata - knowledge item
   private mockedKnowledgeItem: KnowledgeItem[] = [];
   // Mockdata - exercise item
@@ -39,13 +41,14 @@ export class ODataService {
   public currentUser: UserAuthInfo | null = null;
   public currentUserDetail: InvitedUser | null = null;
   private mockModeFailMsg = 'Cannot perform required opertion in mock mode';
-  private expertModeFailMsg = 'Cannot perform required opertion, need access code to expert mode';
+  private expertModeFailMsg = 'Cannot perform required opertion, need Login';
   private contentType = 'Content-Type';
   private appJson = 'application/json';
   private strAccept = 'Accept';
 
   constructor(private http: HttpClient,
     private authService: AuthService) {
+    this.currentUser = null;
   }
 
   get isLoggedin(): boolean {
@@ -77,28 +80,38 @@ export class ODataService {
     }
   }
 
-  public enterExpertMode(accessCode: string): Observable<any> {
+  // Get User Detail
+  public getUserDetail(): Observable<InvitedUser> {
+    if (!this.isLoggedin) {
+      return throwError(this.expertModeFailMsg);
+    }
+    if (this.currentUserDetail !== null) {
+      return of(this.currentUserDetail);
+    }
+
     let headers: HttpHeaders = new HttpHeaders();
     headers = headers.append(this.contentType, this.appJson)
-      .append(this.strAccept, this.appJson);
-      // .append('Authorization', 'Bearer ' + this.authService.authSubject.getValue().getAccessToken());
+      .append(this.strAccept, this.appJson)
+      .append('Authorization', 'Bearer ' + this.authService.authSubject.getValue().getAccessToken());
 
     const params: HttpParams = new HttpParams();
-    const apiurl = `${this.apiUrl}InvitedUsers/ValidInvitationCode`;
+    const apiurl = `${this.apiUrl}InvitedUsers`;
 
-    const jdata = {
-      InvitationCode: `${accessCode}`
-    };
-    return this.http.post(apiurl, jdata, {
+    return this.http.get(apiurl, {
       headers,
       params,
     })
-      // eslint-disable-next-line arrow-body-style
       .pipe(map(response => {
-        // this.currentUser = new InvitedUser();
-        // this.currentUser.parseData(response as any);
+        const rjs = response as any;
+        const ritems = rjs.value as any[];
+        if (ritems.length !== 1) {
+          throwError('Fatal error');
+        }
 
-        return this.isLoggedin;
+        this.currentUserDetail = new InvitedUser();
+        this.currentUserDetail.parseData(ritems[0]);
+
+        return this.currentUserDetail;
       }),
       catchError((error: HttpErrorResponse) => throwError(error.statusText + '; ' + error.error + '; ' + error.message) ));
   }
@@ -126,7 +139,8 @@ export class ODataService {
 
     let headers: HttpHeaders = new HttpHeaders();
     headers = headers.append(this.contentType, this.appJson)
-      .append(this.strAccept, this.appJson);
+      .append(this.strAccept, this.appJson)
+      .append('Authorization', 'Bearer ' + this.authService.authSubject.getValue().getAccessToken());
 
     let params: HttpParams = new HttpParams();
     params = params.append('$top', top.toString());
@@ -191,7 +205,8 @@ export class ODataService {
 
     let headers: HttpHeaders = new HttpHeaders();
     headers = headers.append(this.contentType, this.appJson)
-      .append(this.strAccept, this.appJson);
+      .append(this.strAccept, this.appJson)
+      .append('Authorization', 'Bearer ' + this.authService.authSubject.getValue().getAccessToken());
 
     let params: HttpParams = new HttpParams();
     params = params.append('$select', 'ID,Category,Title,Content,CreatedAt,ModifiedAt');
@@ -227,7 +242,8 @@ export class ODataService {
 
     let headers: HttpHeaders = new HttpHeaders();
     headers = headers.append(this.contentType, this.appJson)
-      .append(this.strAccept, this.appJson);
+      .append(this.strAccept, this.appJson)
+      .append('Authorization', 'Bearer ' + this.authService.authSubject.getValue().getAccessToken());
 
     const jdata = ki.generateString();
     return this.http.post(`${this.apiUrl}KnowledgeItems`, jdata, {
@@ -262,7 +278,8 @@ export class ODataService {
 
     let headers: HttpHeaders = new HttpHeaders();
     headers = headers.append(this.contentType, this.appJson)
-      .append(this.strAccept, this.appJson);
+      .append(this.strAccept, this.appJson)
+      .append('Authorization', 'Bearer ' + this.authService.authSubject.getValue().getAccessToken());
 
     const jdata = ki.generateString(true);
     return this.http.put(`${this.apiUrl}KnowledgeItems(${ki.ID})`, jdata, {
@@ -293,7 +310,8 @@ export class ODataService {
 
     let headers: HttpHeaders = new HttpHeaders();
     headers = headers.append(this.contentType, this.appJson)
-      .append(this.strAccept, this.appJson);
+      .append(this.strAccept, this.appJson)
+      .append('Authorization', 'Bearer ' + this.authService.authSubject.getValue().getAccessToken());
 
     return this.http.delete(`${this.apiUrl}KnowledgeItems(${itemid})`, {
       headers
@@ -329,7 +347,8 @@ export class ODataService {
 
     let headers: HttpHeaders = new HttpHeaders();
     headers = headers.append(this.contentType, this.appJson)
-      .append(this.strAccept, this.appJson);
+      .append(this.strAccept, this.appJson)
+      .append('Authorization', 'Bearer ' + this.authService.authSubject.getValue().getAccessToken());
 
     let params: HttpParams = new HttpParams();
     params = params.append('$top', top.toString());
@@ -388,7 +407,8 @@ export class ODataService {
 
     let headers: HttpHeaders = new HttpHeaders();
     headers = headers.append(this.contentType, this.appJson)
-      .append(this.strAccept, this.appJson);
+      .append(this.strAccept, this.appJson)
+      .append('Authorization', 'Bearer ' + this.authService.authSubject.getValue().getAccessToken());
 
     const jdata = qbi.generateString();
     return this.http.post(`${this.apiUrl}ExerciseItems`, jdata, {
@@ -424,7 +444,8 @@ export class ODataService {
 
     let headers: HttpHeaders = new HttpHeaders();
     headers = headers.append(this.contentType, this.appJson)
-      .append(this.strAccept, this.appJson);
+      .append(this.strAccept, this.appJson)
+      .append('Authorization', 'Bearer ' + this.authService.authSubject.getValue().getAccessToken());
 
     const jdata = qbi.generateString(true);
     return this.http.put(`${this.apiUrl}ExerciseItems(${qbi.ID})`, jdata, {
@@ -463,7 +484,8 @@ export class ODataService {
 
     let headers: HttpHeaders = new HttpHeaders();
     headers = headers.append(this.contentType, this.appJson)
-      .append(this.strAccept, this.appJson);
+      .append(this.strAccept, this.appJson)
+      .append('Authorization', 'Bearer ' + this.authService.authSubject.getValue().getAccessToken());
 
     let params: HttpParams = new HttpParams();
     params = params.append('$select', 'ID,KnowledgeItemID,ExerciseType,Content,CreatedAt,ModifiedAt');
@@ -498,7 +520,8 @@ export class ODataService {
 
     let headers: HttpHeaders = new HttpHeaders();
     headers = headers.append(this.contentType, this.appJson)
-      .append(this.strAccept, this.appJson);
+      .append(this.strAccept, this.appJson)
+      .append('Authorization', 'Bearer ' + this.authService.authSubject.getValue().getAccessToken());
 
     return this.http.delete(`${this.apiUrl}ExerciseItems(${itemid})`, {
       headers
@@ -528,7 +551,8 @@ export class ODataService {
 
     let headers: HttpHeaders = new HttpHeaders();
     headers = headers.append(this.contentType, this.appJson)
-      .append(this.strAccept, this.appJson);
+      .append(this.strAccept, this.appJson)
+      .append('Authorization', 'Bearer ' + this.authService.authSubject.getValue().getAccessToken());
 
     let params: HttpParams = new HttpParams();
     params = params.append('$top', top.toString());
@@ -590,7 +614,8 @@ export class ODataService {
 
     let headers: HttpHeaders = new HttpHeaders();
     headers = headers.append(this.contentType, this.appJson)
-      .append(this.strAccept, this.appJson);
+      .append(this.strAccept, this.appJson)
+      .append('Authorization', 'Bearer ' + this.authService.authSubject.getValue().getAccessToken());
 
     let params: HttpParams = new HttpParams();
     params = params.append('$top', top.toString());
@@ -638,7 +663,8 @@ export class ODataService {
     }
     let headers: HttpHeaders = new HttpHeaders();
     headers = headers.append(this.contentType, this.appJson)
-      .append(this.strAccept, this.appJson);
+      .append(this.strAccept, this.appJson)
+      .append('Authorization', 'Bearer ' + this.authService.authSubject.getValue().getAccessToken());
 
     const jdata = rule.writeJSONString(true);
     return this.http.post(`${this.apiUrl}AwardRules`, jdata, {
@@ -664,7 +690,8 @@ export class ODataService {
 
     let headers: HttpHeaders = new HttpHeaders();
     headers = headers.append(this.contentType, this.appJson)
-      .append(this.strAccept, this.appJson);
+      .append(this.strAccept, this.appJson)
+      .append('Authorization', 'Bearer ' + this.authService.authSubject.getValue().getAccessToken());
 
     return this.http.delete(`${this.apiUrl}AwardRules(${rid})`, {
       headers
@@ -686,7 +713,8 @@ export class ODataService {
 
     let headers: HttpHeaders = new HttpHeaders();
     headers = headers.append(this.contentType, this.appJson)
-      .append(this.strAccept, this.appJson);
+      .append(this.strAccept, this.appJson)
+      .append('Authorization', 'Bearer ' + this.authService.authSubject.getValue().getAccessToken());
 
     let params: HttpParams = new HttpParams();
     params = params.append('$top', top.toString());
@@ -741,7 +769,9 @@ export class ODataService {
 
     let headers: HttpHeaders = new HttpHeaders();
     headers = headers.append(this.contentType, this.appJson)
-      .append(this.strAccept, this.appJson);
+      .append(this.strAccept, this.appJson)
+      .append('Authorization', 'Bearer ' + this.authService.authSubject.getValue().getAccessToken());
+
     let params: HttpParams = new HttpParams();
     params = params.append('$expand', 'Rules');
     params = params.append('$filter', `ID eq ${grpid}`);
@@ -773,7 +803,8 @@ export class ODataService {
     }
     let headers: HttpHeaders = new HttpHeaders();
     headers = headers.append(this.contentType, this.appJson)
-      .append(this.strAccept, this.appJson);
+      .append(this.strAccept, this.appJson)
+      .append('Authorization', 'Bearer ' + this.authService.authSubject.getValue().getAccessToken());
 
     const jdata = grp.writeJSONString(true);
     return this.http.post(`${this.apiUrl}AwardRuleGroups`, jdata, {
@@ -799,7 +830,8 @@ export class ODataService {
 
     let headers: HttpHeaders = new HttpHeaders();
     headers = headers.append(this.contentType, this.appJson)
-      .append(this.strAccept, this.appJson);
+      .append(this.strAccept, this.appJson)
+      .append('Authorization', 'Bearer ' + this.authService.authSubject.getValue().getAccessToken());
 
     return this.http.delete(`${this.apiUrl}AwardRuleGroups(${rid})`, {
       headers
@@ -825,7 +857,8 @@ export class ODataService {
 
       let headers: HttpHeaders = new HttpHeaders();
       headers = headers.append(this.contentType, this.appJson)
-        .append(this.strAccept, this.appJson);
+        .append(this.strAccept, this.appJson)
+        .append('Authorization', 'Bearer ' + this.authService.authSubject.getValue().getAccessToken());
 
       let params: HttpParams = new HttpParams();
       params = params.append('$top', top.toString());
@@ -868,7 +901,8 @@ export class ODataService {
 
     let headers: HttpHeaders = new HttpHeaders();
     headers = headers.append(this.contentType, this.appJson)
-      .append(this.strAccept, this.appJson);
+      .append(this.strAccept, this.appJson)
+      .append('Authorization', 'Bearer ' + this.authService.authSubject.getValue().getAccessToken());
 
     const params = new HttpParams();
     const apiurl = `${this.apiUrl}DailyTraces/SimulatePoints`;
@@ -904,7 +938,8 @@ export class ODataService {
     }
     let headers: HttpHeaders = new HttpHeaders();
     headers = headers.append(this.contentType, this.appJson)
-      .append(this.strAccept, this.appJson);
+      .append(this.strAccept, this.appJson)
+      .append('Authorization', 'Bearer ' + this.authService.authSubject.getValue().getAccessToken());
 
     const jdata = dt.writeJSONString();
     return this.http.post(`${this.apiUrl}DailyTraces`, jdata, {
@@ -930,7 +965,8 @@ export class ODataService {
 
     let headers: HttpHeaders = new HttpHeaders();
     headers = headers.append(this.contentType, this.appJson)
-      .append(this.strAccept, this.appJson);
+      .append(this.strAccept, this.appJson)
+      .append('Authorization', 'Bearer ' + this.authService.authSubject.getValue().getAccessToken());
 
     return this.http.delete(`${this.apiUrl}DailyTraces(RecordDate=${rdate.format(momentDateFormat)},TargetUser='${tuser}')`, {
       headers
@@ -949,7 +985,8 @@ export class ODataService {
 
       let headers: HttpHeaders = new HttpHeaders();
       headers = headers.append(this.contentType, this.appJson)
-        .append(this.strAccept, this.appJson);
+        .append(this.strAccept, this.appJson)
+        .append('Authorization', 'Bearer ' + this.authService.authSubject.getValue().getAccessToken());
 
       let params: HttpParams = new HttpParams();
       params = params.append('$top', top.toString());
@@ -994,7 +1031,8 @@ export class ODataService {
     }
     let headers: HttpHeaders = new HttpHeaders();
     headers = headers.append(this.contentType, this.appJson)
-      .append(this.strAccept, this.appJson);
+      .append(this.strAccept, this.appJson)
+      .append('Authorization', 'Bearer ' + this.authService.authSubject.getValue().getAccessToken());
 
     const jdata = pnt.writeJSONString(true);
     return this.http.post(`${this.apiUrl}AwardPoints`, jdata, {
@@ -1020,7 +1058,8 @@ export class ODataService {
 
     let headers: HttpHeaders = new HttpHeaders();
     headers = headers.append(this.contentType, this.appJson)
-      .append(this.strAccept, this.appJson);
+      .append(this.strAccept, this.appJson)
+      .append('Authorization', 'Bearer ' + this.authService.authSubject.getValue().getAccessToken());
 
     return this.http.delete(`${this.apiUrl}AwardPoints(${pid})`, {
       headers
@@ -1038,7 +1077,8 @@ export class ODataService {
 
       let headers: HttpHeaders = new HttpHeaders();
       headers = headers.append(this.contentType, this.appJson)
-        .append(this.strAccept, this.appJson);
+        .append(this.strAccept, this.appJson)
+        .append('Authorization', 'Bearer ' + this.authService.authSubject.getValue().getAccessToken());
 
       let params: HttpParams = new HttpParams();
       params = params.append('$top', top.toString());
@@ -1129,7 +1169,8 @@ export class ODataService {
 
     let headers: HttpHeaders = new HttpHeaders();
     headers = headers.append(this.contentType, this.appJson)
-      .append(this.strAccept, this.appJson);
+      .append(this.strAccept, this.appJson)
+      .append('Authorization', 'Bearer ' + this.authService.authSubject.getValue().getAccessToken());
 
     let params: HttpParams = new HttpParams();
     params = params.append('$top', '100');
@@ -1170,7 +1211,8 @@ export class ODataService {
 
     let headers: HttpHeaders = new HttpHeaders();
     headers = headers.append(this.contentType, this.appJson)
-      .append(this.strAccept, this.appJson);
+      .append(this.strAccept, this.appJson)
+      .append('Authorization', 'Bearer ' + this.authService.authSubject.getValue().getAccessToken());
 
     let params: HttpParams = new HttpParams();
     params = params.append('$top', '100');
@@ -1217,7 +1259,8 @@ export class ODataService {
 
     let headers: HttpHeaders = new HttpHeaders();
     headers = headers.append(this.contentType, this.appJson)
-      .append(this.strAccept, this.appJson);
+      .append(this.strAccept, this.appJson)
+      .append('Authorization', 'Bearer ' + this.authService.authSubject.getValue().getAccessToken());
 
     let apiurl = `${this.apiUrl}OverviewInfos`;
     if (environment.mockdata) {
@@ -1250,7 +1293,8 @@ export class ODataService {
 
       let headers: HttpHeaders = new HttpHeaders();
       headers = headers.append(this.contentType, this.appJson)
-        .append(this.strAccept, this.appJson);
+        .append(this.strAccept, this.appJson)
+        .append('Authorization', 'Bearer ' + this.authService.authSubject.getValue().getAccessToken());
 
       let params: HttpParams = new HttpParams();
       params = params.append('$top', top.toString());
@@ -1296,7 +1340,8 @@ export class ODataService {
     }
     let headers: HttpHeaders = new HttpHeaders();
     headers = headers.append(this.contentType, this.appJson)
-      .append(this.strAccept, this.appJson);
+      .append(this.strAccept, this.appJson)
+      .append('Authorization', 'Bearer ' + this.authService.authSubject.getValue().getAccessToken());
 
     const jdata = coll.writeJSONString();
     return this.http.post(`${this.apiUrl}UserCollections`, jdata, {
@@ -1332,7 +1377,8 @@ export class ODataService {
 
     let headers: HttpHeaders = new HttpHeaders();
     headers = headers.append(this.contentType, this.appJson)
-      .append(this.strAccept, this.appJson);
+      .append(this.strAccept, this.appJson)
+      .append('Authorization', 'Bearer ' + this.authService.authSubject.getValue().getAccessToken());
 
     let params: HttpParams = new HttpParams();
     // params = params.append('$select', 'ID,Category,Title,Content,CreatedAt,ModifiedAt');
@@ -1368,7 +1414,8 @@ export class ODataService {
 
     let headers: HttpHeaders = new HttpHeaders();
     headers = headers.append(this.contentType, this.appJson)
-      .append(this.strAccept, this.appJson);
+      .append(this.strAccept, this.appJson)
+      .append('Authorization', 'Bearer ' + this.authService.authSubject.getValue().getAccessToken());
 
     const jdata: any = {
       User: this.currentUser?.getUserId(),
@@ -1408,7 +1455,8 @@ export class ODataService {
 
     let headers: HttpHeaders = new HttpHeaders();
     headers = headers.append(this.contentType, this.appJson)
-      .append(this.strAccept, this.appJson);
+      .append(this.strAccept, this.appJson)
+      .append('Authorization', 'Bearer ' + this.authService.authSubject.getValue().getAccessToken());
 
     const jdata: any = {
       User: this.currentUser?.getUserId(),
@@ -1441,7 +1489,8 @@ export class ODataService {
 
     let headers: HttpHeaders = new HttpHeaders();
     headers = headers.append(this.contentType, this.appJson)
-      .append(this.strAccept, this.appJson);
+      .append(this.strAccept, this.appJson)
+      .append('Authorization', 'Bearer ' + this.authService.authSubject.getValue().getAccessToken());
 
     return this.http.delete(`${this.apiUrl}UserCollections(${collid})`,  {
       headers,
@@ -1459,7 +1508,8 @@ export class ODataService {
 
     let headers: HttpHeaders = new HttpHeaders();
     headers = headers.append(this.contentType, this.appJson)
-      .append(this.strAccept, this.appJson);
+      .append(this.strAccept, this.appJson)
+      .append('Authorization', 'Bearer ' + this.authService.authSubject.getValue().getAccessToken());
 
     let params: HttpParams = new HttpParams();
     params = params.append('$top', top.toString());
@@ -1504,7 +1554,8 @@ export class ODataService {
     }
     let headers: HttpHeaders = new HttpHeaders();
     headers = headers.append(this.contentType, this.appJson)
-      .append(this.strAccept, this.appJson);
+      .append(this.strAccept, this.appJson)
+      .append('Authorization', 'Bearer ' + this.authService.authSubject.getValue().getAccessToken());
 
     const jdata = nscore.writeJSONString();
     return this.http.post(`${this.apiUrl}ExerciseItemUserScores`, jdata, {
@@ -1529,7 +1580,8 @@ export class ODataService {
     }
     let headers: HttpHeaders = new HttpHeaders();
     headers = headers.append(this.contentType, this.appJson)
-      .append(this.strAccept, this.appJson);
+      .append(this.strAccept, this.appJson)
+      .append('Authorization', 'Bearer ' + this.authService.authSubject.getValue().getAccessToken());
 
     return this.http.delete(`${this.apiUrl}ExerciseItemUserScores(${scoreid})`,  {
       headers,
@@ -1547,7 +1599,8 @@ export class ODataService {
     }
     let headers: HttpHeaders = new HttpHeaders();
     headers = headers.append(this.contentType, this.appJson)
-      .append(this.strAccept, this.appJson);
+      .append(this.strAccept, this.appJson)
+      .append('Authorization', 'Bearer ' + this.authService.authSubject.getValue().getAccessToken());
 
     const jdata = {
       User: this.currentUser?.getUserId(),
@@ -1569,48 +1622,6 @@ export class ODataService {
       catchError((error: HttpErrorResponse) => throwError(error.statusText + '; ' + error.error + '; ' + error.message) ));
   }
 
-  // public getAwardUsers(): Observable<{ totalCount: number; items: AwardUser[] }> {
-  //   if (!this.expertMode) {
-  //     return of({totalCount: 0, items: []});
-  //   }
-
-  //   if (this.hasAwardUserBuffered) {
-  //     return of({
-  //       totalCount: this.bufferedAwardUser.length,
-  //       items: this.bufferedAwardUser
-  //     });
-  //   }
-
-  //   let headers: HttpHeaders = new HttpHeaders();
-  //   headers = headers.append(this.contentType, this.appJson)
-  //     .append(this.strAccept, this.appJson);
-
-  //   let params: HttpParams = new HttpParams();
-  //   params = params.append('$count', 'true');
-  //   const apiurl = `${this.apiUrl}AwardUsers`;
-
-  //   return this.http.get(apiurl, {
-  //     headers,
-  //     params,
-  //   })
-  //     .pipe(map(response => {
-  //       const rjs = response as any;
-  //       const ritems = rjs.value as any[];
-  //       this.bufferedAwardUser = [];
-  //       ritems.forEach(item => {
-  //         const rit: AwardUser = new AwardUser();
-  //         rit.parseData(item);
-  //         this.bufferedAwardUser.push(rit);
-  //       });
-  //       this.hasAwardUserBuffered = true;
-
-  //       return {
-  //         totalCount: rjs['@odata.count'],
-  //         items: this.bufferedAwardUser,
-  //       };
-  //     }),
-  //     catchError((error: HttpErrorResponse) => throwError(error.statusText + '; ' + error.error + '; ' + error.message) ));
-  // }
   public getAwardUserViews(): Observable<{ totalCount: number; items: AwardUserView[] }> {
     if (!this.isLoggedin) {
       return of({totalCount: 0, items: []});
@@ -1625,7 +1636,8 @@ export class ODataService {
 
     let headers: HttpHeaders = new HttpHeaders();
     headers = headers.append(this.contentType, this.appJson)
-      .append(this.strAccept, this.appJson);
+      .append(this.strAccept, this.appJson)
+      .append('Authorization', 'Bearer ' + this.authService.authSubject.getValue().getAccessToken());
 
     let params: HttpParams = new HttpParams();
     params = params.append('$count', 'true');
