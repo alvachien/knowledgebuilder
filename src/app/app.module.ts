@@ -5,7 +5,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 
 import { AppRoutingModule } from './app-routing.module';
-import { AppComponent, ExpertAccessCodeDialog, CurrentUserDialog, } from './app.component';
+import { AppComponent, CurrentUserDialog, } from './app.component';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { MaterialModulesModule } from './material-modules';
 import { MonacoEditorModule } from '@materia-ui/ngx-monaco-editor';
@@ -21,7 +21,6 @@ import { QuizFailureDailogComponent } from './pages/quiz-failure-dailog';
 @NgModule({
   declarations: [
     AppComponent,
-    ExpertAccessCodeDialog,
     CurrentUserDialog,
     NavItemFilterPipe,
     QuizFailureDailogComponent,

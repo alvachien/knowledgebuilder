@@ -11,6 +11,7 @@ import { ExerciseItem, ExerciseItemSearchResult, TagCount, Tag, KnowledgeItem, T
   UserAuthInfo, } from '../models';
 import { environment } from '../../environments/environment';
 import { AuthService } from './auth.service';
+import { listStyleType } from 'html2canvas/dist/types/css/property-descriptors/list-style-type';
 
 @Injectable({
   providedIn: 'root'
@@ -94,7 +95,8 @@ export class ODataService {
       .append(this.strAccept, this.appJson)
       .append('Authorization', 'Bearer ' + this.authService.authSubject.getValue().getAccessToken());
 
-    const params: HttpParams = new HttpParams();
+    let params: HttpParams = new HttpParams();
+    params = params.append('$expand', 'AwardUsers');
     const apiurl = `${this.apiUrl}InvitedUsers`;
 
     return this.http.get(apiurl, {

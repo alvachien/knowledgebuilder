@@ -122,23 +122,6 @@ export class AppComponent implements OnDestroy {
 }
 
 @Component({
-  selector: 'app-expert-accesscode-dlg',
-  templateUrl: 'app-expert-mode.dialog.html',
-})
-// eslint-disable-next-line @angular-eslint/component-class-suffix
-export class ExpertAccessCodeDialog {
-
-  constructor(public dialogRef: MatDialogRef<ExpertAccessCodeDialog>,
-    @Inject(MAT_DIALOG_DATA) public data: {
-      accessCode: string;
-    }) {}
-
-  onNoClick(): void {
-    this.dialogRef.close();
-  }
-}
-
-@Component({
   selector: 'app-current-user-dlg',
   templateUrl: 'app-current-user.dialog.html',
 })
