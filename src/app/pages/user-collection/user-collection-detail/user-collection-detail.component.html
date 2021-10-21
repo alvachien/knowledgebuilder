@@ -21,6 +21,7 @@
                     <mat-form-field appearance="fill" class="control-full-width">
                         <mat-label>User</mat-label>
                         <input matInput type="text" placeholder="User" formControlName="userControl">
+                        <mat-hint align="start">{{'Common.DisplayAs' | transloco}}: <strong>{{userDisplayAs}}</strong> </mat-hint>
                     </mat-form-field>
 
                     <!-- Name -->
@@ -63,46 +64,48 @@
         </mat-accordion>
 
         <!-- Items -->
-        <mat-toolbar-row>
-            <span class="toolbar-spacer"></span>
-            <section>
-                <!-- <button mat-icon-button color="primary" (click)="onCreateItem()" matTooltip="{{'Common.Create' | transloco}}">
-                    <mat-icon>add_circle</mat-icon>
-                </button> -->
-            </section>
-        </mat-toolbar-row>
-            
-        <div class="example-container mat-elevation-z8">
-            <div class="example-table-container">
-                <table mat-table [dataSource]="dataSource" class="example-table">
-                    <!-- RefID Column -->
-                    <ng-container matColumnDef="refid">
-                        <th mat-header-cell *matHeaderCellDef>ID</th>
-                        <td mat-cell *matCellDef="let row">
-                            {{row.RefID}}
-                            <button mat-icon-button color="primary" (click)="onDisplayExerciseItem(row.RefID)" matTooltip="{{'Common.Display' | transloco}}">
-                              <mat-icon>launch</mat-icon>
-                            </button>
-                            <button mat-icon-button color="accent" (click)="onChangeExerciseItem(row.RefID)" matTooltip="{{'Common.Change' | transloco}}">
-                              <mat-icon>edit</mat-icon>
-                            </button>
-                            <button mat-icon-button color="warn" (click)="onDeleteCollItem(row)" matTooltip="{{'Common.Delete' | transloco}}">
-                              <mat-icon>remove_circle</mat-icon>
-                            </button>    
-                        </td>
-                    </ng-container>
-            
-                    <!-- Created At Column -->
-                    <ng-container matColumnDef="createdat">
-                        <th mat-header-cell *matHeaderCellDef>{{'Quiz.Date' | transloco}}</th>
-                        <td mat-cell *matCellDef="let row">{{row.CreatedAt | date: 'yyyy-M-d HH:mm:ss'}}</td>
-                    </ng-container>
-            
-                    <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
-                    <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
-                </table>
+        <div *ngIf="!isCreateMode">
+            <mat-toolbar-row>
+                <span class="toolbar-spacer"></span>
+                <section>
+                    <!-- <button mat-icon-button color="primary" (click)="onCreateItem()" matTooltip="{{'Common.Create' | transloco}}">
+                        <mat-icon>add_circle</mat-icon>
+                    </button> -->
+                </section>
+            </mat-toolbar-row>
+                
+            <div class="example-container mat-elevation-z8">
+                <div class="example-table-container">
+                    <table mat-table [dataSource]="dataSource" class="example-table">
+                        <!-- RefID Column -->
+                        <ng-container matColumnDef="refid">
+                            <th mat-header-cell *matHeaderCellDef>ID</th>
+                            <td mat-cell *matCellDef="let row">
+                                {{row.RefID}}
+                                <button mat-icon-button color="primary" (click)="onDisplayExerciseItem(row.RefID)" matTooltip="{{'Common.Display' | transloco}}">
+                                  <mat-icon>launch</mat-icon>
+                                </button>
+                                <button mat-icon-button color="accent" (click)="onChangeExerciseItem(row.RefID)" matTooltip="{{'Common.Change' | transloco}}">
+                                  <mat-icon>edit</mat-icon>
+                                </button>
+                                <button mat-icon-button color="warn" (click)="onDeleteCollItem(row)" matTooltip="{{'Common.Delete' | transloco}}">
+                                  <mat-icon>remove_circle</mat-icon>
+                                </button>    
+                            </td>
+                        </ng-container>
+                
+                        <!-- Created At Column -->
+                        <ng-container matColumnDef="createdat">
+                            <th mat-header-cell *matHeaderCellDef>{{'Quiz.Date' | transloco}}</th>
+                            <td mat-cell *matCellDef="let row">{{row.CreatedAt | date: 'yyyy-M-d HH:mm:ss'}}</td>
+                        </ng-container>
+                
+                        <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+                        <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+                    </table>
+                </div>
             </div>
-        </div>          
+        </div>
     </mat-card-content>
     <mat-card-actions>
         <button mat-button (click)="onOK()" [disabled]="!(isEditable && itemFormGroup.valid)">{{'Save' | transloco}}</button>

@@ -1372,9 +1372,12 @@ export class ODataService {
       }
     }
 
-    const bufidx = this.bufferedUserCollection.findIndex(val => val.ID === collid);
-    if (!forceLoad && bufidx !== -1) {
-      return of(this.bufferedUserCollection[bufidx]);
+    let bufidx = -1;
+    if (!forceLoad) {
+      bufidx = this.bufferedUserCollection.findIndex(val => val.ID === collid);
+      if (bufidx !== -1) {
+        return of(this.bufferedUserCollection[bufidx]);
+      }
     }
 
     let headers: HttpHeaders = new HttpHeaders();
@@ -1385,7 +1388,7 @@ export class ODataService {
     let params: HttpParams = new HttpParams();
     // params = params.append('$select', 'ID,Category,Title,Content,CreatedAt,ModifiedAt');
     params = params.append('$expand', 'Items');
-    params = params.append('$filter', `User eq '${this.currentUser?.getUserId()}'`);
+    // params = params.append('$filter', `User eq '${this.currentUser?.getUserId()}'`);
     return this.http.get(`${this.apiUrl}UserCollections(${collid})`, {
       headers,
       params,

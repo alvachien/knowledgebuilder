@@ -25,6 +25,8 @@ export class UserCollectionDetailComponent implements OnInit, OnDestroy {
 
   uiMode: UIMode = UIMode.Create;
   currentMode = '';
+  userDisplayAs: string | undefined;
+
   // Generic info
   public itemFormGroup: FormGroup;
   get isDisplayMode(): boolean {
@@ -56,6 +58,7 @@ export class UserCollectionDetailComponent implements OnInit, OnDestroy {
       nameControl: new FormControl(),
       commentControl: new FormControl(),
     });
+    this.userDisplayAs = this.odataService.currentUserDetail?.displayAs;
   }
 
   ngOnInit(): void {

@@ -1,11 +1,8 @@
 <mat-toolbar-row>
-  <span>{{'PracticeHistories' | transloco}}</span>
+  <span><h1>{{'PracticeHistories' | transloco}}</h1></span>
   <span class="toolbar-spacer"></span>
   <section>
     <button mat-raised-button [disabled]="!isExpertMode" (click)="onGoToExerciseItems()" matTooltip="{{'ExerciseItem' | transloco}}">{{'ExerciseItem' | transloco}}</button>
-    <button mat-icon-button color="accent" [disabled]="!isExpertMode" (click)="onRefreshList()" matTooltip="{{'Common.Refresh' | transloco}}">
-      <mat-icon>refresh</mat-icon>
-    </button>
   </section>
 </mat-toolbar-row>
 
