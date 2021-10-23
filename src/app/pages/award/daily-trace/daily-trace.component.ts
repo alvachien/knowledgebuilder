@@ -3,7 +3,7 @@ import { Component, Inject, OnInit } from '@angular/core';
 import { MatDialog, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import moment from 'moment';
 
-import { AwardPoint, AwardUser, DailyTrace, momentDateFormat } from 'src/app/models';
+import { AwardPoint, AwardUserView, DailyTrace, momentDateFormat } from 'src/app/models';
 import { ODataService, UIUtilityService } from 'src/app/services';
 
 @Component({
@@ -28,12 +28,21 @@ export class DailyTraceComponent implements OnInit {
     private uiUtilSrv: UIUtilityService,) { }
 
   ngOnInit(): void {
-    this.odataSrv.getAwardUserViews().subscribe();
+    // this.odataSrv.getAwardUserViews().subscribe();
 
     this.refreshList();
   }
   get isExpertMode(): boolean {
     return this.odataSrv.isLoggedin;
+  }
+  public getUserDisplayAs(usrId: string): string {
+    if (usrId && this.odataSrv.currentUserDetail) {
+      const idx = this.odataSrv.currentUserDetail.awardUsers.findIndex(val => val.targetUser === usrId);
+      if (idx !== -1) {
+        return this.odataSrv.currentUserDetail.awardUsers[idx].displayAs;
+      }
+    }
+    return '';
   }
 
   onCreateTrace(): void {
@@ -124,11 +133,13 @@ export class DailyTraceComponent implements OnInit {
 @Component({
   selector: 'app-daily-trace-create-dialog',
   templateUrl: 'daily-trace-create.dialog.html',
-  styleUrls: ['./daily-trace.component.scss'],
 })
 export class DailyTraceCreateDialog {
-  get arTargetUsers(): AwardUser[] {
-    return this.odataSrv.bufferedAwardUser.filter(au => au.supervisor === this.odataSrv.currentUser?.getUserId());
+  get arTargetUsers(): AwardUserView[] {
+    if (this.odataSrv.currentUserDetail) {
+      return this.odataSrv.currentUserDetail.awardUsers;
+    }
+    return [];
   }
 
   constructor(public dialogRef: MatDialogRef<DailyTraceCreateDialog>,

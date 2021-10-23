@@ -41,7 +41,8 @@
         "NoThanks": "NO, THANKS",
         "CurrentUser": "CURRENT USER",
         "ID": "ID",
-        "DisplayAs": "DISPLAY AS"
+        "DisplayAs": "DISPLAY AS",
+        "Logon": "LOGON"
     },
     "Type": "Type",
     "Create": "Create",

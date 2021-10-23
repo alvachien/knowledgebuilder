@@ -25,13 +25,7 @@
       <!-- Target user Column -->
       <ng-container matColumnDef="targetUser">
         <th mat-header-cell *matHeaderCellDef>{{'Award.TargetUser' | transloco}}</th>
-        <td mat-cell *matCellDef="let row">{{row.targetUser}}</td>
-      </ng-container>
-
-      <!-- Target user Column -->
-      <ng-container matColumnDef="targetUserDisplayAs">
-        <th mat-header-cell *matHeaderCellDef>{{'Common.DisplayAs' | transloco}}</th>
-        <td mat-cell *matCellDef="let row">{{row.targetUser}}</td>
+        <td mat-cell *matCellDef="let row">{{getUserDisplayAs(row.targetUser)}} ({{row.targetUser}})</td>
       </ng-container>
 
       <!-- Rule type -->

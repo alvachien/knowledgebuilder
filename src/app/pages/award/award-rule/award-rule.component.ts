@@ -13,7 +13,7 @@ import { ODataService, QuizService, UIUtilityService } from 'src/app/services';
 export class AwardRuleComponent implements OnInit {
 
   dataSource: AwardRuleGroup[] = [];
-  displayedColumns: string[] = ['id', 'targetUser', 'targetUserDisplayAs', 'ruleType', 'validity', 'desp'];
+  displayedColumns: string[] = ['id', 'targetUser', 'ruleType', 'validity', 'desp'];
   recordCount = 0;
 
   constructor(private odataSrv: ODataService,
@@ -21,7 +21,7 @@ export class AwardRuleComponent implements OnInit {
     public uiUtilSrv: UIUtilityService) { }
 
   ngOnInit(): void {
-    this.odataSrv.getAwardUserViews().subscribe();
+    // this.odataSrv.getAwardUserViews().subscribe();
 
     this.refreshList();
   }
@@ -31,6 +31,15 @@ export class AwardRuleComponent implements OnInit {
   }
   public getAwardRuleTypeName(ruleType: AwardRuleTypeEnum): string {
     return getAwardRuleTypeName(ruleType);
+  }
+  public getUserDisplayAs(usrId: string): string {
+    if (usrId && this.odataSrv.currentUserDetail) {
+      const idx = this.odataSrv.currentUserDetail.awardUsers.findIndex(val => val.targetUser === usrId);
+      if (idx !== -1) {
+        return this.odataSrv.currentUserDetail.awardUsers[idx].displayAs;
+      }
+    }
+    return '';
   }
 
   public onCreateRuleGroup(): void {

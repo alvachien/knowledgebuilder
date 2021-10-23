@@ -41,7 +41,8 @@
         "NoThanks": "不了, 谢谢",
         "CurrentUser": "当前用户",
         "ID": "ID",
-        "DisplayAs": "昵称"
+        "DisplayAs": "昵称",
+        "Logon": "登录"
     },
     "Type": "类别",
     "Create": "创建",

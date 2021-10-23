@@ -78,7 +78,19 @@ export class AwardRuleGenerationComponent implements OnInit {
   }
 
   get arTargetUsers(): AwardUserView[] {
-    return this.odataSrv.bufferedAwardUser.filter(au => au.supervisor === this.odataSrv.currentUser?.getUserId());
+    if (this.odataSrv.currentUserDetail) {
+      return this.odataSrv.currentUserDetail.awardUsers;
+    }
+    return [];
+  }
+  public getUserDisplayAs(usrId: string): string {
+    if (usrId && this.odataSrv.currentUserDetail) {
+      const idx = this.odataSrv.currentUserDetail.awardUsers.findIndex(val => val.targetUser === usrId);
+      if (idx !== -1) {
+        return this.odataSrv.currentUserDetail.awardUsers[idx].displayAs;
+      }
+    }
+    return '';
   }
 
   get isExpertMode(): boolean {
@@ -86,7 +98,7 @@ export class AwardRuleGenerationComponent implements OnInit {
   }
 
   public ngOnInit(): void {
-    this.odataSrv.getAwardUserViews().subscribe();
+    // this.odataSrv.getAwardUserViews().subscribe();
 
     this.firstFormGroup.get('validFromCtrl')?.setValue(moment());
     this.firstFormGroup.get('validToCtrl')?.setValue(moment().add(1, 'month'));

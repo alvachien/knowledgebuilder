@@ -73,6 +73,8 @@ export class AppComponent implements OnDestroy {
       this.zone.run(() => {
         if (x && x.isAuthorized) {
           this.oDataSrv.currentUser = x;
+          // Get user detail automatically.
+          this.oDataSrv.getUserDetail().subscribe();
         }
       });
     });
@@ -124,9 +126,11 @@ export class AppComponent implements OnDestroy {
 @Component({
   selector: 'app-current-user-dlg',
   templateUrl: 'app-current-user.dialog.html',
+  styleUrls: ['./app-current-user.dialog.scss'],
 })
 // eslint-disable-next-line @angular-eslint/component-class-suffix
 export class CurrentUserDialog {
+  displayedColumns: any[] = ['userid', 'username', 'displayas'];
 
   constructor(public dialogRef: MatDialogRef<CurrentUserDialog>,
     public oDataSrv: ODataService) {}

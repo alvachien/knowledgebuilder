@@ -4,7 +4,7 @@ import { ActivatedRoute, } from '@angular/router';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 
 import { UIUtilityService, ODataService, } from 'src/app/services';
-import { AwardRuleDetail, AwardRuleTypeEnum, AwardUser, getAwardRuleTypeNames } from 'src/app/models';
+import { AwardRuleDetail, AwardRuleTypeEnum, AwardUserView, getAwardRuleTypeNames } from 'src/app/models';
 
 @Component({
   selector: 'app-award-rule-display',
@@ -34,8 +34,20 @@ export class AwardRuleDisplayComponent implements OnInit, OnDestroy {
     });
   }
 
-  get arTargetUsers(): AwardUser[] {
-    return this.odataSrv.bufferedAwardUser.filter(au => au.supervisor === this.odataSrv.currentUser?.getUserId());
+  get arTargetUsers(): AwardUserView[] {
+    if (this.odataSrv.currentUserDetail) {
+      return this.odataSrv.currentUserDetail.awardUsers;
+    }
+    return [];
+  }
+  public getUserDisplayAs(usrId: string): string {
+    if (usrId && this.odataSrv.currentUserDetail) {
+      const idx = this.odataSrv.currentUserDetail.awardUsers.findIndex(val => val.targetUser === usrId);
+      if (idx !== -1) {
+        return this.odataSrv.currentUserDetail.awardUsers[idx].displayAs;
+      }
+    }
+    return '';
   }
 
   get isExpertMode(): boolean {
@@ -44,7 +56,7 @@ export class AwardRuleDisplayComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     this.destroyed$ = new ReplaySubject(1);
-    this.odataSrv.getAwardUserViews().subscribe();
+    // this.odataSrv.getAwardUserViews().subscribe();
 
     this.activateRoute.url.subscribe({
       next: val => {

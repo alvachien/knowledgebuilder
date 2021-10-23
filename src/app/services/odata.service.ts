@@ -11,7 +11,6 @@ import { ExerciseItem, ExerciseItemSearchResult, TagCount, Tag, KnowledgeItem, T
   UserAuthInfo, } from '../models';
 import { environment } from '../../environments/environment';
 import { AuthService } from './auth.service';
-import { listStyleType } from 'html2canvas/dist/types/css/property-descriptors/list-style-type';
 
 @Injectable({
   providedIn: 'root'
@@ -37,7 +36,6 @@ export class ODataService {
   bufferedUserCollection: UserCollection[] = [];
   bufferedAwardUser: AwardUserView[] = [];
   bufferedAwardRuleGroup: AwardRuleGroup[] = [];
-  hasAwardUserBuffered = false;
   // Current user
   public currentUser: UserAuthInfo | null = null;
   public currentUserDetail: InvitedUser | null = null;
@@ -49,7 +47,6 @@ export class ODataService {
 
   constructor(private http: HttpClient,
     private authService: AuthService) {
-    this.currentUser = null;
   }
 
   get isLoggedin(): boolean {
@@ -1627,47 +1624,47 @@ export class ODataService {
       catchError((error: HttpErrorResponse) => throwError(error.statusText + '; ' + error.error + '; ' + error.message) ));
   }
 
-  public getAwardUserViews(): Observable<{ totalCount: number; items: AwardUserView[] }> {
-    if (!this.isLoggedin) {
-      return of({totalCount: 0, items: []});
-    }
+  // public getAwardUserViews(): Observable<{ totalCount: number; items: AwardUserView[] }> {
+  //   if (!this.isLoggedin) {
+  //     return of({totalCount: 0, items: []});
+  //   }
 
-    if (this.hasAwardUserBuffered) {
-      return of({
-        totalCount: this.bufferedAwardUser.length,
-        items: this.bufferedAwardUser
-      });
-    }
+  //   if (this.hasAwardUserBuffered) {
+  //     return of({
+  //       totalCount: this.bufferedAwardUser.length,
+  //       items: this.bufferedAwardUser
+  //     });
+  //   }
 
-    let headers: HttpHeaders = new HttpHeaders();
-    headers = headers.append(this.contentType, this.appJson)
-      .append(this.strAccept, this.appJson)
-      .append('Authorization', 'Bearer ' + this.authService.authSubject.getValue().getAccessToken());
+  //   let headers: HttpHeaders = new HttpHeaders();
+  //   headers = headers.append(this.contentType, this.appJson)
+  //     .append(this.strAccept, this.appJson)
+  //     .append('Authorization', 'Bearer ' + this.authService.authSubject.getValue().getAccessToken());
 
-    let params: HttpParams = new HttpParams();
-    params = params.append('$count', 'true');
-    const apiurl = `${this.apiUrl}AwardUserViews`;
+  //   let params: HttpParams = new HttpParams();
+  //   params = params.append('$count', 'true');
+  //   const apiurl = `${this.apiUrl}AwardUserViews`;
 
-    return this.http.get(apiurl, {
-      headers,
-      params,
-    })
-      .pipe(map(response => {
-        const rjs = response as any;
-        const ritems = rjs.value as any[];
-        this.bufferedAwardUser = [];
-        ritems.forEach(item => {
-          const rit: AwardUserView = new AwardUserView();
-          rit.parseData(item);
-          this.bufferedAwardUser.push(rit);
-        });
-        this.hasAwardUserBuffered = true;
+  //   return this.http.get(apiurl, {
+  //     headers,
+  //     params,
+  //   })
+  //     .pipe(map(response => {
+  //       const rjs = response as any;
+  //       const ritems = rjs.value as any[];
+  //       this.bufferedAwardUser = [];
+  //       ritems.forEach(item => {
+  //         const rit: AwardUserView = new AwardUserView();
+  //         rit.parseData(item);
+  //         this.bufferedAwardUser.push(rit);
+  //       });
+  //       this.hasAwardUserBuffered = true;
 
-        return {
-          totalCount: rjs['@odata.count'],
-          items: this.bufferedAwardUser,
-        };
-      }),
-      catchError((error: HttpErrorResponse) => throwError(error.statusText + '; ' + error.error + '; ' + error.message) ));
-  }
+  //       return {
+  //         totalCount: rjs['@odata.count'],
+  //         items: this.bufferedAwardUser,
+  //       };
+  //     }),
+  //     catchError((error: HttpErrorResponse) => throwError(error.statusText + '; ' + error.error + '; ' + error.message) ));
+  // }
 }

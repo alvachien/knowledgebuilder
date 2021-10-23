@@ -26,11 +26,20 @@ export class OverviewComponent implements OnInit {
     private uiUtilSrv: UIUtilityService) { }
 
   ngOnInit(): void {
-    this.oDataSrv.getAwardUserViews().subscribe();
+    // this.oDataSrv.getAwardUserViews().subscribe();
     this.refreshList();
   }
   get isExpertMode(): boolean {
     return this.oDataSrv.isLoggedin;
+  }
+  public getUserDisplayAs(usrId: string): string {
+    if (usrId && this.oDataSrv.currentUserDetail) {
+      const idx = this.oDataSrv.currentUserDetail.awardUsers.findIndex(val => val.targetUser === usrId);
+      if (idx !== -1) {
+        return this.oDataSrv.currentUserDetail.awardUsers[idx].displayAs;
+      }
+    }
+    return '';
   }
 
   public onCreateAward(): void {
@@ -115,6 +124,7 @@ export class OverviewComponent implements OnInit {
 export class AwardPointCreateDialog {
 
   constructor(public dialogRef: MatDialogRef<AwardPointCreateDialog>,
+    public oDataSrv: ODataService,
     @Inject(MAT_DIALOG_DATA) public data: AwardPoint) {}
 
   onNoClick(): void {

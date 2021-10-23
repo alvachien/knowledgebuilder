@@ -4,7 +4,11 @@
         <!-- Target user -->
         <mat-form-field class="control-full-width" appearance="fill">
           <mat-label>{{'Award.TargetUser' | transloco}}</mat-label>
-          <input matInput [(ngModel)]="data.targetUser" name="targetuser">
+          <mat-select [(ngModel)]="data.targetUser" name="targetuser">
+            <mat-option *ngFor="let usr of oDataSrv.currentUserDetail?.awardUsers" [value]="usr.targetUser">
+                {{usr.displayAs}}
+            </mat-option>
+          </mat-select>
         </mat-form-field>
 
         <!-- Record date -->
