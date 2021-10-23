@@ -38,7 +38,11 @@
         "Description": "DESCRIPTION",
         "Copy": "COPY",
         "Name": "NAME",
-        "NoThanks": "NO, THANKS"
+        "NoThanks": "NO, THANKS",
+        "CurrentUser": "CURRENT USER",
+        "ID": "ID",
+        "DisplayAs": "DISPLAY AS",
+        "Logon": "LOGON"
     },
     "Type": "Type",
     "Create": "Create",
