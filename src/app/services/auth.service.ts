@@ -14,9 +14,9 @@ const authSettings: any = {
   // response_type: 'code',
   scope: 'openid profile api.knowledgebuilder',
 
-  silent_redirect_uri: environment.loginSlientRevewCallbackUrl,
-  automaticSilentRenew: true,
-  accessTokenExpiringNotificationTime: 4,
+  // silent_redirect_uri: environment.loginSlientRevewCallbackUrl,
+  // automaticSilentRenew: true,
+  // accessTokenExpiringNotificationTime: 4,
   // silentRequestTimeout:10000,
 
   filterProtocolClaims: true,
