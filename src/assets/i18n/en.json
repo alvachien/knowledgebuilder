@@ -42,7 +42,8 @@
         "CurrentUser": "CURRENT USER",
         "ID": "ID",
         "DisplayAs": "DISPLAY AS",
-        "Logon": "LOGON"
+        "Logon": "LOGON",
+        "Done": "Done"
     },
     "Type": "Type",
     "Create": "Create",
@@ -83,8 +84,12 @@
     "AccessCode": "Access Code",
     "Header": "Header",
     "HeaderInfo": "Header information",
+    "Dimension": "Dimension",
     "Administrative": "Administrative",
     "AdministrativeInfo": "Administrative information",
+    "AwardRuleGroupCreatedInfo1": "Award rule group created successfully.",
+    "AwardRuleGroupCreatedInfo2": "You can either open the group for review or create another one.",
+    "KeepLearning": "Keep Learning",
     "ExerciseItemType": {
         "SingleChoice": "Single Choice",
         "MultipleChoices": "Multiple Choices",
@@ -205,7 +210,8 @@
         "AggregatedPoints": "Aggregated Points",
         "ContinuousDays": "Continuous days",
         "TimeRange": "Range of time",
-        "CountRange": "Range of count"
+        "CountRange": "Range of count",
+        "RuleGeneration": "Rule Generation"
     },
     "Sys":{
         "Operator": {

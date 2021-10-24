@@ -1,12 +1,12 @@
 <mat-toolbar>
-  <h1>AWARD RULE GENERATION</h1>
+  <h1>{{'Award.RuleGeneration' | transloco}}</h1>
   <div class="toolbar-spacer"></div>
 </mat-toolbar>
 
 <mat-vertical-stepper linear #stepper>
   <mat-step [stepControl]="firstFormGroup">
     <form [formGroup]="firstFormGroup">
-      <ng-template matStepLabel>HEADER</ng-template>
+      <ng-template matStepLabel>{{'Header' | transloco}}</ng-template>
       <!-- Target user -->
       <mat-form-field class="control-full-width" appearance="fill">
         <mat-label>{{'Award.TargetUser' | transloco}}</mat-label>
@@ -43,56 +43,56 @@
       </mat-form-field>
 
       <div>
-        <button mat-button color="primary" (click)="onInitialDimensions()" matStepperNext>NEXT</button>
+        <button mat-button color="primary" (click)="onInitialDimensions()" matStepperNext>{{'Common.Next' | transloco}}</button>
       </div>
     </form>
   </mat-step>
 
   <mat-step [stepControl]="secondFormGroup">
     <form [formGroup]="secondFormGroup">
-      <ng-template matStepLabel>DIMENSIONS</ng-template>
+      <ng-template matStepLabel>{{'Dimension' | transloco}}</ng-template>
       <mat-form-field>
-        <mat-label>Dimension</mat-label>
+        <mat-label>{{'Dimension' | transloco}}</mat-label>
         <input matInput formControlName="rawCtrl">
       </mat-form-field>
       <mat-list dense *ngFor="let dim of dimensions">
         <mat-list-item>{{dim.toString()}}</mat-list-item>
       </mat-list>
       <div>
-        <button mat-button matStepperPrevious>BACK</button>
-        <button mat-button color="primary" (click)="onDimensionCompleted()" matStepperNext>NEXT</button>
+        <button mat-button matStepperPrevious>{{'Common.Previous' | transloco}}</button>
+        <button mat-button color="primary" (click)="onDimensionCompleted()" matStepperNext>{{'Common.Next' | transloco}}</button>
       </div>
     </form>
   </mat-step>
 
   <mat-step [stepControl]="thirdFormGroup">
     <form [formGroup]="thirdFormGroup">
-      <ng-template matStepLabel>DAYS</ng-template>
+      <ng-template matStepLabel>{{'Award.ContinuousDays' | transloco}}</ng-template>
       <mat-form-field>
-        <mat-label>Continued Days</mat-label>
+        <mat-label>{{'Award.ContinuousDays' | transloco}}</mat-label>
         <input matInput formControlName="rawCtrl">
       </mat-form-field>
       <mat-list dense *ngFor="let cd of contDays">
         <mat-list-item>{{cd.toString()}}</mat-list-item>
       </mat-list>
       <div>
-        <button mat-button matStepperPrevious>BACK</button>
-        <button mat-button color="primary" (click)="onInitialRules()" matStepperNext>NEXT</button>
+        <button mat-button matStepperPrevious>{{'Common.Previous' | transloco}}</button>
+        <button mat-button color="primary" (click)="onInitialRules()" matStepperNext>{{'Common.Next' | transloco}}</button>
       </div>
     </form>
   </mat-step>
 
   <mat-step [completed]="pointCompleted">
-    <ng-template matStepLabel>POINTS</ng-template>
+    <ng-template matStepLabel>{{'Award.Point' | transloco}}</ng-template>
     <mat-toolbar>
-      <button mat-raised-button>RESET RULES</button>
+      <button mat-raised-button disabled>RESET RULES</button>
     </mat-toolbar>
 
     <table mat-table [dataSource]="dataSource" class="mat-elevation-z8">
       <ng-container [matColumnDef]="col" *ngFor="let col of displayedColumns">
         <th mat-header-cell *matHeaderCellDef>
           <span *ngIf="col === 'dimension'">
-            DIMENSION
+            {{'Dimension' | transloco}}
           </span>
           <span *ngIf="col !== 'dimension'">
             {{getColumnHeaderForDays(col)}}
@@ -111,17 +111,17 @@
       <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
     </table>    
 
-    <button mat-button matStepperPrevious>BACK</button>
-    <button mat-button color="primary" [disabled]="!pointCompleted" (click)="onSave()" matStepperNext>NEXT</button>
+    <button mat-button matStepperPrevious>{{'Common.Previous' | transloco}}</button>
+    <button mat-button color="primary" [disabled]="!pointCompleted" (click)="onSave()" matStepperNext>{{'Common.Next' | transloco}}</button>
   </mat-step>
 
   <mat-step>
-    <ng-template matStepLabel>DONE</ng-template>
-    <p>Group {{createdGroupID}} is just create done.</p>
-    <p>You can either open the group for review or create another one.</p>
+    <ng-template matStepLabel>{{'Common.Done' | transloco}}</ng-template>
+    <p>{{'AwardRuleGroupCreatedInfo1' | transloco}}, ID: {{createdGroupID}} </p>
+    <p>{{'AwardRuleGroupCreatedInfo2' | transloco}}</p>
     <div>
-      <button mat-button (click)="openGroup()">OPEN</button>
-      <button mat-button color="warn" (click)="stepper.reset()">CREATE ANOTHER ONE</button>
+      <button mat-button (click)="openGroup()">{{'Common.Display' | transloco}}</button>
+      <button mat-button color="warn" (click)="stepper.reset()">{{'Common.CreateAnotherOne' | transloco}}</button>
     </div>
   </mat-step>
 </mat-vertical-stepper>

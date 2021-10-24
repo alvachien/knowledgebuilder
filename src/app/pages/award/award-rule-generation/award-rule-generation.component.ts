@@ -128,7 +128,7 @@ export class AwardRuleGenerationComponent implements OnInit {
       }
 
       default: {
-        this.secondFormGroup.get('rawCtrl')?.disable();
+        this.secondFormGroup.get('rawCtrl')?.enable();
         break;
       }
     }
