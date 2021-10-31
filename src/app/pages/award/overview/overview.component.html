@@ -48,7 +48,7 @@
 <mat-divider></mat-divider>
 <div *ngIf="isPointShow">
     <mat-toolbar>
-      <h3>{{'Award.Point' | transloco}}, {{selectedUser}}, {{selectedDate}}</h3>
+      <h3>{{'Award.Point' | transloco}}, {{getUserDisplayAs(selectedUserId)}} ({{selectedUserId}}), {{selectedDate}}</h3>
       <div class="toolbar-spacer"></div>
       <button mat-icon-button color="primary" (click)="onHidePoints()" matTooltip="{{'Common.Hide' | transloco}}">
         <mat-icon>visibility_off</mat-icon>

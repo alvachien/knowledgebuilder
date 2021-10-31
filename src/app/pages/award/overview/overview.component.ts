@@ -17,7 +17,7 @@ export class OverviewComponent implements OnInit {
   recordCount = 0;
   displayedColumns: string[] = ['targetUser', 'recordDate', 'point', 'aggpoint'];
   displayedPointColumns: string[] = ['action', 'targetUser', 'recordDate', 'matchedRuleID', 'countOfDay', 'point', 'comment'];
-  selectedUser = '';
+  selectedUserId = '';
   selectedDate = '';
   isPointShow = false;
 
@@ -81,7 +81,7 @@ export class OverviewComponent implements OnInit {
     this.oDataSrv.getAwardPoints(100, 0, undefined,
       `TargetUser eq '${targetUser}' AND RecordDate eq ${recordDate.format(momentDateFormat)}`).subscribe({
       next: val => {
-        this.selectedUser = targetUser;
+        this.selectedUserId = targetUser;
         this.selectedDate = recordDate.format(momentDateFormat);
 
         this.dataSourcePoints = [];
@@ -97,7 +97,7 @@ export class OverviewComponent implements OnInit {
   }
   onHidePoints(): void {
     this.selectedDate = '';
-    this.selectedUser = '';
+    this.selectedUserId = '';
     this.dataSourcePoints = [];
 
     this.isPointShow = false;
@@ -106,7 +106,7 @@ export class OverviewComponent implements OnInit {
     this.oDataSrv.deleteAwardPoint(pid).subscribe({
       next: val => {
         // Refresh
-        this.onGetPoints(this.selectedUser, moment(this.selectedDate));
+        this.onGetPoints(this.selectedUserId, moment(this.selectedDate));
       },
       error: err => {
         this.uiUtilSrv.showSnackInfo(err);
