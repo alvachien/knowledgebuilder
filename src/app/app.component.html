@@ -80,11 +80,23 @@
       <mat-expansion-panel hideToggle="false">
         <mat-expansion-panel-header>
           <mat-panel-title>
-            <mat-icon color="primary">card_membership</mat-icon>{{'Award.HabitBuilder' | transloco}}
+            <mat-icon color="primary">card_membership</mat-icon>{{'Award.Awards' | transloco}}
           </mat-panel-title>
         </mat-expansion-panel-header>
         <mat-nav-list>
           <a *ngFor="let navItem of navItems | navItemFilter: 4" mat-list-item [routerLink]="[navItem.route]">
+            {{navItem.name | transloco}}
+          </a>
+        </mat-nav-list>
+      </mat-expansion-panel>
+      <mat-expansion-panel hideToggle="false">
+        <mat-expansion-panel-header>
+          <mat-panel-title>
+            <mat-icon color="primary">fitness_center</mat-icon>{{'Award.HabitBuilder' | transloco}}
+          </mat-panel-title>
+        </mat-expansion-panel-header>
+        <mat-nav-list>
+          <a *ngFor="let navItem of navItems | navItemFilter: 8" mat-list-item [routerLink]="[navItem.route]">
             {{navItem.name | transloco}}
           </a>
         </mat-nav-list>

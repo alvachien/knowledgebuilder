@@ -213,6 +213,13 @@
         "CountRange": "Range of count",
         "RuleGeneration": "Rule Generation"
     },
+    "Habit": {
+        "HabitBuilder": "Habit Builder",
+        "Habit": "Habit",
+        "Habits": "Habits",
+        "Record": "Record",
+        "Records": "Records"
+    },
     "Sys":{
         "Operator": {
           "Between": "Between",

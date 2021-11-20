@@ -213,6 +213,13 @@
         "CountRange": "次数范围",
         "RuleGeneration": "规则自动生成"
     },
+    "Habit": {
+        "HabitBuilder": "习惯养成器",
+        "Habit": "习惯",
+        "Habits": "习惯",
+        "Record": "日常打卡",
+        "Records": "日常打卡"
+    },
     "Sys":{
         "Operator": {
           "Between": "介于",

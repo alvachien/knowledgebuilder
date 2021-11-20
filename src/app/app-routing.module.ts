@@ -47,6 +47,11 @@ const routes: Routes = [
     loadChildren: () => import('./pages/award/award.module').then(m => m.AwardModule),
   },
   {
+    path: 'habit',
+    canActivate: [AuthGuardService],
+    loadChildren: () => import('./pages/habit-builder/habit-builder.module').then(m => m.HabitBuilderModule),
+  },
+  {
     path: 'preview',
     loadChildren: () => import('./pages/preview/preview.module').then(m => m.PreviewModule),
   },

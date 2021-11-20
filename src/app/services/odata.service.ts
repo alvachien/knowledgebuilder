@@ -1110,6 +1110,10 @@ export class ODataService {
         catchError((error: HttpErrorResponse) => throwError(error.statusText + '; ' + error.error + '; ' + error.message) ));
   }
 
+  // Habit Builder
+  // public getHabits(top = 30, skip = 0)
+
+
   // File upload
   public uploadFiles(files: Set<File>): { [key: string]: { result: Observable<any> } } {
     if (!this.isLoggedin) {
