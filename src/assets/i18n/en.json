@@ -218,7 +218,18 @@
         "Habit": "Habit",
         "Habits": "Habits",
         "Record": "Record",
-        "Records": "Records"
+        "Records": "Records",
+        "GoodHabit": "Good Habit",
+        "BadHabit": "Bad Habit",
+        "Frequency": "Frequency",
+        "Daily": "Daily",
+        "Weekly": "Weekly",
+        "Monthly": "Monthly",
+        "CompleteCategory": "Complete Category",
+        "NumberOfTimes": "Number of times",
+        "NumberOfCount": "Number of count",
+        "CompleteCondition": "Complete Condition",
+        "StartDate": "Start Date"
     },
     "Sys":{
         "Operator": {

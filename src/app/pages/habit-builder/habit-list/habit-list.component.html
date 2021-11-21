@@ -1,7 +1,7 @@
 <mat-toolbar>
     <h1>{{'Habit.Habits' | transloco}}</h1>
     <div class="toolbar-spacer"></div>
-    <button mat-icon-button color="primary" [disabled]="!isExpertMode" (click)="onCreateRuleGroup()" matTooltip="{{'Common.Create' | transloco}}">
+    <button mat-icon-button color="primary" (click)="onCreateHabit()" matTooltip="{{'Common.Create' | transloco}}">
       <mat-icon>add_circle</mat-icon>
     </button>
   </mat-toolbar>
@@ -13,7 +13,7 @@
         <ng-container matColumnDef="id">
           <th mat-header-cell *matHeaderCellDef>#</th>
           <td mat-cell *matCellDef="let row">{{row.id}} |
-            <button mat-icon-button color="primary" (click)="onDisplayRuleGroup(row.id)" matTooltip="{{'Common.Display' | transloco}}">
+            <button mat-icon-button color="primary" (click)="onDisplayHabit(row.id)" matTooltip="{{'Common.Display' | transloco}}">
               <mat-icon>launch</mat-icon>
             </button>
             <button mat-icon-button color="warn" (click)="onDeleteRuleGroup(row.id)" matTooltip="{{'Common.Delete' | transloco}}">

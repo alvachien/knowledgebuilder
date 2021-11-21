@@ -218,7 +218,18 @@
         "Habit": "习惯",
         "Habits": "习惯",
         "Record": "日常打卡",
-        "Records": "日常打卡"
+        "Records": "日常打卡",
+        "GoodHabit": "好习惯",
+        "BadHabit": "坏习惯",
+        "Frequency": "频率",
+        "Daily": "每日",
+        "Weekly": "每周",
+        "Monthly": "每月",
+        "CompleteCategory": "习惯完成计量类型",
+        "NumberOfTimes": "以次数",
+        "NumberOfCount": "以数量",
+        "CompleteCondition": "习惯完成条件",
+        "StartDate": "计量起始日"
     },
     "Sys":{
         "Operator": {

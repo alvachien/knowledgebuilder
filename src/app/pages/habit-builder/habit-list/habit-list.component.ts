@@ -41,8 +41,8 @@ export class HabitListComponent implements OnInit {
     return '';
   }
 
-  public onCreateRuleGroup(): void {
-    this.uiUtilSrv.navigateAwardRuleGenerationPage();
+  public onCreateHabit(): void {
+    this.uiUtilSrv.navigateHabitCreatePage();
   }
 
   public refreshList(): void {
@@ -67,7 +67,7 @@ export class HabitListComponent implements OnInit {
       }
     });
   }
-  public onDisplayRuleGroup(gid: number): void {
-    this.uiUtilSrv.navigateAwardRuleGroupDisplayPage(gid);
+  public onDisplayHabit(hid: number): void {
+    this.uiUtilSrv.navigateHabitDisplayPage(hid);
   }
 }

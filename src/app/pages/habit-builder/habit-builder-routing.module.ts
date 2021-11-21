@@ -9,9 +9,9 @@ import { HabitRecordDetailComponent } from './habit-record-detail';
 const routes: Routes = [
   { path: '', component:  HabitListComponent },
   { path: 'list', component: HabitListComponent },
-  { path: 'detail/create', component: HabitDetailComponent },
-  { path: 'detail/edit/:id', component: HabitDetailComponent },
-  { path: 'detail/display/:id', component: HabitDetailComponent },
+  { path: 'create', component: HabitDetailComponent },
+  { path: 'edit/:id', component: HabitDetailComponent },
+  { path: 'display/:id', component: HabitDetailComponent },
   { path: 'record', component: HabitRecordListComponent },
   { path: 'record/list', component: HabitRecordListComponent },
   { path: 'record/create', component: HabitRecordDetailComponent },
