@@ -8,7 +8,8 @@ import moment from 'moment';
 import { ExerciseItem, ExerciseItemSearchResult, TagCount, Tag, KnowledgeItem, TagReferenceType, OverviewInfo,
   AwardRuleGroup, AwardRuleDetail, AwardRule, DailyTrace, AwardPoint, AwardPointReport, momentDateFormat,
   UserCollection, ExerciseItemUserScore, UserCollectionItem, AwardUser, InvitedUser, AwardUserView,
-  UserAuthInfo, } from '../models';
+  UserAuthInfo,
+  UserHabit, } from '../models';
 import { environment } from '../../environments/environment';
 import { AuthService } from './auth.service';
 
@@ -36,6 +37,7 @@ export class ODataService {
   bufferedUserCollection: UserCollection[] = [];
   bufferedAwardUser: AwardUserView[] = [];
   bufferedAwardRuleGroup: AwardRuleGroup[] = [];
+  bufferedUserHabit: UserHabit[] = [];
   // Current user
   public currentUser: UserAuthInfo | null = null;
   public currentUserDetail: InvitedUser | null = null;
@@ -1626,6 +1628,153 @@ export class ODataService {
         return null;
       }),
       catchError((error: HttpErrorResponse) => throwError(error.statusText + '; ' + error.error + '; ' + error.message) ));
+  }
+
+  // Habit
+  public getUserHabits(top = 30, skip = 0, sort?: string, filter?: string):
+  Observable<{ totalCount: number; items: UserHabit[] }> {
+  if (!this.isLoggedin) {
+    return of({
+      totalCount: 0,
+      items: []
+    });
+  }
+
+  let headers: HttpHeaders = new HttpHeaders();
+  headers = headers.append(this.contentType, this.appJson)
+    .append(this.strAccept, this.appJson)
+    .append('Authorization', 'Bearer ' + this.authService.authSubject.getValue().getAccessToken());
+
+  let params: HttpParams = new HttpParams();
+  params = params.append('$top', top.toString());
+  params = params.append('$skip', skip.toString());
+  params = params.append('$count', 'true');
+  //params = params.append('$expand', 'Rules');
+  // params = params.append('$select',
+  //   'ID,RuleType,TargetUser,Desp,ValidFrom,ValidTo,CountOfFactLow,CountOfFactHigh,DoneOfFact,TimeStart,TimeEnd,DaysFrom,DaysTo,Point');
+  if (filter) {
+    params = params.append('$filter', filter);
+  }
+  const apiurl = `${this.apiUrl}UserHabits`;
+  // if (environment.mockdata) {
+  //   apiurl = `${environment.basehref}assets/mockdata/exercise-items.json`;
+  //   params = new HttpParams();
+  // }
+
+  return this.http.get(apiurl, {
+    headers,
+    params,
+  })
+    .pipe(map(response => {
+      const rjs = response as any;
+      const ritems = rjs.value as any[];
+      this.bufferedUserHabit = [];
+      ritems.forEach(item => {
+        const rit: UserHabit = new UserHabit();
+        rit.parseData(item);
+        this.bufferedUserHabit.push(rit);
+      });
+
+      return {
+        totalCount: rjs['@odata.count'],
+        items: this.bufferedUserHabit,
+      };
+    }),
+    catchError((error: HttpErrorResponse) => throwError(error.statusText + '; ' + error.error + '; ' + error.message) ));
+  }
+  public readUserHabit(grpid: number): Observable<AwardRuleGroup> {
+    if (environment.mockdata) {
+      return throwError(this.mockModeFailMsg);
+    } else {
+      if (!this.isLoggedin) {
+        return throwError(this.expertModeFailMsg);
+      }
+    }
+
+    const idx = this.bufferedAwardRuleGroup.findIndex(rg => rg.id === grpid);
+    if (idx !== -1) {
+      return of(this.bufferedAwardRuleGroup[idx]);
+    }
+
+    let headers: HttpHeaders = new HttpHeaders();
+    headers = headers.append(this.contentType, this.appJson)
+      .append(this.strAccept, this.appJson)
+      .append('Authorization', 'Bearer ' + this.authService.authSubject.getValue().getAccessToken());
+
+    let params: HttpParams = new HttpParams();
+    params = params.append('$expand', 'Rules');
+    params = params.append('$filter', `ID eq ${grpid}`);
+    const apiurl = `${this.apiUrl}AwardRuleGroups`;
+
+    return this.http.get(apiurl, {
+      headers,
+      params,
+    })
+      .pipe(map(response => {
+        const rjs = response as any;
+        const ritem = rjs.value as any;
+        const rit: AwardRuleGroup = new AwardRuleGroup();
+        rit.parseData(ritem);
+
+        this.bufferedAwardRuleGroup.push(rit);
+
+        return rit;
+      }),
+      catchError((error: HttpErrorResponse) => throwError(error.statusText + '; ' + error.error + '; ' + error.message) ));
+  }
+  public createUserHabit(grp: UserHabit): Observable<UserHabit> {
+    if (environment.mockdata) {
+      return throwError(this.mockModeFailMsg);
+    } else {
+      if (!this.isLoggedin) {
+        return throwError(this.expertModeFailMsg);
+      }
+    }
+    let headers: HttpHeaders = new HttpHeaders();
+    headers = headers.append(this.contentType, this.appJson)
+      .append(this.strAccept, this.appJson)
+      .append('Authorization', 'Bearer ' + this.authService.authSubject.getValue().getAccessToken());
+
+    const jdata = grp.writeJSONObject();
+    return this.http.post(`${this.apiUrl}UserHabits`, jdata, {
+      headers,
+    })
+      .pipe(map(response => {
+        const rjs = response as any;
+        const rtn = new UserHabit();
+        rtn.parseData(rjs);
+
+        return rtn;
+      }),
+      catchError((error: HttpErrorResponse) => throwError(error.statusText + '; ' + error.error + '; ' + error.message) ));
+  }
+  public deleteUserHabit(rid: number): Observable<boolean> {
+    if (environment.mockdata) {
+      return throwError(this.mockModeFailMsg);
+    } else {
+      if (!this.isLoggedin) {
+        return throwError(this.expertModeFailMsg);
+      }
+    }
+
+    let headers: HttpHeaders = new HttpHeaders();
+    headers = headers.append(this.contentType, this.appJson)
+      .append(this.strAccept, this.appJson)
+      .append('Authorization', 'Bearer ' + this.authService.authSubject.getValue().getAccessToken());
+
+    return this.http.delete(`${this.apiUrl}UserHabits(${rid})`, {
+      headers
+    })
+      .pipe(map(response => {
+        const idx = this.bufferedUserHabit.findIndex(rg => rg.ID === rid);
+        if (idx !== -1) {
+          this.bufferedUserHabit.splice(idx, 1);
+        }
+
+        return true;
+      }),
+      catchError((error: HttpErrorResponse) => throwError(error.statusText + '; ' + error.error + '; ' + error.message)
+      ));
   }
 
   // public getAwardUserViews(): Observable<{ totalCount: number; items: AwardUserView[] }> {

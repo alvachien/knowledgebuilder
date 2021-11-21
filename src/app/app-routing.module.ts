@@ -48,7 +48,7 @@ const routes: Routes = [
   },
   {
     path: 'habit',
-    canActivate: [AuthGuardService],
+    // canActivate: [AuthGuardService],
     loadChildren: () => import('./pages/habit-builder/habit-builder.module').then(m => m.HabitBuilderModule),
   },
   {
