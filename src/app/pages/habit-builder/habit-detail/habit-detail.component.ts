@@ -2,7 +2,9 @@ import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { UIMode } from 'actslib';
 
-import { AwardUserView, getHabitCategoryNames, getHabitCompleteCategoryNames, getHabitFrequencyNames, HabitCategory, HabitCompleteCategory, HabitFrequency, UserHabit, UserHabitRule, } from 'src/app/models';
+import { AwardUserView, getHabitCategoryNames, getHabitCompleteCategoryNames, getHabitFrequencyNames, 
+  HabitCategory, HabitCompleteCategory, 
+  HabitFrequency, UserHabit, UserHabitRule, } from 'src/app/models';
 import { ODataService, UIUtilityService } from 'src/app/services';
 
 @Component({
@@ -18,6 +20,7 @@ export class HabitDetailComponent implements OnInit {
   arCategories: any[] = [];
   arFrequencies: any[] = [];
   arCompleteCategories: any[] = [];
+  currentObject: UserHabit | null = null;
 
   constructor(private _formBuilder: FormBuilder,
     private uiUtilSrv: UIUtilityService,
@@ -54,11 +57,36 @@ export class HabitDetailComponent implements OnInit {
     }
     return '';
   }
+  get isDisplayMode(): boolean {
+    return this.uiMode === UIMode.Display;
+  }
+  get isCreateMode(): boolean {
+    return this.uiMode === UIMode.Create;
+  }
+  get isUpdateMode(): boolean {
+    return this.uiMode === UIMode.Update;
+  }
+  get isEditable(): boolean {
+    return this.uiMode === UIMode.Create || this.uiMode === UIMode.Update;
+  }
   
   ngOnInit(): void {
   }
 
   onSave(): void {
     // Save the date
+    if (this.isCreateMode) {
+      this.onCreateImpl();
+    } else if(this.isUpdateMode) {
+
+    }
+  }
+  onBackToList(): void {
+    this.uiUtilSrv.navigateHabitListPage();
+  }
+
+  private onCreateImpl(): void {
+    this.currentObject = new UserHabit();
+    // TBD.
   }
 }

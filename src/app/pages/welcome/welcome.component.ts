@@ -26,16 +26,30 @@ export class WelcomeComponent implements OnInit {
     {text: `Knowledge Items: ${this.countOfKnowledge}`, cols: 1, rows: 1, color: 'lightpink', fontsize: '32px'},
     {text: `Exercise Items: ${this.countOfExercise}`, cols: 2, rows: 1, color: '#DDBDF1', fontsize: '32px'},
   ];
+  currentSlogan = '';
 
   constructor(private odataSrv: ODataService) {
     if (!environment.production) {
       console.log('Entering WelcomeComponent constructor');
-    }
+    }    
   }
 
   ngOnInit(): void {
     if (!environment.production) {
       console.log('Entering WelcomeComponent ngOnInit');
+    }
+
+    let ncnt = Math.floor((Math.random() * 5) + 1);
+    if (ncnt === 1) {
+      this.currentSlogan = 'KeepLearning';
+    } else if(ncnt === 2) {
+      this.currentSlogan = 'KeepLearning2';
+    } else if(ncnt === 3) {
+      this.currentSlogan = 'KeepLearning3';
+    } else if(ncnt === 4) {
+      this.currentSlogan = 'KeepLearning4';
+    } else if(ncnt === 5) {
+      this.currentSlogan = 'KeepLearning5';
     }
 
     this.odataSrv.getMetadata().subscribe({

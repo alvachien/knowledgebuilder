@@ -11,6 +11,7 @@ import { HabitListComponent } from './habit-list/habit-list.component';
 import { HabitDetailComponent } from './habit-detail/habit-detail.component';
 import { HabitRecordListComponent } from './habit-record-list/habit-record-list.component';
 import { HabitRecordDetailComponent } from './habit-record-detail/habit-record-detail.component';
+import { HabitCreateComponent } from './habit-create/habit-create.component';
 
 
 @NgModule({
@@ -18,7 +19,8 @@ import { HabitRecordDetailComponent } from './habit-record-detail/habit-record-d
     HabitListComponent,
     HabitDetailComponent,
     HabitRecordListComponent,
-    HabitRecordDetailComponent
+    HabitRecordDetailComponent,
+    HabitCreateComponent
   ],
   imports: [
     CommonModule,

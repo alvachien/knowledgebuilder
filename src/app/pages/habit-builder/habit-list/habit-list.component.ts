@@ -57,8 +57,8 @@ export class HabitListComponent implements OnInit {
     });
   }
 
-  public onDeleteRuleGroup(rid: number): void {
-    this.odataSrv.deleteAwardRuleGroup(rid).subscribe({
+  public onDeleteHabit(hid: number): void {
+    this.odataSrv.deleteUserHabit(hid).subscribe({
       next: val => {
         this.refreshList();
       },

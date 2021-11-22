@@ -77,6 +77,9 @@ export class UIUtilityService {
     this.router.navigate(['award', 'rule-group-display', gid.toString()]);
   }
 
+  public navigateHabitListPage(): void {
+    this.router.navigate(['habit', 'list']);
+  }
   public navigateHabitCreatePage(): void {
     this.router.navigate(['habit', 'create']);
   }

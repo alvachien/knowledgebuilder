@@ -192,7 +192,6 @@ export class AwardRuleGenerationComponent implements OnInit {
           di2.from = tpcur;
           di2.to = 9999;
           this.dimensions.push(di2);
-
         }
         break;
       }

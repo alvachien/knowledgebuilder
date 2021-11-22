@@ -1,85 +1,90 @@
 <mat-card>
-    <mat-card-header>
-        <mat-card-title>{{'Habit.Habit' | transloco}}</mat-card-title>
-        <mat-card-subtitle>{{currentMode | transloco}}</mat-card-subtitle>
-    </mat-card-header>
-    <mat-card-content>
-        <form [formGroup]="firstFormGroup">
-            <!-- Target user -->
-            <mat-form-field class="control-full-width" appearance="fill">
-              <mat-label>{{'Award.TargetUser' | transloco}}</mat-label>
-              <mat-select required formControlName="targetuserCtrl">
-                <mat-option *ngFor="let tu of arTargetUsers" [value]="tu.targetUser">{{tu.displayAs}}</mat-option>
+  <mat-card-header>
+    <mat-card-title>{{'Habit.Habit' | transloco}}</mat-card-title>
+    <mat-card-subtitle>{{currentMode | transloco}}</mat-card-subtitle>
+  </mat-card-header>
+  <mat-card-content>
+    <form [formGroup]="firstFormGroup">
+      <!-- Target user -->
+      <mat-form-field class="control-full-width" appearance="fill">
+        <mat-label>{{'Award.TargetUser' | transloco}}</mat-label>
+        <mat-select required formControlName="targetuserCtrl">
+          <mat-option *ngFor="let tu of arTargetUsers" [value]="tu.targetUser">{{tu.displayAs}}</mat-option>
+        </mat-select>
+      </mat-form-field>
+
+      <!-- Category -->
+      <!-- <mat-form-field appearance="fill" class="control-full-width">
+              <mat-label>{{'Category' | transloco}}</mat-label>
+              <mat-select required formControlName="ctgyCtrl">
+                <mat-option *ngFor="let et of arCategories" [value]="et.value">{{et.i18nterm | transloco}}</mat-option>
               </mat-select>
-            </mat-form-field>
-
-            <!-- Category -->
-            <mat-form-field appearance="fill" class="control-full-width">
-                <mat-label>{{'Category' | transloco}}</mat-label>
-                <mat-select required formControlName="ctgyCtrl">
-                  <mat-option *ngFor="let et of arCategories" [value]="et.value">{{et.i18nterm | transloco}}</mat-option>
-                </mat-select>
-            </mat-form-field>
-
-            <!-- Name -->
-            <mat-form-field class="control-full-width" appearance="fill">
-                <mat-label>{{'Common.Name' | transloco}}</mat-label>
-                <input matInput required formControlName="nameCtrl">
-            </mat-form-field>
-              
-            <!-- Validity range -->
-            <mat-form-field appearance="fill">
-              <mat-label>{{'Award.Validity' | transloco}}</mat-label>
-              <mat-date-range-input [rangePicker]="picker">
-              <input matStartDate formControlName="validFromCtrl" placeholder="Start date">
-              <input matEndDate formControlName="validToCtrl" placeholder="End date">
-              </mat-date-range-input>
-              <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
-              <mat-date-range-picker #picker></mat-date-range-picker>
-            </mat-form-field>
-
-            <!-- Frequency -->
-            <mat-form-field appearance="fill" class="control-full-width">
-                <mat-label>{{'Habit.Frequency' | transloco}}</mat-label>
-                <mat-select required formControlName="freqCtrl">
-                  <mat-option *ngFor="let et of arFrequencies" [value]="et.value">{{et.i18nterm | transloco}}</mat-option>
-                </mat-select>
-            </mat-form-field>
-
-            <!-- Complete Category -->
-            <mat-form-field appearance="fill" class="control-full-width">
-                <mat-label>{{'Habit.CompleteCategory' | transloco}}</mat-label>
-                <mat-select required formControlName="compCtgyCtrl">
-                  <mat-option *ngFor="let et of arCompleteCategories" [value]="et.value">{{et.i18nterm | transloco}}</mat-option>
-                </mat-select>
-            </mat-form-field>
-
-            <!-- Complete Condition -->
-            <mat-form-field class="control-full-width" appearance="fill">
-                <mat-label>{{'Habit.CompleteCondition' | transloco}}</mat-label>
-                <input matInput required type="number" formControlName="compCondCtrl">
-            </mat-form-field>
-
-            <!-- Start Date -->
-            <mat-form-field class="control-full-width" appearance="fill">
-                <mat-label>{{'Habit.StartDate' | transloco}}</mat-label>
-                <input matInput required type="number" formControlName="startDateCtrl">
-            </mat-form-field>
-
-            <!-- Rule type -->
-            <!-- <mat-form-field appearance="fill" class="control-full-width">
-              <mat-label>{{'Type' | transloco}}</mat-label>
-              <mat-select required formControlName="ruleTypeCtrl">
-                <mat-option *ngFor="let et of arRuleTypes" [value]="et.value">{{et.i18nterm | transloco}}</mat-option>
-              </mat-select>
+              <mat-hint>{{'Habit.CategoryHint' | transloco}}</mat-hint>
             </mat-form-field> -->
-      
-        </form>
-      
-    </mat-card-content>
-    <mat-card-actions>
-        <button mat-button (click)="onSave()">SAVE</button>
-        <button mat-button>BACK TO LIST</button>
-    </mat-card-actions>    
-</mat-card>
 
+      <!-- Name -->
+      <mat-form-field class="control-full-width" appearance="fill">
+        <mat-label>{{'Common.Name' | transloco}}</mat-label>
+        <input matInput required formControlName="nameCtrl">
+      </mat-form-field>
+
+      <!-- Validity range -->
+      <mat-form-field appearance="fill">
+        <mat-label>{{'Award.Validity' | transloco}}</mat-label>
+        <mat-date-range-input [rangePicker]="picker">
+          <input matStartDate formControlName="validFromCtrl" placeholder="Start date">
+          <input matEndDate formControlName="validToCtrl" placeholder="End date">
+        </mat-date-range-input>
+        <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
+        <mat-date-range-picker #picker></mat-date-range-picker>
+      </mat-form-field>
+
+      <!-- Frequency -->
+      <mat-form-field appearance="fill" class="control-full-width">
+        <mat-label>{{'Habit.Frequency' | transloco}}</mat-label>
+        <mat-select required formControlName="freqCtrl">
+          <mat-option *ngFor="let et of arFrequencies" [value]="et.value">{{et.i18nterm | transloco}}</mat-option>
+        </mat-select>
+        <mat-hint>{{'Habit.FrequencyHint' | transloco}}</mat-hint>
+      </mat-form-field>
+
+      <!-- Complete Category -->
+      <mat-form-field appearance="fill" class="control-full-width">
+        <mat-label>{{'Habit.CompleteCategory' | transloco}}</mat-label>
+        <mat-select required formControlName="compCtgyCtrl">
+          <mat-option *ngFor="let et of arCompleteCategories" [value]="et.value">{{et.i18nterm | transloco}}
+          </mat-option>
+        </mat-select>
+        <mat-hint>{{'Habit.CompleteCategoryHint' | transloco}}</mat-hint>
+      </mat-form-field>
+
+      <!-- Complete Condition -->
+      <mat-form-field class="control-full-width" appearance="fill">
+        <mat-label>{{'Habit.CompleteCondition' | transloco}}</mat-label>
+        <input matInput required type="number" formControlName="compCondCtrl">
+        <mat-hint>{{'Habit.CompleteConditionHint' | transloco}}</mat-hint>
+      </mat-form-field>
+
+      <!-- Start Date -->
+      <mat-form-field class="control-full-width" appearance="fill">
+        <mat-label>{{'Habit.StartDate' | transloco}}</mat-label>
+        <input matInput required type="number" formControlName="startDateCtrl">
+        <mat-hint>{{'Habit.StartDateHint' | transloco}}</mat-hint>
+      </mat-form-field>
+
+      <!-- Rule type -->
+      <!-- <mat-form-field appearance="fill" class="control-full-width">
+        <mat-label>{{'Type' | transloco}}</mat-label>
+        <mat-select required formControlName="ruleTypeCtrl">
+          <mat-option *ngFor="let et of arRuleTypes" [value]="et.value">{{et.i18nterm | transloco}}</mat-option>
+        </mat-select>
+      </mat-form-field> -->
+
+    </form>
+
+  </mat-card-content>
+  <mat-card-actions>
+    <button mat-button color="primary" (click)="onSave()">SAVE</button>
+    <button mat-button (click)="onBackToList()">BACK TO LIST</button>
+  </mat-card-actions>
+</mat-card>

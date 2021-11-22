@@ -3,13 +3,14 @@ import { RouterModule, Routes } from '@angular/router';
 
 import { HabitListComponent } from './habit-list';
 import { HabitDetailComponent } from './habit-detail';
+import { HabitCreateComponent } from './habit-create';
 import { HabitRecordListComponent } from './habit-record-list';
 import { HabitRecordDetailComponent } from './habit-record-detail';
 
 const routes: Routes = [
   { path: '', component:  HabitListComponent },
   { path: 'list', component: HabitListComponent },
-  { path: 'create', component: HabitDetailComponent },
+  { path: 'create', component: HabitCreateComponent },
   { path: 'edit/:id', component: HabitDetailComponent },
   { path: 'display/:id', component: HabitDetailComponent },
   { path: 'record', component: HabitRecordListComponent },

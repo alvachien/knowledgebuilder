@@ -90,6 +90,10 @@
     "AwardRuleGroupCreatedInfo1": "Award rule group created successfully.",
     "AwardRuleGroupCreatedInfo2": "You can either open the group for review or create another one.",
     "KeepLearning": "Keep Learning",
+    "KeepLearning2": "Keep Learning",
+    "KeepLearning3": "Keep Learning",
+    "KeepLearning4": "Keep Learning",
+    "KeepLearning5": "Keep Learning",
     "ExerciseItemType": {
         "SingleChoice": "Single Choice",
         "MultipleChoices": "Multiple Choices",
@@ -229,7 +233,12 @@
         "NumberOfTimes": "Number of times",
         "NumberOfCount": "Number of count",
         "CompleteCondition": "Complete Condition",
-        "StartDate": "Start Date"
+        "StartDate": "Start Date",
+        "CompleteCategoryHint": "Distinguish the completion by number of times or number of count;",
+        "CompleteConditionHint": "Completion condition to judge the completion or not",
+        "FrequencyHint": "Frequency control of habit completion",
+        "CategoryHint": "Category of habit: keep good one and get rid of bad one",
+        "StartDateHint": ""
     },
     "Sys":{
         "Operator": {
