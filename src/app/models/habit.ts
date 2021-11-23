@@ -148,6 +148,104 @@ export class UserHabit
     public arRules: UserHabitRule[] = [];
 
     get isValid(): boolean {
+        if (!this.name) {
+            return false;
+        }
+        if (this.validTo.isSameOrBefore(this.validFrom)) {
+            return false;
+        }
+        switch (this.frequency) {
+            case HabitFrequency.Weekly: {
+                switch(this.completeCategory) {
+                    case HabitCompleteCategory.NumberOfCount: {
+                        if (this.startDate === undefined) {
+                            return false;
+                        }
+                        if (this.startDate < 0 || this.startDate > 6) {
+                            return false;
+                        }
+                        if (this.completeCondition < 0) {
+                            return false;
+                        }
+                    }
+                    break;
+
+                    case HabitCompleteCategory.NumberOfTimes:
+                    default: {
+                        if (this.startDate === undefined) {
+                            return false;
+                        }
+                        if (this.startDate < 0 || this.startDate > 6) {
+                            return false;
+                        }
+                        if (this.completeCondition < 0 || this.completeCondition > 7) {
+                            return false;
+                        }
+                    }
+                    break;
+                }
+            }
+            break;
+
+            case HabitFrequency.Monthly: {
+                switch(this.completeCategory) {
+                    case HabitCompleteCategory.NumberOfCount: {
+                        if (this.startDate === undefined) {
+                            return false;
+                        }
+                        if (this.startDate < 0 || this.startDate > 27) {
+                            return false;
+                        }
+                        if (this.completeCondition < 0) {
+                            return false;
+                        }
+                    }
+                    break;
+
+                    case HabitCompleteCategory.NumberOfTimes:
+                    default: {
+                        if (this.startDate === undefined) {
+                            return false;
+                        }
+                        if (this.startDate < 0 || this.startDate > 27) {
+                            return false;
+                        }
+                        if (this.completeCondition < 0 || this.completeCategory > 27) {
+                            return false;
+                        }
+                    }
+                    break;
+                }
+            }
+            break;
+
+            case HabitFrequency.Daily:
+            default: {
+                switch(this.completeCategory) {
+                    case HabitCompleteCategory.NumberOfCount: {
+                        if (this.startDate) {
+                            return false;
+                        }
+                        if (this.completeCondition < 0) {
+                            return false;
+                        }
+                    }
+                    break;
+
+                    case HabitCompleteCategory.NumberOfTimes:
+                    default: {
+                        if (this.startDate) {
+                            return false;
+                        }
+                        if (this.completeCondition !== 1) {
+                            return false;
+                        }
+                    }
+                    break;
+                }
+            }
+            break;
+        }
         
         return true;
     }
@@ -247,6 +345,9 @@ export class UserHabitRule
     public continuousRecordTo: number = 1;
     public point: number = 1;
 
+    get continuousDays(): string {
+        return `[${this.continuousRecordFrom} - ${this.continuousRecordTo})`;
+    }
     get isValid(): boolean {
         if (!this.continuousRecordFrom || !this.continuousRecordTo || !this.point) {
             return false;

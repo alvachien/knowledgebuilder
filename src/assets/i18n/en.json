@@ -238,7 +238,8 @@
         "CompleteConditionHint": "Completion condition to judge the completion or not",
         "FrequencyHint": "Frequency control of habit completion",
         "CategoryHint": "Category of habit: keep good one and get rid of bad one",
-        "StartDateHint": ""
+        "StartDateHint": "Start date in Weekly or Monthly",
+        "CompleteFact": "Complete Fact"
     },
     "Sys":{
         "Operator": {

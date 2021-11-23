@@ -1,1 +1,74 @@
-<p>habit-record-list works!</p>
+<mat-toolbar>
+    <h1>{{'Habit.Records' | transloco}}</h1>
+    <div class="toolbar-spacer"></div>
+    <button mat-icon-button color="primary" (click)="onCreateRecord()" matTooltip="{{'Common.Create' | transloco}}">
+        <mat-icon>add_circle</mat-icon>
+    </button>
+</mat-toolbar>
+
+<div class="example-container mat-elevation-z8">
+    <div class="table-container">
+        <table mat-table [dataSource]="arRecords" class="mat-elevation-z8">
+            <!-- ID Column -->
+            <ng-container matColumnDef="id">
+                <th mat-header-cell *matHeaderCellDef>#</th>
+                <td mat-cell *matCellDef="let row">
+                    <button mat-icon-button color="primary" (click)="onDisplayRecord(row)"
+                        matTooltip="{{'Common.Display' | transloco}}">
+                        <mat-icon>launch</mat-icon>
+                    </button>
+                    <button mat-icon-button color="warn" (click)="onDeleteRecord(row)"
+                        matTooltip="{{'Common.Delete' | transloco}}">
+                        <mat-icon>remove_circle</mat-icon>
+                    </button>
+                </td>
+            </ng-container>
+
+            <!-- Target user Column -->
+            <ng-container matColumnDef="targetUser">
+                <th mat-header-cell *matHeaderCellDef>{{'Award.TargetUser' | transloco}}</th>
+                <td mat-cell *matCellDef="let row">{{getUserDisplayAs(row.targetUser)}} ({{row.targetUser}})</td>
+            </ng-container>
+
+            <!-- Record Date Column -->
+            <ng-container matColumnDef="recordDate">
+                <th mat-header-cell *matHeaderCellDef>{{'Quiz.Date' | transloco}}</th>
+                <td mat-cell *matCellDef="let row">{{row.recordDate}}</td>
+            </ng-container>
+
+            <!-- Sub ID Column -->
+            <ng-container matColumnDef="subID">
+                <th mat-header-cell *matHeaderCellDef>Sub ID</th>
+                <td mat-cell *matCellDef="let row">{{row.subID}}</td>
+            </ng-container>
+
+            <!-- Complete Fact Column -->
+            <ng-container matColumnDef="completeFact">
+                <th mat-header-cell *matHeaderCellDef>{{'Habit.CompleteFact' | transloco}}</th>
+                <td mat-cell *matCellDef="let row">{{row.completeFact}}</td>
+            </ng-container>
+
+            <!-- Rule ID Column -->
+            <ng-container matColumnDef="ruleID">
+                <th mat-header-cell *matHeaderCellDef>Rule ID</th>
+                <td mat-cell *matCellDef="let row">{{row.ruleID}}</td>
+            </ng-container>
+
+            <!-- Continous days Column -->
+            <ng-container matColumnDef="contDays">
+                <th mat-header-cell *matHeaderCellDef>{{'Award.ContinuousDays' | transloco}}</th>
+                <td mat-cell *matCellDef="let row">{{row.continousCount}}</td>
+            </ng-container>
+
+            <!-- Comment Column -->
+            <ng-container matColumnDef="comment">
+                <th mat-header-cell *matHeaderCellDef>{{'Common.Comment' | transloco}}</th>
+                <td mat-cell *matCellDef="let row">{{row.comment}}</td>
+            </ng-container>
+
+            <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+            <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+        </table>
+    </div>
+    <mat-paginator [length]="recordCount" [pageSize]="20"></mat-paginator>
+</div>

@@ -9,7 +9,8 @@ import { ExerciseItem, ExerciseItemSearchResult, TagCount, Tag, KnowledgeItem, T
   AwardRuleGroup, AwardRuleDetail, AwardRule, DailyTrace, AwardPoint, AwardPointReport, momentDateFormat,
   UserCollection, ExerciseItemUserScore, UserCollectionItem, AwardUser, InvitedUser, AwardUserView,
   UserAuthInfo,
-  UserHabit, } from '../models';
+  UserHabit,
+  UserHabitRecord, } from '../models';
 import { environment } from '../../environments/environment';
 import { AuthService } from './auth.service';
 
@@ -1112,10 +1113,6 @@ export class ODataService {
         catchError((error: HttpErrorResponse) => throwError(error.statusText + '; ' + error.error + '; ' + error.message) ));
   }
 
-  // Habit Builder
-  // public getHabits(top = 30, skip = 0)
-
-
   // File upload
   public uploadFiles(files: Set<File>): { [key: string]: { result: Observable<any> } } {
     if (!this.isLoggedin) {
@@ -1630,9 +1627,12 @@ export class ODataService {
       catchError((error: HttpErrorResponse) => throwError(error.statusText + '; ' + error.error + '; ' + error.message) ));
   }
 
+  ///
+  /// Habit Builder
+  ///
+
   // Habit
-  public getUserHabits(top = 30, skip = 0, sort?: string, filter?: string):
-  Observable<{ totalCount: number; items: UserHabit[] }> {
+  public getUserHabits(top = 30, skip = 0, sort?: string, filter?: string): Observable<{ totalCount: number; items: UserHabit[] }> {
   if (!this.isLoggedin) {
     return of({
       totalCount: 0,
@@ -1776,6 +1776,57 @@ export class ODataService {
       catchError((error: HttpErrorResponse) => throwError(error.statusText + '; ' + error.error + '; ' + error.message)
       ));
   }
+
+  public getUserHabitRecords(top = 30, skip = 0): Observable<{ totalCount: number; items: UserHabitRecord[] }> {
+    if (!this.isLoggedin) {
+      return of({
+        totalCount: 0,
+        items: []
+      });
+    }
+  
+    let headers: HttpHeaders = new HttpHeaders();
+    headers = headers.append(this.contentType, this.appJson)
+      .append(this.strAccept, this.appJson)
+      .append('Authorization', 'Bearer ' + this.authService.authSubject.getValue().getAccessToken());
+  
+    let params: HttpParams = new HttpParams();
+    params = params.append('$top', top.toString());
+    params = params.append('$skip', skip.toString());
+    params = params.append('$count', 'true');
+    //params = params.append('$expand', 'Rules');
+    // params = params.append('$select',
+    //   'ID,RuleType,TargetUser,Desp,ValidFrom,ValidTo,CountOfFactLow,CountOfFactHigh,DoneOfFact,TimeStart,TimeEnd,DaysFrom,DaysTo,Point');
+    // if (filter) {
+    //   params = params.append('$filter', filter);
+    // }
+    const apiurl = `${this.apiUrl}UserHabitRecords`;
+    // if (environment.mockdata) {
+    //   apiurl = `${environment.basehref}assets/mockdata/exercise-items.json`;
+    //   params = new HttpParams();
+    // }
+  
+    return this.http.get(apiurl, {
+      headers,
+      params,
+    })
+      .pipe(map(response => {
+        const rjs = response as any;
+        const ritems = rjs.value as any[];
+        let arRecords: UserHabitRecord[] = [];
+        ritems.forEach(item => {
+          const rit: UserHabitRecord = new UserHabitRecord();
+          rit.parseData(item);
+          arRecords.push(rit);
+        });
+  
+        return {
+          totalCount: rjs['@odata.count'],
+          items: arRecords,
+        };
+      }),
+      catchError((error: HttpErrorResponse) => throwError(error.statusText + '; ' + error.error + '; ' + error.message) ));
+    }
 
   // public getAwardUserViews(): Observable<{ totalCount: number; items: AwardUserView[] }> {
   //   if (!this.isLoggedin) {

@@ -1,11 +1,12 @@
 import { Component, OnInit } from '@angular/core';
-import { FormBuilder, FormGroup, Validators, FormControl } from '@angular/forms';
-import { UIMode } from 'actslib';
+import { FormBuilder, FormGroup, Validators, FormControl, AbstractControl, ValidationErrors, ValidatorFn } from '@angular/forms';
 import moment from 'moment';
 
-import { AwardUserView, getHabitCategoryNames, getHabitCompleteCategoryNames, getHabitFrequencyNames, 
-  HabitCategory, HabitCompleteCategory, 
-  HabitFrequency, UserHabit, UserHabitRule, } from 'src/app/models';
+import {
+  AwardUserView, getHabitCategoryNames, getHabitCompleteCategoryNames, getHabitFrequencyNames,
+  HabitCategory, HabitCompleteCategory,
+  HabitFrequency, UserHabit, UserHabitRule,
+} from 'src/app/models';
 import { ODataService, UIUtilityService } from 'src/app/services';
 
 class ContinuedDaysInfo {
@@ -16,15 +17,80 @@ class ContinuedDaysInfo {
   }
 }
 
-// class PointInfo {
-//   dimInfo: DimensionInfo;
-//   points: { [key: string]: number } = {};
-//   isEdit = false;
+export const getHabitFromForm = (form: FormGroup): UserHabit => {
+  const habit: UserHabit = new UserHabit();
+  habit.category = HabitCategory.Positive;
+  habit.targetUser = form.get('targetuserCtrl')?.value;
+  habit.validFrom = moment(form.get('validFromCtrl')?.value);
+  habit.validTo = moment(form.get('validToCtrl')?.value);
+  habit.name = form.get('nameCtrl')?.value;
+  habit.frequency = form.get('freqCtrl')?.value;
+  habit.completeCategory = form.get('compCtgyCtrl')?.value;
 
-//   constructor(dim: DimensionInfo, ) {
-//     this.dimInfo = dim;
-//   }
-// }
+  switch (habit.frequency) {
+    case HabitFrequency.Weekly: {
+      switch (habit.completeCategory) {
+        case HabitCompleteCategory.NumberOfCount: {
+          habit.startDate = form.get('startDateCtrl')?.value;
+          habit.completeCondition = form.get('compCondCtrl')?.value;
+        }
+        break;
+
+        case HabitCompleteCategory.NumberOfTimes:
+        default: {
+          habit.startDate = form.get('startDateCtrl')?.value;
+          habit.completeCondition = form.get('compCondCtrl')?.value;
+        }
+        break;
+      }
+    }
+      break;
+
+    case HabitFrequency.Monthly: {
+      switch (habit.completeCategory) {
+        case HabitCompleteCategory.NumberOfCount: {
+          habit.startDate = form.get('startDateCtrl')?.value;
+          habit.completeCondition = form.get('compCondCtrl')?.value;
+        }
+        break;
+
+        case HabitCompleteCategory.NumberOfTimes:
+        default: {
+          habit.startDate = form.get('startDateCtrl')?.value;
+          habit.completeCondition = form.get('compCondCtrl')?.value;
+        }
+        break;
+      }
+    }
+      break;
+
+    case HabitFrequency.Daily:
+    default: {
+      switch (habit.completeCategory) {
+        case HabitCompleteCategory.NumberOfCount: {
+          habit.startDate = undefined;
+          habit.completeCondition = form.get('compCondCtrl')?.value;
+        }
+        break;
+
+        case HabitCompleteCategory.NumberOfTimes:
+        default: {
+          habit.startDate = undefined;
+          habit.completeCondition = 1;
+        }
+        break;
+      }
+    }
+    break;
+  }
+  return habit;
+};
+
+export const habitFormValidator: ValidatorFn = (control: AbstractControl): ValidationErrors | null => {
+  const habit = getHabitFromForm(control as FormGroup);
+
+  return habit.isValid ? null : { invalidInputs: true };
+};
 
 @Component({
   selector: 'app-habit-create',
@@ -38,41 +104,40 @@ export class HabitCreateComponent implements OnInit {
   // Step 2: DAYS
   secondFormGroup: FormGroup;
   contDays: ContinuedDaysInfo[] = [];
-  // Step 3: POINTS
-  displayedColumns: string[] = ['dimension'];
-  // dataSource: PointInfo[] = [];
+  // Step 3: RULES
+  arRules: UserHabitRule[] = [];
+  displayedColumns: string[] = ['ruleID', 'continuousDays', 'point'];
   pointCompleted = false;
-  createdGroupID = -1;
+  createdHabitID = -1;
 
-  uiMode: UIMode = UIMode.Create;
-  currentMode = 'Common.Create';
   arCategories: any[] = [];
   arFrequencies: any[] = [];
   arCompleteCategories: any[] = [];
-  currentObject: UserHabit | null = null;
+  currentObject: UserHabit;
 
   constructor(private _formBuilder: FormBuilder,
     private uiUtilSrv: UIUtilityService,
     private odataSrv: ODataService) {
-      this.arCategories = getHabitCategoryNames();
-      this.arFrequencies = getHabitFrequencyNames();
-      this.arCompleteCategories = getHabitCompleteCategoryNames();
+    this.arCategories = getHabitCategoryNames();
+    this.arFrequencies = getHabitFrequencyNames();
+    this.arCompleteCategories = getHabitCompleteCategoryNames();
 
-      this.firstFormGroup = this._formBuilder.group({
-        targetuserCtrl: new FormControl(''),
-        nameCtrl: new FormControl('', Validators.required),
-        // ctgyCtrl: new FormControl(HabitCategory.Positive, Validators.required),
-        validFromCtrl: new FormControl(moment(), Validators.required),
-        validToCtrl: new FormControl(moment(), Validators.required),
-        freqCtrl: new FormControl(HabitFrequency.Daily, Validators.required),
-        compCtgyCtrl: new FormControl(HabitCompleteCategory.NumberOfTimes, Validators.required),
-        compCondCtrl: new FormControl(),
-        startDateCtrl: new FormControl()
-      });
-      this.secondFormGroup = this._formBuilder.group({
-        rawCtrl: new FormControl('', Validators.required)
-      });
-    }
+    this.currentObject = new UserHabit();
+    this.firstFormGroup = this._formBuilder.group({
+      targetuserCtrl: new FormControl(''),
+      nameCtrl: new FormControl('', Validators.required),
+      // ctgyCtrl: new FormControl(HabitCategory.Positive, Validators.required),
+      validFromCtrl: new FormControl(moment(), Validators.required),
+      validToCtrl: new FormControl(moment(), Validators.required),
+      freqCtrl: new FormControl(HabitFrequency.Weekly, Validators.required),
+      compCtgyCtrl: new FormControl(HabitCompleteCategory.NumberOfTimes, Validators.required),
+      compCondCtrl: new FormControl(),
+      startDateCtrl: new FormControl()
+    }, { validators: habitFormValidator });
+    this.secondFormGroup = this._formBuilder.group({
+      rawCtrl: new FormControl('', Validators.required)
+    });
+  }
 
   get arTargetUsers(): AwardUserView[] {
     if (this.odataSrv.currentUserDetail) {
@@ -89,22 +154,116 @@ export class HabitCreateComponent implements OnInit {
     }
     return '';
   }
-  get isDisplayMode(): boolean {
-    return this.uiMode === UIMode.Display;
-  }
-  get isCreateMode(): boolean {
-    return this.uiMode === UIMode.Create;
-  }
-  get isUpdateMode(): boolean {
-    return this.uiMode === UIMode.Update;
-  }
-  get isEditable(): boolean {
-    return this.uiMode === UIMode.Create || this.uiMode === UIMode.Update;
-  }
   ngOnInit(): void {
+    this.firstFormGroup.get('freqCtrl')?.valueChanges.subscribe(val => {
+      this.onFreqencyAndCompleteCategoryChange(val);
+    });
+    this.firstFormGroup.get('compCtgyCtrl')?.valueChanges.subscribe(val => {
+      this.onFreqencyAndCompleteCategoryChange(val);
+    });
+    this.secondFormGroup.get('rawCtrl')?.valueChanges.subscribe(val => {
+      this.onContDayChange(val);
+    });
   }
 
+  // Step 1: Habit
+  public onFreqencyAndCompleteCategoryChange(val: any): void {
+    const compCtgy: HabitCompleteCategory = this.firstFormGroup.get('compCtgyCtrl')?.value as HabitCompleteCategory;
+    const frq: HabitFrequency = this.firstFormGroup.get('freqCtrl')?.value as HabitFrequency;
+    if (frq === HabitFrequency.Daily) {
+      if (compCtgy === HabitCompleteCategory.NumberOfTimes) {
+        this.firstFormGroup.get('compCondCtrl')?.disable();
+      } else {
+        this.firstFormGroup.get('compCondCtrl')?.enable();  
+      }
+      this.firstFormGroup.get('startDateCtrl')?.disable();
+    } else {
+      this.firstFormGroup.get('compCondCtrl')?.enable();
+      this.firstFormGroup.get('startDateCtrl')?.enable();
+    }
+  }
+
+  // Step 2: Continuous days
+  public onContDayChange(val: any) {
+    this.contDays = [];
+
+    if (val) {
+      const subd = val.split(';');
+      let submap = subd.map((v: string | number) => {
+        if (v) {
+          const tp = +v;
+          if (!isNaN(tp)) {
+            if (tp > 0) {
+              return Math.trunc(tp);
+            }
+          }
+        }
+        return 0;
+      });
+      submap = submap.filter((v: number) => v > 0);
+      submap.sort();
+      let daycur = 0;
+      submap.forEach((sd: number) => {
+        if (daycur !== 0) {
+          const di = new ContinuedDaysInfo();
+          di.from = daycur;
+          di.to = sd;
+          this.contDays.push(di);
+        }
+        daycur = sd;
+      });
+      const di2 = new ContinuedDaysInfo();
+      di2.from = daycur;
+      di2.to = 9999;
+      this.contDays.push(di2);
+    }
+  }
+
+  // Step 3: Points
+  public onPointCellChanged(event: any): void {
+    let failcnt = 0;
+    this.arRules.forEach(row => {
+      if (isNaN(row.point)) {
+        failcnt++;
+      } else {
+        if (row.point === 0) {
+          failcnt++;
+        }
+      }
+    });
+
+    this.pointCompleted = failcnt === 0 ? true : false;
+  }
   public onInitialRules(): void {
     // Init. the rules
+    this.arRules = [];
+
+    this.contDays.forEach((value: ContinuedDaysInfo, index: number) => {
+      let nr: UserHabitRule = new UserHabitRule();
+      nr.ruleID = index + 1;
+      nr.continuousRecordFrom = value.from;
+      nr.continuousRecordTo = value.to;
+      this.arRules.push(nr);
+    });
+  }
+  public onSave(): void {
+    // On Save
+    let nobj: UserHabit = getHabitFromForm(this.firstFormGroup);
+    if (!nobj.isValid) {
+      return;
+    }
+
+    // Add the rules.
+    this.arRules.forEach(rule => {
+      nobj.arRules.push(rule);
+    });
+  }
+  public onGoToList(): void {
+    this.uiUtilSrv.navigateHabitListPage();
+  }
+  public onDisplayHabit(): void {
+    if (this.createdHabitID) {
+      this.uiUtilSrv.navigateHabitDisplayPage(this.createdHabitID);
+    }
   }
 }

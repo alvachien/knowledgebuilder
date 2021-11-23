@@ -24,6 +24,7 @@ import { HabitCreateComponent } from './habit-create/habit-create.component';
   ],
   imports: [
     CommonModule,
+    FormsModule,
     ReactiveFormsModule,
     MaterialModulesModule,
     TranslocoModule,
