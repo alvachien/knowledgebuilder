@@ -257,6 +257,18 @@ export class HabitCreateComponent implements OnInit {
     this.arRules.forEach(rule => {
       nobj.arRules.push(rule);
     });
+
+    this.odataSrv.createUserHabit(nobj).subscribe({
+      next: val => {
+        // New habit
+        if (val && val.ID) {
+          this.createdHabitID = val.ID;
+        }
+      },
+      error: err => {
+        this.uiUtilSrv.showSnackInfo(err, 1000);
+      }
+    })
   }
   public onGoToList(): void {
     this.uiUtilSrv.navigateHabitListPage();
