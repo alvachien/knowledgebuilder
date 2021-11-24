@@ -23,14 +23,16 @@
 
             <!-- Sub ID -->
             <mat-form-field class="control-full-width" appearance="fill">
-                <mat-label>Sub ID</mat-label>
+                <mat-label>{{'Habit.SubID' | transloco}}</mat-label>
                 <input matInput type="number" formControlName="subIDCtrl">
+                <mat-hint>{{'Habit.SubIDHint' | transloco}}</mat-hint>
             </mat-form-field>
 
             <!-- Complete Fact -->
             <mat-form-field class="control-full-width" appearance="fill">
                 <mat-label>{{'Habit.CompleteFact' | transloco}}</mat-label>
                 <input matInput type="number" formControlName="compFactCtrl">
+                <mat-hint>{{'Habit.CompleteFactHint' | transloco}}</mat-hint>
             </mat-form-field>
 
             <!-- Comment -->

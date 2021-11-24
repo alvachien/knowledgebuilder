@@ -239,7 +239,10 @@
         "FrequencyHint": "Frequency control of habit completion",
         "CategoryHint": "Category of habit: keep good one and get rid of bad one",
         "StartDateHint": "Start date in Weekly or Monthly",
-        "CompleteFact": "Complete Fact"
+        "CompleteFact": "Complete Fact",
+        "CompleteFactHint": "Complete facts, it shall be 1 for number of times.",
+        "SubID": "Sub ID",
+        "SubIDHint": "By default is 1, increase the number if same habit occur multiple times in same day"
     },
     "Sys":{
         "Operator": {

@@ -61,6 +61,9 @@ export class HabitRecordDetailComponent implements OnInit {
   }
 
   public onOK() {
+    if (this.uiMode === UIMode.Create) {
+      
+    }
 
   }
   public onReturnToList() {
