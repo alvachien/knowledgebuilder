@@ -1633,47 +1633,49 @@ export class ODataService {
 
   // Habit
   public getUserHabits(top = 30, skip = 0, sort?: string, filter?: string): Observable<{ totalCount: number; items: UserHabit[] }> {
-  if (!this.isLoggedin) {
-    return of({
-      totalCount: 0,
-      items: []
-    });
-  }
-
-  let headers: HttpHeaders = new HttpHeaders();
-  headers = headers.append(this.contentType, this.appJson)
-    .append(this.strAccept, this.appJson)
-    .append('Authorization', 'Bearer ' + this.authService.authSubject.getValue().getAccessToken());
-
-  let params: HttpParams = new HttpParams();
-  params = params.append('$top', top.toString());
-  params = params.append('$skip', skip.toString());
-  params = params.append('$count', 'true');
-  //params = params.append('$expand', 'Rules');
-  // params = params.append('$select',
-  //   'ID,RuleType,TargetUser,Desp,ValidFrom,ValidTo,CountOfFactLow,CountOfFactHigh,DoneOfFact,TimeStart,TimeEnd,DaysFrom,DaysTo,Point');
-  if (filter) {
-    params = params.append('$filter', filter);
-  }
-  const apiurl = `${this.apiUrl}UserHabits`;
-  // if (environment.mockdata) {
-  //   apiurl = `${environment.basehref}assets/mockdata/exercise-items.json`;
-  //   params = new HttpParams();
-  // }
-
-  return this.http.get(apiurl, {
-    headers,
-    params,
-  })
-    .pipe(map(response => {
-      const rjs = response as any;
-      const ritems = rjs.value as any[];
-      this.bufferedUserHabit = [];
-      ritems.forEach(item => {
-        const rit: UserHabit = new UserHabit();
-        rit.parseData(item);
-        this.bufferedUserHabit.push(rit);
+    if (!this.isLoggedin) {
+      return of({
+        totalCount: 0,
+        items: []
       });
+    }
+
+    // https://localhost:44355/UserHabits?$filter=TargetUser eq 'test2' and ValidFrom le 2021-11-25 and ValidTo ge 2021-11-25
+
+    let headers: HttpHeaders = new HttpHeaders();
+    headers = headers.append(this.contentType, this.appJson)
+      .append(this.strAccept, this.appJson);
+      //.append('Authorization', 'Bearer ' + this.authService.authSubject.getValue().getAccessToken());
+
+    let params: HttpParams = new HttpParams();
+    params = params.append('$top', top.toString());
+    params = params.append('$skip', skip.toString());
+    params = params.append('$count', 'true');
+    //params = params.append('$expand', 'Rules');
+    // params = params.append('$select',
+    //   'ID,RuleType,TargetUser,Desp,ValidFrom,ValidTo,CountOfFactLow,CountOfFactHigh,DoneOfFact,TimeStart,TimeEnd,DaysFrom,DaysTo,Point');
+    if (filter) {
+      params = params.append('$filter', filter);
+    }
+    const apiurl = `${this.apiUrl}UserHabits`;
+    // if (environment.mockdata) {
+    //   apiurl = `${environment.basehref}assets/mockdata/exercise-items.json`;
+    //   params = new HttpParams();
+    // }
+
+    return this.http.get(apiurl, {
+      headers,
+      params,
+    })
+      .pipe(map(response => {
+        const rjs = response as any;
+        const ritems = rjs.value as any[];
+        this.bufferedUserHabit = [];
+        ritems.forEach(item => {
+          const rit: UserHabit = new UserHabit();
+          rit.parseData(item);
+          this.bufferedUserHabit.push(rit);
+        });
 
       return {
         totalCount: rjs['@odata.count'],

@@ -7,11 +7,12 @@ import { MaterialModulesModule } from '../../material-modules';
 import { AppUIModule } from 'src/app/app-ui.module';
 
 import { HabitBuilderRoutingModule } from './habit-builder-routing.module';
-import { HabitListComponent } from './habit-list/habit-list.component';
-import { HabitDetailComponent } from './habit-detail/habit-detail.component';
-import { HabitRecordListComponent } from './habit-record-list/habit-record-list.component';
-import { HabitRecordDetailComponent } from './habit-record-detail/habit-record-detail.component';
-import { HabitCreateComponent } from './habit-create/habit-create.component';
+import { HabitListComponent } from './habit-list';
+import { HabitDetailComponent } from './habit-detail';
+import { HabitRecordListComponent } from './habit-record-list';
+import { HabitRecordDetailComponent } from './habit-record-detail';
+import { HabitCreateComponent } from './habit-create';
+import { HabitRecordCreateComponent } from './habit-record-create';
 
 
 @NgModule({
@@ -20,7 +21,8 @@ import { HabitCreateComponent } from './habit-create/habit-create.component';
     HabitDetailComponent,
     HabitRecordListComponent,
     HabitRecordDetailComponent,
-    HabitCreateComponent
+    HabitCreateComponent,
+    HabitRecordCreateComponent
   ],
   imports: [
     CommonModule,

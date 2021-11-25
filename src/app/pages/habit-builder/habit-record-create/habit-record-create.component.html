@@ -1,0 +1,32 @@
+<mat-toolbar>
+    <h1>{{'Habit.Records' | transloco}}</h1>
+    <div class="toolbar-spacer"></div>
+    <h3>{{'Common.Create' | transloco}}</h3>
+  </mat-toolbar>
+  
+<mat-vertical-stepper linear #stepper>
+    <mat-step [stepControl]="firstFormGroup">
+      <form [formGroup]="firstFormGroup">
+            <!-- Target user -->
+            <mat-form-field class="control-full-width" appearance="fill">
+                <mat-label>{{'Award.TargetUser' | transloco}}</mat-label>
+                <mat-select required formControlName="targetuserCtrl">
+                    <mat-option *ngFor="let tu of arTargetUsers" [value]="tu.targetUser">{{tu.displayAs}}</mat-option>
+                </mat-select>
+            </mat-form-field>
+
+            <!-- Record date -->
+            <mat-form-field appearance="fill">
+                <mat-label>{{'Quiz.Date' | transloco}}</mat-label>
+                <input matInput [matDatepicker]="picker" formControlName="dateCtrl">
+                <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
+                <mat-datepicker #picker></mat-datepicker>
+            </mat-form-field>
+      </form>
+    </mat-step>
+
+    <mat-step>
+        <ng-template matStepLabel>{{'Award.Point' | transloco}}</ng-template>
+
+    </mat-step>
+</mat-vertical-stepper>

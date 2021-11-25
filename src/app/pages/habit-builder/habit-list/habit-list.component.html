@@ -12,11 +12,11 @@
       <!-- ID Column -->
       <ng-container matColumnDef="id">
         <th mat-header-cell *matHeaderCellDef>#</th>
-        <td mat-cell *matCellDef="let row">{{row.id}} |
-          <button mat-icon-button color="primary" (click)="onDisplayHabit(row.id)" matTooltip="{{'Common.Display' | transloco}}">
+        <td mat-cell *matCellDef="let row">{{row.ID}} |
+          <button mat-icon-button color="primary" (click)="onDisplayHabit(row.ID)" matTooltip="{{'Common.Display' | transloco}}">
             <mat-icon>launch</mat-icon>
           </button>
-          <button mat-icon-button color="warn" (click)="onDeleteHabit(row.id)" matTooltip="{{'Common.Delete' | transloco}}">
+          <button mat-icon-button color="warn" (click)="onDeleteHabit(row.ID)" matTooltip="{{'Common.Delete' | transloco}}">
             <mat-icon>remove_circle</mat-icon>
           </button>
         </td>
