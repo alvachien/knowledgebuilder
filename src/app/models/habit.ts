@@ -249,6 +249,9 @@ export class UserHabit
         
         return true;
     }
+    get validity(): string {
+        return `${this.validFrom.format(momentDateFormat)}; ${this.validTo.format(momentDateFormat)}`;
+    }
 
     public parseData(val: any): void {
         if (val && val.ID) {
@@ -284,14 +287,14 @@ export class UserHabit
             }
         }
         if (val && val.CompleteCategory) {
-            if (isNaN(+val.Frequency)) {
+            if (isNaN(+val.CompleteCategory)) {
                 this.completeCategory = HabitCompleteCategory[val.CompleteCategory as keyof typeof HabitCompleteCategory];
             } else {
                 this.completeCategory = +val.CompleteCategory;
             }
         }
         if (val && val.CompleteCondition) {
-            this.completeCategory = val.CompleteCondition;
+            this.completeCondition = val.CompleteCondition;
         }
         if (val && val.StartDate) {
             this.startDate = val.StartDate;
@@ -424,7 +427,7 @@ export class UserHabitRecord
     public writeJSONObject(isCreatedMode = true): any {
         const jobj: any =  { };
         jobj.HabitID = this.habitID;
-        jobj.Record = this.recordDate.format(momentDateFormat);
+        jobj.RecordDate = this.recordDate.format(momentDateFormat);
         jobj.SubID = this.subID;
         jobj.CompleteFact = this.completeFact;
         if (!isCreatedMode) {

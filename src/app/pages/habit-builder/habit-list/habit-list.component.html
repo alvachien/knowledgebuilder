@@ -28,22 +28,34 @@
         <td mat-cell *matCellDef="let row">{{getUserDisplayAs(row.targetUser)}} ({{row.targetUser}})</td>
       </ng-container>
 
+      <!-- Name. Column -->
+      <ng-container matColumnDef="name">
+        <th mat-header-cell *matHeaderCellDef>{{'Common.Name' | transloco}}</th>
+        <td mat-cell *matCellDef="let row">{{row.name}}</td>
+      </ng-container>
+
       <!-- Category -->
       <ng-container matColumnDef="category">
         <th mat-header-cell *matHeaderCellDef>{{'Type' | transloco}}</th>
-        <td mat-cell *matCellDef="let row">{{row.category}}</td>
+        <td mat-cell *matCellDef="let row">{{getHabitCategoryName(row.category) | transloco}}</td>
+      </ng-container>
+
+      <!-- Frequency Column -->
+      <ng-container matColumnDef="frequency">
+        <th mat-header-cell *matHeaderCellDef>{{'Habit.Frequency' | transloco}}</th>
+        <td mat-cell *matCellDef="let row">{{getHabitFrequencyName(row.frequency)  | transloco}}</td>
+      </ng-container>
+
+      <!-- Complete Category Column -->
+      <ng-container matColumnDef="compCategory">
+        <th mat-header-cell *matHeaderCellDef>{{'Habit.CompleteCategory' | transloco}}</th>
+        <td mat-cell *matCellDef="let row">{{getHabitCompleteCategoryName(row.completeCategory) | transloco}}</td>
       </ng-container>
 
       <!-- Validity Column -->
       <ng-container matColumnDef="validity">
         <th mat-header-cell *matHeaderCellDef>{{'Award.Validity' | transloco}}</th>
         <td mat-cell *matCellDef="let row">{{row.validity}}</td>
-      </ng-container>
-
-      <!-- Name. Column -->
-      <ng-container matColumnDef="name">
-        <th mat-header-cell *matHeaderCellDef>{{'Common.Name' | transloco}}</th>
-        <td mat-cell *matCellDef="let row">{{row.Name}}</td>
       </ng-container>
 
       <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>

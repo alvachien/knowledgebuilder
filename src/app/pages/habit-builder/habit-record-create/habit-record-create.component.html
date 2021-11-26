@@ -1,12 +1,12 @@
 <mat-toolbar>
     <h1>{{'Habit.Records' | transloco}}</h1>
     <div class="toolbar-spacer"></div>
-    <h3>{{'Common.Create' | transloco}}</h3>
-  </mat-toolbar>
-  
+</mat-toolbar>
+
 <mat-vertical-stepper linear #stepper>
     <mat-step [stepControl]="firstFormGroup">
-      <form [formGroup]="firstFormGroup">
+        <form [formGroup]="firstFormGroup">
+            <ng-template matStepLabel>PICK AN USER</ng-template>
             <!-- Target user -->
             <mat-form-field class="control-full-width" appearance="fill">
                 <mat-label>{{'Award.TargetUser' | transloco}}</mat-label>
@@ -22,11 +22,63 @@
                 <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
                 <mat-datepicker #picker></mat-datepicker>
             </mat-form-field>
-      </form>
+        </form>
+        <div>
+            <button mat-button color="primary" [disabled]="!firstFormGroup.valid" (click)="onUserSelected()" matStepperNext>{{'Common.Next' | transloco}}</button>
+        </div>
     </mat-step>
 
     <mat-step>
-        <ng-template matStepLabel>{{'Award.Point' | transloco}}</ng-template>
+        <ng-template matStepLabel>RULES</ng-template>
+        <table mat-table [dataSource]="arHabits" class="mat-elevation-z8">
+            <!-- Habit ID Column -->
+            <ng-container matColumnDef="hid">
+                <th mat-header-cell *matHeaderCellDef>ID</th>
+                <td mat-cell *matCellDef="let row">{{row.HabitID}}</td>
+            </ng-container>
 
+            <!-- Habit Name Column -->
+            <ng-container matColumnDef="name">
+                <th mat-header-cell *matHeaderCellDef>{{'Common.Name' | transloco}}</th>
+                <td mat-cell *matCellDef="let row">{{row.HabitName}}</td>
+            </ng-container>
+
+            <!-- Frequency Column -->
+            <ng-container matColumnDef="frequency">
+                <th mat-header-cell *matHeaderCellDef>{{'Habit.Frequency' | transloco}}</th>
+                <td mat-cell *matCellDef="let row">{{getHabitFrequencyName(row.Frequency)  | transloco}}</td>
+            </ng-container>
+
+            <!-- Complete Category Column -->
+            <ng-container matColumnDef="compCategory">
+                <th mat-header-cell *matHeaderCellDef>{{'Habit.CompleteCategory' | transloco}}</th>
+                <td mat-cell *matCellDef="let row">{{getHabitCompleteCategoryName(row.CompleteCategory) | transloco}}</td>
+            </ng-container>
+
+            <!-- Complete Fact Column -->
+            <ng-container matColumnDef="compFact">
+                <th mat-header-cell *matHeaderCellDef>COMPLETE FACT</th>
+                <td mat-cell *matCellDef="let row">
+                    <div [ngSwitch]="row.completeCategoryString">                        
+                        <div *ngSwitchCase="0">
+                            <mat-checkbox [(ngModel)]="row.CompleteFact"></mat-checkbox>
+                        </div>
+                        <div *ngSwitchCase="1">
+                            <mat-form-field>
+                              <input matInput type="number" placeholder="{{'Value' | transloco}}" name="compfact_num" [(ngModel)]="row.CompleteFact">
+                            </mat-form-field>
+                        </div>
+                        <div *ngSwitchDefault>Nothing display</div>
+                    </div>
+                </td>
+            </ng-container>
+
+            <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+            <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+        </table>
+        <div>
+            <button mat-button matStepperPrevious>{{'Common.Previous' | transloco}}</button>
+            <button mat-button color="primary" (click)="onSaveRecord()" matStepperNext>{{'Common.Next' | transloco}}</button>
+        </div>
     </mat-step>
 </mat-vertical-stepper>

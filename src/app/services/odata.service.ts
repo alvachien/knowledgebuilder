@@ -1829,6 +1829,32 @@ export class ODataService {
       }),
       catchError((error: HttpErrorResponse) => throwError(error.statusText + '; ' + error.error + '; ' + error.message) ));
   }
+  public createUserHabitRecord(record: UserHabitRecord): Observable<UserHabitRecord> {
+    if (environment.mockdata) {
+      return throwError(this.mockModeFailMsg);
+    } else {
+      if (!this.isLoggedin) {
+        return throwError(this.expertModeFailMsg);
+      }
+    }
+    let headers: HttpHeaders = new HttpHeaders();
+    headers = headers.append(this.contentType, this.appJson)
+      .append(this.strAccept, this.appJson);
+      // .append('Authorization', 'Bearer ' + this.authService.authSubject.getValue().getAccessToken());
+
+    const jdata = record.writeJSONObject();
+    return this.http.post(`${this.apiUrl}UserHabitRecords`, jdata, {
+      headers,
+    })
+      .pipe(map(response => {
+        const rjs = response as any;
+        const rtn = new UserHabitRecord();
+        rtn.parseData(rjs);
+
+        return rtn;
+      }),
+      catchError((error: HttpErrorResponse) => throwError(error.statusText + '; ' + error.error + '; ' + error.message) ));
+  }
 
   // public getAwardUserViews(): Observable<{ totalCount: number; items: AwardUserView[] }> {
   //   if (!this.isLoggedin) {

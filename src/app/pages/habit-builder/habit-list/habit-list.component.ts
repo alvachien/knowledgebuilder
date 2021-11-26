@@ -1,7 +1,8 @@
 import { Component, OnInit } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 
-import { UserHabit } from 'src/app/models';
+import { UserHabit, getHabitCategoryName, HabitCategory, getHabitCompleteCategoryName,
+  getHabitFrequencyName, HabitCompleteCategory, HabitFrequency,  } from 'src/app/models';
 import { ODataService, UIUtilityService } from 'src/app/services';
 
 @Component({
@@ -12,7 +13,7 @@ import { ODataService, UIUtilityService } from 'src/app/services';
 export class HabitListComponent implements OnInit {
 
   dataSource: UserHabit[] = [];
-  displayedColumns: string[] = ['id', 'targetUser', 'category', 'validity', 'name'];
+  displayedColumns: string[] = ['id', 'targetUser', 'name', 'frequency', 'compCategory', 'validity', ];
   recordCount = 0;
 
   constructor(private odataSrv: ODataService,
@@ -25,9 +26,15 @@ export class HabitListComponent implements OnInit {
     this.refreshList();
   }
 
-  // public getAwardRuleTypeName(ruleType: AwardRuleTypeEnum): string {
-  //   return getAwardRuleTypeName(ruleType);
-  // }
+  public getHabitCategoryName(hc: HabitCategory): string {
+    return getHabitCategoryName(hc);
+  }
+  public getHabitCompleteCategoryName(cc: HabitCompleteCategory): string {
+    return getHabitCompleteCategoryName(cc);
+  }
+  public getHabitFrequencyName(frq: HabitFrequency): string {
+    return getHabitFrequencyName(frq);
+  }
   public getUserDisplayAs(usrId: string): string {
     if (usrId && this.odataSrv.currentUserDetail) {
       const idx = this.odataSrv.currentUserDetail.awardUsers.findIndex(val => val.targetUser === usrId);
