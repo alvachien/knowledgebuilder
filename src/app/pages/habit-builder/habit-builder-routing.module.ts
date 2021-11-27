@@ -7,9 +7,11 @@ import { HabitCreateComponent } from './habit-create';
 import { HabitRecordListComponent } from './habit-record-list';
 import { HabitRecordDetailComponent } from './habit-record-detail';
 import { HabitRecordCreateComponent } from './habit-record-create';
+import { HabitPointsListComponent } from './habit-points-list';
 
 const routes: Routes = [
   { path: '', component:  HabitListComponent },
+  { path: 'points', component: HabitPointsListComponent },
   { path: 'list', component: HabitListComponent },
   { path: 'create', component: HabitCreateComponent },
   { path: 'edit/:id', component: HabitDetailComponent },

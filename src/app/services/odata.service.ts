@@ -1855,6 +1855,9 @@ export class ODataService {
       }),
       catchError((error: HttpErrorResponse) => throwError(error.statusText + '; ' + error.error + '; ' + error.message) ));
   }
+  public getHabitPointsByDates(tgtUser: string) {
+
+  }
 
   // public getAwardUserViews(): Observable<{ totalCount: number; items: AwardUserView[] }> {
   //   if (!this.isLoggedin) {

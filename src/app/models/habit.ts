@@ -401,6 +401,9 @@ export class UserHabitRecord
     public ruleID?: number;
     public continousCount: number = 0;
     public comment: string = '';
+    get recordDateString(): string {
+        return this.recordDate.format(momentDateFormat);
+    }
     public parseData(val: any): void {
         if (val && val.HabitID) {
             this.habitID = val.HabitID;

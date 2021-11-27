@@ -13,6 +13,7 @@ import { HabitRecordListComponent } from './habit-record-list';
 import { HabitRecordDetailComponent } from './habit-record-detail';
 import { HabitCreateComponent } from './habit-create';
 import { HabitRecordCreateComponent } from './habit-record-create';
+import { HabitPointsListComponent } from './habit-points-list';
 
 
 @NgModule({
@@ -22,7 +23,8 @@ import { HabitRecordCreateComponent } from './habit-record-create';
     HabitRecordListComponent,
     HabitRecordDetailComponent,
     HabitCreateComponent,
-    HabitRecordCreateComponent
+    HabitRecordCreateComponent,
+    HabitPointsListComponent
   ],
   imports: [
     CommonModule,
