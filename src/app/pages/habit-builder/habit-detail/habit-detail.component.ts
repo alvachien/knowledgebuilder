@@ -1,4 +1,6 @@
 import { Component, OnInit } from '@angular/core';
+import { ReplaySubject } from 'rxjs';
+import { ActivatedRoute, } from '@angular/router';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { UIMode } from 'actslib';
 
@@ -13,23 +15,25 @@ import { ODataService, UIUtilityService } from 'src/app/services';
   styleUrls: ['./habit-detail.component.scss'],
 })
 export class HabitDetailComponent implements OnInit {
-
-  firstFormGroup: FormGroup;
-  uiMode: UIMode = UIMode.Create;
-  currentMode = 'Common.Create';
+  private destroyed$?: ReplaySubject<boolean>;
+  routerID = -1;
+  detailFormGroup: FormGroup;
+  uiMode: UIMode = UIMode.Display;
+  currentMode = 'Common.Display';
   arCategories: any[] = [];
   arFrequencies: any[] = [];
   arCompleteCategories: any[] = [];
   currentObject: UserHabit | null = null;
 
-  constructor(private _formBuilder: FormBuilder,
+  constructor(private activateRoute: ActivatedRoute,
+    private _formBuilder: FormBuilder,
     private uiUtilSrv: UIUtilityService,
     private odataSrv: ODataService) {
       this.arCategories = getHabitCategoryNames();
       this.arFrequencies = getHabitFrequencyNames();
       this.arCompleteCategories = getHabitCompleteCategoryNames();
 
-      this.firstFormGroup = this._formBuilder.group({
+      this.detailFormGroup = this._formBuilder.group({
         targetuserCtrl: ['', Validators.required],
         nameCtrl: ['', Validators.required],
         ctgyCtrl: [HabitCategory.Positive, Validators.required],
@@ -60,33 +64,65 @@ export class HabitDetailComponent implements OnInit {
   get isDisplayMode(): boolean {
     return this.uiMode === UIMode.Display;
   }
-  get isCreateMode(): boolean {
-    return this.uiMode === UIMode.Create;
-  }
   get isUpdateMode(): boolean {
     return this.uiMode === UIMode.Update;
   }
   get isEditable(): boolean {
-    return this.uiMode === UIMode.Create || this.uiMode === UIMode.Update;
+    return this.uiMode === UIMode.Update;
   }
   
   ngOnInit(): void {
+    this.activateRoute.url.subscribe({
+      next: val => {
+        if (val instanceof Array && val.length > 0) {
+          if (val[0].path === 'display') {
+            this.uiMode = UIMode.Display;
+            this.currentMode = 'Common.Display';
+            this.routerID = +val[1].path;
+          } else if (val[0].path === 'edit') {
+            this.uiMode = UIMode.Update;
+            this.currentMode = 'Common.Change';
+            this.routerID = +val[1].path;
+          }
+        }
+
+        if (this.routerID !== -1) {
+          this.odataSrv.readUserHabit(this.routerID).subscribe({
+            next: val => {
+              this.currentObject = val;
+              this.detailFormGroup.get('targetuserCtrl')?.setValue(this.currentObject.targetUser);
+              this.detailFormGroup.get('nameCtrl')?.setValue(this.currentObject.name);
+              this.detailFormGroup.get('validFromCtrl')?.setValue(this.currentObject.validFrom);
+              this.detailFormGroup.get('validToCtrl')?.setValue(this.currentObject.validTo);
+              this.detailFormGroup.get('freqCtrl')?.setValue(this.currentObject.frequency);
+              this.detailFormGroup.get('compCtgyCtrl')?.setValue(this.currentObject.completeCategory);
+              this.detailFormGroup.get('compCondCtrl')?.setValue(this.currentObject.completeCondition);
+              this.detailFormGroup.get('startDateCtrl')?.setValue(this.currentObject.startDate);
+
+              if (this.uiMode === UIMode.Display) {
+                this.detailFormGroup.disable();
+              } else {
+                this.detailFormGroup.enable();
+                this.detailFormGroup.markAsPristine();
+              }
+            },
+            error: err => {
+
+            }
+          });
+        }
+      },
+      error: err => {
+        this.uiUtilSrv.showSnackInfo(err);
+      }
+    });
   }
 
   onSave(): void {
     // Save the date
-    if (this.isCreateMode) {
-      this.onCreateImpl();
-    } else if(this.isUpdateMode) {
-
-    }
   }
   onBackToList(): void {
     this.uiUtilSrv.navigateHabitListPage();
   }
 
-  private onCreateImpl(): void {
-    this.currentObject = new UserHabit();
-    // TBD.
-  }
 }

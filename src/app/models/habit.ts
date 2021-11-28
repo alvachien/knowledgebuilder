@@ -399,7 +399,7 @@ export class UserHabitRecord
     public subID: number = 1;
     public completeFact?: number;
     public ruleID?: number;
-    public continousCount: number = 0;
+    public continuousCount: number = 0;
     public comment: string = '';
     get recordDateString(): string {
         return this.recordDate.format(momentDateFormat);
@@ -420,8 +420,8 @@ export class UserHabitRecord
         if (val && val.RuleID) {
             this.ruleID = val.RuleID;
         }
-        if (val && val.ContinousCount) {
-            this.continousCount = val.ContinousCount;
+        if (val && val.ContinuousCount) {
+            this.continuousCount = val.ContinuousCount;
         }
         if (val && val.Comment) {
             this.comment = val.Comment;
@@ -436,11 +436,113 @@ export class UserHabitRecord
         if (!isCreatedMode) {
             if (this.ruleID) {
                 jobj.RuleID = this.ruleID;
-                jobj.ContinousCount = this.continousCount;
+                jobj.ContinuousCount = this.continuousCount;
             }
         }
         jobj.Comment = this.comment;
         
         return jobj;
+    }
+}
+
+export class UserHabitPointsByUserDate {
+    public targetUser = '';
+    public recordDate: moment.Moment = moment();
+    public point: number = 0;
+    get recordDateString(): string {
+        return this.recordDate.format(momentDateFormat);
+    }
+
+    public parseData(val: any): void {
+        if (val && val.TargetUser) {
+            this.targetUser = val.TargetUser;
+        }
+        if (val && val.RecordDate) {
+            this.recordDate = moment(val.RecordDate);
+        }
+        if (val && val.Point) {
+            this.point = val.Point;
+        }
+    }
+}
+
+export class UserHabitPointsByUserHabitDate {
+    public targetUser = '';
+    public habitID: number = 0;
+    public recordDate: moment.Moment = moment();
+    public point: number = 0;
+
+    get recordDateString(): string {
+        return this.recordDate.format(momentDateFormat);
+    }
+    public parseData(val: any): void {
+        if (val && val.TargetUser) {
+            this.targetUser = val.TargetUser;
+        }
+        if (val && val.HabitID) {
+            this.habitID = val.HabitID;
+        }
+        if (val && val.RecordDate) {
+            this.recordDate = moment(val.RecordDate);
+        }
+        if (val && val.Point) {
+            this.point = val.Point;
+        }
+    }    
+}
+
+export class UserHabitRecordView
+{
+    public habitID?: number;    
+    public recordDate: moment.Moment = moment();
+    public subID: number = 1;
+    public completeFact?: number;
+    public ruleID?: number;
+    public continuousCount: number = 0;
+    public comment: string = '';
+    get recordDateString(): string {
+        return this.recordDate.format(momentDateFormat);
+    }
+    public targetUser: string = '';    
+    public habitName: string = '';
+    public habitValidFrom: moment.Moment = moment();
+    public habitValidTo: moment.Moment = moment();
+    get habitValidString(): string {
+        return this.habitValidFrom.format(momentDateFormat) + "; " + this.habitValidTo.format(momentDateFormat);
+    }
+    public parseData(val: any): void {
+        if (val && val.HabitID) {
+            this.habitID = val.HabitID;
+        }
+        if (val && val.RecordDate) {
+            this.recordDate = moment(val.RecordDate);
+        }
+        if (val && val.SubID) {
+            this.subID = val.SubID;
+        }
+        if (val && val.CompleteFact) {
+            this.completeFact = val.CompleteFact;
+        }
+        if (val && val.RuleID) {
+            this.ruleID = val.RuleID;
+        }
+        if (val && val.ContinuousCount) {
+            this.continuousCount = val.ContinuousCount;
+        }
+        if (val && val.Comment) {
+            this.comment = val.Comment;
+        }
+        if (val && val.TargetUser) {
+            this.targetUser = val.TargetUser;
+        }
+        if (val && val.HabitName) {
+            this.habitName = val.HabitName;
+        }
+        if (val && val.HabitValidFrom) {
+            this.habitValidFrom = moment(val.HabitValidFrom);
+        }
+        if (val && val.HabitValidTo) {
+            this.habitValidTo = moment(val.HabitValidTo);
+        }
     }
 }

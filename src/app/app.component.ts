@@ -65,6 +65,7 @@ export class AppComponent implements OnDestroy {
       { name: 'Award.Rules', route: '/award/rules', group: AppNavItemGroupEnum.award },
       { name: 'Award.DailyTrace', route: '/award/dailytrace', group: AppNavItemGroupEnum.award },
 
+      { name: 'Award.Point', route: '/habit/points', group: AppNavItemGroupEnum.habit },
       { name: 'Habit.Habits', route: '/habit/list', group: AppNavItemGroupEnum.habit },
       { name: 'Habit.Records', route: '/habit/record', group: AppNavItemGroupEnum.habit },
 

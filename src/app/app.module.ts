@@ -12,6 +12,8 @@ import { MonacoEditorModule } from '@materia-ui/ngx-monaco-editor';
 import { MarkdownModule, MarkedOptions } from 'ngx-markdown';
 import { translocoLoader } from './transloco-loader';
 import { translocoConfig, TranslocoModule, TRANSLOCO_CONFIG } from '@ngneat/transloco';
+import { NgxEchartsModule } from 'ngx-echarts';
+import * as echarts from 'echarts';
 
 import { ODataService, QuizService, UIUtilityService, AuthService, AuthGuardService, } from './services';
 import { environment } from 'src/environments/environment';
@@ -49,6 +51,9 @@ import { QuizFailureDailogComponent } from './pages/quiz-failure-dailog';
       },
     }),
     MaterialModulesModule,
+    NgxEchartsModule.forRoot({
+      echarts,
+    }),
   ],
   providers: [
     ODataService,

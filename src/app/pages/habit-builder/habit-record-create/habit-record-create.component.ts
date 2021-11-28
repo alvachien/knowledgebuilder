@@ -86,6 +86,19 @@ export class HabitRecordCreateComponent implements OnInit {
       }
     });
   }
+  get isHabitStepCompleted(): boolean {
+    if (!this.arHabits) {
+      return false;
+    }
+
+    let bFound = false;
+    this.arHabits.forEach(val => {
+      if (val.CompleteFact) {
+        bFound = true;
+      }
+    });
+    return bFound;
+  }
   public onSaveRecord(): void {
     // Save the records
     let arreq: any[] = [];

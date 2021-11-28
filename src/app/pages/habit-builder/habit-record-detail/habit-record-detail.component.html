@@ -1,6 +1,6 @@
 <mat-card>
     <mat-card-header>
-        <mat-card-title>{{'Habit.Records' | transloco}}</mat-card-title>
+        <mat-card-title>{{'Habit.Record' | transloco}}</mat-card-title>
         <mat-card-subtitle>{{currentMode | transloco}}</mat-card-subtitle>
     </mat-card-header>
     <mat-card-content>
@@ -11,6 +11,12 @@
                 <mat-select required formControlName="targetuserCtrl">
                     <mat-option *ngFor="let tu of arTargetUsers" [value]="tu.targetUser">{{tu.displayAs}}</mat-option>
                 </mat-select>
+            </mat-form-field>
+
+            <!-- Habit ID -->
+            <mat-form-field class="control-full-width" appearance="fill">
+                <mat-label>#</mat-label>
+                <input matInput type="number" formControlName="habitIDCtrl">
             </mat-form-field>
 
             <!-- Record date -->

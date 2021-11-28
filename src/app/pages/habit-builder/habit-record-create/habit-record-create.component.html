@@ -6,7 +6,7 @@
 <mat-vertical-stepper linear #stepper>
     <mat-step [stepControl]="firstFormGroup">
         <form [formGroup]="firstFormGroup">
-            <ng-template matStepLabel>PICK AN USER</ng-template>
+            <ng-template matStepLabel>{{'Habit.PickAnUser' | transloco}}</ng-template>
             <!-- Target user -->
             <mat-form-field class="control-full-width" appearance="fill">
                 <mat-label>{{'Award.TargetUser' | transloco}}</mat-label>
@@ -28,8 +28,8 @@
         </div>
     </mat-step>
 
-    <mat-step>
-        <ng-template matStepLabel>RULES</ng-template>
+    <mat-step [completed]="isHabitStepCompleted">
+        <ng-template matStepLabel>{{'Habit.AvailableHabits' | transloco}}</ng-template>
         <table mat-table [dataSource]="arHabits" class="mat-elevation-z8">
             <!-- Habit ID Column -->
             <ng-container matColumnDef="hid">
@@ -78,7 +78,15 @@
         </table>
         <div>
             <button mat-button matStepperPrevious>{{'Common.Previous' | transloco}}</button>
-            <button mat-button color="primary" (click)="onSaveRecord()" matStepperNext>{{'Common.Next' | transloco}}</button>
+            <button mat-button color="primary" [disabled]="!isHabitStepCompleted" (click)="onSaveRecord()" matStepperNext>{{'Common.Next' | transloco}}</button>
         </div>
     </mat-step>
+
+    <mat-step>
+        <ng-template matStepLabel>{{'Common.Done' | transloco}}</ng-template>
+        <p>{{'Habit.HabitRecordCreatedInfo' | transloco}}</p>
+        <div>
+          <button mat-button color="warn" (click)="stepper.reset()">{{'Common.CreateAnotherOne' | transloco}}</button>
+        </div>
+    </mat-step>    
 </mat-vertical-stepper>

@@ -9,25 +9,18 @@
 <div class="example-container mat-elevation-z8">
     <div class="table-container">
         <table mat-table [dataSource]="arRecords" class="mat-elevation-z8">
-            <!-- ID Column -->
-            <ng-container matColumnDef="id">
-                <th mat-header-cell *matHeaderCellDef>#</th>
-                <td mat-cell *matCellDef="let row">
-                    <button mat-icon-button color="primary" (click)="onDisplayRecord(row)"
-                        matTooltip="{{'Common.Display' | transloco}}">
-                        <mat-icon>launch</mat-icon>
-                    </button>
-                    <button mat-icon-button color="warn" (click)="onDeleteRecord(row)"
-                        matTooltip="{{'Common.Delete' | transloco}}">
-                        <mat-icon>remove_circle</mat-icon>
-                    </button>
-                </td>
-            </ng-container>
-
             <!-- Target user Column -->
             <ng-container matColumnDef="targetUser">
                 <th mat-header-cell *matHeaderCellDef>{{'Award.TargetUser' | transloco}}</th>
                 <td mat-cell *matCellDef="let row">{{getUserDisplayAs(row.targetUser)}} ({{row.targetUser}})</td>
+            </ng-container>
+
+            <!-- Habit Name Column -->
+            <ng-container matColumnDef="habitname">
+                <th mat-header-cell *matHeaderCellDef>{{'Common.Name' | transloco}}</th>
+                <td mat-cell *matCellDef="let row">
+                    {{row.habitName}}
+                </td>
             </ng-container>
 
             <!-- Record Date Column -->
@@ -39,7 +32,16 @@
             <!-- Sub ID Column -->
             <ng-container matColumnDef="subID">
                 <th mat-header-cell *matHeaderCellDef>Sub ID</th>
-                <td mat-cell *matCellDef="let row">{{row.subID}}</td>
+                <td mat-cell *matCellDef="let row">
+                    {{row.subID}}
+                    <button mat-icon-button color="primary" (click)="onDisplayRecord(row)" matTooltip="{{'Common.Display' | transloco}}">
+                        <mat-icon>launch</mat-icon>
+                    </button>
+                    <button mat-icon-button color="warn" (click)="onDeleteRecord(row)"
+                        matTooltip="{{'Common.Delete' | transloco}}">
+                        <mat-icon>remove_circle</mat-icon>
+                    </button>
+                </td>
             </ng-container>
 
             <!-- Complete Fact Column -->
@@ -57,7 +59,7 @@
             <!-- Continous days Column -->
             <ng-container matColumnDef="contDays">
                 <th mat-header-cell *matHeaderCellDef>{{'Award.ContinuousDays' | transloco}}</th>
-                <td mat-cell *matCellDef="let row">{{row.continousCount}}</td>
+                <td mat-cell *matCellDef="let row">{{row.continuousCount}}</td>
             </ng-container>
 
             <!-- Comment Column -->

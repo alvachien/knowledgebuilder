@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 
-import { UserHabit, UserHabitRecord } from 'src/app/models';
+import { UserHabit, UserHabitRecordView } from 'src/app/models';
 import { ODataService, UIUtilityService } from 'src/app/services';
 
 @Component({
@@ -10,8 +10,8 @@ import { ODataService, UIUtilityService } from 'src/app/services';
   styleUrls: ['./habit-record-list.component.scss'],
 })
 export class HabitRecordListComponent implements OnInit {
-  arRecords: UserHabitRecord[] = [];
-  displayedColumns: string[] = ['id', 'targetUser', 'recordDate', 'subID', 'completeFact', 'ruleID', 'contDays', 'comment'];
+  arRecords: UserHabitRecordView[] = [];
+  displayedColumns: string[] = ['targetUser', 'habitname', 'recordDate', 'subID', 'completeFact', 'ruleID', 'contDays', 'comment'];
   recordCount = 0;
 
   constructor(private odataSrv: ODataService,
@@ -37,7 +37,7 @@ export class HabitRecordListComponent implements OnInit {
   }
 
   public refreshList(): void {
-    this.odataSrv.getUserHabitRecords(100, 0).subscribe({
+    this.odataSrv.getUserHabitRecordViews(100, 0).subscribe({
       next: val => {
         this.arRecords = val.items.slice();
         this.recordCount = val.totalCount;
@@ -48,10 +48,12 @@ export class HabitRecordListComponent implements OnInit {
     });
   }
 
-  public onDisplayRecord(row: UserHabitRecord): void {
-    this.uiUtilSrv.navigateHabitRecordDisplayPage(row);
+  public onDisplayRecord(row: UserHabitRecordView): void {
+    this.uiUtilSrv.currentUserHabitRecord = row;
+
+    this.uiUtilSrv.navigateHabitRecordDisplayPage();
   }
-  public onDeleteRecord(row: UserHabitRecord): void {
+  public onDeleteRecord(row: UserHabitRecordView): void {
     // TBD: delete record.
   }
 }

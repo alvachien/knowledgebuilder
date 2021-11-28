@@ -123,6 +123,7 @@
     <button mat-button matStepperPrevious>{{'Common.Previous' | transloco}}</button>
     <button mat-button color="primary" [disabled]="!pointCompleted" (click)="onSave()" matStepperNext>{{'Common.Next' | transloco}}</button>
   </mat-step>
+
   <mat-step>
     <ng-template matStepLabel>{{'Common.Done' | transloco}}</ng-template>
     <p>{{'AwardRuleGroupCreatedInfo1' | transloco}}, ID: {{createdHabitID}} </p>
@@ -131,5 +132,5 @@
       <button mat-button (click)="onDisplayHabit()">{{'Common.Display' | transloco}}</button>
       <button mat-button color="warn" (click)="stepper.reset()">{{'Common.CreateAnotherOne' | transloco}}</button>
     </div>
-  </mat-step>  
+  </mat-step>
 </mat-vertical-stepper>

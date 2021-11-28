@@ -21,8 +21,8 @@
         "Close": "关闭",
         "Start": "开始",
         "Submit": "交卷",
-        "Next": "下一题",
-        "Previous": "上一题",
+        "Next": "下一个",
+        "Previous": "上一个",
         "Continue": "继续",
         "Backspace": "退格",
         "Reset": "重置",
@@ -242,7 +242,10 @@
         "CompleteFact": "完成量",
         "CompleteFactHint": "本次完成量，对于‘按次’计算的，其值为1；对于‘按量’计量的，则是实际完成量",
         "SubID": "子ID",
-        "SubIDHint": "默认值是 1, 如果同一个习惯在一天内出现了多次，则用此字段来确保每条记录唯一"
+        "SubIDHint": "默认值是 1, 如果同一个习惯在一天内出现了多次，则用此字段来确保每条记录唯一",
+        "PickAnUser": "选择用户",
+        "AvailableHabits": "可打卡的习惯",
+        "HabitRecordCreatedInfo": "指定的习惯已经打卡成功"
     },
     "Sys":{
         "Operator": {

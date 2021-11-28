@@ -5,6 +5,7 @@ import { TranslocoModule } from '@ngneat/transloco';
 
 import { MaterialModulesModule } from '../../material-modules';
 import { AppUIModule } from 'src/app/app-ui.module';
+import { NgxEchartsModule } from 'ngx-echarts';
 
 import { HabitBuilderRoutingModule } from './habit-builder-routing.module';
 import { HabitListComponent } from './habit-list';
@@ -14,7 +15,6 @@ import { HabitRecordDetailComponent } from './habit-record-detail';
 import { HabitCreateComponent } from './habit-create';
 import { HabitRecordCreateComponent } from './habit-record-create';
 import { HabitPointsListComponent } from './habit-points-list';
-
 
 @NgModule({
   declarations: [
@@ -33,6 +33,7 @@ import { HabitPointsListComponent } from './habit-points-list';
     MaterialModulesModule,
     TranslocoModule,
     AppUIModule,
+    NgxEchartsModule,
     HabitBuilderRoutingModule
   ]
 })

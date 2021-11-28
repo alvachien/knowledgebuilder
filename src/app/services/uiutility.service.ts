@@ -3,7 +3,7 @@ import { MatDialog } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { Router } from '@angular/router';
 
-import { momentDateFormat, TagReferenceType, UserHabitRecord, } from '../models';
+import { momentDateFormat, TagReferenceType, UserHabitRecord, UserHabitRecordView, } from '../models';
 
 export interface PreviewObject {
   refType: TagReferenceType;
@@ -17,9 +17,7 @@ export class UIUtilityService {
   // Preview objects
   previewObjList: PreviewObject[] = [];
   // Habit User Record
-  habitID: number | null = null;
-  recordDate: string | null = null;
-  subID: number | null = null;
+  currentUserHabitRecord: UserHabitRecordView | null = null;
 
   constructor(private router: Router,
     private dialog: MatDialog,
@@ -96,23 +94,11 @@ export class UIUtilityService {
   public navigateHabitRecordCreatePage(): void {
     this.router.navigate(['habit', 'record', 'create']);
   }
-  public navigateHabitRecordDisplayPage(row: UserHabitRecord): void {
-    if (row.habitID) {
-      this.habitID = row.habitID;
-    }
-    if (row.recordDate) {
-      this.recordDate = row.recordDate.format(momentDateFormat);
-    }
-    if (row.subID) {
-      this.subID = row.subID;
-    }
-  
+  public navigateHabitRecordDisplayPage(): void {
     this.router.navigate(['habit', 'record', 'display']);
   }
   public clearHabitRecordDisplay() {
-    this.habitID = null;
-    this.recordDate = null;
-    this.subID = null;
+    this.currentUserHabitRecord = null;
   }
 
   public showSnackInfo(info: string, duration = 2000): void {

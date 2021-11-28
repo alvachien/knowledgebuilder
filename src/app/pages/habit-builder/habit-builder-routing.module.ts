@@ -19,8 +19,8 @@ const routes: Routes = [
   { path: 'record', component: HabitRecordListComponent },
   { path: 'record/list', component: HabitRecordListComponent },
   { path: 'record/create', component: HabitRecordCreateComponent },
-  { path: 'record/edit/:id', component: HabitRecordDetailComponent },
-  { path: 'record/display/:id', component: HabitRecordDetailComponent },
+  { path: 'record/edit', component: HabitRecordDetailComponent },
+  { path: 'record/display', component: HabitRecordDetailComponent },
 ];
 
 @NgModule({

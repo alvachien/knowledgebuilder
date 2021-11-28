@@ -41,7 +41,8 @@
             "scripts": [
               "./node_modules/marked/lib/marked.js",
               "./node_modules/katex/dist/katex.min.js",
-              "./node_modules/jspdf/dist/jspdf.umd.min.js"
+              "./node_modules/jspdf/dist/jspdf.umd.min.js",
+              "./node_modules/echarts/dist/echarts.js"
             ]
           },
           "configurations": {
@@ -144,7 +145,8 @@
             "scripts": [
               "./node_modules/marked/lib/marked.js",
               "./node_modules/katex/dist/katex.min.js",
-              "./node_modules/jspdf/dist/jspdf.umd.min.js"
+              "./node_modules/jspdf/dist/jspdf.umd.min.js",
+              "./node_modules/echarts/dist/echarts.js"
             ]
           }
         },
