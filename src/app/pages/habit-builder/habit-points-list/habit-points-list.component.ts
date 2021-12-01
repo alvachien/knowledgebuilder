@@ -1,9 +1,9 @@
-import { Component, OnInit } from '@angular/core';
-import { MatDialog } from '@angular/material/dialog';
+import { Component, Inject, OnInit } from '@angular/core';
+import { MatDialog, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 
 import { UserHabit, getHabitCategoryName, HabitCategory, getHabitCompleteCategoryName,
   getHabitFrequencyName, HabitCompleteCategory, HabitFrequency,
-  UserHabitPointsByUserDate, UserHabitPointsByUserHabitDate,  } from 'src/app/models';
+  UserHabitPointsByUserDate, UserHabitPointsByUserHabitDate, UserHabitPoint,  } from 'src/app/models';
 import { ODataService, UIUtilityService } from 'src/app/services';
 
 @Component({
@@ -94,5 +94,46 @@ export class HabitPointsListComponent implements OnInit {
         this.uiUtilSrv.showSnackInfo(err);
       }
     });
+  }
+
+  public onCreatePoint(): void {
+    // Create new trace
+    const dialogRef = this.dialog.open(HabitPointCreateDialog, {
+      width: '600px',
+      closeOnNavigation: false,
+      data: new UserHabitPoint(),
+    });
+
+    dialogRef.afterClosed().subscribe(result => {
+      // console.log(`The dialog was closed with result: ${result}`);
+
+      if (result) {
+        this.odataSrv.createHabitPoint(result).subscribe({
+          next: val => {
+            // Refresh the list page
+            // this.refreshList();
+          },
+          error: err => {
+            this.uiUtilSrv.showSnackInfo(err);
+          }
+        });
+      }
+    });
+  }
+}
+
+@Component({
+  selector: 'app-habit-point-crtdlg',
+  templateUrl: 'habit-point-create.dialog.html',
+})
+// eslint-disable-next-line @angular-eslint/component-class-suffix
+export class HabitPointCreateDialog {
+
+  constructor(public dialogRef: MatDialogRef<HabitPointCreateDialog>,
+    public oDataSrv: ODataService,
+    @Inject(MAT_DIALOG_DATA) public data: UserHabitPoint) {}
+
+  onNoClick(): void {
+    this.dialogRef.close();
   }
 }

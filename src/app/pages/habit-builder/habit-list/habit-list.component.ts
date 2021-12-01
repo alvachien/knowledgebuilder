@@ -13,7 +13,7 @@ import { ODataService, UIUtilityService } from 'src/app/services';
 export class HabitListComponent implements OnInit {
 
   dataSource: UserHabit[] = [];
-  displayedColumns: string[] = ['id', 'targetUser', 'name', 'frequency', 'compCategory', 'validity', ];
+  displayedColumns: string[] = ['id', 'targetUser', 'name', 'category', 'frequency', 'compCategory', 'validity', ];
   recordCount = 0;
 
   constructor(private odataSrv: ODataService,

@@ -5,6 +5,7 @@
 import moment from 'moment';
 import { momentDateFormat } from '.';
 
+// Habit category: good habit or bad habit
 export enum HabitCategory
 {
     Positive = 0,
@@ -39,7 +40,7 @@ export const getHabitCategoryNames = (): any[] => {
     return rtn;
 };
 
-
+// Habit frequency
 export enum HabitFrequency
 {
     Daily       = 0,
@@ -76,6 +77,7 @@ export const getHabitFrequencyNames = (): any[] => {
     return rtn;
 };
 
+// Habit complete category
 export enum HabitCompleteCategory
 {
     NumberOfTimes   = 0,
@@ -110,6 +112,7 @@ export const getHabitCompleteCategoryNames = (): any[] => {
     return rtn;
 };
 
+// User habit
 export class UserHabit
 {
     public ID?: number;
@@ -340,6 +343,7 @@ export class UserHabit
     }
 }
 
+// User habit: rules
 export class UserHabitRule
 {
     public habitID?: number;
@@ -392,9 +396,9 @@ export class UserHabitRule
     }
 }
 
-export class UserHabitRecord
-{
-    public habitID?: number;    
+// User habit: records
+export class UserHabitRecord {
+    public habitID?: number;
     public recordDate: moment.Moment = moment();
     public subID: number = 1;
     public completeFact?: number;
@@ -439,12 +443,64 @@ export class UserHabitRecord
                 jobj.ContinuousCount = this.continuousCount;
             }
         }
-        jobj.Comment = this.comment;
+        if (this.comment) {
+            jobj.Comment = this.comment;
+        }
         
         return jobj;
     }
 }
 
+// User habit: points
+export class UserHabitPoint {
+    public ID?: number;
+    public targetUser: string = '';
+    public recordDate: moment.Moment = moment();
+    public point: number = 0;
+    public comment: string = '';
+
+    get isValid(): boolean {
+        if (this.point === 0) {
+            return false;
+        }
+
+        return true;
+    }
+
+    public parseData(val: any): void {
+        if (val && val.ID) {
+            this.ID = val.ID;
+        }
+        if (val && val.TargetUser) {
+            this.targetUser = val.TargetUser;
+        }
+        if (val && val.RecordDate) {
+            this.recordDate = moment(val.RecordDate);
+        }
+        if (val && val.Point) {
+            this.point = val.Point;
+        }
+        if (val && val.Comment) {
+            this.comment = val.Comment;
+        }
+    }
+    public writeJSONObject(isCreatedMode = true): any {
+        const jobj: any =  { };
+        if (!isCreatedMode)  {
+            jobj.ID = this.ID;
+        }
+        jobj.TargetUser = this.targetUser;
+        jobj.RecordDate = this.recordDate.format(momentDateFormat);
+        jobj.Point = this.point;
+        if (this.comment) {
+            jobj.Comment = this.comment;
+        }
+        
+        return jobj;
+    }
+}
+
+// User habit points by user and date
 export class UserHabitPointsByUserDate {
     public targetUser = '';
     public recordDate: moment.Moment = moment();
@@ -466,6 +522,7 @@ export class UserHabitPointsByUserDate {
     }
 }
 
+// User habit points by user, date and habit
 export class UserHabitPointsByUserHabitDate {
     public targetUser = '';
     public habitID: number = 0;
@@ -491,8 +548,8 @@ export class UserHabitPointsByUserHabitDate {
     }    
 }
 
-export class UserHabitRecordView
-{
+// User Habit record view (more than UserHabitRecord itself): habit name, habit validity
+export class UserHabitRecordView {
     public habitID?: number;    
     public recordDate: moment.Moment = moment();
     public subID: number = 1;

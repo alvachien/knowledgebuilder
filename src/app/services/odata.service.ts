@@ -9,7 +9,8 @@ import { ExerciseItem, ExerciseItemSearchResult, TagCount, Tag, KnowledgeItem, T
   AwardRuleGroup, AwardRuleDetail, AwardRule, DailyTrace, AwardPoint, AwardPointReport, momentDateFormat,
   UserCollection, ExerciseItemUserScore, UserCollectionItem, AwardUser, InvitedUser, AwardUserView,
   UserAuthInfo, UserHabit, UserHabitRecord, UserHabitPointsByUserDate, UserHabitPointsByUserHabitDate, 
-  UserHabitRecordView, } from '../models';
+  UserHabitRecordView,
+  UserHabitPoint, } from '../models';
 import { environment } from '../../environments/environment';
 import { AuthService } from './auth.service';
 
@@ -1962,6 +1963,36 @@ export class ODataService {
         });
 
         return rtns;
+      }),
+      catchError((error: HttpErrorResponse) => throwError(error.statusText + '; ' + error.error + '; ' + error.message) ));
+  }
+
+  public createHabitPoint(point: UserHabitPoint): Observable<UserHabitPoint> {
+    if (environment.mockdata) {
+      return throwError(this.mockModeFailMsg);
+    } else {
+      if (!this.isLoggedin) {
+        return throwError(this.expertModeFailMsg);
+      }
+    }
+
+    let headers: HttpHeaders = new HttpHeaders();
+    headers = headers.append(this.contentType, this.appJson)
+      .append(this.strAccept, this.appJson)
+      .append('Authorization', 'Bearer ' + this.authService.authSubject.getValue().getAccessToken());
+
+    const jdata = point.writeJSONObject();
+    return this.http.post(`${this.apiUrl}UserHabitPoints`, jdata, {
+      headers,
+    })
+      .pipe(map(response => {
+        const rjs = response as any;
+        const rtn = new UserHabitPoint();
+        rtn.parseData(rjs);
+
+        // this.bufferedUserHabit.push(rtn);
+
+        return rtn;
       }),
       catchError((error: HttpErrorResponse) => throwError(error.statusText + '; ' + error.error + '; ' + error.message) ));
   }
