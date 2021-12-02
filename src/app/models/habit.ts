@@ -603,3 +603,8 @@ export class UserHabitRecordView {
         }
     }
 }
+
+// User Habit Point View
+export class UserHabitPointReport extends UserHabitPointsByUserDate {
+    // Do nothing
+}

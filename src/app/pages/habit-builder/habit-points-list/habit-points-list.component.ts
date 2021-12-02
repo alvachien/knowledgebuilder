@@ -1,9 +1,12 @@
 import { Component, Inject, OnInit } from '@angular/core';
 import { MatDialog, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
+import moment from 'moment';
+import { forkJoin } from 'rxjs';
 
-import { UserHabit, getHabitCategoryName, HabitCategory, getHabitCompleteCategoryName,
-  getHabitFrequencyName, HabitCompleteCategory, HabitFrequency,
-  UserHabitPointsByUserDate, UserHabitPointsByUserHabitDate, UserHabitPoint,  } from 'src/app/models';
+import { UserHabitPointsByUserDate, UserHabitPointsByUserHabitDate, UserHabitPoint, 
+  UserHabitPointReport,
+  UserHabit,
+  momentDateFormat, } from 'src/app/models';
 import { ODataService, UIUtilityService } from 'src/app/services';
 
 @Component({
@@ -13,9 +16,10 @@ import { ODataService, UIUtilityService } from 'src/app/services';
 })
 export class HabitPointsListComponent implements OnInit {
   dataSourceUserDate: UserHabitPointsByUserDate[] = [];
-  dataSourceUserHabitDate: UserHabitPointsByUserHabitDate[] = [];
+  // dataSourceUserHabitDate: UserHabitPointsByUserHabitDate[] = [];
   displayedColumns: string[] = ['targetUser', 'recordDate', 'point'];
-  displayedColumns2: string[] = ['targetUser', 'habitID', 'recordDate', 'point'];
+  dataSourcePoints: UserHabitPointReport[] = [];
+  // displayedColumns2: string[] = ['targetUser', 'habitID', 'recordDate', 'point'];
   recordCount = 0;
   chartOption: any;
 
@@ -34,15 +38,93 @@ export class HabitPointsListComponent implements OnInit {
   }
   
   ngOnInit(): void {
-    this.odataSrv.getHabitPointsByUserDates().subscribe({
+    // this.odataSrv.getHabitPointsByUserDateReport().subscribe({
+    //   next: val => {
+    //     this.dataSourceUserDate = val;
+    //     let arAxis: any[] = [];
+    //     let arValue: any[] = [];
+    //     this.dataSourceUserDate.forEach(val => {
+    //       arAxis.push(val.recordDateString);
+    //       arValue.push(val.point);
+    //     });
+
+    //     this.chartOption = {
+    //       tooltip: {
+    //         trigger: 'axis',
+    //         axisPointer: {
+    //           type: 'shadow'
+    //         }
+    //       },
+    //       grid: {
+    //         left: '3%',
+    //         right: '4%',
+    //         bottom: '3%',
+    //         containLabel: true
+    //       },
+    //       xAxis: [
+    //         {
+    //           type: 'category',
+    //           data: arAxis,
+    //           axisTick: {
+    //             alignWithLabel: true
+    //           }
+    //         }
+    //       ],
+    //       yAxis: [
+    //         {
+    //           type: 'value'
+    //         }
+    //       ],
+    //       series: [
+    //         {
+    //           name: 'Point',
+    //           type: 'bar',
+    //           barWidth: '60%',
+    //           data: arValue
+    //         }
+    //       ]
+    //     };
+    //   },
+    //   error: err  => {
+    //     this.uiUtilSrv.showSnackInfo(err);
+    //   }
+    // });
+
+    // this.odataSrv.getHabitPointsByUserHabitDates().subscribe({
+    //   next: val => {
+    //     this.dataSourceUserHabitDate = val;
+    //   },
+    //   error: err  => {
+    //     this.uiUtilSrv.showSnackInfo(err);
+    //   }
+    // });
+  }
+  public refreshData(): void {
+    this.dataSourcePoints = [];
+    this.dataSourceUserDate = [];
+
+    // Current Month
+    let dateEnd: moment.Moment = moment();
+    let daysInAxis = moment.duration(1, 'months').days();
+    let dateBgn = dateEnd.subtract(daysInAxis, 'days');
+    let arAxis: string[] = [];
+    while(daysInAxis >= 0) {
+      arAxis.push(dateEnd.subtract(daysInAxis, 'days').format(momentDateFormat));
+      daysInAxis --;
+    }
+    let filterstr = `RecordDate ge ${dateBgn.format(momentDateFormat)} and RecordDate le ${dateEnd.format(momentDateFormat)}`;
+
+    let arSeries: any[] = [];
+    let arUsers: any[] = [];
+    let arreq: any[] = [];
+    arreq.push(this.odataSrv.getHabitPointsByUserDateReport(filterstr));
+    arreq.push(this.odataSrv.getUserHabitPointReports(filterstr));
+    forkJoin(arreq).subscribe({
       next: val => {
-        this.dataSourceUserDate = val;
-        let arAxis: any[] = [];
-        let arValue: any[] = [];
-        this.dataSourceUserDate.forEach(val => {
-          arAxis.push(val.recordDateString);
-          arValue.push(val.point);
-        });
+        this.dataSourceUserDate = val[0] as UserHabitPointsByUserDate[];
+        this.dataSourcePoints = val[1] as UserHabitPointReport[];
+
+        
 
         this.chartOption = {
           tooltip: {
@@ -51,6 +133,7 @@ export class HabitPointsListComponent implements OnInit {
               type: 'shadow'
             }
           },
+          legend: {},
           grid: {
             left: '3%',
             right: '4%',
@@ -61,9 +144,6 @@ export class HabitPointsListComponent implements OnInit {
             {
               type: 'category',
               data: arAxis,
-              axisTick: {
-                alignWithLabel: true
-              }
             }
           ],
           yAxis: [
@@ -73,24 +153,45 @@ export class HabitPointsListComponent implements OnInit {
           ],
           series: [
             {
-              name: 'Point',
+              name: 'Habits',
               type: 'bar',
-              barWidth: '60%',
-              data: arValue
+              stack: 'usera',
+              emphasis: {
+                focus: 'series'
+              },
+              data: [0, 10, 12, 24, 30, 40, 30]
+            },
+            {
+              name: 'Manual',
+              type: 'bar',
+              stack: 'usera',
+              emphasis: {
+                focus: 'series'
+              },
+              data: [0, 2, 10, 24, 30, 40, 50]
+            },
+            {
+              name: 'Habits',
+              type: 'bar',
+              stack: 'userb',
+              emphasis: {
+                focus: 'series'
+              },
+              data: [0, 10, 12, 24, 30, 40, 30]
+            },
+            {
+              name: 'Manual',
+              type: 'bar',
+              stack: 'userb',
+              emphasis: {
+                focus: 'series'
+              },
+              data: [2, 10, 20, 24, 30, 40, 50]
             }
           ]
         };
       },
-      error: err  => {
-        this.uiUtilSrv.showSnackInfo(err);
-      }
-    });
-
-    this.odataSrv.getHabitPointsByUserHabitDates().subscribe({
-      next: val => {
-        this.dataSourceUserHabitDate = val;
-      },
-      error: err  => {
+      error: err => {
         this.uiUtilSrv.showSnackInfo(err);
       }
     });
