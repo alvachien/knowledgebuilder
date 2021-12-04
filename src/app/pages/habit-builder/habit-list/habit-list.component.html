@@ -8,7 +8,7 @@
 
 <div class="example-container mat-elevation-z8">
   <div class="table-container">
-    <table mat-table [dataSource]="dataSource" class="mat-elevation-z8">
+    <table mat-table [dataSource]="dataSource" matSort class="mat-elevation-z8" (matSortChange)="resetPaging()">
       <!-- ID Column -->
       <ng-container matColumnDef="id">
         <th mat-header-cell *matHeaderCellDef>#</th>
@@ -30,7 +30,7 @@
 
       <!-- Name. Column -->
       <ng-container matColumnDef="name">
-        <th mat-header-cell *matHeaderCellDef>{{'Common.Name' | transloco}}</th>
+        <th mat-header-cell *matHeaderCellDef mat-sort-header>{{'Common.Name' | transloco}}</th>
         <td mat-cell *matCellDef="let row">{{row.name}}</td>
       </ng-container>
 

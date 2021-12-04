@@ -1,38 +1,16 @@
 <mat-toolbar>
     <h1>{{'Award.Point' | transloco}}</h1>
     <div class="toolbar-spacer"></div>
+    <mat-form-field class="form-field-user">
+        <mat-label>{{'Award.TargetUser' | transloco}}</mat-label>
+        <mat-select required [(ngModel)]="selectedUser" (selectionChange)="onUserSelectionChange($event)">
+            <mat-option *ngFor="let tu of arTargetUsers" [value]="tu.targetUser">{{tu.displayAs}}</mat-option>
+        </mat-select>
+    </mat-form-field>
     <button mat-icon-button color="primary" (click)="onCreatePoint()" matTooltip="{{'Common.Create' | transloco}}">
         <mat-icon>add_circle</mat-icon>
     </button>    
 </mat-toolbar>
 
-<div echarts [options]="chartOption" class="demo-chart" style="width: 100%; height: 360px;">
-</div>
-
-<div class="example-container mat-elevation-z8">
-    <div class="table-container">
-        <table mat-table [dataSource]="dataSourceUserDate" class="mat-elevation-z8">
-            <!-- Target user Column -->
-            <ng-container matColumnDef="targetUser">
-                <th mat-header-cell *matHeaderCellDef>{{'Award.TargetUser' | transloco}}</th>
-                <td mat-cell *matCellDef="let row">{{getUserDisplayAs(row.targetUser)}} ({{row.targetUser}})</td>
-            </ng-container>
-
-            <!-- Record Date Column -->
-            <ng-container matColumnDef="recordDate">
-                <th mat-header-cell *matHeaderCellDef>{{'Quiz.Date' | transloco}}</th>
-                <td mat-cell *matCellDef="let row">{{row.recordDateString}}</td>
-            </ng-container>
-
-            <!-- Point Column -->
-            <ng-container matColumnDef="point">
-                <th mat-header-cell *matHeaderCellDef>{{'Award.Point' | transloco}}</th>
-                <td mat-cell *matCellDef="let row">{{row.point}}</td>
-            </ng-container>
-            
-            <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
-            <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
-        </table>
-    </div>
-    <mat-paginator [length]="recordCount" [pageSize]="20"></mat-paginator>
+<div echarts [options]="chartOption" (chartClick)="onChartClick($event)" class="demo-chart" style="width: 100%; height: 360px;">
 </div>

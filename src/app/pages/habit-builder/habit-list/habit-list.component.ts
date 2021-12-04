@@ -1,8 +1,13 @@
-import { Component, OnInit } from '@angular/core';
+import { AfterViewInit, Component, EventEmitter, OnInit, ViewChild } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
+import { MatPaginator } from '@angular/material/paginator';
+import { MatSort } from '@angular/material/sort';
+import moment from 'moment';
+import { merge, of as observableOf } from 'rxjs';
+import { catchError, finalize, map, startWith, switchMap } from 'rxjs/operators';
 
 import { UserHabit, getHabitCategoryName, HabitCategory, getHabitCompleteCategoryName,
-  getHabitFrequencyName, HabitCompleteCategory, HabitFrequency,  } from 'src/app/models';
+  getHabitFrequencyName, HabitCompleteCategory, HabitFrequency, momentDateFormat,  } from 'src/app/models';
 import { ODataService, UIUtilityService } from 'src/app/services';
 
 @Component({
@@ -10,11 +15,16 @@ import { ODataService, UIUtilityService } from 'src/app/services';
   templateUrl: './habit-list.component.html',
   styleUrls: ['./habit-list.component.scss']
 })
-export class HabitListComponent implements OnInit {
+export class HabitListComponent implements OnInit, AfterViewInit {
 
   dataSource: UserHabit[] = [];
   displayedColumns: string[] = ['id', 'targetUser', 'name', 'category', 'frequency', 'compCategory', 'validity', ];
   recordCount = 0;
+  isLoadingResults = false;
+  refreshEvent: EventEmitter<any> = new EventEmitter();
+
+  @ViewChild(MatPaginator) paginator!: MatPaginator;
+  @ViewChild(MatSort) sort!: MatSort;
 
   constructor(private odataSrv: ODataService,
     public dialog: MatDialog,
@@ -24,6 +34,32 @@ export class HabitListComponent implements OnInit {
     // this.odataSrv.getAwardUserViews().subscribe();
 
     this.refreshList();
+  }
+
+  ngAfterViewInit(): void {
+    this.sort.sortChange.subscribe(() => this.paginator.pageIndex = 0);
+
+    merge(this.sort.sortChange, this.paginator.page, this.refreshEvent)
+      .pipe(
+        startWith({}),
+        switchMap(() => {
+          const top = this.paginator.pageSize;
+          const skip = top * this.paginator.pageIndex;
+          let todayStr = moment().format(momentDateFormat);
+          let filterStr = `ValidFrom le ${todayStr} and ValidTo ge ${todayStr}`;
+          return this.odataSrv.getUserHabits(top, skip, this.sort.active, this.sort.direction, filterStr);
+        }),
+        finalize(() => this.isLoadingResults = false),
+        map(data => {
+          this.recordCount = data.totalCount;
+
+          return data.items;
+        }),
+        catchError(() => observableOf([]))
+      ).subscribe({
+        next: data => this.dataSource = data as UserHabit[],
+        error: err => this.uiUtilSrv.showSnackInfo(err)
+      });
   }
 
   public getHabitCategoryName(hc: HabitCategory): string {
@@ -48,17 +84,12 @@ export class HabitListComponent implements OnInit {
   public onCreateHabit(): void {
     this.uiUtilSrv.navigateHabitCreatePage();
   }
+  resetPaging(): void {
+    this.paginator.pageIndex = 0;
+  }  
 
   public refreshList(): void {
-    this.odataSrv.getUserHabits(100, 0, undefined).subscribe({
-      next: val => {
-        this.dataSource = val.items.slice();
-        this.recordCount = val.totalCount;
-      },
-      error: err => {
-        this.uiUtilSrv.showSnackInfo(err);
-      }
-    });
+    this.refreshEvent.emit();
   }
 
   public onDeleteHabit(hid: number): void {

@@ -4,9 +4,7 @@ import moment from 'moment';
 import { forkJoin } from 'rxjs';
 
 import { UserHabitPointsByUserDate, UserHabitPointsByUserHabitDate, UserHabitPoint, 
-  UserHabitPointReport,
-  UserHabit,
-  momentDateFormat, } from 'src/app/models';
+  UserHabitPointReport, UserHabit, momentDateFormat, AwardUserView, } from 'src/app/models';
 import { ODataService, UIUtilityService } from 'src/app/services';
 
 @Component({
@@ -21,12 +19,19 @@ export class HabitPointsListComponent implements OnInit {
   dataSourcePoints: UserHabitPointReport[] = [];
   // displayedColumns2: string[] = ['targetUser', 'habitID', 'recordDate', 'point'];
   recordCount = 0;
+  selectedUser: string | null = null;
   chartOption: any;
 
   constructor(private odataSrv: ODataService,
     public dialog: MatDialog,
     public uiUtilSrv: UIUtilityService) { }
 
+  get arTargetUsers(): AwardUserView[] {
+    if (this.odataSrv.currentUserDetail) {
+      return this.odataSrv.currentUserDetail.awardUsers;
+    }
+    return [];
+  }
   public getUserDisplayAs(usrId: string): string {
     if (usrId && this.odataSrv.currentUserDetail) {
       const idx = this.odataSrv.currentUserDetail.awardUsers.findIndex(val => val.targetUser === usrId);
@@ -38,93 +43,108 @@ export class HabitPointsListComponent implements OnInit {
   }
   
   ngOnInit(): void {
-    // this.odataSrv.getHabitPointsByUserDateReport().subscribe({
-    //   next: val => {
-    //     this.dataSourceUserDate = val;
-    //     let arAxis: any[] = [];
-    //     let arValue: any[] = [];
-    //     this.dataSourceUserDate.forEach(val => {
-    //       arAxis.push(val.recordDateString);
-    //       arValue.push(val.point);
-    //     });
-
-    //     this.chartOption = {
-    //       tooltip: {
-    //         trigger: 'axis',
-    //         axisPointer: {
-    //           type: 'shadow'
-    //         }
-    //       },
-    //       grid: {
-    //         left: '3%',
-    //         right: '4%',
-    //         bottom: '3%',
-    //         containLabel: true
-    //       },
-    //       xAxis: [
-    //         {
-    //           type: 'category',
-    //           data: arAxis,
-    //           axisTick: {
-    //             alignWithLabel: true
-    //           }
-    //         }
-    //       ],
-    //       yAxis: [
-    //         {
-    //           type: 'value'
-    //         }
-    //       ],
-    //       series: [
-    //         {
-    //           name: 'Point',
-    //           type: 'bar',
-    //           barWidth: '60%',
-    //           data: arValue
-    //         }
-    //       ]
-    //     };
-    //   },
-    //   error: err  => {
-    //     this.uiUtilSrv.showSnackInfo(err);
-    //   }
-    // });
-
-    // this.odataSrv.getHabitPointsByUserHabitDates().subscribe({
-    //   next: val => {
-    //     this.dataSourceUserHabitDate = val;
-    //   },
-    //   error: err  => {
-    //     this.uiUtilSrv.showSnackInfo(err);
-    //   }
-    // });
+    // this.refreshData();
   }
+
+  public onUserSelectionChange(event: any) {
+    console.log(event);
+
+    if (this.selectedUser !== null) {
+      this.refreshData();
+    }
+  }
+
   public refreshData(): void {
     this.dataSourcePoints = [];
     this.dataSourceUserDate = [];
 
     // Current Month
     let dateEnd: moment.Moment = moment();
-    let daysInAxis = moment.duration(1, 'months').days();
-    let dateBgn = dateEnd.subtract(daysInAxis, 'days');
+    let daysInAxis = moment.duration(1, 'months').asDays();
+    let dateBgn = dateEnd.clone().subtract(daysInAxis, 'days');
     let arAxis: string[] = [];
     while(daysInAxis >= 0) {
-      arAxis.push(dateEnd.subtract(daysInAxis, 'days').format(momentDateFormat));
+      arAxis.push(dateEnd.clone().subtract(daysInAxis, 'days').format(momentDateFormat));
       daysInAxis --;
     }
-    let filterstr = `RecordDate ge ${dateBgn.format(momentDateFormat)} and RecordDate le ${dateEnd.format(momentDateFormat)}`;
+    let filterstr = `TargetUser eq '${this.selectedUser}' and RecordDate ge ${dateBgn.format(momentDateFormat)} and RecordDate le ${dateEnd.format(momentDateFormat)}`;
 
     let arSeries: any[] = [];
-    let arUsers: any[] = [];
     let arreq: any[] = [];
+    arreq.push(this.odataSrv.getHabitOpeningPointsByUserDate(this.selectedUser!, dateBgn.format(momentDateFormat)));
     arreq.push(this.odataSrv.getHabitPointsByUserDateReport(filterstr));
+    arreq.push(this.odataSrv.getUserOpeningPointReport(this.selectedUser!, dateBgn.format(momentDateFormat)));
     arreq.push(this.odataSrv.getUserHabitPointReports(filterstr));
     forkJoin(arreq).subscribe({
       next: val => {
-        this.dataSourceUserDate = val[0] as UserHabitPointsByUserDate[];
-        this.dataSourcePoints = val[1] as UserHabitPointReport[];
+        let openPoint1 = val[0] as number;
+        this.dataSourceUserDate = val[1] as UserHabitPointsByUserDate[];
+        let openPoint2 = val[2] as number;
+        this.dataSourcePoints = val[3] as UserHabitPointReport[];
 
-        
+        // let arUsers = this.odataSrv.currentUserDetail?.awardUsers.slice();
+        //arUsers?.forEach(usr => {
+          let habitData: number[] = [];
+          let manualData: number[] = [];
+          let sumData: number[] = [];
+          let prvHabitPoint = 0;
+          let prvManualPoint = 0;
+          let prvSumPoint = openPoint1 + openPoint2;
+
+          arAxis.forEach(axisDate => {
+            let idxUserDate = this.dataSourceUserDate.findIndex(val => val.recordDateString === axisDate);
+            if (idxUserDate !== -1) {
+              prvHabitPoint = this.dataSourceUserDate[idxUserDate].point;
+            } else {
+              prvHabitPoint = 0;
+            }
+            habitData.push(prvHabitPoint);
+
+            let idxManual = this.dataSourcePoints.findIndex(val => val.recordDateString === axisDate);
+            if (idxManual !== -1) {
+              prvManualPoint += this.dataSourcePoints[idxManual].point;
+            } else {
+              prvManualPoint = 0;
+            }
+            manualData.push(prvManualPoint);
+
+            prvSumPoint += (prvHabitPoint + prvManualPoint);
+            sumData.push(prvSumPoint);
+          });
+
+          // Habit
+          let habitObj = {
+            name: 'Points from Habits',
+            type: 'bar',
+            emphasis: {
+              focus: 'series'
+            },
+            data: habitData,
+          };
+          arSeries.push(habitObj);
+
+          // Manual
+          let ManualObj = {
+            name: 'Manual Points',
+            type: 'bar',
+            emphasis: {
+              focus: 'series'
+            },
+            data: manualData,
+          };
+          arSeries.push(ManualObj);
+
+          // Total
+          let totalObj = {
+            name: 'Total Points',
+            type: 'bar',
+            emphasis: {
+              focus: 'series'
+            },
+            data: sumData,
+          };
+          arSeries.push(totalObj);
+        //});
 
         this.chartOption = {
           tooltip: {
@@ -151,50 +171,58 @@ export class HabitPointsListComponent implements OnInit {
               type: 'value'
             }
           ],
-          series: [
-            {
-              name: 'Habits',
-              type: 'bar',
-              stack: 'usera',
-              emphasis: {
-                focus: 'series'
-              },
-              data: [0, 10, 12, 24, 30, 40, 30]
-            },
-            {
-              name: 'Manual',
-              type: 'bar',
-              stack: 'usera',
-              emphasis: {
-                focus: 'series'
-              },
-              data: [0, 2, 10, 24, 30, 40, 50]
-            },
-            {
-              name: 'Habits',
-              type: 'bar',
-              stack: 'userb',
-              emphasis: {
-                focus: 'series'
-              },
-              data: [0, 10, 12, 24, 30, 40, 30]
-            },
-            {
-              name: 'Manual',
-              type: 'bar',
-              stack: 'userb',
-              emphasis: {
-                focus: 'series'
-              },
-              data: [2, 10, 20, 24, 30, 40, 50]
-            }
-          ]
+          series: arSeries,
         };
       },
       error: err => {
         this.uiUtilSrv.showSnackInfo(err);
       }
     });
+  }
+
+  onChartClick(event: any): void {
+    if (event.data) {
+      console.log(event.data);
+      // var subData = drilldownData.find(function (data) {
+      //   return data.dataGroupId === event.data.groupId;
+      // });
+      // if (!subData) {
+      //   return;
+      // }
+      // myChart.setOption({
+      //   xAxis: {
+      //     data: subData.data.map(function (item) {
+      //       return item[0];
+      //     })
+      //   },
+      //   series: {
+      //     type: 'bar',
+      //     id: 'sales',
+      //     dataGroupId: subData.dataGroupId,
+      //     data: subData.data.map(function (item) {
+      //       return item[1];
+      //     }),
+      //     universalTransition: {
+      //       enabled: true,
+      //       divideShape: 'clone'
+      //     }
+      //   },
+      //   graphic: [
+      //     {
+      //       type: 'text',
+      //       left: 50,
+      //       top: 20,
+      //       style: {
+      //         text: 'Back',
+      //         fontSize: 18
+      //       },
+      //       onclick: function () {
+      //         myChart.setOption(option);
+      //       }
+      //     }
+      //   ]
+      // });
+    }
   }
 
   public onCreatePoint(): void {
