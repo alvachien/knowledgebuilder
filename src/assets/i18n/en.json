@@ -245,7 +245,9 @@
         "SubIDHint": "By default is 1, increase the number if same habit occur multiple times in same day",
         "PickAnUser": "Pick an User",
         "AvailableHabits": "Available Habits",
-        "HabitRecordCreatedInfo": "Record for Habit created successfully"
+        "HabitRecordCreatedInfo": "Record for Habit created successfully",
+        "ByMonth": "By Month",
+        "ByWeek": "By Week"
     },
     "Sys":{
         "Operator": {

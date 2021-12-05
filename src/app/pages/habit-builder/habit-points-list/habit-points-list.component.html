@@ -1,9 +1,16 @@
 <mat-toolbar>
     <h1>{{'Award.Point' | transloco}}</h1>
     <div class="toolbar-spacer"></div>
+    <mat-form-field class="form-field-item">
+        <mat-label>{{'Habit.Frequency' | transloco}}</mat-label>
+        <mat-select required [(ngModel)]="selectedPeriod" (selectionChange)="onReportParameterSelectionChange($event)">
+            <mat-option value="1">{{'Habit.ByWeek' | transloco}}</mat-option>
+            <mat-option value="2">{{'Habit.ByMonth' | transloco}}</mat-option>
+        </mat-select>
+    </mat-form-field>
     <mat-form-field class="form-field-user">
         <mat-label>{{'Award.TargetUser' | transloco}}</mat-label>
-        <mat-select required [(ngModel)]="selectedUser" (selectionChange)="onUserSelectionChange($event)">
+        <mat-select required [(ngModel)]="selectedUser" (selectionChange)="onReportParameterSelectionChange($event)">
             <mat-option *ngFor="let tu of arTargetUsers" [value]="tu.targetUser">{{tu.displayAs}}</mat-option>
         </mat-select>
     </mat-form-field>
@@ -12,5 +19,5 @@
     </button>    
 </mat-toolbar>
 
-<div echarts [options]="chartOption" (chartClick)="onChartClick($event)" class="demo-chart" style="width: 100%; height: 360px;">
+<div echarts [options]="chartOption" (chartClick)="onChartClick($event)" class="demo-chart" style="width: 100%; height: 450px;">
 </div>

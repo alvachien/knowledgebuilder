@@ -38,7 +38,6 @@ export class HabitRecordListComponent implements OnInit, AfterViewInit {
   }
 
   ngOnInit(): void {
-    this.refreshList();
   }
 
   ngAfterViewInit(): void {
@@ -75,25 +74,20 @@ export class HabitRecordListComponent implements OnInit, AfterViewInit {
     this.paginator.pageIndex = 0;
   }  
 
-  public refreshList(): void {
-    // this.odataSrv.getUserHabitRecordViews(100, 0).subscribe({
-    //   next: val => {
-    //     this.arRecords = val.items.slice();
-    //     this.recordCount = val.totalCount;
-    //   },
-    //   error: err => {
-    //     this.uiUtilSrv.showSnackInfo(err);
-    //   }
-    // });
-  }
-
   public onDisplayRecord(row: UserHabitRecordView): void {
     this.uiUtilSrv.currentUserHabitRecord = row;
 
     this.uiUtilSrv.navigateHabitRecordDisplayPage();
   }
   public onDeleteRecord(row: UserHabitRecordView): void {
-    // TBD: delete record.
+    this.odataSrv.deleteUserHabitRecord(row.habitID!, row.recordDateString, row.subID).subscribe({
+      next: val => {
+        this.uiUtilSrv.showSnackInfo('Delete successfully');
+      },
+      error: err => {
+        this.uiUtilSrv.showSnackInfo(err);
+      }
+    });
   }
 }
 

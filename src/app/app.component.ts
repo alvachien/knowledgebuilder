@@ -61,9 +61,9 @@ export class AppComponent implements OnDestroy {
       { name: 'PuzzleGames.TypingTutor', route: 'puzzle-games/typegame', group: AppNavItemGroupEnum.games },
       { name: 'PuzzleGames.Gobang', route: 'puzzle-games/gobang', group: AppNavItemGroupEnum.games },
 
-      { name: 'Award.Overview', route: '/award', group: AppNavItemGroupEnum.award },
-      { name: 'Award.Rules', route: '/award/rules', group: AppNavItemGroupEnum.award },
-      { name: 'Award.DailyTrace', route: '/award/dailytrace', group: AppNavItemGroupEnum.award },
+      // { name: 'Award.Overview', route: '/award', group: AppNavItemGroupEnum.award },
+      // { name: 'Award.Rules', route: '/award/rules', group: AppNavItemGroupEnum.award },
+      // { name: 'Award.DailyTrace', route: '/award/dailytrace', group: AppNavItemGroupEnum.award },
 
       { name: 'Award.Point', route: '/habit/points', group: AppNavItemGroupEnum.habit },
       { name: 'Habit.Habits', route: '/habit/list', group: AppNavItemGroupEnum.habit },

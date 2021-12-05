@@ -245,7 +245,9 @@
         "SubIDHint": "默认值是 1, 如果同一个习惯在一天内出现了多次，则用此字段来确保每条记录唯一",
         "PickAnUser": "选择用户",
         "AvailableHabits": "可打卡的习惯",
-        "HabitRecordCreatedInfo": "指定的习惯已经打卡成功"
+        "HabitRecordCreatedInfo": "指定的习惯已经打卡成功",
+        "ByMonth": "按月",
+        "ByWeek": "按周"
     },
     "Sys":{
         "Operator": {

@@ -1644,8 +1644,8 @@ export class ODataService {
 
     let headers: HttpHeaders = new HttpHeaders();
     headers = headers.append(this.contentType, this.appJson)
-      .append(this.strAccept, this.appJson);
-      //.append('Authorization', 'Bearer ' + this.authService.authSubject.getValue().getAccessToken());
+      .append(this.strAccept, this.appJson)
+      .append('Authorization', 'Bearer ' + this.authService.authSubject.getValue().getAccessToken());
 
     let params: HttpParams = new HttpParams();
     params = params.append('$top', top.toString());
@@ -1707,8 +1707,8 @@ export class ODataService {
 
     let headers: HttpHeaders = new HttpHeaders();
     headers = headers.append(this.contentType, this.appJson)
-      .append(this.strAccept, this.appJson);
-      // .append('Authorization', 'Bearer ' + this.authService.authSubject.getValue().getAccessToken());
+      .append(this.strAccept, this.appJson)
+      .append('Authorization', 'Bearer ' + this.authService.authSubject.getValue().getAccessToken());
 
     let params: HttpParams = new HttpParams();
     params = params.append('$expand', 'Rules');
@@ -1788,6 +1788,7 @@ export class ODataService {
       catchError((error: HttpErrorResponse) => throwError(error.statusText + '; ' + error.error + '; ' + error.message)
       ));
   }
+  // Habit Record
   public getUserHabitRecords(top = 30, skip = 0): Observable<{ totalCount: number; items: UserHabitRecord[] }> {
     if (!this.isLoggedin) {
       return of({
@@ -1900,8 +1901,8 @@ export class ODataService {
     }
     let headers: HttpHeaders = new HttpHeaders();
     headers = headers.append(this.contentType, this.appJson)
-      .append(this.strAccept, this.appJson);
-      // .append('Authorization', 'Bearer ' + this.authService.authSubject.getValue().getAccessToken());
+      .append(this.strAccept, this.appJson)
+      .append('Authorization', 'Bearer ' + this.authService.authSubject.getValue().getAccessToken());
 
     const jdata = record.writeJSONObject();
     return this.http.post(`${this.apiUrl}UserHabitRecords`, jdata, {
@@ -1916,7 +1917,7 @@ export class ODataService {
       }),
       catchError((error: HttpErrorResponse) => throwError(error.statusText + '; ' + error.error + '; ' + error.message) ));
   }
-  public getHabitOpeningPointsByUserDate(usr: string, recorddate: string): Observable<number> {
+  public deleteUserHabitRecord(habitid: number, recordDate: string, subID: number): Observable<boolean> {
     if (environment.mockdata) {
       return throwError(this.mockModeFailMsg);
     } else {
@@ -1926,20 +1927,42 @@ export class ODataService {
     }
     let headers: HttpHeaders = new HttpHeaders();
     headers = headers.append(this.contentType, this.appJson)
-      .append(this.strAccept, this.appJson);
-      // .append('Authorization', 'Bearer ' + this.authService.authSubject.getValue().getAccessToken());
+      .append(this.strAccept, this.appJson)
+      .append('Authorization', 'Bearer ' + this.authService.authSubject.getValue().getAccessToken());
 
-    // const jdata = {
-    //   User: usr,
-    //   StartedDate: recorddate,
-    // };
-    return this.http.post(`${this.apiUrl}UserHabitPointsByUserDates/GetOpeningPoint`, `{User: "${usr}", StartedDate: ${recorddate}}`,  {
+    return this.http.delete(`${this.apiUrl}UserHabitRecords(Habitid=${habitid},RecordDate=${recordDate},SubID=${subID})`, {
+      headers,
+    })
+      .pipe(map(response => {
+        return true;
+      }),
+      catchError((error: HttpErrorResponse) => throwError(error.statusText + '; ' + error.error + '; ' + error.message) ));
+  }
+  // Points from Habit
+  public getHabitOpeningPointsByUserDate(usr: string, daysbackto: number): Observable<number> {
+    if (environment.mockdata) {
+      return throwError(this.mockModeFailMsg);
+    } else {
+      if (!this.isLoggedin) {
+        return throwError(this.expertModeFailMsg);
+      }
+    }
+    let headers: HttpHeaders = new HttpHeaders();
+    headers = headers.append(this.contentType, this.appJson)
+      .append(this.strAccept, this.appJson)
+      .append('Authorization', 'Bearer ' + this.authService.authSubject.getValue().getAccessToken());
+
+    const jdata = {
+      User: usr,
+      DaysBackTo: daysbackto,
+    };
+    return this.http.post(`${this.apiUrl}UserHabitPointsByUserDates/GetOpeningPoint`, jdata,  {
       headers,
     })
       .pipe(map(response => {
         const rjs = response as any;
         if (rjs) {
-          return rjs as number;
+          return rjs.value as number;
         }
 
         return 0;
@@ -1956,8 +1979,9 @@ export class ODataService {
     }
     let headers: HttpHeaders = new HttpHeaders();
     headers = headers.append(this.contentType, this.appJson)
-      .append(this.strAccept, this.appJson);
-      // .append('Authorization', 'Bearer ' + this.authService.authSubject.getValue().getAccessToken());
+      .append(this.strAccept, this.appJson)
+      .append('Authorization', 'Bearer ' + this.authService.authSubject.getValue().getAccessToken());
+
     let params: HttpParams = new HttpParams();
     params = params.append('$filter', filter);
   
@@ -1988,8 +2012,8 @@ export class ODataService {
     }
     let headers: HttpHeaders = new HttpHeaders();
     headers = headers.append(this.contentType, this.appJson)
-      .append(this.strAccept, this.appJson);
-      // .append('Authorization', 'Bearer ' + this.authService.authSubject.getValue().getAccessToken());
+      .append(this.strAccept, this.appJson)
+      .append('Authorization', 'Bearer ' + this.authService.authSubject.getValue().getAccessToken());
 
     return this.http.get(`${this.apiUrl}UserHabitPointsByUserHabitDates`, {
       headers,
@@ -2008,6 +2032,7 @@ export class ODataService {
       }),
       catchError((error: HttpErrorResponse) => throwError(error.statusText + '; ' + error.error + '; ' + error.message) ));
   }
+  // Points from manual
   public getUserHabitPointReports(filter: string): Observable<UserHabitPointReport[]> {
     if (environment.mockdata) {
       return throwError(this.mockModeFailMsg);
@@ -2019,8 +2044,8 @@ export class ODataService {
 
     let headers: HttpHeaders = new HttpHeaders();
     headers = headers.append(this.contentType, this.appJson)
-      .append(this.strAccept, this.appJson);
-      // .append('Authorization', 'Bearer ' + this.authService.authSubject.getValue().getAccessToken());
+      .append(this.strAccept, this.appJson)
+      .append('Authorization', 'Bearer ' + this.authService.authSubject.getValue().getAccessToken());
     let params: HttpParams = new HttpParams();
     params = params.append('$filter', filter);
   
@@ -2041,7 +2066,7 @@ export class ODataService {
       }),
       catchError((error: HttpErrorResponse) => throwError(error.statusText + '; ' + error.error + '; ' + error.message) ));
   }
-  public getUserOpeningPointReport(usr: string, recorddate: string): Observable<number> {
+  public getUserOpeningPointReport(usr: string, daysbackto: number): Observable<number> {
     if (environment.mockdata) {
       return throwError(this.mockModeFailMsg);
     } else {
@@ -2051,27 +2076,26 @@ export class ODataService {
     }
     let headers: HttpHeaders = new HttpHeaders();
     headers = headers.append(this.contentType, this.appJson)
-      .append(this.strAccept, this.appJson);
-      // .append('Authorization', 'Bearer ' + this.authService.authSubject.getValue().getAccessToken());
+      .append(this.strAccept, this.appJson)
+      .append('Authorization', 'Bearer ' + this.authService.authSubject.getValue().getAccessToken());
 
-    // const jdata = {
-    //   User: usr,
-    //   StartedDate: recorddate,
-    // };
-    return this.http.post(`${this.apiUrl}UserHabitPointReports/GetOpeningPoint`, `{User: "${usr}", StartedDate: ${recorddate}}`,  {
+    const jdata = {
+      User: usr,
+      DaysBackTo: daysbackto,
+    };
+    return this.http.post(`${this.apiUrl}UserHabitPoints/GetOpeningPoint`, jdata,  {
       headers,
     })
       .pipe(map(response => {
         const rjs = response as any;
         if (rjs) {
-          return rjs as number;
+          return rjs.value as number;
         }
 
         return 0;
       }),
       catchError((error: HttpErrorResponse) => throwError(error.statusText + '; ' + error.error + '; ' + error.message) ));
   }
-
   public createHabitPoint(point: UserHabitPoint): Observable<UserHabitPoint> {
     if (environment.mockdata) {
       return throwError(this.mockModeFailMsg);
@@ -2083,8 +2107,8 @@ export class ODataService {
 
     let headers: HttpHeaders = new HttpHeaders();
     headers = headers.append(this.contentType, this.appJson)
-      .append(this.strAccept, this.appJson);
-      //.append('Authorization', 'Bearer ' + this.authService.authSubject.getValue().getAccessToken());
+      .append(this.strAccept, this.appJson)
+      .append('Authorization', 'Bearer ' + this.authService.authSubject.getValue().getAccessToken());
 
     const jdata = point.writeJSONObject();
     return this.http.post(`${this.apiUrl}UserHabitPoints`, jdata, {
@@ -2107,48 +2131,4 @@ export class ODataService {
   }
   public deleteHabitPoint(point: UserHabitPoint) {
   }
-
-  // public getAwardUserViews(): Observable<{ totalCount: number; items: AwardUserView[] }> {
-  //   if (!this.isLoggedin) {
-  //     return of({totalCount: 0, items: []});
-  //   }
-
-  //   if (this.hasAwardUserBuffered) {
-  //     return of({
-  //       totalCount: this.bufferedAwardUser.length,
-  //       items: this.bufferedAwardUser
-  //     });
-  //   }
-
-  //   let headers: HttpHeaders = new HttpHeaders();
-  //   headers = headers.append(this.contentType, this.appJson)
-  //     .append(this.strAccept, this.appJson)
-  //     .append('Authorization', 'Bearer ' + this.authService.authSubject.getValue().getAccessToken());
-
-  //   let params: HttpParams = new HttpParams();
-  //   params = params.append('$count', 'true');
-  //   const apiurl = `${this.apiUrl}AwardUserViews`;
-
-  //   return this.http.get(apiurl, {
-  //     headers,
-  //     params,
-  //   })
-  //     .pipe(map(response => {
-  //       const rjs = response as any;
-  //       const ritems = rjs.value as any[];
-  //       this.bufferedAwardUser = [];
-  //       ritems.forEach(item => {
-  //         const rit: AwardUserView = new AwardUserView();
-  //         rit.parseData(item);
-  //         this.bufferedAwardUser.push(rit);
-  //       });
-  //       this.hasAwardUserBuffered = true;
-
-  //       return {
-  //         totalCount: rjs['@odata.count'],
-  //         items: this.bufferedAwardUser,
-  //       };
-  //     }),
-  //     catchError((error: HttpErrorResponse) => throwError(error.statusText + '; ' + error.error + '; ' + error.message) ));
-  // }
 }

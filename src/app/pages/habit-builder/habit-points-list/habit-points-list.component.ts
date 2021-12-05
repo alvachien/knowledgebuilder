@@ -21,6 +21,7 @@ export class HabitPointsListComponent implements OnInit {
   recordCount = 0;
   selectedUser: string | null = null;
   chartOption: any;
+  selectedPeriod = '2';
 
   constructor(private odataSrv: ODataService,
     public dialog: MatDialog,
@@ -43,12 +44,10 @@ export class HabitPointsListComponent implements OnInit {
   }
   
   ngOnInit(): void {
-    // this.refreshData();
+    this.selectedPeriod = '2';
   }
 
-  public onUserSelectionChange(event: any) {
-    console.log(event);
-
+  public onReportParameterSelectionChange(event: any) {
     if (this.selectedUser !== null) {
       this.refreshData();
     }
@@ -59,10 +58,14 @@ export class HabitPointsListComponent implements OnInit {
     this.dataSourceUserDate = [];
 
     // Current Month
-    let dateEnd: moment.Moment = moment();
+    let dateEnd: moment.Moment = moment();    
     let daysInAxis = moment.duration(1, 'months').asDays();
+    if (this.selectedPeriod === '1') {
+      daysInAxis = moment.duration(1, 'weeks').asDays();
+    }
     let dateBgn = dateEnd.clone().subtract(daysInAxis, 'days');
     let arAxis: string[] = [];
+    const daysInAxisOrigin = daysInAxis;
     while(daysInAxis >= 0) {
       arAxis.push(dateEnd.clone().subtract(daysInAxis, 'days').format(momentDateFormat));
       daysInAxis --;
@@ -71,9 +74,9 @@ export class HabitPointsListComponent implements OnInit {
 
     let arSeries: any[] = [];
     let arreq: any[] = [];
-    arreq.push(this.odataSrv.getHabitOpeningPointsByUserDate(this.selectedUser!, dateBgn.format(momentDateFormat)));
+    arreq.push(this.odataSrv.getHabitOpeningPointsByUserDate(this.selectedUser!, daysInAxisOrigin));
     arreq.push(this.odataSrv.getHabitPointsByUserDateReport(filterstr));
-    arreq.push(this.odataSrv.getUserOpeningPointReport(this.selectedUser!, dateBgn.format(momentDateFormat)));
+    arreq.push(this.odataSrv.getUserOpeningPointReport(this.selectedUser!, daysInAxisOrigin));
     arreq.push(this.odataSrv.getUserHabitPointReports(filterstr));
     forkJoin(arreq).subscribe({
       next: val => {
@@ -181,8 +184,14 @@ export class HabitPointsListComponent implements OnInit {
   }
 
   onChartClick(event: any): void {
+    if (event.seriesIndex === 0) {
+      // Points from habit.
+      
+    } else if(event.seriesIndex === 1) {
+      // Points from manual input.
+    }
     if (event.data) {
-      console.log(event.data);
+
       // var subData = drilldownData.find(function (data) {
       //   return data.dataGroupId === event.data.groupId;
       // });
