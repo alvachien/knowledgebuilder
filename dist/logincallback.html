@@ -17,9 +17,8 @@
       if (user === null || user === undefined) {
         document.getElementById("waiting").style.display = "none";
         document.getElementById("error").innerText = "No sign-in request pending.";
-      }
-      else {
-        window.location = "/";
+      } else {
+        window.location = "/math";
       }
     })
       .catch(function (er) {
