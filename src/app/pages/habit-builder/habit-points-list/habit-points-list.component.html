@@ -1,23 +1,135 @@
 <mat-toolbar>
-    <h1>{{'Award.Point' | transloco}}</h1>
-    <div class="toolbar-spacer"></div>
-    <mat-form-field class="form-field-item">
-        <mat-label>{{'Habit.Frequency' | transloco}}</mat-label>
-        <mat-select required [(ngModel)]="selectedPeriod" (selectionChange)="onReportParameterSelectionChange($event)">
-            <mat-option value="1">{{'Habit.ByWeek' | transloco}}</mat-option>
-            <mat-option value="2">{{'Habit.ByMonth' | transloco}}</mat-option>
-        </mat-select>
-    </mat-form-field>
-    <mat-form-field class="form-field-user">
-        <mat-label>{{'Award.TargetUser' | transloco}}</mat-label>
-        <mat-select required [(ngModel)]="selectedUser" (selectionChange)="onReportParameterSelectionChange($event)">
-            <mat-option *ngFor="let tu of arTargetUsers" [value]="tu.targetUser">{{tu.displayAs}}</mat-option>
-        </mat-select>
-    </mat-form-field>
-    <button mat-icon-button color="primary" (click)="onCreatePoint()" matTooltip="{{'Common.Create' | transloco}}">
-        <mat-icon>add_circle</mat-icon>
-    </button>    
+  <h1>{{'Award.Point' | transloco}}</h1>
+  <div class="toolbar-spacer"></div>
+  <mat-form-field class="form-field-item">
+    <mat-label>{{'Habit.Frequency' | transloco}}</mat-label>
+    <mat-select required [(ngModel)]="selectedPeriod" (selectionChange)="onReportParameterSelectionChange($event)">
+      <mat-option value="1">{{'Habit.ByWeek' | transloco}}</mat-option>
+      <mat-option value="2">{{'Habit.ByMonth' | transloco}}</mat-option>
+    </mat-select>
+  </mat-form-field>
+  <mat-form-field class="form-field-user">
+    <mat-label>{{'Award.TargetUser' | transloco}}</mat-label>
+    <mat-select required [(ngModel)]="selectedUser" (selectionChange)="onReportParameterSelectionChange($event)">
+      <mat-option *ngFor="let tu of arTargetUsers" [value]="tu.targetUser">{{tu.displayAs}}</mat-option>
+    </mat-select>
+  </mat-form-field>
+  <button mat-icon-button color="primary" (click)="onCreatePoint()" matTooltip="{{'Common.Create' | transloco}}">
+    <mat-icon>add_circle</mat-icon>
+  </button>
 </mat-toolbar>
 
 <div echarts [options]="chartOption" (chartClick)="onChartClick($event)" class="demo-chart" style="width: 100%; height: 450px;">
+</div>
+
+<mat-divider></mat-divider>
+
+<div *ngIf="showManualPointResult" class="example-container mat-elevation-z8">
+  <mat-toolbar>
+    <h3>{{'Award.Point' | transloco}}</h3>
+    <div class="toolbar-spacer"></div>
+    <button mat-icon-button color="primary" (click)="onHideManualPoints()" matTooltip="{{'Common.Hide' | transloco}}">
+      <mat-icon>visibility_off</mat-icon>
+    </button>
+  </mat-toolbar>
+
+  <div class="table-container">
+    <table mat-table [dataSource]="dataSourceManualPoints">
+      <!-- ID Column -->
+      <ng-container matColumnDef="id">
+        <th mat-header-cell *matHeaderCellDef>#</th>
+        <td mat-cell *matCellDef="let row">{{row.ID}} |
+          <button mat-icon-button color="warn" (click)="onDeleteManualPoint(row.ID)" matTooltip="{{'Common.Delete' | transloco}}">
+            <mat-icon>remove_circle</mat-icon>
+          </button>
+        </td>
+      </ng-container>
+
+      <!-- Target user Column -->
+      <ng-container matColumnDef="targetUser">
+        <th mat-header-cell *matHeaderCellDef>{{'Award.TargetUser' | transloco}}</th>
+        <td mat-cell *matCellDef="let row">{{getUserDisplayAs(row.targetUser)}} ({{row.targetUser}})</td>
+      </ng-container>
+
+      <!-- Record Date Column -->
+      <ng-container matColumnDef="recordDate">
+        <th mat-header-cell *matHeaderCellDef>{{'Quiz.Date' | transloco}}</th>
+        <td mat-cell *matCellDef="let row">{{row.recordDateString}}</td>
+      </ng-container>
+
+      <!-- Point -->
+      <ng-container matColumnDef="point">
+        <th mat-header-cell *matHeaderCellDef>{{'Award.Point' | transloco}}</th>
+        <td mat-cell *matCellDef="let row">{{row.point}}</td>
+      </ng-container>
+
+      <!-- Comment -->
+      <ng-container matColumnDef="comment">
+        <th mat-header-cell *matHeaderCellDef>{{'Common.Comment' | transloco}}</th>
+        <td mat-cell *matCellDef="let row">{{row.comment}}</td>
+      </ng-container>
+
+      <tr mat-header-row *matHeaderRowDef="displayedColumnsManualPoint"></tr>
+      <tr mat-row *matRowDef="let row; columns: displayedColumnsManualPoint;"></tr>
+    </table>
+  </div>
+</div>
+
+<div *ngIf="showHabitPointResult" class="example-container mat-elevation-z8">
+  <mat-toolbar>
+    <h3>{{'Award.Point' | transloco}}</h3>
+    <div class="toolbar-spacer"></div>
+    <button mat-icon-button color="primary" (click)="onHideHabitPoints()" matTooltip="{{'Common.Hide' | transloco}}">
+      <mat-icon>visibility_off</mat-icon>
+    </button>
+  </mat-toolbar>
+
+  <div class="table-container">
+    <table mat-table [dataSource]="dataSourceHabitPoints">
+      <!-- Target user Column -->
+      <ng-container matColumnDef="targetUser">
+        <th mat-header-cell *matHeaderCellDef>{{'Award.TargetUser' | transloco}}</th>
+        <td mat-cell *matCellDef="let row">{{getUserDisplayAs(row.targetUser)}} ({{row.targetUser}})</td>
+      </ng-container>
+
+      <!-- Record Date Column -->
+      <ng-container matColumnDef="recordDate">
+        <th mat-header-cell *matHeaderCellDef>{{'Quiz.Date' | transloco}}</th>
+        <td mat-cell *matCellDef="let row">{{row.recordDateString}}</td>
+      </ng-container>
+
+      <!-- Habit ID -->
+      <ng-container matColumnDef="habitid">
+        <th mat-header-cell *matHeaderCellDef>ID</th>
+        <td mat-cell *matCellDef="let row">{{row.habitID}}</td>
+      </ng-container>
+
+      <!-- Habit Name -->
+      <ng-container matColumnDef="habitName">
+        <th mat-header-cell *matHeaderCellDef>{{'Common.Name' | transloco}}</th>
+        <td mat-cell *matCellDef="let row">{{row.habitName}}</td>
+      </ng-container>
+
+      <!-- Rules Days From -->
+      <ng-container matColumnDef="ruleDaysFrom">
+        <th mat-header-cell *matHeaderCellDef>From</th>
+        <td mat-cell *matCellDef="let row">{{row.ruleDaysFrom}}</td>
+      </ng-container>
+
+      <!-- Point -->
+      <ng-container matColumnDef="ruleDaysTo">
+        <th mat-header-cell *matHeaderCellDef>To</th>
+        <td mat-cell *matCellDef="let row">{{row.ruleDaysTo}}</td>
+      </ng-container>
+
+      <!-- Point -->
+      <ng-container matColumnDef="point">
+        <th mat-header-cell *matHeaderCellDef>{{'Award.Point' | transloco}}</th>
+        <td mat-cell *matCellDef="let row">{{row.rulePoint}}</td>
+      </ng-container>
+
+      <tr mat-header-row *matHeaderRowDef="displayedColumnsHabitPoint"></tr>
+      <tr mat-row *matRowDef="let row; columns: displayedColumnsHabitPoint;"></tr>
+    </table>
+  </div>
 </div>

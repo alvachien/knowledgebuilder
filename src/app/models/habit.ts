@@ -466,6 +466,9 @@ export class UserHabitPoint {
 
         return true;
     }
+    get recordDateString(): string {
+        return this.recordDate.format(momentDateFormat);
+    }
 
     public parseData(val: any): void {
         if (val && val.ID) {
@@ -560,13 +563,17 @@ export class UserHabitRecordView {
     get recordDateString(): string {
         return this.recordDate.format(momentDateFormat);
     }
-    public targetUser: string = '';    
+    public targetUser: string = '';
     public habitName: string = '';
     public habitValidFrom: moment.Moment = moment();
     public habitValidTo: moment.Moment = moment();
     get habitValidString(): string {
         return this.habitValidFrom.format(momentDateFormat) + "; " + this.habitValidTo.format(momentDateFormat);
     }
+    public ruleDaysFrom?: number;
+    public ruleDaysTo?: number;
+    public rulePoint?: number;
+
     public parseData(val: any): void {
         if (val && val.HabitID) {
             this.habitID = val.HabitID;
@@ -600,6 +607,15 @@ export class UserHabitRecordView {
         }
         if (val && val.HabitValidTo) {
             this.habitValidTo = moment(val.HabitValidTo);
+        }
+        if (val && val.RuleDaysFrom) {
+            this.ruleDaysFrom = val.RuleDaysFrom;
+        }
+        if (val && val.RuleDaysTo) {
+            this.ruleDaysTo = val.RuleDaysTo;
+        }
+        if (val && val.RulePoint) {
+            this.rulePoint = val.RulePoint;
         }
     }
 }

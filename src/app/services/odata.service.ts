@@ -1839,7 +1839,7 @@ export class ODataService {
       }),
       catchError((error: HttpErrorResponse) => throwError(error.statusText + '; ' + error.error + '; ' + error.message) ));
   }
-  public getUserHabitRecordViews(top = 30, skip = 0, sort?: string, order?: string): Observable<{ totalCount: number; items: UserHabitRecordView[] }> {
+  public getUserHabitRecordViews(top = 30, skip = 0, sort?: string, order?: string, filter?: string): Observable<{ totalCount: number; items: UserHabitRecordView[] }> {
     if (!this.isLoggedin) {
       return of({
         totalCount: 0,
@@ -1861,13 +1861,12 @@ export class ODataService {
         params = params.append('$orderby', `RecordDate ${order}`);
       }
     }
+    if (filter) {
+      params = params.append('$filter', filter);
+    }
 
     const apiurl = `${this.apiUrl}UserHabitRecordViews`;
-    // if (environment.mockdata) {
-    //   apiurl = `${environment.basehref}assets/mockdata/exercise-items.json`;
-    //   params = new HttpParams();
-    // }
-  
+ 
     return this.http.get(apiurl, {
       headers,
       params,
@@ -2125,10 +2124,60 @@ export class ODataService {
       }),
       catchError((error: HttpErrorResponse) => throwError(error.statusText + '; ' + error.error + '; ' + error.message) ));
   }
-  public getHabitPoints(filter?: string): Observable<UserHabitPoint[]> {
-    let points: UserHabitPoint[] = [];
-    return of(points);
+  public getHabitPoints(filter: string): Observable<UserHabitPoint[]> {
+    if (environment.mockdata) {
+      return throwError(this.mockModeFailMsg);
+    } else {
+      if (!this.isLoggedin) {
+        return throwError(this.expertModeFailMsg);
+      }
+    }
+
+    let headers: HttpHeaders = new HttpHeaders();
+    headers = headers.append(this.contentType, this.appJson)
+      .append(this.strAccept, this.appJson)
+      .append('Authorization', 'Bearer ' + this.authService.authSubject.getValue().getAccessToken());
+    
+    let params: HttpParams = new HttpParams();
+    params = params.append('$filter', filter);
+  
+    return this.http.get(`${this.apiUrl}UserHabitPoints`, {
+      headers, params,
+    })
+      .pipe(map(response => {
+        const rjs = response as any;
+        const rtns: UserHabitPoint[] = [];
+        const ritems = rjs.value as any[];
+        ritems.forEach(item => {
+          const rit: UserHabitPoint = new UserHabitPoint();
+          rit.parseData(item);
+          rtns.push(rit);
+        });
+
+        return rtns;
+      }),
+      catchError((error: HttpErrorResponse) => throwError(error.statusText + '; ' + error.error + '; ' + error.message) ));
   }
-  public deleteHabitPoint(point: UserHabitPoint) {
+  public deleteHabitPoint(pid: number): Observable<boolean> {
+    if (environment.mockdata) {
+      return throwError(this.mockModeFailMsg);
+    } else {
+      if (!this.isLoggedin) {
+        return throwError(this.expertModeFailMsg);
+      }
+    }
+
+    let headers: HttpHeaders = new HttpHeaders();
+    headers = headers.append(this.contentType, this.appJson)
+      .append(this.strAccept, this.appJson)
+      .append('Authorization', 'Bearer ' + this.authService.authSubject.getValue().getAccessToken());
+
+    return this.http.delete(`${this.apiUrl}UserHabitPoints(${pid})`, {
+      headers,
+    })
+      .pipe(map(response => {
+        return true;
+      }),
+      catchError((error: HttpErrorResponse) => throwError(error.statusText + '; ' + error.error + '; ' + error.message) ));
   }
 }
