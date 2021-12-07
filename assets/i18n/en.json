@@ -247,7 +247,10 @@
         "AvailableHabits": "Available Habits",
         "HabitRecordCreatedInfo": "Record for Habit created successfully",
         "ByMonth": "By Month",
-        "ByWeek": "By Week"
+        "ByWeek": "By Week",
+        "CompletedCounts": "Completed Counts",
+        "ContinuousCompletedCounts": "Continuous Completed Counts",
+        "CreateManualPoint": "Create manual point"
     },
     "Sys":{
         "Operator": {
