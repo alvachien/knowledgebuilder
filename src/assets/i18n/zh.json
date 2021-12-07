@@ -247,7 +247,10 @@
         "AvailableHabits": "可打卡的习惯",
         "HabitRecordCreatedInfo": "指定的习惯已经打卡成功",
         "ByMonth": "按月",
-        "ByWeek": "按周"
+        "ByWeek": "按周",
+        "CompletedCounts": "完成次数",
+        "ContinuousCompletedCounts": "持续完成次数",
+        "CreateManualPoint": "新建点数"
     },
     "Sys":{
         "Operator": {

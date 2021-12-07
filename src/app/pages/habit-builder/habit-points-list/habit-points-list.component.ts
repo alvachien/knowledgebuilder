@@ -184,14 +184,10 @@ export class HabitPointsListComponent implements OnInit {
       this.showHabitPointResult = true;
       this.dataSourceHabitPoints = [];
 
-      let filterStr = `RecordDate eq ${event.name} and TargetUser eq '${this.selectedUser}'`;
+      let filterStr = `RecordDate eq ${event.name} and TargetUser eq '${this.selectedUser}' and RulePoint gt 0`;
       this.odataSrv.getUserHabitRecordViews(100, 0, undefined, undefined, filterStr).subscribe({
         next: val => {
-          val.items.forEach(item => {
-            if (item.ruleID) {
-              this.dataSourceHabitPoints.push(item);
-            }
-          });
+          this.dataSourceHabitPoints = val.items;
         },
         error: err => {
           this.uiUtilSrv.showSnackInfo(err);
@@ -211,7 +207,7 @@ export class HabitPointsListComponent implements OnInit {
           error: err => {
             this.uiUtilSrv.showSnackInfo(err);
           }
-        });  
+        });
       }
     }
   }

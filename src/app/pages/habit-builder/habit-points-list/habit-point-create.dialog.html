@@ -1,14 +1,14 @@
-<h1 mat-dialog-title>CREATE INCOMING/OUTGOING POINT</h1>
+<h1 mat-dialog-title>{{'Habit.CreateManualPoint' | transloco}}</h1>
 <div mat-dialog-content>
     <form class="example-form">
         <!-- Target user -->
         <mat-form-field class="control-full-width" appearance="fill">
-          <mat-label>{{'Award.TargetUser' | transloco}}</mat-label>
-          <mat-select [(ngModel)]="data.targetUser" name="targetuser">
-            <mat-option *ngFor="let usr of oDataSrv.currentUserDetail?.awardUsers" [value]="usr.targetUser">
-                {{usr.displayAs}}
-            </mat-option>
-          </mat-select>
+            <mat-label>{{'Award.TargetUser' | transloco}}</mat-label>
+            <mat-select [(ngModel)]="data.targetUser" name="targetuser">
+                <mat-option *ngFor="let usr of oDataSrv.currentUserDetail?.awardUsers" [value]="usr.targetUser">
+                    {{usr.displayAs}}
+                </mat-option>
+            </mat-select>
         </mat-form-field>
 
         <!-- Record date -->
@@ -33,6 +33,6 @@
     </form>
 </div>
 <div mat-dialog-actions>
-    <button mat-button (click)="onNoClick()">No Thanks</button>
+    <button mat-button (click)="onNoClick()">{{'Common.NoThanks' | transloco}}</button>
     <button mat-button [disabled]="!data.isValid" [mat-dialog-close]="data" cdkFocusInitial>OK</button>
 </div>

@@ -36,7 +36,6 @@
         <mat-select required formControlName="freqCtrl">
           <mat-option *ngFor="let et of arFrequencies" [value]="et.value">{{et.i18nterm | transloco}}</mat-option>
         </mat-select>
-        <mat-hint>{{'Habit.FrequencyHint' | transloco}}</mat-hint>
       </mat-form-field>
 
       <!-- Complete Category -->
@@ -46,36 +45,50 @@
           <mat-option *ngFor="let et of arCompleteCategories" [value]="et.value">{{et.i18nterm | transloco}}
           </mat-option>
         </mat-select>
-        <mat-hint>{{'Habit.CompleteCategoryHint' | transloco}}</mat-hint>
       </mat-form-field>
 
       <!-- Complete Condition -->
       <mat-form-field class="control-full-width" appearance="fill">
         <mat-label>{{'Habit.CompleteCondition' | transloco}}</mat-label>
         <input matInput required type="number" formControlName="compCondCtrl">
-        <mat-hint>{{'Habit.CompleteConditionHint' | transloco}}</mat-hint>
       </mat-form-field>
 
       <!-- Start Date -->
       <mat-form-field class="control-full-width" appearance="fill">
         <mat-label>{{'Habit.StartDate' | transloco}}</mat-label>
         <input matInput required type="number" formControlName="startDateCtrl">
-        <mat-hint>{{'Habit.StartDateHint' | transloco}}</mat-hint>
       </mat-form-field>
-
-      <!-- Rule type -->
-      <!-- <mat-form-field appearance="fill" class="control-full-width">
-        <mat-label>{{'Type' | transloco}}</mat-label>
-        <mat-select required formControlName="ruleTypeCtrl">
-          <mat-option *ngFor="let et of arRuleTypes" [value]="et.value">{{et.i18nterm | transloco}}</mat-option>
-        </mat-select>
-      </mat-form-field> -->
-
     </form>
 
+    <div class="example-container mat-elevation-z8">
+      <div class="table-container">
+          <table mat-table [dataSource]="currentObject.arRules" class="mat-elevation-z8">
+            <!-- ruleID Column -->
+            <ng-container matColumnDef="ruleID">
+                <th mat-header-cell *matHeaderCellDef>#</th>
+                <td mat-cell *matCellDef="let row">{{row.ruleID}}</td>
+            </ng-container>
+
+            <!-- completedCountRange Column -->
+            <ng-container matColumnDef="completedCountRange">
+              <th mat-header-cell *matHeaderCellDef>{{'Habit.ContinuousCompletedCounts' | transloco}}</th>
+              <td mat-cell *matCellDef="let row">{{row.continuousCompletedCounts}}</td>
+            </ng-container>
+
+            <!-- point Column -->
+            <ng-container matColumnDef="point">
+              <th mat-header-cell *matHeaderCellDef>{{'Award.Point' | transloco}}</th>
+              <td mat-cell *matCellDef="let row">{{row.point}}</td>
+            </ng-container>
+
+            <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+            <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+          </table>
+      </div>
+    </div>  
   </mat-card-content>
   <mat-card-actions>
-    <button mat-button color="primary" [disabled]="isDisplayMode" (click)="onSave()">SAVE</button>
-    <button mat-button (click)="onBackToList()">BACK TO LIST</button>
+    <button mat-button color="primary" [disabled]="isDisplayMode" (click)="onSave()">{{'Common.Save' | transloco}}</button>
+    <button mat-button (click)="onBackToList()">{{'Common.ReturnToList' | transloco}}</button>
   </mat-card-actions>
 </mat-card>

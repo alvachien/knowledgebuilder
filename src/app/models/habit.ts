@@ -352,8 +352,8 @@ export class UserHabitRule
     public continuousRecordTo: number = 1;
     public point: number = 1;
 
-    get continuousDays(): string {
-        return `[${this.continuousRecordFrom} - ${this.continuousRecordTo})`;
+    get continuousCompletedCounts(): string {
+        return `[${this.continuousRecordFrom}, ${this.continuousRecordTo})`;
     }
     get isValid(): boolean {
         if (!this.continuousRecordFrom || !this.continuousRecordTo || !this.point) {

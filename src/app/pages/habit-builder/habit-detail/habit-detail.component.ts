@@ -5,8 +5,7 @@ import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { UIMode } from 'actslib';
 
 import { AwardUserView, getHabitCategoryNames, getHabitCompleteCategoryNames, getHabitFrequencyNames, 
-  HabitCategory, HabitCompleteCategory, 
-  HabitFrequency, UserHabit, UserHabitRule, } from 'src/app/models';
+  HabitCategory, HabitCompleteCategory, HabitFrequency, UserHabit, UserHabitRule, } from 'src/app/models';
 import { ODataService, UIUtilityService } from 'src/app/services';
 
 @Component({
@@ -23,28 +22,29 @@ export class HabitDetailComponent implements OnInit {
   arCategories: any[] = [];
   arFrequencies: any[] = [];
   arCompleteCategories: any[] = [];
-  currentObject: UserHabit | null = null;
+  currentObject: UserHabit = new UserHabit();
+  displayedColumns: string[] = ['ruleID', 'completedCountRange', 'point'];
 
   constructor(private activateRoute: ActivatedRoute,
     private _formBuilder: FormBuilder,
     private uiUtilSrv: UIUtilityService,
     private odataSrv: ODataService) {
-      this.arCategories = getHabitCategoryNames();
-      this.arFrequencies = getHabitFrequencyNames();
-      this.arCompleteCategories = getHabitCompleteCategoryNames();
+    this.arCategories = getHabitCategoryNames();
+    this.arFrequencies = getHabitFrequencyNames();
+    this.arCompleteCategories = getHabitCompleteCategoryNames();
 
-      this.detailFormGroup = this._formBuilder.group({
-        targetuserCtrl: ['', Validators.required],
-        nameCtrl: ['', Validators.required],
-        ctgyCtrl: [HabitCategory.Positive, Validators.required],
-        validFromCtrl: [undefined, Validators.required],
-        validToCtrl: [undefined, Validators.required],
-        freqCtrl: [HabitFrequency.Daily, Validators.required],
-        compCtgyCtrl: [HabitCompleteCategory.NumberOfTimes, Validators.required],
-        compCondCtrl: [0],
-        startDateCtrl: [undefined]
-      });
-    }
+    this.detailFormGroup = this._formBuilder.group({
+      targetuserCtrl: ['', Validators.required],
+      nameCtrl: ['', Validators.required],
+      ctgyCtrl: [HabitCategory.Positive, Validators.required],
+      validFromCtrl: [undefined, Validators.required],
+      validToCtrl: [undefined, Validators.required],
+      freqCtrl: [HabitFrequency.Daily, Validators.required],
+      compCtgyCtrl: [HabitCompleteCategory.NumberOfTimes, Validators.required],
+      compCondCtrl: [0],
+      startDateCtrl: [undefined]
+    });
+  }
 
   get arTargetUsers(): AwardUserView[] {
     if (this.odataSrv.currentUserDetail) {
@@ -107,7 +107,7 @@ export class HabitDetailComponent implements OnInit {
               }
             },
             error: err => {
-
+              this.uiUtilSrv.showSnackInfo(err);
             }
           });
         }
@@ -124,5 +124,4 @@ export class HabitDetailComponent implements OnInit {
   onBackToList(): void {
     this.uiUtilSrv.navigateHabitListPage();
   }
-
 }
