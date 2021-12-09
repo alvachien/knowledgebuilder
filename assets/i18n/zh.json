@@ -69,7 +69,7 @@
     "Tags": "标签",
     "Save": "保存",
     "Cancel": "取消",
-    "KnowledgeBuilder": "Knowledge Builder",
+    "KnowledgeBuilder": "知识与习惯养成器",
     "Close": "关闭",
     "WelcomePage": "欢迎页",
     "Count": "总计",
@@ -250,7 +250,8 @@
         "ByWeek": "按周",
         "CompletedCounts": "完成次数",
         "ContinuousCompletedCounts": "持续完成次数",
-        "CreateManualPoint": "新建点数"
+        "CreateManualPoint": "新建点数",
+        "Rule": "规则"
     },
     "Sys":{
         "Operator": {
