@@ -1,6 +1,9 @@
 <mat-toolbar>
   <h1>{{'Award.Point' | transloco}}</h1>
   <div class="toolbar-spacer"></div>
+</mat-toolbar>
+
+<mat-toolbar>
   <mat-form-field class="form-field-item">
     <mat-label>{{'Habit.Frequency' | transloco}}</mat-label>
     <mat-select required [(ngModel)]="selectedPeriod" (selectionChange)="onReportParameterSelectionChange($event)">
@@ -18,6 +21,8 @@
     <mat-icon>add_circle</mat-icon>
   </button>
 </mat-toolbar>
+
+<mat-divider></mat-divider>
 
 <div echarts [options]="chartOption" (chartClick)="onChartClick($event)" class="demo-chart" style="width: 100%; height: 450px;">
 </div>

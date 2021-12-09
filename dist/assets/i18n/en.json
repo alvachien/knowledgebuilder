@@ -69,7 +69,7 @@
     "Tags": "Tags",
     "Save": "Save",
     "Cancel": "Cancel",
-    "KnowledgeBuilder": "Knowledge Builder",
+    "KnowledgeBuilder": "Knowledge & Habit Builder",
     "Close": "Close",
     "WelcomePage": "Welcome Page",
     "Count": "Count",
@@ -250,7 +250,8 @@
         "ByWeek": "By Week",
         "CompletedCounts": "Completed Counts",
         "ContinuousCompletedCounts": "Continuous Completed Counts",
-        "CreateManualPoint": "Create manual point"
+        "CreateManualPoint": "Create manual point",
+        "Rule": "Rule"
     },
     "Sys":{
         "Operator": {

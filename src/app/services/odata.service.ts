@@ -1986,6 +1986,7 @@ export class ODataService {
   
     return this.http.get(`${this.apiUrl}UserHabitPointsByUserDates`, {
       headers,
+      params,
     })
       .pipe(map(response => {
         const rjs = response as any;

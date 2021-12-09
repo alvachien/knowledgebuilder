@@ -57,7 +57,7 @@
 
             <!-- Complete Fact Column -->
             <ng-container matColumnDef="compFact">
-                <th mat-header-cell *matHeaderCellDef>COMPLETE FACT</th>
+                <th mat-header-cell *matHeaderCellDef>{{'Habit.CompleteFact' | transloco}}</th>
                 <td mat-cell *matCellDef="let row">
                     <div [ngSwitch]="row.completeCategoryString">                        
                         <div *ngSwitchCase="0">

@@ -4,6 +4,7 @@ import { MatDialog, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dial
 import { MediaMatcher } from '@angular/cdk/layout';
 import { TranslocoService } from '@ngneat/transloco';
 import { DateAdapter } from '@angular/material/core';
+import { Title } from '@angular/platform-browser';
 
 import { AppNavItem, AppLanguage, AppNavItemGroupEnum, UserAuthInfo } from './models';
 import { AuthService, ODataService, UIUtilityService } from './services';
@@ -35,6 +36,7 @@ export class AppComponent implements OnDestroy {
     private authSrv: AuthService,
     private zone: NgZone,
     private uiUtilSrv: UIUtilityService,
+    private titleService: Title,
   ) {
     this.mobileQuery = media.matchMedia('(max-width: 600px)');
     this._mobileQueryListener = () => changeDetectorRef.detectChanges();
@@ -82,6 +84,8 @@ export class AppComponent implements OnDestroy {
         }
       });
     });
+
+    this.titleService.setTitle('Knowledge & Habit Builder');
   }
 
   switchLanguage(lang: string) {
