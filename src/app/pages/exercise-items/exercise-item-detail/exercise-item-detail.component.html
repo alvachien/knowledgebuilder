@@ -4,19 +4,19 @@
         <mat-card-subtitle>{{currentMode | transloco}}</mat-card-subtitle>
     </mat-card-header>
     <mat-card-content>
-        <mat-accordion class="example-headers-align" multi>
+        <mat-accordion class="exerciseitem-headers-align" multi>
             <mat-expansion-panel expanded>
                 <mat-expansion-panel-header>
                     <mat-panel-title>{{'Header' | transloco}}</mat-panel-title>
                     <mat-panel-description>{{'HeaderInfo' | transloco}}<mat-icon>public</mat-icon></mat-panel-description>
                 </mat-expansion-panel-header>
-                <form [formGroup]="itemFormGroup">
+                <form class="exerciseitem-form" [formGroup]="itemFormGroup">
                     <!-- ID -->
                     <mat-form-field appearance="fill" class="control-full-width">
                         <mat-label>#</mat-label>
                         <input matInput type="text" placeholder="ID" formControlName="idControl">
                     </mat-form-field>
-        
+
                     <!-- Item Type -->
                     <mat-form-field appearance="fill" class="control-full-width">
                         <mat-label>{{'Type' | transloco}}</mat-label>
@@ -24,13 +24,12 @@
                             <mat-option *ngFor="let et of arExerciseTypes" [value]="et.value">{{et.i18nterm | transloco}}</mat-option>
                         </mat-select>
                     </mat-form-field>
-        
+
                     <!-- Tags -->
                     <mat-form-field appearance="fill" class="control-full-width">
                         <mat-label>{{'Tags' | transloco}}</mat-label>
                         <mat-chip-list #chipList formControlName="tagControl">
-                            <mat-chip *ngFor="let tag of tags" [selectable]="selectable" [removable]="isEditable"
-                                (removed)="removeTag(tag)">
+                            <mat-chip *ngFor="let tag of tags" [selectable]="selectable" [removable]="isEditable" (removed)="removeTag(tag)">
                                 {{tag}}
                                 <mat-icon matChipRemove *ngIf="isEditable">cancel</mat-icon>
                             </mat-chip>
@@ -39,7 +38,7 @@
                                 (matChipInputTokenEnd)="addTag($event)">
                         </mat-chip-list>
                     </mat-form-field>
-        
+
                     <!-- Knowledge Item -->
                     <mat-form-field appearance="fill" class="control-full-width">
                         <mat-label>{{'KnowledgeItem' | transloco}}</mat-label>
@@ -50,21 +49,24 @@
             <mat-expansion-panel *ngIf="!isCreateMode && itemObject">
                 <mat-expansion-panel-header>
                     <mat-panel-title>{{'Administrative' | transloco}}</mat-panel-title>
-                    <mat-panel-description>{{'AdministrativeInfo' | transloco}}<mat-icon>info</mat-icon></mat-panel-description>
+                    <mat-panel-description>{{'AdministrativeInfo' | transloco}}<mat-icon>info</mat-icon>
+                    </mat-panel-description>
                 </mat-expansion-panel-header>
                 <!-- Administrive fields -->
-                <div  fxLayout="row" class="control-full-width">
+                <div fxLayout="row" class="control-full-width">
                     <div fxFlex="50">
                         <mat-form-field appearance="fill" class="control-full-width">
                             <mat-label>{{'CreatedAt' | transloco}}</mat-label>
-                            <input matInput type="text" disabled placeholder="{{'CreatedAt' | transloco}}" [ngModel]="itemObject.CreatedAt | date: 'yyyy-M-d HH:mm:ss'">
+                            <input matInput type="text" disabled placeholder="{{'CreatedAt' | transloco}}"
+                                [ngModel]="itemObject.CreatedAt | date: 'yyyy-M-d HH:mm:ss'">
                         </mat-form-field>
                     </div>
-        
+
                     <div fxFlex="50">
                         <mat-form-field appearance="fill" class="control-full-width">
                             <mat-label>{{'ModifiedAt' | transloco}}</mat-label>
-                            <input matInput type="text" disabled placeholder="{{'ModifiedAt' | transloco}}" [ngModel]="itemObject.ModifiedAt | date: 'yyyy-M-d HH:mm:ss'">
+                            <input matInput type="text" disabled placeholder="{{'ModifiedAt' | transloco}}"
+                                [ngModel]="itemObject.ModifiedAt | date: 'yyyy-M-d HH:mm:ss'">
                         </mat-form-field>
                     </div>
                 </div>
@@ -79,16 +81,15 @@
         </mat-toolbar>
         <div fxLayout="row" class="control-full-width" style="height: 500px;">
             <div *ngIf="!isDisplayMode" fxFlex="50">
-                <ngx-monaco-editor [options]="editorOptions" [(ngModel)]="content" style="height: 100%;">
-                </ngx-monaco-editor>
+                <ngx-monaco-editor [options]="editorOptions" [(ngModel)]="content" style="height: 100%;"></ngx-monaco-editor>
             </div>
             <div fxFlex style="height: 100%; overflow-y: scroll;">
-                <markdown [data]="content" katex [katexOptions]="mathOptions"></markdown>
+                <markdown ngPreserveWhitespaces [data]="content" katex [katexOptions]="mathOptions"></markdown>
             </div>
         </div>
 
         <!-- Answer -->
-        <mat-toolbar *ngIf="isCreateMode">
+        <mat-toolbar>
             <h3>{{'Answer' | transloco}}</h3>
             <div class="toolbar-spacer"></div>
             <button mat-raised-button (click)="openAnswerUploadDialog()">
@@ -96,9 +97,8 @@
             </button>
         </mat-toolbar>
         <div fxLayout="row" class="control-full-width" style="height: 500px;">
-            <div *ngIf="isCreateMode" fxFlex="50">
-                <ngx-monaco-editor [options]="editorOptions" [(ngModel)]="answerContent" style="height: 100%;">
-                </ngx-monaco-editor>
+            <div *ngIf="!isDisplayMode" fxFlex="50">
+                <ngx-monaco-editor [options]="editorOptions" [(ngModel)]="answerContent" style="height: 100%;"></ngx-monaco-editor>
             </div>
             <div fxFlex style="height: 100%; overflow-y: scroll;">
                 <markdown ngPreserveWhitespaces [data]="answerContent" katex [katexOptions]="mathOptions"></markdown>

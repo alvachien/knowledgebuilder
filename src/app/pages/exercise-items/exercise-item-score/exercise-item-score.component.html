@@ -73,8 +73,8 @@
   </section>
 </mat-toolbar-row>
 
-<div class="example-container mat-elevation-z8">
-  <div class="example-table-container">
+<div class="exerciseitem-score-container mat-elevation-z8">
+  <div class="table-container">
     <table mat-table [dataSource]="dataSource" class="example-table" matSort (matSortChange)="resetPaging()">
       <!-- ID Column -->
       <ng-container matColumnDef="id">
@@ -98,9 +98,6 @@
           <button mat-icon-button color="accent" [disabled]="!isExpertMode" (click)="onChangeExerciseItem(row.RefID)" matTooltip="{{'Common.Change' | transloco}}">
             <mat-icon>edit</mat-icon>
           </button>
-          <!-- <button mat-icon-button color="accent" [disabled]="!isExpertMode" (click)="onAddToCollection(row.RefID)" matTooltip="{{'AddToCollection' | transloco}}">
-            <mat-icon>add_to_queue</mat-icon>
-          </button> -->
         </td>
       </ng-container>
 

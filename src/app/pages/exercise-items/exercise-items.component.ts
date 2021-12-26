@@ -49,8 +49,7 @@ export class ExerciseItemsComponent implements AfterViewInit {
           this.isLoadingResults = true;
           const top = this.paginator.pageSize;
           const skip = top * this.paginator.pageIndex;
-          return this.odataService.getExerciseItems(top, skip, this.sort.active, this.sort.direction
-          );
+          return this.odataService.getExerciseItems(top, skip, this.sort.active, this.sort.direction);
         }),
         finalize(() => this.isLoadingResults = false),
         map(data => {

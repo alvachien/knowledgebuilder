@@ -1,12 +1,12 @@
 {
   "name": "knowledgebuilder",
-  "version": "0.2.116",
+  "version": "0.2.120",
   "author": {
     "name": "Alva Chien",
     "email": "alvachien@163.com",
     "url": "https://github.com/alvachien"
   },
-  "description": "Knowledge Builder, a web application helps everyone to build the knowledge.",
+  "description": "Knowledge & Habit Builder, a web application helps everyone to build the knowledge and habit.",
   "scripts": {
     "ng": "ng",
     "start": "ng serve --ssl true -o --ssl-key ssl/server.key --ssl-cert ssl/server.crt",

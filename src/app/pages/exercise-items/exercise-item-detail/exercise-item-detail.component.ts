@@ -190,12 +190,6 @@ export class ExerciseItemDetailComponent implements OnInit, OnDestroy {
 ![Img](${entry.url})
           `;
         });
-        // {
-        //   [key: string]: {
-        //       progress: Observable<number>;
-        //       imgurl: string;
-        //   };
-        // }
       }
     });
   }
@@ -211,12 +205,6 @@ export class ExerciseItemDetailComponent implements OnInit, OnDestroy {
   ![Img](${entry.url})
             `;
           });
-          // {
-          //   [key: string]: {
-          //       progress: Observable<number>;
-          //       imgurl: string;
-          //   };
-          // }
         }
       });
   }
@@ -249,6 +237,9 @@ export class ExerciseItemDetailComponent implements OnInit, OnDestroy {
     this.itemFormGroup.get('idControl')?.disable();
     this.itemFormGroup.get('typeControl')?.setValue(+val.ItemType);
     this.content = val.Content;
+    if (val.Answer) {
+      this.answerContent = val.Answer;
+    }
     this.tags = val.Tags;
 
     if (this.isDisplayMode) {

@@ -8,13 +8,6 @@
         </mat-form-field>
 
         <!-- Collection ID -->
-        <!-- <mat-form-field class="control-full-width" appearance="fill">
-            <mat-label>{{'UserCollection' | transloco}}</mat-label>
-            <mat-select [(ngModel)]="data.collid" name="collid">
-                <mat-option value="" selected></mat-option>
-                <mat-option *ngFor="let coll of data.availableColls" [disabled]="isItemExistedInColl(coll)" [value]="coll.ID">{{coll.Name}}</mat-option>
-            </mat-select>
-        </mat-form-field> -->
         <mat-label>{{'UserCollection' | transloco}}</mat-label>
         <mat-selection-list #colls>
             <mat-list-option *ngFor="let coll of data.availableColls" [disabled]="isItemExistedInColl(coll)" [value]="coll.ID">
