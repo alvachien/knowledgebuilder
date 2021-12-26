@@ -29,7 +29,6 @@ const authSettings: any = {
 export class AuthService {
 
   private mgr: UserManager;
-  private authHeaders: Headers | null = null;
 
   public authSubject: BehaviorSubject<UserAuthInfo> = new BehaviorSubject(new UserAuthInfo());
   public authContent: Observable<UserAuthInfo> = this.authSubject.asObservable();
@@ -51,89 +50,62 @@ export class AuthService {
 
       this.authSubject.next(this.authSubject.value);
     }, (reason: any) => {
-      // ModelUtility.writeConsoleLog('AC_HIH_UI [Error]: Entering AuthService constructor, get user failed:',
-      //   ConsoleLogTypeEnum.error);
-      // ModelUtility.writeConsoleLog(reason, ConsoleLogTypeEnum.error);
+      console.error(reason);
     });
 
     this.mgr.events.addUserUnloaded(() => {
-      // ModelUtility.writeConsoleLog('AC_HIH_UI [Debug]: Entering AuthService User unloaded handler',
-      //   ConsoleLogTypeEnum.debug);
       this.authSubject.value.cleanContent();
 
       this.authSubject.next(this.authSubject.value);
     });
 
     this.mgr.events.addAccessTokenExpiring(() => {
-      // if (environment.LoggingLevel >= LogLevel.Debug) {
-      //   ModelUtility.writeConsoleLog('AC_HIH_UI [Warn]: Entering AuthService, Access token expiring',
-      //     ConsoleLogTypeEnum.warn);
-      // }
+      console.warn("Access token expiring");
     });
 
     this.mgr.events.addAccessTokenExpired(() => {
-      // if (environment.LoggingLevel >= LogLevel.Debug) {
-      //   ModelUtility.writeConsoleLog('AC_HIH_UI [Error]: Entering AuthService, Access token expired',
-      //     ConsoleLogTypeEnum.warn);
-      // }
+      console.warn("Access token expired");
 
       this.doLogin();
     });
   }
 
   public doLogin(): void {
-    // ModelUtility.writeConsoleLog('AC_HIH_UI [Debug]: Entering AuthService doLogin...',
-    //   ConsoleLogTypeEnum.debug);
-
     if (this.mgr) {
       this.mgr.signinRedirect().then(() => {
-        // ModelUtility.writeConsoleLog('AC_HIH_UI [Debug]: Entering AuthService doLogin, redirecting...',
-        //   ConsoleLogTypeEnum.debug);
+        console.log("Redirecting for Login");
       }).catch((er: any) => {
-        // ModelUtility.writeConsoleLog(`AC_HIH_UI [Error]: Entering AuthService doLogin failed: ${er}`,
-        //   ConsoleLogTypeEnum.error);
+        console.error(er);
       });
     }
   }
 
   public doLogout(): void {
-    // ModelUtility.writeConsoleLog('AC_HIH_UI [Debug]: Entering AuthService doLogout...',
-    //   ConsoleLogTypeEnum.debug);
-
     if (this.mgr) {
       this.mgr.signoutRedirect().then(() => {
-        // ModelUtility.writeConsoleLog('AC_HIH_UI [Debug]: Entering AuthService doLogout, redirecting...',
-        //   ConsoleLogTypeEnum.debug);
+        console.log("Redirecting for Logout");
       }).catch((er: any) => {
-        // ModelUtility.writeConsoleLog(`AC_HIH_UI [Error]: Entering AuthService doLogout failed: ${er}`,
-        //   ConsoleLogTypeEnum.error);
+        console.error(er);
       });
     }
   }
 
   clearState(): void {
-    // ModelUtility.writeConsoleLog('AC_HIH_UI [Debug]: Entering AuthService clearState...',
-    //   ConsoleLogTypeEnum.debug);
-
     this.mgr.clearStaleState().then(() => {
       // ModelUtility.writeConsoleLog('AC_HIH_UI [Debug]: Entering AuthService clearState success...',
       //   ConsoleLogTypeEnum.debug);
     }).catch((er: any) => {
-      // ModelUtility.writeConsoleLog(`AC_HIH_UI [Error]: Entering AuthService doLogout failed: ${er}`,
-      //   ConsoleLogTypeEnum.error);
+      console.error(er);
     });
   }
 
   getUser(): void {
     this.mgr.getUser().then((user: any) => {
-      // ModelUtility.writeConsoleLog('AC_HIH_UI [Debug]: Entering AuthService getUser success...',
-      //   ConsoleLogTypeEnum.debug);
-      // ModelUtility.writeConsoleLog(user, ConsoleLogTypeEnum.debug);
+      // console.debug(user);
 
       this.userLoadededEvent.emit(user);
     }).catch((err: any) => {
-      // ModelUtility.writeConsoleLog(`AC_HIH_UI [Error]: Entering AuthService getUser failed: ${err}`,
-      //   ConsoleLogTypeEnum.error);
+      console.error(err);
     });
   }
 
@@ -144,8 +116,7 @@ export class AuthService {
 
       this.userLoadededEvent.emit(undefined);
     }).catch((err: any) => {
-      // ModelUtility.writeConsoleLog(`AC_HIH_UI [Error]: Entering AuthService removeUser failed: ${err}`,
-      //   ConsoleLogTypeEnum.error);
+      console.error(err);
     });
   }
 
@@ -154,8 +125,7 @@ export class AuthService {
       // ModelUtility.writeConsoleLog('AC_HIH_UI [Debug]: Entering AuthService startSigninMainWindow success...',
       //   ConsoleLogTypeEnum.debug);
     }).catch((err: any) => {
-      // ModelUtility.writeConsoleLog(`AC_HIH_UI [Error]: Entering AuthService startSigninMainWindow failed: ${err}`,
-      //   ConsoleLogTypeEnum.error);
+      console.error(err);
     });
   }
 
@@ -164,8 +134,7 @@ export class AuthService {
       // ModelUtility.writeConsoleLog('AC_HIH_UI [Debug]: Entering AuthService endSigninMainWindow success...',
       //   ConsoleLogTypeEnum.debug);
     }).catch((err: any) => {
-      // ModelUtility.writeConsoleLog(`AC_HIH_UI [Error]: Entering AuthService endSigninMainWindow failed: ${err}`,
-      //   ConsoleLogTypeEnum.error);
+      console.error(err);
     });
   }
 
@@ -178,8 +147,7 @@ export class AuthService {
         // ModelUtility.writeConsoleLog('AC_HIH_UI [Debug]: Entering AuthService startSignoutMainWindow, re-test...');
       }, 5000);
     }).catch((err: any) => {
-      // ModelUtility.writeConsoleLog(`AC_HIH_UI [Error]: Entering AuthService startSignoutMainWindow failed: ${err}`,
-      //   ConsoleLogTypeEnum.error);
+      console.error(err);
     });
   }
 
@@ -188,8 +156,7 @@ export class AuthService {
       // ModelUtility.writeConsoleLog('AC_HIH_UI [Debug]: Entering AuthService endSignoutMainWindow success...',
       //   ConsoleLogTypeEnum.debug);
     }).catch((err: any) => {
-        // ModelUtility.writeConsoleLog(`AC_HIH_UI [Error]: Entering AuthService endSignoutMainWindow failed: ${err}`,
-        // ConsoleLogTypeEnum.error);
+      console.error(err);
     });
   }
 }

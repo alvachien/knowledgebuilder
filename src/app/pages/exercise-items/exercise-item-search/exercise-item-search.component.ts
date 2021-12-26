@@ -1,6 +1,6 @@
 import { AfterViewInit, Component, OnInit, ViewChild } from '@angular/core';
 import { MatPaginator } from '@angular/material/paginator';
-import { BehaviorSubject, merge, of as observableOf, scheduled } from 'rxjs';
+import { BehaviorSubject, merge, of as observableOf } from 'rxjs';
 import { catchError, finalize, map, mergeAll, startWith, switchMap } from 'rxjs/operators';
 
 import { ExerciseItemSearchResult, ExerciseItemType, GeneralFilterItem, GeneralFilterOperatorEnum, GeneralFilterValueType,
@@ -60,8 +60,6 @@ export class ExerciseItemSearchComponent implements OnInit, AfterViewInit {
     // this.dataSource.paginator = this.paginator;
     this.subjFilters.subscribe(() => this.paginator.pageIndex = 0);
 
-    // scheduled([this.subjFilters, this.paginator.page], scheduled)
-    //   .pipe(mergeAll())
     merge(this.subjFilters, this.paginator.page)
       .pipe(
         // takeUntil(this._destroyed$),
@@ -87,7 +85,12 @@ export class ExerciseItemSearchComponent implements OnInit, AfterViewInit {
         }),
         catchError(() => observableOf(undefined)),
     ).subscribe({
-      next: data => this.dataSource = data ? data : [],
+      next: data => {
+        this.dataSource = data ? data : [];
+        if (this.dataSource.length === 0) {
+          this.uiUtilSrv.showSnackInfo("No record found");
+        }
+      },
       error: err => this.uiUtilSrv.showSnackInfo(err)
     });
   }
