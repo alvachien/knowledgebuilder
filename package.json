@@ -42,7 +42,7 @@
     "html2canvas": "^1.3.2",
     "jspdf": "^2.4.0",
     "katex": "^0.13.20",
-    "marked": "^3.0.8",
+    "marked": "^4.0.10",
     "moment": "^2.29.1",
     "monaco-editor": "^0.29.1",
     "ngx-echarts": "^7.0.2",
