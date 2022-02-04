@@ -39,7 +39,7 @@ export class WelcomeComponent implements OnInit {
       console.log('Entering WelcomeComponent ngOnInit');
     }
 
-    let ncnt = Math.floor((Math.random() * 5) + 1);
+    let ncnt = Math.floor((Math.random() * 9) + 1);
     if (ncnt === 1) {
       this.currentSlogan = 'KeepLearning';
     } else if(ncnt === 2) {
@@ -50,6 +50,14 @@ export class WelcomeComponent implements OnInit {
       this.currentSlogan = 'KeepLearning4';
     } else if(ncnt === 5) {
       this.currentSlogan = 'KeepLearning5';
+    } else if(ncnt === 6) {
+      this.currentSlogan = 'KeepLearning6';
+    } else if(ncnt === 7) {
+      this.currentSlogan = 'KeepLearning7';
+    } else if(ncnt === 8) {
+      this.currentSlogan = 'KeepLearning8';
+    } else if(ncnt === 9) {
+      this.currentSlogan = 'KeepLearning9';
     }
 
     this.odataSrv.getMetadata().subscribe({
