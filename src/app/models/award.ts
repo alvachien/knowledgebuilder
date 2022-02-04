@@ -556,7 +556,7 @@ export class AwardUserView extends AwardUser {
     public userName = '';
     public displayAs = '';
 
-    public parseData(val: any): void {
+    public override parseData(val: any): void {
         super.parseData(val);
         if (val && val.UserName) {
             this.userName = val.UserName;

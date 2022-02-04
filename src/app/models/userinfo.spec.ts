@@ -2,33 +2,33 @@
 // Unit test for userinfo.ts
 //
 
-import { UserDetail, UserAuthInfo } from './userinfo';
+import { UserAuthInfo } from './userinfo';
 import { User } from 'oidc-client';
 
-describe('UserDetail', () => {
-  let urdtl: UserDetail;
+// describe('UserDetail', () => {
+//   let urdtl: UserDetail;
 
-  beforeEach(() => {
-    urdtl = new UserDetail();
-  });
+//   beforeEach(() => {
+//     urdtl = new UserDetail();
+//   });
 
-  it('get and set data', () => {
-    urdtl.UserId = 'abc';
-    urdtl.Email = 'aaa@bbb.com';
-    urdtl.Others = 'others';
-    urdtl.DisplayAs = 'Abc';
+//   it('get and set data', () => {
+//     urdtl.UserId = 'abc';
+//     urdtl.Email = 'aaa@bbb.com';
+//     urdtl.Others = 'others';
+//     urdtl.DisplayAs = 'Abc';
 
-    const data = urdtl.onGetData();
-    expect(data).toBeTruthy();
+//     const data = urdtl.onGetData();
+//     expect(data).toBeTruthy();
 
-    const urdtl2 = new UserDetail();
-    urdtl2.onSetData(data);
-    expect(urdtl2.UserId).toEqual(urdtl.UserId);
-    expect(urdtl2.Email).toEqual(urdtl.Email);
-    expect(urdtl2.Others).toEqual(urdtl.Others);
-    expect(urdtl2.DisplayAs).toEqual(urdtl.DisplayAs);
-  });
-});
+//     const urdtl2 = new UserDetail();
+//     urdtl2.onSetData(data);
+//     expect(urdtl2.UserId).toEqual(urdtl.UserId);
+//     expect(urdtl2.Email).toEqual(urdtl.Email);
+//     expect(urdtl2.Others).toEqual(urdtl.Others);
+//     expect(urdtl2.DisplayAs).toEqual(urdtl.DisplayAs);
+//   });
+// });
 
 describe('UserAuthInfo', () => {
   let authinfo: UserAuthInfo;
@@ -61,10 +61,12 @@ describe('UserAuthInfo', () => {
 
     authinfo.setContent(usrvalue as User);
     expect(authinfo.isAuthorized).toBeTruthy();
-    expect(authinfo.getUserName()).toEqual(usrvalue.profile.name);
-    expect(authinfo.getUserId()).toEqual(usrvalue.profile.sub);
-    expect(authinfo.getUserMailbox()).toEqual(usrvalue.profile.mail);
-    expect(authinfo.getAccessToken()).toEqual(usrvalue.access_token);
+    expect(authinfo.getUserName()).toEqual(usrvalue.profile!.name!);
+    expect(authinfo.getUserId()).toEqual(usrvalue.profile!.sub);
+    if (usrvalue.profile) {
+      expect(authinfo.getUserMailbox()).toEqual(usrvalue.profile['mail']);
+    }
+    expect(authinfo.getAccessToken()).toEqual(usrvalue!.access_token!);
 
     authinfo.cleanContent();
     expect(authinfo.isAuthorized).toBeFalsy();

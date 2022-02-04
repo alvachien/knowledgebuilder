@@ -117,7 +117,7 @@ export class Calculate24Component implements OnInit {
       let realstring = this.Cal24Input.replace('×', '*');
       realstring = realstring.replace('÷', '/');
       rst = <number>eval(realstring);
-    } catch (exp) {
+    } catch (exp: any) {
       errmsg = exp.toString();
     }
 

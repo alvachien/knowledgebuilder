@@ -47,3 +47,5 @@ Thumbs.db
 
 # SSL files
 ssl/
+.angular/
+

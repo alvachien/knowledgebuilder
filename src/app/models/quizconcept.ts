@@ -183,17 +183,17 @@ export abstract class QuizItem extends StorableObject {
         return '';
     }
 
-    protected storeToJsonObject(): any {
+    protected override storeToJsonObject(): any {
         return super.storeToJsonObject();
     }
-    protected restoreFromJsonObject(data: any): void {
+    protected override restoreFromJsonObject(data: any): void {
         super.restoreFromJsonObject(data);
     }
 
-    protected canCalcResult(): boolean {
+    protected override canCalcResult(): boolean {
         return true; // Default is true
     }
-    protected calcResult(): void {
+    protected override calcResult(): void {
         // Do nothing
     }
 }
@@ -202,43 +202,43 @@ export abstract class QuizItem extends StorableObject {
  * Math quiz item for Primary School
  */
 export class PrimarySchoolMathQuizItem extends QuizItem {
-    public IsCorrect(): boolean {
+    public override IsCorrect(): boolean {
         if (!super.IsCorrect()) {
             return false;
         }
         return true;
     }
 
-    public getQuizFormat(): string {
+    public override getQuizFormat(): string {
         const rststr = super.getQuizFormat();
         return rststr;
     }
 
-    public getCorrectFormula(): string {
+    public override getCorrectFormula(): string {
         const rststr = super.getCorrectFormula();
         return rststr;
     }
 
-    public getInputtedForumla(): string {
+    public override getInputtedForumla(): string {
         const rststr = super.getInputtedForumla();
         return rststr;
     }
 
-    protected storeToJsonObject(): any {
+    protected override storeToJsonObject(): any {
         return super.storeToJsonObject();
     }
 
-    protected restoreFromJsonObject(data: any): void {
+    protected override restoreFromJsonObject(data: any): void {
         super.restoreFromJsonObject(data);
     }
 
-    protected canCalcResult(): boolean {
+    protected override canCalcResult(): boolean {
         if (!super.canCalcResult()) {
             return false;
         }
         return true;
     }
-    protected calcResult(): void {
+    protected override calcResult(): void {
         // Do nothing
     }
 }
@@ -291,36 +291,36 @@ export class PrimarySchoolMathFAOQuizItem extends PrimarySchoolMathQuizItem {
         }
     }
 
-    public IsCorrect(): boolean {
+    public override IsCorrect(): boolean {
         if (!super.IsCorrect()) {
             return false;
         }
         return true;
     }
 
-    public getQuizFormat(): string {
+    public override getQuizFormat(): string {
         const rststr = super.getQuizFormat();
         return rststr;
     }
 
-    public getCorrectFormula(): string {
+    public override getCorrectFormula(): string {
         const rststr = super.getCorrectFormula();
         return rststr;
     }
 
-    public getInputtedForumla(): string {
+    public override getInputtedForumla(): string {
         const rststr = super.getInputtedForumla();
         return rststr;
     }
 
-    protected storeToJsonObject(): any {
+    protected override storeToJsonObject(): any {
         const jobj = super.storeToJsonObject();
         jobj.leftNumber = this._leftNumber;
         jobj.rightNumber = this._rightNumber;
         jobj.decimalPlaces = this.decimalPlaces;
         return jobj;
     }
-    protected restoreFromJsonObject(jobj: any): void {
+    protected override restoreFromJsonObject(jobj: any): void {
         if (jobj && jobj.leftNumber) {
             this._leftNumber = +jobj.leftNumber;
         }
@@ -333,7 +333,7 @@ export class PrimarySchoolMathFAOQuizItem extends PrimarySchoolMathQuizItem {
             this._decimalPlaces = 0;
         }
     }
-    protected canCalcResult(): boolean {
+    protected override canCalcResult(): boolean {
         if (!super.canCalcResult()) {
             return false;
         }
@@ -343,7 +343,7 @@ export class PrimarySchoolMathFAOQuizItem extends PrimarySchoolMathQuizItem {
 
         return true;
     }
-    protected calcResult(): void {
+    protected override calcResult(): void {
         super.calcResult();
     }
 }
@@ -419,7 +419,7 @@ export class AdditionQuizItem extends PrimarySchoolMathFAOQuizItem {
         this._inputtedResult = ir;
     }
 
-    public IsCorrect(): boolean {
+    public override IsCorrect(): boolean {
         if (!super.IsCorrect()) {
             return false;
         }
@@ -439,33 +439,33 @@ export class AdditionQuizItem extends PrimarySchoolMathFAOQuizItem {
         super(lft, right, dplace);
     }
 
-    public getCorrectFormula(): string {
+    public override getCorrectFormula(): string {
         return this.LeftNumber.toString()
             + ' + ' + this.RightNumber.toString() + ' = ' + this.Result.toString();
     }
 
-    public getInputtedForumla(): string {
+    public override getInputtedForumla(): string {
         return this.LeftNumber.toString()
             + ' + ' + this.RightNumber.toString() + ' = '
             + ((this.InputtedResult !== undefined && this.InputtedResult !== null) ? this.InputtedResult.toString() : '');
     }
 
-    public getQuizFormat(): string {
+    public override getQuizFormat(): string {
         const rststr = super.getQuizFormat();
         return rststr + this.LeftNumber.toString()
             + ' + ' + this.RightNumber.toString() + ' = ';
     }
 
-    protected storeToJsonObject(): any {
+    protected override storeToJsonObject(): any {
         const jobj = super.storeToJsonObject();
         return jobj;
     }
 
-    protected restoreFromJsonObject(jobj: any): void {
+    protected override restoreFromJsonObject(jobj: any): void {
         super.restoreFromJsonObject(jobj);
     }
 
-    protected calcResult(): void {
+    protected override calcResult(): void {
         super.calcResult();
 
         this._result = this.LeftNumber + this.RightNumber;
@@ -494,7 +494,7 @@ export class SubtractionQuizItem extends PrimarySchoolMathFAOQuizItem {
         this._inputtedResult = ir;
     }
 
-    public IsCorrect(): boolean {
+    public override IsCorrect(): boolean {
         if (!super.IsCorrect()) {
             return false;
         }
@@ -514,33 +514,33 @@ export class SubtractionQuizItem extends PrimarySchoolMathFAOQuizItem {
         super(lft, right, dplace);
     }
 
-    public getCorrectFormula(): string {
+    public override getCorrectFormula(): string {
         return this.LeftNumber.toString()
             + ' - ' + this.RightNumber.toString() + ' = ' + this.Result.toString();
     }
 
-    public getInputtedForumla(): string {
+    public override getInputtedForumla(): string {
         return this.LeftNumber.toString()
             + ' - ' + this.RightNumber.toString() + ' = '
             + ((this.InputtedResult !== undefined && this.InputtedResult !== null) ? this.InputtedResult.toString() : '');
     }
 
-    public getQuizFormat(): string {
+    public override getQuizFormat(): string {
         const rststr = super.getQuizFormat();
         return rststr + this.LeftNumber.toString()
             + ' - ' + this.RightNumber.toString() + ' = ';
     }
 
-    protected storeToJsonObject(): any {
+    protected override storeToJsonObject(): any {
         const jobj = super.storeToJsonObject();
         return jobj;
     }
 
-    protected restoreFromJsonObject(jobj: any): void {
+    protected override restoreFromJsonObject(jobj: any): void {
         super.restoreFromJsonObject(jobj);
     }
 
-    protected calcResult(): void {
+    protected override calcResult(): void {
         super.calcResult();
 
         this._result = this.LeftNumber - this.RightNumber;
@@ -569,7 +569,7 @@ export class MultiplicationQuizItem extends PrimarySchoolMathFAOQuizItem {
         this._inputtedResult = ir;
     }
 
-    public IsCorrect(): boolean {
+    public override IsCorrect(): boolean {
         if (!super.IsCorrect()) {
             return false;
         }
@@ -589,34 +589,34 @@ export class MultiplicationQuizItem extends PrimarySchoolMathFAOQuizItem {
         super(lft, right, dplace);
     }
 
-    public getCorrectFormula(): string {
+    public override getCorrectFormula(): string {
         return this.LeftNumber.toString()
             + ' × ' + this.RightNumber.toString() + ' = '
             + this.Result.toString();
     }
 
-    public getInputtedForumla(): string {
+    public override getInputtedForumla(): string {
         return this.LeftNumber.toString()
             + ' × ' + this.RightNumber.toString() + ' = '
             + ((this.InputtedResult !== undefined && this.InputtedResult !== null) ? this.InputtedResult.toString() : '');
     }
 
-    public getQuizFormat(): string {
+    public override getQuizFormat(): string {
         const rststr = super.getQuizFormat();
         return rststr + this.LeftNumber.toString()
             + ' × ' + this.RightNumber.toString() + ' = ';
     }
 
-    protected storeToJsonObject(): any {
+    protected override storeToJsonObject(): any {
         const jobj = super.storeToJsonObject();
         return jobj;
     }
 
-    protected restoreFromJsonObject(jobj: any): void {
+    protected override restoreFromJsonObject(jobj: any): void {
         super.restoreFromJsonObject(jobj);
     }
 
-    protected calcResult(): void {
+    protected override calcResult(): void {
         super.calcResult();
 
         this._result = this.LeftNumber * this.RightNumber;
@@ -667,7 +667,7 @@ export class DivisionQuizItem extends PrimarySchoolMathFAOQuizItem {
         super(lft, right, dplace);
     }
 
-    public IsCorrect(): boolean {
+    public override IsCorrect(): boolean {
         const brst = super.IsCorrect();
         if (!brst) {
             return brst;
@@ -685,35 +685,35 @@ export class DivisionQuizItem extends PrimarySchoolMathFAOQuizItem {
         return false;
     }
 
-    public getCorrectFormula(): string {
+    public override getCorrectFormula(): string {
         return this.LeftNumber.toString()
             + ' ÷ ' + this.RightNumber.toString() + ' = ' + this.Quotient.toString()
             + ((this.Remainder === 0) ? '' : ('... ' + this.Remainder.toString()));
     }
 
-    public getInputtedForumla(): string {
+    public override getInputtedForumla(): string {
         return this.LeftNumber.toString()
             + ' ÷ ' + this.RightNumber.toString() + ' = '
             + ((this.InputtedQuotient !== undefined && this.InputtedQuotient !== null) ? this.InputtedQuotient.toString() : '')
             + ((this.InputtedRemainder !== undefined && this.InputtedRemainder !== null) ? ' ... ' + this.InputtedRemainder.toString() : '');
     }
 
-    public getQuizFormat(): string {
+    public override getQuizFormat(): string {
         const rststr = super.getQuizFormat();
         return rststr + this.LeftNumber.toString()
             + ' ÷ ' + this.RightNumber.toString() + ' = ';
     }
 
-    protected storeToJsonObject(): any {
+    protected override storeToJsonObject(): any {
         const jobj = super.storeToJsonObject();
         return jobj;
     }
 
-    protected restoreFromJsonObject(jobj: any): void {
+    protected override restoreFromJsonObject(jobj: any): void {
         super.restoreFromJsonObject(jobj);
     }
 
-    protected canCalcResult(): boolean {
+    protected override canCalcResult(): boolean {
         if (!super.canCalcResult()) {
             return false;
         }
@@ -725,7 +725,7 @@ export class DivisionQuizItem extends PrimarySchoolMathFAOQuizItem {
         return true;
     }
 
-    protected calcResult(): void {
+    protected override calcResult(): void {
         super.calcResult();
 
         this._quotient = this.LeftNumber / this.RightNumber;
@@ -779,7 +779,7 @@ export class MixedOperationQuizItem extends PrimarySchoolMathQuizItem {
         }
     }
 
-    public IsCorrect(): boolean {
+    public override IsCorrect(): boolean {
         if (!super.IsCorrect()) {
             return false;
         }
@@ -791,26 +791,26 @@ export class MixedOperationQuizItem extends PrimarySchoolMathQuizItem {
         return false;
     }
 
-    public getCorrectFormula(): string {
+    public override getCorrectFormula(): string {
         return this.getQuizFormat() + this.Result.toString();
     }
 
-    public getInputtedForumla(): string {
+    public override getInputtedForumla(): string {
         return this.getQuizFormat() + this.InputtedResult.toString();
     }
 
-    public getQuizFormat(): string {
+    public override getQuizFormat(): string {
         const rststr = super.getQuizFormat();
         return rststr + this._formula.replace('*', '×').replace('/', '÷') + ' = ';
     }
 
-    protected storeToJsonObject(): any {
+    protected override storeToJsonObject(): any {
         const jobj = super.storeToJsonObject();
         jobj.forumla = this._formula;
         return jobj;
     }
 
-    protected restoreFromJsonObject(jobj: any): void {
+    protected override restoreFromJsonObject(jobj: any): void {
         super.restoreFromJsonObject(jobj);
 
         if (jobj && jobj.forumla) {
@@ -818,7 +818,7 @@ export class MixedOperationQuizItem extends PrimarySchoolMathQuizItem {
         }
     }
 
-    protected canCalcResult(): boolean {
+    protected override canCalcResult(): boolean {
         if (!super.canCalcResult()) {
             return false;
         }
@@ -830,7 +830,7 @@ export class MixedOperationQuizItem extends PrimarySchoolMathQuizItem {
         return true;
     }
 
-    protected calcResult(): void {
+    protected override calcResult(): void {
         super.calcResult();
 
         this._result = <number>eval(this._formula);

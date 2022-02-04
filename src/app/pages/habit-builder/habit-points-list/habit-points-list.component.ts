@@ -76,8 +76,8 @@ export class HabitPointsListComponent implements OnInit {
     arreq.push(this.odataSrv.getHabitPointsByUserDateReport(filterstr));
     arreq.push(this.odataSrv.getUserOpeningPointReport(this.selectedUser!, daysInAxisOrigin));
     arreq.push(this.odataSrv.getUserHabitPointReports(filterstr));
-    forkJoin(arreq).subscribe({
-      next: val => {
+    forkJoin([arreq]).subscribe({
+      next: (val: any[]) => {
         let openPoint1 = val[0] as number;
         let arHabitPoints = val[1] as UserHabitPointsByUserDate[];
         let openPoint2 = val[2] as number;
