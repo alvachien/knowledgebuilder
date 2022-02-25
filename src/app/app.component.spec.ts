@@ -1,16 +1,40 @@
-import { TestBed, async } from '@angular/core/testing';
+import { TestBed, waitForAsync } from '@angular/core/testing';
+import { HttpClientTestingModule } from '@angular/common/http/testing';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { NoopAnimationsModule } from '@angular/platform-browser/animations';
 import { RouterTestingModule } from '@angular/router/testing';
+import { BrowserDynamicTestingModule } from '@angular/platform-browser-dynamic/testing';
+import { getTranslocoModule } from 'src/testing';
+
 import { AppComponent } from './app.component';
+import { ODataService } from './services';
 
 describe('AppComponent', () => {
-  beforeEach(async(() => {
+  let odataervice: any;
+
+  beforeAll(() => {
+    odataervice = jasmine.createSpyObj('ODataService', [
+      'searchExerciseItems',
+    ]);
+  });
+
+  beforeEach(waitForAsync(() => {
     TestBed.configureTestingModule({
       imports: [
-        RouterTestingModule
+        HttpClientTestingModule,
+        FormsModule,
+        ReactiveFormsModule,
+        RouterTestingModule,
+        NoopAnimationsModule,
+        BrowserDynamicTestingModule,
+        getTranslocoModule(),
       ],
       declarations: [
         AppComponent
       ],
+      providers: [
+        { provide: ODataService, useValue: odataervice },
+      ]
     }).compileComponents();
   }));
 
@@ -18,18 +42,5 @@ describe('AppComponent', () => {
     const fixture = TestBed.createComponent(AppComponent);
     const app = fixture.componentInstance;
     expect(app).toBeTruthy();
-  });
-
-  it(`should have as title 'knowledgebuilder'`, () => {
-    const fixture = TestBed.createComponent(AppComponent);
-    const app = fixture.componentInstance;
-    expect(app.title).toEqual('knowledgebuilder');
-  });
-
-  it('should render title', () => {
-    const fixture = TestBed.createComponent(AppComponent);
-    fixture.detectChanges();
-    const compiled = fixture.nativeElement;
-    expect(compiled.querySelector('.content span').textContent).toContain('knowledgebuilder app is running!');
   });
 });
