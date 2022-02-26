@@ -48,7 +48,7 @@ describe('UserCollectionComponent', () => {
   beforeEach(() => {
     fixture = TestBed.createComponent(UserCollectionComponent);
     component = fixture.componentInstance;
-    fixture.detectChanges();
+    //fixture.detectChanges();
   });
 
   it('should create', () => {

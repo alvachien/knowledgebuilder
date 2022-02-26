@@ -20,7 +20,6 @@ export class UIUtilityService {
   currentUserHabitRecord: UserHabitRecordView | null = null;
 
   constructor(private router: Router,
-    private dialog: MatDialog,
     private snack: MatSnackBar) { }
 
   public navigateExerciseItemListPage(): void {

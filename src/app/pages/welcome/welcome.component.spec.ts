@@ -6,6 +6,7 @@ import { RouterTestingModule } from '@angular/router/testing';
 import { BrowserDynamicTestingModule } from '@angular/platform-browser-dynamic/testing';
 import { getTranslocoModule } from 'src/testing';
 import { WelcomeComponent } from './welcome.component';
+import { MaterialModulesModule } from 'src/app/material-modules';
 
 describe('WelcomeComponent', () => {
   let component: WelcomeComponent;
@@ -13,6 +14,16 @@ describe('WelcomeComponent', () => {
 
   beforeEach(waitForAsync(() => {
     TestBed.configureTestingModule({
+      imports: [
+        HttpClientTestingModule,
+        FormsModule,
+        ReactiveFormsModule,
+        RouterTestingModule,
+        NoopAnimationsModule,
+        MaterialModulesModule,
+        BrowserDynamicTestingModule,
+        getTranslocoModule(),
+      ],
       declarations: [ WelcomeComponent ]
     })
     .compileComponents();
@@ -21,7 +32,7 @@ describe('WelcomeComponent', () => {
   beforeEach(() => {
     fixture = TestBed.createComponent(WelcomeComponent);
     component = fixture.componentInstance;
-    fixture.detectChanges();
+    //fixture.detectChanges();
   });
 
   it('should create', () => {

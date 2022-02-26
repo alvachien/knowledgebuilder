@@ -9,6 +9,7 @@ import { MaterialModulesModule } from 'src/app/material-modules';
 import { of } from 'rxjs';
 import { ODataService, UIUtilityService } from 'src/app/services';
 import { ResultDialogComponent } from './result-dialog.component';
+import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 
 describe('ResultDialogComponent', () => {
   let component: ResultDialogComponent;
@@ -26,7 +27,11 @@ describe('ResultDialogComponent', () => {
         BrowserDynamicTestingModule,
         getTranslocoModule(),
       ],
-      declarations: [ ResultDialogComponent ]
+      declarations: [ ResultDialogComponent ],
+      providers: [
+        { provide: MatDialogRef, useValue: {} }, 
+        { provide: MAT_DIALOG_DATA, useValue: {} }
+      ]
     })
     .compileComponents();
   });

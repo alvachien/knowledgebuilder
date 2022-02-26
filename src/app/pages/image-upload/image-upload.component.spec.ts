@@ -9,6 +9,7 @@ import { MaterialModulesModule } from 'src/app/material-modules';
 import { of } from 'rxjs';
 
 import { ImageUploadComponent } from './image-upload.component';
+import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 
 describe('ImageUploadComponent', () => {
   let component: ImageUploadComponent;
@@ -26,7 +27,11 @@ describe('ImageUploadComponent', () => {
         BrowserDynamicTestingModule,
         getTranslocoModule(),
       ],
-      declarations: [ ImageUploadComponent ]
+      declarations: [ ImageUploadComponent ],
+      providers: [
+        { provide: MatDialogRef, useValue: {} }, 
+        { provide: MAT_DIALOG_DATA, useValue: {} }
+      ]
     })
     .compileComponents();
   }));

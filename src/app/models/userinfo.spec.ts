@@ -70,9 +70,9 @@ describe('UserAuthInfo', () => {
 
     authinfo.cleanContent();
     expect(authinfo.isAuthorized).toBeFalsy();
-    expect(authinfo.getUserName()).toBeUndefined();
-    expect(authinfo.getUserId()).toBeUndefined();
-    expect(authinfo.getUserMailbox()).toBeUndefined();
-    expect(authinfo.getAccessToken()).toBeUndefined();
+    expect(authinfo.getUserName()).toBeFalsy();
+    expect(authinfo.getUserId()).toBeFalsy();
+    expect(authinfo.getUserMailbox()).toBeFalsy();
+    expect(authinfo.getAccessToken()).toBeFalsy();
   });
 });

@@ -7,6 +7,7 @@ import { BrowserDynamicTestingModule } from '@angular/platform-browser-dynamic/t
 import { getTranslocoModule } from 'src/testing';
 import { MaterialModulesModule } from 'src/app/material-modules';
 import { of } from 'rxjs';
+
 import { ODataService, UIUtilityService } from 'src/app/services';
 import { KnowledgeItemsComponent } from './knowledge-items.component';
 
@@ -47,7 +48,7 @@ describe('KnowledgeItemsComponent', () => {
   beforeEach(() => {
     fixture = TestBed.createComponent(KnowledgeItemsComponent);
     component = fixture.componentInstance;
-    fixture.detectChanges();
+    //fixture.detectChanges();
   });
 
   it('should create', () => {

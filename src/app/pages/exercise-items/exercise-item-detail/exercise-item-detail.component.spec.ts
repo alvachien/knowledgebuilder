@@ -34,7 +34,7 @@ describe('ExerciseItemDetailComponent', () => {
   beforeEach(() => {
     fixture = TestBed.createComponent(ExerciseItemDetailComponent);
     component = fixture.componentInstance;
-    fixture.detectChanges();
+    //fixture.detectChanges();
   });
 
   it('should create', () => {

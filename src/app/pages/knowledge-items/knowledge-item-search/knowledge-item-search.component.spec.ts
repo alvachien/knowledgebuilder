@@ -36,7 +36,7 @@ describe('KnowledgeItemSearchComponent', () => {
   beforeEach(() => {
     fixture = TestBed.createComponent(KnowledgeItemSearchComponent);
     component = fixture.componentInstance;
-    fixture.detectChanges();
+    // fixture.detectChanges();
   });
 
   it('should create', () => {

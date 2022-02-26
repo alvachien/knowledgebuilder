@@ -5,9 +5,11 @@ import { NoopAnimationsModule } from '@angular/platform-browser/animations';
 import { RouterTestingModule } from '@angular/router/testing';
 import { BrowserDynamicTestingModule } from '@angular/platform-browser-dynamic/testing';
 import { getTranslocoModule } from 'src/testing';
-
 import { AppComponent } from './app.component';
-import { ODataService } from './services';
+import { ODataService, UIUtilityService } from './services';
+import { MaterialModulesModule } from './material-modules';
+import { AppUIModule } from './app-ui.module';
+import { NavItemFilterPipe } from './pipes';
 
 describe('AppComponent', () => {
   let odataervice: any;
@@ -27,13 +29,17 @@ describe('AppComponent', () => {
         RouterTestingModule,
         NoopAnimationsModule,
         BrowserDynamicTestingModule,
+        MaterialModulesModule,
+        AppUIModule,
         getTranslocoModule(),
       ],
       declarations: [
+        NavItemFilterPipe,
         AppComponent
       ],
       providers: [
         { provide: ODataService, useValue: odataervice },
+        UIUtilityService,
       ]
     }).compileComponents();
   }));
