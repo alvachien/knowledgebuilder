@@ -71,12 +71,12 @@ export class HabitPointsListComponent implements OnInit {
     let filterstr = `TargetUser eq '${this.selectedUser}' and RecordDate ge ${dateBgn.format(momentDateFormat)} and RecordDate le ${dateEnd.format(momentDateFormat)}`;
 
     let arSeries: any[] = [];
-    let arreq: any[] = [];
-    arreq.push(this.odataSrv.getHabitOpeningPointsByUserDate(this.selectedUser!, daysInAxisOrigin));
-    arreq.push(this.odataSrv.getHabitPointsByUserDateReport(filterstr));
-    arreq.push(this.odataSrv.getUserOpeningPointReport(this.selectedUser!, daysInAxisOrigin));
-    arreq.push(this.odataSrv.getUserHabitPointReports(filterstr));
-    forkJoin([arreq]).subscribe({
+    forkJoin([
+      this.odataSrv.getHabitOpeningPointsByUserDate(this.selectedUser!, daysInAxisOrigin),
+      this.odataSrv.getHabitPointsByUserDateReport(filterstr),
+      this.odataSrv.getUserOpeningPointReport(this.selectedUser!, daysInAxisOrigin),
+      this.odataSrv.getUserHabitPointReports(filterstr),
+      ]).subscribe({
       next: (val: any[]) => {
         let openPoint1 = val[0] as number;
         let arHabitPoints = val[1] as UserHabitPointsByUserDate[];
@@ -158,17 +158,13 @@ export class HabitPointsListComponent implements OnInit {
             bottom: '3%',
             containLabel: true
           },
-          xAxis: [
-            {
-              type: 'category',
-              data: arAxis,
-            }
-          ],
-          yAxis: [
-            {
-              type: 'value'
-            }
-          ],
+          xAxis: [{
+            type: 'category',
+            data: arAxis,
+          }],
+          yAxis: [{
+            type: 'value'
+          }],
           series: arSeries,
         };
       },

@@ -1,6 +1,6 @@
 export const environment = {
   production: true,
-  version: '0.2.125',
+  version: '0.2.128',
   mockdata: false,
   basehref: '/math/',
 
@@ -8,5 +8,7 @@ export const environment = {
   loginCallbackUrl: 'https://www.alvachien.com/math/logincallback.html',
   logoutCallbackUrl: 'https://www.alvachien.com/math',
   loginSlientRevewCallbackUrl: 'https://www.alvachien.com/math/silentrenewcallback.html',
+  homePageUrl: 'https://www.alvachien.com',
+
   apiurlRoot: 'https://www.alvachien.com/quizapi'
 };

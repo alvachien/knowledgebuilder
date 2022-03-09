@@ -104,7 +104,6 @@ export class HabitRecordCreateComponent implements OnInit {
     let arreq: any[] = [];
     this.arHabits.forEach(hbt => {
       if (hbt.CompleteFact !== null) {
-        console.log(`${hbt.HabitID}, ${hbt.CompleteFact}`);
         const record = new UserHabitRecord();
         record.completeFact = +hbt.CompleteFact;
         record.habitID = hbt.HabitID;

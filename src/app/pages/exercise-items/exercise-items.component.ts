@@ -161,7 +161,7 @@ export class ExerciseItemsComponent implements AfterViewInit {
     dialogRef.afterClosed().subscribe(result => {
       // Now submit!
       const nscore = new ExerciseItemUserScore();
-      nscore.RefID = result.excitemid;
+      nscore.RefID = rid;
       nscore.Score = result.score;
       nscore.TakenDate = new Date();
       // eslint-disable-next-line @typescript-eslint/no-non-null-assertion

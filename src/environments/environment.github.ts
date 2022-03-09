@@ -8,5 +8,7 @@ export const environment = {
   loginCallbackUrl: '',
   logoutCallbackUrl: '',
   loginSlientRevewCallbackUrl: '',
+  homePageUrl: 'https://alvachien.github.io',
+
   apiurlRoot: ''
 };

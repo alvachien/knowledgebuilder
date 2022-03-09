@@ -107,6 +107,9 @@ export class AppComponent implements OnDestroy {
     // Open github repo.
     window.open('https://github.com/alvachien/knowledgebuilder', '_blank');
   }
+  onOpenHome(): void {
+    window.open(environment.homePageUrl, '_blank');
+  }
   get versionInfo(): string {
     return environment.version;
   }

@@ -1,3 +1,6 @@
+[![build and test](https://github.com/alvachien/knowledgebuilder/actions/workflows/build-test.yml/badge.svg)](https://github.com/alvachien/knowledgebuilder/actions/workflows/build-test.yml)
+
+
 # Knowledge Builder
 
 ## Live Demo
