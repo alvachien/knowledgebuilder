@@ -18,12 +18,13 @@ module.exports = function (config) {
     jasmineHtmlReporter: {
       suppressAll: true // removes the duplicated traces
     },
-    coverageIstanbulReporter: {
+    coverageReporter: {
       dir: require('path').join(__dirname, './coverage/knowledgebuilder'),
       subdir: '.',
       reporters: [
         { type: 'html' },
-        { type: 'text-summary' }
+        { type: 'text-summary' },
+        { type: 'lcovonly' },
       ]
     },
     reporters: ['progress', 'kjhtml'],
@@ -42,6 +43,7 @@ module.exports = function (config) {
     },
 
     singleRun: false,
+    verboseDeprecations: true,
     restartOnFileChange: true
   });
 };
