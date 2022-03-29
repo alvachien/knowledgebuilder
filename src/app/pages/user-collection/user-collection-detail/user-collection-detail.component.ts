@@ -5,7 +5,7 @@ import { ActivatedRoute, } from '@angular/router';
 import { MatDialog } from '@angular/material/dialog';
 
 import { UIMode } from 'actslib';
-import { UserCollection, UserCollectionItem } from 'src/app/models';
+import { TagReferenceType, UserCollection, UserCollectionItem, getTagReferenceTypeName } from 'src/app/models';
 import { ODataService, UIUtilityService, } from 'src/app/services';
 
 @Component({
@@ -17,11 +17,13 @@ export class UserCollectionDetailComponent implements OnInit, OnDestroy {
   private destroyed$?: ReplaySubject<boolean>;
   private routerID = -1;
   itemObject: UserCollection | undefined;
-  displayedColumns: string[] = ['refid', 'createdat'];
+  displayedColumns: string[] = ['refid', 'reftype', 'createdat'];
   dataSource: UserCollectionItem[] = [];
 
   resultsLength = 0;
   isLoadingResults = true;
+
+  getTagReferenceTypeName = getTagReferenceTypeName;
 
   uiMode: UIMode = UIMode.Create;
   currentMode = '';
@@ -160,18 +162,33 @@ export class UserCollectionDetailComponent implements OnInit, OnDestroy {
   public onCreateItem(): void {
   }
   public onDeleteCollItem(row: UserCollectionItem): void {
-    this.odataService.removeExerciseItemFromCollection(row).subscribe({
-      next: val => {
-        this.uiUtilSrv.showSnackInfo('DONE');
-        const idx = this.dataSource.findIndex(item => item.RefID === row.RefID && item.RefType === row.RefType);
-        if (idx !== -1) {
-          this.dataSource.splice(idx, 1);
+    if (row.RefType === TagReferenceType.ExerciseItem) {
+      this.odataService.removeExerciseItemFromCollection(row).subscribe({
+        next: val => {
+          this.uiUtilSrv.showSnackInfo('DONE');
+          const idx = this.dataSource.findIndex(item => item.RefID === row.RefID && item.RefType === row.RefType);
+          if (idx !== -1) {
+            this.dataSource.splice(idx, 1);
+          }
+        },
+        error: err => {
+          this.uiUtilSrv.showSnackInfo(err);
         }
-      },
-      error: err => {
-        this.uiUtilSrv.showSnackInfo(err);
-      }
-    });
+      });
+    } else if(row.RefID === TagReferenceType.KnowledgeItem) {
+      this.odataService.removeKnowledgeItemFromCollection(row).subscribe({
+        next: val => {
+          this.uiUtilSrv.showSnackInfo('DONE');
+          const idx = this.dataSource.findIndex(item => item.RefID === row.RefID && item.RefType === row.RefType);
+          if (idx !== -1) {
+            this.dataSource.splice(idx, 1);
+          }
+        },
+        error: err => {
+          this.uiUtilSrv.showSnackInfo(err);
+        }
+      });
+    }
   }
   public onDisplayExerciseItem(rid: number): void {
     this.uiUtilSrv.navigateExerciseItemDisplayPage(rid);

@@ -1,0 +1,22 @@
+<h1 mat-dialog-title>{{'AddToCollection' | transloco}}</h1>
+<div mat-dialog-content>
+    <div>
+        <!-- Exercise Item Number -->
+        <mat-form-field class="control-full-width" appearance="fill">
+            <mat-label>ID</mat-label>
+            <input matInput disabled [(ngModel)]="data.knowledgeitemid" name="excitemid">
+        </mat-form-field>
+
+        <!-- Collection ID -->
+        <mat-label>{{'UserCollection' | transloco}}</mat-label>
+        <mat-selection-list #colls>
+            <mat-list-option *ngFor="let coll of data.availableColls" [disabled]="isItemExistedInColl(coll)" [value]="coll.ID">
+                {{coll.Name}}
+            </mat-list-option>
+        </mat-selection-list>
+    </div>
+</div>
+<div mat-dialog-actions>
+    <button mat-button (click)="onNoClick()">{{'Common.NoThanks' | transloco}}</button>
+    <button mat-button [disabled]="data.collids.length <= 0" [mat-dialog-close]="data">OK</button>
+</div>

@@ -598,521 +598,6 @@ export class ODataService {
       catchError((error: HttpErrorResponse) => throwError(error.statusText + '; ' + error.error + '; ' + error.message) ));
   }
 
-  // Award Rule
-  public getAwardRules(top = 30, skip = 0, sort?: string, filter?: string):
-    Observable<{ totalCount: number; items: AwardRule[] }> {
-    // if (environment.mockdata && this.mockedExerciseItem.length > 0) {
-    //   return of({
-    //     totalCount: this.mockedExerciseItem.length,
-    //     items: this.mockedExerciseItem
-    //   });
-    // }
-    if (!this.isLoggedin) {
-      return of({
-        totalCount: 0,
-        items: []
-      });
-    }
-
-    let headers: HttpHeaders = new HttpHeaders();
-    headers = headers.append(this.contentType, this.appJson)
-      .append(this.strAccept, this.appJson)
-      .append('Authorization', 'Bearer ' + this.authService.authSubject.getValue().getAccessToken());
-
-    let params: HttpParams = new HttpParams();
-    params = params.append('$top', top.toString());
-    params = params.append('$skip', skip.toString());
-    params = params.append('$count', 'true');
-    params = params.append('$select',
-      'ID,RuleType,TargetUser,Desp,ValidFrom,ValidTo,CountOfFactLow,CountOfFactHigh,DoneOfFact,TimeStart,TimeEnd,DaysFrom,DaysTo,Point');
-    if (filter) {
-      params = params.append('$filter', filter);
-    }
-    const apiurl = `${this.apiUrl}AwardRules`;
-    // if (environment.mockdata) {
-    //   apiurl = `${environment.basehref}assets/mockdata/exercise-items.json`;
-    //   params = new HttpParams();
-    // }
-
-    return this.http.get(apiurl, {
-      headers,
-      params,
-    })
-      .pipe(map(response => {
-        const rjs = response as any;
-        const ritems = rjs.value as any[];
-        const items: AwardRule[] = [];
-        ritems.forEach(item => {
-          const rit: AwardRule = new AwardRule();
-          rit.parseData(item);
-          items.push(rit);
-        });
-
-        return {
-          totalCount: rjs['@odata.count'],
-          items,
-        };
-      }),
-      catchError((error: HttpErrorResponse) => throwError(error.statusText + '; ' + error.error + '; ' + error.message) ));
-  }
-  public createAwardRule(rule: AwardRule): Observable<AwardRule> {
-    if (environment.mockdata) {
-      return throwError(this.mockModeFailMsg);
-    } else {
-      if (!this.isLoggedin) {
-        return throwError(this.expertModeFailMsg);
-      }
-    }
-    let headers: HttpHeaders = new HttpHeaders();
-    headers = headers.append(this.contentType, this.appJson)
-      .append(this.strAccept, this.appJson)
-      .append('Authorization', 'Bearer ' + this.authService.authSubject.getValue().getAccessToken());
-
-    const jdata = rule.writeJSONString(true);
-    return this.http.post(`${this.apiUrl}AwardRules`, jdata, {
-      headers,
-    })
-      .pipe(map(response => {
-        const rjs = response as any;
-        const rtn = new AwardRule();
-        rtn.parseData(rjs);
-
-        return rtn;
-      }),
-      catchError((error: HttpErrorResponse) => throwError(error.statusText + '; ' + error.error + '; ' + error.message) ));
-  }
-  public deleteAwardRule(rid: number): Observable<boolean> {
-    if (environment.mockdata) {
-      return throwError(this.mockModeFailMsg);
-    } else {
-      if (!this.isLoggedin) {
-        return throwError(this.expertModeFailMsg);
-      }
-    }
-
-    let headers: HttpHeaders = new HttpHeaders();
-    headers = headers.append(this.contentType, this.appJson)
-      .append(this.strAccept, this.appJson)
-      .append('Authorization', 'Bearer ' + this.authService.authSubject.getValue().getAccessToken());
-
-    return this.http.delete(`${this.apiUrl}AwardRules(${rid})`, {
-      headers
-    })
-      .pipe(map(response => true),
-      catchError((error: HttpErrorResponse) => throwError(error.statusText + '; ' + error.error + '; ' + error.message)
-      ));
-  }
-
-  // Award Rule Group and Award Rule Detail
-  public getAwardRuleGroups(top = 30, skip = 0, sort?: string, filter?: string):
-    Observable<{ totalCount: number; items: AwardRuleGroup[] }> {
-    if (!this.isLoggedin) {
-      return of({
-        totalCount: 0,
-        items: []
-      });
-    }
-
-    let headers: HttpHeaders = new HttpHeaders();
-    headers = headers.append(this.contentType, this.appJson)
-      .append(this.strAccept, this.appJson)
-      .append('Authorization', 'Bearer ' + this.authService.authSubject.getValue().getAccessToken());
-
-    let params: HttpParams = new HttpParams();
-    params = params.append('$top', top.toString());
-    params = params.append('$skip', skip.toString());
-    params = params.append('$count', 'true');
-    params = params.append('$expand', 'Rules');
-    // params = params.append('$select',
-    //   'ID,RuleType,TargetUser,Desp,ValidFrom,ValidTo,CountOfFactLow,CountOfFactHigh,DoneOfFact,TimeStart,TimeEnd,DaysFrom,DaysTo,Point');
-    if (filter) {
-      params = params.append('$filter', filter);
-    }
-    const apiurl = `${this.apiUrl}AwardRuleGroups`;
-    // if (environment.mockdata) {
-    //   apiurl = `${environment.basehref}assets/mockdata/exercise-items.json`;
-    //   params = new HttpParams();
-    // }
-
-    return this.http.get(apiurl, {
-      headers,
-      params,
-    })
-      .pipe(map(response => {
-        const rjs = response as any;
-        const ritems = rjs.value as any[];
-        this.bufferedAwardRuleGroup = [];
-        ritems.forEach(item => {
-          const rit: AwardRuleGroup = new AwardRuleGroup();
-          rit.parseData(item);
-          this.bufferedAwardRuleGroup.push(rit);
-        });
-
-        return {
-          totalCount: rjs['@odata.count'],
-          items: this.bufferedAwardRuleGroup,
-        };
-      }),
-      catchError((error: HttpErrorResponse) => throwError(error.statusText + '; ' + error.error + '; ' + error.message) ));
-  }
-  public readAwardRuleGroup(grpid: number): Observable<AwardRuleGroup> {
-    if (environment.mockdata) {
-      return throwError(this.mockModeFailMsg);
-    } else {
-      if (!this.isLoggedin) {
-        return throwError(this.expertModeFailMsg);
-      }
-    }
-
-    const idx = this.bufferedAwardRuleGroup.findIndex(rg => rg.id === grpid);
-    if (idx !== -1) {
-      return of(this.bufferedAwardRuleGroup[idx]);
-    }
-
-    let headers: HttpHeaders = new HttpHeaders();
-    headers = headers.append(this.contentType, this.appJson)
-      .append(this.strAccept, this.appJson)
-      .append('Authorization', 'Bearer ' + this.authService.authSubject.getValue().getAccessToken());
-
-    let params: HttpParams = new HttpParams();
-    params = params.append('$expand', 'Rules');
-    params = params.append('$filter', `ID eq ${grpid}`);
-    const apiurl = `${this.apiUrl}AwardRuleGroups`;
-
-    return this.http.get(apiurl, {
-      headers,
-      params,
-    })
-      .pipe(map(response => {
-        const rjs = response as any;
-        const ritem = rjs.value as any;
-        const rit: AwardRuleGroup = new AwardRuleGroup();
-        rit.parseData(ritem);
-
-        this.bufferedAwardRuleGroup.push(rit);
-
-        return rit;
-      }),
-      catchError((error: HttpErrorResponse) => throwError(error.statusText + '; ' + error.error + '; ' + error.message) ));
-  }
-  public createAwardRuleGroup(grp: AwardRuleGroup): Observable<AwardRuleGroup> {
-    if (environment.mockdata) {
-      return throwError(this.mockModeFailMsg);
-    } else {
-      if (!this.isLoggedin) {
-        return throwError(this.expertModeFailMsg);
-      }
-    }
-    let headers: HttpHeaders = new HttpHeaders();
-    headers = headers.append(this.contentType, this.appJson)
-      .append(this.strAccept, this.appJson)
-      .append('Authorization', 'Bearer ' + this.authService.authSubject.getValue().getAccessToken());
-
-    const jdata = grp.writeJSONString(true);
-    return this.http.post(`${this.apiUrl}AwardRuleGroups`, jdata, {
-      headers,
-    })
-      .pipe(map(response => {
-        const rjs = response as any;
-        const rtn = new AwardRuleGroup();
-        rtn.parseData(rjs);
-
-        return rtn;
-      }),
-      catchError((error: HttpErrorResponse) => throwError(error.statusText + '; ' + error.error + '; ' + error.message) ));
-  }
-  public deleteAwardRuleGroup(rid: number): Observable<boolean> {
-    if (environment.mockdata) {
-      return throwError(this.mockModeFailMsg);
-    } else {
-      if (!this.isLoggedin) {
-        return throwError(this.expertModeFailMsg);
-      }
-    }
-
-    let headers: HttpHeaders = new HttpHeaders();
-    headers = headers.append(this.contentType, this.appJson)
-      .append(this.strAccept, this.appJson)
-      .append('Authorization', 'Bearer ' + this.authService.authSubject.getValue().getAccessToken());
-
-    return this.http.delete(`${this.apiUrl}AwardRuleGroups(${rid})`, {
-      headers
-    })
-      .pipe(map(response => {
-        const idx = this.bufferedAwardRuleGroup.findIndex(rg => rg.id === rid);
-        if (idx !== -1) {
-          this.bufferedAwardRuleGroup.splice(idx, 1);
-        }
-
-        return true;
-      }),
-      catchError((error: HttpErrorResponse) => throwError(error.statusText + '; ' + error.error + '; ' + error.message)
-      ));
-  }
-
-  // Daily trace
-  public getDailyTrace(top = 30, skip = 0, sort?: string, filter?: string):
-    Observable<{ totalCount: number; items: DailyTrace[] }> {
-      if (!this.isLoggedin) {
-        return of({ totalCount: 0, items: [] });
-      }
-
-      let headers: HttpHeaders = new HttpHeaders();
-      headers = headers.append(this.contentType, this.appJson)
-        .append(this.strAccept, this.appJson)
-        .append('Authorization', 'Bearer ' + this.authService.authSubject.getValue().getAccessToken());
-
-      let params: HttpParams = new HttpParams();
-      params = params.append('$top', top.toString());
-      params = params.append('$skip', skip.toString());
-      params = params.append('$count', 'true');
-      params = params.append('$select',
-        // eslint-disable-next-line max-len
-        'RecordDate,TargetUser,SchoolWorkTime,GoToBedTime,HomeWorkCount,BodyExerciseCount,ErrorsCollection,HandWriting,CleanDesk,HouseKeepingCount,PoliteBehavior,Comment');
-      if (filter) {
-        params = params.append('$filter', filter);
-      }
-      const apiurl = `${this.apiUrl}DailyTraces`;
-
-      return this.http.get(apiurl, {
-        headers,
-        params,
-      })
-        .pipe(map(response => {
-          const rjs = response as any;
-          const ritems = rjs.value as any[];
-          const items: DailyTrace[] = [];
-          ritems.forEach(item => {
-            const rit: DailyTrace = new DailyTrace();
-            rit.parseData(item);
-            items.push(rit);
-          });
-
-          return {
-            totalCount: rjs['@odata.count'],
-            items,
-          };
-        }),
-        catchError((error: HttpErrorResponse) => throwError(error.statusText + '; ' + error.error + '; ' + error.message) ));
-  }
-
-  public simulatePoint(trace: DailyTrace): Observable<AwardPoint[]> {
-    if (!this.isLoggedin) {
-      return throwError(this.expertModeFailMsg);
-    }
-
-    let headers: HttpHeaders = new HttpHeaders();
-    headers = headers.append(this.contentType, this.appJson)
-      .append(this.strAccept, this.appJson)
-      .append('Authorization', 'Bearer ' + this.authService.authSubject.getValue().getAccessToken());
-
-    const params = new HttpParams();
-    const apiurl = `${this.apiUrl}DailyTraces/SimulatePoints`;
-
-    const jdata = {
-      dt: trace.writeJSONObject()
-    };
-    return this.http.post(apiurl, jdata, {
-      headers,
-      params,
-    })
-      .pipe(map(response => {
-        const rjs = response as any;
-        const ritems = rjs.value as any[];
-        const items: AwardPoint[] = [];
-        ritems.forEach(item => {
-          const rit: AwardPoint = new AwardPoint();
-          rit.parseData(item);
-          items.push(rit);
-        });
-
-        return items;
-      }),
-      catchError((error: HttpErrorResponse) => throwError(error.statusText + '; ' + error.error + '; ' + error.message) ));
-  }
-  public createDailyTrace(dt: DailyTrace): Observable<DailyTrace> {
-    if (environment.mockdata) {
-      return throwError(this.mockModeFailMsg);
-    } else {
-      if (!this.isLoggedin) {
-        return throwError(this.expertModeFailMsg);
-      }
-    }
-    let headers: HttpHeaders = new HttpHeaders();
-    headers = headers.append(this.contentType, this.appJson)
-      .append(this.strAccept, this.appJson)
-      .append('Authorization', 'Bearer ' + this.authService.authSubject.getValue().getAccessToken());
-
-    const jdata = dt.writeJSONString();
-    return this.http.post(`${this.apiUrl}DailyTraces`, jdata, {
-      headers,
-    })
-      .pipe(map(response => {
-        const rjs = response as any;
-        const rtn = new DailyTrace();
-        rtn.parseData(rjs);
-
-        return rtn;
-      }),
-      catchError((error: HttpErrorResponse) => throwError(error.statusText + '; ' + error.error + '; ' + error.message) ));
-  }
-  public deleteDailyTrace(tuser: string, rdate: moment.Moment): Observable<boolean> {
-    if (environment.mockdata) {
-      return throwError(this.mockModeFailMsg);
-    } else {
-      if (!this.isLoggedin) {
-        return throwError(this.expertModeFailMsg);
-      }
-    }
-
-    let headers: HttpHeaders = new HttpHeaders();
-    headers = headers.append(this.contentType, this.appJson)
-      .append(this.strAccept, this.appJson)
-      .append('Authorization', 'Bearer ' + this.authService.authSubject.getValue().getAccessToken());
-
-    return this.http.delete(`${this.apiUrl}DailyTraces(RecordDate=${rdate.format(momentDateFormat)},TargetUser='${tuser}')`, {
-      headers
-    })
-      .pipe(map(response => true),
-      catchError((error: HttpErrorResponse) => throwError(error.statusText + '; ' + error.error + '; ' + error.message)
-      ));
-  }
-
-  // Award points
-  public getAwardPoints(top = 30, skip = 0, sort?: string, filter?: string):
-    Observable<{ totalCount: number; items: AwardPoint[] }> {
-      if (!this.isLoggedin) {
-        return of({totalCount: 0, items: []});
-      }
-
-      let headers: HttpHeaders = new HttpHeaders();
-      headers = headers.append(this.contentType, this.appJson)
-        .append(this.strAccept, this.appJson)
-        .append('Authorization', 'Bearer ' + this.authService.authSubject.getValue().getAccessToken());
-
-      let params: HttpParams = new HttpParams();
-      params = params.append('$top', top.toString());
-      params = params.append('$skip', skip.toString());
-      params = params.append('$count', 'true');
-      params = params.append('$select',
-        'ID,RecordDate,TargetUser,MatchedRuleID,CountOfDay,Point,Comment');
-      if (filter) {
-        params = params.append('$filter', filter);
-      }
-      const apiurl = `${this.apiUrl}AwardPoints`;
-
-      return this.http.get(apiurl, {
-        headers,
-        params,
-      })
-        .pipe(map(response => {
-          const rjs = response as any;
-          const ritems = rjs.value as any[];
-          const items: AwardPoint[] = [];
-          ritems.forEach(item => {
-            const rit: AwardPoint = new AwardPoint();
-            rit.parseData(item);
-            items.push(rit);
-          });
-
-          return {
-            totalCount: rjs['@odata.count'],
-            items,
-          };
-        }),
-        catchError((error: HttpErrorResponse) => throwError(error.statusText + '; ' + error.error + '; ' + error.message) ));
-  }
-
-  public createAwardPoint(pnt: AwardPoint): Observable<AwardPoint> {
-    if (environment.mockdata) {
-      return throwError(this.mockModeFailMsg);
-    } else {
-      if (!this.isLoggedin) {
-        return throwError(this.expertModeFailMsg);
-      }
-    }
-    let headers: HttpHeaders = new HttpHeaders();
-    headers = headers.append(this.contentType, this.appJson)
-      .append(this.strAccept, this.appJson)
-      .append('Authorization', 'Bearer ' + this.authService.authSubject.getValue().getAccessToken());
-
-    const jdata = pnt.writeJSONString(true);
-    return this.http.post(`${this.apiUrl}AwardPoints`, jdata, {
-      headers,
-    })
-      .pipe(map(response => {
-        const rjs = response as any;
-        const rtn = new AwardPoint();
-        rtn.parseData(rjs);
-
-        return rtn;
-      }),
-      catchError((error: HttpErrorResponse) => throwError(error.statusText + '; ' + error.error + '; ' + error.message) ));
-  }
-  public deleteAwardPoint(pid: number): Observable<boolean> {
-    if (environment.mockdata) {
-      return throwError(this.mockModeFailMsg);
-    } else {
-      if (!this.isLoggedin) {
-        return throwError(this.expertModeFailMsg);
-      }
-    }
-
-    let headers: HttpHeaders = new HttpHeaders();
-    headers = headers.append(this.contentType, this.appJson)
-      .append(this.strAccept, this.appJson)
-      .append('Authorization', 'Bearer ' + this.authService.authSubject.getValue().getAccessToken());
-
-    return this.http.delete(`${this.apiUrl}AwardPoints(${pid})`, {
-      headers
-    })
-      .pipe(map(response => true),
-      catchError((error: HttpErrorResponse) => throwError(error.statusText + '; ' + error.error + '; ' + error.message)
-      ));
-  }
-
-  public getAwardPointReports(top = 30, skip = 0, sort?: string, filter?: string):
-    Observable<{ totalCount: number; items: AwardPointReport[] }> {
-      if (!this.isLoggedin) {
-        return of({totalCount: 0, items: []});
-      }
-
-      let headers: HttpHeaders = new HttpHeaders();
-      headers = headers.append(this.contentType, this.appJson)
-        .append(this.strAccept, this.appJson)
-        .append('Authorization', 'Bearer ' + this.authService.authSubject.getValue().getAccessToken());
-
-      let params: HttpParams = new HttpParams();
-      params = params.append('$top', top.toString());
-      params = params.append('$skip', skip.toString());
-      params = params.append('$count', 'true');
-      if (filter) {
-        params = params.append('$filter', filter);
-      }
-      const apiurl = `${this.apiUrl}AwardPointReports`;
-
-      return this.http.get(apiurl, {
-        headers,
-        params,
-      })
-        .pipe(map(response => {
-          const rjs = response as any;
-          const ritems = rjs.value as any[];
-          const items: AwardPointReport[] = [];
-          ritems.forEach(item => {
-            const rit: AwardPointReport = new AwardPointReport();
-            rit.parseData(item);
-            items.push(rit);
-          });
-
-          return {
-            totalCount: rjs['@odata.count'],
-            items,
-          };
-        }),
-        catchError((error: HttpErrorResponse) => throwError(error.statusText + '; ' + error.error + '; ' + error.message) ));
-  }
-
   // File upload
   public uploadFiles(files: Set<File>): { [key: string]: { result: Observable<any> } } {
     if (!this.isLoggedin) {
@@ -1482,7 +967,80 @@ export class ODataService {
       }),
       catchError((error: HttpErrorResponse) => throwError(error.statusText + '; ' + error.error + '; ' + error.message) ));
   }
+  public addKnowledgeItemToCollection(collItems: UserCollectionItem[]): Observable<UserCollectionItem[]> {
+    if (environment.mockdata) {
+      return throwError(this.mockModeFailMsg);
+    } else {
+      if (!this.isLoggedin) {
+        return throwError(this.expertModeFailMsg);
+      }
+    }
 
+    let headers: HttpHeaders = new HttpHeaders();
+    headers = headers.append(this.contentType, this.appJson)
+      .append(this.strAccept, this.appJson)
+      .append('Authorization', 'Bearer ' + this.authService.authSubject.getValue().getAccessToken());
+
+    const jdata: any = {
+      User: this.currentUser?.getUserId(),
+      UserCollectionItems: []
+    };
+    collItems.forEach(ci => {
+      jdata.UserCollectionItems.push(ci.writeJSONObject(true));
+    });
+    const params: HttpParams = new HttpParams();
+    return this.http.post(`${this.apiUrl}UserCollectionItems/AddItemToCollectionEx`, jdata, {
+      headers,
+      params,
+    })
+      .pipe(map(response => {
+        const rjs = response as any;
+        const ritems = rjs.value as any[];
+        const items: UserCollectionItem[] = [];
+
+        ritems.forEach(item => {
+          const rit: UserCollectionItem = new UserCollectionItem();
+          rit.parseData(item);
+          items.push(rit);
+        });
+
+        return items;
+      }),
+      catchError((error: HttpErrorResponse) => throwError(error.statusText + '; ' + error.error + '; ' + error.message) ));
+  }
+  public removeKnowledgeItemFromCollection(collItem: UserCollectionItem): Observable<boolean> {
+    if (environment.mockdata) {
+      return throwError(this.mockModeFailMsg);
+    } else {
+      if (!this.isLoggedin) {
+        return throwError(this.expertModeFailMsg);
+      }
+    }
+
+    let headers: HttpHeaders = new HttpHeaders();
+    headers = headers.append(this.contentType, this.appJson)
+      .append(this.strAccept, this.appJson)
+      .append('Authorization', 'Bearer ' + this.authService.authSubject.getValue().getAccessToken());
+
+    const jdata: any = {
+      User: this.currentUser?.getUserId(),
+      ID: collItem.ID,
+      RefID: collItem.RefID,
+      RefType: TagReferenceType[collItem.RefType]
+    };
+    const params: HttpParams = new HttpParams();
+    return this.http.post(`${this.apiUrl}UserCollectionItems/RemoveItemFromCollection`, jdata, {
+      headers,
+      params,
+    })
+      .pipe(map(response => {
+        const rjs = response as any;
+        const rtn = rjs.value as boolean;
+
+        return rtn;
+      }),
+      catchError((error: HttpErrorResponse) => throwError(error.statusText + '; ' + error.error + '; ' + error.message) ));
+  }
   public deleteUserCollection(collid: number): Observable<any> {
     if (environment.mockdata) {
       return throwError(this.mockModeFailMsg);

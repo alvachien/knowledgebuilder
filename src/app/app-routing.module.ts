@@ -42,13 +42,7 @@ const routes: Routes = [
     loadChildren: () => import('./pages/quiz-summary/quiz-summary.module').then(m => m.QuizSummaryModule),
   },
   {
-    path: 'award',
-    canActivate: [AuthGuardService],
-    loadChildren: () => import('./pages/award/award.module').then(m => m.AwardModule),
-  },
-  {
     path: 'habit',
-    // canActivate: [AuthGuardService],
     loadChildren: () => import('./pages/habit-builder/habit-builder.module').then(m => m.HabitBuilderModule),
   },
   {

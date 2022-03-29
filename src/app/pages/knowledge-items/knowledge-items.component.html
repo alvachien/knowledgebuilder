@@ -41,6 +41,9 @@
             <button mat-icon-button color="accent" [disabled]="!isExpertMode" routerLink="edit/{{row.ID}}" matTooltip="{{'Common.Change' | transloco}}">
               <mat-icon>edit</mat-icon>
             </button>
+            <button mat-icon-button color="accent" [disabled]="!isExpertMode" (click)="onAddToCollection(row.ID)" matTooltip="{{'AddToCollection' | transloco}}">
+              <mat-icon>add_to_queue</mat-icon>
+            </button>
             <button mat-icon-button color="warn" [disabled]="!isExpertMode" (click)="onDeleteItem(row.ID)" matTooltip="{{'Common.Delete' | transloco}}">
               <mat-icon>remove_circle</mat-icon>
             </button>
