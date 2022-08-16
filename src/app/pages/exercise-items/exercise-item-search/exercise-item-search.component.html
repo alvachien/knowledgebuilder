@@ -70,7 +70,7 @@
         <div class="table-container mat-elevation-z8">
             <mat-toolbar color="primary">
                 <mat-toolbar-row>
-                    <button mat-flat-button color="primary" (click)="onGoToPreview()">{{'Common.Preview' | transloco}}</button>
+                    <button mat-flat-button color="primary" [disabled]="resultsLength <= 0" (click)="onGoToPreview()">{{'Common.Preview' | transloco}}</button>
                 </mat-toolbar-row>
             </mat-toolbar>            
             <div class="table-container">

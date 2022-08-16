@@ -22,7 +22,7 @@ export class ExerciseItemSearchComponent implements OnInit, AfterViewInit {
   pageSize = 20;
   pageSizeOptions = [20, 40, 60, 100];
   isLoadingResults = false;
-  resultsLength: number;
+  resultsLength: number = 0;
   subjFilters: BehaviorSubject<any> = new BehaviorSubject([]);
   // Result
   displayedColumns: string[] = ['id', 'itemtype', 'tags', 'knowledgeitem', 'createdat'];

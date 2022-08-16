@@ -22,7 +22,7 @@ export class KnowledgeItemSearchComponent implements OnInit, AfterViewInit {
   pageSize = 20;
   pageSizeOptions = [20, 40, 60, 100];
   isLoadingResults = false;
-  resultsLength: number;
+  resultsLength: number = 0;
   subjFilters: BehaviorSubject<any> = new BehaviorSubject([]);
   // Result
   displayedColumns: string[] = ['id', 'category', 'title', 'createdat'];
@@ -83,7 +83,12 @@ export class KnowledgeItemSearchComponent implements OnInit, AfterViewInit {
         }),
         catchError(() => observableOf(undefined)),
     ).subscribe({
-      next: data => this.dataSource = data,
+      next: data => {
+        this.dataSource = data ? data : [];
+        if (this.dataSource.length === 0) {
+          this.uiUtilSrv.showSnackInfo("No record found");
+        }
+      },
       error: err => this.uiUtilSrv.showSnackInfo(err)
     });
   }
