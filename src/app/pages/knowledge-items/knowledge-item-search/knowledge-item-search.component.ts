@@ -36,6 +36,10 @@ export class KnowledgeItemSearchComponent implements OnInit, AfterViewInit {
       displayas: 'Content',
       value: 'Content',
       valueType: 2,
+    }, {
+      displayas: 'Title',
+      value: 'Title',
+      valueType: 2,
     },
     ];
   }
@@ -108,7 +112,7 @@ export class KnowledgeItemSearchComponent implements OnInit, AfterViewInit {
     arFilter.sort((a, b) => a.fieldName.localeCompare(b.fieldName));
 
     arFilter.forEach(flt => {
-      if (flt.fieldName === 'Content') {
+      if (flt.fieldName === 'Content' || flt.fieldName === 'Title') {
         if (flt.operator === GeneralFilterOperatorEnum.Equal) {
           rstfilter = rstfilter ? `${rstfilter} and ${flt.fieldName} eq '${flt.lowValue}'`
             : `${flt.fieldName} eq '${flt.lowValue}'`;

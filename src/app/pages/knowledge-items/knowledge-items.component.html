@@ -5,7 +5,7 @@
     <button mat-icon-button color="primary" [disabled]="!isExpertMode" routerLink="create" matTooltip="{{'Common.Create' | transloco}}">
       <mat-icon>add_circle</mat-icon>
     </button>
-    <button mat-icon-button color="accent" (click)="onGoToSearch()" [disabled]="!isExpertMode || dataSource.length <= 0" matTooltip="'Common.Search' | transloco}}">
+    <button mat-icon-button color="accent" (click)="onGoToSearch()" [disabled]="!isExpertMode || dataSource.length <= 0" matTooltip="{{'Common.Search' | transloco}}">
       <mat-icon>search</mat-icon>
     </button>
     <button mat-icon-button color="accent" (click)="onGoToPreview()" [disabled]="!isExpertMode || dataSource.length <= 0" matTooltip="{{'Common.Preview' | transloco}}">
