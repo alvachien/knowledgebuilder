@@ -1,6 +1,6 @@
 export const environment = {
   production: true,
-  version: '0.3.132',
+  version: '0.3.135',
   mockdata: true,
   basehref: '/knowledgebuilder/',
 
