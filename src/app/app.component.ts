@@ -1,10 +1,11 @@
 /* eslint-disable no-underscore-dangle */
-import { ChangeDetectorRef, Component, Inject, NgZone, OnDestroy } from '@angular/core';
+import { ChangeDetectorRef, Component, Inject, NgZone, OnDestroy, OnInit } from '@angular/core';
 import { MatDialog, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { MediaMatcher } from '@angular/cdk/layout';
 import { TranslocoService } from '@ngneat/transloco';
 import { DateAdapter } from '@angular/material/core';
 import { Title } from '@angular/platform-browser';
+import { OidcSecurityService } from 'angular-auth-oidc-client';
 
 import { AppNavItem, AppLanguage, AppNavItemGroupEnum, UserAuthInfo } from './models';
 import { AuthService, ODataService, UIUtilityService } from './services';
@@ -15,7 +16,7 @@ import { environment } from 'src/environments/environment';
   templateUrl: './app.component.html',
   styleUrls: ['./app.component.scss'],
 })
-export class AppComponent implements OnDestroy {
+export class AppComponent implements OnInit, OnDestroy {
   title = 'Knowledge Builder';
   mobileQuery: MediaQueryList;
   public navItems: AppNavItem[] = [];
@@ -37,6 +38,7 @@ export class AppComponent implements OnDestroy {
     private zone: NgZone,
     private uiUtilSrv: UIUtilityService,
     private titleService: Title,
+    public oidcSecurityService: OidcSecurityService,
   ) {
     this.mobileQuery = media.matchMedia('(max-width: 600px)');
     this._mobileQueryListener = () => changeDetectorRef.detectChanges();
@@ -75,17 +77,25 @@ export class AppComponent implements OnDestroy {
       { name: 'Help.Credits', route: '/help/credits', group: AppNavItemGroupEnum.help },
     ];
 
-    this.authSrv.authContent.subscribe((x: UserAuthInfo) => {
-      this.zone.run(() => {
-        if (x && x.isAuthorized) {
-          this.oDataSrv.currentUser = x;
-          // Get user detail automatically.
-          this.oDataSrv.getUserDetail().subscribe();
-        }
-      });
-    });
+    // this.authSrv.authContent.subscribe((x: UserAuthInfo) => {
+    //   this.zone.run(() => {
+    //     if (x && x.isAuthorized) {
+    //       this.oDataSrv.currentUser = x;
+    //       // Get user detail automatically.
+    //       this.oDataSrv.getUserDetail().subscribe();
+    //     }
+    //   });
+    // });
 
     this.titleService.setTitle('Knowledge & Habit Builder');
+  }
+
+  ngOnInit(): void {
+    this.oidcSecurityService.checkAuth().subscribe(({ isAuthenticated, userData, accessToken, idToken }) => {
+      if (isAuthenticated) {
+        this.oDataSrv.currentUser = userData;
+      }
+    });
   }
 
   switchLanguage(lang: string) {
@@ -115,22 +125,23 @@ export class AppComponent implements OnDestroy {
   }
 
   public onUserInfo(): void {
-    if (this.oDataSrv.isLoggedin) {
-      this.oDataSrv.getUserDetail().subscribe({
-        next: val => {
-          const dialogRef = this.dialog.open(CurrentUserDialog, {
-            width: '600px',
-            closeOnNavigation: false
-          });
-          dialogRef.afterClosed().subscribe();
-        },
-        error: err => {
-          this.uiUtilSrv.showSnackInfo(err);
-        }
-      });
-    } else {
-      this.authSrv.doLogin();
-    }
+    this.oidcSecurityService.authorize();
+    // if (this.oDataSrv.isLoggedin) {
+    //   this.oDataSrv.getUserDetail().subscribe({
+    //     next: val => {
+    //       const dialogRef = this.dialog.open(CurrentUserDialog, {
+    //         width: '600px',
+    //         closeOnNavigation: false
+    //       });
+    //       dialogRef.afterClosed().subscribe();
+    //     },
+    //     error: err => {
+    //       this.uiUtilSrv.showSnackInfo(err);
+    //     }
+    //   });
+    // } else {
+    //   this.authSrv.doLogin();
+    // }
   }
 }
 

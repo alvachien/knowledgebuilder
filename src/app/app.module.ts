@@ -19,6 +19,7 @@ import { ODataService, QuizService, UIUtilityService, AuthService, AuthGuardServ
 import { environment } from 'src/environments/environment';
 import { NavItemFilterPipe } from './pipes';
 import { QuizFailureDailogComponent } from './pages/quiz-failure-dailog';
+import { AuthConfigModule } from './auth/auth-config.module';
 
 @NgModule({
   declarations: [
@@ -54,6 +55,7 @@ import { QuizFailureDailogComponent } from './pages/quiz-failure-dailog';
     NgxEchartsModule.forRoot({
       echarts,
     }),
+    AuthConfigModule,
   ],
   providers: [
     ODataService,

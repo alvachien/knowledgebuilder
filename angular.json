@@ -25,7 +25,7 @@
             "main": "src/main.ts",
             "polyfills": "src/polyfills.ts",
             "tsConfig": "tsconfig.app.json",
-            "allowedCommonJsDependencies":[
+            "allowedCommonJsDependencies": [
               "core-js",
               "raf"
             ],
@@ -35,7 +35,12 @@
               "src/assets",
               "src/logincallback.html",
               "src/.htaccess",
-              { "glob": "**/*", "input": "node_modules/monaco-editor/min/", "output": "assets/monaco-editor/min/" }
+              {
+                "glob": "**/*",
+                "input": "node_modules/monaco-editor/min/",
+                "output": "assets/monaco-editor/min/"
+              },
+              "src/silent-renew.html"
             ],
             "styles": [
               "./node_modules/@angular/material/prebuilt-themes/deeppurple-amber.css",
