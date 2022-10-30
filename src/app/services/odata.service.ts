@@ -84,7 +84,7 @@ export class ODataService {
   // Get User Detail
   public getUserDetail(): Observable<InvitedUser> {
     if (!this.isLoggedin) {
-      return throwError(this.expertModeFailMsg);
+      return throwError(() => new Error(this.expertModeFailMsg));
     }
     if (this.currentUserDetail !== null) {
       return of(this.currentUserDetail);

@@ -94,6 +94,8 @@ export class AppComponent implements OnInit, OnDestroy {
     this.oidcSecurityService.checkAuth().subscribe(({ isAuthenticated, userData, accessToken, idToken }) => {
       if (isAuthenticated) {
         this.oDataSrv.currentUser = userData;
+        // Get user detail automatically.
+        this.oDataSrv.getUserDetail().subscribe();
       }
     });
   }

@@ -1,15 +1,15 @@
 import { Injectable } from '@angular/core';
 import { ActivatedRouteSnapshot, CanActivate, RouterStateSnapshot } from '@angular/router';
-import { AuthService } from './auth.service';
+import { OidcSecurityService } from 'angular-auth-oidc-client';
 
 @Injectable({
   providedIn: 'root'
 })
 export class AuthGuardService implements CanActivate {
 
-  constructor(private authService: AuthService) { }
+  constructor(private authService: OidcSecurityService) { }
 
-  canActivate(route: ActivatedRouteSnapshot, state: RouterStateSnapshot): boolean {
+  async canActivate(route: ActivatedRouteSnapshot, state: RouterStateSnapshot): Promise<boolean> {
     const url: string = state.url;
 
     return this.checkLogin(url);
@@ -17,11 +17,11 @@ export class AuthGuardService implements CanActivate {
 
   checkLogin(url: string): boolean {
 
-    if (this.authService.authSubject.getValue().isAuthorized) {
-      return true;
-    }
+    this.authService.isAuthenticated().subscribe((rst: boolean) => {
 
-    this.authService.doLogin();
+    });
+
+    this.authService.authorize();
 
     return false;
   }

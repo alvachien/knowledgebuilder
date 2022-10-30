@@ -1,7 +1,7 @@
 import { Component, EventEmitter, ViewChild, OnInit } from '@angular/core';
 import { UntypedFormGroup, UntypedFormControl, AbstractControl, ValidatorFn, ValidationErrors, Validators, } from '@angular/forms';
 import { MatSnackBar } from '@angular/material/snack-bar';
-import { MatHorizontalStepper, } from '@angular/material/stepper';
+import { MatStepper, } from '@angular/material/stepper';
 import { StepperSelectionEvent } from '@angular/cdk/stepper';
 import { jsPDF, jsPDFOptions } from 'jspdf';
 import html2canvas from 'html2canvas';
@@ -24,7 +24,7 @@ export const generateNumber = (endnr: number, bgnnr: number, dcmplace: number): 
 export class PrintableQuizComponent implements OnInit {
   private _eventPDF: EventEmitter<boolean> = new EventEmitter();
 
-  @ViewChild(MatHorizontalStepper, {static: false}) stepper!: MatHorizontalStepper;
+  @ViewChild(MatStepper, {static: false}) stepper!: MatStepper;
   mixOpList: string[] = ['+', '-', 'X', '/'];
   contentFormGroup: UntypedFormGroup;
   quizFormGroup: UntypedFormGroup;

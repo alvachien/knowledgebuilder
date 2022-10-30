@@ -8,7 +8,7 @@ export const environment = {
   version: '0.3.135',
   basehref: '/',
 
-  idServerUrl: 'https://localhost:44353/',
+  idServerUrl: 'https://localhost:44353',
   loginCallbackUrl: 'https://localhost:44367/logincallback.html',
   logoutCallbackUrl: 'https://localhost:44367',
   loginSlientRevewCallbackUrl: 'https://localhost:44367/silentrenewcallback.html',

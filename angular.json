@@ -27,7 +27,8 @@
             "tsConfig": "tsconfig.app.json",
             "allowedCommonJsDependencies": [
               "core-js",
-              "raf"
+              "raf",
+              "moment"
             ],
             "inlineStyleLanguage": "scss",
             "assets": [
