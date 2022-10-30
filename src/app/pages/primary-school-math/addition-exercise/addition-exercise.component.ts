@@ -1,5 +1,5 @@
 import { Component, OnInit, OnDestroy, ViewChild, ElementRef, ChangeDetectorRef } from '@angular/core';
-import { AbstractControl, FormControl, FormGroup, NgForm, ValidationErrors, ValidatorFn } from '@angular/forms';
+import { AbstractControl, UntypedFormControl, UntypedFormGroup, NgForm, ValidationErrors, ValidatorFn } from '@angular/forms';
 import { Validators } from '@angular/forms';
 import { MatDialog } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
@@ -17,17 +17,17 @@ import { QuizFailureDailogComponent } from '../../quiz-failure-dailog';
 })
 export class AdditionExerciseComponent implements OnInit, OnDestroy, CanDeactivateGuard {
   isQuizStarted = false;
-  quizControlFormGroup: FormGroup = new FormGroup({
-    countControl: new FormControl(20, [Validators.required, Validators.min(1), Validators.max(1000)]),
-    failedFactorControl: new FormControl(2, [Validators.min(0), Validators.max(10)]),
-    leftNumberControl: new FormControl(0),
-    rightNumberControl: new FormControl(100),
-    decControl: new FormControl(0, [Validators.min(0), Validators.max(5)]),
+  quizControlFormGroup: UntypedFormGroup = new UntypedFormGroup({
+    countControl: new UntypedFormControl(20, [Validators.required, Validators.min(1), Validators.max(1000)]),
+    failedFactorControl: new UntypedFormControl(2, [Validators.min(0), Validators.max(10)]),
+    leftNumberControl: new UntypedFormControl(0),
+    rightNumberControl: new UntypedFormControl(100),
+    decControl: new UntypedFormControl(0, [Validators.min(0), Validators.max(5)]),
   }, { validators: this.basicValidator });
   QuizItems: AdditionQuizItem[] = [];
   QuizCursor = 0;
-  quizFormGroup: FormGroup = new FormGroup({
-    inputControl: new FormControl(null, Validators.required)
+  quizFormGroup: UntypedFormGroup = new UntypedFormGroup({
+    inputControl: new UntypedFormControl(null, Validators.required)
   });
   itemForm!: ElementRef;
   NextButtonText = 'Common.Next';

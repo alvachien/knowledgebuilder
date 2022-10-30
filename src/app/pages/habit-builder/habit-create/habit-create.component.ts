@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { FormBuilder, FormGroup, Validators, FormControl, AbstractControl, ValidationErrors, ValidatorFn } from '@angular/forms';
+import { UntypedFormBuilder, UntypedFormGroup, Validators, UntypedFormControl, AbstractControl, ValidationErrors, ValidatorFn } from '@angular/forms';
 import moment from 'moment';
 
 import {
@@ -17,7 +17,7 @@ class ContinuedDaysInfo {
   }
 }
 
-export const getHabitFromForm = (form: FormGroup): UserHabit => {
+export const getHabitFromForm = (form: UntypedFormGroup): UserHabit => {
   const habit: UserHabit = new UserHabit();
   habit.category = HabitCategory.Positive;
   habit.targetUser = form.get('targetuserCtrl')?.value;
@@ -87,7 +87,7 @@ export const getHabitFromForm = (form: FormGroup): UserHabit => {
 };
 
 export const habitFormValidator: ValidatorFn = (control: AbstractControl): ValidationErrors | null => {
-  const habit = getHabitFromForm(control as FormGroup);
+  const habit = getHabitFromForm(control as UntypedFormGroup);
 
   return habit.isValid ? null : { invalidInputs: true };
 };
@@ -99,10 +99,10 @@ export const habitFormValidator: ValidatorFn = (control: AbstractControl): Valid
 })
 export class HabitCreateComponent implements OnInit {
   // Step 1: HEADER
-  firstFormGroup: FormGroup;
+  firstFormGroup: UntypedFormGroup;
   arRuleTypes: any[] = [];
   // Step 2: DAYS
-  secondFormGroup: FormGroup;
+  secondFormGroup: UntypedFormGroup;
   contDays: ContinuedDaysInfo[] = [];
   // Step 3: RULES
   arRules: UserHabitRule[] = [];
@@ -115,7 +115,7 @@ export class HabitCreateComponent implements OnInit {
   arCompleteCategories: any[] = [];
   currentObject: UserHabit;
 
-  constructor(private _formBuilder: FormBuilder,
+  constructor(private _formBuilder: UntypedFormBuilder,
     private uiUtilSrv: UIUtilityService,
     private odataSrv: ODataService) {
     this.arCategories = getHabitCategoryNames();
@@ -124,18 +124,18 @@ export class HabitCreateComponent implements OnInit {
 
     this.currentObject = new UserHabit();
     this.firstFormGroup = this._formBuilder.group({
-      targetuserCtrl: new FormControl(''),
-      nameCtrl: new FormControl('', Validators.required),
+      targetuserCtrl: new UntypedFormControl(''),
+      nameCtrl: new UntypedFormControl('', Validators.required),
       // ctgyCtrl: new FormControl(HabitCategory.Positive, Validators.required),
-      validFromCtrl: new FormControl(moment(), Validators.required),
-      validToCtrl: new FormControl(moment(), Validators.required),
-      freqCtrl: new FormControl(HabitFrequency.Weekly, Validators.required),
-      compCtgyCtrl: new FormControl(HabitCompleteCategory.NumberOfTimes, Validators.required),
-      compCondCtrl: new FormControl(),
-      startDateCtrl: new FormControl()
+      validFromCtrl: new UntypedFormControl(moment(), Validators.required),
+      validToCtrl: new UntypedFormControl(moment(), Validators.required),
+      freqCtrl: new UntypedFormControl(HabitFrequency.Weekly, Validators.required),
+      compCtgyCtrl: new UntypedFormControl(HabitCompleteCategory.NumberOfTimes, Validators.required),
+      compCondCtrl: new UntypedFormControl(),
+      startDateCtrl: new UntypedFormControl()
     }, { validators: habitFormValidator });
     this.secondFormGroup = this._formBuilder.group({
-      rawCtrl: new FormControl('', Validators.required)
+      rawCtrl: new UntypedFormControl('', Validators.required)
     });
   }
 

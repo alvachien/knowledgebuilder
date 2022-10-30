@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { ReplaySubject } from 'rxjs';
 import { ActivatedRoute, } from '@angular/router';
-import { FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms';
+import { UntypedFormBuilder, UntypedFormControl, UntypedFormGroup, Validators } from '@angular/forms';
 import { UIMode } from 'actslib';
 import moment from 'moment';
 
@@ -18,19 +18,19 @@ export class HabitRecordDetailComponent implements OnInit {
   uiMode: UIMode = UIMode.Create;
   currentMode: string = 'Common.Display';
   currentObject: UserHabitRecord | null = null;
-  detailFormGroup: FormGroup;
+  detailFormGroup: UntypedFormGroup;
 
-  constructor(private _formBuilder: FormBuilder,
+  constructor(private _formBuilder: UntypedFormBuilder,
     private activateRoute: ActivatedRoute,
     private uiUtilSrv: UIUtilityService,
     private odataSrv: ODataService) {
       this.detailFormGroup = this._formBuilder.group({
-        targetuserCtrl: new FormControl('', Validators.required),
-        habitIDCtrl: new FormControl(-1),
-        dateCtrl: new FormControl(moment(), Validators.required),
-        subIDCtrl: new FormControl(1, Validators.required),
-        compFactCtrl: new FormControl(1, Validators.required),
-        commentCtrl: new FormControl('')
+        targetuserCtrl: new UntypedFormControl('', Validators.required),
+        habitIDCtrl: new UntypedFormControl(-1),
+        dateCtrl: new UntypedFormControl(moment(), Validators.required),
+        subIDCtrl: new UntypedFormControl(1, Validators.required),
+        compFactCtrl: new UntypedFormControl(1, Validators.required),
+        commentCtrl: new UntypedFormControl('')
       });
     }
 

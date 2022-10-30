@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { ReplaySubject } from 'rxjs';
 import { ActivatedRoute, } from '@angular/router';
-import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { UntypedFormBuilder, UntypedFormGroup, Validators } from '@angular/forms';
 import { UIMode } from 'actslib';
 
 import { AwardUserView, getHabitCategoryNames, getHabitCompleteCategoryNames, getHabitFrequencyNames, 
@@ -16,7 +16,7 @@ import { ODataService, UIUtilityService } from 'src/app/services';
 export class HabitDetailComponent implements OnInit {
   private destroyed$?: ReplaySubject<boolean>;
   routerID = -1;
-  detailFormGroup: FormGroup;
+  detailFormGroup: UntypedFormGroup;
   uiMode: UIMode = UIMode.Display;
   currentMode = 'Common.Display';
   arCategories: any[] = [];
@@ -26,7 +26,7 @@ export class HabitDetailComponent implements OnInit {
   displayedColumns: string[] = ['ruleID', 'completedCountRange', 'point'];
 
   constructor(private activateRoute: ActivatedRoute,
-    private _formBuilder: FormBuilder,
+    private _formBuilder: UntypedFormBuilder,
     private uiUtilSrv: UIUtilityService,
     private odataSrv: ODataService) {
     this.arCategories = getHabitCategoryNames();

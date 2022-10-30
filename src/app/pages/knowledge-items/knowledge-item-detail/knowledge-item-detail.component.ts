@@ -1,5 +1,5 @@
 import { Component, OnInit, OnDestroy, ViewChild } from '@angular/core';
-import { FormGroup, FormControl, Validators } from '@angular/forms';
+import { UntypedFormGroup, UntypedFormControl, Validators } from '@angular/forms';
 import { ReplaySubject } from 'rxjs';
 import { ActivatedRoute, } from '@angular/router';
 import { MatDialog } from '@angular/material/dialog';
@@ -25,7 +25,7 @@ export class KnowledgeItemDetailComponent implements OnInit, OnDestroy {
   uiMode: UIMode = UIMode.Create;
   currentMode = '';
   // Generic info
-  public itemFormGroup: FormGroup;
+  public itemFormGroup: UntypedFormGroup;
   editorOptions: MonacoEditorConstructionOptions = {
     theme: 'vs-dark',
     wordWrap: 'on',
@@ -62,16 +62,16 @@ export class KnowledgeItemDetailComponent implements OnInit, OnDestroy {
     private uiUtilSrv: UIUtilityService,
     private odataService: ODataService) {
     this.arKnowledgeCtgies = getKnowledgeItemCategoryNames();
-    this.itemFormGroup = new FormGroup({
-      idControl: new FormControl({
+    this.itemFormGroup = new UntypedFormGroup({
+      idControl: new UntypedFormControl({
         value: null,
         disabled: true
       }),
-      titleControl: new FormControl('', Validators.required),
-      ctgyControl: new FormControl({
+      titleControl: new UntypedFormControl('', Validators.required),
+      ctgyControl: new UntypedFormControl({
         value: KnowledgeItemCategory.Concept,
       }),
-      tagControl: new FormControl(),
+      tagControl: new UntypedFormControl(),
     });
   }
 

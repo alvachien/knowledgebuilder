@@ -10,22 +10,19 @@ import { ImageUploadComponent } from './image-upload.component';
 
 
 @NgModule({
-  declarations: [
-    ImageUploadComponent,
-  ],
-  entryComponents: [
-    ImageUploadComponent,
-  ],
-  imports: [
-    CommonModule,
-    FormsModule,
-    ReactiveFormsModule,
-    MaterialModulesModule,
-    MonacoEditorModule,
-    MarkdownModule.forChild(),
-  ],
-  exports: [
-    ImageUploadComponent,
-  ]
+    declarations: [
+        ImageUploadComponent,
+    ],
+    imports: [
+        CommonModule,
+        FormsModule,
+        ReactiveFormsModule,
+        MaterialModulesModule,
+        MonacoEditorModule,
+        MarkdownModule.forChild(),
+    ],
+    exports: [
+        ImageUploadComponent,
+    ]
 })
 export class ImageUploadModule { }

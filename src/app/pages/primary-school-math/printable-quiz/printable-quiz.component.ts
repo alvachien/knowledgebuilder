@@ -1,5 +1,5 @@
 import { Component, EventEmitter, ViewChild, OnInit } from '@angular/core';
-import { FormGroup, FormControl, AbstractControl, ValidatorFn, ValidationErrors, Validators, } from '@angular/forms';
+import { UntypedFormGroup, UntypedFormControl, AbstractControl, ValidatorFn, ValidationErrors, Validators, } from '@angular/forms';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatHorizontalStepper, } from '@angular/material/stepper';
 import { StepperSelectionEvent } from '@angular/cdk/stepper';
@@ -26,8 +26,8 @@ export class PrintableQuizComponent implements OnInit {
 
   @ViewChild(MatHorizontalStepper, {static: false}) stepper!: MatHorizontalStepper;
   mixOpList: string[] = ['+', '-', 'X', '/'];
-  contentFormGroup: FormGroup;
-  quizFormGroup: FormGroup;
+  contentFormGroup: UntypedFormGroup;
+  quizFormGroup: UntypedFormGroup;
 
   arAddQuizFinal: any[] = [];
   arSubQuizFinal: any[] = [];
@@ -69,24 +69,24 @@ export class PrintableQuizComponent implements OnInit {
   }
 
   constructor(private snackbar: MatSnackBar) {
-    this.contentFormGroup = new FormGroup({
-      amountAddCtrl: new FormControl(),
-      amountSubCtrl: new FormControl(),
-      amountMulCtrl: new FormControl(),
-      amountMixOpCtrl: new FormControl(),
-      amountFractCtrl: new FormControl(),
-      mixOpsCtrl: new FormControl(['+', '-']),
-      randomInputCtrl: new FormControl(true),
-      decimalPlacesCtrl: new FormControl(),
-      numberBeginCtrl: new FormControl(1, [Validators.required]),
-      numberEndCtrl: new FormControl(100, [Validators.required]),
+    this.contentFormGroup = new UntypedFormGroup({
+      amountAddCtrl: new UntypedFormControl(),
+      amountSubCtrl: new UntypedFormControl(),
+      amountMulCtrl: new UntypedFormControl(),
+      amountMixOpCtrl: new UntypedFormControl(),
+      amountFractCtrl: new UntypedFormControl(),
+      mixOpsCtrl: new UntypedFormControl(['+', '-']),
+      randomInputCtrl: new UntypedFormControl(true),
+      decimalPlacesCtrl: new UntypedFormControl(),
+      numberBeginCtrl: new UntypedFormControl(1, [Validators.required]),
+      numberEndCtrl: new UntypedFormControl(100, [Validators.required]),
     }, [this.contentValidator]);
-    this.quizFormGroup = new FormGroup({
-      headerCtrl: new FormControl(),
-      enableScoreCtrl: new FormControl(true),
-      enableDateCtrl: new FormControl(true),
-      fontSizeCtrl: new FormControl(15, [Validators.required]),
-      amountOfCopyCtrl: new FormControl(1, [Validators.required]),
+    this.quizFormGroup = new UntypedFormGroup({
+      headerCtrl: new UntypedFormControl(),
+      enableScoreCtrl: new UntypedFormControl(true),
+      enableDateCtrl: new UntypedFormControl(true),
+      fontSizeCtrl: new UntypedFormControl(15, [Validators.required]),
+      amountOfCopyCtrl: new UntypedFormControl(1, [Validators.required]),
     }, [this.printSettingValidator]);
   }
 

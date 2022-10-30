@@ -1,5 +1,5 @@
 import { Component, OnInit, OnDestroy, ViewChild } from '@angular/core';
-import { FormGroup, FormControl, Validators } from '@angular/forms';
+import { UntypedFormGroup, UntypedFormControl, Validators } from '@angular/forms';
 import { ReplaySubject } from 'rxjs';
 import { ActivatedRoute, } from '@angular/router';
 import { MatDialog } from '@angular/material/dialog';
@@ -30,7 +30,7 @@ export class UserCollectionDetailComponent implements OnInit, OnDestroy {
   userDisplayAs: string | undefined;
 
   // Generic info
-  public itemFormGroup: FormGroup;
+  public itemFormGroup: UntypedFormGroup;
   get isDisplayMode(): boolean {
     return this.uiMode === UIMode.Display;
   }
@@ -48,17 +48,17 @@ export class UserCollectionDetailComponent implements OnInit, OnDestroy {
     private activateRoute: ActivatedRoute,
     private uiUtilSrv: UIUtilityService,
     private odataService: ODataService) {
-      this.itemFormGroup = new FormGroup({
-      idControl: new FormControl({
+      this.itemFormGroup = new UntypedFormGroup({
+      idControl: new UntypedFormControl({
         value: null,
         disabled: true
       }),
-      userControl: new FormControl({
+      userControl: new UntypedFormControl({
         value: this.odataService.currentUser?.getUserId(),
         disabled: true
       }),
-      nameControl: new FormControl(),
-      commentControl: new FormControl(),
+      nameControl: new UntypedFormControl(),
+      commentControl: new UntypedFormControl(),
     });
     this.userDisplayAs = this.odataService.currentUserDetail?.displayAs;
   }

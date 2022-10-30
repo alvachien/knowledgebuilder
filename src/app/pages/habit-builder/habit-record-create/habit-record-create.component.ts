@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms';
+import { UntypedFormBuilder, UntypedFormControl, UntypedFormGroup, Validators } from '@angular/forms';
 import moment from 'moment';
 import { forkJoin } from 'rxjs';
 
@@ -25,16 +25,16 @@ class AvailableHabit {
 })
 export class HabitRecordCreateComponent implements OnInit {
   currentObject: UserHabitRecord | null = null;
-  firstFormGroup: FormGroup;
+  firstFormGroup: UntypedFormGroup;
   arHabits: AvailableHabit[] = [];
   displayedColumns: string[] = ['hid', 'name', 'frequency', 'compCategory', 'compFact'];
 
-  constructor(private _formBuilder: FormBuilder,
+  constructor(private _formBuilder: UntypedFormBuilder,
     private uiUtilSrv: UIUtilityService,
     private odataSrv: ODataService) {
       this.firstFormGroup = this._formBuilder.group({
-        targetuserCtrl: new FormControl('', Validators.required),
-        dateCtrl: new FormControl(moment(), Validators.required),
+        targetuserCtrl: new UntypedFormControl('', Validators.required),
+        dateCtrl: new UntypedFormControl(moment(), Validators.required),
       });
     }
 
