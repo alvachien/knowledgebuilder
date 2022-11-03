@@ -29,9 +29,6 @@ export class TagComponent implements AfterViewInit {
   getTagReferenceTypeName(reftype: TagReferenceType): string {
     return getTagReferenceTypeName(reftype);
   }
-  get isExpertMode(): boolean {
-    return this.odataService.isLoggedin;
-  }
 
   ngAfterViewInit() {
     // If the user changes the sort order, reset back to the first page.

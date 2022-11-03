@@ -15,7 +15,7 @@ import { translocoConfig, TranslocoModule, TRANSLOCO_CONFIG } from '@ngneat/tran
 import { NgxEchartsModule } from 'ngx-echarts';
 import * as echarts from 'echarts';
 
-import { ODataService, QuizService, UIUtilityService, AuthService, AuthGuardService, } from './services';
+import { ODataService, QuizService, UIUtilityService, AuthGuardService, } from './services';
 import { environment } from 'src/environments/environment';
 import { NavItemFilterPipe } from './pipes';
 import { QuizFailureDailogComponent } from './pages/quiz-failure-dailog';
@@ -61,7 +61,6 @@ import { AuthConfigModule } from './auth/auth-config.module';
     ODataService,
     UIUtilityService,
     QuizService,
-    AuthService,
     AuthGuardService,
     {
       provide: TRANSLOCO_CONFIG,

@@ -2,6 +2,7 @@ import { Component, EventEmitter, ViewChild, AfterViewInit } from '@angular/core
 import { MatDialog } from '@angular/material/dialog';
 import { MatPaginator } from '@angular/material/paginator';
 import { MatSort } from '@angular/material/sort';
+import { OidcSecurityService } from 'angular-auth-oidc-client';
 import { merge, Observable, of as observableOf } from 'rxjs';
 import { catchError, map, startWith, switchMap } from 'rxjs/operators';
 
@@ -27,13 +28,14 @@ export class KnowledgeItemsComponent implements AfterViewInit {
 
   constructor(private odataService: ODataService,
     private dialog: MatDialog,
-    private uiUtilSrv: UIUtilityService) {}
+    private uiUtilSrv: UIUtilityService,
+    private authService: OidcSecurityService) {}
 
   getKnowledgeItemCategoryName(ctgy: KnowledgeItemCategory): string {
     return getKnowledgeItemCategoryName(ctgy);
   }
-  get isExpertMode(): boolean {
-    return this.odataService.isLoggedin;
+  get isExpertMode(): Observable<boolean> {
+    return this.authService.isAuthenticated();
   }
 
   ngAfterViewInit() {

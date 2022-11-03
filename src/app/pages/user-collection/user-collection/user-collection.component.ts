@@ -25,10 +25,6 @@ export class UserCollectionComponent implements AfterViewInit {
   constructor(private odataService: ODataService,
     private uiUtilSrv: UIUtilityService) {}
 
-  get isExpertMode(): boolean {
-    return this.odataService.isLoggedin;
-  }
-
   ngAfterViewInit() {
     // If the user changes the sort order, reset back to the first page.
     this.sort.sortChange.subscribe(() => this.paginator.pageIndex = 0);

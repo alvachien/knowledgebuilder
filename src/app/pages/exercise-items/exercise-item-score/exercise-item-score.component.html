@@ -2,7 +2,7 @@
   <span><h1>{{'PracticeHistories' | transloco}}</h1></span>
   <span class="toolbar-spacer"></span>
   <section>
-    <button mat-raised-button [disabled]="!isExpertMode" (click)="onGoToExerciseItems()" matTooltip="{{'ExerciseItem' | transloco}}">{{'ExerciseItem' | transloco}}</button>
+    <button mat-raised-button (click)="onGoToExerciseItems()" matTooltip="{{'ExerciseItem' | transloco}}">{{'ExerciseItem' | transloco}}</button>
   </section>
 </mat-toolbar-row>
 
@@ -64,10 +64,10 @@
 
 <mat-toolbar-row>
   <section>
-    <button mat-icon-button color="accent" (click)="onGoToPreview()" [disabled]="!isExpertMode || dataSource.length <= 0" matTooltip="{{'Common.Preview' | transloco}}">
+    <button mat-icon-button color="accent" (click)="onGoToPreview()" [disabled]="dataSource.length <= 0" matTooltip="{{'Common.Preview' | transloco}}">
       <mat-icon>slideshow</mat-icon>
     </button>
-    <button mat-icon-button color="accent" [disabled]="!isExpertMode" (click)="onRefreshList()" matTooltip="{{'Common.Refresh' | transloco}}">
+    <button mat-icon-button color="accent" (click)="onRefreshList()" matTooltip="{{'Common.Refresh' | transloco}}">
       <mat-icon>refresh</mat-icon>
     </button>
   </section>
@@ -81,7 +81,7 @@
         <th mat-header-cell *matHeaderCellDef>#</th>
         <td mat-cell *matCellDef="let row">
           {{row.ID}}
-          <button mat-icon-button color="warn" [disabled]="!isExpertMode" (click)="onDeleteItem(row.ID)" matTooltip="{{'Common.Delete' | transloco}}">
+          <button mat-icon-button color="warn" (click)="onDeleteItem(row.ID)" matTooltip="{{'Common.Delete' | transloco}}">
             <mat-icon>remove_circle</mat-icon>
           </button>
         </td>
@@ -92,10 +92,10 @@
         <th mat-header-cell *matHeaderCellDef>{{'ExerciseItem' | transloco}}</th>
         <td mat-cell *matCellDef="let row">
           {{row.RefID}}
-          <button mat-icon-button color="primary" [disabled]="!isExpertMode" (click)="onDisplayExerciseItem(row.RefID)" matTooltip="{{'Common.Display' | transloco}}">
+          <button mat-icon-button color="primary" (click)="onDisplayExerciseItem(row.RefID)" matTooltip="{{'Common.Display' | transloco}}">
             <mat-icon>launch</mat-icon>
           </button>
-          <button mat-icon-button color="accent" [disabled]="!isExpertMode" (click)="onChangeExerciseItem(row.RefID)" matTooltip="{{'Common.Change' | transloco}}">
+          <button mat-icon-button color="accent" (click)="onChangeExerciseItem(row.RefID)" matTooltip="{{'Common.Change' | transloco}}">
             <mat-icon>edit</mat-icon>
           </button>
         </td>

@@ -28,7 +28,10 @@
             "allowedCommonJsDependencies": [
               "core-js",
               "raf",
-              "moment"
+              "moment",
+              "flat",
+              "rgbcolor",
+              "html2canvas"
             ],
             "inlineStyleLanguage": "scss",
             "assets": [
@@ -175,6 +178,7 @@
   "cli": {
     "schematicCollections": [
       "@angular-eslint/schematics"
-    ]
+    ],
+    "analytics": false
   }
 }

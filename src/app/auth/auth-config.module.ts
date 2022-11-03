@@ -13,6 +13,7 @@ import { environment } from 'src/environments/environment';
             scope: 'openid profile api.knowledgebuilder', // 'openid profile ' + your scopes
             responseType: 'code',
             silentRenew: true,
+            useRefreshToken: true,
             silentRenewUrl: window.location.origin + '/silent-renew.html',
             renewTimeBeforeTokenExpiresInSeconds: 10,
         }

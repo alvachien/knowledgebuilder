@@ -8,7 +8,7 @@ import { Title } from '@angular/platform-browser';
 import { OidcSecurityService } from 'angular-auth-oidc-client';
 
 import { AppNavItem, AppLanguage, AppNavItemGroupEnum, UserAuthInfo } from './models';
-import { AuthService, ODataService, UIUtilityService } from './services';
+import { ODataService, UIUtilityService } from './services';
 import { environment } from 'src/environments/environment';
 
 @Component({
@@ -25,6 +25,7 @@ export class AppComponent implements OnInit, OnDestroy {
     { displayas: 'Languages.zh', value: 'zh' }
   ];
   public selectedLanguage = 'zh';
+  currentUser = '';
 
   private _mobileQueryListener: () => void;
 
@@ -34,7 +35,6 @@ export class AppComponent implements OnInit, OnDestroy {
     private dateAdapter: DateAdapter<any>,
     public dialog: MatDialog,
     public oDataSrv: ODataService,
-    private authSrv: AuthService,
     private zone: NgZone,
     private uiUtilSrv: UIUtilityService,
     private titleService: Title,
@@ -92,10 +92,17 @@ export class AppComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     this.oidcSecurityService.checkAuth().subscribe(({ isAuthenticated, userData, accessToken, idToken }) => {
-      if (isAuthenticated) {
-        this.oDataSrv.currentUser = userData;
+      if (isAuthenticated) {        
         // Get user detail automatically.
         this.oDataSrv.getUserDetail().subscribe();
+
+        this.oidcSecurityService.getUserData().subscribe(val => {
+          //this.oDataSrv.currentUser = val;
+          this.currentUser = `${val.name}(${val.sub})`;
+        });
+      } else {
+        //this.oDataSrv.currentUser = null;
+        this.currentUser = '';
       }
     });
   }
@@ -126,24 +133,22 @@ export class AppComponent implements OnInit, OnDestroy {
     return environment.version;
   }
 
-  public onUserInfo(): void {
+  public onLogon(): void {
     this.oidcSecurityService.authorize();
-    // if (this.oDataSrv.isLoggedin) {
-    //   this.oDataSrv.getUserDetail().subscribe({
-    //     next: val => {
-    //       const dialogRef = this.dialog.open(CurrentUserDialog, {
-    //         width: '600px',
-    //         closeOnNavigation: false
-    //       });
-    //       dialogRef.afterClosed().subscribe();
-    //     },
-    //     error: err => {
-    //       this.uiUtilSrv.showSnackInfo(err);
-    //     }
-    //   });
-    // } else {
-    //   this.authSrv.doLogin();
-    // }
+  }
+  public onUserInfo(): void {
+    this.oDataSrv.getUserDetail().subscribe({
+      next: val => {
+        const dialogRef = this.dialog.open(CurrentUserDialog, {
+          width: '600px',
+          closeOnNavigation: false
+        });
+        dialogRef.afterClosed().subscribe();
+      },
+      error: err => {
+        this.uiUtilSrv.showSnackInfo(err);
+      }
+    });
   }
 }
 

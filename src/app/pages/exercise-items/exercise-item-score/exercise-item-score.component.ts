@@ -1,6 +1,7 @@
 import { Component, EventEmitter, ViewChild, AfterViewInit, OnInit } from '@angular/core';
 import { MatPaginator } from '@angular/material/paginator';
 import { MatSort } from '@angular/material/sort';
+import { OidcSecurityService } from 'angular-auth-oidc-client';
 import moment from 'moment';
 import { BehaviorSubject, merge, Observable, of as observableOf } from 'rxjs';
 import { catchError, map, startWith, switchMap } from 'rxjs/operators';
@@ -12,7 +13,7 @@ import { ODataService, PreviewObject, UIUtilityService, } from '../../../service
 @Component({
   selector: 'app-exercise-item-score',
   templateUrl: './exercise-item-score.component.html',
-  styleUrls: ['./exercise-item-score.component.scss']
+  styleUrls: ['./exercise-item-score.component.scss'],
 })
 export class ExerciseItemScoreComponent implements OnInit, AfterViewInit {
   public filters: GeneralFilterItem[] = [];
@@ -31,7 +32,7 @@ export class ExerciseItemScoreComponent implements OnInit, AfterViewInit {
   @ViewChild(MatSort) sort!: MatSort;
 
   constructor(private odataService: ODataService,
-    private uiUtilSrv: UIUtilityService,) {
+    private uiUtilSrv: UIUtilityService) {
     this.allOperators = UIDisplayStringUtil.getGeneralFilterOperatorDisplayStrings();
     this.allFields = [{
       displayas: 'Content',
@@ -53,9 +54,6 @@ export class ExerciseItemScoreComponent implements OnInit, AfterViewInit {
     ];
   }
 
-  get isExpertMode(): boolean {
-    return this.odataService.isLoggedin;
-  }
   ngOnInit(): void {
     this.onAddFilter();
   }

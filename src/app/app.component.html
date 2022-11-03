@@ -17,9 +17,10 @@
       </button>
     </mat-menu>
 
-    <button mat-icon-button (click)="onUserInfo()" matTooltip="{{'Common.Logon' | transloco }}">
+    <button mat-icon-button *ngIf="!currentUser" (click)="onLogon()" matTooltip="{{'Common.Logon' | transloco }}">
       <mat-icon>account_box</mat-icon>
     </button>
+    <a mat-button *ngIf="currentUser" (click)="onUserInfo()">{{currentUser}}</a>
 
     <button mat-icon-button (click)="openCodeRepo()">
       <mat-icon aria-hidden="false" aria-label="Code Repo">code</mat-icon>

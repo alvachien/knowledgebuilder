@@ -2,6 +2,7 @@ import { Component, OnInit, ViewChild, AfterViewInit, EventEmitter } from '@angu
 import { MatDialog } from '@angular/material/dialog';
 import { MatPaginator } from '@angular/material/paginator';
 import { MatSort } from '@angular/material/sort';
+import { OidcSecurityService } from 'angular-auth-oidc-client';
 import { merge, Observable, of as observableOf } from 'rxjs';
 import { catchError, finalize, map, startWith, switchMap } from 'rxjs/operators';
 import { TagReferenceType, UserCollectionItem } from 'src/app/models';
@@ -29,13 +30,11 @@ export class ExerciseItemsComponent implements AfterViewInit {
 
   constructor(private odataService: ODataService,
     private dialog: MatDialog,
-    private uiUtilSrv: UIUtilityService) {}
+    private uiUtilSrv: UIUtilityService,
+    private authService: OidcSecurityService) {}
 
   getExerciseItemTypeName(itemtype: ExerciseItemType): string {
     return getExerciseItemTypeName(itemtype);
-  }
-  get isExpertMode(): boolean {
-    return this.odataService.isLoggedin;
   }
 
   ngAfterViewInit() {
@@ -165,14 +164,16 @@ export class ExerciseItemsComponent implements AfterViewInit {
       nscore.Score = result.score;
       nscore.TakenDate = new Date();
       // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-      nscore.User = this.odataService.currentUser!.getUserId();
-      this.odataService.createExerciseItemUserScore(nscore).subscribe({
-        next: val => {
-          this.uiUtilSrv.showSnackInfo('DONE');
-        },
-        error: err => {
-          this.uiUtilSrv.showSnackInfo(err);
-        }
+      this.authService.getUserData().subscribe(ud => {
+        nscore.User = ud.sub;
+        this.odataService.createExerciseItemUserScore(nscore).subscribe({
+          next: val => {
+            this.uiUtilSrv.showSnackInfo('DONE');
+          },
+          error: err => {
+            this.uiUtilSrv.showSnackInfo(err);
+          }
+        });  
       });
     });
   }

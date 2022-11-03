@@ -48,13 +48,13 @@ export class UserCollectionDetailComponent implements OnInit, OnDestroy {
     private activateRoute: ActivatedRoute,
     private uiUtilSrv: UIUtilityService,
     private odataService: ODataService) {
-      this.itemFormGroup = new UntypedFormGroup({
+    this.itemFormGroup = new UntypedFormGroup({
       idControl: new UntypedFormControl({
         value: null,
         disabled: true
       }),
       userControl: new UntypedFormControl({
-        value: this.odataService.currentUser?.getUserId(),
+        value: this.odataService.currentUserDetail?.userID,
         disabled: true
       }),
       nameControl: new UntypedFormControl(),
@@ -113,7 +113,7 @@ export class UserCollectionDetailComponent implements OnInit, OnDestroy {
   onSetHeaderData(val: UserCollection): void {
     this.itemFormGroup.get('idControl')?.setValue(val.ID);
     this.itemFormGroup.get('idControl')?.disable();
-    this.itemFormGroup.get('userControl')?.setValue(this.odataService.currentUser?.getUserId());
+    this.itemFormGroup.get('userControl')?.setValue(this.odataService.currentUserDetail?.userID);
     this.itemFormGroup.get('userControl')?.disable();
     this.itemFormGroup.get('nameControl')?.setValue(val.Name);
     this.itemFormGroup.get('commentControl')?.setValue(val.Comment);
@@ -140,7 +140,7 @@ export class UserCollectionDetailComponent implements OnInit, OnDestroy {
       this.itemObject.Name = this.itemFormGroup.get('nameControl')?.value;
       this.itemObject.Comment = this.itemFormGroup.get('commentControl')?.value;
       // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-      this.itemObject.User = this.odataService.currentUser!.getUserId();
+      this.itemObject.User = this.odataService.currentUserDetail?.userID!;
       this.odataService.createUserCollection(this.itemObject).subscribe({
         next: val => {
           // Display current collection
