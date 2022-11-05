@@ -5,12 +5,11 @@ import { MediaMatcher } from '@angular/cdk/layout';
 import { TranslocoService } from '@ngneat/transloco';
 import { DateAdapter } from '@angular/material/core';
 import { Title } from '@angular/platform-browser';
-import { OidcSecurityService } from 'angular-auth-oidc-client';
-import { PublicEventsService } from 'angular-auth-oidc-client';
 
 import { AppNavItem, AppLanguage, AppNavItemGroupEnum, UserAuthInfo } from './models';
 import { ODataService, UIUtilityService } from './services';
 import { environment } from 'src/environments/environment';
+import { AuthService } from './services/auth.service';
 
 @Component({
   selector: 'app-root',
@@ -26,7 +25,9 @@ export class AppComponent implements OnInit, OnDestroy {
     { displayas: 'Languages.zh', value: 'zh' }
   ];
   public selectedLanguage = 'zh';
-  currentUser = '';
+  get currentUser(): string {
+    return this.authService.currentUserName;
+  }
 
   private _mobileQueryListener: () => void;
 
@@ -39,8 +40,7 @@ export class AppComponent implements OnInit, OnDestroy {
     private zone: NgZone,
     private uiUtilSrv: UIUtilityService,
     private titleService: Title,
-    public oidcSecurityService: OidcSecurityService,
-    private eventService: PublicEventsService,
+    private authService: AuthService,
   ) {
     this.mobileQuery = media.matchMedia('(max-width: 600px)');
     this._mobileQueryListener = () => changeDetectorRef.detectChanges();
@@ -83,21 +83,6 @@ export class AppComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit(): void {
-    this.oidcSecurityService.checkAuth().subscribe(({ isAuthenticated, userData, accessToken, idToken }) => {
-      if (isAuthenticated) {
-        console.log(`Entering authorization callback: ${isAuthenticated}, ${userData}, ${accessToken}, ${idToken}`);
-        // Get user detail automatically.
-        this.oDataSrv.getUserDetail().subscribe();
-
-        this.oidcSecurityService.getUserData().subscribe(val => {
-          //this.oDataSrv.currentUser = val;
-          this.currentUser = `${val.name}(${val.sub})`;
-        });
-      } else {
-        //this.oDataSrv.currentUser = null;
-        this.currentUser = '';
-      }
-    });
   }
 
   switchLanguage(lang: string) {
@@ -127,7 +112,7 @@ export class AppComponent implements OnInit, OnDestroy {
   }
 
   public onLogon(): void {
-    this.oidcSecurityService.authorize();
+    this.authService.logon();
   }
   public onUserInfo(): void {
     this.oDataSrv.getUserDetail().subscribe({
