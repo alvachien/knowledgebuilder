@@ -6,6 +6,7 @@ import { TranslocoService } from '@ngneat/transloco';
 import { DateAdapter } from '@angular/material/core';
 import { Title } from '@angular/platform-browser';
 import { OidcSecurityService } from 'angular-auth-oidc-client';
+import { PublicEventsService } from 'angular-auth-oidc-client';
 
 import { AppNavItem, AppLanguage, AppNavItemGroupEnum, UserAuthInfo } from './models';
 import { ODataService, UIUtilityService } from './services';
@@ -39,6 +40,7 @@ export class AppComponent implements OnInit, OnDestroy {
     private uiUtilSrv: UIUtilityService,
     private titleService: Title,
     public oidcSecurityService: OidcSecurityService,
+    private eventService: PublicEventsService,
   ) {
     this.mobileQuery = media.matchMedia('(max-width: 600px)');
     this._mobileQueryListener = () => changeDetectorRef.detectChanges();
@@ -77,22 +79,13 @@ export class AppComponent implements OnInit, OnDestroy {
       { name: 'Help.Credits', route: '/help/credits', group: AppNavItemGroupEnum.help },
     ];
 
-    // this.authSrv.authContent.subscribe((x: UserAuthInfo) => {
-    //   this.zone.run(() => {
-    //     if (x && x.isAuthorized) {
-    //       this.oDataSrv.currentUser = x;
-    //       // Get user detail automatically.
-    //       this.oDataSrv.getUserDetail().subscribe();
-    //     }
-    //   });
-    // });
-
     this.titleService.setTitle('Knowledge & Habit Builder');
   }
 
   ngOnInit(): void {
     this.oidcSecurityService.checkAuth().subscribe(({ isAuthenticated, userData, accessToken, idToken }) => {
-      if (isAuthenticated) {        
+      if (isAuthenticated) {
+        console.log(`Entering authorization callback: ${isAuthenticated}, ${userData}, ${accessToken}, ${idToken}`);
         // Get user detail automatically.
         this.oDataSrv.getUserDetail().subscribe();
 

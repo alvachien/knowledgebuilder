@@ -9,12 +9,14 @@ import { environment } from 'src/environments/environment';
             authority: environment.idServerUrl,
             redirectUrl: window.location.origin,
             postLogoutRedirectUri: window.location.origin,
+
             clientId: 'knowledgebuilder.js',
-            scope: 'openid profile api.knowledgebuilder', // 'openid profile ' + your scopes
+            scope: 'openid profile api.knowledgebuilder offline_access', // 'openid profile ' + your scopes
             responseType: 'code',
+
             silentRenew: true,
             useRefreshToken: true,
-            silentRenewUrl: window.location.origin + '/silent-renew.html',
+            // silentRenewUrl: window.location.origin + '/silent-renew.html',
             renewTimeBeforeTokenExpiresInSeconds: 10,
         }
       })],

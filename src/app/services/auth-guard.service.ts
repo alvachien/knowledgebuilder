@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { ActivatedRouteSnapshot, CanActivate, RouterStateSnapshot } from '@angular/router';
+import { ActivatedRouteSnapshot, CanActivate, Router, RouterStateSnapshot, UrlTree } from '@angular/router';
 import { OidcSecurityService } from 'angular-auth-oidc-client';
 import { firstValueFrom, map, Observable } from 'rxjs';
 
@@ -8,20 +8,33 @@ import { firstValueFrom, map, Observable } from 'rxjs';
 })
 export class AuthGuardService implements CanActivate {
 
-  constructor(private authService: OidcSecurityService) { }
+  constructor(private authService: OidcSecurityService, private router: Router) { }
 
-  canActivate(route: ActivatedRouteSnapshot, state: RouterStateSnapshot): Promise<boolean> {
-    const url: string = state.url;
+  // canActivate(route: ActivatedRouteSnapshot, state: RouterStateSnapshot): Promise<boolean> {
+  //   const url: string = state.url;
 
-    return firstValueFrom(this.checkLogin(url));
-  }
+  //   return firstValueFrom(this.checkLogin(url));
+  // }
 
-  checkLogin(url: string): Observable<boolean> {
-    return this.authService.isAuthenticated().pipe(map((rst: boolean) => {
-      if (!rst) {
-        this.authService.authorize();
-      }
-      return true;
-    }));
-  }
+  // checkLogin(url: string): Observable<boolean> {
+  //   return this.authService.isAuthenticated().pipe(map((rst: boolean) => {
+  //     if (!rst) {
+  //       this.authService.authorize();
+  //     }
+  //     return true;
+  //   }));
+  // }
+  canActivate(route: ActivatedRouteSnapshot, state: RouterStateSnapshot): Observable<boolean | UrlTree> {
+    return this.authService.isAuthenticated$.pipe(
+      map(({ isAuthenticated }) => {
+        // allow navigation if authenticated
+        if (isAuthenticated) {
+          return true;
+        }
+
+        // redirect if not authenticated
+        return this.router.parseUrl('/unauthorized');
+      })
+    );
+  }  
 }

@@ -49,6 +49,8 @@ const routes: Routes = [
     path: 'preview',
     loadChildren: () => import('./pages/preview/preview.module').then(m => m.PreviewModule),
   },
+  { path: 'unauthorized', loadChildren: () => import('./pages/unauthorized/unauthorized.module').then(m => m.UnauthorizedModule) },
+
   {
     path: '**',
     loadChildren: () => import('./pages/not-found/not-found.module').then(m => m.NotFoundModule),
