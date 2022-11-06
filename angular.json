@@ -37,14 +37,12 @@
             "assets": [
               "src/favicon.ico",
               "src/assets",
-              "src/logincallback.html",
               "src/.htaccess",
               {
                 "glob": "**/*",
                 "input": "node_modules/monaco-editor/min/",
                 "output": "assets/monaco-editor/min/"
-              },
-              "src/silent-renew.html"
+              }
             ],
             "styles": [
               "./node_modules/@angular/material/prebuilt-themes/deeppurple-amber.css",
@@ -68,6 +66,11 @@
               ],
               "baseHref": "/math/",
               "outputHashing": "all",
+              "optimization": {
+                "scripts": true,
+                "styles": true,
+                "fonts": false
+              },              
               "budgets": [
                 {
                   "type": "initial",
