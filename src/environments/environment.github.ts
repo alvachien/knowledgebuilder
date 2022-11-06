@@ -5,9 +5,7 @@ export const environment = {
   basehref: '/knowledgebuilder/',
 
   idServerUrl: '',
-  loginCallbackUrl: '',
-  logoutCallbackUrl: '',
-  loginSlientRevewCallbackUrl: '',
+  AppHost: '',
   homePageUrl: 'https://alvachien.github.io',
 
   apiurlRoot: ''

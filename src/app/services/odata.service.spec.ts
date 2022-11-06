@@ -13,7 +13,6 @@ describe('ODataService', () => {
   let httpTestingController: HttpTestingController;
 
   beforeAll(() => {
-    fakeData.buildCurrentUser();
     fakeData.buildCurrentUserDetail();
     fakeData.buildKnowledgeItems();
   });
@@ -32,11 +31,6 @@ describe('ODataService', () => {
 
   it('should be created', () => {
     expect(service).toBeTruthy();
-  });
-
-  it('isLoggedin shall work', () => {
-    let islogin = service.isLoggedin;
-    expect(islogin).toBeFalsy();
   });
 
   describe('getMetadata', () => {
@@ -138,119 +132,6 @@ describe('ODataService', () => {
     });
   });
 
-  describe('getUserDetail', () => {
-    let callurl = `${environment.apiurlRoot}/InvitedUsers`;
-
-    afterEach(() => {
-      // After every test, assert that there are no more pending requests.
-      httpTestingController.verify();
-    });
-
-    it('should return error if no login', () => {
-      service.currentUser = null;
-      service.getUserDetail().subscribe({
-        next: val => {
-          expect(val).toBeFalsy();
-        },
-        error: err => {
-          expect(err).toBeTruthy();
-        }
-      });
-    });
-
-    describe('After user login', () => {      
-      beforeEach(() => {
-        service.currentUser = fakeData.currentUser;
-      });
-
-      it('should return expected user detail (called once)', () => {
-        service.getUserDetail().subscribe({
-          next: val => {
-            expect(val).toBeTruthy();
-          },
-          error: err => {
-            expect(err).toBeFalsy();
-          }
-        });
-
-        // Service should have made one request to GET data from expected URL
-        const req: any = httpTestingController.expectOne((requrl: any) => {
-          return requrl.method === 'GET'
-            && requrl.url === callurl;
-        });
-
-        // Respond with the mock data
-        req.flush({
-          '@odata.count': 1,
-          value: [fakeData.currentUserDetail],
-        });
-      });
-
-      it('should return error in case error appear', () => {
-        const msg = 'Deliberate 404';
-        service.getUserDetail().subscribe({
-          next: val => {
-            expect(val).toBeTruthy();
-          },
-          error: err => {
-            expect(err).toContain(msg);
-          }
-        });
-
-        const req: any = httpTestingController.expectOne((requrl: any) => {
-          return requrl.method === 'GET'
-            && requrl.url === callurl;
-        });
-
-        // respond with a 404 and the error message in the body
-        req.flush(msg, { status: 404, statusText: 'Not Found' });
-      });
-
-      it('should return expected user detail (called multiple times)', () => {
-        // First call
-        service.getUserDetail().subscribe({
-          next: val => {},
-          error: err => {}
-        });
-
-        // Service should have made one request to GET data from expected URL
-        const req: any = httpTestingController.expectOne((requrl: any) => {
-          return requrl.method === 'GET'
-            && requrl.url === callurl;
-        });
-
-        // Respond with the mock currencies
-        req.flush({
-          '@odata.count': 1,
-          value: [fakeData.currentUserDetail],
-        });
-        httpTestingController.verify();
-
-        // Second call
-        service.getUserDetail().subscribe({
-          next: val => {},
-          error: err => {}
-        });
-        let requests = httpTestingController.match((requrl: any) => {
-          return requrl.method === 'GET'
-            && requrl.url === callurl;
-        });
-        expect(requests.length).toEqual(0);
-
-        // Third call
-        service.getUserDetail().subscribe({
-          next: val => {},
-          error: err => {}
-        });
-        requests = httpTestingController.match((requrl: any) => {
-          return requrl.method === 'GET'
-            && requrl.url === callurl;
-        });
-        expect(requests.length).toEqual(0);
-      });
-    });
-  });
-
   describe('getKnowledgeItems', () => {
     let callurl = `${environment.apiurlRoot}/KnowledgeItems`;
 
@@ -260,7 +141,6 @@ describe('ODataService', () => {
     });
 
     it('should return error if no login', () => {
-      service.currentUser = null;
       service.getKnowledgeItems().subscribe({
         next: (val: {totalCount: number, items: KnowledgeItem[]}) => {
           expect(val).toBeTruthy();
@@ -275,7 +155,6 @@ describe('ODataService', () => {
 
     describe('After user login', () => {      
       beforeEach(() => {
-        service.currentUser = fakeData.currentUser;
       });
 
       it('should return expected items', () => {
@@ -366,7 +245,6 @@ describe('ODataService', () => {
     });
 
     it('should return error if no login', () => {
-      service.currentUser = null;
       service.readKnowledgeItem(1).subscribe({
         next: (val: KnowledgeItem) => {
           expect(val).toBeFalsy();
@@ -388,7 +266,6 @@ describe('ODataService', () => {
     });
 
     it('should return error if no login', () => {
-      service.currentUser = null;
       service.getExerciseItems().subscribe({
         next: (val: {totalCount: number, items: ExerciseItem[]}) => {
           expect(val).toBeTruthy();
@@ -403,7 +280,6 @@ describe('ODataService', () => {
 
     describe('After user login', () => {      
       beforeEach(() => {
-        service.currentUser = fakeData.currentUser;
       });
 
       it('should return expected items', () => {
@@ -493,7 +369,6 @@ describe('ODataService', () => {
     });
 
     it('should return error if no login', () => {
-      service.currentUser = null;
       service.getUserCollections().subscribe({
         next: (val: {totalCount: number, items: UserCollection[]}) => {
           expect(val).toBeTruthy();
@@ -508,7 +383,6 @@ describe('ODataService', () => {
 
     describe('After user login', () => {      
       beforeEach(() => {
-        service.currentUser = fakeData.currentUser;
       });
 
       it('should return expected data', () => {
@@ -599,7 +473,6 @@ describe('ODataService', () => {
     });
 
     it('should return error if no login', () => {
-      service.currentUser = null;
       service.getUserHabits().subscribe({
         next: (val: {totalCount: number, items: UserHabit[]}) => {
           expect(val).toBeTruthy();
@@ -614,7 +487,6 @@ describe('ODataService', () => {
 
     describe('After user login', () => {      
       beforeEach(() => {
-        service.currentUser = fakeData.currentUser;
       });
 
       it('should return expected data', () => {
