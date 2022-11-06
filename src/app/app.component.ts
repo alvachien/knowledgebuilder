@@ -114,19 +114,17 @@ export class AppComponent implements OnInit, OnDestroy {
   public onLogon(): void {
     this.authService.logon();
   }
+  public onLogout(): void {
+    this.authService.logout();
+  }
   public onUserInfo(): void {
-    this.oDataSrv.getUserDetail().subscribe({
-      next: val => {
-        const dialogRef = this.dialog.open(CurrentUserDialog, {
-          width: '600px',
-          closeOnNavigation: false
-        });
-        dialogRef.afterClosed().subscribe();
-      },
-      error: err => {
-        this.uiUtilSrv.showSnackInfo(err);
-      }
-    });
+    if (this.authService.userDetail) {
+      const dialogRef = this.dialog.open(CurrentUserDialog, {
+        width: '600px',
+        closeOnNavigation: false
+      });
+      dialogRef.afterClosed().subscribe();
+    }
   }
 }
 
@@ -140,5 +138,5 @@ export class CurrentUserDialog {
   displayedColumns: any[] = ['userid', 'username', 'displayas'];
 
   constructor(public dialogRef: MatDialogRef<CurrentUserDialog>,
-    public oDataSrv: ODataService) {}
+    public authSrv: AuthService) {}  
 }

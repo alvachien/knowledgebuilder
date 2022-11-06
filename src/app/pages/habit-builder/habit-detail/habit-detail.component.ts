@@ -6,7 +6,7 @@ import { UIMode } from 'actslib';
 
 import { AwardUserView, getHabitCategoryNames, getHabitCompleteCategoryNames, getHabitFrequencyNames, 
   HabitCategory, HabitCompleteCategory, HabitFrequency, UserHabit, UserHabitRule, } from 'src/app/models';
-import { ODataService, UIUtilityService } from 'src/app/services';
+import { AuthService, ODataService, UIUtilityService } from 'src/app/services';
 
 @Component({
   selector: 'app-habit-detail',
@@ -28,6 +28,7 @@ export class HabitDetailComponent implements OnInit {
   constructor(private activateRoute: ActivatedRoute,
     private _formBuilder: UntypedFormBuilder,
     private uiUtilSrv: UIUtilityService,
+    private authService: AuthService,
     private odataSrv: ODataService) {
     this.arCategories = getHabitCategoryNames();
     this.arFrequencies = getHabitFrequencyNames();
@@ -47,16 +48,16 @@ export class HabitDetailComponent implements OnInit {
   }
 
   get arTargetUsers(): AwardUserView[] {
-    if (this.odataSrv.currentUserDetail) {
-      return this.odataSrv.currentUserDetail.awardUsers;
+    if (this.authService.userDetail) {
+      return this.authService.userDetail.awardUsers;
     }
     return [];
   }
   public getUserDisplayAs(usrId: string): string {
-    if (usrId && this.odataSrv.currentUserDetail) {
-      const idx = this.odataSrv.currentUserDetail.awardUsers.findIndex(val => val.targetUser === usrId);
+    if (usrId && this.authService.userDetail) {
+      const idx = this.authService.userDetail.awardUsers.findIndex(val => val.targetUser === usrId);
       if (idx !== -1) {
-        return this.odataSrv.currentUserDetail.awardUsers[idx].displayAs;
+        return this.authService.userDetail.awardUsers[idx].displayAs;
       }
     }
     return '';

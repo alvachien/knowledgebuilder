@@ -7,6 +7,7 @@ import { MatDialog } from '@angular/material/dialog';
 import { UIMode } from 'actslib';
 import { TagReferenceType, UserCollection, UserCollectionItem, getTagReferenceTypeName } from 'src/app/models';
 import { ODataService, UIUtilityService, } from 'src/app/services';
+import { AuthService } from 'src/app/services/auth.service';
 
 @Component({
   selector: 'app-user-collection-detail',
@@ -47,6 +48,7 @@ export class UserCollectionDetailComponent implements OnInit, OnDestroy {
   constructor(public dialog: MatDialog,
     private activateRoute: ActivatedRoute,
     private uiUtilSrv: UIUtilityService,
+    private authService: AuthService,
     private odataService: ODataService) {
     this.itemFormGroup = new UntypedFormGroup({
       idControl: new UntypedFormControl({
@@ -54,13 +56,13 @@ export class UserCollectionDetailComponent implements OnInit, OnDestroy {
         disabled: true
       }),
       userControl: new UntypedFormControl({
-        value: this.odataService.currentUserDetail?.userID,
+        value: this.authService.userDetail?.userID,
         disabled: true
       }),
       nameControl: new UntypedFormControl(),
       commentControl: new UntypedFormControl(),
     });
-    this.userDisplayAs = this.odataService.currentUserDetail?.displayAs;
+    this.userDisplayAs = this.authService.userDetail?.displayAs;
   }
 
   ngOnInit(): void {
@@ -113,7 +115,7 @@ export class UserCollectionDetailComponent implements OnInit, OnDestroy {
   onSetHeaderData(val: UserCollection): void {
     this.itemFormGroup.get('idControl')?.setValue(val.ID);
     this.itemFormGroup.get('idControl')?.disable();
-    this.itemFormGroup.get('userControl')?.setValue(this.odataService.currentUserDetail?.userID);
+    this.itemFormGroup.get('userControl')?.setValue(this.authService.userDetail?.userID);
     this.itemFormGroup.get('userControl')?.disable();
     this.itemFormGroup.get('nameControl')?.setValue(val.Name);
     this.itemFormGroup.get('commentControl')?.setValue(val.Comment);
@@ -140,7 +142,7 @@ export class UserCollectionDetailComponent implements OnInit, OnDestroy {
       this.itemObject.Name = this.itemFormGroup.get('nameControl')?.value;
       this.itemObject.Comment = this.itemFormGroup.get('commentControl')?.value;
       // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-      this.itemObject.User = this.odataService.currentUserDetail?.userID!;
+      this.itemObject.User = this.authService.userDetail?.userID!;
       this.odataService.createUserCollection(this.itemObject).subscribe({
         next: val => {
           // Display current collection

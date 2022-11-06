@@ -6,7 +6,7 @@ import { forkJoin } from 'rxjs';
 import { UserHabitPointsByUserDate, UserHabitPointsByUserHabitDate, UserHabitPoint, 
   UserHabitPointReport, UserHabit, momentDateFormat, AwardUserView, UserHabitRecordView,
 } from 'src/app/models';
-import { ODataService, UIUtilityService } from 'src/app/services';
+import { AuthService, ODataService, UIUtilityService } from 'src/app/services';
 
 @Component({
   selector: 'app-habit-points-list',
@@ -26,19 +26,20 @@ export class HabitPointsListComponent implements OnInit {
 
   constructor(private odataSrv: ODataService,
     public dialog: MatDialog,
+    public authService: AuthService,
     public uiUtilSrv: UIUtilityService) { }
 
   get arTargetUsers(): AwardUserView[] {
-    if (this.odataSrv.currentUserDetail) {
-      return this.odataSrv.currentUserDetail.awardUsers;
+    if (this.authService.userDetail) {
+      return this.authService.userDetail.awardUsers;
     }
     return [];
   }
   public getUserDisplayAs(usrId: string): string {
-    if (usrId && this.odataSrv.currentUserDetail) {
-      const idx = this.odataSrv.currentUserDetail.awardUsers.findIndex(val => val.targetUser === usrId);
+    if (usrId && this.authService.userDetail) {
+      const idx = this.authService.userDetail.awardUsers.findIndex(val => val.targetUser === usrId);
       if (idx !== -1) {
-        return this.odataSrv.currentUserDetail.awardUsers[idx].displayAs;
+        return this.authService.userDetail.awardUsers[idx].displayAs;
       }
     }
     return '';
@@ -262,6 +263,7 @@ export class HabitPointCreateDialog {
 
   constructor(public dialogRef: MatDialogRef<HabitPointCreateDialog>,
     public oDataSrv: ODataService,
+    public authService: AuthService,
     @Inject(MAT_DIALOG_DATA) public data: UserHabitPoint) {}
 
   onNoClick(): void {

@@ -7,6 +7,7 @@ import { catchError, finalize, map, startWith, switchMap } from 'rxjs/operators'
 
 import { UserHabit, UserHabitRecordView } from 'src/app/models';
 import { ODataService, UIUtilityService } from 'src/app/services';
+import { AuthService } from 'src/app/services/auth.service';
 
 @Component({
   selector: 'app-habit-record-list',
@@ -25,13 +26,14 @@ export class HabitRecordListComponent implements OnInit, AfterViewInit {
 
   constructor(private odataSrv: ODataService,
     public dialog: MatDialog,
+    public authService: AuthService,
     public uiUtilSrv: UIUtilityService) { }
 
   public getUserDisplayAs(usrId: string): string {
-    if (usrId && this.odataSrv.currentUserDetail) {
-      const idx = this.odataSrv.currentUserDetail.awardUsers.findIndex(val => val.targetUser === usrId);
+    if (usrId && this.authService.userDetail) {
+      const idx = this.authService.userDetail.awardUsers.findIndex(val => val.targetUser === usrId);
       if (idx !== -1) {
-        return this.odataSrv.currentUserDetail.awardUsers[idx].displayAs;
+        return this.authService.userDetail.awardUsers[idx].displayAs;
       }
     }
     return '';

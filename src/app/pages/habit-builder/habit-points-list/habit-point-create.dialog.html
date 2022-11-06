@@ -5,7 +5,7 @@
         <mat-form-field class="control-full-width" appearance="fill">
             <mat-label>{{'Award.TargetUser' | transloco}}</mat-label>
             <mat-select [(ngModel)]="data.targetUser" name="targetuser">
-                <mat-option *ngFor="let usr of oDataSrv.currentUserDetail?.awardUsers" [value]="usr.targetUser">
+                <mat-option *ngFor="let usr of authService.userDetail?.awardUsers" [value]="usr.targetUser">
                     {{usr.displayAs}}
                 </mat-option>
             </mat-select>

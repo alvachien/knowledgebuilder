@@ -17,7 +17,7 @@ import { environment } from 'src/environments/environment';
             silentRenew: true,
             useRefreshToken: true,
             // silentRenewUrl: window.location.origin + '/silent-renew.html',
-            renewTimeBeforeTokenExpiresInSeconds: 10,
+            renewTimeBeforeTokenExpiresInSeconds: 30,
         }
       })],
     exports: [AuthModule],

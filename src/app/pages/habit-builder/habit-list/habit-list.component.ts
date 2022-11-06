@@ -8,7 +8,7 @@ import { catchError, finalize, map, startWith, switchMap } from 'rxjs/operators'
 
 import { UserHabit, getHabitCategoryName, HabitCategory, getHabitCompleteCategoryName,
   getHabitFrequencyName, HabitCompleteCategory, HabitFrequency, momentDateFormat,  } from 'src/app/models';
-import { ODataService, UIUtilityService } from 'src/app/services';
+import { AuthService, ODataService, UIUtilityService } from 'src/app/services';
 
 @Component({
   selector: 'app-habit-list',
@@ -28,6 +28,7 @@ export class HabitListComponent implements OnInit, AfterViewInit {
 
   constructor(private odataSrv: ODataService,
     public dialog: MatDialog,
+    public authService: AuthService,
     public uiUtilSrv: UIUtilityService) { }
 
   ngOnInit(): void {
@@ -72,10 +73,10 @@ export class HabitListComponent implements OnInit, AfterViewInit {
     return getHabitFrequencyName(frq);
   }
   public getUserDisplayAs(usrId: string): string {
-    if (usrId && this.odataSrv.currentUserDetail) {
-      const idx = this.odataSrv.currentUserDetail.awardUsers.findIndex(val => val.targetUser === usrId);
+    if (usrId && this.authService.userDetail) {
+      const idx = this.authService.userDetail.awardUsers.findIndex(val => val.targetUser === usrId);
       if (idx !== -1) {
-        return this.odataSrv.currentUserDetail.awardUsers[idx].displayAs;
+        return this.authService.userDetail.awardUsers[idx].displayAs;
       }
     }
     return '';
