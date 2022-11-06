@@ -1,15 +1,10 @@
-import { User } from 'oidc-client';
-import * as moment from 'moment';
-
-import { ExerciseItem, ExerciseItemType, InvitedUser, KnowledgeItem, KnowledgeItemCategory,
-    UserAuthInfo } from 'src/app/models';
+import { ExerciseItem, ExerciseItemType, InvitedUser, KnowledgeItem, KnowledgeItemCategory, } from 'src/app/models';
 
 export class FakeData {
     readonly userID1: string = 'abcdefg';
     readonly userID1Sub: string = '12345abcdefg';
     readonly userID1Name: string = 'Tester';
 
-    private currUser: UserAuthInfo | null = null;
     private currUserDetail: InvitedUser | null = null;
 
     private listKnowledgeItems: KnowledgeItem[] = [];
@@ -19,9 +14,6 @@ export class FakeData {
         // Empty
     }
 
-    get currentUser(): UserAuthInfo | null {
-        return this.currUser;
-    }
     get currentUserDetail(): InvitedUser | null {
         return this.currUserDetail;
     }
@@ -33,21 +25,6 @@ export class FakeData {
         return this.listExerciseItems;
     }
 
-    public buildCurrentUser(): void {
-        if (this.currUser === null) {
-            this.currUser = new UserAuthInfo();
-            const usr: any = {
-                profile: {
-                    name: this.userID1,
-                    sub: this.userID1Sub,
-                    mail: 'usr@usr.com',
-                    access_token: 'access_token',
-                },
-            };
-    
-            this.currUser.setContent(usr as User);    
-        }
-    }
     public buildCurrentUserDetail(): void {
         if (this.currUserDetail === null) {
             this.currUserDetail = new InvitedUser();

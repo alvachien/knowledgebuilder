@@ -6,7 +6,7 @@ import { TranslocoService } from '@ngneat/transloco';
 import { DateAdapter } from '@angular/material/core';
 import { Title } from '@angular/platform-browser';
 
-import { AppNavItem, AppLanguage, AppNavItemGroupEnum, UserAuthInfo } from './models';
+import { AppNavItem, AppLanguage, AppNavItemGroupEnum, } from './models';
 import { ODataService, UIUtilityService } from './services';
 import { environment } from 'src/environments/environment';
 import { AuthService } from './services/auth.service';

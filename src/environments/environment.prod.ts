@@ -1,6 +1,6 @@
 export const environment = {
   production: true,
-  version: '0.3.140',
+  version: '0.3.142',
   mockdata: false,
   basehref: '/math/',
 

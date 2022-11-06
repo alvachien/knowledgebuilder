@@ -43,6 +43,7 @@
         "ID": "ID",
         "DisplayAs": "昵称",
         "Logon": "登录",
+        "Logout": "登出",
         "Done": "完成"
     },
     "Type": "类别",

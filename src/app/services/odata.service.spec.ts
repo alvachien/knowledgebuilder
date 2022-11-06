@@ -4,7 +4,7 @@ import { RouterTestingModule } from '@angular/router/testing';
 
 import { ODataService } from './odata.service';
 import { environment } from 'src/environments/environment';
-import { ExerciseItem, KnowledgeItem, UserAuthInfo, UserCollection, UserHabit } from '../models';
+import { ExerciseItem, KnowledgeItem, UserCollection, UserHabit } from '../models';
 import { FakeData } from 'src/testing';
 
 describe('ODataService', () => {
