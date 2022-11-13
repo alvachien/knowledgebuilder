@@ -2,13 +2,12 @@ import { Component, OnInit, ViewChild, AfterViewInit, EventEmitter } from '@angu
 import { MatDialog } from '@angular/material/dialog';
 import { MatPaginator } from '@angular/material/paginator';
 import { MatSort } from '@angular/material/sort';
-import { OidcSecurityService } from 'angular-auth-oidc-client';
 import { merge, Observable, of as observableOf } from 'rxjs';
 import { catchError, finalize, map, startWith, switchMap } from 'rxjs/operators';
 import { TagReferenceType, UserCollectionItem } from 'src/app/models';
 
 import { ExerciseItem, ExerciseItemType, ExerciseItemUserScore, getExerciseItemTypeName, } from '../../models/exercise-item';
-import { ODataService, PreviewObject, UIUtilityService, } from '../../services';
+import { AuthService, ODataService, PreviewObject, UIUtilityService, } from '../../services';
 import { ExerciseItemAddToCollDialog } from './exercise-items-add-coll-dlg.component';
 import { ExerciseItemNewPracticeDialog } from './exercise-items-newpractice-dlg.component';
 
@@ -31,7 +30,7 @@ export class ExerciseItemsComponent implements AfterViewInit {
   constructor(private odataService: ODataService,
     private dialog: MatDialog,
     private uiUtilSrv: UIUtilityService,
-    private authService: OidcSecurityService) {}
+    private authService: AuthService) {}
 
   getExerciseItemTypeName(itemtype: ExerciseItemType): string {
     return getExerciseItemTypeName(itemtype);
@@ -164,17 +163,15 @@ export class ExerciseItemsComponent implements AfterViewInit {
       nscore.Score = result.score;
       nscore.TakenDate = new Date();
       // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-      this.authService.getUserData().subscribe(ud => {
-        nscore.User = ud.sub;
-        this.odataService.createExerciseItemUserScore(nscore).subscribe({
-          next: val => {
-            this.uiUtilSrv.showSnackInfo('DONE');
-          },
-          error: err => {
-            this.uiUtilSrv.showSnackInfo(err);
-          }
-        });  
-      });
+      nscore.User = this.authService.currentUserId;
+      this.odataService.createExerciseItemUserScore(nscore).subscribe({
+        next: val => {
+          this.uiUtilSrv.showSnackInfo('DONE');
+        },
+        error: err => {
+          this.uiUtilSrv.showSnackInfo(err);
+        }
+      });  
     });
   }
 }

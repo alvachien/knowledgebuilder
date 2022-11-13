@@ -1,4 +1,4 @@
-import { TestBed } from '@angular/core/testing';
+import { TestBed, waitForAsync } from '@angular/core/testing';
 import { HttpClientTestingModule, HttpTestingController } from '@angular/common/http/testing';
 import { RouterTestingModule } from '@angular/router/testing';
 
@@ -12,35 +12,35 @@ describe('ODataService', () => {
   let fakeData: FakeData = new FakeData();
   let service: ODataService;
   let httpTestingController: HttpTestingController;
-  let userDetail: InvitedUser;
+  let userDetail = new InvitedUser();
+  let isSignedin = true;
+  let authStub: Partial<AuthService> = {
+    userDetail: userDetail,
+    isAuthenticated: isSignedin,
+  };
 
   beforeAll(() => {
     fakeData.buildCurrentUserDetail();
     fakeData.buildKnowledgeItems();
-  });
 
-  beforeEach(() => {
-    userDetail = new InvitedUser();
     userDetail.displayAs = 'test';
     userDetail.awardUsers = [];
-    const authStub: Partial<AuthService> = {
-      userDetail: userDetail,
-      isAuthenticated: true,
-    };
+  });
 
+  beforeEach(waitForAsync(() => {
     TestBed.configureTestingModule({
       imports: [
         RouterTestingModule,
         HttpClientTestingModule,
       ],
       providers: [
-        { provide: AuthService, useValue: authStub}
+        { provide: AuthService, useValue: authStub }
       ]
     });
 
     httpTestingController = TestBed.inject(HttpTestingController);
     service = TestBed.inject(ODataService);
-  });
+  }));
 
   it('should be created', () => {
     expect(service).toBeTruthy();
@@ -154,6 +154,7 @@ describe('ODataService', () => {
     });
 
     it('should return error if no login', () => {
+      isSignedin = false;
       service.getKnowledgeItems().subscribe({
         next: (val: {totalCount: number, items: KnowledgeItem[]}) => {
           expect(val).toBeTruthy();
@@ -168,6 +169,7 @@ describe('ODataService', () => {
 
     describe('After user login', () => {      
       beforeEach(() => {
+        isSignedin = true;
       });
 
       it('should return expected items', () => {
@@ -258,6 +260,7 @@ describe('ODataService', () => {
     });
 
     it('should return error if no login', () => {
+      isSignedin = false;
       service.readKnowledgeItem(1).subscribe({
         next: (val: KnowledgeItem) => {
           expect(val).toBeFalsy();
@@ -274,6 +277,8 @@ describe('ODataService', () => {
     let callurl = `${environment.apiurlRoot}/ExerciseItems`;
 
     afterEach(() => {
+      isSignedin = true;
+
       // After every test, assert that there are no more pending requests.
       httpTestingController.verify();
     });
@@ -382,6 +387,7 @@ describe('ODataService', () => {
     });
 
     it('should return error if no login', () => {
+      isSignedin = false;
       service.getUserCollections().subscribe({
         next: (val: {totalCount: number, items: UserCollection[]}) => {
           expect(val).toBeTruthy();
@@ -396,6 +402,7 @@ describe('ODataService', () => {
 
     describe('After user login', () => {      
       beforeEach(() => {
+        isSignedin = true;
       });
 
       it('should return expected data', () => {
@@ -486,6 +493,7 @@ describe('ODataService', () => {
     });
 
     it('should return error if no login', () => {
+      isSignedin = false;
       service.getUserHabits().subscribe({
         next: (val: {totalCount: number, items: UserHabit[]}) => {
           expect(val).toBeTruthy();
@@ -500,6 +508,7 @@ describe('ODataService', () => {
 
     describe('After user login', () => {      
       beforeEach(() => {
+        isSignedin = true;
       });
 
       it('should return expected data', () => {

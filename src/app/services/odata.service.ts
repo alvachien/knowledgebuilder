@@ -68,7 +68,7 @@ export class ODataService {
           this.metadataInfo = response as unknown as string;
           return this.metadataInfo;
         }),
-        catchError((error: HttpErrorResponse) => throwError(() => new Error(error.statusText + '; ' + error.error + '; ' + error.message))));
+        catchError((error: HttpErrorResponse) => throwError(() => new Error(error.status + '; ' + error.error + '; ' + error.message))));
     } else {
       return of(this.metadataInfo);
     }
