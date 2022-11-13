@@ -36,7 +36,11 @@ describe('PreviewComponent', () => {
         BrowserDynamicTestingModule,
         getTranslocoModule(),
       ],
-      declarations: [ PreviewComponent ]
+      declarations: [ PreviewComponent ],
+      providers: [
+        UIUtilityService,
+        { provide: ODataService, useValue: odataSvc },
+      ]
     })
     .compileComponents();
   });
@@ -44,7 +48,7 @@ describe('PreviewComponent', () => {
   beforeEach(() => {
     fixture = TestBed.createComponent(PreviewComponent);
     component = fixture.componentInstance;
-    fixture.detectChanges();
+    //fixture.detectChanges();
   });
 
   it('should create', () => {

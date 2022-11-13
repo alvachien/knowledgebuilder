@@ -7,7 +7,7 @@ import { merge, Observable, of as observableOf } from 'rxjs';
 import { catchError, map, startWith, switchMap } from 'rxjs/operators';
 
 import { KnowledgeItemCategory, getKnowledgeItemCategoryName, KnowledgeItem, TagReferenceType, UserCollectionItem } from 'src/app/models';
-import { ODataService, PreviewObject, UIUtilityService, } from '../../services';
+import { AuthService, ODataService, PreviewObject, UIUtilityService, } from '../../services';
 import { KnowledgeItemAddToCollDialog } from './knowledge-items-add-coll-dlg.component';
 
 @Component({
@@ -29,13 +29,13 @@ export class KnowledgeItemsComponent implements AfterViewInit {
   constructor(private odataService: ODataService,
     private dialog: MatDialog,
     private uiUtilSrv: UIUtilityService,
-    private authService: OidcSecurityService) {}
+    private authService: AuthService) {}
 
   getKnowledgeItemCategoryName(ctgy: KnowledgeItemCategory): string {
     return getKnowledgeItemCategoryName(ctgy);
   }
-  get isExpertMode(): Observable<boolean> {
-    return this.authService.isAuthenticated();
+  get isExpertMode(): boolean {
+    return this.authService.isAuthenticated;
   }
 
   ngAfterViewInit() {

@@ -8,14 +8,16 @@ import { getTranslocoModule } from 'src/testing';
 import { MaterialModulesModule } from 'src/app/material-modules';
 import { of } from 'rxjs';
 
-import { ODataService, UIUtilityService } from 'src/app/services';
+import { AuthService, ODataService, UIUtilityService } from 'src/app/services';
 import { KnowledgeItemsComponent } from './knowledge-items.component';
+import { InvitedUser } from 'src/app/models';
 
 describe('KnowledgeItemsComponent', () => {
   let component: KnowledgeItemsComponent;
   let fixture: ComponentFixture<KnowledgeItemsComponent>;
   let odataservice: any;
   let getKnowledgeItemsSpy: any;
+  let userDetail: InvitedUser;
 
   beforeAll(() => {
     odataservice = jasmine.createSpyObj('ODataService', [
@@ -25,6 +27,14 @@ describe('KnowledgeItemsComponent', () => {
   });
 
   beforeEach(waitForAsync(() => {
+    userDetail = new InvitedUser();
+    userDetail.displayAs = 'test';
+    userDetail.awardUsers = [];
+    const authStub: Partial<AuthService> = {
+      userDetail: userDetail,
+      isAuthenticated: true,
+    };
+
     TestBed.configureTestingModule({
       imports: [
         HttpClientTestingModule,
@@ -37,8 +47,9 @@ describe('KnowledgeItemsComponent', () => {
         getTranslocoModule(),
       ],
       declarations: [ KnowledgeItemsComponent ],
-      providers:[    
+      providers:[
         UIUtilityService,
+        { provide: AuthService, useValue: authStub },
         { provide: ODataService, useValue: odataservice },
       ]
     })

@@ -24,7 +24,8 @@ describe('ODataService', () => {
     userDetail.displayAs = 'test';
     userDetail.awardUsers = [];
     const authStub: Partial<AuthService> = {
-      userDetail: userDetail
+      userDetail: userDetail,
+      isAuthenticated: true,
     };
 
     TestBed.configureTestingModule({

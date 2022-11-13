@@ -8,10 +8,21 @@ import { getTranslocoModule } from 'src/testing';
 import { MaterialModulesModule } from 'src/app/material-modules';
 import { of } from 'rxjs';
 import { TagDetailComponent } from './tag-detail.component';
+import { ODataService, UIUtilityService } from 'src/app/services';
 
 describe('TagDetailComponent', () => {
   let component: TagDetailComponent;
   let fixture: ComponentFixture<TagDetailComponent>;
+  let odataSvc: any;
+  let readExerciseItemSpy: any;
+
+  beforeAll(() => {
+    odataSvc = jasmine.createSpyObj('ODataService', [
+      'readExerciseItem',
+    ]);
+
+    readExerciseItemSpy = odataSvc.readExerciseItem.and.returnValue(of(''));
+  });
 
   beforeEach(waitForAsync(() => {
     TestBed.configureTestingModule({
@@ -25,7 +36,11 @@ describe('TagDetailComponent', () => {
         BrowserDynamicTestingModule,
         getTranslocoModule(),
       ],
-      declarations: [ TagDetailComponent ]
+      declarations: [ TagDetailComponent ],
+      providers: [
+        UIUtilityService,
+        { provide: ODataService, useValue: odataSvc },
+      ]
     })
     .compileComponents();
   }));

@@ -19,7 +19,7 @@ describe('ExerciseItemDetailComponent', () => {
 
   beforeAll(() => {
     odataSvc = jasmine.createSpyObj('ODataService', [
-      'getOverviewInfo',
+      'readExerciseItem',
     ]);
 
     readExerciseItemSpy = odataSvc.readExerciseItem.and.returnValue(of(''));

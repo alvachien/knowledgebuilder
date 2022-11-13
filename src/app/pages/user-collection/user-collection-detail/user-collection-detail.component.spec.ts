@@ -7,15 +7,17 @@ import { BrowserDynamicTestingModule } from '@angular/platform-browser-dynamic/t
 import { getTranslocoModule } from 'src/testing';
 import { MaterialModulesModule } from 'src/app/material-modules';
 import { of } from 'rxjs';
-import { ODataService, UIUtilityService } from 'src/app/services';
+import { AuthService, ODataService, UIUtilityService } from 'src/app/services';
 
 import { UserCollectionDetailComponent } from './user-collection-detail.component';
+import { InvitedUser } from 'src/app/models';
 
 describe('UserCollectionDetailComponent', () => {
   let component: UserCollectionDetailComponent;
   let fixture: ComponentFixture<UserCollectionDetailComponent>;
   let odataservice: any;
   let readUserCollectionSpy: any;
+  let userDetail: InvitedUser;
 
   beforeAll(() => {
     odataservice = jasmine.createSpyObj('ODataService', [
@@ -25,6 +27,13 @@ describe('UserCollectionDetailComponent', () => {
   });
 
   beforeEach(async () => {
+    userDetail = new InvitedUser();
+    userDetail.displayAs = 'test';
+    userDetail.awardUsers = [];
+    const authStub: Partial<AuthService> = {
+      userDetail: userDetail
+    };
+
     await TestBed.configureTestingModule({
       imports: [
         HttpClientTestingModule,
@@ -39,6 +48,7 @@ describe('UserCollectionDetailComponent', () => {
       declarations: [ UserCollectionDetailComponent ],
       providers:[    
         UIUtilityService,
+        { provide: AuthService, useValue: authStub },
         { provide: ODataService, useValue: odataservice },
       ]
     })

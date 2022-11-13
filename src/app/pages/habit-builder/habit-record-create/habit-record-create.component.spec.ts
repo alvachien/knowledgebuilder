@@ -7,14 +7,16 @@ import { BrowserDynamicTestingModule } from '@angular/platform-browser-dynamic/t
 import { getTranslocoModule } from 'src/testing';
 import { MaterialModulesModule } from 'src/app/material-modules';
 import { of } from 'rxjs';
-import { ODataService, UIUtilityService } from 'src/app/services';
+import { AuthService, ODataService, UIUtilityService } from 'src/app/services';
 import { HabitRecordCreateComponent } from './habit-record-create.component';
+import { InvitedUser } from 'src/app/models';
 
 describe('HabitRecordCreateComponent', () => {
   let component: HabitRecordCreateComponent;
   let fixture: ComponentFixture<HabitRecordCreateComponent>;
   let odataSvc: any;
   let getOverviewInfoSpy: any;
+  let userDetail: InvitedUser;
 
   beforeAll(() => {
     odataSvc = jasmine.createSpyObj('ODataService', [
@@ -25,6 +27,13 @@ describe('HabitRecordCreateComponent', () => {
   });
 
   beforeEach(async () => {
+    userDetail = new InvitedUser();
+    userDetail.displayAs = 'test';
+    userDetail.awardUsers = [];
+    const authStub: Partial<AuthService> = {
+      userDetail: userDetail
+    };
+
     await TestBed.configureTestingModule({
       imports: [
         HttpClientTestingModule,
@@ -38,6 +47,7 @@ describe('HabitRecordCreateComponent', () => {
       ],
       declarations: [ HabitRecordCreateComponent ],
       providers: [
+        { provide: AuthService, useValue: authStub },
         { provide: ODataService, useValue: odataSvc },
         UIUtilityService,
       ]
@@ -48,7 +58,7 @@ describe('HabitRecordCreateComponent', () => {
   beforeEach(() => {
     fixture = TestBed.createComponent(HabitRecordCreateComponent);
     component = fixture.componentInstance;
-    fixture.detectChanges();
+    //fixture.detectChanges();
   });
 
   it('should create', () => {

@@ -8,10 +8,21 @@ import { getTranslocoModule } from 'src/testing';
 import { MaterialModulesModule } from 'src/app/material-modules';
 import { of } from 'rxjs';
 import { TagComponent } from './tag.component';
+import { ODataService, UIUtilityService } from 'src/app/services';
 
 describe('TagComponent', () => {
   let component: TagComponent;
   let fixture: ComponentFixture<TagComponent>;
+  let odataSvc: any;
+  let readExerciseItemSpy: any;
+
+  beforeAll(() => {
+    odataSvc = jasmine.createSpyObj('ODataService', [
+      'readExerciseItem',
+    ]);
+
+    readExerciseItemSpy = odataSvc.readExerciseItem.and.returnValue(of(''));
+  });
 
   beforeEach(waitForAsync(() => {
     TestBed.configureTestingModule({
@@ -25,7 +36,11 @@ describe('TagComponent', () => {
         BrowserDynamicTestingModule,
         getTranslocoModule(),
       ],
-      declarations: [ TagComponent ]
+      declarations: [ TagComponent ],
+      providers: [
+        UIUtilityService,
+        { provide: ODataService, useValue: odataSvc },
+      ]
     })
     .compileComponents();
   }));
@@ -33,7 +48,7 @@ describe('TagComponent', () => {
   beforeEach(() => {
     fixture = TestBed.createComponent(TagComponent);
     component = fixture.componentInstance;
-    fixture.detectChanges();
+    //fixture.detectChanges();
   });
 
   it('should create', () => {

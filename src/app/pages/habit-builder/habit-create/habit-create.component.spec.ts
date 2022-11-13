@@ -7,14 +7,16 @@ import { BrowserDynamicTestingModule } from '@angular/platform-browser-dynamic/t
 import { getTranslocoModule } from 'src/testing';
 import { MaterialModulesModule } from 'src/app/material-modules';
 import { of } from 'rxjs';
-import { ODataService, UIUtilityService } from 'src/app/services';
+import { AuthService, ODataService, UIUtilityService } from 'src/app/services';
 import { HabitCreateComponent } from './habit-create.component';
+import { InvitedUser } from 'src/app/models';
 
 describe('HabitCreateComponent', () => {
   let component: HabitCreateComponent;
   let fixture: ComponentFixture<HabitCreateComponent>;
   let odataSvc: any;
   let getOverviewInfoSpy: any;
+  let userDetail: InvitedUser;
 
   beforeAll(() => {
     odataSvc = jasmine.createSpyObj('ODataService', [
@@ -25,6 +27,13 @@ describe('HabitCreateComponent', () => {
   });
 
   beforeEach(async () => {
+    userDetail = new InvitedUser();
+    userDetail.displayAs = 'test';
+    userDetail.awardUsers = [];
+    const authStub: Partial<AuthService> = {
+      userDetail: userDetail
+    };
+
     await TestBed.configureTestingModule({
       imports: [
         HttpClientTestingModule,
@@ -38,6 +47,7 @@ describe('HabitCreateComponent', () => {
       ],
       declarations: [ HabitCreateComponent ],
       providers: [
+        { provide: AuthService, useValue: authStub },
         { provide: ODataService, useValue: odataSvc },
         UIUtilityService,
       ]

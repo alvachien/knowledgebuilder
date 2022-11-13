@@ -6,13 +6,15 @@ import { RouterTestingModule } from '@angular/router/testing';
 import { BrowserDynamicTestingModule } from '@angular/platform-browser-dynamic/testing';
 import { getTranslocoModule } from 'src/testing';
 import { AppComponent } from './app.component';
-import { ODataService, UIUtilityService } from './services';
+import { AuthService, ODataService, UIUtilityService } from './services';
 import { MaterialModulesModule } from './material-modules';
 import { AppUIModule } from './app-ui.module';
 import { NavItemFilterPipe } from './pipes';
+import { InvitedUser } from './models';
 
 describe('AppComponent', () => {
   let odataervice: any;
+  let userDetail: InvitedUser;
 
   beforeAll(() => {
     odataervice = jasmine.createSpyObj('ODataService', [
@@ -21,6 +23,13 @@ describe('AppComponent', () => {
   });
 
   beforeEach(waitForAsync(() => {
+    userDetail = new InvitedUser();
+    userDetail.displayAs = 'test';
+    userDetail.awardUsers = [];
+    const authStub: Partial<AuthService> = {
+      userDetail: userDetail
+    };
+
     TestBed.configureTestingModule({
       imports: [
         HttpClientTestingModule,
@@ -38,6 +47,7 @@ describe('AppComponent', () => {
         AppComponent
       ],
       providers: [
+        { provide: AuthService, useValue: authStub },
         { provide: ODataService, useValue: odataervice },
         UIUtilityService,
       ]
