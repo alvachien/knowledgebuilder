@@ -7,10 +7,22 @@ import { BrowserDynamicTestingModule } from '@angular/platform-browser-dynamic/t
 import { getTranslocoModule } from 'src/testing';
 import { WelcomeComponent } from './welcome.component';
 import { MaterialModulesModule } from 'src/app/material-modules';
+import { ODataService } from 'src/app/services';
+import { of } from 'rxjs';
 
 describe('WelcomeComponent', () => {
   let component: WelcomeComponent;
   let fixture: ComponentFixture<WelcomeComponent>;
+  let odataSvc: any;
+  let getOverviewInfoSpy: any;
+
+  beforeAll(() => {
+    odataSvc = jasmine.createSpyObj('ODataService', [
+      'getOverviewInfo',
+    ]);
+
+    getOverviewInfoSpy = odataSvc.getOverviewInfo.and.returnValue(of(''));
+  });
 
   beforeEach(waitForAsync(() => {
     TestBed.configureTestingModule({
@@ -24,7 +36,10 @@ describe('WelcomeComponent', () => {
         BrowserDynamicTestingModule,
         getTranslocoModule(),
       ],
-      declarations: [ WelcomeComponent ]
+      declarations: [ WelcomeComponent ],
+      providers: [
+        { provide: ODataService, useValue: odataSvc }
+      ]
     })
     .compileComponents();
   }));

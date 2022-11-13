@@ -13,6 +13,16 @@ import { HabitRecordDetailComponent } from './habit-record-detail.component';
 describe('HabitRecordDetailComponent', () => {
   let component: HabitRecordDetailComponent;
   let fixture: ComponentFixture<HabitRecordDetailComponent>;
+  let odataSvc: any;
+  let getOverviewInfoSpy: any;
+
+  beforeAll(() => {
+    odataSvc = jasmine.createSpyObj('ODataService', [
+      'getOverviewInfo',
+    ]);
+
+    getOverviewInfoSpy = odataSvc.getOverviewInfo.and.returnValue(of(''));
+  });
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
@@ -26,7 +36,11 @@ describe('HabitRecordDetailComponent', () => {
         BrowserDynamicTestingModule,
         getTranslocoModule(),
       ],
-      declarations: [ HabitRecordDetailComponent ]
+      declarations: [ HabitRecordDetailComponent ],
+      providers: [
+        { provide: ODataService, useValue: odataSvc },
+        UIUtilityService,
+      ]
     })
     .compileComponents();
   });

@@ -13,6 +13,16 @@ import { PreviewComponent } from './preview.component';
 describe('PreviewComponent', () => {
   let component: PreviewComponent;
   let fixture: ComponentFixture<PreviewComponent>;
+  let odataSvc: any;
+  let readKnowledgeItemSpy: any;
+
+  beforeAll(() => {
+    odataSvc = jasmine.createSpyObj('ODataService', [
+      'readKnowledgeItem',
+    ]);
+
+    readKnowledgeItemSpy = odataSvc.readKnowledgeItem.and.returnValue(of(''));
+  });
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({

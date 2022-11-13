@@ -7,12 +7,23 @@ import { BrowserDynamicTestingModule } from '@angular/platform-browser-dynamic/t
 import { getTranslocoModule } from 'src/testing';
 import { MaterialModulesModule } from 'src/app/material-modules';
 import { of } from 'rxjs';
-import { ODataService, UIUtilityService } from 'src/app/services';
+import { AuthService, ODataService, UIUtilityService } from 'src/app/services';
 import { ExerciseItemDetailComponent } from './exercise-item-detail.component';
 
 describe('ExerciseItemDetailComponent', () => {
   let component: ExerciseItemDetailComponent;
   let fixture: ComponentFixture<ExerciseItemDetailComponent>;
+
+  let odataSvc: any;
+  let readExerciseItemSpy: any;
+
+  beforeAll(() => {
+    odataSvc = jasmine.createSpyObj('ODataService', [
+      'getOverviewInfo',
+    ]);
+
+    readExerciseItemSpy = odataSvc.readExerciseItem.and.returnValue(of(''));
+  });
 
   beforeEach(waitForAsync(() => {
     TestBed.configureTestingModule({
@@ -26,7 +37,11 @@ describe('ExerciseItemDetailComponent', () => {
         BrowserDynamicTestingModule,
         getTranslocoModule(),
       ],
-      declarations: [ ExerciseItemDetailComponent ]
+      declarations: [ ExerciseItemDetailComponent ],
+      providers: [
+        UIUtilityService,
+        { provide: ODataService, useValue: odataSvc },
+      ]
     })
     .compileComponents();
   }));

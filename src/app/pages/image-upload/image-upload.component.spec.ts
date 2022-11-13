@@ -10,10 +10,18 @@ import { of } from 'rxjs';
 
 import { ImageUploadComponent } from './image-upload.component';
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
+import { ODataService } from 'src/app/services';
 
 describe('ImageUploadComponent', () => {
   let component: ImageUploadComponent;
   let fixture: ComponentFixture<ImageUploadComponent>;
+  let odataSvc: any;
+
+  beforeAll(() => {
+    odataSvc = jasmine.createSpyObj('ODataService', [
+      'getUserHabits',
+    ]);
+  });
 
   beforeEach(waitForAsync(() => {
     TestBed.configureTestingModule({
@@ -30,7 +38,8 @@ describe('ImageUploadComponent', () => {
       declarations: [ ImageUploadComponent ],
       providers: [
         { provide: MatDialogRef, useValue: {} }, 
-        { provide: MAT_DIALOG_DATA, useValue: {} }
+        { provide: MAT_DIALOG_DATA, useValue: {} },
+        { provide: ODataService, useValue: odataSvc },
       ]
     })
     .compileComponents();
@@ -39,7 +48,7 @@ describe('ImageUploadComponent', () => {
   beforeEach(() => {
     fixture = TestBed.createComponent(ImageUploadComponent);
     component = fixture.componentInstance;
-    fixture.detectChanges();
+    //fixture.detectChanges();
   });
 
   it('should create', () => {

@@ -14,6 +14,16 @@ import { AppUIModule } from 'src/app/app-ui.module';
 describe('KnowledgeItemSearchComponent', () => {
   let component: KnowledgeItemSearchComponent;
   let fixture: ComponentFixture<KnowledgeItemSearchComponent>;
+  let odataSvc: any;
+  let getOverviewInfoSpy: any;
+
+  beforeAll(() => {
+    odataSvc = jasmine.createSpyObj('ODataService', [
+      'getOverviewInfo',
+    ]);
+
+    getOverviewInfoSpy = odataSvc.getOverviewInfo.and.returnValue(of(''));
+  });
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
@@ -28,7 +38,11 @@ describe('KnowledgeItemSearchComponent', () => {
         AppUIModule,
         getTranslocoModule(),
       ],
-      declarations: [ KnowledgeItemSearchComponent ]
+      declarations: [ KnowledgeItemSearchComponent ],
+      providers: [
+        { provide: ODataService, useValue: odataSvc },
+        UIUtilityService,
+      ]
     })
     .compileComponents();
   });

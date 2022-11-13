@@ -4,13 +4,15 @@ import { RouterTestingModule } from '@angular/router/testing';
 
 import { ODataService } from './odata.service';
 import { environment } from 'src/environments/environment';
-import { ExerciseItem, KnowledgeItem, UserCollection, UserHabit } from '../models';
+import { ExerciseItem, InvitedUser, KnowledgeItem, UserCollection, UserHabit } from '../models';
 import { FakeData } from 'src/testing';
+import { AuthService } from './auth.service';
 
 describe('ODataService', () => {
   let fakeData: FakeData = new FakeData();
   let service: ODataService;
   let httpTestingController: HttpTestingController;
+  let userDetail: InvitedUser;
 
   beforeAll(() => {
     fakeData.buildCurrentUserDetail();
@@ -18,11 +20,21 @@ describe('ODataService', () => {
   });
 
   beforeEach(() => {
+    userDetail = new InvitedUser();
+    userDetail.displayAs = 'test';
+    userDetail.awardUsers = [];
+    const authStub: Partial<AuthService> = {
+      userDetail: userDetail
+    };
+
     TestBed.configureTestingModule({
       imports: [
         RouterTestingModule,
         HttpClientTestingModule,
       ],
+      providers: [
+        { provide: AuthService, useValue: authStub}
+      ]
     });
 
     httpTestingController = TestBed.inject(HttpTestingController);

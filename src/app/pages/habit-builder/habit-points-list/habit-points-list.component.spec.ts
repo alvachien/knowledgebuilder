@@ -7,14 +7,33 @@ import { BrowserDynamicTestingModule } from '@angular/platform-browser-dynamic/t
 import { getTranslocoModule } from 'src/testing';
 import { MaterialModulesModule } from 'src/app/material-modules';
 import { of } from 'rxjs';
-import { ODataService, UIUtilityService } from 'src/app/services';
+import { AuthService, ODataService, UIUtilityService } from 'src/app/services';
 import { HabitPointsListComponent } from './habit-points-list.component';
+import { InvitedUser } from 'src/app/models';
 
 describe('HabitPointsListComponent', () => {
   let component: HabitPointsListComponent;
   let fixture: ComponentFixture<HabitPointsListComponent>;
+  let odataSvc: any;
+  let getOverviewInfoSpy: any;
+  let userDetail: InvitedUser;
+
+  beforeAll(() => {
+    odataSvc = jasmine.createSpyObj('ODataService', [
+      'getOverviewInfo',
+    ]);
+
+    getOverviewInfoSpy = odataSvc.getOverviewInfo.and.returnValue(of(''));
+  });
 
   beforeEach(async () => {
+    userDetail = new InvitedUser();
+    userDetail.displayAs = 'test';
+    userDetail.awardUsers = [];
+    const authStub: Partial<AuthService> = {
+      userDetail: userDetail
+    };
+
     await TestBed.configureTestingModule({
       imports: [
         HttpClientTestingModule,
@@ -26,7 +45,12 @@ describe('HabitPointsListComponent', () => {
         BrowserDynamicTestingModule,
         getTranslocoModule(),
       ],
-      declarations: [ HabitPointsListComponent ]
+      declarations: [ HabitPointsListComponent ],
+      providers: [
+        { provide: AuthService, useValue: authStub },
+        { provide: ODataService, useValue: odataSvc },
+        UIUtilityService,
+      ]
     })
     .compileComponents();
   });

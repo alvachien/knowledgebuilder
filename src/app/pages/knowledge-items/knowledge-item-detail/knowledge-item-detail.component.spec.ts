@@ -13,6 +13,16 @@ import { KnowledgeItemDetailComponent } from './knowledge-item-detail.component'
 describe('KnowledgeItemDetailComponent', () => {
   let component: KnowledgeItemDetailComponent;
   let fixture: ComponentFixture<KnowledgeItemDetailComponent>;
+  let odataSvc: any;
+  let readKnowledgeItemSpy: any;
+
+  beforeAll(() => {
+    odataSvc = jasmine.createSpyObj('ODataService', [
+      'readKnowledgeItem',
+    ]);
+
+    readKnowledgeItemSpy = odataSvc.readKnowledgeItem.and.returnValue(of(''));
+  });
 
   beforeEach(waitForAsync(() => {
     TestBed.configureTestingModule({
@@ -26,7 +36,11 @@ describe('KnowledgeItemDetailComponent', () => {
         BrowserDynamicTestingModule,
         getTranslocoModule(),
       ],
-      declarations: [ KnowledgeItemDetailComponent ]
+      declarations: [ KnowledgeItemDetailComponent ],
+      providers: [
+        { provoide: ODataService, useValue: odataSvc },
+        UIUtilityService,
+      ]
     })
     .compileComponents();
   }));

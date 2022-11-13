@@ -13,6 +13,16 @@ import { HabitCreateComponent } from './habit-create.component';
 describe('HabitCreateComponent', () => {
   let component: HabitCreateComponent;
   let fixture: ComponentFixture<HabitCreateComponent>;
+  let odataSvc: any;
+  let getOverviewInfoSpy: any;
+
+  beforeAll(() => {
+    odataSvc = jasmine.createSpyObj('ODataService', [
+      'getOverviewInfo',
+    ]);
+
+    getOverviewInfoSpy = odataSvc.getOverviewInfo.and.returnValue(of(''));
+  });
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
@@ -26,7 +36,11 @@ describe('HabitCreateComponent', () => {
         BrowserDynamicTestingModule,
         getTranslocoModule(),
       ],
-      declarations: [ HabitCreateComponent ]
+      declarations: [ HabitCreateComponent ],
+      providers: [
+        { provide: ODataService, useValue: odataSvc },
+        UIUtilityService,
+      ]
     })
     .compileComponents();
   });
@@ -34,7 +48,7 @@ describe('HabitCreateComponent', () => {
   beforeEach(() => {
     fixture = TestBed.createComponent(HabitCreateComponent);
     component = fixture.componentInstance;
-    fixture.detectChanges();
+    //fixture.detectChanges();
   });
 
   it('should create', () => {

@@ -9,13 +9,15 @@ import { MaterialModulesModule } from 'src/app/material-modules';
 import { of } from 'rxjs';
 
 import { HabitListComponent } from './habit-list.component';
-import { ODataService, UIUtilityService } from 'src/app/services';
+import { AuthService, ODataService, UIUtilityService } from 'src/app/services';
+import { InvitedUser } from 'src/app/models';
 
 describe('HabitListComponent', () => {
   let component: HabitListComponent;
   let fixture: ComponentFixture<HabitListComponent>;
   let odataservice: any;
   let getUserHabitsSpy: any;
+  let userDetail: InvitedUser;
 
   beforeAll(() => {
     odataservice = jasmine.createSpyObj('ODataService', [
@@ -27,6 +29,12 @@ describe('HabitListComponent', () => {
   });
 
   beforeEach(async () => {
+    userDetail = new InvitedUser();
+    userDetail.displayAs = 'test';
+    userDetail.awardUsers = [];
+    const authStub: Partial<AuthService> = {
+      userDetail: userDetail
+    };
     await TestBed.configureTestingModule({
       imports: [
         HttpClientTestingModule,
@@ -41,6 +49,7 @@ describe('HabitListComponent', () => {
       declarations: [ HabitListComponent ],
       providers:[    
         UIUtilityService,
+        { provide: AuthService, useValue: authStub },
         { provide: ODataService, useValue: odataservice },
       ]
     })

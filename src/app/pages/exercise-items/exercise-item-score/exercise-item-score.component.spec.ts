@@ -14,6 +14,16 @@ import { AppUIModule } from 'src/app/app-ui.module';
 describe('ExerciseItemScoreComponent', () => {
   let component: ExerciseItemScoreComponent;
   let fixture: ComponentFixture<ExerciseItemScoreComponent>;
+  let odataSvc: any;
+  let getOverviewInfoSpy: any;
+
+  beforeAll(() => {
+    odataSvc = jasmine.createSpyObj('ODataService', [
+      'getOverviewInfo',
+    ]);
+
+    getOverviewInfoSpy = odataSvc.getOverviewInfo.and.returnValue(of(''));
+  });
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
@@ -28,7 +38,11 @@ describe('ExerciseItemScoreComponent', () => {
         AppUIModule,
         getTranslocoModule(),
       ],
-      declarations: [ ExerciseItemScoreComponent ]
+      declarations: [ ExerciseItemScoreComponent ],
+      providers: [
+        UIUtilityService,
+        { provide: ODataService, useValue: odataSvc },
+      ]
     })
     .compileComponents();
   });
@@ -36,7 +50,7 @@ describe('ExerciseItemScoreComponent', () => {
   beforeEach(() => {
     fixture = TestBed.createComponent(ExerciseItemScoreComponent);
     component = fixture.componentInstance;
-    fixture.detectChanges();
+    //fixture.detectChanges();
   });
 
   it('should create', () => {

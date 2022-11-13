@@ -13,6 +13,16 @@ import { ExerciseItemsComponent } from './exercise-items.component';
 describe('KnowledgeItemsComponent', () => {
   let component: ExerciseItemsComponent;
   let fixture: ComponentFixture<ExerciseItemsComponent>;
+  let odataSvc: any;
+  let getOverviewInfoSpy: any;
+
+  beforeAll(() => {
+    odataSvc = jasmine.createSpyObj('ODataService', [
+      'getOverviewInfo',
+    ]);
+
+    getOverviewInfoSpy = odataSvc.getOverviewInfo.and.returnValue(of(''));
+  });
 
   beforeEach(waitForAsync(() => {
     TestBed.configureTestingModule({
@@ -26,7 +36,11 @@ describe('KnowledgeItemsComponent', () => {
         BrowserDynamicTestingModule,
         getTranslocoModule(),
       ],
-      declarations: [ ExerciseItemsComponent ]
+      declarations: [ ExerciseItemsComponent ],
+      providers: [
+        { provide: ODataService, useValue: odataSvc },
+        UIUtilityService,
+      ]
     })
     .compileComponents();
   }));
@@ -34,7 +48,7 @@ describe('KnowledgeItemsComponent', () => {
   beforeEach(() => {
     fixture = TestBed.createComponent(ExerciseItemsComponent);
     component = fixture.componentInstance;
-    fixture.detectChanges();
+    //fixture.detectChanges();
   });
 
   it('should create', () => {

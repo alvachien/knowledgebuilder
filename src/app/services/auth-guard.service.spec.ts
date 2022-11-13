@@ -1,12 +1,25 @@
 import { TestBed } from '@angular/core/testing';
+import { InvitedUser } from '../models';
 
 import { AuthGuardService } from './auth-guard.service';
+import { AuthService } from './auth.service';
 
 describe('AuthGuardService', () => {
   let service: AuthGuardService;
+  let userDetail: InvitedUser;
 
   beforeEach(() => {
-    TestBed.configureTestingModule({});
+    userDetail = new InvitedUser();
+    userDetail.displayAs = 'test';
+    userDetail.awardUsers = [];
+    const authStub: Partial<AuthService> = {
+      userDetail: userDetail
+    };
+    TestBed.configureTestingModule({
+      providers: [
+        { provide: AuthService, useValue: authStub}
+      ]      
+    });
     service = TestBed.inject(AuthGuardService);
   });
 
