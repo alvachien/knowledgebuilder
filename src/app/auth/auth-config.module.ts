@@ -7,8 +7,8 @@ import { environment } from 'src/environments/environment';
     imports: [AuthModule.forRoot({
         config: {
             authority: environment.idServerUrl,
-            redirectUrl: window.location.origin,
-            postLogoutRedirectUri: window.location.origin,
+            redirectUrl: environment.AppHost, // window.location.origin,
+            postLogoutRedirectUri: environment.AppHost, // window.location.origin,
 
             clientId: 'knowledgebuilder.js',
             scope: 'openid profile api.knowledgebuilder offline_access', // 'openid profile ' + your scopes

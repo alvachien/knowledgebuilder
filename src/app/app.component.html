@@ -20,17 +20,17 @@
     <button mat-icon-button *ngIf="!currentUser" (click)="onLogon()" matTooltip="{{'Common.Logon' | transloco }}">
       <mat-icon>account_box</mat-icon>
     </button>
-    <a mat-button *ngIf="currentUser" [matMenuTriggerFor]="matMenuUser">{{currentUser}}</a>
+    <button mat-icon-button *ngIf="currentUser" [matMenuTriggerFor]="matMenuUser" [matTooltip]="currentUser">
+      <mat-icon>account_circle</mat-icon>
+    </button>
     <mat-menu #matMenuUser="matMenu" overlapTrigger="false" xPosition="after" yPosition="below">
-      <button mat-menu-item (click)="onUserInfo()">Current User</button>
-      <button mat-menu-item (click)="onLogout()">Logout</button>
+      <button mat-menu-item (click)="onUserInfo()">{{'Common.CurrentUser' | transloco}}</button>
+      <button mat-menu-item (click)="onLogout()">{{'Common.Logout' | transloco}}</button>
     </mat-menu>
 
     <button mat-icon-button (click)="openCodeRepo()">
       <mat-icon aria-hidden="false" aria-label="Code Repo">code</mat-icon>
     </button>
-
-    <span *ngIf="!mobileQuery.matches">{{versionInfo}}</span>
   </mat-toolbar>
 
   <mat-sidenav-container class="example-sidenav-container" [style.marginTop.px]="mobileQuery.matches ? 56 : 0">

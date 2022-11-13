@@ -1,13 +1,11 @@
 export const environment = {
   production: true,
-  version: '0.3.140',
+  version: '0.3.142',
   mockdata: true,
   basehref: '/knowledgebuilder/',
 
   idServerUrl: '',
-  loginCallbackUrl: '',
-  logoutCallbackUrl: '',
-  loginSlientRevewCallbackUrl: '',
+  AppHost: '',
   homePageUrl: 'https://alvachien.github.io',
 
   apiurlRoot: ''

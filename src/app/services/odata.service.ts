@@ -7,7 +7,7 @@ import { map, catchError, mergeMap, flatMap, } from 'rxjs/operators';
 import { ExerciseItem, ExerciseItemSearchResult, TagCount, Tag, KnowledgeItem, TagReferenceType, OverviewInfo,
   AwardRuleGroup, AwardRuleDetail, AwardRule, DailyTrace, AwardPoint, AwardPointReport, momentDateFormat,
   UserCollection, ExerciseItemUserScore, UserCollectionItem, AwardUser, InvitedUser, AwardUserView,
-  UserAuthInfo, UserHabit, UserHabitRecord, UserHabitPointsByUserDate, UserHabitPointsByUserHabitDate,
+  UserHabit, UserHabitRecord, UserHabitPointsByUserDate, UserHabitPointsByUserHabitDate,
   UserHabitRecordView, UserHabitPointReport, UserHabitPoint,
 } from '../models';
 import { environment } from '../../environments/environment';
