@@ -43,6 +43,7 @@
         "ID": "ID",
         "DisplayAs": "DISPLAY AS",
         "Logon": "LOGON",
+        "Logout": "LOGOUT",
         "Done": "Done"
     },
     "Type": "Type",
