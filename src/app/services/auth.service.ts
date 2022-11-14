@@ -23,6 +23,9 @@ export class AuthService {
   get isAuthenticated(): boolean {
     return this._isAuthenticated;
   }
+  set isAuthenticated(isAuth: boolean) {
+    this._isAuthenticated = isAuth;
+  }
   get currentUserId(): string {
     return this._currentUserId;
   }
@@ -46,36 +49,37 @@ export class AuthService {
       .subscribe((value) => {
         switch(value.type) {
           case EventTypes.CheckSessionReceived:
-            console.log("Check session received");
+            console.debug("Check session received");
             break;
           case EventTypes.ConfigLoaded:
-            console.log("Config loaded");
+            console.debug("Config loaded");
             break;
           case EventTypes.ConfigLoadingFailed:
-            console.log("Config loading failed");
+            console.debug("Config loading failed");
             break;            
           case EventTypes.UserDataChanged:
-            console.log("User data changed");
+            console.debug("User data changed");
             break;
           case EventTypes.NewAuthenticationResult:
-            console.log("New authentication result");
+            console.debug("New authentication result");
             break;
           case EventTypes.TokenExpired:
-            console.log("Token expired");
+            console.debug("Token expired");
             break;
           case EventTypes.IdTokenExpired:
-            console.log("ID token expired");
+            console.debug("ID token expired");
             break;
           case EventTypes.SilentRenewStarted:
-            console.log("Silent renew started");
+            console.debug("Silent renew started");
             break;
           default:
             break;
         } 
-        console.log('CheckSessionChanged with value', value);
+        console.debug(`CheckSessionChanged with value ${value}`);
     });
     
     this.authService.checkAuth().subscribe(({ isAuthenticated, userData, accessToken, idToken }) => {
+      console.debug(`checkAuth with value ${isAuthenticated}, ${accessToken}`);
       if (isAuthenticated) {
         this._isAuthenticated = true;
         this._currentUserId = userData.sub;
