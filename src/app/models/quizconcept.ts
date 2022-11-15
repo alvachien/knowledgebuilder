@@ -98,6 +98,7 @@ export class QuizSection {
 
     public Start() {
         this.timeStarted = new Date();
+        this.isStarted = true;
     }
     public Complete(failedItem?: number) {
         this.timeSpent = (new Date().getTime() - this.timeStarted.getTime()) / 1000;
