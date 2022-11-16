@@ -1,4 +1,4 @@
-import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { ComponentFixture, fakeAsync, TestBed, tick } from '@angular/core/testing';
 import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { NoopAnimationsModule } from '@angular/platform-browser/animations';
@@ -10,6 +10,8 @@ import { ODataService, UIUtilityService } from 'src/app/services';
 import { getTranslocoModule } from 'src/testing';
 import { MaterialModulesModule } from 'src/app/material-modules';
 import { PrintableQuizComponent } from './printable-quiz.component';
+import { PrintableQuizSectionComponent } from '../printable-quiz-section';
+import { PrintableQuizSectionItemComponent } from '../printable-quiz-section-item';
 
 describe('PrintableQuizComponent', () => {
   let component: PrintableQuizComponent;
@@ -27,7 +29,11 @@ describe('PrintableQuizComponent', () => {
         BrowserDynamicTestingModule,
         getTranslocoModule(),
       ],
-      declarations: [ PrintableQuizComponent ]
+      declarations: [
+        PrintableQuizComponent,
+        PrintableQuizSectionComponent,
+        PrintableQuizSectionItemComponent,
+      ]
     })
     .compileComponents();
   });
@@ -43,8 +49,58 @@ describe('PrintableQuizComponent', () => {
   });
 
   describe('standard scenario', () => {
-    it('step 1.', () => {
-
+    it('step 1. default is empty', () => {
+      expect(component.arAddQuizFinal.length).toEqual(0);
+      expect(component.arSubQuizFinal.length).toEqual(0);
+      expect(component.arMulQuizFinal.length).toEqual(0);
+      expect(component.arMixOpQuizFinal.length).toEqual(0);
+      expect(component.arFractQuizFinal.length).toEqual(0);
     });
+
+    it('step 1. valid input and go to step 2', fakeAsync(() => {
+      component.contentFormGroup.get('amountAddCtrl')?.setValue(10);
+      component.contentFormGroup.get('numberBeginCtrl')?.setValue(1);
+      component.contentFormGroup.get('numberEndCtrl')?.setValue(100);
+      
+      fixture.detectChanges();
+      tick();
+
+      component.stepper.next();
+      tick();
+
+      expect(component.arAddQuizFinal.length).toEqual(0);
+      expect(component.arSubQuizFinal.length).toEqual(0);
+      expect(component.arMulQuizFinal.length).toEqual(0);
+      expect(component.arMixOpQuizFinal.length).toEqual(0);
+      expect(component.arFractQuizFinal.length).toEqual(0);
+
+      component.onReset();
+    }));
+
+    it('step 2. valid input and go to step 3', fakeAsync(() => {
+      component.contentFormGroup.get('amountAddCtrl')?.setValue(10);
+      component.contentFormGroup.get('numberBeginCtrl')?.setValue(1);
+      component.contentFormGroup.get('numberEndCtrl')?.setValue(100);
+      
+      fixture.detectChanges();
+      tick();
+
+      component.stepper.next();
+      tick();
+
+      component.quizFormGroup.get('fontSizeCtrl')?.setValue(15);
+      component.quizFormGroup.get('amountOfCopyCtrl')?.setValue(1);
+      component.stepper.next();
+      tick();
+
+  
+      expect(component.arAddQuizFinal.length).toEqual(4);
+      expect(component.arSubQuizFinal.length).toEqual(0);
+      expect(component.arMulQuizFinal.length).toEqual(0);
+      expect(component.arMixOpQuizFinal.length).toEqual(0);
+      expect(component.arFractQuizFinal.length).toEqual(0);
+
+      component.onReset();
+    }));
   });
 });
