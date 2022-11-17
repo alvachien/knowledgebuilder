@@ -4,7 +4,7 @@ import { RouterTestingModule } from '@angular/router/testing';
 
 import { ODataService } from './odata.service';
 import { environment } from 'src/environments/environment';
-import { ExerciseItem, InvitedUser, KnowledgeItem, UserCollection, UserHabit } from '../models';
+import { ExerciseItem, ExerciseItemType, InvitedUser, KnowledgeItem, KnowledgeItemCategory, UserCollection, UserHabit } from '../models';
 import { FakeData } from 'src/testing';
 import { AuthService } from './auth.service';
 
@@ -229,10 +229,10 @@ describe('ODataService', () => {
       });
 
       it('should return error in case error appear', () => {
-        const msg = 'Deliberate 404';
+        const msg = 'Error 404';
         service.getKnowledgeItems().subscribe({
           next: val => {
-            expect(val).toBeTruthy();
+            //expect(val).toBeTruthy();
           },
           error: err => {
             expect(err.toString()).toContain(msg);
@@ -268,6 +268,143 @@ describe('ODataService', () => {
           expect(err).toBeTruthy();
           //expect(err).toContain(service.expertModeFailMsg);
         }
+      });
+    });
+
+    describe('After user login', () => {
+      beforeEach(() => {
+        authStub.isAuthenticated = true;
+      });
+
+      it('should return expected items', () => {
+        service.readKnowledgeItem(1).subscribe({
+          next: (val: KnowledgeItem) => {
+            expect(val).toBeTruthy();
+          },
+          error: err => {
+            // expect(err).toBeTruthy();
+            //expect(err).toContain(service.expertModeFailMsg);
+          }
+        });
+
+        const req: any = httpTestingController.expectOne((requrl: any) => {
+          return requrl.method === 'GET'
+            && requrl.url === callurl + '(1)';
+        });
+
+        // respond with a 404 and the error message in the body
+        req.flush({
+          ID: 1
+        });
+        let idx = service.bufferedKnowledgeItems.findIndex(val => val.ID === 1);
+        expect(idx).not.toEqual(-1);
+
+        service.readKnowledgeItem(1).subscribe({
+          next: (val: KnowledgeItem) => {
+            expect(val).toBeTruthy();
+          },
+          error: err => {
+            // expect(err).toBeTruthy();
+            //expect(err).toContain(service.expertModeFailMsg);
+          }
+        });
+        let req2: any = httpTestingController.expectNone((requrl: any) => {
+          return requrl.method === 'GET'
+            && requrl.url === callurl + '(1)';
+        });
+      });
+
+      it('should return error', () => {
+        const msg = 'Error 404';
+        service.readKnowledgeItem(1).subscribe({
+          next: (val: KnowledgeItem) => {
+            //expect(val).toBeTruthy();
+          },
+          error: err => {
+            expect(err.toString()).toContain(msg);
+          }
+        });
+
+        const req: any = httpTestingController.expectOne((requrl: any) => {
+          return requrl.method === 'GET'
+            && requrl.url === callurl + '(1)';
+        });
+
+        // respond with a 404 and the error message in the body
+        req.flush(msg, { status: 404, statusText: 'Not Found' });
+      });
+    });
+  });
+
+  describe('createKnowledgeItem', () => {
+    let callurl = `${environment.apiurlRoot}/KnowledgeItems`;
+    let objtc: KnowledgeItem;
+
+    beforeEach(() => {
+      authStub.isAuthenticated = true;
+      objtc = new KnowledgeItem();
+      objtc.ID = 21;
+      objtc.Title = 'test';
+      objtc.Content = 'test';
+      objtc.ItemCategory = KnowledgeItemCategory.Concept;
+    });
+
+    afterEach(() => {
+      // After every test, assert that there are no more pending requests.
+      httpTestingController.verify();
+    });
+
+    it('should return error if no login', () => {
+      authStub.isAuthenticated = false;
+      service.createKnowledgeItem(objtc).subscribe({
+        next: (val: KnowledgeItem) => {
+          expect(val).toBeFalsy();
+        },
+        error: err => {
+          expect(err).toBeTruthy();
+        }
+      });
+    });
+
+    describe('After user login', () => {
+      it('should return expected items', () => {
+        service.createKnowledgeItem(objtc).subscribe({
+          next: (val: KnowledgeItem) => {
+            expect(val).toBeTruthy();
+          },
+          error: err => {
+            expect(err).toBeFalsy();
+          }
+        });
+
+        const req: any = httpTestingController.expectOne((requrl: any) => {
+          return requrl.method === 'POST'
+            && requrl.url === callurl;
+        });
+
+        // respond with a 404 and the error message in the body
+        req.flush({
+          ID: 1
+        });
+      });
+      it('should return error', () => {
+        const msg = 'Error 404';
+        service.createKnowledgeItem(objtc).subscribe({
+          next: (val: KnowledgeItem) => {
+            //expect(val).toBeTruthy();
+          },
+          error: err => {
+            expect(err.toString()).toContain(msg);
+          }
+        });
+
+        const req: any = httpTestingController.expectOne((requrl: any) => {
+          return requrl.method === 'POST'
+            && requrl.url === callurl;
+        });
+
+        // respond with a 404 and the error message in the body
+        req.flush(msg, { status: 404, statusText: 'Not Found' });
       });
     });
   });
@@ -368,6 +505,164 @@ describe('ODataService', () => {
 
         const req: any = httpTestingController.expectOne((requrl: any) => {
           return requrl.method === 'GET'
+            && requrl.url === callurl;
+        });
+
+        // respond with a 404 and the error message in the body
+        req.flush(msg, { status: 404, statusText: 'Not Found' });
+      });
+    });
+  });
+
+  describe('readExerciseItem', () => {
+    let callurl = `${environment.apiurlRoot}/ExerciseItems`;
+
+    afterEach(() => {
+      // After every test, assert that there are no more pending requests.
+      httpTestingController.verify();
+    });
+
+    it('should return error if no login', () => {
+      authStub.isAuthenticated = false;
+      service.readExerciseItem(1).subscribe({
+        next: (val: ExerciseItem) => {
+          expect(val).toBeFalsy();
+        },
+        error: err => {
+          expect(err).toBeTruthy();
+          //expect(err).toContain(service.expertModeFailMsg);
+        }
+      });
+    });
+
+    describe('After user login', () => {
+      beforeEach(() => {
+        authStub.isAuthenticated = true;
+      });
+
+      it('should return expected items', () => {
+        service.readExerciseItem(1).subscribe({
+          next: (val: ExerciseItem) => {
+            expect(val).toBeTruthy();
+          },
+          error: err => {
+            // expect(err).toBeTruthy();
+            //expect(err).toContain(service.expertModeFailMsg);
+          }
+        });
+
+        const req: any = httpTestingController.expectOne((requrl: any) => {
+          return requrl.method === 'GET'
+            && requrl.url === callurl + '(1)';
+        });
+
+        // respond with a 404 and the error message in the body
+        req.flush({
+          ID: 1
+        });
+        let idx = service.bufferedExerciseItems.findIndex(val => val.ID === 1);
+        expect(idx).not.toEqual(-1);
+
+        service.readExerciseItem(1).subscribe({
+          next: (val: ExerciseItem) => {
+            expect(val).toBeTruthy();
+          },
+          error: err => {
+            // expect(err).toBeTruthy();
+            //expect(err).toContain(service.expertModeFailMsg);
+          }
+        });
+        let req2: any = httpTestingController.expectNone((requrl: any) => {
+          return requrl.method === 'GET'
+            && requrl.url === callurl + '(1)';
+        });
+      });
+
+      it('should return error', () => {
+        const msg = 'Error 404';
+        service.readExerciseItem(1).subscribe({
+          next: (val: ExerciseItem) => {
+            //expect(val).toBeTruthy();
+          },
+          error: err => {
+            expect(err.toString()).toContain(msg);
+          }
+        });
+
+        const req: any = httpTestingController.expectOne((requrl: any) => {
+          return requrl.method === 'GET'
+            && requrl.url === callurl + '(1)';
+        });
+
+        // respond with a 404 and the error message in the body
+        req.flush(msg, { status: 404, statusText: 'Not Found' });
+      });
+    });
+  });
+
+  describe('createExerciseItem', () => {
+    let callurl = `${environment.apiurlRoot}/ExerciseItems`;
+    let objtc: ExerciseItem;
+
+    beforeEach(() => {
+      authStub.isAuthenticated = true;
+      objtc = new ExerciseItem();
+      objtc.ID = 21;
+      objtc.ItemType = ExerciseItemType.EssayQuestions;
+      objtc.Content = 'test';
+    });
+
+    afterEach(() => {
+      // After every test, assert that there are no more pending requests.
+      httpTestingController.verify();
+    });
+
+    it('should return error if no login', () => {
+      authStub.isAuthenticated = false;
+      service.createExerciseItem(objtc).subscribe({
+        next: (val: ExerciseItem) => {
+          expect(val).toBeFalsy();
+        },
+        error: err => {
+          expect(err).toBeTruthy();
+        }
+      });
+    });
+
+    describe('After user login', () => {
+      it('should return expected items', () => {
+        service.createExerciseItem(objtc).subscribe({
+          next: (val: ExerciseItem) => {
+            expect(val).toBeTruthy();
+          },
+          error: err => {
+            expect(err).toBeFalsy();
+          }
+        });
+
+        const req: any = httpTestingController.expectOne((requrl: any) => {
+          return requrl.method === 'POST'
+            && requrl.url === callurl;
+        });
+
+        // respond with a 404 and the error message in the body
+        req.flush({
+          ID: 1
+        });
+      });
+      it('should return error', () => {
+        const msg = 'Error 404';
+        service.createExerciseItem(objtc).subscribe({
+          next: (val: ExerciseItem) => {
+            //expect(val).toBeTruthy();
+          },
+          error: err => {
+            expect(err.toString()).toContain(msg);
+          }
+        });
+
+        const req: any = httpTestingController.expectOne((requrl: any) => {
+          return requrl.method === 'POST'
             && requrl.url === callurl;
         });
 
