@@ -37,7 +37,7 @@
     "@materia-ui/ngx-monaco-editor": "^6.0.0",
     "@ngneat/transloco": "^4.1.0",
     "actslib": "^0.5.55",
-    "angular-auth-oidc-client": "^15.0.0",
+    "angular-auth-oidc-client": "^15.0.2",
     "echarts": "^5.3.3",
     "echarts-wordcloud": "^2.0.0",
     "html2canvas": "^1.4.1",
