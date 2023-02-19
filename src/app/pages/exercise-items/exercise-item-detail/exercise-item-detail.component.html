@@ -1,4 +1,4 @@
-<mat-card>
+<mat-card appearance="outlined">
     <mat-card-header>
         <mat-card-title>{{'ExerciseItem' | transloco}}</mat-card-title>
         <mat-card-subtitle>{{currentMode | transloco}}</mat-card-subtitle>
@@ -28,15 +28,15 @@
                     <!-- Tags -->
                     <mat-form-field appearance="fill" class="control-full-width">
                         <mat-label>{{'Tags' | transloco}}</mat-label>
-                        <mat-chip-list #chipList formControlName="tagControl">
-                            <mat-chip *ngFor="let tag of tags" [selectable]="selectable" [removable]="isEditable" (removed)="removeTag(tag)">
+                        <mat-chip-grid #chipList formControlName="tagControl">
+                            <mat-chip-row *ngFor="let tag of tags" [removable]="isEditable" (removed)="removeTag(tag)">
                                 {{tag}}
                                 <mat-icon matChipRemove *ngIf="isEditable">cancel</mat-icon>
-                            </mat-chip>
+                            </mat-chip-row>
                             <input placeholder="New tag..." [matChipInputFor]="chipList"
                                 [matChipInputSeparatorKeyCodes]="separatorKeysCodes" [matChipInputAddOnBlur]="addOnBlur"
                                 (matChipInputTokenEnd)="addTag($event)">
-                        </mat-chip-list>
+                        </mat-chip-grid>
                     </mat-form-field>
 
                     <!-- Knowledge Item -->

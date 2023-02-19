@@ -71,7 +71,7 @@
                 "scripts": true,
                 "styles": true,
                 "fonts": false
-              },              
+              },
               "budgets": [
                 {
                   "type": "initial",
@@ -184,5 +184,13 @@
       "@angular-eslint/schematics"
     ],
     "analytics": false
+  },
+  "schematics": {
+    "@angular-eslint/schematics:application": {
+      "setParserOptionsProject": true
+    },
+    "@angular-eslint/schematics:library": {
+      "setParserOptionsProject": true
+    }
   }
 }

@@ -62,6 +62,7 @@ export class AuthService {
             break;
           case EventTypes.NewAuthenticationResult:
             console.debug("New authentication result");
+            this.checkAuth();
             break;
           case EventTypes.TokenExpired:
             console.debug("Token expired");
@@ -77,8 +78,11 @@ export class AuthService {
         } 
         console.debug(`CheckSessionChanged with value ${value}`);
     });
-    
-    this.authService.checkAuth().subscribe(({ isAuthenticated, userData, accessToken, idToken }) => {
+    this.checkAuth();
+  }
+
+  private checkAuth() {
+    this.authService.checkAuth().subscribe(({ isAuthenticated, userData, accessToken }) => {
       console.debug(`checkAuth with value ${isAuthenticated}, ${accessToken}`);
       if (isAuthenticated) {
         this._isAuthenticated = true;

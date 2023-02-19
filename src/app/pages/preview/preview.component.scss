@@ -16,9 +16,11 @@
     width: 100px;
 }
 
+/* TODO(mdc-migration): The following rule targets internal classes of slide-toggle that may no longer apply for the MDC version.*/
 mat-slide-toggle {
     width: 80px;  
 }
+/* TODO(mdc-migration): The following rule targets internal classes of slider that may no longer apply for the MDC version.*/
 mat-slider {
     margin-left: 8px;
     width: 80px;

@@ -22,7 +22,7 @@
         <mat-checkbox color="primary" name="focusmode" [(ngModel)]="focusMode" style="margin-left: 4px;" matTooltip="{{'FocusMode' | transloco }}">{{'FocusMode' | transloco}}</mat-checkbox>
         <mat-checkbox color="primary" name="quizmode" [(ngModel)]="hideAnswer" style="margin-left: 4px;" matTooltip="{{'QuizMode' | transloco }}">{{'QuizMode' | transloco}}</mat-checkbox>
         <mat-label style="margin-left: 4px;" *ngIf="!mobileQuery.matches">{{'FontSize' | transloco}}</mat-label>
-        <mat-slider thumbLabel step="2" min="10" max="40" [(ngModel)]="fontSize" matTooltip="{{'FontSize' | transloco }}"></mat-slider>
+        <mat-slider thumbLabel step="2" min="10" max="40" [(ngModel)]="fontSize" matTooltip="{{'FontSize' | transloco }}"><input matSliderThumb /></mat-slider>
     </div>
     <div class="button-row" style="margin: 8px;">
         <mat-label *ngIf="selectedExerciseUserScore"><span [class]="isSuccessScore? 'success-score' : 'fail-score'">{{selectedExerciseUserScore.Score}}</span> ({{selectedExerciseUserScore.TakenDate | date: 'yyyy-M-d'}})</mat-label>
