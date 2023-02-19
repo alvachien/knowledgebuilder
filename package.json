@@ -18,7 +18,8 @@
     "test-headless": "ng test --watch=false --no-progress --browsers=ChromeHeadlessNoSandbox",
     "lint": "ng lint",
     "e2e": "ng e2e",
-    "deploy-github": "git push origin :gh-pages && git subtree push --prefix dist origin gh-pages"
+    "deploy-github": "git push origin :gh-pages && git subtree push --prefix dist origin gh-pages",
+    "upgrade15": "ng update @angular/core@15 @angular/cli@15 @angular/material@15 @angular-eslint/schematics@15"
   },
   "private": true,
   "dependencies": {
@@ -27,7 +28,6 @@
     "@angular/common": "^14.2.8",
     "@angular/compiler": "^14.2.8",
     "@angular/core": "^14.2.8",
-    "@angular/flex-layout": "^14.0.0-beta.41",
     "@angular/forms": "^14.2.8",
     "@angular/material": "^14.2.6",
     "@angular/material-moment-adapter": "^14.2.6",
