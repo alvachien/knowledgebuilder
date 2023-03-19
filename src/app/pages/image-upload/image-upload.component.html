@@ -1,5 +1,5 @@
 <input type="file" #file style="display: none" (change)="onFilesAdded()" multiple />
-<div class="container" fxLayout="column" fxLayoutAlign="space-evenly stretch">
+<div class="container column">
   <h1 mat-dialog-title>Upload Files</h1>
   <div>
     <button [disabled]="uploading || uploadSuccessful" mat-raised-button color="primary" class="add-files-btn" (click)="addFiles()">
@@ -7,7 +7,7 @@
     </button>
   </div>
 
-  <mat-dialog-content fxFlex>
+  <mat-dialog-content>
     <mat-list>
       <mat-list-item *ngFor="let file of files">
         <h4 mat-line>{{file.name}}</h4>

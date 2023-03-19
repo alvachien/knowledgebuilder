@@ -1,9 +1,7 @@
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
-import { DateAdapter, MAT_DATE_FORMATS } from '@angular/material/core';
-
-import { MonacoEditorModule } from '@materia-ui/ngx-monaco-editor';
+import { NuMonacoEditorModule } from '@ng-util/monaco-editor';
 import { MarkdownModule, MarkedOptions } from 'ngx-markdown';
 import { TranslocoModule } from '@ngneat/transloco';
 
@@ -30,15 +28,13 @@ import { KnowledgeItemAddToCollDialog } from './knowledge-items-add-coll-dlg.com
     ReactiveFormsModule,
     MaterialModulesModule,
     ImageUploadModule,
-    MonacoEditorModule,
+    NuMonacoEditorModule,
     MarkdownModule.forChild(),
     KnowledgeItemsRoutingModule,
     TranslocoModule,
     AppUIModule,
   ],
   providers: [
-    // { provide: DateAdapter, useClass: AppDateAdapter },
-    // { provide: MAT_DATE_FORMATS, useValue: MY_DATE_FORMATS },
   ]
 })
 export class KnowledgeItemsModule { }

@@ -1,17 +1,17 @@
-<div fxLayout="row" fxLayoutAlign="space-around center" *ngFor="let quiz of arQuiz">
-  <div fxFlex="28" style="padding-top: 2px; padding-bottom: 2px">
+<div class="row gx-5" *ngFor="let quiz of arQuiz">
+  <div class="col-4" style="padding-top: 2px; padding-bottom: 2px">
     <div *ngIf="quiz.length > 0">
       <app-printable-quiz-section-item [quizSection]="quiz[0]" [arPlaceHolder]="arPlaceHolder">
       </app-printable-quiz-section-item>
     </div>
   </div>
-  <div fxFlex="28" style="padding-top: 2px; padding-bottom: 2px">
+  <div class="col-4" style="padding-top: 2px; padding-bottom: 2px">
     <div *ngIf="quiz.length > 1">
       <app-printable-quiz-section-item [quizSection]="quiz[1]" [arPlaceHolder]="arPlaceHolder">
       </app-printable-quiz-section-item>
     </div>
   </div>
-  <div fxFlex="28" style="padding-top: 2px; padding-bottom: 2px">
+  <div class="col-4" style="padding-top: 2px; padding-bottom: 2px">
     <div *ngIf="quiz.length > 2">
       <app-printable-quiz-section-item [quizSection]="quiz[2]" [arPlaceHolder]="arPlaceHolder">
       </app-printable-quiz-section-item>

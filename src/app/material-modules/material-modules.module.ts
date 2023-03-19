@@ -44,8 +44,6 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatTreeModule } from '@angular/material/tree';
 import { MatMomentDateModule } from '@angular/material-moment-adapter';
 
-// import { MonacoEditorModule } from 'ngx-monaco-editor';
-
 @NgModule({
   exports: [
     A11yModule,

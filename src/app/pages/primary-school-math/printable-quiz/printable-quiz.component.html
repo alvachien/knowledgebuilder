@@ -41,12 +41,12 @@
             <input matInput type="number" placeholder="{{'MathExercise.DecimalPlaces' | transloco}}"
               formControlName="decimalPlacesCtrl" name="dmlPlaces">
           </mat-form-field>
-          <div fxLayout="row" fxLayoutAlign="space-around center">
-            <mat-form-field fxFlex="48">
+          <div class="row gx-5">
+            <mat-form-field class="col-6">
               <input matInput type="number" placeholder="{{'MathExercise.Number' | transloco}}" 
                 formControlName="numberBeginCtrl">
             </mat-form-field>
-            <mat-form-field fxFlex="48">
+            <mat-form-field class="col-6">
               <input matInput type="number" placeholder="{{'MathExercise.Number' | transloco}}" 
                 formControlName="numberEndCtrl">
             </mat-form-field>
@@ -105,14 +105,14 @@
         <ng-template matStepLabel>{{'Quiz.PrintPreview' | transloco}}</ng-template>
 
         <div id="id_result" [style.font-size.em]="fontSize / 10">
-          <div fxLayout="row" *ngIf="quizHeader" fxLayoutAlign="space-around center">
+          <div class="row" *ngIf="quizHeader">
             <p>{{quizHeader}}</p>
           </div>
-          <div fxLayout="row" fxLayoutAlign="space-around center" *ngIf="isDateInputEnabled || isScoreInputEnabled">
-            <div fxFlex="28" *ngIf="isDateInputEnabled">
+          <div class="row" *ngIf="isDateInputEnabled || isScoreInputEnabled">
+            <div class="col-3" *ngIf="isDateInputEnabled">
               <label>{{'Quiz.Date' | transloco}}:</label>
             </div>
-            <div fxFlex="28" *ngIf="isScoreInputEnabled">
+            <div class="col-3" *ngIf="isScoreInputEnabled">
               <label>{{'Quiz.Score' | transloco}}:</label>
             </div>
           </div>
@@ -136,14 +136,14 @@
     
           <div *ngIf="arMixOpQuizFinal && arMixOpQuizFinal.length > 0">
             <p style="padding-left: 15px;">{{'MathExercise.MixedOperations' | transloco}}</p>
-            <div fxLayout="row" fxLayoutAlign="space-around center" *ngFor="let quiz of arMixOpQuizFinal">
-              <div fxFlex="48" style="padding-top: 2px; padding-bottom: 2px;">
+            <div class="row gx-5" *ngFor="let quiz of arMixOpQuizFinal">
+              <div class="col-6" style="padding-top: 2px; padding-bottom: 2px;">
                 <div *ngIf="quiz.length > 0">
                   <app-printable-quiz-section-item [quizSection]="quiz[0]" [arPlaceHolder]="arPlaceHolder">        
                   </app-printable-quiz-section-item>
                 </div>
               </div>
-              <div fxFlex="48" style="padding-top: 2px; padding-bottom: 2px;">
+              <div class="col-6" style="padding-top: 2px; padding-bottom: 2px;">
                 <div *ngIf="quiz.length > 1">
                   <app-printable-quiz-section-item [quizSection]="quiz[1]" [arPlaceHolder]="arPlaceHolder">        
                   </app-printable-quiz-section-item>
@@ -154,13 +154,13 @@
 
           <!-- <div *ngIf="arFractQuizFinal && arFractQuizFinal.length > 0">
             <p style="padding-left: 15px;">{{'MathExercise.FractionExercises' | transloco}}</p>
-            <div fxLayout="row" fxLayoutAlign="space-around center" *ngFor="let quiz of arFractQuizFinal">
-              <div fxFlex="48" style="padding-top: 2px; padding-bottom: 2px;">
+            <div class="row" *ngFor="let quiz of arFractQuizFinal">
+              <div class="col-6" style="padding-top: 2px; padding-bottom: 2px;">
                 <div *ngIf="quiz.length > 0">
                   <ng-katex [equation]="quiz[0]"></ng-katex>
                 </div>
               </div>
-              <div fxFlex="48" style="padding-top: 2px; padding-bottom: 2px;">
+              <div class="col-6" style="padding-top: 2px; padding-bottom: 2px;">
                 <div *ngIf="quiz.length > 1">
                   <ng-katex [equation]="quiz[1]"></ng-katex>
                 </div>

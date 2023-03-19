@@ -7,19 +7,19 @@
 </mat-toolbar-row>
 
 <div style="margin: 8px;">
-  <div *ngFor="let filter of filters; let idxfilter = index" fxLayout="row" fxLayoutGap="10px" class="control-full-width">
-    <mat-form-field fxFlex="30">
+  <div *ngFor="let filter of filters; let idxfilter = index" class="control-full-width row gx-5">
+    <mat-form-field class="col-4">
       <mat-select placeholder="{{'Field' | transloco}}" [(ngModel)]="filter.fieldName" (selectionChange)="onFieldSelectionChanged(filter)">
         <mat-option *ngFor="let field of allFields" [value]="field.value">{{ field.displayas | transloco }}</mat-option>
       </mat-select>
     </mat-form-field>
-    <mat-form-field fxFlex="15">
+    <mat-form-field class="col-2">
       <mat-select placeholder="{{'Operator' | transloco}}" [(ngModel)]="filter.operator">
         <mat-option *ngFor="let opr of allOperators | operatorFilter: filter.valueType" [value]="opr.value">{{ opr.i18nterm | transloco }}</mat-option>
       </mat-select>
     </mat-form-field>
-    <div [ngSwitch]="filter.valueType" fxFlex="50" fxLayout="row">
-      <div *ngSwitchCase="1" fxLayout="row" fxLayoutGap="5px">
+    <div [ngSwitch]="filter.valueType" class="col-6 row gx-5">
+      <div *ngSwitchCase="1" class="row">
         <mat-form-field>
           <input matInput type="number" placeholder="{{'Value' | transloco}}" name="lvalue_1" [(ngModel)]="filter.value[0]">
         </mat-form-field>
@@ -27,7 +27,7 @@
           <input matInput type="number" placeholder="{{'Value' | transloco}}" name="hvalue_1" [(ngModel)]="filter.value[1]">
         </mat-form-field>    
       </div>
-      <div *ngSwitchCase="3" fxLayout="row" fxLayoutGap="5px">
+      <div *ngSwitchCase="3" class="row">
         <mat-form-field>
           <input matInput [(ngModel)]="filter.value[0]" [matDatepicker]="lvpicker" placeholder="{{'Value' | transloco}}">
           <mat-datepicker-toggle matSuffix [for]="lvpicker"></mat-datepicker-toggle>
@@ -39,11 +39,11 @@
           <mat-datepicker #hvpicker></mat-datepicker>
         </mat-form-field>    
       </div>
-      <div *ngSwitchCase="4" fxLayout="row">
+      <div *ngSwitchCase="4" class="row">
         <mat-checkbox [(ngModel)]="filter.value[0]">
         </mat-checkbox>  
       </div>
-      <div *ngSwitchDefault fxLayout="row">
+      <div *ngSwitchDefault class="row">
         <input matInput type="text" placeholder="{{'Value' | transloco}}" name="lvalue_2" [(ngModel)]="filter.value[0]">        
       </div>
     </div>

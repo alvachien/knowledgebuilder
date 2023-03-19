@@ -7,7 +7,6 @@ import { MatDialog } from '@angular/material/dialog';
 import { KatexOptions } from 'ngx-markdown';
 import { MatChipInputEvent } from '@angular/material/chips';
 import { UIMode } from 'actslib';
-import { MonacoEditorConstructionOptions } from '@materia-ui/ngx-monaco-editor';
 
 import { ExerciseItem, ExerciseItemType, getExerciseItemTypeNames } from '../../../models/exercise-item';
 import { ODataService, UIUtilityService, } from '../../../services';
@@ -28,9 +27,8 @@ export class ExerciseItemDetailComponent implements OnInit, OnDestroy {
   currentMode = '';
   // Generic info
   public itemFormGroup: UntypedFormGroup;
-  editorOptions: MonacoEditorConstructionOptions = {
+  editorOptions = {
     theme: 'vs-dark',
-    wordWrap: 'on',
     roundedSelection: true
   };
   content = `New Exercise Item`;

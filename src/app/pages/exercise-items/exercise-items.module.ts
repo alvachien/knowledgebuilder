@@ -1,7 +1,6 @@
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
-import { MonacoEditorModule } from '@materia-ui/ngx-monaco-editor';
 import { MarkdownModule, MarkedOptions } from 'ngx-markdown';
 import { TranslocoModule } from '@ngneat/transloco';
 import { DateAdapter, MAT_DATE_FORMATS, NativeDateAdapter } from '@angular/material/core';
@@ -16,6 +15,7 @@ import { AppUIModule } from 'src/app/app-ui.module';
 import { ExerciseItemScoreComponent } from './exercise-item-score/exercise-item-score.component';
 import { ExerciseItemAddToCollDialog } from './exercise-items-add-coll-dlg.component';
 import { ExerciseItemNewPracticeDialog } from './exercise-items-newpractice-dlg.component';
+import { NuMonacoEditorModule } from '@ng-util/monaco-editor';
 
 // import { MY_DATE_FORMATS, AppDateAdapter, } from 'src/app/models';
 
@@ -34,7 +34,7 @@ import { ExerciseItemNewPracticeDialog } from './exercise-items-newpractice-dlg.
     ReactiveFormsModule,
     MaterialModulesModule,
     ImageUploadModule,
-    MonacoEditorModule,
+    NuMonacoEditorModule,
     MarkdownModule.forChild(),
     ExerciseItemsRoutingModule,
     TranslocoModule,

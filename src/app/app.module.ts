@@ -8,7 +8,6 @@ import { AppRoutingModule } from './app-routing.module';
 import { AppComponent, CurrentUserDialog, } from './app.component';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { MaterialModulesModule } from './material-modules';
-import { MonacoEditorModule } from '@materia-ui/ngx-monaco-editor';
 import { MarkdownModule, MarkedOptions } from 'ngx-markdown';
 import { translocoLoader } from './transloco-loader';
 import { translocoConfig, TranslocoModule, TRANSLOCO_CONFIG } from '@ngneat/transloco';
@@ -20,6 +19,7 @@ import { environment } from 'src/environments/environment';
 import { NavItemFilterPipe } from './pipes';
 import { QuizFailureDailogComponent } from './pages/quiz-failure-dailog';
 import { AuthConfigModule } from './auth/auth-config.module';
+import { NuMonacoEditorModule } from '@ng-util/monaco-editor';
 
 @NgModule({
   declarations: [
@@ -37,7 +37,9 @@ import { AuthConfigModule } from './auth/auth-config.module';
     BrowserAnimationsModule,
     HttpClientModule,
     TranslocoModule,
-    MonacoEditorModule, // .forRoot(),
+    NuMonacoEditorModule.forRoot({
+      baseUrl: `assets`,
+    }),
     MarkdownModule.forRoot({
       loader: HttpClient, // optional, only if you use [src] attribute
       markedOptions: {

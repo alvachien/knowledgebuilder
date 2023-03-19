@@ -15,26 +15,26 @@
         <mat-error>This field is required</mat-error>
       </mat-form-field>
 
-      <div class="control-full-width" fxLayout="row">
-        <div fxFlex="50" fxLayout="row">
-          <div fxFlex="50">
+      <div class="control-full-width row gx-5">
+        <div class="col-6 row">
+          <div class="col-6">
             <mat-form-field>
               <input matInput type="number" placeholder="{{ 'MathExercise.Dividend' | transloco }}" formControlName="leftNumberControl" required />
             </mat-form-field>
           </div>
-          <div fxFlex>
+          <div class="col-6">
             <mat-form-field>
               <input matInput type="number" placeholder="{{ 'MathExercise.Dividend' | transloco }}" formControlName="rightNumberControl" required />
             </mat-form-field>
           </div>
         </div>
-        <div fxFlex>
-          <div fxFlex="50">
+        <div class="col-6 row">
+          <div class="col-6">
             <mat-form-field>
               <input matInput type="number" placeholder="{{ 'MathExercise.Divisor' | transloco }}" formControlName="leftNumber2Control" required />
             </mat-form-field>
           </div>
-          <div fxFlex>
+          <div class="col-6">
             <mat-form-field>
               <input matInput type="number" placeholder="{{ 'MathExercise.Divisor' | transloco }}" formControlName="rightNumber2Control" required />
             </mat-form-field>
@@ -54,14 +54,14 @@
       </div>
 
       <div #itemForm (keydown.enter)="onQuizSubmit()">
-        <div class="control-full-width" fxLayout="row">
-          <mat-form-field fxFlex="60" style="font-size: 72px; text-align: center">
+        <div class="control-full-width row">
+          <mat-form-field class="col-7" style="font-size: 72px; text-align: center">
             <span matPrefix>{{ QuizItems[QuizCursor].Dividend }} ÷ {{ QuizItems[QuizCursor].Divisor }} =</span>
             <input matInput type="number" placeholder="{{ 'MathExercise.Quotient' | transloco }}" [(ngModel)]="QuizItems[QuizCursor].InputtedQuotient"
               required name="irst" #irst />
           </mat-form-field>
-          <div fxFlex="10" style="font-size: 24px; text-align: center; vertical-align: bottom;">...</div>
-          <mat-form-field fxFlex style="font-size: 72px; text-align: center">
+          <div class="col-1" style="font-size: 24px; text-align: center; vertical-align: bottom;">...</div>
+          <mat-form-field class="col-4" style="font-size: 72px; text-align: center">
             <input matInput type="number" placeholder="{{ 'MathExercise.Remainder' | transloco }}" [(ngModel)]="QuizItems[QuizCursor].InputtedRemainder"
               required name="irst2" #irst2 />
           </mat-form-field>

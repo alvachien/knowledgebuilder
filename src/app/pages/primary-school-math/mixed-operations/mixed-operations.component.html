@@ -14,23 +14,23 @@
           formControlName="failedFactorControl" />
       </mat-form-field>
 
-      <div class="control-full-width" fxLayout="row">
-        <div fxFlex="50">
+      <div class="control-full-width row gx-5">
+        <div class="col-6">
           <mat-form-field>
             <input matInput type="number" placeholder="{{ 'MathExercise.Number' | transloco }}" formControlName="leftNumberControl" required />
           </mat-form-field>
         </div>
-        <div fxFlex>
+        <div class="col-6">
           <mat-form-field>
             <input matInput type="number" placeholder="{{ 'MathExercise.Number' | transloco }}" formControlName="rightNumberControl" required />
           </mat-form-field>
         </div>
       </div>
-      <div class="control-full-width" fxLayout="row">
-        <div fxFlex="50">
+      <div class="control-full-width row gx-5">
+        <div class="col-6">
           <mat-checkbox formControlName="negControl">{{'MathExercise.AllowNegative' | transloco}}</mat-checkbox>
         </div>
-        <div fxFlex>
+        <div class="col-6">
           <mat-form-field>
             <input matInput type="number" placeholder="{{ 'MathExercise.DecimalPlaces' | transloco }}" formControlName="decControl"/>
           </mat-form-field>

@@ -45,15 +45,15 @@
                 </mat-expansion-panel-header>
 
                 <!-- Administrive fields -->
-                <div fxLayout="row" class="control-full-width">
-                    <div fxFlex="50">
+                <div class="control-full-width row gx-5">
+                    <div class="col-6">
                         <mat-form-field appearance="fill" class="control-full-width">
                             <mat-label>{{'CreatedAt' | transloco}}</mat-label>
                             <input matInput type="text" disabled placeholder="{{'CreatedAt' | transloco}}" [ngModel]="itemObject.CreatedAt | date: 'yyyy-M-d HH:mm:ss'">
                         </mat-form-field>
                     </div>
 
-                    <div fxFlex="50">
+                    <div class="col-6">
                         <mat-form-field appearance="fill" class="control-full-width">
                             <mat-label>{{'ModifiedAt' | transloco}}</mat-label>
                             <input matInput type="text" disabled placeholder="{{'ModifiedAt' | transloco}}" [ngModel]="itemObject.ModifiedAt | date: 'yyyy-M-d HH:mm:ss'">

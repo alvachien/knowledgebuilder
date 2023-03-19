@@ -15,13 +15,13 @@
         <mat-error>This field is required</mat-error>
       </mat-form-field>
 
-      <div class="control-full-width" fxLayout="row">
-        <div fxFlex="50">
+      <div class="control-full-width row gx-5">
+        <div class="col-6">
           <mat-form-field>
             <input matInput type="number" placeholder="{{ 'MathExercise.Number' | transloco }}" formControlName="leftNumberControl" required />
           </mat-form-field>
         </div>
-        <div fxFlex>
+        <div class="col-6">
           <mat-form-field>
             <input matInput type="number" placeholder="{{ 'MathExercise.Number' | transloco }}" formControlName="rightNumberControl" required />
           </mat-form-field>

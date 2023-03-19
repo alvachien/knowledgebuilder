@@ -7,7 +7,6 @@ import { KatexOptions } from 'ngx-markdown';
 import { COMMA, ENTER } from '@angular/cdk/keycodes';
 import { MatChipInputEvent } from '@angular/material/chips';
 import { UIMode } from 'actslib';
-import { MonacoEditorConstructionOptions } from '@materia-ui/ngx-monaco-editor';
 
 import { ODataService, UIUtilityService, } from '../../../services';
 import { ImageUploadComponent } from '../../image-upload/image-upload.component';
@@ -26,9 +25,8 @@ export class KnowledgeItemDetailComponent implements OnInit, OnDestroy {
   currentMode = '';
   // Generic info
   public itemFormGroup: UntypedFormGroup;
-  editorOptions: MonacoEditorConstructionOptions = {
+  editorOptions = {
     theme: 'vs-dark',
-    wordWrap: 'on',
   };
   content = `New Knowledge Item`;
   public mathOptions: KatexOptions = {
