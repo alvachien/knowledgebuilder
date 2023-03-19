@@ -1,10 +1,8 @@
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
-import { MonacoEditorModule } from '@materia-ui/ngx-monaco-editor';
-import { MarkdownModule, MarkedOptions } from 'ngx-markdown';
 import { TranslocoModule } from '@ngneat/transloco';
-import { DateAdapter, MAT_DATE_FORMATS, NativeDateAdapter } from '@angular/material/core';
+import { EditorModule, TINYMCE_SCRIPT_SRC } from '@tinymce/tinymce-angular';
 
 import { MaterialModulesModule } from '../../material-modules';
 import { ImageUploadModule } from '../image-upload/image-upload.module';
@@ -16,8 +14,6 @@ import { AppUIModule } from 'src/app/app-ui.module';
 import { ExerciseItemScoreComponent } from './exercise-item-score/exercise-item-score.component';
 import { ExerciseItemAddToCollDialog } from './exercise-items-add-coll-dlg.component';
 import { ExerciseItemNewPracticeDialog } from './exercise-items-newpractice-dlg.component';
-
-// import { MY_DATE_FORMATS, AppDateAdapter, } from 'src/app/models';
 
 @NgModule({
   declarations: [
@@ -34,15 +30,13 @@ import { ExerciseItemNewPracticeDialog } from './exercise-items-newpractice-dlg.
     ReactiveFormsModule,
     MaterialModulesModule,
     ImageUploadModule,
-    MonacoEditorModule,
-    MarkdownModule.forChild(),
+    EditorModule,
     ExerciseItemsRoutingModule,
     TranslocoModule,
     AppUIModule
   ],
   providers: [
-    // { provide: DateAdapter, useClass: AppDateAdapter },
-    // { provide: MAT_DATE_FORMATS, useValue: MY_DATE_FORMATS },
+    { provide: TINYMCE_SCRIPT_SRC, useValue: 'tinymce/tinymce.min.js' }
   ]
 })
 export class ExerciseItemsModule { }

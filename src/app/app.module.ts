@@ -8,7 +8,6 @@ import { AppRoutingModule } from './app-routing.module';
 import { AppComponent, CurrentUserDialog, } from './app.component';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { MaterialModulesModule } from './material-modules';
-import { MonacoEditorModule } from '@materia-ui/ngx-monaco-editor';
 import { MarkdownModule, MarkedOptions } from 'ngx-markdown';
 import { translocoLoader } from './transloco-loader';
 import { translocoConfig, TranslocoModule, TRANSLOCO_CONFIG } from '@ngneat/transloco';
@@ -37,7 +36,6 @@ import { AuthConfigModule } from './auth/auth-config.module';
     BrowserAnimationsModule,
     HttpClientModule,
     TranslocoModule,
-    MonacoEditorModule, // .forRoot(),
     MarkdownModule.forRoot({
       loader: HttpClient, // optional, only if you use [src] attribute
       markedOptions: {

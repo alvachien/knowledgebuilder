@@ -81,12 +81,11 @@
             </button>
         </mat-toolbar>
         <div fxLayout="row" class="control-full-width" style="height: 500px;">
-            <div *ngIf="!isDisplayMode" fxFlex="50">
-                <ngx-monaco-editor [options]="editorOptions" [(ngModel)]="content" style="height: 100%;"></ngx-monaco-editor>
-            </div>
-            <div fxFlex style="height: 100%; overflow-y: scroll;">
-                <markdown ngPreserveWhitespaces [data]="content" katex [katexOptions]="mathOptions"></markdown>
-            </div>
+            <editor 
+                [disabled]="isDisplayMode"
+                [init]="editorOption"
+                [(ngModel)]="content">
+            </editor>
         </div>
     </mat-card-content>
     <mat-card-actions>

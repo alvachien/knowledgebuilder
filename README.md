@@ -81,6 +81,16 @@ In this case, file 'uiutil.service.ts' will be created under folder 'services';
 |Full screen|TBD|Full screen mode|
 |Mock data for Github pages|Done|Mock data when deploying to Github pages.|
 
+## Alternative ideas
+
+### Choice of Rich-text editor 
+
+Since 6.0, [TinyMCE](https://www.tiny.cloud/) changed the license to MIT. It is much easier to use it directly as rich-editor than encapsulating monaco-editor with markdown syntax.
+
+However, TinyMCE lack of an open-source plugin to upport Katex. See communication within [issue](https://github.com/tinymce/tinymce/issues/3997) that TinyMCE won't support Katex.
+
+As a conclusion for now, TinyMCE cannot be used for this project.
+
 
 ## Credits
 

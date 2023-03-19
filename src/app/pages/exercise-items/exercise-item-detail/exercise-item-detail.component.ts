@@ -7,7 +7,6 @@ import { MatDialog } from '@angular/material/dialog';
 import { KatexOptions } from 'ngx-markdown';
 import { MatChipInputEvent } from '@angular/material/chips';
 import { UIMode } from 'actslib';
-import { MonacoEditorConstructionOptions } from '@materia-ui/ngx-monaco-editor';
 
 import { ExerciseItem, ExerciseItemType, getExerciseItemTypeNames } from '../../../models/exercise-item';
 import { ODataService, UIUtilityService, } from '../../../services';
@@ -28,10 +27,16 @@ export class ExerciseItemDetailComponent implements OnInit, OnDestroy {
   currentMode = '';
   // Generic info
   public itemFormGroup: UntypedFormGroup;
-  editorOptions: MonacoEditorConstructionOptions = {
-    theme: 'vs-dark',
-    wordWrap: 'on',
-    roundedSelection: true
+  // editorOptions: MonacoEditorConstructionOptions = {
+  //   theme: 'vs-dark',
+  //   wordWrap: 'on',
+  //   roundedSelection: true
+  // };
+  editorOption =  {
+    plugins: 'lists link image table code help wordcount',
+    toolbar: 'undo redo | blocks | bold italic | alignleft aligncenter alignright alignjustify | bullist numlist outdent indent | help',
+    base_url: '/tinymce', // Root for resources
+    suffix: '.min'        // Suffix to use when loading resources
   };
   content = `New Exercise Item`;
   answerContent = ``;

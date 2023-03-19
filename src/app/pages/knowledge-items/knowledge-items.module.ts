@@ -1,9 +1,7 @@
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
-import { DateAdapter, MAT_DATE_FORMATS } from '@angular/material/core';
-
-import { MonacoEditorModule } from '@materia-ui/ngx-monaco-editor';
+import { EditorModule, TINYMCE_SCRIPT_SRC } from '@tinymce/tinymce-angular';
 import { MarkdownModule, MarkedOptions } from 'ngx-markdown';
 import { TranslocoModule } from '@ngneat/transloco';
 
@@ -13,7 +11,6 @@ import { KnowledgeItemsRoutingModule } from './knowledge-items-routing.module';
 import { KnowledgeItemsComponent } from './knowledge-items.component';
 import { KnowledgeItemDetailComponent } from './knowledge-item-detail';
 import { KnowledgeItemSearchComponent } from './knowledge-item-search';
-// import { MY_DATE_FORMATS, AppDateAdapter, } from 'src/app/models';
 import { AppUIModule } from 'src/app/app-ui.module';
 import { KnowledgeItemAddToCollDialog } from './knowledge-items-add-coll-dlg.component';
 
@@ -30,15 +27,14 @@ import { KnowledgeItemAddToCollDialog } from './knowledge-items-add-coll-dlg.com
     ReactiveFormsModule,
     MaterialModulesModule,
     ImageUploadModule,
-    MonacoEditorModule,
     MarkdownModule.forChild(),
     KnowledgeItemsRoutingModule,
     TranslocoModule,
+    EditorModule,
     AppUIModule,
   ],
   providers: [
-    // { provide: DateAdapter, useClass: AppDateAdapter },
-    // { provide: MAT_DATE_FORMATS, useValue: MY_DATE_FORMATS },
+    { provide: TINYMCE_SCRIPT_SRC, useValue: 'tinymce/tinymce.min.js' }
   ]
 })
 export class KnowledgeItemsModule { }
