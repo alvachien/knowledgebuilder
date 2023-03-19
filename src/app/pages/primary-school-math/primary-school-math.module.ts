@@ -1,8 +1,6 @@
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
-import { MonacoEditorModule } from '@materia-ui/ngx-monaco-editor';
-import { MarkdownModule, MarkedOptions } from 'ngx-markdown';
 import { TranslocoModule } from '@ngneat/transloco';
 
 import { MaterialModulesModule } from '../../material-modules';
@@ -34,8 +32,6 @@ import { PrintableQuizSectionItemComponent } from './printable-quiz-section-item
     FormsModule,
     ReactiveFormsModule,
     MaterialModulesModule,
-    MonacoEditorModule,
-    MarkdownModule.forChild(),
     PrimarySchoolMathRoutingModule,
     TranslocoModule,
   ],

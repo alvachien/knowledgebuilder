@@ -55,15 +55,15 @@
                     <mat-panel-description>{{'AdministrativeInfo' | transloco}}<mat-icon>info</mat-icon></mat-panel-description>
                 </mat-expansion-panel-header>
                 <!-- Administrive fields -->
-                <div fxLayout="row" class="control-full-width">
-                    <div fxFlex="50">
+                <div class="control-full-width row">
+                    <div class="col-6">
                         <mat-form-field appearance="fill" class="control-full-width">
                             <mat-label>{{'CreatedAt' | transloco}}</mat-label>
                             <input matInput type="text" disabled placeholder="{{'CreatedAt' | transloco}}" [ngModel]="currentItem.CreatedAt | date: 'yyyy-M-d HH:mm:ss'">
                         </mat-form-field>
                     </div>
 
-                    <div fxFlex="50">
+                    <div class="col-6">
                         <mat-form-field appearance="fill" class="control-full-width">
                             <mat-label>{{'ModifiedAt' | transloco}}</mat-label>
                             <input matInput type="text" disabled placeholder="{{'ModifiedAt' | transloco}}" [ngModel]="currentItem.ModifiedAt | date: 'yyyy-M-d HH:mm:ss'">
@@ -80,11 +80,11 @@
                 <mat-icon>file_upload</mat-icon>
             </button>
         </mat-toolbar>
-        <div fxLayout="row" class="control-full-width" style="height: 500px;">
-            <div *ngIf="!isDisplayMode" fxFlex="50">
-                <ngx-monaco-editor [options]="editorOptions" [(ngModel)]="content" style="height: 100%;"></ngx-monaco-editor>
+        <div fxLayout="row" class="control-full-width row" style="height: 500px;">
+            <div *ngIf="!isDisplayMode" class="col-6">
+                <ac-monaco-editor [(ngModel)]="content" style="height: 100%;"></ac-monaco-editor>
             </div>
-            <div fxFlex style="height: 100%; overflow-y: scroll;">
+            <div style="height: 100%; overflow-y: scroll;" class="col-6">
                 <markdown ngPreserveWhitespaces [data]="content" katex [katexOptions]="mathOptions"></markdown>
             </div>
         </div>
