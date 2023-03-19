@@ -81,6 +81,26 @@ In this case, file 'uiutil.service.ts' will be created under folder 'services';
 |Full screen|TBD|Full screen mode|
 |Mock data for Github pages|Done|Mock data when deploying to Github pages.|
 
+## Alternative ideas
+
+### 1. Choice of Rich-text editor 
+
+Since 6.0, [TinyMCE](https://www.tiny.cloud/) changed the license to `MIT`. It is now much easier to use it directly as rich-editor than encapsulating monaco-editor with markdown syntax.
+
+However, `TinyMCE` lack of an open-source plugin to upport `Katex`. See communication within [issue](https://github.com/tinymce/tinymce/issues/3997) that TinyMCE won't support Katex.
+
+More details, refer to branch `try-tinymce'.
+
+### 2. Markdown format VS Richedit box format
+
+Markdown format is popular now days while Richedit box provider normally render them to native HTML element.
+Within this project, Markdown is chosen.
+
+### 3. Math natively support or just support images
+
+It is arguable that an editor can support Math (no matther `MathJax` or `Katex`) natively or just support images where Math formula can be.
+Neither the `Latex` formular nor image can be read through Markdoown text.
+
 
 ## Credits
 
