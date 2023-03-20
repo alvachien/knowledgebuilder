@@ -146,7 +146,7 @@ class SudouEditPanel {
   templateUrl: './sudou.component.html',
   styleUrls: ['./sudou.component.scss'],
 })
-export class SudouComponent implements OnInit, AfterContentInit, OnDestroy {
+export class SudouComponent implements OnInit, AfterContentInit {
   @ViewChild('canvassudou', { static: true }) canvasSudou!: ElementRef;
   private _objSudou: Sudou | null = null;
   private _width = 0;
@@ -173,8 +173,6 @@ export class SudouComponent implements OnInit, AfterContentInit, OnDestroy {
 
     this.onStartCore();
   }
-
-  ngOnDestroy(): void {}
 
   private onStartCore() {
     if (this._started && this._objSudou != null) {

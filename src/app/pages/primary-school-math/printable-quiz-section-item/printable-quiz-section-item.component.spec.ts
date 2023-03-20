@@ -6,8 +6,6 @@ import { RouterTestingModule } from '@angular/router/testing';
 import { BrowserDynamicTestingModule } from '@angular/platform-browser-dynamic/testing';
 import { getTranslocoModule } from 'src/testing';
 import { MaterialModulesModule } from 'src/app/material-modules';
-import { of } from 'rxjs';
-import { ODataService, UIUtilityService } from 'src/app/services';
 import { PrintableQuizSectionItemComponent } from './printable-quiz-section-item.component';
 
 describe('PrintableQuizSectionItemComponent', () => {

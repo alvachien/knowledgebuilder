@@ -1,7 +1,5 @@
 import {
   Component,
-  OnInit,
-  OnDestroy,
   ViewChild,
   ElementRef,
   ChangeDetectorRef,
@@ -10,9 +8,7 @@ import {
   AbstractControl,
   UntypedFormControl,
   UntypedFormGroup,
-  NgForm,
   ValidationErrors,
-  ValidatorFn,
 } from '@angular/forms';
 import { Validators } from '@angular/forms';
 import { MatDialog } from '@angular/material/dialog';
@@ -37,9 +33,7 @@ import { QuizFailureDailogComponent } from '../../quiz-failure-dailog';
   templateUrl: './multiplication-exercise.component.html',
   styleUrls: ['./multiplication-exercise.component.scss'],
 })
-export class MultiplicationExerciseComponent
-  implements OnInit, OnDestroy, CanDeactivateGuard
-{
+export class MultiplicationExerciseComponent implements CanDeactivateGuard {
   isQuizStarted = false;
   quizControlFormGroup: UntypedFormGroup = new UntypedFormGroup(
     {
@@ -96,9 +90,6 @@ export class MultiplicationExerciseComponent
   ): boolean | Observable<boolean> | Promise<boolean> {
     return !this.isQuizStarted;
   }
-
-  ngOnInit(): void {}
-  ngOnDestroy(): void {}
 
   canStart(): boolean {
     return !this.isQuizStarted && this.quizControlFormGroup.valid;

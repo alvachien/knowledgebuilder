@@ -10,9 +10,7 @@ import {
   AbstractControl,
   UntypedFormControl,
   UntypedFormGroup,
-  NgForm,
   ValidationErrors,
-  ValidatorFn,
 } from '@angular/forms';
 import { Validators } from '@angular/forms';
 import { MatDialog } from '@angular/material/dialog';
@@ -37,9 +35,7 @@ import { QuizFailureDailogComponent } from '../../quiz-failure-dailog';
   templateUrl: './subtraction-exercise.component.html',
   styleUrls: ['./subtraction-exercise.component.scss'],
 })
-export class SubtractionExerciseComponent
-  implements OnInit, OnDestroy, CanDeactivateGuard
-{
+export class SubtractionExerciseComponent implements CanDeactivateGuard {
   isQuizStarted = false;
   quizControlFormGroup: UntypedFormGroup = new UntypedFormGroup(
     {
@@ -97,9 +93,6 @@ export class SubtractionExerciseComponent
   ): boolean | Observable<boolean> | Promise<boolean> {
     return !this.isQuizStarted;
   }
-
-  ngOnInit(): void {}
-  ngOnDestroy(): void {}
 
   canStart(): boolean {
     return !this.isQuizStarted && this.quizControlFormGroup.valid;

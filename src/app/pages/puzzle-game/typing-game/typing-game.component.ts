@@ -52,18 +52,19 @@ export class TypingGameComponent implements OnInit, AfterViewInit {
 
   private updateComparison(isdelta?: boolean) {
     if (isdelta) {
-      const nlen = this.inputtedString!.length;
+      const nlen = this.inputtedString?.length ?? 0;
       let issucc = true;
 
       if (nlen !== this.arComparison.length) {
         issucc = false;
       }
       for (let i = 0; i < nlen; i++) {
-        this.arComparison[i].inputted = this.inputtedString!.charAt(i);
+        this.arComparison[i].inputted = this.inputtedString?.charAt(i) ?? '';
 
         if (issucc) {
           if (
-            this.arComparison[i].expected !== this.inputtedString!.charAt(i)
+            this.arComparison[i].expected !==
+            (this.inputtedString?.charAt(i) ?? '')
           ) {
             issucc = false;
           }
@@ -147,8 +148,8 @@ export class TypingGameComponent implements OnInit, AfterViewInit {
     }
 
     if (evt.key === 'Backspace') {
-      if (this.inputtedString!.length >= 2) {
-        this.inputtedString = this.inputtedString!.slice(0, length - 2);
+      if ((this.inputtedString ?? '').length >= 2) {
+        this.inputtedString = (this.inputtedString ?? '').slice(0, length - 2);
       } else {
         this.inputtedString = '';
       }
