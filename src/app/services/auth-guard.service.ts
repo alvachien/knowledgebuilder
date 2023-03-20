@@ -7,7 +7,7 @@ import {
   UrlTree,
 } from '@angular/router';
 import { OidcSecurityService } from 'angular-auth-oidc-client';
-import { firstValueFrom, map, Observable } from 'rxjs';
+import { map, Observable } from 'rxjs';
 
 @Injectable({
   providedIn: 'root',

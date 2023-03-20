@@ -329,7 +329,9 @@ export class AwardRule {
     this.point = oldrule.point;
   }
 
-  public parseData(val: any): void {}
+  public parseData(val: any): void {
+    // TBD.
+  }
   public writeJSONObject(isCreatedMode = true): any {
     const jobj: any = {};
     return jobj;

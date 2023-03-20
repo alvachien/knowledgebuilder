@@ -5,5 +5,4 @@ import { Component, OnInit } from '@angular/core';
   templateUrl: './unauthorized.component.html',
   styleUrls: ['./unauthorized.component.scss'],
 })
-export class UnauthorizedComponent {
-}
+export class UnauthorizedComponent {}

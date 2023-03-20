@@ -3,7 +3,7 @@
 //
 import moment from 'moment';
 import { HabitCategory, HabitCompleteCategory, HabitFrequency } from '.';
-import { UserHabit, UserHabitRule, UserHabitRecord } from './habit';
+import { UserHabit } from './habit';
 
 describe('UserHabit', () => {
   let testobj: UserHabit;

@@ -4,10 +4,8 @@ import {
   AuthenticatedResult,
 } from 'angular-auth-oidc-client';
 import { of } from 'rxjs';
-import { InvitedUser } from '../models';
 
 import { AuthGuardService } from './auth-guard.service';
-import { AuthService } from './auth.service';
 
 describe('AuthGuardService', () => {
   let service: AuthGuardService;

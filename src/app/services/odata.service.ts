@@ -9,7 +9,7 @@ import {
   HttpErrorResponse,
 } from '@angular/common/http';
 import { Observable, throwError, Subject, of } from 'rxjs';
-import { map, catchError, } from 'rxjs/operators';
+import { map, catchError } from 'rxjs/operators';
 
 import {
   ExerciseItem,
@@ -232,7 +232,7 @@ export class ODataService {
       })
       .pipe(
         map((response) => {
-          const rsp = response as any;
+          const rsp = response as SafeAny;
           const kitem = new KnowledgeItem();
           kitem.parseData(rsp);
 
@@ -277,7 +277,7 @@ export class ODataService {
       })
       .pipe(
         map((response) => {
-          const rsp = response as any;
+          const rsp = response as SafeAny;
           const kitem = new KnowledgeItem();
           kitem.parseData(rsp);
           if (ki.Tags.length > 0) {
@@ -319,7 +319,7 @@ export class ODataService {
         headers,
       })
       .pipe(
-        map((response) => {
+        map(() => {
           const bufidx = this.bufferedKnowledgeItems.findIndex(
             (val) => val.ID === ki.ID
           );
@@ -360,7 +360,7 @@ export class ODataService {
         headers,
       })
       .pipe(
-        map((response) => {
+        map(() => {
           // Clear it from the buffer
           const bufidx = this.bufferedKnowledgeItems.findIndex(
             (val) => val.ID === itemid
@@ -437,8 +437,8 @@ export class ODataService {
       })
       .pipe(
         map((response) => {
-          const rjs = response as any;
-          const ritems = rjs.value as any[];
+          const rjs = response as SafeAny;
+          const ritems = rjs.value as SafeAny[];
           const items: ExerciseItem[] = [];
           ritems.forEach((item) => {
             const rit: ExerciseItem = new ExerciseItem();
@@ -487,7 +487,7 @@ export class ODataService {
       })
       .pipe(
         map((response) => {
-          const rjs = response as any;
+          const rjs = response as SafeAny;
           const rtn = new ExerciseItem();
           rtn.parseData(rjs);
           if (qbi.Tags.length > 0) {
@@ -533,7 +533,7 @@ export class ODataService {
         headers,
       })
       .pipe(
-        map((response) => {
+        map(() => {
           const bufidx = this.bufferedExerciseItems.findIndex(
             (val) => val.ID === qbi.ID
           );
@@ -637,7 +637,7 @@ export class ODataService {
         headers,
       })
       .pipe(
-        map((response) => {
+        map(() => {
           // Clear it from the buffer
           const bufidx = this.bufferedExerciseItems.findIndex(
             (val) => val.ID === itemid
@@ -701,8 +701,8 @@ export class ODataService {
       })
       .pipe(
         map((response) => {
-          const rjs = response as any;
-          const ritems = rjs.value as any[];
+          const rjs = response as SafeAny;
+          const ritems = rjs.value as SafeAny[];
           const items: ExerciseItemSearchResult[] = [];
           ritems.forEach((item) => {
             const rit: ExerciseItemSearchResult =
@@ -734,10 +734,10 @@ export class ODataService {
 
   // File upload
   public uploadFiles(files: Set<File>): {
-    [key: string]: { result: Observable<any> };
+    [key: string]: { result: Observable<SafeAny> };
   } {
     // this will be the our resulting map
-    const status: { [key: string]: { result: Observable<any> } } = {};
+    const status: { [key: string]: { result: Observable<SafeAny> } } = {};
 
     files.forEach((file) => {
       // create a new multipart-form for every file
@@ -749,12 +749,12 @@ export class ODataService {
       const req = new HttpRequest('POST', this.uploadUrl, formData);
 
       // create a new progress-subject for every file
-      const result = new Subject<any>();
+      const result = new Subject<SafeAny>();
 
       // send the http-request and subscribe for progress-updates
       this.http.request(req).subscribe((event) => {
         if (event instanceof HttpResponse) {
-          const bodys: any = event.body;
+          const bodys = event.body as SafeAny;
           const body = bodys[0];
           result.next({
             delete_type: body.delete_type,
@@ -809,8 +809,8 @@ export class ODataService {
       })
       .pipe(
         map((response) => {
-          const rjs = response as any;
-          const ritems = rjs.value as any[];
+          const rjs = response as SafeAny;
+          const ritems = rjs.value as SafeAny[];
           const items: TagCount[] = [];
           ritems.forEach((item) => {
             const rit: TagCount = new TagCount();
@@ -871,8 +871,8 @@ export class ODataService {
       })
       .pipe(
         map((response) => {
-          const rjs = response as any;
-          const ritems = rjs.value as any[];
+          const rjs = response as SafeAny;
+          const ritems = rjs.value as SafeAny[];
           const items: Tag[] = [];
           ritems.forEach((item) => {
             const rit: Tag = new Tag();
@@ -917,8 +917,8 @@ export class ODataService {
       })
       .pipe(
         map((response) => {
-          const rjs = response as any;
-          const ritems = rjs.value as any[];
+          const rjs = response as SafeAny;
+          const ritems = rjs.value as SafeAny[];
           const items: OverviewInfo[] = [];
           ritems.forEach((item) => {
             const rit: OverviewInfo = new OverviewInfo();
@@ -980,8 +980,8 @@ export class ODataService {
       })
       .pipe(
         map((response) => {
-          const rjs = response as any;
-          const ritems = rjs.value as any[];
+          const rjs = response as SafeAny;
+          const ritems = rjs.value as SafeAny[];
           this.bufferedUserCollection = [];
           ritems.forEach((item) => {
             const rit: UserCollection = new UserCollection();
@@ -1028,7 +1028,7 @@ export class ODataService {
       })
       .pipe(
         map((response) => {
-          const rjs = response as any;
+          const rjs = response as SafeAny;
           const rtn = new UserCollection();
           rtn.parseData(rjs);
 
@@ -1089,7 +1089,7 @@ export class ODataService {
       })
       .pipe(
         map((response) => {
-          const rsp = response as any;
+          const rsp = response as SafeAny;
           const kitem = new UserCollection();
           kitem.parseData(rsp);
 
@@ -1126,7 +1126,7 @@ export class ODataService {
       .append(this.contentType, this.appJson)
       .append(this.strAccept, this.appJson)
       .append('Authorization', 'Bearer ' + this.authService.accessToken);
-    const jdata: any = {
+    const jdata: SafeAny = {
       User: this.authService.currentUserId,
       UserCollectionItems: [],
     };
@@ -1143,8 +1143,8 @@ export class ODataService {
       })
       .pipe(
         map((response) => {
-          const rjs = response as any;
-          const ritems = rjs.value as any[];
+          const rjs = response as SafeAny;
+          const ritems = rjs.value as SafeAny[];
           const items: UserCollectionItem[] = [];
 
           ritems.forEach((item) => {
@@ -1180,7 +1180,7 @@ export class ODataService {
       .append(this.contentType, this.appJson)
       .append(this.strAccept, this.appJson)
       .append('Authorization', 'Bearer ' + this.authService.accessToken);
-    const jdata: any = {
+    const jdata: SafeAny = {
       User: this.authService.currentUserId,
       ID: collItem.ID,
       RefID: collItem.RefID,
@@ -1199,7 +1199,7 @@ export class ODataService {
       )
       .pipe(
         map((response) => {
-          const rjs = response as any;
+          const rjs = response as SafeAny;
           const rtn = rjs.value as boolean;
 
           return rtn;
@@ -1229,7 +1229,7 @@ export class ODataService {
       .append(this.contentType, this.appJson)
       .append(this.strAccept, this.appJson)
       .append('Authorization', 'Bearer ' + this.authService.accessToken);
-    const jdata: any = {
+    const jdata: SafeAny = {
       User: this.authService.currentUserId,
       UserCollectionItems: [],
     };
@@ -1245,8 +1245,8 @@ export class ODataService {
       })
       .pipe(
         map((response) => {
-          const rjs = response as any;
-          const ritems = rjs.value as any[];
+          const rjs = response as SafeAny;
+          const ritems = rjs.value as SafeAny[];
           const items: UserCollectionItem[] = [];
 
           ritems.forEach((item) => {
@@ -1283,7 +1283,7 @@ export class ODataService {
       .append(this.contentType, this.appJson)
       .append(this.strAccept, this.appJson)
       .append('Authorization', 'Bearer ' + this.authService.accessToken);
-    const jdata: any = {
+    const jdata: SafeAny = {
       User: this.authService.currentUserId,
       ID: collItem.ID,
       RefID: collItem.RefID,
@@ -1301,7 +1301,7 @@ export class ODataService {
       )
       .pipe(
         map((response) => {
-          const rjs = response as any;
+          const rjs = response as SafeAny;
           const rtn = rjs.value as boolean;
 
           return rtn;
@@ -1317,7 +1317,7 @@ export class ODataService {
       );
   }
 
-  public deleteUserCollection(collid: number): Observable<any> {
+  public deleteUserCollection(collid: number): Observable<SafeAny> {
     if (environment.mockdata) {
       return throwError(() => new Error(this.mockModeFailMsg));
     }
@@ -1335,7 +1335,7 @@ export class ODataService {
         headers,
       })
       .pipe(
-        map((response) => true),
+        map(() => true),
         catchError((error: HttpErrorResponse) =>
           throwError(
             () =>
@@ -1385,8 +1385,8 @@ export class ODataService {
       })
       .pipe(
         map((response) => {
-          const rjs = response as any;
-          const ritems = rjs.value as any[];
+          const rjs = response as SafeAny;
+          const ritems = rjs.value as SafeAny[];
           const items: ExerciseItemUserScore[] = [];
           ritems.forEach((item) => {
             const rit: ExerciseItemUserScore = new ExerciseItemUserScore();
@@ -1433,7 +1433,7 @@ export class ODataService {
       })
       .pipe(
         map((response) => {
-          const rjs = response as any;
+          const rjs = response as SafeAny;
           const rtn = new ExerciseItemUserScore();
           rtn.parseData(rjs);
 
@@ -1467,7 +1467,7 @@ export class ODataService {
         headers,
       })
       .pipe(
-        map((response) => true),
+        map(() => true),
         catchError((error: HttpErrorResponse) =>
           throwError(
             () =>
@@ -1503,7 +1503,7 @@ export class ODataService {
       })
       .pipe(
         map((response) => {
-          const rjs = response as any;
+          const rjs = response as SafeAny;
           if (rjs) {
             const rtn = new ExerciseItemUserScore();
             rtn.parseData(rjs);
@@ -1570,8 +1570,8 @@ export class ODataService {
       })
       .pipe(
         map((response) => {
-          const rjs = response as any;
-          const ritems = rjs.value as any[];
+          const rjs = response as SafeAny;
+          const ritems = rjs.value as SafeAny[];
           this.bufferedUserHabit = [];
 
           ritems.forEach((item) => {
@@ -1627,7 +1627,7 @@ export class ODataService {
       })
       .pipe(
         map((response) => {
-          const rjs = response as any;
+          const rjs = response as SafeAny;
           const rit: UserHabit = new UserHabit();
           rit.parseData(rjs);
 
@@ -1667,7 +1667,7 @@ export class ODataService {
       })
       .pipe(
         map((response) => {
-          const rjs = response as any;
+          const rjs = response as SafeAny;
           const rtn = new UserHabit();
           rtn.parseData(rjs);
 
@@ -1703,7 +1703,7 @@ export class ODataService {
         headers,
       })
       .pipe(
-        map((response) => {
+        map(() => {
           const idx = this.bufferedUserHabit.findIndex((rg) => rg.ID === rid);
           if (idx !== -1) {
             this.bufferedUserHabit.splice(idx, 1);
@@ -1758,8 +1758,8 @@ export class ODataService {
       })
       .pipe(
         map((response) => {
-          const rjs = response as any;
-          const ritems = rjs.value as any[];
+          const rjs = response as SafeAny;
+          const ritems = rjs.value as SafeAny[];
           const arRecords: UserHabitRecord[] = [];
           ritems.forEach((item) => {
             const rit: UserHabitRecord = new UserHabitRecord();
@@ -1819,8 +1819,8 @@ export class ODataService {
       })
       .pipe(
         map((response) => {
-          const rjs = response as any;
-          const ritems = rjs.value as any[];
+          const rjs = response as SafeAny;
+          const ritems = rjs.value as SafeAny[];
 
           this.bufferedUserHabitRecordView = [];
 
@@ -1867,7 +1867,7 @@ export class ODataService {
       })
       .pipe(
         map((response) => {
-          const rjs = response as any;
+          const rjs = response as SafeAny;
           const rtn = new UserHabitRecord();
           rtn.parseData(rjs);
 
@@ -1909,9 +1909,7 @@ export class ODataService {
         }
       )
       .pipe(
-        map((response) => {
-          return true;
-        }),
+        map(() => true),
         catchError((error: HttpErrorResponse) =>
           throwError(
             () =>
@@ -1950,7 +1948,7 @@ export class ODataService {
       })
       .pipe(
         map((response) => {
-          const rjs = response as any;
+          const rjs = response as SafeAny;
           if (rjs) {
             return rjs.value as number;
           }
@@ -1992,9 +1990,9 @@ export class ODataService {
       })
       .pipe(
         map((response) => {
-          const rjs = response as any;
+          const rjs = response as SafeAny;
           const rtns: UserHabitPointsByUserDate[] = [];
-          const ritems = rjs.value as any[];
+          const ritems = rjs.value as SafeAny[];
           ritems.forEach((item) => {
             const rit: UserHabitPointsByUserDate =
               new UserHabitPointsByUserDate();
@@ -2035,9 +2033,9 @@ export class ODataService {
       })
       .pipe(
         map((response) => {
-          const rjs = response as any;
+          const rjs = response as SafeAny;
           const rtns: UserHabitPointsByUserHabitDate[] = [];
-          const ritems = rjs.value as any[];
+          const ritems = rjs.value as SafeAny[];
           ritems.forEach((item) => {
             const rit: UserHabitPointsByUserHabitDate =
               new UserHabitPointsByUserHabitDate();
@@ -2082,9 +2080,9 @@ export class ODataService {
       })
       .pipe(
         map((response) => {
-          const rjs = response as any;
+          const rjs = response as SafeAny;
           const rtns: UserHabitPointReport[] = [];
-          const ritems = rjs.value as any[];
+          const ritems = rjs.value as SafeAny[];
           ritems.forEach((item) => {
             const rit: UserHabitPointReport = new UserHabitPointReport();
             rit.parseData(item);
@@ -2129,7 +2127,7 @@ export class ODataService {
       })
       .pipe(
         map((response) => {
-          const rjs = response as any;
+          const rjs = response as SafeAny;
           if (rjs) {
             return rjs.value as number;
           }
@@ -2167,7 +2165,7 @@ export class ODataService {
       })
       .pipe(
         map((response) => {
-          const rjs = response as any;
+          const rjs = response as SafeAny;
           const rtn = new UserHabitPoint();
           rtn.parseData(rjs);
 
@@ -2207,9 +2205,9 @@ export class ODataService {
       })
       .pipe(
         map((response) => {
-          const rjs = response as any;
+          const rjs = response as SafeAny;
           const rtns: UserHabitPoint[] = [];
-          const ritems = rjs.value as any[];
+          const ritems = rjs.value as SafeAny[];
           ritems.forEach((item) => {
             const rit: UserHabitPoint = new UserHabitPoint();
             rit.parseData(item);
@@ -2246,9 +2244,7 @@ export class ODataService {
         headers,
       })
       .pipe(
-        map((response) => {
-          return true;
-        }),
+        map(() => true),
         catchError((error: HttpErrorResponse) =>
           throwError(
             () =>

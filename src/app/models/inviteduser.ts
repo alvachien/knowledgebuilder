@@ -1,6 +1,7 @@
 import moment from 'moment';
 import { AwardUserView } from './award';
 import { momentDateFormat } from './uicommon';
+import { SafeAny } from '../common';
 
 export class InvitedUser {
   public userID = '';
@@ -18,7 +19,7 @@ export class InvitedUser {
     return this.lastLogonAt.format(momentDateFormat);
   }
 
-  public parseData(val: any): void {
+  public parseData(val: SafeAny): void {
     if (val && val.UserID) {
       this.userID = val.UserID;
     }
@@ -36,7 +37,7 @@ export class InvitedUser {
     }
 
     if (val && val.AwardUsers) {
-      const items: any[] = val.AwardUsers as any[];
+      const items: SafeAny[] = val.AwardUsers as SafeAny[];
       items.forEach((tg) => {
         const wuv = new AwardUserView();
         wuv.parseData(tg);

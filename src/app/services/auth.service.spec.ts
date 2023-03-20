@@ -19,15 +19,16 @@ import { environment } from 'src/environments/environment';
 
 import { asyncData } from 'src/testing';
 import { AuthService } from './auth.service';
+import { SafeAny } from '../common';
 
 describe('AuthService', () => {
   let service: AuthService;
   let httpTestingController: HttpTestingController;
-  let securService: any;
-  let eventService: any;
-  let checkAuthSpy: any;
-  let authorizeSpy: any;
-  let registerForEventsSpy: any;
+  let securService: SafeAny;
+  let eventService: SafeAny;
+  let checkAuthSpy: SafeAny;
+  let authorizeSpy: SafeAny;
+  let registerForEventsSpy: SafeAny;
 
   beforeAll(() => {
     securService = jasmine.createSpyObj('OidcSecurityService', [
@@ -110,9 +111,11 @@ describe('AuthService', () => {
 
       const callurl = `${environment.apiurlRoot}/InvitedUsers`;
       // Service should have made one request to GET data from expected URL
-      const req: any = httpTestingController.expectOne((requrl: any) => {
-        return requrl.method === 'GET' && requrl.url === callurl;
-      });
+      const req: SafeAny = httpTestingController.expectOne(
+        (requrl: SafeAny) => {
+          return requrl.method === 'GET' && requrl.url === callurl;
+        }
+      );
 
       expect(req.request.params.get('$expand')).toEqual('AwardUsers');
 

@@ -14,6 +14,7 @@ import { catchError, map, Observable, throwError } from 'rxjs';
 import { environment } from 'src/environments/environment';
 
 import { InvitedUser } from '../models';
+import { SafeAny } from '../common';
 
 @Injectable({
   providedIn: 'root',
@@ -150,8 +151,8 @@ export class AuthService {
       })
       .pipe(
         map((response) => {
-          const rjs = response as any;
-          const ritems = rjs.value as any[];
+          const rjs = response as SafeAny;
+          const ritems = rjs.value as SafeAny[];
           if (ritems.length !== 1) {
             throwError(() => new Error('Fatal error'));
           }

@@ -167,6 +167,7 @@ export class UserCollectionDetailComponent implements OnInit, OnDestroy {
         },
       });
     } else if (this.isUpdateMode) {
+      // TBD.
     }
   }
   public onReturnToList(): void {
@@ -179,7 +180,7 @@ export class UserCollectionDetailComponent implements OnInit, OnDestroy {
   public onDeleteCollItem(row: UserCollectionItem): void {
     if (row.RefType === TagReferenceType.ExerciseItem) {
       this.odataService.removeExerciseItemFromCollection(row).subscribe({
-        next: (val) => {
+        next: () => {
           this.uiUtilSrv.showSnackInfo('DONE');
           const idx = this.dataSource.findIndex(
             (item) => item.RefID === row.RefID && item.RefType === row.RefType
@@ -194,7 +195,7 @@ export class UserCollectionDetailComponent implements OnInit, OnDestroy {
       });
     } else if (row.RefID === TagReferenceType.KnowledgeItem) {
       this.odataService.removeKnowledgeItemFromCollection(row).subscribe({
-        next: (val) => {
+        next: () => {
           this.uiUtilSrv.showSnackInfo('DONE');
           const idx = this.dataSource.findIndex(
             (item) => item.RefID === row.RefID && item.RefType === row.RefType

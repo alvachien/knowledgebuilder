@@ -2,11 +2,8 @@ import {
   AfterContentInit,
   Component,
   ElementRef,
-  EventEmitter,
   HostListener,
-  Input,
   OnInit,
-  Output,
   ViewChild,
 } from '@angular/core';
 
@@ -25,7 +22,7 @@ import { ResultDialogComponent } from '../result-dialog/result-dialog.component'
   templateUrl: './gobang-game.component.html',
   styleUrls: ['./gobang-game.component.scss'],
 })
-export class GobangGameComponent implements OnInit, AfterContentInit {
+export class GobangGameComponent implements AfterContentInit {
   private _cellsize = 15;
   private _cellheight: number;
   private _cellwidth: number;
@@ -56,8 +53,6 @@ export class GobangGameComponent implements OnInit, AfterContentInit {
     this._userStep = true;
     this._instance = new Gobang();
   }
-
-  ngOnInit(): void {}
 
   ngAfterContentInit(): void {
     this._instance.Dimension = this._cellsize;

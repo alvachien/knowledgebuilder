@@ -2,10 +2,7 @@ import { Injectable } from '@angular/core';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { Router } from '@angular/router';
 
-import {
-  TagReferenceType,
-  UserHabitRecordView,
-} from '../models';
+import { TagReferenceType, UserHabitRecordView } from '../models';
 
 export interface PreviewObject {
   refType: TagReferenceType;

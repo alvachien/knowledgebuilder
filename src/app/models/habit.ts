@@ -4,6 +4,7 @@
 
 import moment from 'moment';
 import { momentDateFormat } from '.';
+import { SafeAny } from '../common';
 
 // Habit category: good habit or bad habit
 export enum HabitCategory {
@@ -25,7 +26,7 @@ export const getHabitCategoryName = (ctgy: HabitCategory): string => {
   return rtn;
 };
 
-export const getHabitCategoryNames = (): any[] => {
+export const getHabitCategoryNames = (): SafeAny[] => {
   const rtn = [];
 
   for (const se in HabitCategory) {
@@ -67,7 +68,7 @@ export const getHabitFrequencyName = (freq: HabitFrequency): string => {
   return rtn;
 };
 
-export const getHabitFrequencyNames = (): any[] => {
+export const getHabitFrequencyNames = (): SafeAny[] => {
   const rtn = [];
 
   for (const se in HabitFrequency) {
@@ -107,7 +108,7 @@ export const getHabitCompleteCategoryName = (
   return rtn;
 };
 
-export const getHabitCompleteCategoryNames = (): any[] => {
+export const getHabitCompleteCategoryNames = (): SafeAny[] => {
   const rtn = [];
 
   for (const se in HabitCompleteCategory) {
@@ -280,7 +281,7 @@ export class UserHabit {
     )}`;
   }
 
-  public parseData(val: any): void {
+  public parseData(val: SafeAny): void {
     if (val && val.ID) {
       this.ID = +val.ID;
     }
@@ -333,7 +334,7 @@ export class UserHabit {
     }
     this.arRules = [];
     if (val && val.Rules) {
-      const items: any[] = val.Rules as any[];
+      const items: SafeAny[] = val.Rules as SafeAny[];
       items.forEach((tg) => {
         const item = new UserHabitRule();
         item.parseData(tg);
@@ -341,8 +342,8 @@ export class UserHabit {
       });
     }
   }
-  public writeJSONObject(isCreatedMode = true): any {
-    const jobj: any = {};
+  public writeJSONObject(isCreatedMode = true): SafeAny {
+    const jobj: SafeAny = {};
     if (!isCreatedMode) {
       jobj.ID = this.ID;
     }
@@ -393,7 +394,7 @@ export class UserHabitRule {
 
     return true;
   }
-  public parseData(val: any): void {
+  public parseData(val: SafeAny): void {
     if (val && val.HabitID) {
       this.habitID = val.HabitID;
     }
@@ -410,8 +411,8 @@ export class UserHabitRule {
       this.point = val.Point;
     }
   }
-  public writeJSONObject(isCreatedMode = true): any {
-    const jobj: any = {};
+  public writeJSONObject(isCreatedMode = true): SafeAny {
+    const jobj: SafeAny = {};
     if (!isCreatedMode) {
       jobj.HabitID = this.habitID;
       jobj.RuleID = this.ruleID;
@@ -436,7 +437,7 @@ export class UserHabitRecord {
   get recordDateString(): string {
     return this.recordDate.format(momentDateFormat);
   }
-  public parseData(val: any): void {
+  public parseData(val: SafeAny): void {
     if (val && val.HabitID) {
       this.habitID = val.HabitID;
     }
@@ -459,8 +460,8 @@ export class UserHabitRecord {
       this.comment = val.Comment;
     }
   }
-  public writeJSONObject(isCreatedMode = true): any {
-    const jobj: any = {};
+  public writeJSONObject(isCreatedMode = true): SafeAny {
+    const jobj: SafeAny = {};
     jobj.HabitID = this.habitID;
     jobj.RecordDate = this.recordDate.format(momentDateFormat);
     jobj.SubID = this.subID;
@@ -498,7 +499,7 @@ export class UserHabitPoint {
     return this.recordDate.format(momentDateFormat);
   }
 
-  public parseData(val: any): void {
+  public parseData(val: SafeAny): void {
     if (val && val.ID) {
       this.ID = val.ID;
     }
@@ -515,8 +516,8 @@ export class UserHabitPoint {
       this.comment = val.Comment;
     }
   }
-  public writeJSONObject(isCreatedMode = true): any {
-    const jobj: any = {};
+  public writeJSONObject(isCreatedMode = true): SafeAny {
+    const jobj: SafeAny = {};
     if (!isCreatedMode) {
       jobj.ID = this.ID;
     }
@@ -540,7 +541,7 @@ export class UserHabitPointsByUserDate {
     return this.recordDate.format(momentDateFormat);
   }
 
-  public parseData(val: any): void {
+  public parseData(val: SafeAny): void {
     if (val && val.TargetUser) {
       this.targetUser = val.TargetUser;
     }
@@ -563,7 +564,7 @@ export class UserHabitPointsByUserHabitDate {
   get recordDateString(): string {
     return this.recordDate.format(momentDateFormat);
   }
-  public parseData(val: any): void {
+  public parseData(val: SafeAny): void {
     if (val && val.TargetUser) {
       this.targetUser = val.TargetUser;
     }
@@ -606,7 +607,7 @@ export class UserHabitRecordView {
   public ruleDaysTo?: number;
   public rulePoint?: number;
 
-  public parseData(val: any): void {
+  public parseData(val: SafeAny): void {
     if (val && val.HabitID) {
       this.habitID = val.HabitID;
     }

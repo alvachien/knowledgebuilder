@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { PreloadingStrategy, Route } from '@angular/router';
 import { Observable, of } from 'rxjs';
+import { SafeAny } from '../common';
 
 @Injectable({
   providedIn: 'root',
@@ -8,7 +9,7 @@ import { Observable, of } from 'rxjs';
 export class SelectivePreloadingStrategyService implements PreloadingStrategy {
   preloadedModules: string[] = [];
 
-  preload(route: Route, load: () => Observable<any>): Observable<any> {
+  preload(route: Route, load: () => Observable<SafeAny>): Observable<SafeAny> {
     if (route.data && route.data['preload']) {
       // add the route path to the preloaded module array
       if (route.path) {

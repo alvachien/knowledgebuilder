@@ -5,11 +5,7 @@ import { ActivatedRoute } from '@angular/router';
 import { merge, of as observableOf } from 'rxjs';
 import { catchError, map, startWith, switchMap } from 'rxjs/operators';
 
-import {
-  Tag,
-  TagReferenceType,
-  getTagReferenceTypeName,
-} from 'src/app/models';
+import { Tag, TagReferenceType, getTagReferenceTypeName } from 'src/app/models';
 import {
   PreviewObject,
   UIUtilityService,

@@ -1,6 +1,5 @@
-import { Component, ElementRef, OnInit, ViewChild } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
-import { RPN } from 'actslib';
 import { ResultDialogComponent } from '../result-dialog/result-dialog.component';
 
 @Component({
@@ -8,7 +7,7 @@ import { ResultDialogComponent } from '../result-dialog/result-dialog.component'
   templateUrl: './calculate24.component.html',
   styleUrls: ['./calculate24.component.scss'],
 })
-export class Calculate24Component implements OnInit {
+export class Calculate24Component {
   isStarted = false;
   Cal24Input = '';
   Cal24items: number[] = [];
@@ -17,8 +16,6 @@ export class Calculate24Component implements OnInit {
   Cal24SurrendString = '';
 
   constructor(public dialog: MatDialog) {}
-
-  ngOnInit(): void {}
 
   /**
    * Cal24 part

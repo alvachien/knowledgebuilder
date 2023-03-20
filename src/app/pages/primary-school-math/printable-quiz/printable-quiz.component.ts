@@ -12,6 +12,7 @@ import { MatStepper } from '@angular/material/stepper';
 import { StepperSelectionEvent } from '@angular/cdk/stepper';
 import { jsPDF, jsPDFOptions } from 'jspdf';
 import html2canvas from 'html2canvas';
+import { SafeAny } from 'src/app/common';
 
 export const generateNumber = (
   endnr: number,
@@ -32,7 +33,7 @@ export const generateNumber = (
   templateUrl: './printable-quiz.component.html',
   styleUrls: ['./printable-quiz.component.scss'],
 })
-export class PrintableQuizComponent implements OnInit {
+export class PrintableQuizComponent {
   private _eventPDF: EventEmitter<boolean> = new EventEmitter();
 
   @ViewChild(MatStepper, { static: false }) stepper!: MatStepper;
@@ -40,19 +41,19 @@ export class PrintableQuizComponent implements OnInit {
   contentFormGroup: UntypedFormGroup;
   quizFormGroup: UntypedFormGroup;
 
-  arAddQuizFinal: any[] = [];
-  arSubQuizFinal: any[] = [];
-  arMulQuizFinal: any[] = [];
-  arMixOpQuizFinal: any[] = [];
-  arFractQuizFinal: any[] = [];
+  arAddQuizFinal: SafeAny[] = [];
+  arSubQuizFinal: SafeAny[] = [];
+  arMulQuizFinal: SafeAny[] = [];
+  arMixOpQuizFinal: SafeAny[] = [];
+  arFractQuizFinal: SafeAny[] = [];
 
-  get amountMixOp(): number | null {
+  get amountMixOp(): number | SafeAny {
     return (
       this.contentFormGroup.get('amountMixOpCtrl') &&
       +this.contentFormGroup.get('amountMixOpCtrl')?.value
     );
   }
-  get amountFract(): number | null {
+  get amountFract(): number | SafeAny {
     return (
       this.contentFormGroup.get('amountFractCtrl') &&
       +this.contentFormGroup.get('amountFractCtrl')?.value
@@ -73,13 +74,13 @@ export class PrintableQuizComponent implements OnInit {
   get isScoreInputEnabled(): boolean {
     return this.quizFormGroup.get('enableScoreCtrl')?.value as boolean;
   }
-  get arPlaceHolder(): any[] {
+  get arPlaceHolder(): SafeAny[] {
     const dcmplace: number =
       +this.contentFormGroup.get('decimalPlacesCtrl')?.value;
     const endnr: number = +this.contentFormGroup.get('numberEndCtrl')?.value;
     const amtLength: number = 2 * (endnr.toString().length + dcmplace);
 
-    const arholder: any[] = [];
+    const arholder: SafeAny[] = [];
     for (let i = 0; i < amtLength; i++) {
       arholder.push('_');
     }
@@ -114,10 +115,6 @@ export class PrintableQuizComponent implements OnInit {
     );
   }
 
-  ngOnInit(): void {
-    // Oninit.
-  }
-
   contentValidator: ValidatorFn = (
     group: AbstractControl
   ): ValidationErrors | null => {
@@ -126,7 +123,7 @@ export class PrintableQuizComponent implements OnInit {
     const mulamt: number = +group.get('amountMulCtrl')?.value;
     const mopamt: number = +group.get('amountMixOpCtrl')?.value;
     const frtamt: number = +group.get('amountFractCtrl')?.value;
-    const mops: any[] = group.get('mixOpsCtrl')?.value;
+    const mops: SafeAny[] = group.get('mixOpsCtrl')?.value;
     if (
       (addamt <= 0 &&
         subamt <= 0 &&
@@ -232,7 +229,7 @@ export class PrintableQuizComponent implements OnInit {
             this.onReset();
           }
         },
-        (error: any) => {
+        (error: SafeAny) => {
           // Failed
           this.snackbar.open(error.toString(), undefined, {
             duration: 2000,
@@ -257,7 +254,7 @@ export class PrintableQuizComponent implements OnInit {
   }
 
   private pdfFileGenerate() {
-    const target: any = document.getElementById('id_result');
+    const target: SafeAny = document.getElementById('id_result');
     const width = target.offsetWidth;
     const height = target.offsetHeight;
 
@@ -267,7 +264,7 @@ export class PrintableQuizComponent implements OnInit {
     canvas.width = width * scale;
     canvas.height = height * scale;
     canvas.getContext('2d')?.scale(scale, scale);
-    const opts: any = {
+    const opts: SafeAny = {
       scale,
       canvas,
       // logging: true,
@@ -277,8 +274,8 @@ export class PrintableQuizComponent implements OnInit {
     };
 
     html2canvas(target, opts).then(
-      (canvas2: any) => {
-        const context: any = canvas2.getContext('2d');
+      (canvas2: SafeAny) => {
+        const context: SafeAny = canvas2.getContext('2d');
         // context.mozImageSmoothingEnabled = false;
         // context.webkitImageSmoothingEnabled = false;
         // context.msImageSmoothingEnabled = false;
@@ -317,7 +314,7 @@ export class PrintableQuizComponent implements OnInit {
 
         this._eventPDF.emit(true);
       },
-      (error: any) => {
+      (error: SafeAny) => {
         this._eventPDF.error(error.toString());
       }
     );
@@ -332,7 +329,7 @@ export class PrintableQuizComponent implements OnInit {
   ) {
     this.arMulQuizFinal = [];
 
-    const arMulQuiz: any[] = [];
+    const arMulQuiz: SafeAny[] = [];
     let idx = 0;
     if (mulamt > 0) {
       idx = 0;
@@ -384,7 +381,7 @@ export class PrintableQuizComponent implements OnInit {
   ) {
     this.arSubQuizFinal = [];
 
-    const arSubQuiz: any[] = [];
+    const arSubQuiz: SafeAny[] = [];
     let idx = 0;
     if (subamt > 0) {
       idx = 0;
@@ -442,7 +439,7 @@ export class PrintableQuizComponent implements OnInit {
   ) {
     this.arAddQuizFinal = [];
 
-    const arAddQuiz: any[] = [];
+    const arAddQuiz: SafeAny[] = [];
     let idx = 0;
 
     if (addamt > 0) {
@@ -499,7 +496,7 @@ export class PrintableQuizComponent implements OnInit {
       return;
     }
 
-    const arMixOpQuiz: any[] = [];
+    const arMixOpQuiz: SafeAny[] = [];
 
     if (mixamt > 0) {
       do {
@@ -555,7 +552,7 @@ export class PrintableQuizComponent implements OnInit {
           numlist.push(rst);
           arops.push('=');
 
-          const arformat: any[] = [];
+          const arformat: SafeAny[] = [];
 
           let nRandom = -1;
           if (randminput) {
@@ -601,7 +598,7 @@ export class PrintableQuizComponent implements OnInit {
   ) {
     this.arFractQuizFinal = [];
 
-    const arFractQuiz: any[] = [];
+    const arFractQuiz: SafeAny[] = [];
 
     if (frtamt > 0) {
       do {
@@ -639,10 +636,10 @@ export class PrintableQuizComponent implements OnInit {
     }
   }
 
-  private shuffleArray(arr: any[]): void {
+  private shuffleArray(arr: SafeAny[]): void {
     let i = 0,
       j = 0,
-      temp: any;
+      temp: SafeAny;
 
     for (i = arr.length - 1; i > 0; i -= 1) {
       j = Math.floor(Math.random() * (i + 1));

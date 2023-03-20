@@ -28,7 +28,7 @@ export const getExerciseItemTypeName = (reftype: ExerciseItemType): string => {
       rtn = 'ExerciseItemType.ShortAnswer';
       break;
 
-    case ExerciseItemType.ShortAnswer:
+    case ExerciseItemType.EssayQuestions:
       rtn = 'ExerciseItemType.EssayQuestion';
       break;
 

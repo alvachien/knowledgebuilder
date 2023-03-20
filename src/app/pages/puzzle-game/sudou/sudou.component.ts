@@ -1,14 +1,10 @@
 import {
   AfterContentInit,
-  AfterViewInit,
   Component,
   ElementRef,
-  EventEmitter,
   HostListener,
-  Input,
   OnDestroy,
   OnInit,
-  Output,
   ViewChild,
 } from '@angular/core';
 import { generateValidSudou, Sudou, SudouSize } from 'src/app/models';
@@ -16,6 +12,7 @@ import { generateValidSudou, Sudou, SudouSize } from 'src/app/models';
 import { getCanvasCellPosition, getCanvasMouseEventPosition } from 'actslib';
 import { MatDialog } from '@angular/material/dialog';
 import { ResultDialogComponent } from '../result-dialog/result-dialog.component';
+import { SafeAny } from 'src/app/common';
 
 /**
  * UI Cell for Sudou
@@ -44,7 +41,7 @@ export interface SudouPosition {
   column: number;
 }
 
-function InArray(obj: any, arr: any[]): boolean {
+function InArray(obj: SafeAny, arr: SafeAny[]): boolean {
   for (const i in arr) {
     if (arr[i] === obj) {
       return true;
@@ -67,12 +64,12 @@ class SudouEditPanel {
   private _drawY;
 
   constructor(
-    x: any,
-    y: any,
-    itemWidth: any,
-    nlist: any,
-    maxWidth: any,
-    maxHeight: any
+    x: SafeAny,
+    y: SafeAny,
+    itemWidth: SafeAny,
+    nlist: SafeAny,
+    maxWidth: SafeAny,
+    maxHeight: SafeAny
   ) {
     this._x = x;
     this._y = y;
@@ -96,7 +93,7 @@ class SudouEditPanel {
     }
   }
 
-  public Draw(ctx: any) {
+  public Draw(ctx: SafeAny) {
     ctx.fillStyle = 'pink';
     ctx.fillRect(this._drawX, this._drawY, this._w, this._h);
     ctx.strokeStyle = '#000000';
@@ -122,7 +119,7 @@ class SudouEditPanel {
     }
   }
 
-  public GetHitNumber(x: any, y: any) {
+  public GetHitNumber(x: SafeAny, y: SafeAny) {
     const j = Math.floor((x - this._drawX) / this._itemWidth);
     const i = Math.floor((y - this._drawY) / this._itemWidth);
 
@@ -156,9 +153,9 @@ export class SudouComponent implements OnInit, AfterContentInit, OnDestroy {
   private _height = 0;
   private _itemWidth!: number;
   private _itemHeight!: number;
-  private _editingCellIndex: any = null;
+  private _editingCellIndex: SafeAny = null;
   private _editPanel: SudouEditPanel | null = null;
-  private _dataCells: any = [];
+  private _dataCells: SafeAny = [];
   private _started = false;
 
   constructor(public dialog: MatDialog) {}
@@ -316,9 +313,9 @@ export class SudouComponent implements OnInit, AfterContentInit, OnDestroy {
     this.ProcessMouseClick(loc);
   }
 
-  private ProcessMouseClick(pos: any) {
+  private ProcessMouseClick(pos: SafeAny) {
     if (this._editingCellIndex === null) {
-      const index: any = getCanvasCellPosition(
+      const index: SafeAny = getCanvasCellPosition(
         pos,
         this._itemWidth,
         this._itemHeight

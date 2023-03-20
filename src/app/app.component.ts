@@ -1,17 +1,6 @@
 /* eslint-disable no-underscore-dangle */
-import {
-  ChangeDetectorRef,
-  Component,
-  Inject,
-  NgZone,
-  OnDestroy,
-  OnInit,
-} from '@angular/core';
-import {
-  MatDialog,
-  MatDialogRef,
-  MAT_DIALOG_DATA,
-} from '@angular/material/dialog';
+import { ChangeDetectorRef, Component, NgZone, OnDestroy } from '@angular/core';
+import { MatDialog, MatDialogRef } from '@angular/material/dialog';
 import { MediaMatcher } from '@angular/cdk/layout';
 import { TranslocoService } from '@ngneat/transloco';
 import { DateAdapter } from '@angular/material/core';
@@ -27,7 +16,7 @@ import { AuthService } from './services/auth.service';
   templateUrl: './app.component.html',
   styleUrls: ['./app.component.scss'],
 })
-export class AppComponent implements OnInit, OnDestroy {
+export class AppComponent implements OnDestroy {
   title = 'Knowledge Builder';
   mobileQuery: MediaQueryList;
   public navItems: AppNavItem[] = [];
@@ -173,8 +162,6 @@ export class AppComponent implements OnInit, OnDestroy {
 
     this.titleService.setTitle('Knowledge & Habit Builder');
   }
-
-  ngOnInit(): void {}
 
   switchLanguage(lang: string) {
     this.selectedLanguage = lang;

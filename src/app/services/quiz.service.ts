@@ -35,7 +35,6 @@ export class QuizService {
     this.currScore = scre;
   }
 
-  constructor() {}
   public startNewQuiz(qid: number): Quiz {
     if (this.curQuiz) {
       throw new Error('Active Quiz not yet completed');
