@@ -18,9 +18,7 @@ describe('ImageUploadComponent', () => {
   let odataSvc: any;
 
   beforeAll(() => {
-    odataSvc = jasmine.createSpyObj('ODataService', [
-      'getUserHabits',
-    ]);
+    odataSvc = jasmine.createSpyObj('ODataService', ['getUserHabits']);
   });
 
   beforeEach(waitForAsync(() => {
@@ -35,14 +33,13 @@ describe('ImageUploadComponent', () => {
         BrowserDynamicTestingModule,
         getTranslocoModule(),
       ],
-      declarations: [ ImageUploadComponent ],
+      declarations: [ImageUploadComponent],
       providers: [
-        { provide: MatDialogRef, useValue: {} }, 
+        { provide: MatDialogRef, useValue: {} },
         { provide: MAT_DIALOG_DATA, useValue: {} },
         { provide: ODataService, useValue: odataSvc },
-      ]
-    })
-    .compileComponents();
+      ],
+    }).compileComponents();
   }));
 
   beforeEach(() => {

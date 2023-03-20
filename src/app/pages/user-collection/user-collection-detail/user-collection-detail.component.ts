@@ -1,12 +1,21 @@
 import { Component, OnInit, OnDestroy, ViewChild } from '@angular/core';
-import { UntypedFormGroup, UntypedFormControl, Validators } from '@angular/forms';
+import {
+  UntypedFormGroup,
+  UntypedFormControl,
+  Validators,
+} from '@angular/forms';
 import { ReplaySubject } from 'rxjs';
-import { ActivatedRoute, } from '@angular/router';
+import { ActivatedRoute } from '@angular/router';
 import { MatDialog } from '@angular/material/dialog';
 
 import { UIMode } from 'actslib';
-import { TagReferenceType, UserCollection, UserCollectionItem, getTagReferenceTypeName } from 'src/app/models';
-import { ODataService, UIUtilityService, } from 'src/app/services';
+import {
+  TagReferenceType,
+  UserCollection,
+  UserCollectionItem,
+  getTagReferenceTypeName,
+} from 'src/app/models';
+import { ODataService, UIUtilityService } from 'src/app/services';
 import { AuthService } from 'src/app/services/auth.service';
 
 @Component({
@@ -45,19 +54,21 @@ export class UserCollectionDetailComponent implements OnInit, OnDestroy {
     return this.uiMode === UIMode.Create || this.uiMode === UIMode.Update;
   }
 
-  constructor(public dialog: MatDialog,
+  constructor(
+    public dialog: MatDialog,
     private activateRoute: ActivatedRoute,
     private uiUtilSrv: UIUtilityService,
     private authService: AuthService,
-    private odataService: ODataService) {
+    private odataService: ODataService
+  ) {
     this.itemFormGroup = new UntypedFormGroup({
       idControl: new UntypedFormControl({
         value: null,
-        disabled: true
+        disabled: true,
       }),
       userControl: new UntypedFormControl({
         value: this.authService.userDetail?.userID,
-        disabled: true
+        disabled: true,
       }),
       nameControl: new UntypedFormControl(),
       commentControl: new UntypedFormControl(),
@@ -69,7 +80,7 @@ export class UserCollectionDetailComponent implements OnInit, OnDestroy {
     this.destroyed$ = new ReplaySubject(1);
 
     this.activateRoute.url.subscribe({
-      next: val => {
+      next: (val) => {
         if (val instanceof Array && val.length > 0) {
           if (val[0].path === 'create') {
             this.routerID = -1;
@@ -87,22 +98,23 @@ export class UserCollectionDetailComponent implements OnInit, OnDestroy {
         }
 
         if (this.routerID !== -1) {
-          this.odataService.readUserCollection(this.routerID, this.uiMode === UIMode.Update)
+          this.odataService
+            .readUserCollection(this.routerID, this.uiMode === UIMode.Update)
             .subscribe({
-              next: exitem => {
+              next: (exitem) => {
                 this.onSetHeaderData(exitem);
                 this.itemObject = exitem;
                 this.dataSource = exitem.Items;
               },
-              error: err => {
+              error: (err) => {
                 this.uiUtilSrv.showSnackInfo(err);
-              }
+              },
             });
         }
       },
-      error: err => {
+      error: (err) => {
         this.uiUtilSrv.showSnackInfo(err);
-      }
+      },
     });
   }
 
@@ -115,7 +127,9 @@ export class UserCollectionDetailComponent implements OnInit, OnDestroy {
   onSetHeaderData(val: UserCollection): void {
     this.itemFormGroup.get('idControl')?.setValue(val.ID);
     this.itemFormGroup.get('idControl')?.disable();
-    this.itemFormGroup.get('userControl')?.setValue(this.authService.userDetail?.userID);
+    this.itemFormGroup
+      .get('userControl')
+      ?.setValue(this.authService.userDetail?.userID);
     this.itemFormGroup.get('userControl')?.disable();
     this.itemFormGroup.get('nameControl')?.setValue(val.Name);
     this.itemFormGroup.get('commentControl')?.setValue(val.Comment);
@@ -144,13 +158,13 @@ export class UserCollectionDetailComponent implements OnInit, OnDestroy {
       // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
       this.itemObject.User = this.authService.userDetail?.userID!;
       this.odataService.createUserCollection(this.itemObject).subscribe({
-        next: val => {
+        next: (val) => {
           // Display current collection
-          this.uiUtilSrv.navigateUserCollectionDisplayPage(val.ID); ;
+          this.uiUtilSrv.navigateUserCollectionDisplayPage(val.ID);
         },
-        error: err => {
+        error: (err) => {
           this.uiUtilSrv.showSnackInfo(err);
-        }
+        },
       });
     } else if (this.isUpdateMode) {
     }
@@ -161,34 +175,37 @@ export class UserCollectionDetailComponent implements OnInit, OnDestroy {
   public onCreateNewOne(): void {
     this.uiUtilSrv.navigateUserCollectionCreatePage();
   }
-  public onCreateItem(): void {
-  }
+  public onCreateItem(): void {}
   public onDeleteCollItem(row: UserCollectionItem): void {
     if (row.RefType === TagReferenceType.ExerciseItem) {
       this.odataService.removeExerciseItemFromCollection(row).subscribe({
-        next: val => {
+        next: (val) => {
           this.uiUtilSrv.showSnackInfo('DONE');
-          const idx = this.dataSource.findIndex(item => item.RefID === row.RefID && item.RefType === row.RefType);
+          const idx = this.dataSource.findIndex(
+            (item) => item.RefID === row.RefID && item.RefType === row.RefType
+          );
           if (idx !== -1) {
             this.dataSource.splice(idx, 1);
           }
         },
-        error: err => {
+        error: (err) => {
           this.uiUtilSrv.showSnackInfo(err);
-        }
+        },
       });
-    } else if(row.RefID === TagReferenceType.KnowledgeItem) {
+    } else if (row.RefID === TagReferenceType.KnowledgeItem) {
       this.odataService.removeKnowledgeItemFromCollection(row).subscribe({
-        next: val => {
+        next: (val) => {
           this.uiUtilSrv.showSnackInfo('DONE');
-          const idx = this.dataSource.findIndex(item => item.RefID === row.RefID && item.RefType === row.RefType);
+          const idx = this.dataSource.findIndex(
+            (item) => item.RefID === row.RefID && item.RefType === row.RefType
+          );
           if (idx !== -1) {
             this.dataSource.splice(idx, 1);
           }
         },
-        error: err => {
+        error: (err) => {
           this.uiUtilSrv.showSnackInfo(err);
-        }
+        },
       });
     }
   }

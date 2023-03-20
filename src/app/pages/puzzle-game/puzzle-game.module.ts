@@ -27,6 +27,6 @@ import { ResultDialogComponent } from './result-dialog/result-dialog.component';
     PuzzleGameRoutingModule,
     TranslocoModule,
     FormsModule,
-  ]
+  ],
 })
-export class PuzzleGameModule { }
+export class PuzzleGameModule {}

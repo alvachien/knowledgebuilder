@@ -18,9 +18,7 @@ describe('ExerciseItemDetailComponent', () => {
   let readExerciseItemSpy: any;
 
   beforeAll(() => {
-    odataSvc = jasmine.createSpyObj('ODataService', [
-      'readExerciseItem',
-    ]);
+    odataSvc = jasmine.createSpyObj('ODataService', ['readExerciseItem']);
 
     readExerciseItemSpy = odataSvc.readExerciseItem.and.returnValue(of(''));
   });
@@ -37,13 +35,12 @@ describe('ExerciseItemDetailComponent', () => {
         BrowserDynamicTestingModule,
         getTranslocoModule(),
       ],
-      declarations: [ ExerciseItemDetailComponent ],
+      declarations: [ExerciseItemDetailComponent],
       providers: [
         UIUtilityService,
         { provide: ODataService, useValue: odataSvc },
-      ]
-    })
-    .compileComponents();
+      ],
+    }).compileComponents();
   }));
 
   beforeEach(() => {

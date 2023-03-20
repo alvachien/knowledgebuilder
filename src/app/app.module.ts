@@ -5,16 +5,25 @@ import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 
 import { AppRoutingModule } from './app-routing.module';
-import { AppComponent, CurrentUserDialog, } from './app.component';
+import { AppComponent, CurrentUserDialog } from './app.component';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { MaterialModulesModule } from './material-modules';
 import { MarkdownModule, MarkedOptions } from 'ngx-markdown';
 import { translocoLoader } from './transloco-loader';
-import { translocoConfig, TranslocoModule, TRANSLOCO_CONFIG } from '@ngneat/transloco';
+import {
+  translocoConfig,
+  TranslocoModule,
+  TRANSLOCO_CONFIG,
+} from '@ngneat/transloco';
 import { NgxEchartsModule } from 'ngx-echarts';
 import * as echarts from 'echarts';
 
-import { ODataService, QuizService, UIUtilityService, AuthGuardService, } from './services';
+import {
+  ODataService,
+  QuizService,
+  UIUtilityService,
+  AuthGuardService,
+} from './services';
 import { environment } from 'src/environments/environment';
 import { NavItemFilterPipe } from './pipes';
 import { QuizFailureDailogComponent } from './pages/quiz-failure-dailog';
@@ -71,13 +80,13 @@ import { NuMonacoEditorModule } from '@ng-util/monaco-editor';
         defaultLang: 'zh',
         reRenderOnLangChange: true,
         prodMode: environment.production,
-      })
+      }),
     },
     translocoLoader,
   ],
   // entryComponents: [
   //   QuizFailureDailogComponent
   // ],
-  bootstrap: [AppComponent]
+  bootstrap: [AppComponent],
 })
-export class AppModule { }
+export class AppModule {}

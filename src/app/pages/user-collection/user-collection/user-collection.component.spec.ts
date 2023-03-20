@@ -18,10 +18,10 @@ describe('UserCollectionComponent', () => {
   let getUserCollectionsSpy: any;
 
   beforeAll(() => {
-    odataservice = jasmine.createSpyObj('ODataService', [
-      'getUserCollections',
-    ]);
-    getUserCollectionsSpy = odataservice.getUserCollections.and.returnValue(of({}));
+    odataservice = jasmine.createSpyObj('ODataService', ['getUserCollections']);
+    getUserCollectionsSpy = odataservice.getUserCollections.and.returnValue(
+      of({})
+    );
   });
 
   beforeEach(async () => {
@@ -36,13 +36,12 @@ describe('UserCollectionComponent', () => {
         BrowserDynamicTestingModule,
         getTranslocoModule(),
       ],
-      declarations: [ UserCollectionComponent ],
-      providers:[    
+      declarations: [UserCollectionComponent],
+      providers: [
         UIUtilityService,
         { provide: ODataService, useValue: odataservice },
-      ]
-    })
-    .compileComponents();
+      ],
+    }).compileComponents();
   });
 
   beforeEach(() => {

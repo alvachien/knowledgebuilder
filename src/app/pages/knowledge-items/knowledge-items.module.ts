@@ -34,7 +34,6 @@ import { KnowledgeItemAddToCollDialog } from './knowledge-items-add-coll-dlg.com
     TranslocoModule,
     AppUIModule,
   ],
-  providers: [
-  ]
+  providers: [],
 })
-export class KnowledgeItemsModule { }
+export class KnowledgeItemsModule {}

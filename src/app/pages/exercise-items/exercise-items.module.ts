@@ -3,7 +3,11 @@ import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MarkdownModule, MarkedOptions } from 'ngx-markdown';
 import { TranslocoModule } from '@ngneat/transloco';
-import { DateAdapter, MAT_DATE_FORMATS, NativeDateAdapter } from '@angular/material/core';
+import {
+  DateAdapter,
+  MAT_DATE_FORMATS,
+  NativeDateAdapter,
+} from '@angular/material/core';
 
 import { MaterialModulesModule } from '../../material-modules';
 import { ImageUploadModule } from '../image-upload/image-upload.module';
@@ -38,11 +42,11 @@ import { NuMonacoEditorModule } from '@ng-util/monaco-editor';
     MarkdownModule.forChild(),
     ExerciseItemsRoutingModule,
     TranslocoModule,
-    AppUIModule
+    AppUIModule,
   ],
   providers: [
     // { provide: DateAdapter, useClass: AppDateAdapter },
     // { provide: MAT_DATE_FORMATS, useValue: MY_DATE_FORMATS },
-  ]
+  ],
 })
-export class ExerciseItemsModule { }
+export class ExerciseItemsModule {}

@@ -1,9 +1,11 @@
 import { Injectable } from '@angular/core';
-import { MatDialog } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { Router } from '@angular/router';
 
-import { momentDateFormat, TagReferenceType, UserHabitRecord, UserHabitRecordView, } from '../models';
+import {
+  TagReferenceType,
+  UserHabitRecordView,
+} from '../models';
 
 export interface PreviewObject {
   refType: TagReferenceType;
@@ -11,7 +13,7 @@ export interface PreviewObject {
 }
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class UIUtilityService {
   // Preview objects
@@ -19,8 +21,7 @@ export class UIUtilityService {
   // Habit User Record
   currentUserHabitRecord: UserHabitRecordView | null = null;
 
-  constructor(private router: Router,
-    private snack: MatSnackBar) { }
+  constructor(private router: Router, private snack: MatSnackBar) {}
 
   public navigateExerciseItemListPage(): void {
     this.router.navigate(['exercise-item']);

@@ -19,9 +19,7 @@ describe('HabitRecordDetailComponent', () => {
   let userDetail: InvitedUser;
 
   beforeAll(() => {
-    odataSvc = jasmine.createSpyObj('ODataService', [
-      'getOverviewInfo',
-    ]);
+    odataSvc = jasmine.createSpyObj('ODataService', ['getOverviewInfo']);
 
     getOverviewInfoSpy = odataSvc.getOverviewInfo.and.returnValue(of(''));
   });
@@ -31,7 +29,7 @@ describe('HabitRecordDetailComponent', () => {
     userDetail.displayAs = 'test';
     userDetail.awardUsers = [];
     const authStub: Partial<AuthService> = {
-      userDetail: userDetail
+      userDetail: userDetail,
     };
 
     await TestBed.configureTestingModule({
@@ -45,14 +43,13 @@ describe('HabitRecordDetailComponent', () => {
         BrowserDynamicTestingModule,
         getTranslocoModule(),
       ],
-      declarations: [ HabitRecordDetailComponent ],
+      declarations: [HabitRecordDetailComponent],
       providers: [
         { provide: AuthService, useValue: authStub },
         { provide: ODataService, useValue: odataSvc },
         UIUtilityService,
-      ]
-    })
-    .compileComponents();
+      ],
+    }).compileComponents();
   });
 
   beforeEach(() => {

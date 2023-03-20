@@ -3,17 +3,17 @@
 
 import moment from 'moment';
 
-export const momentDateFormat: string = 'YYYY-MM-DD';
+export const momentDateFormat = 'YYYY-MM-DD';
 
 /**
-  * Date range
-  */
+ * Date range
+ */
 export enum StatisticsDateRangeEnum {
   CurrentMonth = 1,
   PreviousMonth = 2,
   CurrentYear = 3,
   PreviousYear = 4,
-  All = 5
+  All = 5,
 }
 
 /**
@@ -21,7 +21,7 @@ export enum StatisticsDateRangeEnum {
  */
 export enum AppNavItemGroupEnum {
   home = 0,
-  ps_basic  = 1,
+  ps_basic = 1,
   ps_extend = 2,
   games = 3,
   award = 4,
@@ -29,12 +29,12 @@ export enum AppNavItemGroupEnum {
   help = 6,
   knowledge = 7,
   habit = 8,
-  others = 10
+  others = 10,
 }
 
 /**
-  * Nav. item
-  */
+ * Nav. item
+ */
 export interface AppNavItem {
   name: string;
   route: string;
@@ -42,8 +42,8 @@ export interface AppNavItem {
 }
 
 /**
-  * App. language
-  */
+ * App. language
+ */
 export interface AppLanguage {
   displayas: string;
   value: string;
@@ -64,7 +64,7 @@ export enum GeneralFilterOperatorEnum {
 /**
  * Value type for filter
  */
- export enum GeneralFilterValueType {
+export enum GeneralFilterValueType {
   number = 1,
   string = 2,
   date = 3,
@@ -103,7 +103,6 @@ export class UIDisplayString {
   }
 }
 
-
 export class UIDisplayStringUtil {
   public static getGeneralFilterOperatorDisplayStrings(): UIDisplayString[] {
     const arrst: UIDisplayString[] = [];
@@ -114,7 +113,9 @@ export class UIDisplayStringUtil {
       } else {
         arrst.push({
           value: +rfe,
-          i18nterm: UIDisplayStringUtil.getGeneralFilterOperatorDisplayString(+rfe),
+          i18nterm: UIDisplayStringUtil.getGeneralFilterOperatorDisplayString(
+            +rfe
+          ),
           displaystring: '',
         });
       }
@@ -122,21 +123,31 @@ export class UIDisplayStringUtil {
 
     return arrst;
   }
-  public static getGeneralFilterOperatorDisplayString(opte: GeneralFilterOperatorEnum): string {
+  public static getGeneralFilterOperatorDisplayString(
+    opte: GeneralFilterOperatorEnum
+  ): string {
     switch (opte) {
-      case GeneralFilterOperatorEnum.Between: return 'Sys.Operator.Between';
-      case GeneralFilterOperatorEnum.Equal: return 'Sys.Operator.Equal';
-      case GeneralFilterOperatorEnum.LargerEqual: return 'Sys.Operator.LargerEqual';
-      case GeneralFilterOperatorEnum.LargerThan: return 'Sys.Operator.LargerThan';
-      case GeneralFilterOperatorEnum.LessEqual: return 'Sys.Operator.LessEqual';
-      case GeneralFilterOperatorEnum.LessThan: return 'Sys.Operator.LessThan';
-      case GeneralFilterOperatorEnum.NotEqual: return 'Sys.Operator.NotEqual';
-      case GeneralFilterOperatorEnum.Like: return 'Sys.Operator.Like';
-      default: return '';
+      case GeneralFilterOperatorEnum.Between:
+        return 'Sys.Operator.Between';
+      case GeneralFilterOperatorEnum.Equal:
+        return 'Sys.Operator.Equal';
+      case GeneralFilterOperatorEnum.LargerEqual:
+        return 'Sys.Operator.LargerEqual';
+      case GeneralFilterOperatorEnum.LargerThan:
+        return 'Sys.Operator.LargerThan';
+      case GeneralFilterOperatorEnum.LessEqual:
+        return 'Sys.Operator.LessEqual';
+      case GeneralFilterOperatorEnum.LessThan:
+        return 'Sys.Operator.LessThan';
+      case GeneralFilterOperatorEnum.NotEqual:
+        return 'Sys.Operator.NotEqual';
+      case GeneralFilterOperatorEnum.Like:
+        return 'Sys.Operator.Like';
+      default:
+        return '';
     }
   }
 }
-
 
 // @Injectable()
 // export class AppDateAdapter extends NativeDateAdapter {format(date: Date, displayFormat: any): string {
@@ -179,21 +190,20 @@ export class UIDisplayStringUtil {
 // }
 
 export class EnumUtility {
-  private constructor() {
-  }
+  private constructor() {}
 
   static getNamesAndValues<T extends number>(e: any) {
-    return EnumUtility.getNames(e).map(n => ({ name: n, value: e[n] as T }));
+    return EnumUtility.getNames(e).map((n) => ({ name: n, value: e[n] as T }));
   }
 
   static getNames(e: any) {
-    return Object.keys(e).filter(k => typeof e[k] === 'number') as string[];
+    return Object.keys(e).filter((k) => typeof e[k] === 'number') as string[];
   }
 
   static getValues<T extends number>(e: any) {
     return Object.keys(e)
-      .map(k => e[k])
-      .filter(v => typeof v === 'number') as T[];
+      .map((k) => e[k])
+      .filter((v) => typeof v === 'number') as T[];
   }
 }
 

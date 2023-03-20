@@ -1,11 +1,24 @@
 import { Component, OnInit } from '@angular/core';
 import { ReplaySubject } from 'rxjs';
-import { ActivatedRoute, } from '@angular/router';
-import { UntypedFormBuilder, UntypedFormGroup, Validators } from '@angular/forms';
+import { ActivatedRoute } from '@angular/router';
+import {
+  UntypedFormBuilder,
+  UntypedFormGroup,
+  Validators,
+} from '@angular/forms';
 import { UIMode } from 'actslib';
 
-import { AwardUserView, getHabitCategoryNames, getHabitCompleteCategoryNames, getHabitFrequencyNames, 
-  HabitCategory, HabitCompleteCategory, HabitFrequency, UserHabit, UserHabitRule, } from 'src/app/models';
+import {
+  AwardUserView,
+  getHabitCategoryNames,
+  getHabitCompleteCategoryNames,
+  getHabitFrequencyNames,
+  HabitCategory,
+  HabitCompleteCategory,
+  HabitFrequency,
+  UserHabit,
+  UserHabitRule,
+} from 'src/app/models';
 import { AuthService, ODataService, UIUtilityService } from 'src/app/services';
 
 @Component({
@@ -25,11 +38,13 @@ export class HabitDetailComponent implements OnInit {
   currentObject: UserHabit = new UserHabit();
   displayedColumns: string[] = ['ruleID', 'completedCountRange', 'point'];
 
-  constructor(private activateRoute: ActivatedRoute,
+  constructor(
+    private activateRoute: ActivatedRoute,
     private _formBuilder: UntypedFormBuilder,
     private uiUtilSrv: UIUtilityService,
     private authService: AuthService,
-    private odataSrv: ODataService) {
+    private odataSrv: ODataService
+  ) {
     this.arCategories = getHabitCategoryNames();
     this.arFrequencies = getHabitFrequencyNames();
     this.arCompleteCategories = getHabitCompleteCategoryNames();
@@ -43,7 +58,7 @@ export class HabitDetailComponent implements OnInit {
       freqCtrl: [HabitFrequency.Daily, Validators.required],
       compCtgyCtrl: [HabitCompleteCategory.NumberOfTimes, Validators.required],
       compCondCtrl: [0],
-      startDateCtrl: [undefined]
+      startDateCtrl: [undefined],
     });
   }
 
@@ -55,7 +70,9 @@ export class HabitDetailComponent implements OnInit {
   }
   public getUserDisplayAs(usrId: string): string {
     if (usrId && this.authService.userDetail) {
-      const idx = this.authService.userDetail.awardUsers.findIndex(val => val.targetUser === usrId);
+      const idx = this.authService.userDetail.awardUsers.findIndex(
+        (val) => val.targetUser === usrId
+      );
       if (idx !== -1) {
         return this.authService.userDetail.awardUsers[idx].displayAs;
       }
@@ -71,10 +88,10 @@ export class HabitDetailComponent implements OnInit {
   get isEditable(): boolean {
     return this.uiMode === UIMode.Update;
   }
-  
+
   ngOnInit(): void {
     this.activateRoute.url.subscribe({
-      next: val => {
+      next: (val) => {
         if (val instanceof Array && val.length > 0) {
           if (val[0].path === 'display') {
             this.uiMode = UIMode.Display;
@@ -89,16 +106,32 @@ export class HabitDetailComponent implements OnInit {
 
         if (this.routerID !== -1) {
           this.odataSrv.readUserHabit(this.routerID).subscribe({
-            next: val => {
+            next: (val) => {
               this.currentObject = val;
-              this.detailFormGroup.get('targetuserCtrl')?.setValue(this.currentObject.targetUser);
-              this.detailFormGroup.get('nameCtrl')?.setValue(this.currentObject.name);
-              this.detailFormGroup.get('validFromCtrl')?.setValue(this.currentObject.validFrom);
-              this.detailFormGroup.get('validToCtrl')?.setValue(this.currentObject.validTo);
-              this.detailFormGroup.get('freqCtrl')?.setValue(this.currentObject.frequency);
-              this.detailFormGroup.get('compCtgyCtrl')?.setValue(this.currentObject.completeCategory);
-              this.detailFormGroup.get('compCondCtrl')?.setValue(this.currentObject.completeCondition);
-              this.detailFormGroup.get('startDateCtrl')?.setValue(this.currentObject.startDate);
+              this.detailFormGroup
+                .get('targetuserCtrl')
+                ?.setValue(this.currentObject.targetUser);
+              this.detailFormGroup
+                .get('nameCtrl')
+                ?.setValue(this.currentObject.name);
+              this.detailFormGroup
+                .get('validFromCtrl')
+                ?.setValue(this.currentObject.validFrom);
+              this.detailFormGroup
+                .get('validToCtrl')
+                ?.setValue(this.currentObject.validTo);
+              this.detailFormGroup
+                .get('freqCtrl')
+                ?.setValue(this.currentObject.frequency);
+              this.detailFormGroup
+                .get('compCtgyCtrl')
+                ?.setValue(this.currentObject.completeCategory);
+              this.detailFormGroup
+                .get('compCondCtrl')
+                ?.setValue(this.currentObject.completeCondition);
+              this.detailFormGroup
+                .get('startDateCtrl')
+                ?.setValue(this.currentObject.startDate);
 
               if (this.uiMode === UIMode.Display) {
                 this.detailFormGroup.disable();
@@ -107,15 +140,15 @@ export class HabitDetailComponent implements OnInit {
                 this.detailFormGroup.markAsPristine();
               }
             },
-            error: err => {
+            error: (err) => {
               this.uiUtilSrv.showSnackInfo(err);
-            }
+            },
           });
         }
       },
-      error: err => {
+      error: (err) => {
         this.uiUtilSrv.showSnackInfo(err);
-      }
+      },
     });
   }
 

@@ -20,12 +20,13 @@ describe('HabitListComponent', () => {
   let userDetail: InvitedUser;
 
   beforeAll(() => {
-    odataservice = jasmine.createSpyObj('ODataService', [
-      'getUserHabits',
-    ]);
-    getUserHabitsSpy = odataservice.getUserHabits.and.returnValue(of({
-      totalCount: 0,
-      items: []}));
+    odataservice = jasmine.createSpyObj('ODataService', ['getUserHabits']);
+    getUserHabitsSpy = odataservice.getUserHabits.and.returnValue(
+      of({
+        totalCount: 0,
+        items: [],
+      })
+    );
   });
 
   beforeEach(async () => {
@@ -33,7 +34,7 @@ describe('HabitListComponent', () => {
     userDetail.displayAs = 'test';
     userDetail.awardUsers = [];
     const authStub: Partial<AuthService> = {
-      userDetail: userDetail
+      userDetail: userDetail,
     };
     await TestBed.configureTestingModule({
       imports: [
@@ -46,14 +47,13 @@ describe('HabitListComponent', () => {
         BrowserDynamicTestingModule,
         getTranslocoModule(),
       ],
-      declarations: [ HabitListComponent ],
-      providers:[    
+      declarations: [HabitListComponent],
+      providers: [
         UIUtilityService,
         { provide: AuthService, useValue: authStub },
         { provide: ODataService, useValue: odataservice },
-      ]
-    })
-    .compileComponents();
+      ],
+    }).compileComponents();
   });
 
   beforeEach(() => {

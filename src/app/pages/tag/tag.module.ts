@@ -10,10 +10,7 @@ import { TagDetailComponent } from './tag-detail';
 import { MarkdownModule } from 'ngx-markdown';
 
 @NgModule({
-  declarations: [
-    TagComponent,
-    TagDetailComponent,
-  ],
+  declarations: [TagComponent, TagDetailComponent],
   imports: [
     CommonModule,
     FormsModule,
@@ -24,4 +21,4 @@ import { MarkdownModule } from 'ngx-markdown';
     TranslocoModule,
   ],
 })
-export class TagModule { }
+export class TagModule {}

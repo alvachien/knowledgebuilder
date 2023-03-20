@@ -14,7 +14,10 @@ import { HabitRecordListComponent } from './habit-record-list';
 import { HabitRecordDetailComponent } from './habit-record-detail';
 import { HabitCreateComponent } from './habit-create';
 import { HabitRecordCreateComponent } from './habit-record-create';
-import { HabitPointCreateDialog, HabitPointsListComponent } from './habit-points-list';
+import {
+  HabitPointCreateDialog,
+  HabitPointsListComponent,
+} from './habit-points-list';
 
 @NgModule({
   declarations: [
@@ -25,7 +28,7 @@ import { HabitPointCreateDialog, HabitPointsListComponent } from './habit-points
     HabitCreateComponent,
     HabitRecordCreateComponent,
     HabitPointsListComponent,
-    HabitPointCreateDialog
+    HabitPointCreateDialog,
   ],
   imports: [
     CommonModule,
@@ -35,7 +38,7 @@ import { HabitPointCreateDialog, HabitPointsListComponent } from './habit-points
     TranslocoModule,
     AppUIModule,
     NgxEchartsModule,
-    HabitBuilderRoutingModule
-  ]
+    HabitBuilderRoutingModule,
+  ],
 })
-export class HabitBuilderModule { }
+export class HabitBuilderModule {}

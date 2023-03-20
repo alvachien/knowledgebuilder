@@ -1,9 +1,21 @@
-import { AfterViewInit, Component, EventEmitter, OnInit, ViewChild } from '@angular/core';
+import {
+  AfterViewInit,
+  Component,
+  EventEmitter,
+  OnInit,
+  ViewChild,
+} from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { MatPaginator } from '@angular/material/paginator';
 import { MatSort } from '@angular/material/sort';
 import { merge, Observable, of as observableOf } from 'rxjs';
-import { catchError, finalize, map, startWith, switchMap } from 'rxjs/operators';
+import {
+  catchError,
+  finalize,
+  map,
+  startWith,
+  switchMap,
+} from 'rxjs/operators';
 
 import { UserHabit, UserHabitRecordView } from 'src/app/models';
 import { ODataService, UIUtilityService } from 'src/app/services';
@@ -16,7 +28,16 @@ import { AuthService } from 'src/app/services/auth.service';
 })
 export class HabitRecordListComponent implements OnInit, AfterViewInit {
   arRecords: UserHabitRecordView[] = [];
-  displayedColumns: string[] = ['targetUser', 'habitname', 'recordDate', 'subID', 'completeFact', 'ruleID', 'contDays', 'comment'];
+  displayedColumns: string[] = [
+    'targetUser',
+    'habitname',
+    'recordDate',
+    'subID',
+    'completeFact',
+    'ruleID',
+    'contDays',
+    'comment',
+  ];
   recordCount = 0;
   isLoadingResults = false;
   refreshEvent: EventEmitter<any> = new EventEmitter();
@@ -24,14 +45,18 @@ export class HabitRecordListComponent implements OnInit, AfterViewInit {
   @ViewChild(MatPaginator) paginator!: MatPaginator;
   @ViewChild(MatSort) sort!: MatSort;
 
-  constructor(private odataSrv: ODataService,
+  constructor(
+    private odataSrv: ODataService,
     public dialog: MatDialog,
     public authService: AuthService,
-    public uiUtilSrv: UIUtilityService) { }
+    public uiUtilSrv: UIUtilityService
+  ) {}
 
   public getUserDisplayAs(usrId: string): string {
     if (usrId && this.authService.userDetail) {
-      const idx = this.authService.userDetail.awardUsers.findIndex(val => val.targetUser === usrId);
+      const idx = this.authService.userDetail.awardUsers.findIndex(
+        (val) => val.targetUser === usrId
+      );
       if (idx !== -1) {
         return this.authService.userDetail.awardUsers[idx].displayAs;
       }
@@ -39,11 +64,10 @@ export class HabitRecordListComponent implements OnInit, AfterViewInit {
     return '';
   }
 
-  ngOnInit(): void {
-  }
+  ngOnInit(): void {}
 
   ngAfterViewInit(): void {
-    this.sort.sortChange.subscribe(() => this.paginator.pageIndex = 0);
+    this.sort.sortChange.subscribe(() => (this.paginator.pageIndex = 0));
 
     merge(this.sort.sortChange, this.paginator.page, this.refreshEvent)
       .pipe(
@@ -51,18 +75,24 @@ export class HabitRecordListComponent implements OnInit, AfterViewInit {
         switchMap(() => {
           const top = this.paginator.pageSize;
           const skip = top * this.paginator.pageIndex;
-          return this.odataSrv.getUserHabitRecordViews(top, skip, this.sort.active, this.sort.direction);
+          return this.odataSrv.getUserHabitRecordViews(
+            top,
+            skip,
+            this.sort.active,
+            this.sort.direction
+          );
         }),
-        finalize(() => this.isLoadingResults = false),
-        map(data => {
+        finalize(() => (this.isLoadingResults = false)),
+        map((data) => {
           this.recordCount = data.totalCount;
 
           return data.items;
         }),
         catchError(() => observableOf([]))
-      ).subscribe({
-        next: data => this.arRecords = data as UserHabitRecordView[],
-        error: err => this.uiUtilSrv.showSnackInfo(err)
+      )
+      .subscribe({
+        next: (data) => (this.arRecords = data as UserHabitRecordView[]),
+        error: (err) => this.uiUtilSrv.showSnackInfo(err),
       });
   }
 
@@ -74,7 +104,7 @@ export class HabitRecordListComponent implements OnInit, AfterViewInit {
   }
   resetPaging(): void {
     this.paginator.pageIndex = 0;
-  }  
+  }
 
   public onDisplayRecord(row: UserHabitRecordView): void {
     this.uiUtilSrv.currentUserHabitRecord = row;
@@ -82,14 +112,15 @@ export class HabitRecordListComponent implements OnInit, AfterViewInit {
     this.uiUtilSrv.navigateHabitRecordDisplayPage();
   }
   public onDeleteRecord(row: UserHabitRecordView): void {
-    this.odataSrv.deleteUserHabitRecord(row.habitID!, row.recordDateString, row.subID).subscribe({
-      next: val => {
-        this.uiUtilSrv.showSnackInfo('Delete successfully');
-      },
-      error: err => {
-        this.uiUtilSrv.showSnackInfo(err);
-      }
-    });
+    this.odataSrv
+      .deleteUserHabitRecord(row.habitID!, row.recordDateString, row.subID)
+      .subscribe({
+        next: (val) => {
+          this.uiUtilSrv.showSnackInfo('Delete successfully');
+        },
+        error: (err) => {
+          this.uiUtilSrv.showSnackInfo(err);
+        },
+      });
   }
 }
-

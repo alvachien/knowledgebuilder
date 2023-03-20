@@ -16,10 +16,9 @@ export class Calculate24Component implements OnInit {
   private Cal24NumberRangeEnd = 9;
   Cal24SurrendString = '';
 
-  constructor(public dialog: MatDialog) { }
+  constructor(public dialog: MatDialog) {}
 
-  ngOnInit(): void {
-  }
+  ngOnInit(): void {}
 
   /**
    * Cal24 part
@@ -69,13 +68,15 @@ export class Calculate24Component implements OnInit {
     return !this.Cal24items.includes(num);
   }
   public OnCal24Start(): void {
-
     this.Cal24Input = ''; // Clear the inputs
     this.Cal24items = [];
 
     while (this.Cal24items.length < 4) {
-      const nNum = Math.floor(Math.random() * (this.Cal24NumberRangeEnd - this.Cal24NumberRangeBgn)) + this.Cal24NumberRangeBgn;
-      const nExistIdx = this.Cal24items.findIndex(val => val === nNum );
+      const nNum =
+        Math.floor(
+          Math.random() * (this.Cal24NumberRangeEnd - this.Cal24NumberRangeBgn)
+        ) + this.Cal24NumberRangeBgn;
+      const nExistIdx = this.Cal24items.findIndex((val) => val === nNum);
       if (nExistIdx === -1) {
         this.Cal24items.push(nNum);
       }
@@ -100,7 +101,10 @@ export class Calculate24Component implements OnInit {
   }
   public OnCal24Backspace(): void {
     if (this.Cal24Input.length > 1) {
-      this.Cal24Input = this.Cal24Input.substring(0, this.Cal24Input.length - 1);
+      this.Cal24Input = this.Cal24Input.substring(
+        0,
+        this.Cal24Input.length - 1
+      );
     } else {
       this.Cal24Input = '';
     }
@@ -129,9 +133,9 @@ export class Calculate24Component implements OnInit {
     }
     const dialogRef = this.dialog.open(ResultDialogComponent, {
       width: '300px',
-      data: { youWin : isWin }
+      data: { youWin: isWin },
     });
-    dialogRef.afterClosed().subscribe(result => {
+    dialogRef.afterClosed().subscribe((result) => {
       console.log(result);
       retry = result;
       if (retry) {
@@ -142,6 +146,5 @@ export class Calculate24Component implements OnInit {
     });
   }
 
-  public OnCal24Surrender(): void {
-  }
+  public OnCal24Surrender(): void {}
 }

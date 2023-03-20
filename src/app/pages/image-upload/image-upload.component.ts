@@ -13,7 +13,7 @@ export class ImageUploadComponent implements OnInit {
   @ViewChild('file', { static: false }) file: any;
 
   public files: Set<File> = new Set();
-  results : any;
+  results: any;
   canBeClosed = true;
   primaryButtonText = 'Upload';
   showCancelButton = true;
@@ -21,9 +21,12 @@ export class ImageUploadComponent implements OnInit {
   uploadSuccessful = false;
   uploadResults: any[] = [];
 
-  constructor(public dialogRef: MatDialogRef<ImageUploadComponent>, public uploadService: ODataService) { }
+  constructor(
+    public dialogRef: MatDialogRef<ImageUploadComponent>,
+    public uploadService: ODataService
+  ) {}
 
-  ngOnInit() { }
+  ngOnInit() {}
 
   onFilesAdded() {
     const files: { [key: string]: File } = this.file.nativeElement.files;
@@ -51,7 +54,7 @@ export class ImageUploadComponent implements OnInit {
     this.results = this.uploadService.uploadFiles(this.files);
     // console.log(this.progress);
     for (const key in this.results) {
-      this.results[key].result.subscribe((val : any) => {
+      this.results[key].result.subscribe((val: any) => {
         // console.log(val);
         this.uploadResults.push(val);
       });
@@ -59,7 +62,7 @@ export class ImageUploadComponent implements OnInit {
 
     // convert the progress map into an array
     const allProgressObservables = [];
-    for (let key in this.results) {
+    for (const key in this.results) {
       allProgressObservables.push(this.results[key].result);
     }
 
@@ -76,7 +79,7 @@ export class ImageUploadComponent implements OnInit {
     this.showCancelButton = false;
 
     // When all progress-observables are completed...
-    forkJoin(allProgressObservables).subscribe(end => {
+    forkJoin(allProgressObservables).subscribe((end) => {
       // ... the dialog can be closed again...
       this.canBeClosed = true;
       this.dialogRef.disableClose = false;

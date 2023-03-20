@@ -1,12 +1,23 @@
 import { Component, EventEmitter, ViewChild, OnInit } from '@angular/core';
-import { UntypedFormGroup, UntypedFormControl, AbstractControl, ValidatorFn, ValidationErrors, Validators, } from '@angular/forms';
+import {
+  UntypedFormGroup,
+  UntypedFormControl,
+  AbstractControl,
+  ValidatorFn,
+  ValidationErrors,
+  Validators,
+} from '@angular/forms';
 import { MatSnackBar } from '@angular/material/snack-bar';
-import { MatStepper, } from '@angular/material/stepper';
+import { MatStepper } from '@angular/material/stepper';
 import { StepperSelectionEvent } from '@angular/cdk/stepper';
 import { jsPDF, jsPDFOptions } from 'jspdf';
 import html2canvas from 'html2canvas';
 
-export const generateNumber = (endnr: number, bgnnr: number, dcmplace: number): number => {
+export const generateNumber = (
+  endnr: number,
+  bgnnr: number,
+  dcmplace: number
+): number => {
   let rnum1 = Math.random() * (endnr - bgnnr) + bgnnr;
   if (dcmplace > 0) {
     rnum1 = parseFloat(rnum1.toFixed(dcmplace));
@@ -24,7 +35,7 @@ export const generateNumber = (endnr: number, bgnnr: number, dcmplace: number): 
 export class PrintableQuizComponent implements OnInit {
   private _eventPDF: EventEmitter<boolean> = new EventEmitter();
 
-  @ViewChild(MatStepper, {static: false}) stepper!: MatStepper;
+  @ViewChild(MatStepper, { static: false }) stepper!: MatStepper;
   mixOpList: string[] = ['+', '-', 'X', '/'];
   contentFormGroup: UntypedFormGroup;
   quizFormGroup: UntypedFormGroup;
@@ -36,10 +47,16 @@ export class PrintableQuizComponent implements OnInit {
   arFractQuizFinal: any[] = [];
 
   get amountMixOp(): number | null {
-    return this.contentFormGroup.get('amountMixOpCtrl') && +this.contentFormGroup.get('amountMixOpCtrl')?.value;
+    return (
+      this.contentFormGroup.get('amountMixOpCtrl') &&
+      +this.contentFormGroup.get('amountMixOpCtrl')?.value
+    );
   }
   get amountFract(): number | null {
-    return this.contentFormGroup.get('amountFractCtrl') && +this.contentFormGroup.get('amountFractCtrl')?.value;
+    return (
+      this.contentFormGroup.get('amountFractCtrl') &&
+      +this.contentFormGroup.get('amountFractCtrl')?.value
+    );
   }
   get fontSize(): number {
     if (this.quizFormGroup && this.quizFormGroup.get('fontSizeCtrl')) {
@@ -57,7 +74,8 @@ export class PrintableQuizComponent implements OnInit {
     return this.quizFormGroup.get('enableScoreCtrl')?.value as boolean;
   }
   get arPlaceHolder(): any[] {
-    const dcmplace: number = +this.contentFormGroup.get('decimalPlacesCtrl')?.value;
+    const dcmplace: number =
+      +this.contentFormGroup.get('decimalPlacesCtrl')?.value;
     const endnr: number = +this.contentFormGroup.get('numberEndCtrl')?.value;
     const amtLength: number = 2 * (endnr.toString().length + dcmplace);
 
@@ -69,40 +87,54 @@ export class PrintableQuizComponent implements OnInit {
   }
 
   constructor(private snackbar: MatSnackBar) {
-    this.contentFormGroup = new UntypedFormGroup({
-      amountAddCtrl: new UntypedFormControl(),
-      amountSubCtrl: new UntypedFormControl(),
-      amountMulCtrl: new UntypedFormControl(),
-      amountMixOpCtrl: new UntypedFormControl(),
-      amountFractCtrl: new UntypedFormControl(),
-      mixOpsCtrl: new UntypedFormControl(['+', '-']),
-      randomInputCtrl: new UntypedFormControl(true),
-      decimalPlacesCtrl: new UntypedFormControl(),
-      numberBeginCtrl: new UntypedFormControl(1, [Validators.required]),
-      numberEndCtrl: new UntypedFormControl(100, [Validators.required]),
-    }, [this.contentValidator]);
-    this.quizFormGroup = new UntypedFormGroup({
-      headerCtrl: new UntypedFormControl(),
-      enableScoreCtrl: new UntypedFormControl(true),
-      enableDateCtrl: new UntypedFormControl(true),
-      fontSizeCtrl: new UntypedFormControl(15, [Validators.required]),
-      amountOfCopyCtrl: new UntypedFormControl(1, [Validators.required]),
-    }, [this.printSettingValidator]);
+    this.contentFormGroup = new UntypedFormGroup(
+      {
+        amountAddCtrl: new UntypedFormControl(),
+        amountSubCtrl: new UntypedFormControl(),
+        amountMulCtrl: new UntypedFormControl(),
+        amountMixOpCtrl: new UntypedFormControl(),
+        amountFractCtrl: new UntypedFormControl(),
+        mixOpsCtrl: new UntypedFormControl(['+', '-']),
+        randomInputCtrl: new UntypedFormControl(true),
+        decimalPlacesCtrl: new UntypedFormControl(),
+        numberBeginCtrl: new UntypedFormControl(1, [Validators.required]),
+        numberEndCtrl: new UntypedFormControl(100, [Validators.required]),
+      },
+      [this.contentValidator]
+    );
+    this.quizFormGroup = new UntypedFormGroup(
+      {
+        headerCtrl: new UntypedFormControl(),
+        enableScoreCtrl: new UntypedFormControl(true),
+        enableDateCtrl: new UntypedFormControl(true),
+        fontSizeCtrl: new UntypedFormControl(15, [Validators.required]),
+        amountOfCopyCtrl: new UntypedFormControl(1, [Validators.required]),
+      },
+      [this.printSettingValidator]
+    );
   }
 
   ngOnInit(): void {
     // Oninit.
   }
 
-  contentValidator: ValidatorFn = (group: AbstractControl): ValidationErrors | null => {
+  contentValidator: ValidatorFn = (
+    group: AbstractControl
+  ): ValidationErrors | null => {
     const addamt: number = +group.get('amountAddCtrl')?.value;
     const subamt: number = +group.get('amountSubCtrl')?.value;
     const mulamt: number = +group.get('amountMulCtrl')?.value;
     const mopamt: number = +group.get('amountMixOpCtrl')?.value;
     const frtamt: number = +group.get('amountFractCtrl')?.value;
     const mops: any[] = group.get('mixOpsCtrl')?.value;
-    if ((addamt <= 0 && subamt <= 0 && mulamt <= 0 && mopamt <= 0 && frtamt <= 0)
-      || (addamt + subamt + mulamt + mopamt + frtamt) <= 0) {
+    if (
+      (addamt <= 0 &&
+        subamt <= 0 &&
+        mulamt <= 0 &&
+        mopamt <= 0 &&
+        frtamt <= 0) ||
+      addamt + subamt + mulamt + mopamt + frtamt <= 0
+    ) {
       return { invalidamount: true };
     }
     if (mopamt > 0 || frtamt > 0) {
@@ -120,7 +152,9 @@ export class PrintableQuizComponent implements OnInit {
     return null;
   };
 
-  printSettingValidator: ValidatorFn = (group: AbstractControl): ValidationErrors | null => {
+  printSettingValidator: ValidatorFn = (
+    group: AbstractControl
+  ): ValidationErrors | null => {
     const cpyamt: number = +group.get('amountOfCopyCtrl')?.value;
     if (cpyamt <= 0) {
       return { invalidcopyamount: true };
@@ -146,8 +180,10 @@ export class PrintableQuizComponent implements OnInit {
     const frtamt: number = +this.contentFormGroup.get('amountFractCtrl')?.value;
     const bgnnr: number = +this.contentFormGroup.get('numberBeginCtrl')?.value;
     const endnr: number = +this.contentFormGroup.get('numberEndCtrl')?.value;
-    const dcmplace: number = +this.contentFormGroup.get('decimalPlacesCtrl')?.value;
-    const randminput: boolean = this.contentFormGroup.get('randomInputCtrl')?.value;
+    const dcmplace: number =
+      +this.contentFormGroup.get('decimalPlacesCtrl')?.value;
+    const randminput: boolean =
+      this.contentFormGroup.get('randomInputCtrl')?.value;
 
     // Add.
     this.generateAddQuizs(addamt, endnr, bgnnr, dcmplace, randminput);
@@ -156,9 +192,21 @@ export class PrintableQuizComponent implements OnInit {
     // Multipy.
     this.generateMulQuizs(mulamt, endnr, bgnnr, dcmplace, randminput);
     // Mixed operators
-    this.generateMixOpQuiz(mopamt, endnr, bgnnr, dcmplace, randminput, this.contentFormGroup.get('mixOpsCtrl')?.value);
+    this.generateMixOpQuiz(
+      mopamt,
+      endnr,
+      bgnnr,
+      dcmplace,
+      randminput,
+      this.contentFormGroup.get('mixOpsCtrl')?.value
+    );
     // Fraction
-    this.generatFractQuiz(frtamt, endnr, bgnnr, this.contentFormGroup.get('mixOpsCtrl')?.value);
+    this.generatFractQuiz(
+      frtamt,
+      endnr,
+      bgnnr,
+      this.contentFormGroup.get('mixOpsCtrl')?.value
+    );
   }
 
   public onGenerate(): void {
@@ -168,27 +216,29 @@ export class PrintableQuizComponent implements OnInit {
       // Generate the PDF
       this.pdfFileGenerate();
 
-      this._eventPDF.subscribe((val: boolean) => {
-        aoc --;
-        if (aoc >= 1) {
-          // Regeneate the whole page
-          this.generateWholeQuizContent();
+      this._eventPDF.subscribe(
+        (val: boolean) => {
+          aoc--;
+          if (aoc >= 1) {
+            // Regeneate the whole page
+            this.generateWholeQuizContent();
 
-          this.pdfFileGenerate();
+            this.pdfFileGenerate();
+          } else {
+            this.snackbar.open('File(s) generated and downloaded', undefined, {
+              duration: 2000,
+            });
 
-        } else {
-          this.snackbar.open('File(s) generated and downloaded', undefined, {
+            this.onReset();
+          }
+        },
+        (error: any) => {
+          // Failed
+          this.snackbar.open(error.toString(), undefined, {
             duration: 2000,
           });
-
-          this.onReset();
         }
-      }, (error: any) => {
-        // Failed
-        this.snackbar.open(error.toString(), undefined, {
-          duration: 2000,
-        });
-      });
+      );
     }
   }
 
@@ -223,54 +273,63 @@ export class PrintableQuizComponent implements OnInit {
       // logging: true,
       width,
       height,
-      useCORS: true
+      useCORS: true,
     };
 
-    html2canvas(target, opts).then((canvas2: any) => {
-      const context: any = canvas2.getContext('2d');
-      // context.mozImageSmoothingEnabled = false;
-      // context.webkitImageSmoothingEnabled = false;
-      // context.msImageSmoothingEnabled = false;
-      context.imageSmoothingEnabled = false;
-      // var img = Canvas2Image.convertToJPEG(canvas, canvas.width, canvas.height);
-      const contentWidth = canvas2.width;
-      const contentHeight = canvas2.height;
-      const pageHeight = contentWidth / 592.28 * 841.89;
-      let leftHeight = contentHeight;
-      let position = 0;
-      // A4 - [595.28, 841.89]
-      const imgWidth = 595.28;
-      const imgHeight = 592.28 / contentWidth * contentHeight;
-      const pageData = canvas2.toDataURL('image/jpeg', 1.0);
-      const pdfopt: jsPDFOptions = {
-        orientation: 'p',
-        unit: 'px'
-      };
-      const pdf = new jsPDF(pdfopt);
-      // pdf.setFontSize(this.fontSize);
+    html2canvas(target, opts).then(
+      (canvas2: any) => {
+        const context: any = canvas2.getContext('2d');
+        // context.mozImageSmoothingEnabled = false;
+        // context.webkitImageSmoothingEnabled = false;
+        // context.msImageSmoothingEnabled = false;
+        context.imageSmoothingEnabled = false;
+        // var img = Canvas2Image.convertToJPEG(canvas, canvas.width, canvas.height);
+        const contentWidth = canvas2.width;
+        const contentHeight = canvas2.height;
+        const pageHeight = (contentWidth / 592.28) * 841.89;
+        let leftHeight = contentHeight;
+        let position = 0;
+        // A4 - [595.28, 841.89]
+        const imgWidth = 595.28;
+        const imgHeight = (592.28 / contentWidth) * contentHeight;
+        const pageData = canvas2.toDataURL('image/jpeg', 1.0);
+        const pdfopt: jsPDFOptions = {
+          orientation: 'p',
+          unit: 'px',
+        };
+        const pdf = new jsPDF(pdfopt);
+        // pdf.setFontSize(this.fontSize);
 
-      if (leftHeight < pageHeight) {
-        pdf.addImage(pageData, 'JPEG', 0, 0, imgWidth, imgHeight);
-      } else {
-        while (leftHeight > 0) {
-          pdf.addImage(pageData, 'JPEG', 0, position, imgWidth, imgHeight);
-          leftHeight -= pageHeight;
-          position -= 841.89;
+        if (leftHeight < pageHeight) {
+          pdf.addImage(pageData, 'JPEG', 0, 0, imgWidth, imgHeight);
+        } else {
+          while (leftHeight > 0) {
+            pdf.addImage(pageData, 'JPEG', 0, position, imgWidth, imgHeight);
+            leftHeight -= pageHeight;
+            position -= 841.89;
 
-          if (leftHeight > 0) {
-            pdf.addPage();
+            if (leftHeight > 0) {
+              pdf.addPage();
+            }
           }
         }
-      }
-      pdf.save('quiz.pdf');
+        pdf.save('quiz.pdf');
 
-      this._eventPDF.emit(true);
-    }, (error: any) => {
-      this._eventPDF.error(error.toString());
-    });
+        this._eventPDF.emit(true);
+      },
+      (error: any) => {
+        this._eventPDF.error(error.toString());
+      }
+    );
   }
 
-  private generateMulQuizs(mulamt: number, endnr: number, bgnnr: number, dcmplace: number, randminput: boolean) {
+  private generateMulQuizs(
+    mulamt: number,
+    endnr: number,
+    bgnnr: number,
+    dcmplace: number,
+    randminput: boolean
+  ) {
     this.arMulQuizFinal = [];
 
     const arMulQuiz: any[] = [];
@@ -303,7 +362,11 @@ export class PrintableQuizComponent implements OnInit {
     }
     for (let i = 0; i < mulamt; i += 3) {
       if (i < mulamt - 2) {
-        this.arMulQuizFinal.push([arMulQuiz[i], arMulQuiz[i + 1], arMulQuiz[i + 2]]);
+        this.arMulQuizFinal.push([
+          arMulQuiz[i],
+          arMulQuiz[i + 1],
+          arMulQuiz[i + 2],
+        ]);
       } else if (i < mulamt - 1) {
         this.arMulQuizFinal.push([arMulQuiz[i], arMulQuiz[i + 1]]);
       } else {
@@ -312,7 +375,13 @@ export class PrintableQuizComponent implements OnInit {
     }
   }
 
-  private generateSubQuizs(subamt: number, endnr: number, bgnnr: number, dcmplace: number, randminput: boolean) {
+  private generateSubQuizs(
+    subamt: number,
+    endnr: number,
+    bgnnr: number,
+    dcmplace: number,
+    randminput: boolean
+  ) {
     this.arSubQuizFinal = [];
 
     const arSubQuiz: any[] = [];
@@ -351,7 +420,11 @@ export class PrintableQuizComponent implements OnInit {
     }
     for (let i = 0; i < subamt; i += 3) {
       if (i < subamt - 2) {
-        this.arSubQuizFinal.push([arSubQuiz[i], arSubQuiz[i + 1], arSubQuiz[i + 2]]);
+        this.arSubQuizFinal.push([
+          arSubQuiz[i],
+          arSubQuiz[i + 1],
+          arSubQuiz[i + 2],
+        ]);
       } else if (i < subamt - 1) {
         this.arSubQuizFinal.push([arSubQuiz[i], arSubQuiz[i + 1]]);
       } else {
@@ -360,7 +433,13 @@ export class PrintableQuizComponent implements OnInit {
     }
   }
 
-  private generateAddQuizs(addamt: number, endnr: number, bgnnr: number, dcmplace: number, randminput: boolean) {
+  private generateAddQuizs(
+    addamt: number,
+    endnr: number,
+    bgnnr: number,
+    dcmplace: number,
+    randminput: boolean
+  ) {
     this.arAddQuizFinal = [];
 
     const arAddQuiz: any[] = [];
@@ -394,7 +473,11 @@ export class PrintableQuizComponent implements OnInit {
     }
     for (let i = 0; i < addamt; i += 3) {
       if (i < addamt - 2) {
-        this.arAddQuizFinal.push([arAddQuiz[i], arAddQuiz[i + 1], arAddQuiz[i + 2]]);
+        this.arAddQuizFinal.push([
+          arAddQuiz[i],
+          arAddQuiz[i + 1],
+          arAddQuiz[i + 2],
+        ]);
       } else if (i < addamt - 1) {
         this.arAddQuizFinal.push([arAddQuiz[i], arAddQuiz[i + 1]]);
       } else {
@@ -403,8 +486,14 @@ export class PrintableQuizComponent implements OnInit {
     }
   }
 
-  private generateMixOpQuiz(mixamt: number, endnr: number, bgnnr: number, dcmplace: number, randminput: boolean,
-      oplist: string[]) {
+  private generateMixOpQuiz(
+    mixamt: number,
+    endnr: number,
+    bgnnr: number,
+    dcmplace: number,
+    randminput: boolean,
+    oplist: string[]
+  ) {
     this.arMixOpQuizFinal = [];
     if (oplist.length <= 0) {
       return;
@@ -432,7 +521,9 @@ export class PrintableQuizComponent implements OnInit {
           if (i === 0) {
             finformat += numlist[i].toString();
           } else {
-            finformat += ((arops[i - 1] === 'X' ? '*' : arops[i - 1]) + numlist[i].toString());
+            finformat +=
+              (arops[i - 1] === 'X' ? '*' : arops[i - 1]) +
+              numlist[i].toString();
 
             const midrst = eval(finformat);
             if (midrst < 0) {
@@ -442,8 +533,10 @@ export class PrintableQuizComponent implements OnInit {
               const midrststring = midrst.toString();
               const dotidx = midrststring.indexOf('.');
               if (dcmplace > 0) {
-                if (dotidx === -1
-                  || (dotidx !== -1 && midrststring.length > dotidx + dcmplace + 1)) {
+                if (
+                  dotidx === -1 ||
+                  (dotidx !== -1 && midrststring.length > dotidx + dcmplace + 1)
+                ) {
                   bneg = true;
                   break;
                 }
@@ -500,13 +593,17 @@ export class PrintableQuizComponent implements OnInit {
     }
   }
 
-  private generatFractQuiz(frtamt: number, endnr: number, bgnnr: number, oplist: string[]) {
+  private generatFractQuiz(
+    frtamt: number,
+    endnr: number,
+    bgnnr: number,
+    oplist: string[]
+  ) {
     this.arFractQuizFinal = [];
 
     const arFractQuiz: any[] = [];
 
     if (frtamt > 0) {
-
       do {
         const num1 = generateNumber(endnr, bgnnr, 0);
         const num2 = generateNumber(endnr, bgnnr, 0);
@@ -516,11 +613,19 @@ export class PrintableQuizComponent implements OnInit {
         console.log(randop);
 
         if (num1 !== 0 && num2 !== 0 && num3 !== 0 && num4 !== 0) {
-          arFractQuiz.push('{' + (num1 > num2 ? num2 : num1).toString() + ' \\over '
-            + (num1 > num2 ? num1 : num2).toString() + ' } '
-            + (oplist[randop] === 'X' ? '\\times' : oplist[randop]) + ' {'
-            + (num3 > num4 ? num4 : num3).toString() + ' \\over '
-            + (num3 > num4 ? num3 : num4).toString() + ' } = ');
+          arFractQuiz.push(
+            '{' +
+              (num1 > num2 ? num2 : num1).toString() +
+              ' \\over ' +
+              (num1 > num2 ? num1 : num2).toString() +
+              ' } ' +
+              (oplist[randop] === 'X' ? '\\times' : oplist[randop]) +
+              ' {' +
+              (num3 > num4 ? num4 : num3).toString() +
+              ' \\over ' +
+              (num3 > num4 ? num3 : num4).toString() +
+              ' } = '
+          );
         }
       } while (arFractQuiz.length < frtamt);
 
@@ -535,7 +640,9 @@ export class PrintableQuizComponent implements OnInit {
   }
 
   private shuffleArray(arr: any[]): void {
-    let i = 0, j = 0, temp: any;
+    let i = 0,
+      j = 0,
+      temp: any;
 
     for (i = arr.length - 1; i > 0; i -= 1) {
       j = Math.floor(Math.random() * (i + 1));

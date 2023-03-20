@@ -20,10 +20,10 @@ describe('UserCollectionDetailComponent', () => {
   let userDetail: InvitedUser;
 
   beforeAll(() => {
-    odataservice = jasmine.createSpyObj('ODataService', [
-      'readUserCollection',
-    ]);
-    readUserCollectionSpy = odataservice.readUserCollection.and.returnValue(of({}));
+    odataservice = jasmine.createSpyObj('ODataService', ['readUserCollection']);
+    readUserCollectionSpy = odataservice.readUserCollection.and.returnValue(
+      of({})
+    );
   });
 
   beforeEach(async () => {
@@ -31,7 +31,7 @@ describe('UserCollectionDetailComponent', () => {
     userDetail.displayAs = 'test';
     userDetail.awardUsers = [];
     const authStub: Partial<AuthService> = {
-      userDetail: userDetail
+      userDetail: userDetail,
     };
 
     await TestBed.configureTestingModule({
@@ -45,14 +45,13 @@ describe('UserCollectionDetailComponent', () => {
         BrowserDynamicTestingModule,
         getTranslocoModule(),
       ],
-      declarations: [ UserCollectionDetailComponent ],
-      providers:[    
+      declarations: [UserCollectionDetailComponent],
+      providers: [
         UIUtilityService,
         { provide: AuthService, useValue: authStub },
         { provide: ODataService, useValue: odataservice },
-      ]
-    })
-    .compileComponents();
+      ],
+    }).compileComponents();
   });
 
   beforeEach(() => {

@@ -17,9 +17,7 @@ describe('TagDetailComponent', () => {
   let readExerciseItemSpy: any;
 
   beforeAll(() => {
-    odataSvc = jasmine.createSpyObj('ODataService', [
-      'readExerciseItem',
-    ]);
+    odataSvc = jasmine.createSpyObj('ODataService', ['readExerciseItem']);
 
     readExerciseItemSpy = odataSvc.readExerciseItem.and.returnValue(of(''));
   });
@@ -36,13 +34,12 @@ describe('TagDetailComponent', () => {
         BrowserDynamicTestingModule,
         getTranslocoModule(),
       ],
-      declarations: [ TagDetailComponent ],
+      declarations: [TagDetailComponent],
       providers: [
         UIUtilityService,
         { provide: ODataService, useValue: odataSvc },
-      ]
-    })
-    .compileComponents();
+      ],
+    }).compileComponents();
   }));
 
   beforeEach(() => {

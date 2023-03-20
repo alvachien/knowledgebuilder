@@ -1,11 +1,31 @@
 import { AfterViewInit, Component, OnInit, ViewChild } from '@angular/core';
 import { MatPaginator } from '@angular/material/paginator';
 import { BehaviorSubject, merge, of as observableOf, scheduled } from 'rxjs';
-import { catchError, finalize, map, mergeAll, startWith, switchMap } from 'rxjs/operators';
+import {
+  catchError,
+  finalize,
+  map,
+  mergeAll,
+  startWith,
+  switchMap,
+} from 'rxjs/operators';
 
-import { KnowledgeItem, GeneralFilterItem, GeneralFilterOperatorEnum, GeneralFilterValueType,
-  TagReferenceType, UIDisplayString, UIDisplayStringUtil, getKnowledgeItemCategoryName, KnowledgeItemCategory } from 'src/app/models';
-import { ODataService, PreviewObject, UIUtilityService } from 'src/app/services';
+import {
+  KnowledgeItem,
+  GeneralFilterItem,
+  GeneralFilterOperatorEnum,
+  GeneralFilterValueType,
+  TagReferenceType,
+  UIDisplayString,
+  UIDisplayStringUtil,
+  getKnowledgeItemCategoryName,
+  KnowledgeItemCategory,
+} from 'src/app/models';
+import {
+  ODataService,
+  PreviewObject,
+  UIUtilityService,
+} from 'src/app/services';
 
 @Component({
   selector: 'app-knowledge-item-search',
@@ -22,25 +42,30 @@ export class KnowledgeItemSearchComponent implements OnInit, AfterViewInit {
   pageSize = 20;
   pageSizeOptions = [20, 40, 60, 100];
   isLoadingResults = false;
-  resultsLength: number = 0;
+  resultsLength = 0;
   subjFilters: BehaviorSubject<any> = new BehaviorSubject([]);
   // Result
   displayedColumns: string[] = ['id', 'category', 'title', 'createdat'];
   dataSource: KnowledgeItem[] = [];
 
-  constructor(private odataService: ODataService,
-    private uiUtilSrv: UIUtilityService) {
+  constructor(
+    private odataService: ODataService,
+    private uiUtilSrv: UIUtilityService
+  ) {
     this.resultsLength = 0;
-    this.allOperators = UIDisplayStringUtil.getGeneralFilterOperatorDisplayStrings();
-    this.allFields = [{
-      displayas: 'Content',
-      value: 'Content',
-      valueType: 2,
-    }, {
-      displayas: 'Title',
-      value: 'Title',
-      valueType: 2,
-    },
+    this.allOperators =
+      UIDisplayStringUtil.getGeneralFilterOperatorDisplayStrings();
+    this.allFields = [
+      {
+        displayas: 'Content',
+        value: 'Content',
+        valueType: 2,
+      },
+      {
+        displayas: 'Title',
+        value: 'Title',
+        valueType: 2,
+      },
     ];
   }
 
@@ -54,7 +79,7 @@ export class KnowledgeItemSearchComponent implements OnInit, AfterViewInit {
    */
   ngAfterViewInit(): void {
     // this.dataSource.paginator = this.paginator;
-    this.subjFilters.subscribe(() => this.paginator.pageIndex = 0);
+    this.subjFilters.subscribe(() => (this.paginator.pageIndex = 0));
 
     // scheduled([this.subjFilters, this.paginator.page], scheduled)
     //   .pipe(mergeAll())
@@ -73,24 +98,31 @@ export class KnowledgeItemSearchComponent implements OnInit, AfterViewInit {
           const top = this.paginator.pageSize;
           const skip = top * this.paginator.pageIndex;
 
-          return this.odataService.getKnowledgeItems(top, skip, undefined, undefined, filter);
+          return this.odataService.getKnowledgeItems(
+            top,
+            skip,
+            undefined,
+            undefined,
+            filter
+          );
         }),
-        finalize(() => this.isLoadingResults = false),
+        finalize(() => (this.isLoadingResults = false)),
         map((data: any) => {
           this.resultsLength = data.totalCount;
 
           return data.items;
         }),
-        catchError(() => observableOf(undefined)),
-    ).subscribe({
-      next: data => {
-        this.dataSource = data ? data : [];
-        if (this.dataSource.length === 0) {
-          this.uiUtilSrv.showSnackInfo("No record found");
-        }
-      },
-      error: err => this.uiUtilSrv.showSnackInfo(err)
-    });
+        catchError(() => observableOf(undefined))
+      )
+      .subscribe({
+        next: (data) => {
+          this.dataSource = data ? data : [];
+          if (this.dataSource.length === 0) {
+            this.uiUtilSrv.showSnackInfo('No record found');
+          }
+        },
+        error: (err) => this.uiUtilSrv.showSnackInfo(err),
+      });
   }
   getKnowledgeItemCategoryName(ctgy: KnowledgeItemCategory): string {
     return getKnowledgeItemCategoryName(ctgy);
@@ -116,13 +148,15 @@ export class KnowledgeItemSearchComponent implements OnInit, AfterViewInit {
     let rstfilter = '';
     arFilter.sort((a, b) => a.fieldName.localeCompare(b.fieldName));
 
-    arFilter.forEach(flt => {
+    arFilter.forEach((flt) => {
       if (flt.fieldName === 'Content' || flt.fieldName === 'Title') {
         if (flt.operator === GeneralFilterOperatorEnum.Equal) {
-          rstfilter = rstfilter ? `${rstfilter} and ${flt.fieldName} eq '${flt.lowValue}'`
+          rstfilter = rstfilter
+            ? `${rstfilter} and ${flt.fieldName} eq '${flt.lowValue}'`
             : `${flt.fieldName} eq '${flt.lowValue}'`;
-        } else if(flt.operator === GeneralFilterOperatorEnum.Like) {
-          rstfilter = rstfilter ? `${rstfilter} and contains(${flt.fieldName},'${flt.lowValue}')`
+        } else if (flt.operator === GeneralFilterOperatorEnum.Like) {
+          rstfilter = rstfilter
+            ? `${rstfilter} and contains(${flt.fieldName},'${flt.lowValue}')`
             : `contains(${flt.fieldName},'${flt.lowValue}')`;
         }
       }
@@ -198,7 +232,7 @@ export class KnowledgeItemSearchComponent implements OnInit, AfterViewInit {
   }
   public onGoToPreview(): void {
     const arobj: PreviewObject[] = [];
-    this.dataSource.forEach(val => {
+    this.dataSource.forEach((val) => {
       arobj.push({
         refType: TagReferenceType.KnowledgeItem,
         refId: val.ID,

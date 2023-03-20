@@ -18,9 +18,7 @@ describe('ExerciseItemScoreComponent', () => {
   let getOverviewInfoSpy: any;
 
   beforeAll(() => {
-    odataSvc = jasmine.createSpyObj('ODataService', [
-      'getOverviewInfo',
-    ]);
+    odataSvc = jasmine.createSpyObj('ODataService', ['getOverviewInfo']);
 
     getOverviewInfoSpy = odataSvc.getOverviewInfo.and.returnValue(of(''));
   });
@@ -38,13 +36,12 @@ describe('ExerciseItemScoreComponent', () => {
         AppUIModule,
         getTranslocoModule(),
       ],
-      declarations: [ ExerciseItemScoreComponent ],
+      declarations: [ExerciseItemScoreComponent],
       providers: [
         UIUtilityService,
         { provide: ODataService, useValue: odataSvc },
-      ]
-    })
-    .compileComponents();
+      ],
+    }).compileComponents();
   });
 
   beforeEach(() => {

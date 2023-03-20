@@ -17,9 +17,7 @@ describe('WelcomeComponent', () => {
   let getOverviewInfoSpy: any;
 
   beforeAll(() => {
-    odataSvc = jasmine.createSpyObj('ODataService', [
-      'getOverviewInfo',
-    ]);
+    odataSvc = jasmine.createSpyObj('ODataService', ['getOverviewInfo']);
 
     getOverviewInfoSpy = odataSvc.getOverviewInfo.and.returnValue(of(''));
   });
@@ -36,12 +34,9 @@ describe('WelcomeComponent', () => {
         BrowserDynamicTestingModule,
         getTranslocoModule(),
       ],
-      declarations: [ WelcomeComponent ],
-      providers: [
-        { provide: ODataService, useValue: odataSvc }
-      ]
-    })
-    .compileComponents();
+      declarations: [WelcomeComponent],
+      providers: [{ provide: ODataService, useValue: odataSvc }],
+    }).compileComponents();
   }));
 
   beforeEach(() => {

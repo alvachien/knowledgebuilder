@@ -11,10 +11,7 @@ import { UserCollectionComponent } from './user-collection/user-collection.compo
 import { UserCollectionDetailComponent } from './user-collection-detail/user-collection-detail.component';
 
 @NgModule({
-  declarations: [
-    UserCollectionComponent,
-    UserCollectionDetailComponent
-  ],
+  declarations: [UserCollectionComponent, UserCollectionDetailComponent],
   imports: [
     CommonModule,
     FormsModule,
@@ -24,6 +21,6 @@ import { UserCollectionDetailComponent } from './user-collection-detail/user-col
     TranslocoModule,
     AppUIModule,
     UserCollectionRoutingModule,
-  ]
+  ],
 })
-export class UserCollectionModule { }
+export class UserCollectionModule {}

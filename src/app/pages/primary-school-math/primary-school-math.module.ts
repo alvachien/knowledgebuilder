@@ -36,4 +36,4 @@ import { PrintableQuizSectionItemComponent } from './printable-quiz-section-item
     TranslocoModule,
   ],
 })
-export class PrimarySchoolMathModule { }
+export class PrimarySchoolMathModule {}

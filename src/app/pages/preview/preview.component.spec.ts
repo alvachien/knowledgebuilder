@@ -17,9 +17,7 @@ describe('PreviewComponent', () => {
   let readKnowledgeItemSpy: any;
 
   beforeAll(() => {
-    odataSvc = jasmine.createSpyObj('ODataService', [
-      'readKnowledgeItem',
-    ]);
+    odataSvc = jasmine.createSpyObj('ODataService', ['readKnowledgeItem']);
 
     readKnowledgeItemSpy = odataSvc.readKnowledgeItem.and.returnValue(of(''));
   });
@@ -36,13 +34,12 @@ describe('PreviewComponent', () => {
         BrowserDynamicTestingModule,
         getTranslocoModule(),
       ],
-      declarations: [ PreviewComponent ],
+      declarations: [PreviewComponent],
       providers: [
         UIUtilityService,
         { provide: ODataService, useValue: odataSvc },
-      ]
-    })
-    .compileComponents();
+      ],
+    }).compileComponents();
   });
 
   beforeEach(() => {

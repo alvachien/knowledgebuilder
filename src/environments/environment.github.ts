@@ -8,5 +8,5 @@ export const environment = {
   AppHost: '',
   homePageUrl: 'https://alvachien.github.io',
 
-  apiurlRoot: ''
+  apiurlRoot: '',
 };

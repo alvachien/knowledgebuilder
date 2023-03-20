@@ -1,5 +1,8 @@
 import { TestBed } from '@angular/core/testing';
-import { OidcSecurityService, AuthenticatedResult } from 'angular-auth-oidc-client';
+import {
+  OidcSecurityService,
+  AuthenticatedResult,
+} from 'angular-auth-oidc-client';
 import { of } from 'rxjs';
 import { InvitedUser } from '../models';
 
@@ -13,12 +16,10 @@ describe('AuthGuardService', () => {
     const authStub: Partial<OidcSecurityService> = {
       isAuthenticated$: of({
         isAuthenticated: true,
-      } as AuthenticatedResult)
+      } as AuthenticatedResult),
     };
     TestBed.configureTestingModule({
-      providers: [
-        { provide: OidcSecurityService, useValue: authStub}
-      ]      
+      providers: [{ provide: OidcSecurityService, useValue: authStub }],
     });
     service = TestBed.inject(AuthGuardService);
   });

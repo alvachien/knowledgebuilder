@@ -17,9 +17,7 @@ describe('AppComponent', () => {
   let userDetail: InvitedUser;
 
   beforeAll(() => {
-    odataervice = jasmine.createSpyObj('ODataService', [
-      'searchExerciseItems',
-    ]);
+    odataervice = jasmine.createSpyObj('ODataService', ['searchExerciseItems']);
   });
 
   beforeEach(waitForAsync(() => {
@@ -27,7 +25,7 @@ describe('AppComponent', () => {
     userDetail.displayAs = 'test';
     userDetail.awardUsers = [];
     const authStub: Partial<AuthService> = {
-      userDetail: userDetail
+      userDetail: userDetail,
     };
 
     TestBed.configureTestingModule({
@@ -42,15 +40,12 @@ describe('AppComponent', () => {
         AppUIModule,
         getTranslocoModule(),
       ],
-      declarations: [
-        NavItemFilterPipe,
-        AppComponent
-      ],
+      declarations: [NavItemFilterPipe, AppComponent],
       providers: [
         { provide: AuthService, useValue: authStub },
         { provide: ODataService, useValue: odataervice },
         UIUtilityService,
-      ]
+      ],
     }).compileComponents();
   }));
 

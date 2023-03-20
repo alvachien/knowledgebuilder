@@ -8,5 +8,5 @@ export const environment = {
   homePageUrl: 'https://www.alvachien.com',
   AppHost: 'https://www.alvachien.com/math',
 
-  apiurlRoot: 'https://www.alvachien.com/quizapi'
+  apiurlRoot: 'https://www.alvachien.com/quizapi',
 };

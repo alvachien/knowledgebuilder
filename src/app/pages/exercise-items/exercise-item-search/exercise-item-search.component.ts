@@ -1,16 +1,36 @@
 import { AfterViewInit, Component, OnInit, ViewChild } from '@angular/core';
 import { MatPaginator } from '@angular/material/paginator';
 import { BehaviorSubject, merge, of as observableOf } from 'rxjs';
-import { catchError, finalize, map, mergeAll, startWith, switchMap } from 'rxjs/operators';
+import {
+  catchError,
+  finalize,
+  map,
+  mergeAll,
+  startWith,
+  switchMap,
+} from 'rxjs/operators';
 
-import { ExerciseItemSearchResult, ExerciseItemType, GeneralFilterItem, GeneralFilterOperatorEnum, GeneralFilterValueType,
-  getExerciseItemTypeName, TagReferenceType, UIDisplayString, UIDisplayStringUtil } from 'src/app/models';
-import { ODataService, PreviewObject, UIUtilityService } from 'src/app/services';
+import {
+  ExerciseItemSearchResult,
+  ExerciseItemType,
+  GeneralFilterItem,
+  GeneralFilterOperatorEnum,
+  GeneralFilterValueType,
+  getExerciseItemTypeName,
+  TagReferenceType,
+  UIDisplayString,
+  UIDisplayStringUtil,
+} from 'src/app/models';
+import {
+  ODataService,
+  PreviewObject,
+  UIUtilityService,
+} from 'src/app/services';
 
 @Component({
   selector: 'app-exercise-item-search',
   templateUrl: './exercise-item-search.component.html',
-  styleUrls: ['./exercise-item-search.component.scss']
+  styleUrls: ['./exercise-item-search.component.scss'],
 })
 export class ExerciseItemSearchComponent implements OnInit, AfterViewInit {
   filters: GeneralFilterItem[] = [];
@@ -22,29 +42,41 @@ export class ExerciseItemSearchComponent implements OnInit, AfterViewInit {
   pageSize = 20;
   pageSizeOptions = [20, 40, 60, 100];
   isLoadingResults = false;
-  resultsLength: number = 0;
+  resultsLength = 0;
   subjFilters: BehaviorSubject<any> = new BehaviorSubject([]);
   // Result
-  displayedColumns: string[] = ['id', 'itemtype', 'tags', 'knowledgeitem', 'createdat'];
+  displayedColumns: string[] = [
+    'id',
+    'itemtype',
+    'tags',
+    'knowledgeitem',
+    'createdat',
+  ];
   dataSource: ExerciseItemSearchResult[] = [];
 
-  constructor(private odataService: ODataService,
-    private uiUtilSrv: UIUtilityService) {
+  constructor(
+    private odataService: ODataService,
+    private uiUtilSrv: UIUtilityService
+  ) {
     this.resultsLength = 0;
-    this.allOperators = UIDisplayStringUtil.getGeneralFilterOperatorDisplayStrings();
-    this.allFields = [{
-      displayas: 'Content',
-      value: 'Content',
-      valueType: 2,
-    }, {
-      displayas: 'Tag',
-      value: 'Tags',
-      valueType: 2,
-    }, {
-      displayas: 'Type',
-      value: 'ExerciseType',
-      valueType: 2,
-    },
+    this.allOperators =
+      UIDisplayStringUtil.getGeneralFilterOperatorDisplayStrings();
+    this.allFields = [
+      {
+        displayas: 'Content',
+        value: 'Content',
+        valueType: 2,
+      },
+      {
+        displayas: 'Tag',
+        value: 'Tags',
+        valueType: 2,
+      },
+      {
+        displayas: 'Type',
+        value: 'ExerciseType',
+        valueType: 2,
+      },
     ];
   }
 
@@ -58,7 +90,7 @@ export class ExerciseItemSearchComponent implements OnInit, AfterViewInit {
    */
   ngAfterViewInit(): void {
     // this.dataSource.paginator = this.paginator;
-    this.subjFilters.subscribe(() => this.paginator.pageIndex = 0);
+    this.subjFilters.subscribe(() => (this.paginator.pageIndex = 0));
 
     merge(this.subjFilters, this.paginator.page)
       .pipe(
@@ -77,22 +109,23 @@ export class ExerciseItemSearchComponent implements OnInit, AfterViewInit {
 
           return this.odataService.searchExerciseItems(top, skip, filter);
         }),
-        finalize(() => this.isLoadingResults = false),
+        finalize(() => (this.isLoadingResults = false)),
         map((data: any) => {
           this.resultsLength = data.totalCount ? data.totalCount : 0;
 
           return data.items;
         }),
-        catchError(() => observableOf(undefined)),
-    ).subscribe({
-      next: data => {
-        this.dataSource = data ? data : [];
-        if (this.dataSource.length === 0) {
-          this.uiUtilSrv.showSnackInfo("No record found");
-        }
-      },
-      error: err => this.uiUtilSrv.showSnackInfo(err)
-    });
+        catchError(() => observableOf(undefined))
+      )
+      .subscribe({
+        next: (data) => {
+          this.dataSource = data ? data : [];
+          if (this.dataSource.length === 0) {
+            this.uiUtilSrv.showSnackInfo('No record found');
+          }
+        },
+        error: (err) => this.uiUtilSrv.showSnackInfo(err),
+      });
   }
   getExerciseItemTypeName(itemtype: ExerciseItemType): string {
     return getExerciseItemTypeName(itemtype);
@@ -117,19 +150,21 @@ export class ExerciseItemSearchComponent implements OnInit, AfterViewInit {
   prepareFilters(arFilter: any[]): string {
     let rstfilter = '';
     arFilter.sort((a, b) => a.fieldName.localeCompare(b.fieldName));
-    let arfieldNames = arFilter.map(val => val.fieldName);
+    let arfieldNames = arFilter.map((val) => val.fieldName);
     arfieldNames = Array.from(new Set(arfieldNames));
 
-    arfieldNames.forEach(fname => {
+    arfieldNames.forEach((fname) => {
       let substring = '';
-      arFilter.forEach(flt => {
+      arFilter.forEach((flt) => {
         if (flt.fieldName === fname) {
           if (flt.fieldName === 'Content' || flt.fieldName === 'Tags') {
             if (flt.operator === GeneralFilterOperatorEnum.Equal) {
-              substring = substring ? `${substring} or ${flt.fieldName} eq '${flt.lowValue}'`
+              substring = substring
+                ? `${substring} or ${flt.fieldName} eq '${flt.lowValue}'`
                 : `${flt.fieldName} eq '${flt.lowValue}'`;
-            } else if(flt.operator === GeneralFilterOperatorEnum.Like) {
-              substring = substring ? `${substring} or contains(${flt.fieldName},'${flt.lowValue}')`
+            } else if (flt.operator === GeneralFilterOperatorEnum.Like) {
+              substring = substring
+                ? `${substring} or contains(${flt.fieldName},'${flt.lowValue}')`
                 : `contains(${flt.fieldName},'${flt.lowValue}')`;
             }
           }
@@ -209,7 +244,7 @@ export class ExerciseItemSearchComponent implements OnInit, AfterViewInit {
   }
   public onGoToPreview(): void {
     const arobj: PreviewObject[] = [];
-    this.dataSource.forEach(val => {
+    this.dataSource.forEach((val) => {
       arobj.push({
         refType: TagReferenceType.ExerciseItem,
         refId: val.ID,

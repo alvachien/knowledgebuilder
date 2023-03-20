@@ -1,8 +1,21 @@
-import { AfterContentInit, Component, ElementRef, EventEmitter, HostListener,
-  Input, OnInit, Output, ViewChild } from '@angular/core';
+import {
+  AfterContentInit,
+  Component,
+  ElementRef,
+  EventEmitter,
+  HostListener,
+  Input,
+  OnInit,
+  Output,
+  ViewChild,
+} from '@angular/core';
 
 import { Gobang } from 'src/app/models';
-import { CanvasCellPositionInf, getCanvasCellPosition, getCanvasMouseEventPosition } from 'actslib';
+import {
+  CanvasCellPositionInf,
+  getCanvasCellPosition,
+  getCanvasMouseEventPosition,
+} from 'actslib';
 import { environment } from 'src/environments/environment';
 import { MatDialog } from '@angular/material/dialog';
 import { ResultDialogComponent } from '../result-dialog/result-dialog.component';
@@ -13,19 +26,23 @@ import { ResultDialogComponent } from '../result-dialog/result-dialog.component'
   styleUrls: ['./gobang-game.component.scss'],
 })
 export class GobangGameComponent implements OnInit, AfterContentInit {
-  private _cellsize: number = 15;
+  private _cellsize = 15;
   private _cellheight: number;
   private _cellwidth: number;
   private _userStep: boolean; // True for first player, false for second player
   private _instance: Gobang;
 
   // Canvas
-  @ViewChild('canvasgobang', {static: true}) canvasGobang!: ElementRef;
+  @ViewChild('canvasgobang', { static: true }) canvasGobang!: ElementRef;
 
   @HostListener('mousedown', ['$event'])
   public onGobangCanvasMouseDown(evt: MouseEvent) {
     const loc = getCanvasMouseEventPosition(evt.target, evt);
-    const cellloc = getCanvasCellPosition(loc, this._cellwidth, this._cellheight);
+    const cellloc = getCanvasCellPosition(
+      loc,
+      this._cellwidth,
+      this._cellheight
+    );
 
     // Process step
     this.onProcessStep(cellloc);
@@ -40,8 +57,7 @@ export class GobangGameComponent implements OnInit, AfterContentInit {
     this._instance = new Gobang();
   }
 
-  ngOnInit(): void {
-  }
+  ngOnInit(): void {}
 
   ngAfterContentInit(): void {
     this._instance.Dimension = this._cellsize;
@@ -57,13 +73,23 @@ export class GobangGameComponent implements OnInit, AfterContentInit {
 
   private drawWholeRect() {
     const ctx2 = this.canvasGobang.nativeElement.getContext('2d');
-    ctx2.clearRect(0, 0, this.canvasGobang.nativeElement.width, this.canvasGobang.nativeElement.height);
+    ctx2.clearRect(
+      0,
+      0,
+      this.canvasGobang.nativeElement.width,
+      this.canvasGobang.nativeElement.height
+    );
     ctx2.save();
     ctx2.fillStyle = 'rgba(0, 0, 100, 0.2)';
-    ctx2.fillRect(0, 0, this.canvasGobang.nativeElement.width, this.canvasGobang.nativeElement.height);
+    ctx2.fillRect(
+      0,
+      0,
+      this.canvasGobang.nativeElement.width,
+      this.canvasGobang.nativeElement.height
+    );
     ctx2.restore();
 
-    for (let i = 0; i <= this._cellsize; i ++) {
+    for (let i = 0; i <= this._cellsize; i++) {
       ctx2.beginPath();
       ctx2.moveTo(0, i * this._cellheight);
       ctx2.lineTo(this._cellheight * this._cellsize, i * this._cellheight);
@@ -83,13 +109,21 @@ export class GobangGameComponent implements OnInit, AfterContentInit {
 
     const image = new Image();
     if (this._userStep) {
-      image.src = environment.basehref + 'assets/image/gobangresource/blackchess.png';
+      image.src =
+        environment.basehref + 'assets/image/gobangresource/blackchess.png';
     } else {
-      image.src = environment.basehref + 'assets/image/gobangresource/whitechess.png';
+      image.src =
+        environment.basehref + 'assets/image/gobangresource/whitechess.png';
     }
 
     image.onload = () => {
-      ctx2.drawImage(image, cellloc.column * this._cellwidth, cellloc.row * this._cellheight, this._cellwidth, this._cellheight);
+      ctx2.drawImage(
+        image,
+        cellloc.column * this._cellwidth,
+        cellloc.row * this._cellheight,
+        this._cellwidth,
+        this._cellheight
+      );
     };
   }
 
@@ -98,21 +132,21 @@ export class GobangGameComponent implements OnInit, AfterContentInit {
       return;
     }
 
-    if (!this._instance.isCellHasValue(cellloc.row, cellloc.column)) {      
+    if (!this._instance.isCellHasValue(cellloc.row, cellloc.column)) {
       this.drawChess(cellloc);
 
       this._instance.setCellValue(cellloc.row, cellloc.column, this._userStep);
 
       if (this._instance.Finished) {
         let retry = false;
-        let isWin = this._userStep ? true : false;
+        const isWin = this._userStep ? true : false;
 
         const dialogRef = this.dialog.open(ResultDialogComponent, {
           width: '300px',
-          data: { youWin : isWin }
+          data: { youWin: isWin },
         });
 
-        dialogRef.afterClosed().subscribe(result => {
+        dialogRef.afterClosed().subscribe((result) => {
           console.log(result);
           retry = result;
           if (retry) {
@@ -120,11 +154,13 @@ export class GobangGameComponent implements OnInit, AfterContentInit {
             this._instance = new Gobang();
             this._instance.Dimension = this._cellsize;
             this._instance.init();
-        
+
             // Resize the canvas size
-            this.canvasGobang.nativeElement.width = this._cellwidth * this._cellsize;
-            this.canvasGobang.nativeElement.height = this._cellheight * this._cellsize;
-        
+            this.canvasGobang.nativeElement.width =
+              this._cellwidth * this._cellsize;
+            this.canvasGobang.nativeElement.height =
+              this._cellheight * this._cellsize;
+
             // Draw the border
             this.drawWholeRect();
           } else {
@@ -138,7 +174,7 @@ export class GobangGameComponent implements OnInit, AfterContentInit {
           setTimeout(() => {
             const nextPos = this._instance.workoutNextCellAIPosition();
             this.onProcessStep(nextPos);
-          }, (500));
+          }, 500);
         }
       }
     }

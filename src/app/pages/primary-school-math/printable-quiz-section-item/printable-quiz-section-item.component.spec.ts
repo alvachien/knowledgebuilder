@@ -26,9 +26,8 @@ describe('PrintableQuizSectionItemComponent', () => {
         BrowserDynamicTestingModule,
         getTranslocoModule(),
       ],
-      declarations: [ PrintableQuizSectionItemComponent ]
-    })
-    .compileComponents();
+      declarations: [PrintableQuizSectionItemComponent],
+    }).compileComponents();
   });
 
   beforeEach(() => {

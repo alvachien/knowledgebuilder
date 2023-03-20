@@ -1,4 +1,4 @@
-import { Component, OnInit, } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 
 import { QuizService } from 'src/app/services';
@@ -20,19 +20,26 @@ export interface QuizSummaryInfo {
   styleUrls: ['./quiz-summary-detail.component.scss'],
 })
 export class QuizSummaryDetailComponent implements OnInit {
-  displayedColumns: string[] = ['secid', 'totalcnt', 'failedcnt', 'timespent', 'avgtimespent'];
+  displayedColumns: string[] = [
+    'secid',
+    'totalcnt',
+    'failedcnt',
+    'timespent',
+    'avgtimespent',
+  ];
   data: QuizSummaryInfo[] = [];
   private routerID = -1;
-  totalScore: number = 0;
-  totalAvgTime: number = 0;
+  totalScore = 0;
+  totalAvgTime = 0;
 
-  constructor(private activateRoute: ActivatedRoute,
-    private quizService: QuizService) {    
-  }
+  constructor(
+    private activateRoute: ActivatedRoute,
+    private quizService: QuizService
+  ) {}
 
   ngOnInit(): void {
     this.activateRoute.url.subscribe({
-      next: val => {
+      next: (val) => {
         if (val instanceof Array && val.length > 0) {
           if (val[0].path === 'display') {
             this.routerID = +val[1].path;
@@ -45,8 +52,10 @@ export class QuizSummaryDetailComponent implements OnInit {
         let totalcnt = 0;
         let failedcnt = 0;
         if (this.routerID !== -1) {
-          let quiz = this.quizService.ElderQuizs.find(val => val.QuizID === this.routerID);
-          quiz?.ElderSections.forEach(sec => {
+          const quiz = this.quizService.ElderQuizs.find(
+            (val) => val.QuizID === this.routerID
+          );
+          quiz?.ElderSections.forEach((sec) => {
             const summinfo: QuizSummaryInfo = {
               sectionid: sec.SectionID,
               totalcnt: sec.ItemsCount,
@@ -59,15 +68,17 @@ export class QuizSummaryDetailComponent implements OnInit {
             failedcnt += sec.FailedItemsCount;
             this.data.push(summinfo);
           });
-          if (totalcnt > 0 ) {
-            this.totalScore = Math.round(100 * (totalcnt - failedcnt ) / totalcnt);
+          if (totalcnt > 0) {
+            this.totalScore = Math.round(
+              (100 * (totalcnt - failedcnt)) / totalcnt
+            );
             this.totalAvgTime = this.totalAvgTime / totalcnt;
           }
         }
       },
-      error: err => {
+      error: (err) => {
         console.error(err);
-      }
+      },
     });
   }
 }

@@ -12,7 +12,7 @@ export const environment = {
   homePageUrl: 'https://localhost:44367',
   AppHost: 'https://localhost:44367',
 
-  apiurlRoot: 'https://localhost:44355'
+  apiurlRoot: 'https://localhost:44355',
 };
 
 /*

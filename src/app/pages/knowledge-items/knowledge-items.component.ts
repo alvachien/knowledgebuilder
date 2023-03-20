@@ -1,12 +1,28 @@
-import { Component, EventEmitter, ViewChild, AfterViewInit } from '@angular/core';
+import {
+  Component,
+  EventEmitter,
+  ViewChild,
+  AfterViewInit,
+} from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { MatPaginator } from '@angular/material/paginator';
 import { MatSort } from '@angular/material/sort';
 import { merge, Observable, of as observableOf } from 'rxjs';
 import { catchError, map, startWith, switchMap } from 'rxjs/operators';
 
-import { KnowledgeItemCategory, getKnowledgeItemCategoryName, KnowledgeItem, TagReferenceType, UserCollectionItem } from 'src/app/models';
-import { AuthService, ODataService, PreviewObject, UIUtilityService, } from '../../services';
+import {
+  KnowledgeItemCategory,
+  getKnowledgeItemCategoryName,
+  KnowledgeItem,
+  TagReferenceType,
+  UserCollectionItem,
+} from 'src/app/models';
+import {
+  AuthService,
+  ODataService,
+  PreviewObject,
+  UIUtilityService,
+} from '../../services';
 import { KnowledgeItemAddToCollDialog } from './knowledge-items-add-coll-dlg.component';
 
 @Component({
@@ -25,10 +41,12 @@ export class KnowledgeItemsComponent implements AfterViewInit {
   @ViewChild(MatPaginator) paginator!: MatPaginator;
   @ViewChild(MatSort) sort!: MatSort;
 
-  constructor(private odataService: ODataService,
+  constructor(
+    private odataService: ODataService,
     private dialog: MatDialog,
     private uiUtilSrv: UIUtilityService,
-    private authService: AuthService) {}
+    private authService: AuthService
+  ) {}
 
   getKnowledgeItemCategoryName(ctgy: KnowledgeItemCategory): string {
     return getKnowledgeItemCategoryName(ctgy);
@@ -39,7 +57,7 @@ export class KnowledgeItemsComponent implements AfterViewInit {
 
   ngAfterViewInit() {
     // If the user changes the sort order, reset back to the first page.
-    this.sort.sortChange.subscribe(() => this.paginator.pageIndex = 0);
+    this.sort.sortChange.subscribe(() => (this.paginator.pageIndex = 0));
 
     merge(this.sort.sortChange, this.paginator.page, this.refreshEvent)
       .pipe(
@@ -49,10 +67,14 @@ export class KnowledgeItemsComponent implements AfterViewInit {
 
           const top = this.paginator.pageSize;
           const skip = top * this.paginator.pageIndex;
-          return this.odataService.getKnowledgeItems(top, skip, this.sort.active, this.sort.direction
+          return this.odataService.getKnowledgeItems(
+            top,
+            skip,
+            this.sort.active,
+            this.sort.direction
           );
         }),
-        map(data => {
+        map((data) => {
           // Flip flag to show that loading has finished.
           this.isLoadingResults = false;
           this.resultsLength = data.totalCount;
@@ -63,12 +85,13 @@ export class KnowledgeItemsComponent implements AfterViewInit {
           this.isLoadingResults = false;
           return observableOf([]);
         })
-      ).subscribe(data => this.dataSource = data);
+      )
+      .subscribe((data) => (this.dataSource = data));
   }
 
   public onGoToPreview(): void {
     const arobj: PreviewObject[] = [];
-    this.dataSource.forEach(val => {
+    this.dataSource.forEach((val) => {
       arobj.push({
         refType: TagReferenceType.KnowledgeItem,
         refId: val.ID,
@@ -82,19 +105,19 @@ export class KnowledgeItemsComponent implements AfterViewInit {
 
   public onDeleteItem(itemid: number): void {
     this.odataService.deleteExerciseItem(itemid).subscribe({
-      next: val => {
+      next: (val) => {
         // Delete the item specified.
         this.onRefreshList();
       },
-      error: err => {
+      error: (err) => {
         this.uiUtilSrv.showSnackInfo(err);
-      }
+      },
     });
   }
 
   public onAddToCollection(rid: number): void {
     this.odataService.getUserCollections().subscribe({
-      next: val => {
+      next: (val) => {
         const arColls = val.items;
         const dialogRef = this.dialog.open(KnowledgeItemAddToCollDialog, {
           width: '600px',
@@ -109,7 +132,7 @@ export class KnowledgeItemsComponent implements AfterViewInit {
         dialogRef.afterClosed().subscribe((result: any) => {
           const collitems: UserCollectionItem[] = [];
           result.collids.forEach((collid: any) => {
-            const colidx = arColls.findIndex(coll => coll.ID === +collid);
+            const colidx = arColls.findIndex((coll) => coll.ID === +collid);
             if (colidx !== -1) {
               const collitem: UserCollectionItem = new UserCollectionItem();
               collitem.ID = arColls[colidx].ID;
@@ -120,20 +143,22 @@ export class KnowledgeItemsComponent implements AfterViewInit {
           });
 
           if (collitems.length > 0) {
-            this.odataService.addKnowledgeItemToCollection(collitems).subscribe({
-              next: val2 => {
-                this.uiUtilSrv.showSnackInfo('DONE');
-              },
-              error: err => {
-                this.uiUtilSrv.showSnackInfo(err);
-              }
-            });
+            this.odataService
+              .addKnowledgeItemToCollection(collitems)
+              .subscribe({
+                next: (val2) => {
+                  this.uiUtilSrv.showSnackInfo('DONE');
+                },
+                error: (err) => {
+                  this.uiUtilSrv.showSnackInfo(err);
+                },
+              });
           }
         });
       },
-      error: err => {
+      error: (err) => {
         this.uiUtilSrv.showSnackInfo(err);
-      }
+      },
     });
   }
 

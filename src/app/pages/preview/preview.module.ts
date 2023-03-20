@@ -10,10 +10,7 @@ import { MarkdownModule } from 'ngx-markdown';
 import { PreviewNewScoreSheet } from './preview-newscore-sheet';
 
 @NgModule({
-  declarations: [
-    PreviewComponent,
-    PreviewNewScoreSheet,
-  ],
+  declarations: [PreviewComponent, PreviewNewScoreSheet],
   imports: [
     CommonModule,
     FormsModule,
@@ -21,7 +18,7 @@ import { PreviewNewScoreSheet } from './preview-newscore-sheet';
     TranslocoModule,
     MaterialModulesModule,
     MarkdownModule,
-    PreviewRoutingModule
-  ]
+    PreviewRoutingModule,
+  ],
 })
-export class PreviewModule { }
+export class PreviewModule {}

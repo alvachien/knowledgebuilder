@@ -13,11 +13,31 @@ import { CanDeactivateGuard } from '../../services';
 
 const routes: Routes = [
   { path: '', component: PrimarySchoolMathComponent },
-  { path: 'add-ex', component: AdditionExerciseComponent, canDeactivate: [CanDeactivateGuard] },
-  { path: 'sub-ex', component: SubtractionExerciseComponent, canDeactivate: [CanDeactivateGuard] },
-  { path: 'multi-ex', component: MultiplicationExerciseComponent, canDeactivate: [CanDeactivateGuard] },
-  { path: 'div-ex', component: DivisionExerciseComponent, canDeactivate: [CanDeactivateGuard] },
-  { path: 'mixed-op', component: MixedOperationsComponent, canDeactivate: [CanDeactivateGuard] },
+  {
+    path: 'add-ex',
+    component: AdditionExerciseComponent,
+    canDeactivate: [CanDeactivateGuard],
+  },
+  {
+    path: 'sub-ex',
+    component: SubtractionExerciseComponent,
+    canDeactivate: [CanDeactivateGuard],
+  },
+  {
+    path: 'multi-ex',
+    component: MultiplicationExerciseComponent,
+    canDeactivate: [CanDeactivateGuard],
+  },
+  {
+    path: 'div-ex',
+    component: DivisionExerciseComponent,
+    canDeactivate: [CanDeactivateGuard],
+  },
+  {
+    path: 'mixed-op',
+    component: MixedOperationsComponent,
+    canDeactivate: [CanDeactivateGuard],
+  },
   { path: 'printable-quiz', component: PrintableQuizComponent },
 ];
 
@@ -25,4 +45,4 @@ const routes: Routes = [
   imports: [RouterModule.forChild(routes)],
   exports: [RouterModule],
 })
-export class PrimarySchoolMathRoutingModule { }
+export class PrimarySchoolMathRoutingModule {}

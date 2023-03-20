@@ -19,9 +19,7 @@ describe('ExerciseItemsComponent', () => {
   let userDetail: InvitedUser;
 
   beforeAll(() => {
-    odataSvc = jasmine.createSpyObj('ODataService', [
-      'getOverviewInfo',
-    ]);
+    odataSvc = jasmine.createSpyObj('ODataService', ['getOverviewInfo']);
 
     getOverviewInfoSpy = odataSvc.getOverviewInfo.and.returnValue(of(''));
   });
@@ -46,14 +44,13 @@ describe('ExerciseItemsComponent', () => {
         BrowserDynamicTestingModule,
         getTranslocoModule(),
       ],
-      declarations: [ ExerciseItemsComponent ],
+      declarations: [ExerciseItemsComponent],
       providers: [
         { provide: AuthService, useValue: authStub },
         { provide: ODataService, useValue: odataSvc },
         UIUtilityService,
-      ]
-    })
-    .compileComponents();
+      ],
+    }).compileComponents();
   }));
 
   beforeEach(() => {

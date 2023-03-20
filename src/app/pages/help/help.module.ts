@@ -9,13 +9,8 @@ import { AboutComponent } from './about';
 import { CreditsComponent } from './credits';
 import { HelpRoutingModule } from './help-routing.module';
 
-
 @NgModule({
-  declarations: [
-    HelpComponent,
-    AboutComponent,
-    CreditsComponent,
-  ],
+  declarations: [HelpComponent, AboutComponent, CreditsComponent],
   imports: [
     CommonModule,
     FormsModule,
@@ -25,4 +20,4 @@ import { HelpRoutingModule } from './help-routing.module';
     TranslocoModule,
   ],
 })
-export class HelpModule { }
+export class HelpModule {}

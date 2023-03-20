@@ -1,13 +1,35 @@
-import { Component, OnInit, OnDestroy, ViewChild, ElementRef, ChangeDetectorRef } from '@angular/core';
-import { AbstractControl, UntypedFormControl, UntypedFormGroup, NgForm, ValidationErrors, ValidatorFn } from '@angular/forms';
+import {
+  Component,
+  OnInit,
+  OnDestroy,
+  ViewChild,
+  ElementRef,
+  ChangeDetectorRef,
+} from '@angular/core';
+import {
+  AbstractControl,
+  UntypedFormControl,
+  UntypedFormGroup,
+  NgForm,
+  ValidationErrors,
+  ValidatorFn,
+} from '@angular/forms';
 import { Validators } from '@angular/forms';
 import { MatDialog } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { Router } from '@angular/router';
 import { Observable } from 'rxjs';
 
-import { AdditionQuizItem, PrimarySchoolMathQuizSection, QuizSection } from 'src/app/models';
-import { CanComponentDeactivate, CanDeactivateGuard, QuizService } from 'src/app/services';
+import {
+  AdditionQuizItem,
+  PrimarySchoolMathQuizSection,
+  QuizSection,
+} from 'src/app/models';
+import {
+  CanComponentDeactivate,
+  CanDeactivateGuard,
+  QuizService,
+} from 'src/app/services';
 import { QuizFailureDailogComponent } from '../../quiz-failure-dailog';
 
 @Component({
@@ -15,30 +37,46 @@ import { QuizFailureDailogComponent } from '../../quiz-failure-dailog';
   templateUrl: './addition-exercise.component.html',
   styleUrls: ['./addition-exercise.component.scss'],
 })
-export class AdditionExerciseComponent implements OnInit, OnDestroy, CanDeactivateGuard {
+export class AdditionExerciseComponent
+  implements OnInit, OnDestroy, CanDeactivateGuard
+{
   isQuizStarted = false;
-  quizControlFormGroup: UntypedFormGroup = new UntypedFormGroup({
-    countControl: new UntypedFormControl(20, [Validators.required, Validators.min(1), Validators.max(1000)]),
-    failedFactorControl: new UntypedFormControl(2, [Validators.min(0), Validators.max(10)]),
-    leftNumberControl: new UntypedFormControl(0),
-    rightNumberControl: new UntypedFormControl(100),
-    decControl: new UntypedFormControl(0, [Validators.min(0), Validators.max(5)]),
-  }, { validators: this.basicValidator });
+  quizControlFormGroup: UntypedFormGroup = new UntypedFormGroup(
+    {
+      countControl: new UntypedFormControl(20, [
+        Validators.required,
+        Validators.min(1),
+        Validators.max(1000),
+      ]),
+      failedFactorControl: new UntypedFormControl(2, [
+        Validators.min(0),
+        Validators.max(10),
+      ]),
+      leftNumberControl: new UntypedFormControl(0),
+      rightNumberControl: new UntypedFormControl(100),
+      decControl: new UntypedFormControl(0, [
+        Validators.min(0),
+        Validators.max(5),
+      ]),
+    },
+    { validators: this.basicValidator }
+  );
   QuizItems: AdditionQuizItem[] = [];
   QuizCursor = 0;
   quizFormGroup: UntypedFormGroup = new UntypedFormGroup({
-    inputControl: new UntypedFormControl(null, Validators.required)
+    inputControl: new UntypedFormControl(null, Validators.required),
   });
   itemForm!: ElementRef;
   NextButtonText = 'Common.Next';
   @ViewChild('itemForm', { static: false }) set content(content: ElementRef) {
-    if (content) { // initially setter gets called with undefined
+    if (content) {
+      // initially setter gets called with undefined
       this.itemForm = content;
       this.itemForm.nativeElement.focus();
     }
   }
   inputCtrl!: ElementRef;
-  @ViewChild('irst', {static: false}) set inputControl(content: ElementRef) {
+  @ViewChild('irst', { static: false }) set inputControl(content: ElementRef) {
     if (content) {
       this.inputCtrl = content;
       this.inputCtrl.nativeElement.focus();
@@ -51,17 +89,17 @@ export class AdditionExerciseComponent implements OnInit, OnDestroy, CanDeactiva
     public snackBar: MatSnackBar,
     private router: Router,
     private changeDef: ChangeDetectorRef,
-    private dialog: MatDialog) {
-  }
+    private dialog: MatDialog
+  ) {}
 
-  canDeactivate(component: CanComponentDeactivate): boolean | Observable<boolean> | Promise<boolean> {
+  canDeactivate(
+    component: CanComponentDeactivate
+  ): boolean | Observable<boolean> | Promise<boolean> {
     return !this.isQuizStarted;
   }
 
-  ngOnInit(): void {
-  }
-  ngOnDestroy(): void {
-  }
+  ngOnInit(): void {}
+  ngOnDestroy(): void {}
 
   canStart(): boolean {
     return !this.isQuizStarted && this.quizControlFormGroup.valid;
@@ -70,8 +108,13 @@ export class AdditionExerciseComponent implements OnInit, OnDestroy, CanDeactiva
   onQuizStart(): void {
     if (!this.quizService.ActiveQuiz) {
       const quiz = this.quizService.startNewQuiz(this.quizService.NextQuizID);
-      this.generateQuizSection(this.quizControlFormGroup.get('countControl')!.value);
-      const quizSection = new QuizSection(quiz.NextSectionID, this.QuizItems.length);
+      this.generateQuizSection(
+        this.quizControlFormGroup.get('countControl')!.value
+      );
+      const quizSection = new QuizSection(
+        quiz.NextSectionID,
+        this.QuizItems.length
+      );
       quiz.startNewSection(quizSection);
 
       this.isQuizStarted = true;
@@ -98,23 +141,30 @@ export class AdditionExerciseComponent implements OnInit, OnDestroy, CanDeactiva
 
         // Complete current section, and start another one!
         this.quizService.ActiveQuiz?.completeActionSection(failedItems.length);
-        const failedfactor = this.quizControlFormGroup.get('failedFactorControl')!.value;
+        const failedfactor = this.quizControlFormGroup.get(
+          'failedFactorControl'
+        )!.value;
 
         if (failedItems.length > 0 && failedfactor > 0) {
           this.quizService.FailedQuizItems = failedItems;
-          this.quizService.CurrentScore = (this.QuizItems.length - failedItems.length) / this.QuizItems.length;
+          this.quizService.CurrentScore =
+            (this.QuizItems.length - failedItems.length) /
+            this.QuizItems.length;
           const dialogRef = this.dialog.open(QuizFailureDailogComponent, {
             disableClose: false,
-            width: '500px'
+            width: '500px',
           });
-    
-          dialogRef.afterClosed().subscribe(x => {
+
+          dialogRef.afterClosed().subscribe((x) => {
             this.generateQuizSection(failedItems.length * failedfactor);
             this.QuizCursor = 0;
             this.setNextButtonText();
-  
+
             const curquiz = this.quizService.ActiveQuiz!;
-            const quizSection = new QuizSection(curquiz.NextSectionID, this.QuizItems.length);
+            const quizSection = new QuizSection(
+              curquiz.NextSectionID,
+              this.QuizItems.length
+            );
             curquiz.startNewSection(quizSection);
           });
           // this.snackBar.open(`Failed items: ${failedItems.length}, please retry`, undefined, {
@@ -159,10 +209,12 @@ export class AdditionExerciseComponent implements OnInit, OnDestroy, CanDeactiva
     let mfactor = 0;
     const decplace = this.quizControlFormGroup.get('decControl')!.value;
     mfactor = Math.pow(10, decplace);
-    const leftNumb = mfactor * this.quizControlFormGroup.get('leftNumberControl')!.value;
-    const rightNumb = mfactor * this.quizControlFormGroup.get('rightNumberControl')!.value;
+    const leftNumb =
+      mfactor * this.quizControlFormGroup.get('leftNumberControl')!.value;
+    const rightNumb =
+      mfactor * this.quizControlFormGroup.get('rightNumberControl')!.value;
 
-    let rnum1 = Math.round(Math.random() * ( rightNumb - leftNumb )) + leftNumb;
+    let rnum1 = Math.round(Math.random() * (rightNumb - leftNumb)) + leftNumb;
     if (mfactor !== 0) {
       rnum1 = rnum1 / mfactor;
     }
@@ -170,7 +222,11 @@ export class AdditionExerciseComponent implements OnInit, OnDestroy, CanDeactiva
   }
   private generateQuizItem(idx: number): AdditionQuizItem {
     const decplace = this.quizControlFormGroup.get('decControl')!.value;
-    const qz: AdditionQuizItem = new AdditionQuizItem(this.getNumber(), this.getNumber(), decplace);
+    const qz: AdditionQuizItem = new AdditionQuizItem(
+      this.getNumber(),
+      this.getNumber(),
+      decplace
+    );
     qz.QuizIndex = idx;
     return qz;
   }

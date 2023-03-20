@@ -1,14 +1,14 @@
-import { UserCollection } from ".";
+import { UserCollection } from '.';
 
 describe('UserCollection', () => {
-    it('set and get data', () => {
-        const obj = new UserCollection();
-        obj.Comment = 'test';
-        obj.Name = 'test';
-        obj.User = 'test';
-        expect(obj).toBeTruthy();
+  it('set and get data', () => {
+    const obj = new UserCollection();
+    obj.Comment = 'test';
+    obj.Name = 'test';
+    obj.User = 'test';
+    expect(obj).toBeTruthy();
 
-        let wrtobj = obj.writeJSONString();
-        expect(wrtobj).toBeTruthy();
-    });
+    const wrtobj = obj.writeJSONString();
+    expect(wrtobj).toBeTruthy();
+  });
 });

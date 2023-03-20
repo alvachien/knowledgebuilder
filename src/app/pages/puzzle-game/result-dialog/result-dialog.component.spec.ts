@@ -27,13 +27,12 @@ describe('ResultDialogComponent', () => {
         BrowserDynamicTestingModule,
         getTranslocoModule(),
       ],
-      declarations: [ ResultDialogComponent ],
+      declarations: [ResultDialogComponent],
       providers: [
-        { provide: MatDialogRef, useValue: {} }, 
-        { provide: MAT_DIALOG_DATA, useValue: {} }
-      ]
-    })
-    .compileComponents();
+        { provide: MatDialogRef, useValue: {} },
+        { provide: MAT_DIALOG_DATA, useValue: {} },
+      ],
+    }).compileComponents();
   });
 
   beforeEach(() => {

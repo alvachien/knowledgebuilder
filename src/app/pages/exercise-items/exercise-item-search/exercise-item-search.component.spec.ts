@@ -22,10 +22,12 @@ describe('ExerciseItemSearchComponent', () => {
     odataservice = jasmine.createSpyObj('ODataService', [
       'searchExerciseItems',
     ]);
-    searchExerciseItemsSpy = odataservice.searchExerciseItems.and.returnValue(of({
-      totalCount: 0,
-      items: [],
-    }));
+    searchExerciseItemsSpy = odataservice.searchExerciseItems.and.returnValue(
+      of({
+        totalCount: 0,
+        items: [],
+      })
+    );
   });
 
   beforeEach(async () => {
@@ -41,13 +43,12 @@ describe('ExerciseItemSearchComponent', () => {
         AppUIModule,
         getTranslocoModule(),
       ],
-      declarations: [ ExerciseItemSearchComponent ],
+      declarations: [ExerciseItemSearchComponent],
       providers: [
         UIUtilityService,
         { provide: ODataService, useValue: odataservice },
-      ]
-    })
-    .compileComponents();
+      ],
+    }).compileComponents();
   });
 
   beforeEach(() => {

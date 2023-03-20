@@ -24,9 +24,8 @@ describe('GobangGameComponent', () => {
         BrowserDynamicTestingModule,
         getTranslocoModule(),
       ],
-      declarations: [ GobangGameComponent ]
-    })
-    .compileComponents();
+      declarations: [GobangGameComponent],
+    }).compileComponents();
   });
 
   beforeEach(() => {

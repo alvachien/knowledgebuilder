@@ -1,4 +1,9 @@
-import { ComponentFixture, fakeAsync, TestBed, tick } from '@angular/core/testing';
+import {
+  ComponentFixture,
+  fakeAsync,
+  TestBed,
+  tick,
+} from '@angular/core/testing';
 import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { NoopAnimationsModule } from '@angular/platform-browser/animations';
@@ -33,9 +38,8 @@ describe('PrintableQuizComponent', () => {
         PrintableQuizComponent,
         PrintableQuizSectionComponent,
         PrintableQuizSectionItemComponent,
-      ]
-    })
-    .compileComponents();
+      ],
+    }).compileComponents();
   });
 
   beforeEach(() => {
@@ -61,7 +65,7 @@ describe('PrintableQuizComponent', () => {
       component.contentFormGroup.get('amountAddCtrl')?.setValue(10);
       component.contentFormGroup.get('numberBeginCtrl')?.setValue(1);
       component.contentFormGroup.get('numberEndCtrl')?.setValue(100);
-      
+
       fixture.detectChanges();
       tick();
 
@@ -81,7 +85,7 @@ describe('PrintableQuizComponent', () => {
       component.contentFormGroup.get('amountAddCtrl')?.setValue(10);
       component.contentFormGroup.get('numberBeginCtrl')?.setValue(1);
       component.contentFormGroup.get('numberEndCtrl')?.setValue(100);
-      
+
       fixture.detectChanges();
       tick();
 
@@ -93,7 +97,6 @@ describe('PrintableQuizComponent', () => {
       component.stepper.next();
       tick();
 
-  
       expect(component.arAddQuizFinal.length).toEqual(4);
       expect(component.arSubQuizFinal.length).toEqual(0);
       expect(component.arMulQuizFinal.length).toEqual(0);

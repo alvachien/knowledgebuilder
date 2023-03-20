@@ -1,4 +1,13 @@
-import { AfterViewInit, Component, ElementRef, EventEmitter, HostListener, Input, OnInit, Output, ViewChild } from '@angular/core';
+import {
+  AfterViewInit,
+  Component,
+  ElementRef,
+  EventEmitter,
+  HostListener,
+  OnInit,
+  Output,
+  ViewChild,
+} from '@angular/core';
 
 export interface typingCompare {
   expected: string;
@@ -8,13 +17,13 @@ export interface typingCompare {
 @Component({
   selector: 'app-typing-game',
   templateUrl: './typing-game.component.html',
-  styleUrls: ['./typing-game.component.scss']
+  styleUrls: ['./typing-game.component.scss'],
 })
 export class TypingGameComponent implements OnInit, AfterViewInit {
-  @ViewChild('expword', {static: true}) expWordER!: ElementRef;
-  @ViewChild('inpword', {static: true}) inpWordER!: ElementRef;
-  @ViewChild('inpword2', {static: true}) inpWord2ER!: ElementRef;
-  @ViewChild('keyboard', {static: true}) keyboardER!: ElementRef;
+  @ViewChild('expword', { static: true }) expWordER!: ElementRef;
+  @ViewChild('inpword', { static: true }) inpWordER!: ElementRef;
+  @ViewChild('inpword2', { static: true }) inpWord2ER!: ElementRef;
+  @ViewChild('keyboard', { static: true }) keyboardER!: ElementRef;
   @Output() finishEvent: EventEmitter<any> = new EventEmitter();
   public expectedString = '';
   public inputtedString: string | null = '';
@@ -53,7 +62,9 @@ export class TypingGameComponent implements OnInit, AfterViewInit {
         this.arComparison[i].inputted = this.inputtedString!.charAt(i);
 
         if (issucc) {
-          if (this.arComparison[i].expected !== this.inputtedString!.charAt(i)) {
+          if (
+            this.arComparison[i].expected !== this.inputtedString!.charAt(i)
+          ) {
             issucc = false;
           }
         }
@@ -74,7 +85,8 @@ export class TypingGameComponent implements OnInit, AfterViewInit {
         let nhtml = '';
         for (const cmp of this.arComparison) {
           if (cmp.inputted !== null && cmp.inputted !== cmp.expected) {
-            nhtml += '<span style=\"color: #FF0000;\">' + cmp.inputted + '</span>';
+            nhtml +=
+              '<span style="color: #FF0000;">' + cmp.inputted + '</span>';
           } else if (cmp.inputted !== null) {
             nhtml += '<span>' + cmp.inputted + '</span>';
           }
@@ -91,7 +103,7 @@ export class TypingGameComponent implements OnInit, AfterViewInit {
         for (const c of this.expectedString) {
           const tc: typingCompare = {
             expected: c,
-            inputted: ''
+            inputted: '',
           };
           this.arComparison.push(tc);
         }
@@ -110,10 +122,10 @@ export class TypingGameComponent implements OnInit, AfterViewInit {
   private generateExpectedString() {
     let basic = 'abcdefghijklmnopqrstuvwxyz';
     // if (this.typingIncCaptial) {
-      basic = basic + 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+    basic = basic + 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
     // }
     // if (this.typingIncNumber) {
-      basic = basic + '0123456789';
+    basic = basic + '0123456789';
     // }
     // if (this.typingIncSymbols) {
     //   basic = basic + ',.;\'`!@#$%^&*()_+-=[]{}\|<>?:';
@@ -128,10 +140,9 @@ export class TypingGameComponent implements OnInit, AfterViewInit {
 
   @HostListener('keydown', ['$event'])
   public onPGTypingTourKeyDown(evt: KeyboardEvent) {
-
     // https://developer.mozilla.org/zh-CN/docs/Web/API/KeyboardEvent/key/Key_Values
     // Any other input? Prevent the default response:
-    if (evt.preventDefault)  {
+    if (evt.preventDefault) {
       evt.preventDefault();
     }
 
@@ -143,14 +154,18 @@ export class TypingGameComponent implements OnInit, AfterViewInit {
       }
 
       this.updateComparison(true);
-    } else if ('`1234567890-=~!@#$%^&*()_+[]\\{}|;\':\",./<>?ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz'.indexOf(evt.key)
-      !== -1) {
-
+    } else if (
+      '`1234567890-=~!@#$%^&*()_+[]\\{}|;\':",./<>?ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz'.indexOf(
+        evt.key
+      ) !== -1
+    ) {
       if (this.keyboardER !== null && this.keyboardER !== undefined) {
         const kid = this.getElementIDByKey(evt.key);
         if (kid !== undefined && kid.length > 0) {
           this.currHittingKeyID = kid;
-          this.keyboardER.nativeElement.querySelector('#' + kid).classList.add('keyhitting');
+          this.keyboardER.nativeElement
+            .querySelector('#' + kid)
+            .classList.add('keyhitting');
         }
       }
 
@@ -163,8 +178,13 @@ export class TypingGameComponent implements OnInit, AfterViewInit {
   @HostListener('keyup', ['$event'])
   public onPGTypingTourKeyUp(evt: KeyboardEvent) {
     if (this.keyboardER !== null && this.keyboardER !== undefined) {
-      if (this.currHittingKeyID !== undefined && this.currHittingKeyID.length > 0) {
-        this.keyboardER.nativeElement.querySelector('#' + this.currHittingKeyID).classList.remove('keyhitting');
+      if (
+        this.currHittingKeyID !== undefined &&
+        this.currHittingKeyID.length > 0
+      ) {
+        this.keyboardER.nativeElement
+          .querySelector('#' + this.currHittingKeyID)
+          .classList.remove('keyhitting');
       }
     }
   }
@@ -242,7 +262,7 @@ export class TypingGameComponent implements OnInit, AfterViewInit {
       return 'keyl';
     } else if (';:'.indexOf(ks) !== -1) {
       return 'keysemicolon';
-    } else if ('\'\"'.indexOf(ks) !== -1) {
+    } else if ('\'"'.indexOf(ks) !== -1) {
       return 'keyquote';
     } else if ('zZ'.indexOf(ks) !== -1) {
       return 'keyz';

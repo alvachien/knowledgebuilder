@@ -26,9 +26,8 @@ describe('Calculate24Component', () => {
         BrowserDynamicTestingModule,
         getTranslocoModule(),
       ],
-      declarations: [ Calculate24Component ]
-    })
-    .compileComponents();
+      declarations: [Calculate24Component],
+    }).compileComponents();
   });
 
   beforeEach(() => {

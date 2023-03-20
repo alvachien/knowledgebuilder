@@ -1,13 +1,35 @@
-import { Component, OnInit, ViewChild, AfterViewInit, EventEmitter } from '@angular/core';
+import {
+  Component,
+  OnInit,
+  ViewChild,
+  AfterViewInit,
+  EventEmitter,
+} from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { MatPaginator } from '@angular/material/paginator';
 import { MatSort } from '@angular/material/sort';
 import { merge, Observable, of as observableOf } from 'rxjs';
-import { catchError, finalize, map, startWith, switchMap } from 'rxjs/operators';
+import {
+  catchError,
+  finalize,
+  map,
+  startWith,
+  switchMap,
+} from 'rxjs/operators';
 import { TagReferenceType, UserCollectionItem } from 'src/app/models';
 
-import { ExerciseItem, ExerciseItemType, ExerciseItemUserScore, getExerciseItemTypeName, } from '../../models/exercise-item';
-import { AuthService, ODataService, PreviewObject, UIUtilityService, } from '../../services';
+import {
+  ExerciseItem,
+  ExerciseItemType,
+  ExerciseItemUserScore,
+  getExerciseItemTypeName,
+} from '../../models/exercise-item';
+import {
+  AuthService,
+  ODataService,
+  PreviewObject,
+  UIUtilityService,
+} from '../../services';
 import { ExerciseItemAddToCollDialog } from './exercise-items-add-coll-dlg.component';
 import { ExerciseItemNewPracticeDialog } from './exercise-items-newpractice-dlg.component';
 
@@ -17,7 +39,13 @@ import { ExerciseItemNewPracticeDialog } from './exercise-items-newpractice-dlg.
   styleUrls: ['./exercise-items.component.scss'],
 })
 export class ExerciseItemsComponent implements AfterViewInit {
-  displayedColumns: string[] = ['id', 'itemtype', 'tags', 'knowledgeitem', 'createdat'];
+  displayedColumns: string[] = [
+    'id',
+    'itemtype',
+    'tags',
+    'knowledgeitem',
+    'createdat',
+  ];
   dataSource: ExerciseItem[] = [];
 
   resultsLength = 0;
@@ -27,10 +55,12 @@ export class ExerciseItemsComponent implements AfterViewInit {
   @ViewChild(MatPaginator) paginator!: MatPaginator;
   @ViewChild(MatSort) sort!: MatSort;
 
-  constructor(private odataService: ODataService,
+  constructor(
+    private odataService: ODataService,
     private dialog: MatDialog,
     private uiUtilSrv: UIUtilityService,
-    private authService: AuthService) {}
+    private authService: AuthService
+  ) {}
 
   getExerciseItemTypeName(itemtype: ExerciseItemType): string {
     return getExerciseItemTypeName(itemtype);
@@ -38,7 +68,7 @@ export class ExerciseItemsComponent implements AfterViewInit {
 
   ngAfterViewInit() {
     // If the user changes the sort order, reset back to the first page.
-    this.sort.sortChange.subscribe(() => this.paginator.pageIndex = 0);
+    this.sort.sortChange.subscribe(() => (this.paginator.pageIndex = 0));
 
     merge(this.sort.sortChange, this.paginator.page, this.refreshEvent)
       .pipe(
@@ -47,24 +77,30 @@ export class ExerciseItemsComponent implements AfterViewInit {
           this.isLoadingResults = true;
           const top = this.paginator.pageSize;
           const skip = top * this.paginator.pageIndex;
-          return this.odataService.getExerciseItems(top, skip, this.sort.active, this.sort.direction);
+          return this.odataService.getExerciseItems(
+            top,
+            skip,
+            this.sort.active,
+            this.sort.direction
+          );
         }),
-        finalize(() => this.isLoadingResults = false),
-        map(data => {
+        finalize(() => (this.isLoadingResults = false)),
+        map((data) => {
           this.resultsLength = data.totalCount;
 
           return data.items;
         }),
         catchError(() => observableOf([]))
-      ).subscribe({
-        next: data => this.dataSource = data,
-        error: err => this.uiUtilSrv.showSnackInfo(err)
+      )
+      .subscribe({
+        next: (data) => (this.dataSource = data),
+        error: (err) => this.uiUtilSrv.showSnackInfo(err),
       });
   }
 
   public onGoToPreview(): void {
     const arobj: PreviewObject[] = [];
-    this.dataSource.forEach(val => {
+    this.dataSource.forEach((val) => {
       arobj.push({
         refType: TagReferenceType.ExerciseItem,
         refId: val.ID,
@@ -78,13 +114,13 @@ export class ExerciseItemsComponent implements AfterViewInit {
 
   public onDeleteItem(itemid: number): void {
     this.odataService.deleteExerciseItem(itemid).subscribe({
-      next: val => {
+      next: (val) => {
         // Delete the item specified.
         this.onRefreshList();
       },
-      error: err => {
+      error: (err) => {
         this.uiUtilSrv.showSnackInfo(err);
-      }
+      },
     });
   }
 
@@ -103,7 +139,7 @@ export class ExerciseItemsComponent implements AfterViewInit {
   }
   public onAddToCollection(rid: number): void {
     this.odataService.getUserCollections().subscribe({
-      next: val => {
+      next: (val) => {
         const arColls = val.items;
         const dialogRef = this.dialog.open(ExerciseItemAddToCollDialog, {
           width: '600px',
@@ -118,7 +154,7 @@ export class ExerciseItemsComponent implements AfterViewInit {
         dialogRef.afterClosed().subscribe((result: any) => {
           const collitems: UserCollectionItem[] = [];
           result.collids.forEach((collid: any) => {
-            const colidx = arColls.findIndex(coll => coll.ID === +collid);
+            const colidx = arColls.findIndex((coll) => coll.ID === +collid);
             if (colidx !== -1) {
               const collitem: UserCollectionItem = new UserCollectionItem();
               collitem.ID = arColls[colidx].ID;
@@ -130,19 +166,19 @@ export class ExerciseItemsComponent implements AfterViewInit {
 
           if (collitems.length > 0) {
             this.odataService.addExerciseItemToCollection(collitems).subscribe({
-              next: val2 => {
+              next: (val2) => {
                 this.uiUtilSrv.showSnackInfo('DONE');
               },
-              error: err => {
+              error: (err) => {
                 this.uiUtilSrv.showSnackInfo(err);
-              }
+              },
             });
           }
         });
       },
-      error: err => {
+      error: (err) => {
         this.uiUtilSrv.showSnackInfo(err);
-      }
+      },
     });
   }
   public onNewPractice(rid: number): void {
@@ -156,7 +192,7 @@ export class ExerciseItemsComponent implements AfterViewInit {
       },
     });
 
-    dialogRef.afterClosed().subscribe(result => {
+    dialogRef.afterClosed().subscribe((result) => {
       // Now submit!
       const nscore = new ExerciseItemUserScore();
       nscore.RefID = rid;
@@ -165,13 +201,13 @@ export class ExerciseItemsComponent implements AfterViewInit {
       // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
       nscore.User = this.authService.currentUserId;
       this.odataService.createExerciseItemUserScore(nscore).subscribe({
-        next: val => {
+        next: (val) => {
           this.uiUtilSrv.showSnackInfo('DONE');
         },
-        error: err => {
+        error: (err) => {
           this.uiUtilSrv.showSnackInfo(err);
-        }
-      });  
+        },
+      });
     });
   }
 }

@@ -8,9 +8,8 @@ describe('TypingGameComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [ TypingGameComponent ]
-    })
-    .compileComponents();
+      declarations: [TypingGameComponent],
+    }).compileComponents();
   });
 
   beforeEach(() => {

@@ -1,6 +1,19 @@
-import { HttpClientTestingModule, HttpTestingController } from '@angular/common/http/testing';
-import { discardPeriodicTasks, fakeAsync, flush, inject, TestBed, tick, waitForAsync } from '@angular/core/testing';
-import { OidcSecurityService, PublicEventsService } from 'angular-auth-oidc-client';
+import {
+  HttpClientTestingModule,
+  HttpTestingController,
+} from '@angular/common/http/testing';
+import {
+  discardPeriodicTasks,
+  fakeAsync,
+  flush,
+  TestBed,
+  tick,
+  waitForAsync,
+} from '@angular/core/testing';
+import {
+  OidcSecurityService,
+  PublicEventsService,
+} from 'angular-auth-oidc-client';
 import { of } from 'rxjs';
 import { environment } from 'src/environments/environment';
 
@@ -22,19 +35,19 @@ describe('AuthService', () => {
       'authorize',
     ]);
     checkAuthSpy = securService.checkAuth.and.returnValue(of({}));
-    authorizeSpy = securService.authorize.and.returnValue();    
- 
+    authorizeSpy = securService.authorize.and.returnValue();
+
     eventService = jasmine.createSpyObj('PublicEventsService', [
       'registerForEvents',
     ]);
-    registerForEventsSpy = eventService.registerForEvents.and.returnValue(of({}));
+    registerForEventsSpy = eventService.registerForEvents.and.returnValue(
+      of({})
+    );
   });
 
   beforeEach(waitForAsync(() => {
     TestBed.configureTestingModule({
-      imports: [
-        HttpClientTestingModule,
-      ],
+      imports: [HttpClientTestingModule],
       providers: [
         AuthService,
         { provide: OidcSecurityService, useValue: securService },
@@ -61,7 +74,14 @@ describe('AuthService', () => {
 
   describe('work with authorized result', () => {
     beforeEach(() => {
-      checkAuthSpy.and.returnValue(asyncData({isAuthenticated: true, userData: '', accessToken: 'abac', idToken: 'avc'}));
+      checkAuthSpy.and.returnValue(
+        asyncData({
+          isAuthenticated: true,
+          userData: '',
+          accessToken: 'abac',
+          idToken: 'avc',
+        })
+      );
     });
 
     afterEach(() => {
@@ -84,26 +104,27 @@ describe('AuthService', () => {
       expect(service.accessToken).toBeTruthy();
       expect(service.currentUserId).toBeTruthy();
       expect(service.currentUserName).toBeTruthy();
-      expect(service.userDetail).toBeFalsy(); 
+      expect(service.userDetail).toBeFalsy();
 
       tick(); // complete the get user detail call.
 
       const callurl = `${environment.apiurlRoot}/InvitedUsers`;
       // Service should have made one request to GET data from expected URL
       const req: any = httpTestingController.expectOne((requrl: any) => {
-        return requrl.method === 'GET'
-          && requrl.url === callurl;
+        return requrl.method === 'GET' && requrl.url === callurl;
       });
 
       expect(req.request.params.get('$expand')).toEqual('AwardUsers');
-    
+
       // Respond with the mock data
       req.flush({
-        value: [{
-          UserID: 'aaa',
-          UserName: 'bbb',
-          DisplayAs: 'ccc'
-        }],
+        value: [
+          {
+            UserID: 'aaa',
+            UserName: 'bbb',
+            DisplayAs: 'ccc',
+          },
+        ],
       });
 
       expect(service.userDetail).toBeTruthy();
@@ -115,4 +136,3 @@ describe('AuthService', () => {
     }));
   });
 });
-

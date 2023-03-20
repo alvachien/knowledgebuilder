@@ -18,9 +18,7 @@ describe('KnowledgeItemSearchComponent', () => {
   let getOverviewInfoSpy: any;
 
   beforeAll(() => {
-    odataSvc = jasmine.createSpyObj('ODataService', [
-      'getOverviewInfo',
-    ]);
+    odataSvc = jasmine.createSpyObj('ODataService', ['getOverviewInfo']);
 
     getOverviewInfoSpy = odataSvc.getOverviewInfo.and.returnValue(of(''));
   });
@@ -38,13 +36,12 @@ describe('KnowledgeItemSearchComponent', () => {
         AppUIModule,
         getTranslocoModule(),
       ],
-      declarations: [ KnowledgeItemSearchComponent ],
+      declarations: [KnowledgeItemSearchComponent],
       providers: [
         { provide: ODataService, useValue: odataSvc },
         UIUtilityService,
-      ]
-    })
-    .compileComponents();
+      ],
+    }).compileComponents();
   });
 
   beforeEach(() => {

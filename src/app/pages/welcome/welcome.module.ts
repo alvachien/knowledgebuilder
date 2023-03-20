@@ -13,6 +13,6 @@ import { MaterialModulesModule } from 'src/app/material-modules';
     WelcomeRoutingModule,
     MaterialModulesModule,
     TranslocoModule,
-  ]
+  ],
 })
-export class WelcomeModule { }
+export class WelcomeModule {}

@@ -1,17 +1,30 @@
 import { Component, OnInit } from '@angular/core';
-import { UntypedFormBuilder, UntypedFormControl, UntypedFormGroup, Validators } from '@angular/forms';
+import {
+  UntypedFormBuilder,
+  UntypedFormControl,
+  UntypedFormGroup,
+  Validators,
+} from '@angular/forms';
 import moment from 'moment';
 import { forkJoin } from 'rxjs';
 
-import { AwardUserView, HabitCompleteCategory, momentDateFormat, UserHabit, UserHabitRecord,
-  getHabitCompleteCategoryName, HabitFrequency, getHabitFrequencyName, } from 'src/app/models';
+import {
+  AwardUserView,
+  HabitCompleteCategory,
+  momentDateFormat,
+  UserHabit,
+  UserHabitRecord,
+  getHabitCompleteCategoryName,
+  HabitFrequency,
+  getHabitFrequencyName,
+} from 'src/app/models';
 import { AuthService, ODataService, UIUtilityService } from 'src/app/services';
 
 class AvailableHabit {
   HabitID: number | undefined = undefined;
-  HabitName: string = '';
+  HabitName = '';
   Frequency: HabitFrequency = HabitFrequency.Daily;
-  CompleteCategory: HabitCompleteCategory = HabitCompleteCategory.NumberOfTimes;;
+  CompleteCategory: HabitCompleteCategory = HabitCompleteCategory.NumberOfTimes;
   CompleteFact: boolean | number | null = null;
   get completeCategoryString(): string {
     return (+this.CompleteCategory).toString();
@@ -27,17 +40,25 @@ export class HabitRecordCreateComponent implements OnInit {
   currentObject: UserHabitRecord | null = null;
   firstFormGroup: UntypedFormGroup;
   arHabits: AvailableHabit[] = [];
-  displayedColumns: string[] = ['hid', 'name', 'frequency', 'compCategory', 'compFact'];
+  displayedColumns: string[] = [
+    'hid',
+    'name',
+    'frequency',
+    'compCategory',
+    'compFact',
+  ];
 
-  constructor(private _formBuilder: UntypedFormBuilder,
+  constructor(
+    private _formBuilder: UntypedFormBuilder,
     private uiUtilSrv: UIUtilityService,
     private authService: AuthService,
-    private odataSrv: ODataService) {
-      this.firstFormGroup = this._formBuilder.group({
-        targetuserCtrl: new UntypedFormControl('', Validators.required),
-        dateCtrl: new UntypedFormControl(moment(), Validators.required),
-      });
-    }
+    private odataSrv: ODataService
+  ) {
+    this.firstFormGroup = this._formBuilder.group({
+      targetuserCtrl: new UntypedFormControl('', Validators.required),
+      dateCtrl: new UntypedFormControl(moment(), Validators.required),
+    });
+  }
 
   get arTargetUsers(): AwardUserView[] {
     if (this.authService.userDetail) {
@@ -47,7 +68,9 @@ export class HabitRecordCreateComponent implements OnInit {
   }
   public getUserDisplayAs(usrId: string): string {
     if (usrId && this.authService.userDetail) {
-      const idx = this.authService.userDetail.awardUsers.findIndex(val => val.targetUser === usrId);
+      const idx = this.authService.userDetail.awardUsers.findIndex(
+        (val) => val.targetUser === usrId
+      );
       if (idx !== -1) {
         return this.authService.userDetail.awardUsers[idx].displayAs;
       }
@@ -61,31 +84,40 @@ export class HabitRecordCreateComponent implements OnInit {
     return getHabitFrequencyName(frq);
   }
 
-  ngOnInit(): void {
-  }
+  ngOnInit(): void {}
 
-  public onUserSelected() : void {
+  public onUserSelected(): void {
     // Get the result
-    let tgtuser = this.firstFormGroup.get('targetuserCtrl')?.value;
-    let pickedDate = this.firstFormGroup.get('dateCtrl')?.value.format(momentDateFormat);
+    const tgtuser = this.firstFormGroup.get('targetuserCtrl')?.value;
+    const pickedDate = this.firstFormGroup
+      .get('dateCtrl')
+      ?.value.format(momentDateFormat);
 
-    this.odataSrv.getUserHabits(100, 0, undefined, undefined, `TargetUser eq '${tgtuser}' and ValidFrom le ${pickedDate} and ValidTo ge ${pickedDate}`).subscribe({
-      next: (val: {totalCount: number; items: UserHabit[]}) => {
-        this.arHabits = [];
-        val.items.forEach(item => {
-          let habit = new AvailableHabit();
-          habit.HabitID = item.ID;
-          habit.HabitName = item.name;
-          habit.Frequency = item.frequency;
-          habit.CompleteCategory = item.completeCategory;
-          habit.CompleteFact = null;
-          this.arHabits.push(habit);
-        });
-      },
-      error: err => {
-        this.uiUtilSrv.showSnackInfo(err, 1500);
-      }
-    });
+    this.odataSrv
+      .getUserHabits(
+        100,
+        0,
+        undefined,
+        undefined,
+        `TargetUser eq '${tgtuser}' and ValidFrom le ${pickedDate} and ValidTo ge ${pickedDate}`
+      )
+      .subscribe({
+        next: (val: { totalCount: number; items: UserHabit[] }) => {
+          this.arHabits = [];
+          val.items.forEach((item) => {
+            const habit = new AvailableHabit();
+            habit.HabitID = item.ID;
+            habit.HabitName = item.name;
+            habit.Frequency = item.frequency;
+            habit.CompleteCategory = item.completeCategory;
+            habit.CompleteFact = null;
+            this.arHabits.push(habit);
+          });
+        },
+        error: (err) => {
+          this.uiUtilSrv.showSnackInfo(err, 1500);
+        },
+      });
   }
   get isHabitStepCompleted(): boolean {
     if (!this.arHabits) {
@@ -93,7 +125,7 @@ export class HabitRecordCreateComponent implements OnInit {
     }
 
     let bFound = false;
-    this.arHabits.forEach(val => {
+    this.arHabits.forEach((val) => {
       if (val.CompleteFact) {
         bFound = true;
       }
@@ -102,25 +134,25 @@ export class HabitRecordCreateComponent implements OnInit {
   }
   public onSaveRecord(): void {
     // Save the records
-    let arreq: any[] = [];
-    this.arHabits.forEach(hbt => {
+    const arreq: any[] = [];
+    this.arHabits.forEach((hbt) => {
       if (hbt.CompleteFact !== null) {
         const record = new UserHabitRecord();
         record.completeFact = +hbt.CompleteFact;
         record.habitID = hbt.HabitID;
         record.recordDate = this.firstFormGroup.get('dateCtrl')?.value;
-        
+
         arreq.push(this.odataSrv.createUserHabitRecord(record));
       }
     });
 
     forkJoin(arreq).subscribe({
-      next: val => {
+      next: (val) => {
         console.log(val);
       },
-      error: err => {
+      error: (err) => {
         this.uiUtilSrv.showSnackInfo(err, 1500);
-      }
-    })
+      },
+    });
   }
 }

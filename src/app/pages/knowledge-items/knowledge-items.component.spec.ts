@@ -20,10 +20,10 @@ describe('KnowledgeItemsComponent', () => {
   let userDetail: InvitedUser;
 
   beforeAll(() => {
-    odataservice = jasmine.createSpyObj('ODataService', [
-      'getKnowledgeItems',
-    ]);
-    getKnowledgeItemsSpy = odataservice.getKnowledgeItems.and.returnValue(of({}));
+    odataservice = jasmine.createSpyObj('ODataService', ['getKnowledgeItems']);
+    getKnowledgeItemsSpy = odataservice.getKnowledgeItems.and.returnValue(
+      of({})
+    );
   });
 
   beforeEach(waitForAsync(() => {
@@ -46,14 +46,13 @@ describe('KnowledgeItemsComponent', () => {
         BrowserDynamicTestingModule,
         getTranslocoModule(),
       ],
-      declarations: [ KnowledgeItemsComponent ],
-      providers:[
+      declarations: [KnowledgeItemsComponent],
+      providers: [
         UIUtilityService,
         { provide: AuthService, useValue: authStub },
         { provide: ODataService, useValue: odataservice },
-      ]
-    })
-    .compileComponents();
+      ],
+    }).compileComponents();
   }));
 
   beforeEach(() => {

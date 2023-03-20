@@ -3,8 +3,20 @@ import { ChangeDetectorRef, Component, OnDestroy, OnInit } from '@angular/core';
 import { MatBottomSheet } from '@angular/material/bottom-sheet';
 import { KatexOptions } from 'ngx-markdown';
 
-import { KnowledgeItem, Tag, ExerciseItem, TagReferenceType, ExerciseItemType, getExerciseItemTypeName, ExerciseItemUserScore, } from 'src/app/models';
-import { ODataService, PreviewObject, UIUtilityService } from 'src/app/services';
+import {
+  KnowledgeItem,
+  Tag,
+  ExerciseItem,
+  TagReferenceType,
+  ExerciseItemType,
+  getExerciseItemTypeName,
+  ExerciseItemUserScore,
+} from 'src/app/models';
+import {
+  ODataService,
+  PreviewObject,
+  UIUtilityService,
+} from 'src/app/services';
 import { PreviewNewScoreSheet } from './preview-newscore-sheet';
 
 @Component({
@@ -30,11 +42,13 @@ export class PreviewComponent implements OnInit, OnDestroy {
   mobileQuery: MediaQueryList;
   private _mobileQueryListener: () => void;
 
-  constructor(private odataSvc: ODataService,
+  constructor(
+    private odataSvc: ODataService,
     changeDetectorRef: ChangeDetectorRef,
     media: MediaMatcher,
     private _bottomSheet: MatBottomSheet,
-    private uiUtilSrv: UIUtilityService,) {
+    private uiUtilSrv: UIUtilityService
+  ) {
     this.mobileQuery = media.matchMedia('(max-width: 600px)');
     this._mobileQueryListener = () => changeDetectorRef.detectChanges();
     this.previewIdx = -1;
@@ -44,7 +58,10 @@ export class PreviewComponent implements OnInit, OnDestroy {
     return getExerciseItemTypeName(reftype);
   }
   get isSuccessScore(): boolean {
-    if (this.selectedExerciseUserScore !== null && this.selectedExerciseUserScore.Score >= 60)
+    if (
+      this.selectedExerciseUserScore !== null &&
+      this.selectedExerciseUserScore.Score >= 60
+    )
       return true;
     return false;
   }
@@ -67,7 +84,7 @@ export class PreviewComponent implements OnInit, OnDestroy {
   public onPreviousPreviewItem(): void {
     // Previous preview item
     if (this.previewIdx > 0) {
-      this.previewIdx --;
+      this.previewIdx--;
       this.selectedObj = this.listPreviewObjects[this.previewIdx];
 
       this.fetchPreviewItem();
@@ -76,7 +93,7 @@ export class PreviewComponent implements OnInit, OnDestroy {
   public onNextPreviewItem(): void {
     // Next preview item
     if (this.previewIdx < this.listPreviewObjects.length) {
-      this.previewIdx ++;
+      this.previewIdx++;
       this.selectedObj = this.listPreviewObjects[this.previewIdx];
 
       this.fetchPreviewItem();
@@ -89,44 +106,55 @@ export class PreviewComponent implements OnInit, OnDestroy {
     return this.previewIdx > 0;
   }
   public fetchPreviewItem() {
-    if (this.previewIdx > -1 && this.previewIdx < this.listPreviewObjects.length ) {
+    if (
+      this.previewIdx > -1 &&
+      this.previewIdx < this.listPreviewObjects.length
+    ) {
       if (this.selectedObj?.refType === TagReferenceType.KnowledgeItem) {
-        this.odataSvc.readKnowledgeItem(this.listPreviewObjects[this.previewIdx].refId).subscribe({
-          next: val => {
-            this.selectedKnowledge = val;
-          },
-          error: err => {
-            this.uiUtilSrv.showSnackInfo(err);
-          }
-        });
+        this.odataSvc
+          .readKnowledgeItem(this.listPreviewObjects[this.previewIdx].refId)
+          .subscribe({
+            next: (val) => {
+              this.selectedKnowledge = val;
+            },
+            error: (err) => {
+              this.uiUtilSrv.showSnackInfo(err);
+            },
+          });
       } else if (this.selectedObj?.refType === TagReferenceType.ExerciseItem) {
-        this.odataSvc.readExerciseItem(this.listPreviewObjects[this.previewIdx].refId).subscribe({
-          next: val => {
-            this.selectedExercise = val;
-          },
-          error: err => {
-            this.uiUtilSrv.showSnackInfo(err);
-          }
-        });
-        this.odataSvc.getLastestExerciseItemUserScore(this.listPreviewObjects[this.previewIdx].refId).subscribe({
-          next: val => {
-            this.selectedExerciseUserScore = val;
-          },
-          error: err => {
-            this.uiUtilSrv.showSnackInfo(err);
-          }
-        });
+        this.odataSvc
+          .readExerciseItem(this.listPreviewObjects[this.previewIdx].refId)
+          .subscribe({
+            next: (val) => {
+              this.selectedExercise = val;
+            },
+            error: (err) => {
+              this.uiUtilSrv.showSnackInfo(err);
+            },
+          });
+        this.odataSvc
+          .getLastestExerciseItemUserScore(
+            this.listPreviewObjects[this.previewIdx].refId
+          )
+          .subscribe({
+            next: (val) => {
+              this.selectedExerciseUserScore = val;
+            },
+            error: (err) => {
+              this.uiUtilSrv.showSnackInfo(err);
+            },
+          });
       }
     }
   }
   public onNewScore() {
-    let rst = this._bottomSheet.open(PreviewNewScoreSheet, {
+    const rst = this._bottomSheet.open(PreviewNewScoreSheet, {
       data: {
         excitemid: this.selectedExercise?.ID,
-      }
+      },
     });
 
-    rst.afterDismissed().subscribe(val => {
+    rst.afterDismissed().subscribe((val) => {
       if (val.resultFlag) {
         if (val.newScore) {
           this.selectedExerciseUserScore = val.newScore;

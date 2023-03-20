@@ -26,9 +26,8 @@ describe('PuzzleGameComponent', () => {
         BrowserDynamicTestingModule,
         getTranslocoModule(),
       ],
-      declarations: [ PuzzleGameComponent ]
-    })
-    .compileComponents();
+      declarations: [PuzzleGameComponent],
+    }).compileComponents();
   });
 
   beforeEach(() => {

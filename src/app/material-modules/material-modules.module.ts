@@ -91,6 +91,6 @@ import { MatMomentDateModule } from '@angular/material-moment-adapter';
     ScrollingModule,
     // MonacoEditorModule,
     MatMomentDateModule,
-  ]
+  ],
 })
-export class MaterialModulesModule { }
+export class MaterialModulesModule {}

@@ -21,8 +21,8 @@ describe('UserHabit', () => {
     testobj.frequency = HabitFrequency.Weekly;
     testobj.targetUser = 'tester';
     testobj.startDate = 1; // Monday
-    testobj.validFrom = moment("2021-01-01");
-    testobj.validTo = moment("2022-01-01");
+    testobj.validFrom = moment('2021-01-01');
+    testobj.validTo = moment('2022-01-01');
 
     const data = testobj.writeJSONObject();
     expect(data).toBeTruthy();

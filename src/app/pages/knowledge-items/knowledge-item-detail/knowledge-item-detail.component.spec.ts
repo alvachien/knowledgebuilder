@@ -20,9 +20,7 @@ describe('KnowledgeItemDetailComponent', () => {
   let userDetail: InvitedUser;
 
   beforeAll(() => {
-    odataSvc = jasmine.createSpyObj('ODataService', [
-      'readKnowledgeItem',
-    ]);
+    odataSvc = jasmine.createSpyObj('ODataService', ['readKnowledgeItem']);
 
     readKnowledgeItemSpy = odataSvc.readKnowledgeItem.and.returnValue(of(''));
   });
@@ -47,14 +45,13 @@ describe('KnowledgeItemDetailComponent', () => {
         BrowserDynamicTestingModule,
         getTranslocoModule(),
       ],
-      declarations: [ KnowledgeItemDetailComponent ],
+      declarations: [KnowledgeItemDetailComponent],
       providers: [
         { provide: AuthService, useValue: authStub },
         { provoide: ODataService, useValue: odataSvc },
         UIUtilityService,
-      ]
-    })
-    .compileComponents();
+      ],
+    }).compileComponents();
   }));
 
   beforeEach(() => {

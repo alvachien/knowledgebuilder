@@ -1,15 +1,23 @@
 import { Component, OnInit, OnDestroy, ViewChild } from '@angular/core';
-import { UntypedFormGroup, UntypedFormControl, Validators } from '@angular/forms';
+import {
+  UntypedFormGroup,
+  UntypedFormControl,
+  Validators,
+} from '@angular/forms';
 import { ReplaySubject } from 'rxjs';
 import { COMMA, ENTER } from '@angular/cdk/keycodes';
-import { ActivatedRoute, } from '@angular/router';
+import { ActivatedRoute } from '@angular/router';
 import { MatDialog } from '@angular/material/dialog';
 import { KatexOptions } from 'ngx-markdown';
 import { MatChipInputEvent } from '@angular/material/chips';
 import { UIMode } from 'actslib';
 
-import { ExerciseItem, ExerciseItemType, getExerciseItemTypeNames } from '../../../models/exercise-item';
-import { ODataService, UIUtilityService, } from '../../../services';
+import {
+  ExerciseItem,
+  ExerciseItemType,
+  getExerciseItemTypeNames,
+} from '../../../models/exercise-item';
+import { ODataService, UIUtilityService } from '../../../services';
 import { ImageUploadComponent } from '../../image-upload/image-upload.component';
 
 @Component({
@@ -18,7 +26,6 @@ import { ImageUploadComponent } from '../../image-upload/image-upload.component'
   styleUrls: ['./exercise-item-detail.component.scss'],
 })
 export class ExerciseItemDetailComponent implements OnInit, OnDestroy {
-
   private destroyed$?: ReplaySubject<boolean>;
   private routerID = -1;
   itemObject: ExerciseItem | undefined;
@@ -29,7 +36,7 @@ export class ExerciseItemDetailComponent implements OnInit, OnDestroy {
   public itemFormGroup: UntypedFormGroup;
   editorOptions = {
     theme: 'vs-dark',
-    roundedSelection: true
+    roundedSelection: true,
   };
   content = `New Exercise Item`;
   answerContent = ``;
@@ -58,18 +65,20 @@ export class ExerciseItemDetailComponent implements OnInit, OnDestroy {
     return this.uiMode === UIMode.Create || this.uiMode === UIMode.Update;
   }
 
-  constructor(public dialog: MatDialog,
+  constructor(
+    public dialog: MatDialog,
     private activateRoute: ActivatedRoute,
     private uiUtilSrv: UIUtilityService,
-    private odataService: ODataService) {
-      this.arExerciseTypes = getExerciseItemTypeNames();
-      this.itemFormGroup = new UntypedFormGroup({
+    private odataService: ODataService
+  ) {
+    this.arExerciseTypes = getExerciseItemTypeNames();
+    this.itemFormGroup = new UntypedFormGroup({
       idControl: new UntypedFormControl({
         value: null,
-        disabled: true
+        disabled: true,
       }),
       typeControl: new UntypedFormControl({
-        value: ExerciseItemType.Question
+        value: ExerciseItemType.Question,
       }),
       knowledgeControl: new UntypedFormControl(),
       tagControl: new UntypedFormControl(),
@@ -80,7 +89,7 @@ export class ExerciseItemDetailComponent implements OnInit, OnDestroy {
     this.destroyed$ = new ReplaySubject(1);
 
     this.activateRoute.url.subscribe({
-      next: val => {
+      next: (val) => {
         if (val instanceof Array && val.length > 0) {
           if (val[0].path === 'create') {
             this.routerID = -1;
@@ -98,21 +107,22 @@ export class ExerciseItemDetailComponent implements OnInit, OnDestroy {
         }
 
         if (this.routerID !== -1) {
-          this.odataService.readExerciseItem(this.routerID, this.uiMode === UIMode.Update)
+          this.odataService
+            .readExerciseItem(this.routerID, this.uiMode === UIMode.Update)
             .subscribe({
-              next: exitem => {
+              next: (exitem) => {
                 this.onSetItemData(exitem);
                 this.itemObject = exitem;
               },
-              error: err => {
+              error: (err) => {
                 console.error(err);
-              }
+              },
             });
         }
       },
-      error: err => {
+      error: (err) => {
         this.uiUtilSrv.showSnackInfo(err);
-      }
+      },
     });
   }
 
@@ -136,18 +146,19 @@ export class ExerciseItemDetailComponent implements OnInit, OnDestroy {
 
       // Create a new exercise item
       this.itemObject = new ExerciseItem();
-      this.itemObject.ItemType = this.itemFormGroup.get('typeControl')?.value as ExerciseItemType;
+      this.itemObject.ItemType = this.itemFormGroup.get('typeControl')
+        ?.value as ExerciseItemType;
       this.itemObject.Content = this.content;
       this.itemObject.Tags = this.tags;
       this.itemObject.Answer = this.answerContent;
       this.odataService.createExerciseItem(this.itemObject).subscribe({
-        next: val => {
+        next: (val) => {
           // Display current exercise item
           this.uiUtilSrv.navigateExerciseItemDisplayPage(val.ID);
         },
-        error: err => {
+        error: (err) => {
           this.uiUtilSrv.showSnackInfo(err);
-        }
+        },
       });
     } else if (this.isUpdateMode) {
       if (!this.itemFormGroup.valid) {
@@ -160,27 +171,31 @@ export class ExerciseItemDetailComponent implements OnInit, OnDestroy {
 
       // Update existing exercise item
       if (this.itemObject) {
-        this.itemObject.ItemType = this.itemFormGroup.get('typeControl')?.value as ExerciseItemType;
+        this.itemObject.ItemType = this.itemFormGroup.get('typeControl')
+          ?.value as ExerciseItemType;
         this.itemObject.Content = this.content;
         this.itemObject.Tags = this.tags;
         this.itemObject.Answer = this.answerContent;
         this.odataService.changeExerciseItem(this.itemObject).subscribe({
-          next: val => {
+          next: (val) => {
             // Display current exercise item
             this.uiUtilSrv.navigateExerciseItemDisplayPage(val.ID);
           },
-          error: err => {
+          error: (err) => {
             this.uiUtilSrv.showSnackInfo(err);
-          }
+          },
         });
       }
     }
   }
 
   openUploadDialog(): void {
-    const dialogRef = this.dialog.open(ImageUploadComponent, { width: '50%', height: '50%' });
+    const dialogRef = this.dialog.open(ImageUploadComponent, {
+      width: '50%',
+      height: '50%',
+    });
     dialogRef.afterClosed().subscribe({
-      next: val => {
+      next: (val) => {
         console.log(val);
 
         val.forEach((entry: any) => {
@@ -188,23 +203,26 @@ export class ExerciseItemDetailComponent implements OnInit, OnDestroy {
 ![Img](${entry.url})
           `;
         });
-      }
+      },
     });
   }
 
   openAnswerUploadDialog(): void {
-      const dialogRef = this.dialog.open(ImageUploadComponent, { width: '50%', height: '50%' });
-      dialogRef.afterClosed().subscribe({
-        next: val => {
-          console.log(val);
+    const dialogRef = this.dialog.open(ImageUploadComponent, {
+      width: '50%',
+      height: '50%',
+    });
+    dialogRef.afterClosed().subscribe({
+      next: (val) => {
+        console.log(val);
 
-          val.forEach((entry: any) => {
-            this.answerContent += `
+        val.forEach((entry: any) => {
+          this.answerContent += `
   ![Img](${entry.url})
             `;
-          });
-        }
-      });
+        });
+      },
+    });
   }
 
   addTag(event: MatChipInputEvent): void {

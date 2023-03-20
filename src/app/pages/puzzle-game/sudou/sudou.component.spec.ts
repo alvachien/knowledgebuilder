@@ -26,9 +26,8 @@ describe('SudouComponent', () => {
         BrowserDynamicTestingModule,
         getTranslocoModule(),
       ],
-      declarations: [ SudouComponent ]
-    })
-    .compileComponents();
+      declarations: [SudouComponent],
+    }).compileComponents();
   });
 
   beforeEach(() => {

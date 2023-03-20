@@ -9,10 +9,7 @@ import { QuizSummaryRoutingModule } from './quiz-summary-routing.module';
 import { QuizSummaryDetailComponent } from './quiz-summary-detail';
 
 @NgModule({
-  declarations: [
-    QuizSummaryComponent,
-    QuizSummaryDetailComponent,
-  ],
+  declarations: [QuizSummaryComponent, QuizSummaryDetailComponent],
   imports: [
     CommonModule,
     FormsModule,
@@ -22,4 +19,4 @@ import { QuizSummaryDetailComponent } from './quiz-summary-detail';
     TranslocoModule,
   ],
 })
-export class QuizSummaryModule { }
+export class QuizSummaryModule {}

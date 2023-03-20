@@ -2,17 +2,19 @@ import { Pipe, PipeTransform } from '@angular/core';
 import { AppNavItem, AppNavItemGroupEnum } from '../models';
 
 @Pipe({
-  name: 'navItemFilter'
+  name: 'navItemFilter',
 })
 export class NavItemFilterPipe implements PipeTransform {
-
-  transform(allAccounts: AppNavItem[], args?: AppNavItemGroupEnum): AppNavItem[] {
+  transform(
+    allAccounts: AppNavItem[],
+    args?: AppNavItemGroupEnum
+  ): AppNavItem[] {
     return allAccounts.filter((value: AppNavItem) => {
-        if (args !== undefined) {
-          return value.group === args;
-        }
+      if (args !== undefined) {
+        return value.group === args;
+      }
 
-        return true;
+      return true;
     });
   }
 }

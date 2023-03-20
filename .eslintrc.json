@@ -4,23 +4,28 @@
     "projects/**/*"
   ],
   "overrides": [
-    {
+    /**
+     * -----------------------------------------------------
+     * TYPESCRIPT FILES (COMPONENTS, SERVICES ETC) (.ts)
+     * -----------------------------------------------------
+     */
+     {
       "files": [
         "*.ts"
       ],
       "parserOptions": {
         "project": [
           "tsconfig.app.json",
-          "tsconfig.spec.json",
-          "e2e/tsconfig.json"
+          "tsconfig.spec.json"
         ],
         "createDefaultProgram": true
       },
       "extends": [
+        "eslint:recommended",
+        "plugin:@typescript-eslint/recommended",
         "plugin:@angular-eslint/recommended",
-        "plugin:@angular-eslint/ng-cli-compat",
-        "plugin:@angular-eslint/ng-cli-compat--formatting-add-on",
-        "plugin:@angular-eslint/template/process-inline-templates"
+        "plugin:@angular-eslint/template/process-inline-templates",
+        "plugin:prettier/recommended"
       ],
       "rules": {
         "@angular-eslint/component-selector": [
@@ -41,7 +46,13 @@
         ]
       }
     },
-    {
+
+    /**
+     * -----------------------------------------------------
+     * COMPONENT TEMPLATES
+     * -----------------------------------------------------
+     */    
+     {
       "files": [
         "*.html"
       ],

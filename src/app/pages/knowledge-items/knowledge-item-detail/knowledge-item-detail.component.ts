@@ -1,16 +1,24 @@
 import { Component, OnInit, OnDestroy, ViewChild } from '@angular/core';
-import { UntypedFormGroup, UntypedFormControl, Validators } from '@angular/forms';
+import {
+  UntypedFormGroup,
+  UntypedFormControl,
+  Validators,
+} from '@angular/forms';
 import { ReplaySubject } from 'rxjs';
-import { ActivatedRoute, } from '@angular/router';
+import { ActivatedRoute } from '@angular/router';
 import { MatDialog } from '@angular/material/dialog';
 import { KatexOptions } from 'ngx-markdown';
 import { COMMA, ENTER } from '@angular/cdk/keycodes';
 import { MatChipInputEvent } from '@angular/material/chips';
 import { UIMode } from 'actslib';
 
-import { ODataService, UIUtilityService, } from '../../../services';
+import { ODataService, UIUtilityService } from '../../../services';
 import { ImageUploadComponent } from '../../image-upload/image-upload.component';
-import { KnowledgeItemCategory, KnowledgeItem, getKnowledgeItemCategoryNames, } from 'src/app/models';
+import {
+  KnowledgeItemCategory,
+  KnowledgeItem,
+  getKnowledgeItemCategoryNames,
+} from 'src/app/models';
 
 @Component({
   selector: 'app-knowledge-item-detail',
@@ -55,15 +63,17 @@ export class KnowledgeItemDetailComponent implements OnInit, OnDestroy {
     return this.uiMode === UIMode.Create || this.uiMode === UIMode.Update;
   }
 
-  constructor(public dialog: MatDialog,
+  constructor(
+    public dialog: MatDialog,
     private activateRoute: ActivatedRoute,
     private uiUtilSrv: UIUtilityService,
-    private odataService: ODataService) {
+    private odataService: ODataService
+  ) {
     this.arKnowledgeCtgies = getKnowledgeItemCategoryNames();
     this.itemFormGroup = new UntypedFormGroup({
       idControl: new UntypedFormControl({
         value: null,
-        disabled: true
+        disabled: true,
       }),
       titleControl: new UntypedFormControl('', Validators.required),
       ctgyControl: new UntypedFormControl({
@@ -77,7 +87,7 @@ export class KnowledgeItemDetailComponent implements OnInit, OnDestroy {
     this.destroyed$ = new ReplaySubject(1);
 
     this.activateRoute.url.subscribe({
-      next: val => {
+      next: (val) => {
         if (val instanceof Array && val.length > 0) {
           if (val[0].path === 'create') {
             this.routerID = -1;
@@ -95,12 +105,15 @@ export class KnowledgeItemDetailComponent implements OnInit, OnDestroy {
         }
 
         if (this.routerID !== -1) {
-          this.odataService.readKnowledgeItem(this.routerID, this.uiMode === UIMode.Update)
+          this.odataService
+            .readKnowledgeItem(this.routerID, this.uiMode === UIMode.Update)
             .subscribe({
-              next: val2 => {
+              next: (val2) => {
                 this.itemFormGroup.get('idControl')?.setValue(val2.ID);
                 this.itemFormGroup.get('titleControl')?.setValue(val2.Title);
-                this.itemFormGroup.get('ctgyControl')?.setValue(+val2.ItemCategory);
+                this.itemFormGroup
+                  .get('ctgyControl')
+                  ?.setValue(+val2.ItemCategory);
                 this.content = val2.Content;
                 this.tags = val2.Tags;
                 this.currentItem = val2;
@@ -111,9 +124,9 @@ export class KnowledgeItemDetailComponent implements OnInit, OnDestroy {
                   this.itemFormGroup.markAsPristine();
                 }
               },
-              error: err => {
+              error: (err) => {
                 console.error(err);
-              }
+              },
             });
         } else {
           this.itemFormGroup.get('idControl')?.setValue('NEW');
@@ -122,9 +135,9 @@ export class KnowledgeItemDetailComponent implements OnInit, OnDestroy {
           this.itemFormGroup.markAsUntouched();
         }
       },
-      error: err => {
+      error: (err) => {
         this.uiUtilSrv.showSnackInfo(err);
-      }
+      },
     });
   }
 
@@ -148,20 +161,20 @@ export class KnowledgeItemDetailComponent implements OnInit, OnDestroy {
 
       // Create a new knowlege item
       const kitem = new KnowledgeItem();
-      kitem.ItemCategory = this.itemFormGroup.get('ctgyControl')?.value;;
+      kitem.ItemCategory = this.itemFormGroup.get('ctgyControl')?.value;
       kitem.Content = this.content;
       kitem.Title = this.itemFormGroup.get('titleControl')?.value;
       kitem.Tags = this.tags;
       this.odataService.createKnowledgeItem(kitem).subscribe({
-        next: val => {
+        next: (val) => {
           // Succeed
           this.uiUtilSrv.navigateKnowledgeItemDisplayPage(val.ID);
         },
-        error: err => {
+        error: (err) => {
           this.uiUtilSrv.showSnackInfo(err);
-        }
+        },
       });
-    } else if(this.isUpdateMode) {
+    } else if (this.isUpdateMode) {
       if (!this.itemFormGroup.valid) {
         if (this.itemFormGroup.errors) {
           const err = this.itemFormGroup.errors;
@@ -172,27 +185,31 @@ export class KnowledgeItemDetailComponent implements OnInit, OnDestroy {
 
       // Update a new knowlege item
       if (this.currentItem) {
-        this.currentItem.ItemCategory = this.itemFormGroup.get('ctgyControl')?.value;;
+        this.currentItem.ItemCategory =
+          this.itemFormGroup.get('ctgyControl')?.value;
         this.currentItem.Content = this.content;
         this.currentItem.Title = this.itemFormGroup.get('titleControl')?.value;
         this.currentItem.Tags = this.tags;
         this.odataService.changeKnowledgeItem(this.currentItem).subscribe({
-          next: val => {
+          next: (val) => {
             // Succeed
             this.uiUtilSrv.navigateKnowledgeItemDisplayPage(val.ID);
           },
-          error: err => {
+          error: (err) => {
             this.uiUtilSrv.showSnackInfo(err);
-          }
+          },
         });
       }
     }
   }
 
   openUploadDialog(): void {
-    const dialogRef = this.dialog.open(ImageUploadComponent, { width: '50%', height: '50%' });
+    const dialogRef = this.dialog.open(ImageUploadComponent, {
+      width: '50%',
+      height: '50%',
+    });
     dialogRef.afterClosed().subscribe({
-      next: val => {
+      next: (val) => {
         console.log(val);
 
         val.forEach((entry: any) => {
@@ -206,7 +223,7 @@ export class KnowledgeItemDetailComponent implements OnInit, OnDestroy {
         //       imgurl: string;
         //   };
         // }
-      }
+      },
     });
   }
 

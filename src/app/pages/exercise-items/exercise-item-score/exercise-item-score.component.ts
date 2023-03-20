@@ -1,4 +1,10 @@
-import { Component, EventEmitter, ViewChild, AfterViewInit, OnInit } from '@angular/core';
+import {
+  Component,
+  EventEmitter,
+  ViewChild,
+  AfterViewInit,
+  OnInit,
+} from '@angular/core';
 import { MatPaginator } from '@angular/material/paginator';
 import { MatSort } from '@angular/material/sort';
 import { OidcSecurityService } from 'angular-auth-oidc-client';
@@ -6,9 +12,20 @@ import moment from 'moment';
 import { BehaviorSubject, merge, Observable, of as observableOf } from 'rxjs';
 import { catchError, map, startWith, switchMap } from 'rxjs/operators';
 
-import { GeneralFilterItem, GeneralFilterOperatorEnum, GeneralFilterValueType,
-  UIDisplayString, UIDisplayStringUtil, ExerciseItemUserScore, TagReferenceType } from 'src/app/models';
-import { ODataService, PreviewObject, UIUtilityService, } from '../../../services';
+import {
+  GeneralFilterItem,
+  GeneralFilterOperatorEnum,
+  GeneralFilterValueType,
+  UIDisplayString,
+  UIDisplayStringUtil,
+  ExerciseItemUserScore,
+  TagReferenceType,
+} from 'src/app/models';
+import {
+  ODataService,
+  PreviewObject,
+  UIUtilityService,
+} from '../../../services';
 
 @Component({
   selector: 'app-exercise-item-score',
@@ -31,26 +48,33 @@ export class ExerciseItemScoreComponent implements OnInit, AfterViewInit {
   @ViewChild(MatPaginator) paginator!: MatPaginator;
   @ViewChild(MatSort) sort!: MatSort;
 
-  constructor(private odataService: ODataService,
-    private uiUtilSrv: UIUtilityService) {
-    this.allOperators = UIDisplayStringUtil.getGeneralFilterOperatorDisplayStrings();
-    this.allFields = [{
-      displayas: 'Content',
-      value: 'Content',
-      valueType: 2,
-    }, {
-      displayas: 'Quiz.Date',
-      value: 'TakenDate',
-      valueType: 3,
-    }, {
-      displayas: 'Quiz.Score',
-      value: 'Score',
-      valueType: 1,
-    }, {
-      displayas: 'ExerciseItem',
-      value: 'RefID',
-      valueType: 1,
-    },
+  constructor(
+    private odataService: ODataService,
+    private uiUtilSrv: UIUtilityService
+  ) {
+    this.allOperators =
+      UIDisplayStringUtil.getGeneralFilterOperatorDisplayStrings();
+    this.allFields = [
+      {
+        displayas: 'Content',
+        value: 'Content',
+        valueType: 2,
+      },
+      {
+        displayas: 'Quiz.Date',
+        value: 'TakenDate',
+        valueType: 3,
+      },
+      {
+        displayas: 'Quiz.Score',
+        value: 'Score',
+        valueType: 1,
+      },
+      {
+        displayas: 'ExerciseItem',
+        value: 'RefID',
+        valueType: 1,
+      },
     ];
   }
 
@@ -60,9 +84,14 @@ export class ExerciseItemScoreComponent implements OnInit, AfterViewInit {
 
   ngAfterViewInit() {
     // If the user changes the sort order, reset back to the first page.
-    this.sort.sortChange.subscribe(() => this.paginator.pageIndex = 0);
+    this.sort.sortChange.subscribe(() => (this.paginator.pageIndex = 0));
 
-    merge(this.sort.sortChange, this.paginator.page, this.refreshEvent, this.subjFilters)
+    merge(
+      this.sort.sortChange,
+      this.paginator.page,
+      this.refreshEvent,
+      this.subjFilters
+    )
       .pipe(
         startWith({}),
         switchMap(() => {
@@ -87,8 +116,9 @@ export class ExerciseItemScoreComponent implements OnInit, AfterViewInit {
           this.isLoadingResults = false;
           return observableOf([]);
         })
-      ).subscribe(data => this.dataSource = data ? data : []);
-  }  
+      )
+      .subscribe((data) => (this.dataSource = data ? data : []));
+  }
   public onAddFilter(): void {
     this.filters.push(new GeneralFilterItem());
   }
@@ -108,59 +138,73 @@ export class ExerciseItemScoreComponent implements OnInit, AfterViewInit {
   prepareFilters(arFilter: any[]): string {
     let rstfilter = '';
     arFilter.sort((a, b) => a.fieldName.localeCompare(b.fieldName));
-    let arfieldNames = arFilter.map(val => val.fieldName);
+    let arfieldNames = arFilter.map((val) => val.fieldName);
     arfieldNames = Array.from(new Set(arfieldNames));
 
-    arfieldNames.forEach(fname => {
+    arfieldNames.forEach((fname) => {
       let substring = '';
-      arFilter.forEach(flt => {
+      arFilter.forEach((flt) => {
         if (flt.fieldName === fname) {
           if (flt.fieldName === 'Content') {
             if (flt.operator === GeneralFilterOperatorEnum.Equal) {
-              substring = substring ? `${substring} or ${flt.fieldName} eq '${flt.lowValue}'`
+              substring = substring
+                ? `${substring} or ${flt.fieldName} eq '${flt.lowValue}'`
                 : `${flt.fieldName} eq '${flt.lowValue}'`;
-            } else if(flt.operator === GeneralFilterOperatorEnum.Like) {
-              substring = substring ? `${substring} or contains(${flt.fieldName},'${flt.lowValue}')`
+            } else if (flt.operator === GeneralFilterOperatorEnum.Like) {
+              substring = substring
+                ? `${substring} or contains(${flt.fieldName},'${flt.lowValue}')`
                 : `contains(${flt.fieldName},'${flt.lowValue}')`;
             }
           } else if (flt.fieldName === 'Score' || flt.fieldName === 'RefID') {
             if (flt.operator === GeneralFilterOperatorEnum.Equal) {
-              substring = substring ? `${substring} or ${flt.fieldName} eq ${flt.lowValue}`
+              substring = substring
+                ? `${substring} or ${flt.fieldName} eq ${flt.lowValue}`
                 : `${flt.fieldName} eq ${flt.lowValue}`;
-            } else if(flt.operator === GeneralFilterOperatorEnum.LargerEqual) {
-              substring = substring ? `${substring} or ${flt.fieldName} ge ${flt.lowValue}`
+            } else if (flt.operator === GeneralFilterOperatorEnum.LargerEqual) {
+              substring = substring
+                ? `${substring} or ${flt.fieldName} ge ${flt.lowValue}`
                 : `${flt.fieldName} ge ${flt.lowValue}`;
-            } else if(flt.operator === GeneralFilterOperatorEnum.LargerThan) {
-              substring = substring ? `${substring} or ${flt.fieldName} gt ${flt.lowValue}`
+            } else if (flt.operator === GeneralFilterOperatorEnum.LargerThan) {
+              substring = substring
+                ? `${substring} or ${flt.fieldName} gt ${flt.lowValue}`
                 : `${flt.fieldName} gt ${flt.lowValue}`;
-            } else if(flt.operator === GeneralFilterOperatorEnum.LessEqual) {
-              substring = substring ? `${substring} or ${flt.fieldName} le ${flt.lowValue}`
+            } else if (flt.operator === GeneralFilterOperatorEnum.LessEqual) {
+              substring = substring
+                ? `${substring} or ${flt.fieldName} le ${flt.lowValue}`
                 : `${flt.fieldName} le ${flt.lowValue}`;
-            } else if(flt.operator === GeneralFilterOperatorEnum.LessThan) {
-              substring = substring ? `${substring} or ${flt.fieldName} lt ${flt.lowValue}`
+            } else if (flt.operator === GeneralFilterOperatorEnum.LessThan) {
+              substring = substring
+                ? `${substring} or ${flt.fieldName} lt ${flt.lowValue}`
                 : `${flt.fieldName} lt ${flt.lowValue}`;
-            } else if(flt.operator === GeneralFilterOperatorEnum.NotEqual) {
-              substring = substring ? `${substring} or ${flt.fieldName} ne ${flt.lowValue}`
+            } else if (flt.operator === GeneralFilterOperatorEnum.NotEqual) {
+              substring = substring
+                ? `${substring} or ${flt.fieldName} ne ${flt.lowValue}`
                 : `${flt.fieldName} ne ${flt.lowValue}`;
             }
           } else if (flt.fieldName === 'TakenDate') {
             if (flt.operator === GeneralFilterOperatorEnum.Equal) {
-              substring = substring ? `${substring} or date(${flt.fieldName}) eq ${flt.lowValue}`
+              substring = substring
+                ? `${substring} or date(${flt.fieldName}) eq ${flt.lowValue}`
                 : `date(${flt.fieldName}) eq ${flt.lowValue}`;
-            } else if(flt.operator === GeneralFilterOperatorEnum.LargerEqual) {
-              substring = substring ? `${substring} or date(${flt.fieldName}) ge ${flt.lowValue}`
+            } else if (flt.operator === GeneralFilterOperatorEnum.LargerEqual) {
+              substring = substring
+                ? `${substring} or date(${flt.fieldName}) ge ${flt.lowValue}`
                 : `date(${flt.fieldName}) ge ${flt.lowValue}`;
-            } else if(flt.operator === GeneralFilterOperatorEnum.LargerThan) {
-              substring = substring ? `${substring} or date(${flt.fieldName}) gt ${flt.lowValue}`
+            } else if (flt.operator === GeneralFilterOperatorEnum.LargerThan) {
+              substring = substring
+                ? `${substring} or date(${flt.fieldName}) gt ${flt.lowValue}`
                 : `date(${flt.fieldName}) gt ${flt.lowValue}`;
-            } else if(flt.operator === GeneralFilterOperatorEnum.LessEqual) {
-              substring = substring ? `${substring} or date(${flt.fieldName}) le ${flt.lowValue}`
+            } else if (flt.operator === GeneralFilterOperatorEnum.LessEqual) {
+              substring = substring
+                ? `${substring} or date(${flt.fieldName}) le ${flt.lowValue}`
                 : `date(${flt.fieldName}) le ${flt.lowValue}`;
-            } else if(flt.operator === GeneralFilterOperatorEnum.LessThan) {
-              substring = substring ? `${substring} or date(${flt.fieldName}) lt ${flt.lowValue}`
+            } else if (flt.operator === GeneralFilterOperatorEnum.LessThan) {
+              substring = substring
+                ? `${substring} or date(${flt.fieldName}) lt ${flt.lowValue}`
                 : `date(${flt.fieldName}) lt ${flt.lowValue}`;
-            } else if(flt.operator === GeneralFilterOperatorEnum.NotEqual) {
-              substring = substring ? `${substring} or date(${flt.fieldName}) ne ${flt.lowValue}`
+            } else if (flt.operator === GeneralFilterOperatorEnum.NotEqual) {
+              substring = substring
+                ? `${substring} or date(${flt.fieldName}) ne ${flt.lowValue}`
                 : `date(${flt.fieldName}) ne ${flt.lowValue}`;
             }
           }
@@ -239,18 +283,18 @@ export class ExerciseItemScoreComponent implements OnInit, AfterViewInit {
   public onDeleteItem(itemid: number): void {
     // Delete item
     this.odataService.deleteExerciseItemUserScore(itemid).subscribe({
-      next: val => {
+      next: (val) => {
         this.uiUtilSrv.showSnackInfo('DONE');
         this.onRefreshList();
       },
-      error: err => {
+      error: (err) => {
         this.uiUtilSrv.showSnackInfo(err);
-      }
+      },
     });
   }
   public onGoToPreview(): void {
     const arobj: PreviewObject[] = [];
-    this.dataSource.forEach(item => {
+    this.dataSource.forEach((item) => {
       arobj.push({
         refType: TagReferenceType.ExerciseItem,
         refId: item.RefID,

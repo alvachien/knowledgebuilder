@@ -10,7 +10,7 @@ import { HabitRecordCreateComponent } from './habit-record-create';
 import { HabitPointsListComponent } from './habit-points-list';
 
 const routes: Routes = [
-  { path: '', component:  HabitListComponent },
+  { path: '', component: HabitListComponent },
   { path: 'points', component: HabitPointsListComponent },
   { path: 'list', component: HabitListComponent },
   { path: 'create', component: HabitCreateComponent },
@@ -25,6 +25,6 @@ const routes: Routes = [
 
 @NgModule({
   imports: [RouterModule.forChild(routes)],
-  exports: [RouterModule]
+  exports: [RouterModule],
 })
-export class HabitBuilderRoutingModule { }
+export class HabitBuilderRoutingModule {}

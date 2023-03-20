@@ -26,9 +26,8 @@ describe('MixedOperationsComponent', () => {
         BrowserDynamicTestingModule,
         getTranslocoModule(),
       ],
-      declarations: [ MixedOperationsComponent ]
-    })
-    .compileComponents();
+      declarations: [MixedOperationsComponent],
+    }).compileComponents();
   });
 
   beforeEach(() => {

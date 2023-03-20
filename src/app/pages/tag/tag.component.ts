@@ -5,7 +5,11 @@ import { Router } from '@angular/router';
 import { merge, Observable, of as observableOf } from 'rxjs';
 import { catchError, map, startWith, switchMap } from 'rxjs/operators';
 
-import { TagCount, TagReferenceType, getTagReferenceTypeName } from 'src/app/models';
+import {
+  TagCount,
+  TagReferenceType,
+  getTagReferenceTypeName,
+} from 'src/app/models';
 import { ODataService } from '../../services';
 
 @Component({
@@ -23,8 +27,7 @@ export class TagComponent implements AfterViewInit {
   @ViewChild(MatPaginator) paginator!: MatPaginator;
   @ViewChild(MatSort) sort!: MatSort;
 
-  constructor(private odataService: ODataService,
-    private router: Router) {}
+  constructor(private odataService: ODataService, private router: Router) {}
 
   getTagReferenceTypeName(reftype: TagReferenceType): string {
     return getTagReferenceTypeName(reftype);
@@ -32,17 +35,16 @@ export class TagComponent implements AfterViewInit {
 
   ngAfterViewInit() {
     // If the user changes the sort order, reset back to the first page.
-    this.sort.sortChange.subscribe(() => this.paginator.pageIndex = 0);
+    this.sort.sortChange.subscribe(() => (this.paginator.pageIndex = 0));
 
     merge(this.sort.sortChange, this.paginator.page)
       .pipe(
         startWith({}),
         switchMap(() => {
           this.isLoadingResults = true;
-          return this.odataService.getTagCounts(
-          );
+          return this.odataService.getTagCounts();
         }),
-        map(data => {
+        map((data) => {
           // Flip flag to show that loading has finished.
           this.isLoadingResults = false;
           this.resultsLength = data.totalCount;
@@ -53,7 +55,8 @@ export class TagComponent implements AfterViewInit {
           this.isLoadingResults = false;
           return observableOf([]);
         })
-      ).subscribe(data => this.data = data);
+      )
+      .subscribe((data) => (this.data = data));
   }
 
   public onCountClicked(row: TagCount): void {

@@ -1,7 +1,12 @@
 import { Component, OnInit } from '@angular/core';
 import { ReplaySubject } from 'rxjs';
-import { ActivatedRoute, } from '@angular/router';
-import { UntypedFormBuilder, UntypedFormControl, UntypedFormGroup, Validators } from '@angular/forms';
+import { ActivatedRoute } from '@angular/router';
+import {
+  UntypedFormBuilder,
+  UntypedFormControl,
+  UntypedFormGroup,
+  Validators,
+} from '@angular/forms';
 import { UIMode } from 'actslib';
 import moment from 'moment';
 
@@ -16,24 +21,26 @@ import { AuthService, ODataService, UIUtilityService } from 'src/app/services';
 export class HabitRecordDetailComponent implements OnInit {
   private destroyed$?: ReplaySubject<boolean>;
   uiMode: UIMode = UIMode.Create;
-  currentMode: string = 'Common.Display';
+  currentMode = 'Common.Display';
   currentObject: UserHabitRecord | null = null;
   detailFormGroup: UntypedFormGroup;
 
-  constructor(private _formBuilder: UntypedFormBuilder,
+  constructor(
+    private _formBuilder: UntypedFormBuilder,
     private activateRoute: ActivatedRoute,
     private uiUtilSrv: UIUtilityService,
     private authService: AuthService,
-    private odataSrv: ODataService) {
-      this.detailFormGroup = this._formBuilder.group({
-        targetuserCtrl: new UntypedFormControl('', Validators.required),
-        habitIDCtrl: new UntypedFormControl(-1),
-        dateCtrl: new UntypedFormControl(moment(), Validators.required),
-        subIDCtrl: new UntypedFormControl(1, Validators.required),
-        compFactCtrl: new UntypedFormControl(1, Validators.required),
-        commentCtrl: new UntypedFormControl('')
-      });
-    }
+    private odataSrv: ODataService
+  ) {
+    this.detailFormGroup = this._formBuilder.group({
+      targetuserCtrl: new UntypedFormControl('', Validators.required),
+      habitIDCtrl: new UntypedFormControl(-1),
+      dateCtrl: new UntypedFormControl(moment(), Validators.required),
+      subIDCtrl: new UntypedFormControl(1, Validators.required),
+      compFactCtrl: new UntypedFormControl(1, Validators.required),
+      commentCtrl: new UntypedFormControl(''),
+    });
+  }
 
   get arTargetUsers(): AwardUserView[] {
     if (this.authService.userDetail) {
@@ -43,7 +50,9 @@ export class HabitRecordDetailComponent implements OnInit {
   }
   public getUserDisplayAs(usrId: string): string {
     if (usrId && this.authService.userDetail) {
-      const idx = this.authService.userDetail.awardUsers.findIndex(val => val.targetUser === usrId);
+      const idx = this.authService.userDetail.awardUsers.findIndex(
+        (val) => val.targetUser === usrId
+      );
       if (idx !== -1) {
         return this.authService.userDetail.awardUsers[idx].displayAs;
       }
@@ -64,7 +73,7 @@ export class HabitRecordDetailComponent implements OnInit {
   }
   ngOnInit(): void {
     this.activateRoute.url.subscribe({
-      next: val => {
+      next: (val) => {
         if (val instanceof Array && val.length > 0) {
           if (val[0].path === 'record' && val[1].path === 'display') {
             this.uiMode = UIMode.Display;
@@ -75,12 +84,24 @@ export class HabitRecordDetailComponent implements OnInit {
           }
         }
         if (this.uiUtilSrv.currentUserHabitRecord) {
-          this.detailFormGroup.get('targetuserCtrl')?.setValue(this.uiUtilSrv.currentUserHabitRecord.targetUser);
-          this.detailFormGroup.get('habitIDCtrl')?.setValue(this.uiUtilSrv.currentUserHabitRecord.habitID);
-          this.detailFormGroup.get('dateCtrl')?.setValue(this.uiUtilSrv.currentUserHabitRecord.recordDate);
-          this.detailFormGroup.get('subIDCtrl')?.setValue(this.uiUtilSrv.currentUserHabitRecord.subID);
-          this.detailFormGroup.get('compFactCtrl')?.setValue(this.uiUtilSrv.currentUserHabitRecord.completeFact);
-          this.detailFormGroup.get('commentCtrl')?.setValue(this.uiUtilSrv.currentUserHabitRecord.comment);
+          this.detailFormGroup
+            .get('targetuserCtrl')
+            ?.setValue(this.uiUtilSrv.currentUserHabitRecord.targetUser);
+          this.detailFormGroup
+            .get('habitIDCtrl')
+            ?.setValue(this.uiUtilSrv.currentUserHabitRecord.habitID);
+          this.detailFormGroup
+            .get('dateCtrl')
+            ?.setValue(this.uiUtilSrv.currentUserHabitRecord.recordDate);
+          this.detailFormGroup
+            .get('subIDCtrl')
+            ?.setValue(this.uiUtilSrv.currentUserHabitRecord.subID);
+          this.detailFormGroup
+            .get('compFactCtrl')
+            ?.setValue(this.uiUtilSrv.currentUserHabitRecord.completeFact);
+          this.detailFormGroup
+            .get('commentCtrl')
+            ?.setValue(this.uiUtilSrv.currentUserHabitRecord.comment);
 
           if (this.uiMode === UIMode.Display) {
             this.detailFormGroup.disable();
@@ -93,14 +114,13 @@ export class HabitRecordDetailComponent implements OnInit {
           this.detailFormGroup.disable();
         }
       },
-      error: err => {
+      error: (err) => {
         this.uiUtilSrv.showSnackInfo(err);
-      }
+      },
     });
   }
 
-  public onOK() {
-  }
+  public onOK() {}
   public onReturnToList() {
     this.uiUtilSrv.navigateHabitRecordListPage();
   }
