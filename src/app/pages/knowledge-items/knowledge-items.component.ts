@@ -1,9 +1,4 @@
-import {
-  Component,
-  EventEmitter,
-  ViewChild,
-  AfterViewInit,
-} from '@angular/core';
+import { Component, EventEmitter, ViewChild, AfterViewInit } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { MatPaginator } from '@angular/material/paginator';
 import { MatSort } from '@angular/material/sort';
@@ -17,12 +12,7 @@ import {
   TagReferenceType,
   UserCollectionItem,
 } from 'src/app/models';
-import {
-  AuthService,
-  ODataService,
-  PreviewObject,
-  UIUtilityService,
-} from '../../services';
+import { AuthService, ODataService, PreviewObject, UIUtilityService } from '../../services';
 import { KnowledgeItemAddToCollDialog } from './knowledge-items-add-coll-dlg.component';
 
 @Component({
@@ -68,12 +58,7 @@ export class KnowledgeItemsComponent implements AfterViewInit {
 
           const top = this.paginator.pageSize;
           const skip = top * this.paginator.pageIndex;
-          return this.odataService.getKnowledgeItems(
-            top,
-            skip,
-            this.sort.active,
-            this.sort.direction
-          );
+          return this.odataService.getKnowledgeItems(top, skip, this.sort.active, this.sort.direction);
         }),
         map((data) => {
           // Flip flag to show that loading has finished.
@@ -146,16 +131,14 @@ export class KnowledgeItemsComponent implements AfterViewInit {
           });
 
           if (collitems.length > 0) {
-            this.odataService
-              .addKnowledgeItemToCollection(collitems)
-              .subscribe({
-                next: () => {
-                  this.uiUtilSrv.showSnackInfo('DONE');
-                },
-                error: (err) => {
-                  this.uiUtilSrv.showSnackInfo(err);
-                },
-              });
+            this.odataService.addKnowledgeItemToCollection(collitems).subscribe({
+              next: () => {
+                this.uiUtilSrv.showSnackInfo('DONE');
+              },
+              error: (err) => {
+                this.uiUtilSrv.showSnackInfo(err);
+              },
+            });
           }
         });
       },

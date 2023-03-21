@@ -21,12 +21,6 @@ import { ResultDialogComponent } from './result-dialog/result-dialog.component';
     SudouComponent,
     ResultDialogComponent,
   ],
-  imports: [
-    CommonModule,
-    MaterialModulesModule,
-    PuzzleGameRoutingModule,
-    TranslocoModule,
-    FormsModule,
-  ],
+  imports: [CommonModule, MaterialModulesModule, PuzzleGameRoutingModule, TranslocoModule, FormsModule],
 })
 export class PuzzleGameModule {}

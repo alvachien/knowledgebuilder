@@ -123,12 +123,7 @@ export class Gobang {
     if (!this._inited) {
       throw new Error('Not initialed');
     }
-    if (
-      row < 0 ||
-      row >= this._dimension ||
-      column < 0 ||
-      column >= this._dimension
-    ) {
+    if (row < 0 || row >= this._dimension || column < 0 || column >= this._dimension) {
       throw new Error('Invalid row or column');
     }
 
@@ -149,12 +144,7 @@ export class Gobang {
       throw new Error('Already finished');
     }
 
-    if (
-      row < 0 ||
-      row >= this._dimension ||
-      column < 0 ||
-      column >= this._dimension
-    ) {
+    if (row < 0 || row >= this._dimension || column < 0 || column >= this._dimension) {
       throw new Error('Invalid row or column');
     }
 
@@ -201,10 +191,7 @@ export class Gobang {
 
     let maxdefendindex = -1;
     this._playAnalysis.forEach((value, index) => {
-      if (
-        maxdefendindex === -1 &&
-        (value.headsealed !== true || value.tailsealed !== true)
-      ) {
+      if (maxdefendindex === -1 && (value.headsealed !== true || value.tailsealed !== true)) {
         maxdefendindex = index;
       } else {
         if (
@@ -218,10 +205,7 @@ export class Gobang {
 
     let maxattackindex = -1;
     this._AIAnalysis.forEach((value, index) => {
-      if (
-        maxattackindex === -1 &&
-        (value.headsealed !== true || value.tailsealed !== true)
-      ) {
+      if (maxattackindex === -1 && (value.headsealed !== true || value.tailsealed !== true)) {
         maxattackindex = index;
       } else {
         if (
@@ -237,14 +221,10 @@ export class Gobang {
     // If the player has risk larger than 3 (and AI is smaller or equal), defend!
     // Else attack!
     if (
-      this._AIAnalysis[maxattackindex].risklevel <
-        this._playAnalysis[maxdefendindex].risklevel &&
+      this._AIAnalysis[maxattackindex].risklevel < this._playAnalysis[maxdefendindex].risklevel &&
       (this._playAnalysis[maxdefendindex].risklevel === 4 ||
         (this._playAnalysis[maxdefendindex].risklevel === 3 &&
-          !(
-            this._playAnalysis[maxdefendindex].headsealed ||
-            this._playAnalysis[maxdefendindex].tailsealed
-          )))
+          !(this._playAnalysis[maxdefendindex].headsealed || this._playAnalysis[maxdefendindex].tailsealed)))
     ) {
       if (this._playAnalysis[maxdefendindex].headsealed) {
         // Head is sealed, go for tail sealed

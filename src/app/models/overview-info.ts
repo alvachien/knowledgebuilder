@@ -8,8 +8,7 @@ export class OverviewInfo {
   public parseData(val: any): void {
     if (val && val.RefType) {
       if (isNaN(+val.RefType)) {
-        this.RefType =
-          TagReferenceType[val.RefType as keyof typeof TagReferenceType];
+        this.RefType = TagReferenceType[val.RefType as keyof typeof TagReferenceType];
       } else {
         this.RefType = +val.RefType;
       }

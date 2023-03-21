@@ -144,12 +144,7 @@ export class SudouUnit {
    * @param ridx2 Second row
    */
   public swapRows(ridx1: number, ridx2: number): SudouUnit {
-    if (
-      ridx1 < 0 ||
-      ridx1 >= SudouUnitSize ||
-      ridx2 < 0 ||
-      ridx2 >= SudouUnitSize
-    ) {
+    if (ridx1 < 0 || ridx1 >= SudouUnitSize || ridx2 < 0 || ridx2 >= SudouUnitSize) {
       throw new Error('index of Sudou Unit is 1 - 3');
     }
 
@@ -176,12 +171,7 @@ export class SudouUnit {
    * @param cidx2 The second column
    */
   public swapColumns(cidx1: number, cidx2: number): SudouUnit {
-    if (
-      cidx1 < 0 ||
-      cidx1 >= SudouUnitSize ||
-      cidx2 < 0 ||
-      cidx2 >= SudouUnitSize
-    ) {
+    if (cidx1 < 0 || cidx1 >= SudouUnitSize || cidx2 < 0 || cidx2 >= SudouUnitSize) {
       throw new Error('index of Sudou Unit is 1 - 3');
     }
 

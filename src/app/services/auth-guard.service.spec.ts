@@ -1,8 +1,5 @@
 import { TestBed } from '@angular/core/testing';
-import {
-  OidcSecurityService,
-  AuthenticatedResult,
-} from 'angular-auth-oidc-client';
+import { OidcSecurityService, AuthenticatedResult } from 'angular-auth-oidc-client';
 import { of } from 'rxjs';
 
 import { AuthGuardService } from './auth-guard.service';

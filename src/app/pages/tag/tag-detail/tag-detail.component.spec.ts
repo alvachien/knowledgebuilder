@@ -37,10 +37,7 @@ describe('TagDetailComponent', () => {
         getTranslocoModule(),
       ],
       declarations: [TagDetailComponent],
-      providers: [
-        UIUtilityService,
-        { provide: ODataService, useValue: odataSvc },
-      ],
+      providers: [UIUtilityService, { provide: ODataService, useValue: odataSvc }],
     }).compileComponents();
   }));
 

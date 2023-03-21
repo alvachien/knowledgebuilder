@@ -1,20 +1,9 @@
-import {
-  AfterViewInit,
-  Component,
-  EventEmitter,
-  ViewChild,
-} from '@angular/core';
+import { AfterViewInit, Component, EventEmitter, ViewChild } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { MatPaginator } from '@angular/material/paginator';
 import { MatSort } from '@angular/material/sort';
 import { merge, of as observableOf } from 'rxjs';
-import {
-  catchError,
-  finalize,
-  map,
-  startWith,
-  switchMap,
-} from 'rxjs/operators';
+import { catchError, finalize, map, startWith, switchMap } from 'rxjs/operators';
 
 import { UserHabitRecordView } from 'src/app/models';
 import { ODataService, UIUtilityService } from 'src/app/services';
@@ -54,9 +43,7 @@ export class HabitRecordListComponent implements AfterViewInit {
 
   public getUserDisplayAs(usrId: string): string {
     if (usrId && this.authService.userDetail) {
-      const idx = this.authService.userDetail.awardUsers.findIndex(
-        (val) => val.targetUser === usrId
-      );
+      const idx = this.authService.userDetail.awardUsers.findIndex((val) => val.targetUser === usrId);
       if (idx !== -1) {
         return this.authService.userDetail.awardUsers[idx].displayAs;
       }
@@ -73,12 +60,7 @@ export class HabitRecordListComponent implements AfterViewInit {
         switchMap(() => {
           const top = this.paginator.pageSize;
           const skip = top * this.paginator.pageIndex;
-          return this.odataSrv.getUserHabitRecordViews(
-            top,
-            skip,
-            this.sort.active,
-            this.sort.direction
-          );
+          return this.odataSrv.getUserHabitRecordViews(top, skip, this.sort.active, this.sort.direction);
         }),
         finalize(() => (this.isLoadingResults = false)),
         map((data) => {
@@ -110,15 +92,13 @@ export class HabitRecordListComponent implements AfterViewInit {
     this.uiUtilSrv.navigateHabitRecordDisplayPage();
   }
   public onDeleteRecord(row: UserHabitRecordView): void {
-    this.odataSrv
-      .deleteUserHabitRecord(row.habitID ?? 0, row.recordDateString, row.subID)
-      .subscribe({
-        next: () => {
-          this.uiUtilSrv.showSnackInfo('Delete successfully');
-        },
-        error: (err) => {
-          this.uiUtilSrv.showSnackInfo(err);
-        },
-      });
+    this.odataSrv.deleteUserHabitRecord(row.habitID ?? 0, row.recordDateString, row.subID).subscribe({
+      next: () => {
+        this.uiUtilSrv.showSnackInfo('Delete successfully');
+      },
+      error: (err) => {
+        this.uiUtilSrv.showSnackInfo(err);
+      },
+    });
   }
 }

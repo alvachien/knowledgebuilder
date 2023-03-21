@@ -1,10 +1,4 @@
-import {
-  Component,
-  EventEmitter,
-  ViewChild,
-  AfterViewInit,
-  OnInit,
-} from '@angular/core';
+import { Component, EventEmitter, ViewChild, AfterViewInit, OnInit } from '@angular/core';
 import { MatPaginator } from '@angular/material/paginator';
 import { MatSort } from '@angular/material/sort';
 import moment from 'moment';
@@ -20,11 +14,7 @@ import {
   ExerciseItemUserScore,
   TagReferenceType,
 } from 'src/app/models';
-import {
-  ODataService,
-  PreviewObject,
-  UIUtilityService,
-} from '../../../services';
+import { ODataService, PreviewObject, UIUtilityService } from '../../../services';
 
 @Component({
   selector: 'app-exercise-item-score',
@@ -50,12 +40,8 @@ export class ExerciseItemScoreComponent implements OnInit, AfterViewInit {
   @ViewChild(MatPaginator) paginator!: MatPaginator;
   @ViewChild(MatSort) sort!: MatSort;
 
-  constructor(
-    private odataService: ODataService,
-    private uiUtilSrv: UIUtilityService
-  ) {
-    this.allOperators =
-      UIDisplayStringUtil.getGeneralFilterOperatorDisplayStrings();
+  constructor(private odataService: ODataService, private uiUtilSrv: UIUtilityService) {
+    this.allOperators = UIDisplayStringUtil.getGeneralFilterOperatorDisplayStrings();
     this.allFields = [
       {
         displayas: 'Content',
@@ -88,12 +74,7 @@ export class ExerciseItemScoreComponent implements OnInit, AfterViewInit {
     // If the user changes the sort order, reset back to the first page.
     this.sort.sortChange.subscribe(() => (this.paginator.pageIndex = 0));
 
-    merge(
-      this.sort.sortChange,
-      this.paginator.page,
-      this.refreshEvent,
-      this.subjFilters
-    )
+    merge(this.sort.sortChange, this.paginator.page, this.refreshEvent, this.subjFilters)
       .pipe(
         startWith({}),
         switchMap(() => {

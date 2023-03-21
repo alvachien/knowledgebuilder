@@ -24,10 +24,7 @@ export class ImageUploadComponent {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   uploadResults: any[] = [];
 
-  constructor(
-    public dialogRef: MatDialogRef<ImageUploadComponent>,
-    public uploadService: ODataService
-  ) {}
+  constructor(public dialogRef: MatDialogRef<ImageUploadComponent>, public uploadService: ODataService) {}
 
   onFilesAdded() {
     const files: { [key: string]: File } = this.file.nativeElement.files;

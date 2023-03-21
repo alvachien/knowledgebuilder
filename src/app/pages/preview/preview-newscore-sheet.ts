@@ -1,10 +1,7 @@
 /* eslint-disable @angular-eslint/component-class-suffix */
 /* eslint-disable no-underscore-dangle */
 import { Component, Inject } from '@angular/core';
-import {
-  MatBottomSheetRef,
-  MAT_BOTTOM_SHEET_DATA,
-} from '@angular/material/bottom-sheet';
+import { MatBottomSheetRef, MAT_BOTTOM_SHEET_DATA } from '@angular/material/bottom-sheet';
 import { OidcSecurityService } from 'angular-auth-oidc-client';
 
 import { ExerciseItemUserScore } from 'src/app/models';

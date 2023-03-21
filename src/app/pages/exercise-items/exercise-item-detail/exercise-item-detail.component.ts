@@ -8,11 +8,7 @@ import { KatexOptions } from 'ngx-markdown';
 import { MatChipInputEvent } from '@angular/material/chips';
 import { UIMode } from 'actslib';
 
-import {
-  ExerciseItem,
-  ExerciseItemType,
-  getExerciseItemTypeNames,
-} from '../../../models/exercise-item';
+import { ExerciseItem, ExerciseItemType, getExerciseItemTypeNames } from '../../../models/exercise-item';
 import { ODataService, UIUtilityService } from '../../../services';
 import { ImageUploadComponent } from '../../image-upload/image-upload.component';
 
@@ -104,17 +100,15 @@ export class ExerciseItemDetailComponent implements OnInit, OnDestroy {
         }
 
         if (this.routerID !== -1) {
-          this.odataService
-            .readExerciseItem(this.routerID, this.uiMode === UIMode.Update)
-            .subscribe({
-              next: (exitem) => {
-                this.onSetItemData(exitem);
-                this.itemObject = exitem;
-              },
-              error: (err) => {
-                console.error(err);
-              },
-            });
+          this.odataService.readExerciseItem(this.routerID, this.uiMode === UIMode.Update).subscribe({
+            next: (exitem) => {
+              this.onSetItemData(exitem);
+              this.itemObject = exitem;
+            },
+            error: (err) => {
+              console.error(err);
+            },
+          });
         }
       },
       error: (err) => {
@@ -143,8 +137,7 @@ export class ExerciseItemDetailComponent implements OnInit, OnDestroy {
 
       // Create a new exercise item
       this.itemObject = new ExerciseItem();
-      this.itemObject.ItemType = this.itemFormGroup.get('typeControl')
-        ?.value as ExerciseItemType;
+      this.itemObject.ItemType = this.itemFormGroup.get('typeControl')?.value as ExerciseItemType;
       this.itemObject.Content = this.content;
       this.itemObject.Tags = this.tags;
       this.itemObject.Answer = this.answerContent;
@@ -168,8 +161,7 @@ export class ExerciseItemDetailComponent implements OnInit, OnDestroy {
 
       // Update existing exercise item
       if (this.itemObject) {
-        this.itemObject.ItemType = this.itemFormGroup.get('typeControl')
-          ?.value as ExerciseItemType;
+        this.itemObject.ItemType = this.itemFormGroup.get('typeControl')?.value as ExerciseItemType;
         this.itemObject.Content = this.content;
         this.itemObject.Tags = this.tags;
         this.itemObject.Answer = this.answerContent;

@@ -100,14 +100,10 @@ export class WelcomeComponent implements OnInit {
         val.forEach((oi) => {
           if (oi.RefType === TagReferenceType.KnowledgeItem) {
             this.countOfKnowledge = oi.Count;
-            this.tiles[2].text = `Knowledge Items: ${
-              this.countOfKnowledge ? this.countOfKnowledge : 0
-            }`;
+            this.tiles[2].text = `Knowledge Items: ${this.countOfKnowledge ? this.countOfKnowledge : 0}`;
           } else if (oi.RefType === TagReferenceType.ExerciseItem) {
             this.countOfExercise = oi.Count;
-            this.tiles[3].text = `Exercise Items: ${
-              this.countOfExercise ? this.countOfExercise : 0
-            }`;
+            this.tiles[3].text = `Exercise Items: ${this.countOfExercise ? this.countOfExercise : 0}`;
           }
         });
       },

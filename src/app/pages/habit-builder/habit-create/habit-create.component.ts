@@ -109,9 +109,7 @@ export const getHabitFromForm = (form: UntypedFormGroup): UserHabit => {
   return habit;
 };
 
-export const habitFormValidator: ValidatorFn = (
-  control: AbstractControl
-): ValidationErrors | null => {
+export const habitFormValidator: ValidatorFn = (control: AbstractControl): ValidationErrors | null => {
   const habit = getHabitFromForm(control as UntypedFormGroup);
 
   return habit.isValid ? null : { invalidInputs: true };
@@ -162,14 +160,8 @@ export class HabitCreateComponent implements OnInit {
         // ctgyCtrl: new FormControl(HabitCategory.Positive, Validators.required),
         validFromCtrl: new UntypedFormControl(moment(), Validators.required),
         validToCtrl: new UntypedFormControl(moment(), Validators.required),
-        freqCtrl: new UntypedFormControl(
-          HabitFrequency.Weekly,
-          Validators.required
-        ),
-        compCtgyCtrl: new UntypedFormControl(
-          HabitCompleteCategory.NumberOfTimes,
-          Validators.required
-        ),
+        freqCtrl: new UntypedFormControl(HabitFrequency.Weekly, Validators.required),
+        compCtgyCtrl: new UntypedFormControl(HabitCompleteCategory.NumberOfTimes, Validators.required),
         compCondCtrl: new UntypedFormControl(),
         startDateCtrl: new UntypedFormControl(),
       },
@@ -188,9 +180,7 @@ export class HabitCreateComponent implements OnInit {
   }
   public getUserDisplayAs(usrId: string): string {
     if (usrId && this.authService.userDetail) {
-      const idx = this.authService.userDetail.awardUsers.findIndex(
-        (val) => val.targetUser === usrId
-      );
+      const idx = this.authService.userDetail.awardUsers.findIndex((val) => val.targetUser === usrId);
       if (idx !== -1) {
         return this.authService.userDetail.awardUsers[idx].displayAs;
       }
@@ -212,11 +202,8 @@ export class HabitCreateComponent implements OnInit {
   // Step 1: Habit
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   public onFreqencyAndCompleteCategoryChange(val: any): void {
-    const compCtgy: HabitCompleteCategory = this.firstFormGroup.get(
-      'compCtgyCtrl'
-    )?.value as HabitCompleteCategory;
-    const frq: HabitFrequency = this.firstFormGroup.get('freqCtrl')
-      ?.value as HabitFrequency;
+    const compCtgy: HabitCompleteCategory = this.firstFormGroup.get('compCtgyCtrl')?.value as HabitCompleteCategory;
+    const frq: HabitFrequency = this.firstFormGroup.get('freqCtrl')?.value as HabitFrequency;
     if (frq === HabitFrequency.Daily) {
       if (compCtgy === HabitCompleteCategory.NumberOfTimes) {
         this.firstFormGroup.get('compCondCtrl')?.disable();

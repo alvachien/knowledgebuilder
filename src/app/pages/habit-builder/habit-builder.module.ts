@@ -14,10 +14,7 @@ import { HabitRecordListComponent } from './habit-record-list';
 import { HabitRecordDetailComponent } from './habit-record-detail';
 import { HabitCreateComponent } from './habit-create';
 import { HabitRecordCreateComponent } from './habit-record-create';
-import {
-  HabitPointCreateDialog,
-  HabitPointsListComponent,
-} from './habit-points-list';
+import { HabitPointCreateDialog, HabitPointsListComponent } from './habit-points-list';
 
 @NgModule({
   declarations: [

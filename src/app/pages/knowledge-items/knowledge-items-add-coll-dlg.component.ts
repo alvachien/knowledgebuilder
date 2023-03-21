@@ -41,9 +41,7 @@ export class KnowledgeItemAddToCollDialog implements AfterViewInit {
   public isItemExistedInColl(coll: UserCollection): boolean {
     return (
       coll.Items.findIndex(
-        (item) =>
-          item.RefID === this.data.knowledgeitemid &&
-          item.RefType === TagReferenceType.KnowledgeItem
+        (item) => item.RefID === this.data.knowledgeitemid && item.RefType === TagReferenceType.KnowledgeItem
       ) !== -1
     );
   }

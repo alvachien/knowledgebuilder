@@ -1,13 +1,7 @@
 import { AfterViewInit, Component, OnInit, ViewChild } from '@angular/core';
 import { MatPaginator } from '@angular/material/paginator';
 import { BehaviorSubject, merge, of as observableOf } from 'rxjs';
-import {
-  catchError,
-  finalize,
-  map,
-  startWith,
-  switchMap,
-} from 'rxjs/operators';
+import { catchError, finalize, map, startWith, switchMap } from 'rxjs/operators';
 
 import {
   ExerciseItemSearchResult,
@@ -20,11 +14,7 @@ import {
   UIDisplayString,
   UIDisplayStringUtil,
 } from 'src/app/models';
-import {
-  ODataService,
-  PreviewObject,
-  UIUtilityService,
-} from 'src/app/services';
+import { ODataService, PreviewObject, UIUtilityService } from 'src/app/services';
 
 @Component({
   selector: 'app-exercise-item-search',
@@ -46,22 +36,12 @@ export class ExerciseItemSearchComponent implements OnInit, AfterViewInit {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   subjFilters: BehaviorSubject<any> = new BehaviorSubject([]);
   // Result
-  displayedColumns: string[] = [
-    'id',
-    'itemtype',
-    'tags',
-    'knowledgeitem',
-    'createdat',
-  ];
+  displayedColumns: string[] = ['id', 'itemtype', 'tags', 'knowledgeitem', 'createdat'];
   dataSource: ExerciseItemSearchResult[] = [];
 
-  constructor(
-    private odataService: ODataService,
-    private uiUtilSrv: UIUtilityService
-  ) {
+  constructor(private odataService: ODataService, private uiUtilSrv: UIUtilityService) {
     this.resultsLength = 0;
-    this.allOperators =
-      UIDisplayStringUtil.getGeneralFilterOperatorDisplayStrings();
+    this.allOperators = UIDisplayStringUtil.getGeneralFilterOperatorDisplayStrings();
     this.allFields = [
       {
         displayas: 'Content',

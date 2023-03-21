@@ -1,15 +1,6 @@
-import {
-  HttpClient,
-  HttpErrorResponse,
-  HttpHeaders,
-  HttpParams,
-} from '@angular/common/http';
+import { HttpClient, HttpErrorResponse, HttpHeaders, HttpParams } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import {
-  EventTypes,
-  OidcSecurityService,
-  PublicEventsService,
-} from 'angular-auth-oidc-client';
+import { EventTypes, OidcSecurityService, PublicEventsService } from 'angular-auth-oidc-client';
 import { catchError, map, Observable, throwError } from 'rxjs';
 import { environment } from 'src/environments/environment';
 
@@ -94,27 +85,23 @@ export class AuthService {
   }
 
   private checkAuth() {
-    this.authService
-      .checkAuth()
-      .subscribe(({ isAuthenticated, userData, accessToken }) => {
-        console.debug(
-          `checkAuth with value ${isAuthenticated}, ${accessToken}`
-        );
-        if (isAuthenticated) {
-          this._isAuthenticated = true;
-          this._currentUserId = userData.sub;
-          this._currentUserName = userData.name;
-          this._accessToken = accessToken;
+    this.authService.checkAuth().subscribe(({ isAuthenticated, userData, accessToken }) => {
+      console.debug(`checkAuth with value ${isAuthenticated}, ${accessToken}`);
+      if (isAuthenticated) {
+        this._isAuthenticated = true;
+        this._currentUserId = userData.sub;
+        this._currentUserName = userData.name;
+        this._accessToken = accessToken;
 
-          this.getUserDetail().subscribe();
-        } else {
-          this._isAuthenticated = false;
-          this._currentUserId = '';
-          this._currentUserName = '';
-          this._accessToken = '';
-          this._userDetail = undefined;
-        }
-      });
+        this.getUserDetail().subscribe();
+      } else {
+        this._isAuthenticated = false;
+        this._currentUserId = '';
+        this._currentUserName = '';
+        this._accessToken = '';
+        this._userDetail = undefined;
+      }
+    });
   }
 
   public logon(): void {
@@ -163,12 +150,7 @@ export class AuthService {
           return this._userDetail;
         }),
         catchError((error: HttpErrorResponse) =>
-          throwError(
-            () =>
-              new Error(
-                error.statusText + '; ' + error.error + '; ' + error.message
-              )
-          )
+          throwError(() => new Error(error.statusText + '; ' + error.error + '; ' + error.message))
         )
       );
   }

@@ -1,19 +1,6 @@
-import {
-  HttpClientTestingModule,
-  HttpTestingController,
-} from '@angular/common/http/testing';
-import {
-  discardPeriodicTasks,
-  fakeAsync,
-  flush,
-  TestBed,
-  tick,
-  waitForAsync,
-} from '@angular/core/testing';
-import {
-  OidcSecurityService,
-  PublicEventsService,
-} from 'angular-auth-oidc-client';
+import { HttpClientTestingModule, HttpTestingController } from '@angular/common/http/testing';
+import { discardPeriodicTasks, fakeAsync, flush, TestBed, tick, waitForAsync } from '@angular/core/testing';
+import { OidcSecurityService, PublicEventsService } from 'angular-auth-oidc-client';
 import { of } from 'rxjs';
 import { environment } from 'src/environments/environment';
 
@@ -31,19 +18,12 @@ describe('AuthService', () => {
   let registerForEventsSpy: SafeAny;
 
   beforeAll(() => {
-    securService = jasmine.createSpyObj('OidcSecurityService', [
-      'checkAuth',
-      'authorize',
-    ]);
+    securService = jasmine.createSpyObj('OidcSecurityService', ['checkAuth', 'authorize']);
     checkAuthSpy = securService.checkAuth.and.returnValue(of({}));
     authorizeSpy = securService.authorize.and.returnValue();
 
-    eventService = jasmine.createSpyObj('PublicEventsService', [
-      'registerForEvents',
-    ]);
-    registerForEventsSpy = eventService.registerForEvents.and.returnValue(
-      of({})
-    );
+    eventService = jasmine.createSpyObj('PublicEventsService', ['registerForEvents']);
+    registerForEventsSpy = eventService.registerForEvents.and.returnValue(of({}));
   });
 
   beforeEach(waitForAsync(() => {
@@ -111,11 +91,9 @@ describe('AuthService', () => {
 
       const callurl = `${environment.apiurlRoot}/InvitedUsers`;
       // Service should have made one request to GET data from expected URL
-      const req: SafeAny = httpTestingController.expectOne(
-        (requrl: SafeAny) => {
-          return requrl.method === 'GET' && requrl.url === callurl;
-        }
-      );
+      const req: SafeAny = httpTestingController.expectOne((requrl: SafeAny) => {
+        return requrl.method === 'GET' && requrl.url === callurl;
+      });
 
       expect(req.request.params.get('$expand')).toEqual('AwardUsers');
 

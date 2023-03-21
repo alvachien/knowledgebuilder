@@ -1,9 +1,5 @@
 import { Pipe, PipeTransform } from '@angular/core';
-import {
-  UIDisplayString,
-  GeneralFilterOperatorEnum,
-  GeneralFilterValueType,
-} from '../models';
+import { UIDisplayString, GeneralFilterOperatorEnum, GeneralFilterValueType } from '../models';
 
 @Pipe({
   name: 'operatorFilter',
@@ -18,10 +14,7 @@ export class OperatorFilterPipe implements PipeTransform {
       if (args) {
         switch (args) {
           case GeneralFilterValueType.string: {
-            if (
-              value.value === GeneralFilterOperatorEnum.Like ||
-              value.value === GeneralFilterOperatorEnum.Equal
-            ) {
+            if (value.value === GeneralFilterOperatorEnum.Like || value.value === GeneralFilterOperatorEnum.Equal) {
               return true;
             }
             return false;
@@ -35,20 +28,14 @@ export class OperatorFilterPipe implements PipeTransform {
           }
 
           case GeneralFilterValueType.number: {
-            if (
-              value.value === GeneralFilterOperatorEnum.Like ||
-              value.value === GeneralFilterOperatorEnum.Between
-            ) {
+            if (value.value === GeneralFilterOperatorEnum.Like || value.value === GeneralFilterOperatorEnum.Between) {
               return false;
             }
             return true;
           }
 
           case GeneralFilterValueType.date: {
-            if (
-              value.value === GeneralFilterOperatorEnum.Like ||
-              value.value === GeneralFilterOperatorEnum.Between
-            ) {
+            if (value.value === GeneralFilterOperatorEnum.Like || value.value === GeneralFilterOperatorEnum.Between) {
               return false;
             }
             return true;

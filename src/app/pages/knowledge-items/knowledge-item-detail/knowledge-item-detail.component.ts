@@ -1,9 +1,5 @@
 import { Component, OnInit, OnDestroy, ViewChild } from '@angular/core';
-import {
-  UntypedFormGroup,
-  UntypedFormControl,
-  Validators,
-} from '@angular/forms';
+import { UntypedFormGroup, UntypedFormControl, Validators } from '@angular/forms';
 import { ReplaySubject } from 'rxjs';
 import { ActivatedRoute } from '@angular/router';
 import { MatDialog } from '@angular/material/dialog';
@@ -14,11 +10,7 @@ import { UIMode } from 'actslib';
 
 import { ODataService, UIUtilityService } from '../../../services';
 import { ImageUploadComponent } from '../../image-upload/image-upload.component';
-import {
-  KnowledgeItemCategory,
-  KnowledgeItem,
-  getKnowledgeItemCategoryNames,
-} from 'src/app/models';
+import { KnowledgeItemCategory, KnowledgeItem, getKnowledgeItemCategoryNames } from 'src/app/models';
 
 @Component({
   selector: 'app-knowledge-item-detail',
@@ -106,29 +98,25 @@ export class KnowledgeItemDetailComponent implements OnInit, OnDestroy {
         }
 
         if (this.routerID !== -1) {
-          this.odataService
-            .readKnowledgeItem(this.routerID, this.uiMode === UIMode.Update)
-            .subscribe({
-              next: (val2) => {
-                this.itemFormGroup.get('idControl')?.setValue(val2.ID);
-                this.itemFormGroup.get('titleControl')?.setValue(val2.Title);
-                this.itemFormGroup
-                  .get('ctgyControl')
-                  ?.setValue(+val2.ItemCategory);
-                this.content = val2.Content;
-                this.tags = val2.Tags;
-                this.currentItem = val2;
+          this.odataService.readKnowledgeItem(this.routerID, this.uiMode === UIMode.Update).subscribe({
+            next: (val2) => {
+              this.itemFormGroup.get('idControl')?.setValue(val2.ID);
+              this.itemFormGroup.get('titleControl')?.setValue(val2.Title);
+              this.itemFormGroup.get('ctgyControl')?.setValue(+val2.ItemCategory);
+              this.content = val2.Content;
+              this.tags = val2.Tags;
+              this.currentItem = val2;
 
-                if (this.isDisplayMode) {
-                  this.itemFormGroup.disable(); // Readonly mode
-                } else {
-                  this.itemFormGroup.markAsPristine();
-                }
-              },
-              error: (err) => {
-                console.error(err);
-              },
-            });
+              if (this.isDisplayMode) {
+                this.itemFormGroup.disable(); // Readonly mode
+              } else {
+                this.itemFormGroup.markAsPristine();
+              }
+            },
+            error: (err) => {
+              console.error(err);
+            },
+          });
         } else {
           this.itemFormGroup.get('idControl')?.setValue('NEW');
           this.itemFormGroup.get('idControl')?.disable();
@@ -186,8 +174,7 @@ export class KnowledgeItemDetailComponent implements OnInit, OnDestroy {
 
       // Update a new knowlege item
       if (this.currentItem) {
-        this.currentItem.ItemCategory =
-          this.itemFormGroup.get('ctgyControl')?.value;
+        this.currentItem.ItemCategory = this.itemFormGroup.get('ctgyControl')?.value;
         this.currentItem.Content = this.content;
         this.currentItem.Title = this.itemFormGroup.get('titleControl')?.value;
         this.currentItem.Tags = this.tags;

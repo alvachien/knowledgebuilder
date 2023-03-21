@@ -1,20 +1,9 @@
-import {
-  Component,
-  ViewChild,
-  AfterViewInit,
-  EventEmitter,
-} from '@angular/core';
+import { Component, ViewChild, AfterViewInit, EventEmitter } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { MatPaginator } from '@angular/material/paginator';
 import { MatSort } from '@angular/material/sort';
 import { merge, of as observableOf } from 'rxjs';
-import {
-  catchError,
-  finalize,
-  map,
-  startWith,
-  switchMap,
-} from 'rxjs/operators';
+import { catchError, finalize, map, startWith, switchMap } from 'rxjs/operators';
 import { TagReferenceType, UserCollectionItem } from 'src/app/models';
 
 import {
@@ -23,12 +12,7 @@ import {
   ExerciseItemUserScore,
   getExerciseItemTypeName,
 } from '../../models/exercise-item';
-import {
-  AuthService,
-  ODataService,
-  PreviewObject,
-  UIUtilityService,
-} from '../../services';
+import { AuthService, ODataService, PreviewObject, UIUtilityService } from '../../services';
 import { ExerciseItemAddToCollDialog } from './exercise-items-add-coll-dlg.component';
 import { ExerciseItemNewPracticeDialog } from './exercise-items-newpractice-dlg.component';
 
@@ -38,13 +22,7 @@ import { ExerciseItemNewPracticeDialog } from './exercise-items-newpractice-dlg.
   styleUrls: ['./exercise-items.component.scss'],
 })
 export class ExerciseItemsComponent implements AfterViewInit {
-  displayedColumns: string[] = [
-    'id',
-    'itemtype',
-    'tags',
-    'knowledgeitem',
-    'createdat',
-  ];
+  displayedColumns: string[] = ['id', 'itemtype', 'tags', 'knowledgeitem', 'createdat'];
   dataSource: ExerciseItem[] = [];
 
   resultsLength = 0;
@@ -77,12 +55,7 @@ export class ExerciseItemsComponent implements AfterViewInit {
           this.isLoadingResults = true;
           const top = this.paginator.pageSize;
           const skip = top * this.paginator.pageIndex;
-          return this.odataService.getExerciseItems(
-            top,
-            skip,
-            this.sort.active,
-            this.sort.direction
-          );
+          return this.odataService.getExerciseItems(top, skip, this.sort.active, this.sort.direction);
         }),
         finalize(() => (this.isLoadingResults = false)),
         map((data) => {

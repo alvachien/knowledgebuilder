@@ -217,8 +217,5 @@ export class CurrentUserDialog {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   displayedColumns: any[] = ['userid', 'username', 'displayas'];
 
-  constructor(
-    public dialogRef: MatDialogRef<CurrentUserDialog>,
-    public authSrv: AuthService
-  ) {}
+  constructor(public dialogRef: MatDialogRef<CurrentUserDialog>, public authSrv: AuthService) {}
 }

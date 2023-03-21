@@ -1,8 +1,5 @@
 import { TestBed, waitForAsync } from '@angular/core/testing';
-import {
-  HttpClientTestingModule,
-  HttpTestingController,
-} from '@angular/common/http/testing';
+import { HttpClientTestingModule, HttpTestingController } from '@angular/common/http/testing';
 import { RouterTestingModule } from '@angular/router/testing';
 
 import { ODataService } from './odata.service';
@@ -70,11 +67,9 @@ describe('ODataService', () => {
       });
 
       // Service should have made one request to GET data from expected URL
-      const req: SafeAny = httpTestingController.expectOne(
-        (requrl: SafeAny) => {
-          return requrl.method === 'GET' && requrl.url === callurl;
-        }
-      );
+      const req: SafeAny = httpTestingController.expectOne((requrl: SafeAny) => {
+        return requrl.method === 'GET' && requrl.url === callurl;
+      });
 
       // Respond with the mock data
       req.flush('Metadata');
@@ -91,11 +86,9 @@ describe('ODataService', () => {
         },
       });
 
-      const req: SafeAny = httpTestingController.expectOne(
-        (requrl: SafeAny) => {
-          return requrl.method === 'GET' && requrl.url === callurl;
-        }
-      );
+      const req: SafeAny = httpTestingController.expectOne((requrl: SafeAny) => {
+        return requrl.method === 'GET' && requrl.url === callurl;
+      });
 
       // respond with a 404 and the error message in the body
       req.flush(msg, { status: 404, statusText: 'Not Found' });
@@ -106,11 +99,9 @@ describe('ODataService', () => {
       service.getMetadata().subscribe({});
 
       // Service should have made one request to GET data from expected URL
-      const req: SafeAny = httpTestingController.expectOne(
-        (requrl: SafeAny) => {
-          return requrl.method === 'GET' && requrl.url === callurl;
-        }
-      );
+      const req: SafeAny = httpTestingController.expectOne((requrl: SafeAny) => {
+        return requrl.method === 'GET' && requrl.url === callurl;
+      });
 
       // Respond with the mock data
       req.flush('Metadata');
@@ -177,15 +168,9 @@ describe('ODataService', () => {
         });
 
         // Service should have made one request to GET data from expected URL
-        const req: SafeAny = httpTestingController.expectOne(
-          (requrl: SafeAny) => {
-            return (
-              requrl.method === 'GET' &&
-              requrl.url === callurl &&
-              requrl.params.has('$count')
-            );
-          }
-        );
+        const req: SafeAny = httpTestingController.expectOne((requrl: SafeAny) => {
+          return requrl.method === 'GET' && requrl.url === callurl && requrl.params.has('$count');
+        });
         expect(req.request.params.get('$count')).toEqual('true');
 
         // Respond with the mock data
@@ -202,23 +187,19 @@ describe('ODataService', () => {
       });
 
       it('should add parameter', () => {
-        service
-          .getKnowledgeItems(100, 20, 'createdat', 'asc', `Title eq 'a'`)
-          .subscribe({
-            next: (val) => {
-              expect(val).toBeTruthy();
-            },
-            error: (err) => {
-              expect(err).toBeFalsy();
-            },
-          });
+        service.getKnowledgeItems(100, 20, 'createdat', 'asc', `Title eq 'a'`).subscribe({
+          next: (val) => {
+            expect(val).toBeTruthy();
+          },
+          error: (err) => {
+            expect(err).toBeFalsy();
+          },
+        });
 
         // Service should have made one request to GET data from expected URL
-        const req: SafeAny = httpTestingController.expectOne(
-          (requrl: SafeAny) => {
-            return requrl.method === 'GET' && requrl.url === callurl;
-          }
-        );
+        const req: SafeAny = httpTestingController.expectOne((requrl: SafeAny) => {
+          return requrl.method === 'GET' && requrl.url === callurl;
+        });
         expect(req.request.params.get('$count')).toEqual('true');
         expect(req.request.params.get('$top')).toEqual('100');
         expect(req.request.params.get('$skip')).toEqual('20');
@@ -243,11 +224,9 @@ describe('ODataService', () => {
           },
         });
 
-        const req: SafeAny = httpTestingController.expectOne(
-          (requrl: SafeAny) => {
-            return requrl.method === 'GET' && requrl.url === callurl;
-          }
-        );
+        const req: SafeAny = httpTestingController.expectOne((requrl: SafeAny) => {
+          return requrl.method === 'GET' && requrl.url === callurl;
+        });
 
         // respond with a 404 and the error message in the body
         req.flush(msg, { status: 404, statusText: 'Not Found' });
@@ -291,19 +270,15 @@ describe('ODataService', () => {
           },
         });
 
-        const req: SafeAny = httpTestingController.expectOne(
-          (requrl: SafeAny) => {
-            return requrl.method === 'GET' && requrl.url === callurl + '(1)';
-          }
-        );
+        const req: SafeAny = httpTestingController.expectOne((requrl: SafeAny) => {
+          return requrl.method === 'GET' && requrl.url === callurl + '(1)';
+        });
 
         // respond with a 404 and the error message in the body
         req.flush({
           ID: 1,
         });
-        const idx = service.bufferedKnowledgeItems.findIndex(
-          (val) => val.ID === 1
-        );
+        const idx = service.bufferedKnowledgeItems.findIndex((val) => val.ID === 1);
         expect(idx).not.toEqual(-1);
 
         service.readKnowledgeItem(1).subscribe({
@@ -330,11 +305,9 @@ describe('ODataService', () => {
           },
         });
 
-        const req: SafeAny = httpTestingController.expectOne(
-          (requrl: SafeAny) => {
-            return requrl.method === 'GET' && requrl.url === callurl + '(1)';
-          }
-        );
+        const req: SafeAny = httpTestingController.expectOne((requrl: SafeAny) => {
+          return requrl.method === 'GET' && requrl.url === callurl + '(1)';
+        });
 
         // respond with a 404 and the error message in the body
         req.flush(msg, { status: 404, statusText: 'Not Found' });
@@ -383,11 +356,9 @@ describe('ODataService', () => {
           },
         });
 
-        const req: SafeAny = httpTestingController.expectOne(
-          (requrl: SafeAny) => {
-            return requrl.method === 'POST' && requrl.url === callurl;
-          }
-        );
+        const req: SafeAny = httpTestingController.expectOne((requrl: SafeAny) => {
+          return requrl.method === 'POST' && requrl.url === callurl;
+        });
 
         // respond with a 404 and the error message in the body
         req.flush({
@@ -405,11 +376,9 @@ describe('ODataService', () => {
           },
         });
 
-        const req: SafeAny = httpTestingController.expectOne(
-          (requrl: SafeAny) => {
-            return requrl.method === 'POST' && requrl.url === callurl;
-          }
-        );
+        const req: SafeAny = httpTestingController.expectOne((requrl: SafeAny) => {
+          return requrl.method === 'POST' && requrl.url === callurl;
+        });
 
         // respond with a 404 and the error message in the body
         req.flush(msg, { status: 404, statusText: 'Not Found' });
@@ -455,15 +424,9 @@ describe('ODataService', () => {
         });
 
         // Service should have made one request to GET data from expected URL
-        const req: SafeAny = httpTestingController.expectOne(
-          (requrl: SafeAny) => {
-            return (
-              requrl.method === 'GET' &&
-              requrl.url === callurl &&
-              requrl.params.has('$count')
-            );
-          }
-        );
+        const req: SafeAny = httpTestingController.expectOne((requrl: SafeAny) => {
+          return requrl.method === 'GET' && requrl.url === callurl && requrl.params.has('$count');
+        });
         expect(req.request.params.get('$count')).toEqual('true');
 
         // Respond with the mock data
@@ -479,23 +442,19 @@ describe('ODataService', () => {
       });
 
       it('should add parameter', () => {
-        service
-          .getExerciseItems(100, 20, 'createdat', 'asc', `Title eq 'a'`)
-          .subscribe({
-            next: (val) => {
-              expect(val).toBeTruthy();
-            },
-            error: (err) => {
-              expect(err).toBeFalsy();
-            },
-          });
+        service.getExerciseItems(100, 20, 'createdat', 'asc', `Title eq 'a'`).subscribe({
+          next: (val) => {
+            expect(val).toBeTruthy();
+          },
+          error: (err) => {
+            expect(err).toBeFalsy();
+          },
+        });
 
         // Service should have made one request to GET data from expected URL
-        const req: SafeAny = httpTestingController.expectOne(
-          (requrl: SafeAny) => {
-            return requrl.method === 'GET' && requrl.url === callurl;
-          }
-        );
+        const req: SafeAny = httpTestingController.expectOne((requrl: SafeAny) => {
+          return requrl.method === 'GET' && requrl.url === callurl;
+        });
         expect(req.request.params.get('$count')).toEqual('true');
         expect(req.request.params.get('$top')).toEqual('100');
         expect(req.request.params.get('$skip')).toEqual('20');
@@ -520,11 +479,9 @@ describe('ODataService', () => {
           },
         });
 
-        const req: SafeAny = httpTestingController.expectOne(
-          (requrl: SafeAny) => {
-            return requrl.method === 'GET' && requrl.url === callurl;
-          }
-        );
+        const req: SafeAny = httpTestingController.expectOne((requrl: SafeAny) => {
+          return requrl.method === 'GET' && requrl.url === callurl;
+        });
 
         // respond with a 404 and the error message in the body
         req.flush(msg, { status: 404, statusText: 'Not Found' });
@@ -568,19 +525,15 @@ describe('ODataService', () => {
           },
         });
 
-        const req: SafeAny = httpTestingController.expectOne(
-          (requrl: SafeAny) => {
-            return requrl.method === 'GET' && requrl.url === callurl + '(1)';
-          }
-        );
+        const req: SafeAny = httpTestingController.expectOne((requrl: SafeAny) => {
+          return requrl.method === 'GET' && requrl.url === callurl + '(1)';
+        });
 
         // respond with a 404 and the error message in the body
         req.flush({
           ID: 1,
         });
-        const idx = service.bufferedExerciseItems.findIndex(
-          (val) => val.ID === 1
-        );
+        const idx = service.bufferedExerciseItems.findIndex((val) => val.ID === 1);
         expect(idx).not.toEqual(-1);
 
         service.readExerciseItem(1).subscribe({
@@ -607,11 +560,9 @@ describe('ODataService', () => {
           },
         });
 
-        const req: SafeAny = httpTestingController.expectOne(
-          (requrl: SafeAny) => {
-            return requrl.method === 'GET' && requrl.url === callurl + '(1)';
-          }
-        );
+        const req: SafeAny = httpTestingController.expectOne((requrl: SafeAny) => {
+          return requrl.method === 'GET' && requrl.url === callurl + '(1)';
+        });
 
         // respond with a 404 and the error message in the body
         req.flush(msg, { status: 404, statusText: 'Not Found' });
@@ -659,11 +610,9 @@ describe('ODataService', () => {
           },
         });
 
-        const req: SafeAny = httpTestingController.expectOne(
-          (requrl: SafeAny) => {
-            return requrl.method === 'POST' && requrl.url === callurl;
-          }
-        );
+        const req: SafeAny = httpTestingController.expectOne((requrl: SafeAny) => {
+          return requrl.method === 'POST' && requrl.url === callurl;
+        });
 
         // respond with a 404 and the error message in the body
         req.flush({
@@ -681,11 +630,9 @@ describe('ODataService', () => {
           },
         });
 
-        const req: SafeAny = httpTestingController.expectOne(
-          (requrl: SafeAny) => {
-            return requrl.method === 'POST' && requrl.url === callurl;
-          }
-        );
+        const req: SafeAny = httpTestingController.expectOne((requrl: SafeAny) => {
+          return requrl.method === 'POST' && requrl.url === callurl;
+        });
 
         // respond with a 404 and the error message in the body
         req.flush(msg, { status: 404, statusText: 'Not Found' });
@@ -731,15 +678,9 @@ describe('ODataService', () => {
         });
 
         // Service should have made one request to GET data from expected URL
-        const req: SafeAny = httpTestingController.expectOne(
-          (requrl: SafeAny) => {
-            return (
-              requrl.method === 'GET' &&
-              requrl.url === callurl &&
-              requrl.params.has('$count')
-            );
-          }
-        );
+        const req: SafeAny = httpTestingController.expectOne((requrl: SafeAny) => {
+          return requrl.method === 'GET' && requrl.url === callurl && requrl.params.has('$count');
+        });
         expect(req.request.params.get('$count')).toEqual('true');
 
         // Respond with the mock data
@@ -756,23 +697,19 @@ describe('ODataService', () => {
       });
 
       it('should add parameter', () => {
-        service
-          .getUserCollections(100, 20, 'createdat', `Title eq 'a'`)
-          .subscribe({
-            next: (val) => {
-              expect(val).toBeTruthy();
-            },
-            error: (err) => {
-              expect(err).toBeFalsy();
-            },
-          });
+        service.getUserCollections(100, 20, 'createdat', `Title eq 'a'`).subscribe({
+          next: (val) => {
+            expect(val).toBeTruthy();
+          },
+          error: (err) => {
+            expect(err).toBeFalsy();
+          },
+        });
 
         // Service should have made one request to GET data from expected URL
-        const req: SafeAny = httpTestingController.expectOne(
-          (requrl: SafeAny) => {
-            return requrl.method === 'GET' && requrl.url === callurl;
-          }
-        );
+        const req: SafeAny = httpTestingController.expectOne((requrl: SafeAny) => {
+          return requrl.method === 'GET' && requrl.url === callurl;
+        });
         expect(req.request.params.get('$count')).toEqual('true');
         expect(req.request.params.get('$top')).toEqual('100');
         expect(req.request.params.get('$skip')).toEqual('20');
@@ -797,11 +734,9 @@ describe('ODataService', () => {
           },
         });
 
-        const req: SafeAny = httpTestingController.expectOne(
-          (requrl: SafeAny) => {
-            return requrl.method === 'GET' && requrl.url === callurl;
-          }
-        );
+        const req: SafeAny = httpTestingController.expectOne((requrl: SafeAny) => {
+          return requrl.method === 'GET' && requrl.url === callurl;
+        });
 
         // respond with a 404 and the error message in the body
         req.flush(msg, { status: 404, statusText: 'Not Found' });
@@ -847,15 +782,9 @@ describe('ODataService', () => {
         });
 
         // Service should have made one request to GET data from expected URL
-        const req: SafeAny = httpTestingController.expectOne(
-          (requrl: SafeAny) => {
-            return (
-              requrl.method === 'GET' &&
-              requrl.url === callurl &&
-              requrl.params.has('$count')
-            );
-          }
-        );
+        const req: SafeAny = httpTestingController.expectOne((requrl: SafeAny) => {
+          return requrl.method === 'GET' && requrl.url === callurl && requrl.params.has('$count');
+        });
         expect(req.request.params.get('$count')).toEqual('true');
 
         // Respond with the mock data
@@ -871,23 +800,19 @@ describe('ODataService', () => {
       });
 
       it('should add parameter', () => {
-        service
-          .getUserHabits(100, 20, 'name', 'asc', `Title eq 'a'`)
-          .subscribe({
-            next: (val) => {
-              expect(val).toBeTruthy();
-            },
-            error: (err) => {
-              expect(err).toBeFalsy();
-            },
-          });
+        service.getUserHabits(100, 20, 'name', 'asc', `Title eq 'a'`).subscribe({
+          next: (val) => {
+            expect(val).toBeTruthy();
+          },
+          error: (err) => {
+            expect(err).toBeFalsy();
+          },
+        });
 
         // Service should have made one request to GET data from expected URL
-        const req: SafeAny = httpTestingController.expectOne(
-          (requrl: SafeAny) => {
-            return requrl.method === 'GET' && requrl.url === callurl;
-          }
-        );
+        const req: SafeAny = httpTestingController.expectOne((requrl: SafeAny) => {
+          return requrl.method === 'GET' && requrl.url === callurl;
+        });
         expect(req.request.params.get('$count')).toEqual('true');
         expect(req.request.params.get('$top')).toEqual('100');
         expect(req.request.params.get('$skip')).toEqual('20');
@@ -912,11 +837,9 @@ describe('ODataService', () => {
           },
         });
 
-        const req: SafeAny = httpTestingController.expectOne(
-          (requrl: SafeAny) => {
-            return requrl.method === 'GET' && requrl.url === callurl;
-          }
-        );
+        const req: SafeAny = httpTestingController.expectOne((requrl: SafeAny) => {
+          return requrl.method === 'GET' && requrl.url === callurl;
+        });
 
         // respond with a 404 and the error message in the body
         req.flush(msg, { status: 404, statusText: 'Not Found' });

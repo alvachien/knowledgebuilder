@@ -11,11 +11,7 @@ import {
   getExerciseItemTypeName,
   ExerciseItemUserScore,
 } from 'src/app/models';
-import {
-  ODataService,
-  PreviewObject,
-  UIUtilityService,
-} from 'src/app/services';
+import { ODataService, PreviewObject, UIUtilityService } from 'src/app/services';
 import { PreviewNewScoreSheet } from './preview-newscore-sheet';
 
 @Component({
@@ -57,11 +53,7 @@ export class PreviewComponent implements OnInit, OnDestroy {
     return getExerciseItemTypeName(reftype);
   }
   get isSuccessScore(): boolean {
-    if (
-      this.selectedExerciseUserScore !== null &&
-      this.selectedExerciseUserScore.Score >= 60
-    )
-      return true;
+    if (this.selectedExerciseUserScore !== null && this.selectedExerciseUserScore.Score >= 60) return true;
     return false;
   }
 
@@ -105,44 +97,33 @@ export class PreviewComponent implements OnInit, OnDestroy {
     return this.previewIdx > 0;
   }
   public fetchPreviewItem() {
-    if (
-      this.previewIdx > -1 &&
-      this.previewIdx < this.listPreviewObjects.length
-    ) {
+    if (this.previewIdx > -1 && this.previewIdx < this.listPreviewObjects.length) {
       if (this.selectedObj?.refType === TagReferenceType.KnowledgeItem) {
-        this.odataSvc
-          .readKnowledgeItem(this.listPreviewObjects[this.previewIdx].refId)
-          .subscribe({
-            next: (val) => {
-              this.selectedKnowledge = val;
-            },
-            error: (err) => {
-              this.uiUtilSrv.showSnackInfo(err);
-            },
-          });
+        this.odataSvc.readKnowledgeItem(this.listPreviewObjects[this.previewIdx].refId).subscribe({
+          next: (val) => {
+            this.selectedKnowledge = val;
+          },
+          error: (err) => {
+            this.uiUtilSrv.showSnackInfo(err);
+          },
+        });
       } else if (this.selectedObj?.refType === TagReferenceType.ExerciseItem) {
-        this.odataSvc
-          .readExerciseItem(this.listPreviewObjects[this.previewIdx].refId)
-          .subscribe({
-            next: (val) => {
-              this.selectedExercise = val;
-            },
-            error: (err) => {
-              this.uiUtilSrv.showSnackInfo(err);
-            },
-          });
-        this.odataSvc
-          .getLastestExerciseItemUserScore(
-            this.listPreviewObjects[this.previewIdx].refId
-          )
-          .subscribe({
-            next: (val) => {
-              this.selectedExerciseUserScore = val;
-            },
-            error: (err) => {
-              this.uiUtilSrv.showSnackInfo(err);
-            },
-          });
+        this.odataSvc.readExerciseItem(this.listPreviewObjects[this.previewIdx].refId).subscribe({
+          next: (val) => {
+            this.selectedExercise = val;
+          },
+          error: (err) => {
+            this.uiUtilSrv.showSnackInfo(err);
+          },
+        });
+        this.odataSvc.getLastestExerciseItemUserScore(this.listPreviewObjects[this.previewIdx].refId).subscribe({
+          next: (val) => {
+            this.selectedExerciseUserScore = val;
+          },
+          error: (err) => {
+            this.uiUtilSrv.showSnackInfo(err);
+          },
+        });
       }
     }
   }

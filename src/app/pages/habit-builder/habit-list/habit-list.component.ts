@@ -1,22 +1,10 @@
-import {
-  AfterViewInit,
-  Component,
-  EventEmitter,
-  OnInit,
-  ViewChild,
-} from '@angular/core';
+import { AfterViewInit, Component, EventEmitter, OnInit, ViewChild } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { MatPaginator } from '@angular/material/paginator';
 import { MatSort } from '@angular/material/sort';
 import moment from 'moment';
 import { merge, of as observableOf } from 'rxjs';
-import {
-  catchError,
-  finalize,
-  map,
-  startWith,
-  switchMap,
-} from 'rxjs/operators';
+import { catchError, finalize, map, startWith, switchMap } from 'rxjs/operators';
 
 import {
   UserHabit,
@@ -37,15 +25,7 @@ import { AuthService, ODataService, UIUtilityService } from 'src/app/services';
 })
 export class HabitListComponent implements OnInit, AfterViewInit {
   dataSource: UserHabit[] = [];
-  displayedColumns: string[] = [
-    'id',
-    'targetUser',
-    'name',
-    'category',
-    'frequency',
-    'compCategory',
-    'validity',
-  ];
+  displayedColumns: string[] = ['id', 'targetUser', 'name', 'category', 'frequency', 'compCategory', 'validity'];
   recordCount = 0;
   isLoadingResults = false;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -78,13 +58,7 @@ export class HabitListComponent implements OnInit, AfterViewInit {
           const skip = top * this.paginator.pageIndex;
           const todayStr = moment().format(momentDateFormat);
           const filterStr = `ValidFrom le ${todayStr} and ValidTo ge ${todayStr}`;
-          return this.odataSrv.getUserHabits(
-            top,
-            skip,
-            this.sort.active,
-            this.sort.direction,
-            filterStr
-          );
+          return this.odataSrv.getUserHabits(top, skip, this.sort.active, this.sort.direction, filterStr);
         }),
         finalize(() => (this.isLoadingResults = false)),
         map((data) => {
@@ -111,9 +85,7 @@ export class HabitListComponent implements OnInit, AfterViewInit {
   }
   public getUserDisplayAs(usrId: string): string {
     if (usrId && this.authService.userDetail) {
-      const idx = this.authService.userDetail.awardUsers.findIndex(
-        (val) => val.targetUser === usrId
-      );
+      const idx = this.authService.userDetail.awardUsers.findIndex((val) => val.targetUser === usrId);
       if (idx !== -1) {
         return this.authService.userDetail.awardUsers[idx].displayAs;
       }

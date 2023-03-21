@@ -1,31 +1,13 @@
-import {
-  Component,
-  ViewChild,
-  ElementRef,
-  ChangeDetectorRef,
-} from '@angular/core';
-import {
-  AbstractControl,
-  UntypedFormControl,
-  UntypedFormGroup,
-  ValidationErrors,
-} from '@angular/forms';
+import { Component, ViewChild, ElementRef, ChangeDetectorRef } from '@angular/core';
+import { AbstractControl, UntypedFormControl, UntypedFormGroup, ValidationErrors } from '@angular/forms';
 import { Validators } from '@angular/forms';
 import { MatDialog } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { Router } from '@angular/router';
 import { Observable } from 'rxjs';
 
-import {
-  DivisionQuizItem,
-  PrimarySchoolMathQuizSection,
-  QuizSection,
-} from 'src/app/models';
-import {
-  CanComponentDeactivate,
-  CanDeactivateGuard,
-  QuizService,
-} from 'src/app/services';
+import { DivisionQuizItem, PrimarySchoolMathQuizSection, QuizSection } from 'src/app/models';
+import { CanComponentDeactivate, CanDeactivateGuard, QuizService } from 'src/app/services';
 import { QuizFailureDailogComponent } from '../../quiz-failure-dailog';
 
 @Component({
@@ -37,23 +19,13 @@ export class DivisionExerciseComponent implements CanDeactivateGuard {
   isQuizStarted = false;
   quizControlFormGroup: UntypedFormGroup = new UntypedFormGroup(
     {
-      countControl: new UntypedFormControl(20, [
-        Validators.required,
-        Validators.min(1),
-        Validators.max(1000),
-      ]),
-      failedFactorControl: new UntypedFormControl(2, [
-        Validators.min(0),
-        Validators.max(10),
-      ]),
+      countControl: new UntypedFormControl(20, [Validators.required, Validators.min(1), Validators.max(1000)]),
+      failedFactorControl: new UntypedFormControl(2, [Validators.min(0), Validators.max(10)]),
       leftNumberControl: new UntypedFormControl(1),
       rightNumberControl: new UntypedFormControl(100),
       leftNumber2Control: new UntypedFormControl(1),
       rightNumber2Control: new UntypedFormControl(10),
-      decControl: new UntypedFormControl(0, [
-        Validators.min(0),
-        Validators.max(5),
-      ]),
+      decControl: new UntypedFormControl(0, [Validators.min(0), Validators.max(5)]),
     },
     { validators: this.basicValidator }
   );
@@ -93,9 +65,7 @@ export class DivisionExerciseComponent implements CanDeactivateGuard {
     private changeDef: ChangeDetectorRef,
     private dialog: MatDialog
   ) {}
-  canDeactivate(
-    component: CanComponentDeactivate
-  ): boolean | Observable<boolean> | Promise<boolean> {
+  canDeactivate(component: CanComponentDeactivate): boolean | Observable<boolean> | Promise<boolean> {
     return !this.isQuizStarted;
   }
 
@@ -107,14 +77,9 @@ export class DivisionExerciseComponent implements CanDeactivateGuard {
     if (!this.quizService.ActiveQuiz) {
       const quiz = this.quizService.startNewQuiz(this.quizService.NextQuizID);
 
-      this.generateQuizSection(
-        this.quizControlFormGroup.get('countControl')?.value ?? 0
-      );
+      this.generateQuizSection(this.quizControlFormGroup.get('countControl')?.value ?? 0);
 
-      const quizSection = new QuizSection(
-        quiz.NextSectionID,
-        this.QuizItems.length
-      );
+      const quizSection = new QuizSection(quiz.NextSectionID, this.QuizItems.length);
       quiz.startNewSection(quizSection);
 
       this.isQuizStarted = true;
@@ -143,14 +108,11 @@ export class DivisionExerciseComponent implements CanDeactivateGuard {
 
         // Complete current section, and start another one!
         this.quizService.ActiveQuiz?.completeActionSection(failedItems.length);
-        const failedfactor =
-          this.quizControlFormGroup.get('failedFactorControl')?.value ?? 0;
+        const failedfactor = this.quizControlFormGroup.get('failedFactorControl')?.value ?? 0;
 
         if (failedItems.length > 0 && failedfactor > 0) {
           this.quizService.FailedQuizItems = failedItems;
-          this.quizService.CurrentScore =
-            (this.QuizItems.length - failedItems.length) /
-            this.QuizItems.length;
+          this.quizService.CurrentScore = (this.QuizItems.length - failedItems.length) / this.QuizItems.length;
           const dialogRef = this.dialog.open(QuizFailureDailogComponent, {
             disableClose: false,
             width: '500px',
@@ -162,10 +124,7 @@ export class DivisionExerciseComponent implements CanDeactivateGuard {
             this.setNextButtonText();
 
             const curquiz = this.quizService.ActiveQuiz!;
-            const quizSection = new QuizSection(
-              curquiz.NextSectionID,
-              this.QuizItems.length
-            );
+            const quizSection = new QuizSection(curquiz.NextSectionID, this.QuizItems.length);
             curquiz.startNewSection(quizSection);
           });
         } else {
@@ -223,11 +182,7 @@ export class DivisionExerciseComponent implements CanDeactivateGuard {
   private generateQuizItem(idx: number): DivisionQuizItem {
     const decplace = this.quizControlFormGroup.get('decControl')!.value;
 
-    const qz: DivisionQuizItem = new DivisionQuizItem(
-      this.getNumber(),
-      this.getNumber(true),
-      decplace
-    );
+    const qz: DivisionQuizItem = new DivisionQuizItem(this.getNumber(), this.getNumber(true), decplace);
     qz.QuizIndex = idx;
     return qz;
   }

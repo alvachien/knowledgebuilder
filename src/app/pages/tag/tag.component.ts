@@ -5,11 +5,7 @@ import { Router } from '@angular/router';
 import { merge, of as observableOf } from 'rxjs';
 import { catchError, map, startWith, switchMap } from 'rxjs/operators';
 
-import {
-  TagCount,
-  TagReferenceType,
-  getTagReferenceTypeName,
-} from 'src/app/models';
+import { TagCount, TagReferenceType, getTagReferenceTypeName } from 'src/app/models';
 import { ODataService } from '../../services';
 
 @Component({

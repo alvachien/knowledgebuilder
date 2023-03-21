@@ -1,11 +1,4 @@
-import {
-  AfterContentInit,
-  Component,
-  ElementRef,
-  HostListener,
-  OnInit,
-  ViewChild,
-} from '@angular/core';
+import { AfterContentInit, Component, ElementRef, HostListener, OnInit, ViewChild } from '@angular/core';
 import { generateValidSudou, Sudou, SudouSize } from 'src/app/models';
 
 import { getCanvasCellPosition, getCanvasMouseEventPosition } from 'actslib';
@@ -62,14 +55,7 @@ class SudouEditPanel {
   private _drawX;
   private _drawY;
 
-  constructor(
-    x: SafeAny,
-    y: SafeAny,
-    itemWidth: SafeAny,
-    nlist: SafeAny,
-    maxWidth: SafeAny,
-    maxHeight: SafeAny
-  ) {
+  constructor(x: SafeAny, y: SafeAny, itemWidth: SafeAny, nlist: SafeAny, maxWidth: SafeAny, maxHeight: SafeAny) {
     this._x = x;
     this._y = y;
     this._itemWidth = itemWidth;
@@ -109,11 +95,7 @@ class SudouEditPanel {
       if (InArray(i, this._nlist)) {
         ctx.fillStyle = 'green';
         ctx.font = 'Bold ' + this._itemWidth / 2 + 'px Arial';
-        ctx.fillText(
-          i.toString(),
-          itemX + this._itemWidth / 3,
-          itemY + this._itemWidth / 1.5
-        );
+        ctx.fillText(i.toString(), itemX + this._itemWidth / 3, itemY + this._itemWidth / 1.5);
       }
     }
   }
@@ -254,12 +236,7 @@ export class SudouComponent implements OnInit, AfterContentInit {
 
         if (cell.fixed) {
           ctx2.fillStyle = '#dddddd';
-          ctx2.fillRect(
-            j * this._itemWidth,
-            i * this._itemHeight,
-            this._itemWidth,
-            this._itemHeight
-          );
+          ctx2.fillRect(j * this._itemWidth, i * this._itemHeight, this._itemWidth, this._itemHeight);
         }
 
         ctx2.fillStyle = '#008800';
@@ -273,11 +250,7 @@ export class SudouComponent implements OnInit, AfterContentInit {
           } else {
             ctx2.fillStyle = '#008800';
           }
-          ctx2.fillText(
-            cell.num.toString(),
-            (j + 0.3) * this._itemWidth,
-            (i + 0.8) * this._itemHeight
-          );
+          ctx2.fillText(cell.num.toString(), (j + 0.3) * this._itemWidth, (i + 0.8) * this._itemHeight);
         }
       }
     }
@@ -314,17 +287,8 @@ export class SudouComponent implements OnInit, AfterContentInit {
 
   private ProcessMouseClick(pos: SafeAny) {
     if (this._editingCellIndex === null) {
-      const index: SafeAny = getCanvasCellPosition(
-        pos,
-        this._itemWidth,
-        this._itemHeight
-      );
-      if (
-        index.row < 0 ||
-        index.row > 8 ||
-        index.column < 0 ||
-        index.column > 8
-      ) {
+      const index: SafeAny = getCanvasCellPosition(pos, this._itemWidth, this._itemHeight);
+      if (index.row < 0 || index.row > 8 || index.column < 0 || index.column > 8) {
         this._editingCellIndex = null;
         this._editPanel = null;
 
@@ -342,22 +306,13 @@ export class SudouComponent implements OnInit, AfterContentInit {
 
       this._editingCellIndex = index;
       const nList = [1, 2, 3, 4, 5, 6, 7, 8, 9];
-      this._editPanel = new SudouEditPanel(
-        pos.x,
-        pos.y,
-        this._itemWidth / 1.5,
-        nList,
-        this._width,
-        this._height
-      );
+      this._editPanel = new SudouEditPanel(pos.x, pos.y, this._itemWidth / 1.5, nList, this._width, this._height);
       const ctx2 = this.canvasSudou.nativeElement.getContext('2d');
       this._editPanel.Draw(ctx2);
     } else {
       const seleN = this._editPanel!.GetHitNumber(pos.x, pos.y);
       if (seleN == null) {
-        this._dataCells[this._editingCellIndex.row][
-          this._editingCellIndex.column
-        ].N = null;
+        this._dataCells[this._editingCellIndex.row][this._editingCellIndex.column].N = null;
       } else if (seleN === -1) {
         // Out of the panel
         this._editingCellIndex = null;
@@ -367,9 +322,7 @@ export class SudouComponent implements OnInit, AfterContentInit {
         this.ProcessMouseClick(pos);
         return;
       } else {
-        this._dataCells[this._editingCellIndex.row][
-          this._editingCellIndex.column
-        ].num = seleN;
+        this._dataCells[this._editingCellIndex.row][this._editingCellIndex.column].num = seleN;
       }
 
       this._editingCellIndex = null;
@@ -407,10 +360,7 @@ export class SudouComponent implements OnInit, AfterContentInit {
 
     for (let i = 0; i < SudouSize; i++) {
       for (let j = 0; j < SudouSize; j++) {
-        if (
-          this._dataCells[i][j].num === null ||
-          this._dataCells[i][j].InConflict
-        ) {
+        if (this._dataCells[i][j].num === null || this._dataCells[i][j].InConflict) {
           return false;
         }
       }
@@ -453,11 +403,7 @@ export class SudouComponent implements OnInit, AfterContentInit {
 
     for (let i: number = iStart; i < iStart + 3; i++) {
       for (let j: number = jStart; j < jStart + 3; j++) {
-        if (
-          this._dataCells[i][j].num === cell.num &&
-          i !== pos.row &&
-          j !== pos.column
-        ) {
+        if (this._dataCells[i][j].num === cell.num && i !== pos.row && j !== pos.column) {
           return true;
         }
       }

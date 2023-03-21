@@ -6,11 +6,7 @@ import { merge, of as observableOf } from 'rxjs';
 import { catchError, map, startWith, switchMap } from 'rxjs/operators';
 
 import { Tag, TagReferenceType, getTagReferenceTypeName } from 'src/app/models';
-import {
-  PreviewObject,
-  UIUtilityService,
-  ODataService,
-} from 'src/app/services';
+import { PreviewObject, UIUtilityService, ODataService } from 'src/app/services';
 
 @Component({
   selector: 'app-tag-detail',

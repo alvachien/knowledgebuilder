@@ -1,12 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { ReplaySubject } from 'rxjs';
 import { ActivatedRoute } from '@angular/router';
-import {
-  UntypedFormBuilder,
-  UntypedFormControl,
-  UntypedFormGroup,
-  Validators,
-} from '@angular/forms';
+import { UntypedFormBuilder, UntypedFormControl, UntypedFormGroup, Validators } from '@angular/forms';
 import { UIMode } from 'actslib';
 import moment from 'moment';
 
@@ -50,9 +45,7 @@ export class HabitRecordDetailComponent implements OnInit {
   }
   public getUserDisplayAs(usrId: string): string {
     if (usrId && this.authService.userDetail) {
-      const idx = this.authService.userDetail.awardUsers.findIndex(
-        (val) => val.targetUser === usrId
-      );
+      const idx = this.authService.userDetail.awardUsers.findIndex((val) => val.targetUser === usrId);
       if (idx !== -1) {
         return this.authService.userDetail.awardUsers[idx].displayAs;
       }
@@ -84,24 +77,12 @@ export class HabitRecordDetailComponent implements OnInit {
           }
         }
         if (this.uiUtilSrv.currentUserHabitRecord) {
-          this.detailFormGroup
-            .get('targetuserCtrl')
-            ?.setValue(this.uiUtilSrv.currentUserHabitRecord.targetUser);
-          this.detailFormGroup
-            .get('habitIDCtrl')
-            ?.setValue(this.uiUtilSrv.currentUserHabitRecord.habitID);
-          this.detailFormGroup
-            .get('dateCtrl')
-            ?.setValue(this.uiUtilSrv.currentUserHabitRecord.recordDate);
-          this.detailFormGroup
-            .get('subIDCtrl')
-            ?.setValue(this.uiUtilSrv.currentUserHabitRecord.subID);
-          this.detailFormGroup
-            .get('compFactCtrl')
-            ?.setValue(this.uiUtilSrv.currentUserHabitRecord.completeFact);
-          this.detailFormGroup
-            .get('commentCtrl')
-            ?.setValue(this.uiUtilSrv.currentUserHabitRecord.comment);
+          this.detailFormGroup.get('targetuserCtrl')?.setValue(this.uiUtilSrv.currentUserHabitRecord.targetUser);
+          this.detailFormGroup.get('habitIDCtrl')?.setValue(this.uiUtilSrv.currentUserHabitRecord.habitID);
+          this.detailFormGroup.get('dateCtrl')?.setValue(this.uiUtilSrv.currentUserHabitRecord.recordDate);
+          this.detailFormGroup.get('subIDCtrl')?.setValue(this.uiUtilSrv.currentUserHabitRecord.subID);
+          this.detailFormGroup.get('compFactCtrl')?.setValue(this.uiUtilSrv.currentUserHabitRecord.completeFact);
+          this.detailFormGroup.get('commentCtrl')?.setValue(this.uiUtilSrv.currentUserHabitRecord.comment);
 
           if (this.uiMode === UIMode.Display) {
             this.detailFormGroup.disable();

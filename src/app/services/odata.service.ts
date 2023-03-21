@@ -76,10 +76,7 @@ export class ODataService {
       let headers: HttpHeaders = new HttpHeaders();
       headers = headers
         .append(this.contentType, 'application/xml,application/json')
-        .append(
-          this.strAccept,
-          'text/html,application/xhtml+xml,application/xml'
-        );
+        .append(this.strAccept, 'text/html,application/xhtml+xml,application/xml');
 
       let apiurl = `${this.apiUrl}$metadata`;
       if (environment.mockdata) {
@@ -97,12 +94,7 @@ export class ODataService {
             return this.metadataInfo;
           }),
           catchError((error: HttpErrorResponse) =>
-            throwError(
-              () =>
-                new Error(
-                  error.status + '; ' + error.error + '; ' + error.message
-                )
-            )
+            throwError(() => new Error(error.status + '; ' + error.error + '; ' + error.message))
           )
         );
     } else {
@@ -181,20 +173,12 @@ export class ODataService {
           };
         }),
         catchError((error: HttpErrorResponse) =>
-          throwError(
-            () =>
-              new Error(
-                error.statusText + '; ' + error.error + '; ' + error.message
-              )
-          )
+          throwError(() => new Error(error.statusText + '; ' + error.error + '; ' + error.message))
         )
       );
   }
 
-  public readKnowledgeItem(
-    kid: number,
-    forceLoad = false
-  ): Observable<KnowledgeItem> {
+  public readKnowledgeItem(kid: number, forceLoad = false): Observable<KnowledgeItem> {
     if (environment.mockdata) {
       const idx = this.mockedKnowledgeItem.findIndex((val) => val.ID === kid);
       if (idx !== -1) {
@@ -205,9 +189,7 @@ export class ODataService {
     if (!this.authService.isAuthenticated) {
       return throwError(() => new Error(this.expertModeFailMsg));
     }
-    const bufidx = this.bufferedKnowledgeItems.findIndex(
-      (val) => val.ID === kid
-    );
+    const bufidx = this.bufferedKnowledgeItems.findIndex((val) => val.ID === kid);
     if (!forceLoad && bufidx !== -1) {
       return of(this.bufferedKnowledgeItems[bufidx]);
     }
@@ -219,10 +201,7 @@ export class ODataService {
       .append('Authorization', 'Bearer ' + this.authService.accessToken);
 
     let params: HttpParams = new HttpParams();
-    params = params.append(
-      '$select',
-      'ID,Category,Title,Content,CreatedAt,ModifiedAt'
-    );
+    params = params.append('$select', 'ID,Category,Title,Content,CreatedAt,ModifiedAt');
     params = params.append('$expand', 'Tags');
 
     return this.http
@@ -245,12 +224,7 @@ export class ODataService {
           return kitem;
         }),
         catchError((error: HttpErrorResponse) =>
-          throwError(
-            () =>
-              new Error(
-                error.statusText + '; ' + error.error + '; ' + error.message
-              )
-          )
+          throwError(() => new Error(error.statusText + '; ' + error.error + '; ' + error.message))
         )
       );
   }
@@ -290,12 +264,7 @@ export class ODataService {
           return kitem;
         }),
         catchError((error: HttpErrorResponse) =>
-          throwError(
-            () =>
-              new Error(
-                error.statusText + '; ' + error.error + '; ' + error.message
-              )
-          )
+          throwError(() => new Error(error.statusText + '; ' + error.error + '; ' + error.message))
         )
       );
   }
@@ -320,9 +289,7 @@ export class ODataService {
       })
       .pipe(
         map(() => {
-          const bufidx = this.bufferedKnowledgeItems.findIndex(
-            (val) => val.ID === ki.ID
-          );
+          const bufidx = this.bufferedKnowledgeItems.findIndex((val) => val.ID === ki.ID);
           if (bufidx === -1) {
             this.bufferedKnowledgeItems.push(ki);
           } else {
@@ -332,12 +299,7 @@ export class ODataService {
           return ki;
         }),
         catchError((error: HttpErrorResponse) =>
-          throwError(
-            () =>
-              new Error(
-                error.statusText + '; ' + error.error + '; ' + error.message
-              )
-          )
+          throwError(() => new Error(error.statusText + '; ' + error.error + '; ' + error.message))
         )
       );
   }
@@ -362,9 +324,7 @@ export class ODataService {
       .pipe(
         map(() => {
           // Clear it from the buffer
-          const bufidx = this.bufferedKnowledgeItems.findIndex(
-            (val) => val.ID === itemid
-          );
+          const bufidx = this.bufferedKnowledgeItems.findIndex((val) => val.ID === itemid);
           if (bufidx !== -1) {
             this.bufferedKnowledgeItems.splice(bufidx, 1);
           }
@@ -372,12 +332,7 @@ export class ODataService {
           return true;
         }),
         catchError((error: HttpErrorResponse) =>
-          throwError(
-            () =>
-              new Error(
-                error.statusText + '; ' + error.error + '; ' + error.message
-              )
-          )
+          throwError(() => new Error(error.statusText + '; ' + error.error + '; ' + error.message))
         )
       );
   }
@@ -416,10 +371,7 @@ export class ODataService {
         params = params.append('$orderby', `CreatedAt ${order}`);
       }
     }
-    params = params.append(
-      '$select',
-      'ID,KnowledgeItemID,ExerciseType,CreatedAt'
-    );
+    params = params.append('$select', 'ID,KnowledgeItemID,ExerciseType,CreatedAt');
     if (filter) {
       params = params.append('$filter', filter);
     }
@@ -456,12 +408,7 @@ export class ODataService {
           };
         }),
         catchError((error: HttpErrorResponse) =>
-          throwError(
-            () =>
-              new Error(
-                error.statusText + '; ' + error.error + '; ' + error.message
-              )
-          )
+          throwError(() => new Error(error.statusText + '; ' + error.error + '; ' + error.message))
         )
       );
   }
@@ -503,12 +450,7 @@ export class ODataService {
           return rtn;
         }),
         catchError((error: HttpErrorResponse) =>
-          throwError(
-            () =>
-              new Error(
-                error.statusText + '; ' + error.error + '; ' + error.message
-              )
-          )
+          throwError(() => new Error(error.statusText + '; ' + error.error + '; ' + error.message))
         )
       );
   }
@@ -534,9 +476,7 @@ export class ODataService {
       })
       .pipe(
         map(() => {
-          const bufidx = this.bufferedExerciseItems.findIndex(
-            (val) => val.ID === qbi.ID
-          );
+          const bufidx = this.bufferedExerciseItems.findIndex((val) => val.ID === qbi.ID);
           if (bufidx === -1) {
             this.bufferedExerciseItems.push(qbi);
           } else {
@@ -546,20 +486,12 @@ export class ODataService {
           return qbi;
         }),
         catchError((error: HttpErrorResponse) =>
-          throwError(
-            () =>
-              new Error(
-                error.statusText + '; ' + error.error + '; ' + error.message
-              )
-          )
+          throwError(() => new Error(error.statusText + '; ' + error.error + '; ' + error.message))
         )
       );
   }
 
-  public readExerciseItem(
-    qbid: number,
-    forceLoad = false
-  ): Observable<ExerciseItem> {
+  public readExerciseItem(qbid: number, forceLoad = false): Observable<ExerciseItem> {
     if (environment.mockdata) {
       const idx = this.mockedExerciseItem.findIndex((val) => val.ID === qbid);
       if (idx !== -1) {
@@ -570,9 +502,7 @@ export class ODataService {
     if (!this.authService.isAuthenticated) {
       return throwError(() => new Error(this.expertModeFailMsg));
     }
-    const bufidx = this.bufferedExerciseItems.findIndex(
-      (val) => val.ID === qbid
-    );
+    const bufidx = this.bufferedExerciseItems.findIndex((val) => val.ID === qbid);
     if (!forceLoad && bufidx !== -1) {
       return of(this.bufferedExerciseItems[bufidx]);
     }
@@ -584,10 +514,7 @@ export class ODataService {
       .append('Authorization', 'Bearer ' + this.authService.accessToken);
 
     let params: HttpParams = new HttpParams();
-    params = params.append(
-      '$select',
-      'ID,KnowledgeItemID,ExerciseType,Content,CreatedAt,ModifiedAt'
-    );
+    params = params.append('$select', 'ID,KnowledgeItemID,ExerciseType,Content,CreatedAt,ModifiedAt');
     params = params.append('$expand', 'Tags,Answer');
 
     return this.http
@@ -609,12 +536,7 @@ export class ODataService {
           return ei;
         }),
         catchError((error: HttpErrorResponse) =>
-          throwError(
-            () =>
-              new Error(
-                error.statusText + '; ' + error.error + '; ' + error.message
-              )
-          )
+          throwError(() => new Error(error.statusText + '; ' + error.error + '; ' + error.message))
         )
       );
   }
@@ -639,9 +561,7 @@ export class ODataService {
       .pipe(
         map(() => {
           // Clear it from the buffer
-          const bufidx = this.bufferedExerciseItems.findIndex(
-            (val) => val.ID === itemid
-          );
+          const bufidx = this.bufferedExerciseItems.findIndex((val) => val.ID === itemid);
           if (bufidx !== -1) {
             this.bufferedExerciseItems.splice(bufidx, 1);
           }
@@ -649,12 +569,7 @@ export class ODataService {
           return true;
         }),
         catchError((error: HttpErrorResponse) =>
-          throwError(
-            () =>
-              new Error(
-                error.statusText + '; ' + error.error + '; ' + error.message
-              )
-          )
+          throwError(() => new Error(error.statusText + '; ' + error.error + '; ' + error.message))
         )
       );
   }
@@ -705,8 +620,7 @@ export class ODataService {
           const ritems = rjs.value as SafeAny[];
           const items: ExerciseItemSearchResult[] = [];
           ritems.forEach((item) => {
-            const rit: ExerciseItemSearchResult =
-              new ExerciseItemSearchResult();
+            const rit: ExerciseItemSearchResult = new ExerciseItemSearchResult();
             rit.parseData(item);
             items.push(rit);
           });
@@ -722,12 +636,7 @@ export class ODataService {
           };
         }),
         catchError((error: HttpErrorResponse) =>
-          throwError(
-            () =>
-              new Error(
-                error.statusText + '; ' + error.error + '; ' + error.message
-              )
-          )
+          throwError(() => new Error(error.statusText + '; ' + error.error + '; ' + error.message))
         )
       );
   }
@@ -824,20 +733,12 @@ export class ODataService {
           };
         }),
         catchError((error: HttpErrorResponse) =>
-          throwError(
-            () =>
-              new Error(
-                error.statusText + '; ' + error.error + '; ' + error.message
-              )
-          )
+          throwError(() => new Error(error.statusText + '; ' + error.error + '; ' + error.message))
         )
       );
   }
 
-  public getTags(
-    term: string,
-    reftype?: TagReferenceType
-  ): Observable<{ totalCount: number; items: Tag[] }> {
+  public getTags(term: string, reftype?: TagReferenceType): Observable<{ totalCount: number; items: Tag[] }> {
     if (!this.authService.isAuthenticated) {
       return throwError(() => new Error(this.expertModeFailMsg));
     }
@@ -886,12 +787,7 @@ export class ODataService {
           };
         }),
         catchError((error: HttpErrorResponse) =>
-          throwError(
-            () =>
-              new Error(
-                error.statusText + '; ' + error.error + '; ' + error.message
-              )
-          )
+          throwError(() => new Error(error.statusText + '; ' + error.error + '; ' + error.message))
         )
       );
   }
@@ -929,12 +825,7 @@ export class ODataService {
           return items;
         }),
         catchError((error: HttpErrorResponse) =>
-          throwError(
-            () =>
-              new Error(
-                error.statusText + '; ' + error.error + '; ' + error.message
-              )
-          )
+          throwError(() => new Error(error.statusText + '; ' + error.error + '; ' + error.message))
         )
       );
   }
@@ -961,15 +852,9 @@ export class ODataService {
     params = params.append('$count', 'true');
     params = params.append('$expand', 'Items');
     if (filter) {
-      params = params.append(
-        '$filter',
-        `${filter} and User eq '${this.authService.currentUserId}'`
-      );
+      params = params.append('$filter', `${filter} and User eq '${this.authService.currentUserId}'`);
     } else {
-      params = params.append(
-        '$filter',
-        `User eq '${this.authService.currentUserId}'`
-      );
+      params = params.append('$filter', `User eq '${this.authService.currentUserId}'`);
     }
     const apiurl = `${this.apiUrl}UserCollections`;
 
@@ -995,19 +880,12 @@ export class ODataService {
           };
         }),
         catchError((error: HttpErrorResponse) =>
-          throwError(
-            () =>
-              new Error(
-                error.statusText + '; ' + error.error + '; ' + error.message
-              )
-          )
+          throwError(() => new Error(error.statusText + '; ' + error.error + '; ' + error.message))
         )
       );
   }
 
-  public createUserCollection(
-    coll: UserCollection
-  ): Observable<UserCollection> {
+  public createUserCollection(coll: UserCollection): Observable<UserCollection> {
     if (environment.mockdata) {
       return throwError(() => new Error(this.mockModeFailMsg));
     }
@@ -1035,24 +913,14 @@ export class ODataService {
           return rtn;
         }),
         catchError((error: HttpErrorResponse) =>
-          throwError(
-            () =>
-              new Error(
-                error.statusText + '; ' + error.error + '; ' + error.message
-              )
-          )
+          throwError(() => new Error(error.statusText + '; ' + error.error + '; ' + error.message))
         )
       );
   }
 
-  public readUserCollection(
-    collid: number,
-    forceLoad = false
-  ): Observable<UserCollection> {
+  public readUserCollection(collid: number, forceLoad = false): Observable<UserCollection> {
     if (environment.mockdata) {
-      const idx = this.mockedUserCollection.findIndex(
-        (val) => val.ID === collid
-      );
+      const idx = this.mockedUserCollection.findIndex((val) => val.ID === collid);
       if (idx !== -1) {
         return of(this.mockedUserCollection[idx]);
       }
@@ -1063,9 +931,7 @@ export class ODataService {
     }
     let bufidx = -1;
     if (!forceLoad) {
-      bufidx = this.bufferedUserCollection.findIndex(
-        (val) => val.ID === collid
-      );
+      bufidx = this.bufferedUserCollection.findIndex((val) => val.ID === collid);
       if (bufidx !== -1) {
         return of(this.bufferedUserCollection[bufidx]);
       }
@@ -1102,19 +968,12 @@ export class ODataService {
           return kitem;
         }),
         catchError((error: HttpErrorResponse) =>
-          throwError(
-            () =>
-              new Error(
-                error.statusText + '; ' + error.error + '; ' + error.message
-              )
-          )
+          throwError(() => new Error(error.statusText + '; ' + error.error + '; ' + error.message))
         )
       );
   }
 
-  public addExerciseItemToCollection(
-    collItems: UserCollectionItem[]
-  ): Observable<UserCollectionItem[]> {
+  public addExerciseItemToCollection(collItems: UserCollectionItem[]): Observable<UserCollectionItem[]> {
     if (environment.mockdata) {
       return throwError(() => new Error(this.mockModeFailMsg));
     }
@@ -1156,19 +1015,12 @@ export class ODataService {
           return items;
         }),
         catchError((error: HttpErrorResponse) =>
-          throwError(
-            () =>
-              new Error(
-                error.statusText + '; ' + error.error + '; ' + error.message
-              )
-          )
+          throwError(() => new Error(error.statusText + '; ' + error.error + '; ' + error.message))
         )
       );
   }
 
-  public removeExerciseItemFromCollection(
-    collItem: UserCollectionItem
-  ): Observable<boolean> {
+  public removeExerciseItemFromCollection(collItem: UserCollectionItem): Observable<boolean> {
     if (environment.mockdata) {
       return throwError(() => new Error(this.mockModeFailMsg));
     }
@@ -1189,14 +1041,10 @@ export class ODataService {
     const params: HttpParams = new HttpParams();
 
     return this.http
-      .post(
-        `${this.apiUrl}UserCollectionItems/RemoveItemFromCollection`,
-        jdata,
-        {
-          headers,
-          params,
-        }
-      )
+      .post(`${this.apiUrl}UserCollectionItems/RemoveItemFromCollection`, jdata, {
+        headers,
+        params,
+      })
       .pipe(
         map((response) => {
           const rjs = response as SafeAny;
@@ -1205,19 +1053,12 @@ export class ODataService {
           return rtn;
         }),
         catchError((error: HttpErrorResponse) =>
-          throwError(
-            () =>
-              new Error(
-                error.statusText + '; ' + error.error + '; ' + error.message
-              )
-          )
+          throwError(() => new Error(error.statusText + '; ' + error.error + '; ' + error.message))
         )
       );
   }
 
-  public addKnowledgeItemToCollection(
-    collItems: UserCollectionItem[]
-  ): Observable<UserCollectionItem[]> {
+  public addKnowledgeItemToCollection(collItems: UserCollectionItem[]): Observable<UserCollectionItem[]> {
     if (environment.mockdata) {
       return throwError(() => new Error(this.mockModeFailMsg));
     }
@@ -1258,19 +1099,12 @@ export class ODataService {
           return items;
         }),
         catchError((error: HttpErrorResponse) =>
-          throwError(
-            () =>
-              new Error(
-                error.statusText + '; ' + error.error + '; ' + error.message
-              )
-          )
+          throwError(() => new Error(error.statusText + '; ' + error.error + '; ' + error.message))
         )
       );
   }
 
-  public removeKnowledgeItemFromCollection(
-    collItem: UserCollectionItem
-  ): Observable<boolean> {
+  public removeKnowledgeItemFromCollection(collItem: UserCollectionItem): Observable<boolean> {
     if (environment.mockdata) {
       return throwError(() => new Error(this.mockModeFailMsg));
     }
@@ -1291,14 +1125,10 @@ export class ODataService {
     };
     const params: HttpParams = new HttpParams();
     return this.http
-      .post(
-        `${this.apiUrl}UserCollectionItems/RemoveItemFromCollection`,
-        jdata,
-        {
-          headers,
-          params,
-        }
-      )
+      .post(`${this.apiUrl}UserCollectionItems/RemoveItemFromCollection`, jdata, {
+        headers,
+        params,
+      })
       .pipe(
         map((response) => {
           const rjs = response as SafeAny;
@@ -1307,12 +1137,7 @@ export class ODataService {
           return rtn;
         }),
         catchError((error: HttpErrorResponse) =>
-          throwError(
-            () =>
-              new Error(
-                error.statusText + '; ' + error.error + '; ' + error.message
-              )
-          )
+          throwError(() => new Error(error.statusText + '; ' + error.error + '; ' + error.message))
         )
       );
   }
@@ -1337,12 +1162,7 @@ export class ODataService {
       .pipe(
         map(() => true),
         catchError((error: HttpErrorResponse) =>
-          throwError(
-            () =>
-              new Error(
-                error.statusText + '; ' + error.error + '; ' + error.message
-              )
-          )
+          throwError(() => new Error(error.statusText + '; ' + error.error + '; ' + error.message))
         )
       );
   }
@@ -1366,15 +1186,9 @@ export class ODataService {
     params = params.append('$skip', skip.toString());
     params = params.append('$count', 'true');
     if (filter) {
-      params = params.append(
-        '$filter',
-        `${filter} and User eq '${this.authService.currentUserId}'`
-      );
+      params = params.append('$filter', `${filter} and User eq '${this.authService.currentUserId}'`);
     } else {
-      params = params.append(
-        '$filter',
-        `User eq '${this.authService.currentUserId}'`
-      );
+      params = params.append('$filter', `User eq '${this.authService.currentUserId}'`);
     }
     const apiurl = `${this.apiUrl}ExerciseItemUserScores`;
 
@@ -1400,19 +1214,12 @@ export class ODataService {
           };
         }),
         catchError((error: HttpErrorResponse) =>
-          throwError(
-            () =>
-              new Error(
-                error.statusText + '; ' + error.error + '; ' + error.message
-              )
-          )
+          throwError(() => new Error(error.statusText + '; ' + error.error + '; ' + error.message))
         )
       );
   }
 
-  public createExerciseItemUserScore(
-    nscore: ExerciseItemUserScore
-  ): Observable<ExerciseItemUserScore> {
+  public createExerciseItemUserScore(nscore: ExerciseItemUserScore): Observable<ExerciseItemUserScore> {
     if (environment.mockdata) {
       return throwError(() => new Error(this.mockModeFailMsg));
     }
@@ -1440,12 +1247,7 @@ export class ODataService {
           return rtn;
         }),
         catchError((error: HttpErrorResponse) =>
-          throwError(
-            () =>
-              new Error(
-                error.statusText + '; ' + error.error + '; ' + error.message
-              )
-          )
+          throwError(() => new Error(error.statusText + '; ' + error.error + '; ' + error.message))
         )
       );
   }
@@ -1469,18 +1271,11 @@ export class ODataService {
       .pipe(
         map(() => true),
         catchError((error: HttpErrorResponse) =>
-          throwError(
-            () =>
-              new Error(
-                error.statusText + '; ' + error.error + '; ' + error.message
-              )
-          )
+          throwError(() => new Error(error.statusText + '; ' + error.error + '; ' + error.message))
         )
       );
   }
-  public getLastestExerciseItemUserScore(
-    refid: number
-  ): Observable<ExerciseItemUserScore | null> {
+  public getLastestExerciseItemUserScore(refid: number): Observable<ExerciseItemUserScore | null> {
     if (environment.mockdata) {
       return throwError(() => new Error(this.mockModeFailMsg));
     }
@@ -1513,12 +1308,7 @@ export class ODataService {
           return null;
         }),
         catchError((error: HttpErrorResponse) =>
-          throwError(
-            () =>
-              new Error(
-                error.statusText + '; ' + error.error + '; ' + error.message
-              )
-          )
+          throwError(() => new Error(error.statusText + '; ' + error.error + '; ' + error.message))
         )
       );
   }
@@ -1586,12 +1376,7 @@ export class ODataService {
           };
         }),
         catchError((error: HttpErrorResponse) =>
-          throwError(
-            () =>
-              new Error(
-                error.statusText + '; ' + error.error + '; ' + error.message
-              )
-          )
+          throwError(() => new Error(error.statusText + '; ' + error.error + '; ' + error.message))
         )
       );
   }
@@ -1638,12 +1423,7 @@ export class ODataService {
           return rit;
         }),
         catchError((error: HttpErrorResponse) =>
-          throwError(
-            () =>
-              new Error(
-                error.statusText + '; ' + error.error + '; ' + error.message
-              )
-          )
+          throwError(() => new Error(error.statusText + '; ' + error.error + '; ' + error.message))
         )
       );
   }
@@ -1676,12 +1456,7 @@ export class ODataService {
           return rtn;
         }),
         catchError((error: HttpErrorResponse) =>
-          throwError(
-            () =>
-              new Error(
-                error.statusText + '; ' + error.error + '; ' + error.message
-              )
-          )
+          throwError(() => new Error(error.statusText + '; ' + error.error + '; ' + error.message))
         )
       );
   }
@@ -1712,20 +1487,12 @@ export class ODataService {
           return true;
         }),
         catchError((error: HttpErrorResponse) =>
-          throwError(
-            () =>
-              new Error(
-                error.statusText + '; ' + error.error + '; ' + error.message
-              )
-          )
+          throwError(() => new Error(error.statusText + '; ' + error.error + '; ' + error.message))
         )
       );
   }
   // Habit Record
-  public getUserHabitRecords(
-    top = 30,
-    skip = 0
-  ): Observable<{ totalCount: number; items: UserHabitRecord[] }> {
+  public getUserHabitRecords(top = 30, skip = 0): Observable<{ totalCount: number; items: UserHabitRecord[] }> {
     if (!this.authService.isAuthenticated) {
       return of({ totalCount: 0, items: [] });
     }
@@ -1773,12 +1540,7 @@ export class ODataService {
           };
         }),
         catchError((error: HttpErrorResponse) =>
-          throwError(
-            () =>
-              new Error(
-                error.statusText + '; ' + error.error + '; ' + error.message
-              )
-          )
+          throwError(() => new Error(error.statusText + '; ' + error.error + '; ' + error.message))
         )
       );
   }
@@ -1836,18 +1598,11 @@ export class ODataService {
           };
         }),
         catchError((error: HttpErrorResponse) =>
-          throwError(
-            () =>
-              new Error(
-                error.statusText + '; ' + error.error + '; ' + error.message
-              )
-          )
+          throwError(() => new Error(error.statusText + '; ' + error.error + '; ' + error.message))
         )
       );
   }
-  public createUserHabitRecord(
-    record: UserHabitRecord
-  ): Observable<UserHabitRecord> {
+  public createUserHabitRecord(record: UserHabitRecord): Observable<UserHabitRecord> {
     if (environment.mockdata) {
       return throwError(() => new Error(this.mockModeFailMsg));
     }
@@ -1874,21 +1629,12 @@ export class ODataService {
           return rtn;
         }),
         catchError((error: HttpErrorResponse) =>
-          throwError(
-            () =>
-              new Error(
-                error.statusText + '; ' + error.error + '; ' + error.message
-              )
-          )
+          throwError(() => new Error(error.statusText + '; ' + error.error + '; ' + error.message))
         )
       );
   }
 
-  public deleteUserHabitRecord(
-    habitid: number,
-    recordDate: string,
-    subID: number
-  ): Observable<boolean> {
+  public deleteUserHabitRecord(habitid: number, recordDate: string, subID: number): Observable<boolean> {
     if (environment.mockdata) {
       return throwError(() => new Error(this.mockModeFailMsg));
     }
@@ -1902,29 +1648,18 @@ export class ODataService {
       .append('Authorization', 'Bearer ' + this.authService.accessToken);
 
     return this.http
-      .delete(
-        `${this.apiUrl}UserHabitRecords(Habitid=${habitid},RecordDate=${recordDate},SubID=${subID})`,
-        {
-          headers,
-        }
-      )
+      .delete(`${this.apiUrl}UserHabitRecords(Habitid=${habitid},RecordDate=${recordDate},SubID=${subID})`, {
+        headers,
+      })
       .pipe(
         map(() => true),
         catchError((error: HttpErrorResponse) =>
-          throwError(
-            () =>
-              new Error(
-                error.statusText + '; ' + error.error + '; ' + error.message
-              )
-          )
+          throwError(() => new Error(error.statusText + '; ' + error.error + '; ' + error.message))
         )
       );
   }
   // Points from Habit
-  public getHabitOpeningPointsByUserDate(
-    usr: string,
-    daysbackto: number
-  ): Observable<number> {
+  public getHabitOpeningPointsByUserDate(usr: string, daysbackto: number): Observable<number> {
     if (environment.mockdata) {
       return throwError(() => new Error(this.mockModeFailMsg));
     }
@@ -1956,18 +1691,11 @@ export class ODataService {
           return 0;
         }),
         catchError((error: HttpErrorResponse) =>
-          throwError(
-            () =>
-              new Error(
-                error.statusText + '; ' + error.error + '; ' + error.message
-              )
-          )
+          throwError(() => new Error(error.statusText + '; ' + error.error + '; ' + error.message))
         )
       );
   }
-  public getHabitPointsByUserDateReport(
-    filter: string
-  ): Observable<UserHabitPointsByUserDate[]> {
+  public getHabitPointsByUserDateReport(filter: string): Observable<UserHabitPointsByUserDate[]> {
     if (environment.mockdata) {
       return throwError(() => new Error(this.mockModeFailMsg));
     }
@@ -1994,8 +1722,7 @@ export class ODataService {
           const rtns: UserHabitPointsByUserDate[] = [];
           const ritems = rjs.value as SafeAny[];
           ritems.forEach((item) => {
-            const rit: UserHabitPointsByUserDate =
-              new UserHabitPointsByUserDate();
+            const rit: UserHabitPointsByUserDate = new UserHabitPointsByUserDate();
             rit.parseData(item);
             rtns.push(rit);
           });
@@ -2003,18 +1730,11 @@ export class ODataService {
           return rtns;
         }),
         catchError((error: HttpErrorResponse) =>
-          throwError(
-            () =>
-              new Error(
-                error.statusText + '; ' + error.error + '; ' + error.message
-              )
-          )
+          throwError(() => new Error(error.statusText + '; ' + error.error + '; ' + error.message))
         )
       );
   }
-  public getHabitPointsByUserHabitDates(): Observable<
-    UserHabitPointsByUserHabitDate[]
-  > {
+  public getHabitPointsByUserHabitDates(): Observable<UserHabitPointsByUserHabitDate[]> {
     if (environment.mockdata) {
       return throwError(() => new Error(this.mockModeFailMsg));
     }
@@ -2037,8 +1757,7 @@ export class ODataService {
           const rtns: UserHabitPointsByUserHabitDate[] = [];
           const ritems = rjs.value as SafeAny[];
           ritems.forEach((item) => {
-            const rit: UserHabitPointsByUserHabitDate =
-              new UserHabitPointsByUserHabitDate();
+            const rit: UserHabitPointsByUserHabitDate = new UserHabitPointsByUserHabitDate();
             rit.parseData(item);
             rtns.push(rit);
           });
@@ -2046,19 +1765,12 @@ export class ODataService {
           return rtns;
         }),
         catchError((error: HttpErrorResponse) =>
-          throwError(
-            () =>
-              new Error(
-                error.statusText + '; ' + error.error + '; ' + error.message
-              )
-          )
+          throwError(() => new Error(error.statusText + '; ' + error.error + '; ' + error.message))
         )
       );
   }
   // Points from manual
-  public getUserHabitPointReports(
-    filter: string
-  ): Observable<UserHabitPointReport[]> {
+  public getUserHabitPointReports(filter: string): Observable<UserHabitPointReport[]> {
     if (environment.mockdata) {
       return throwError(() => new Error(this.mockModeFailMsg));
     }
@@ -2092,19 +1804,11 @@ export class ODataService {
           return rtns;
         }),
         catchError((error: HttpErrorResponse) =>
-          throwError(
-            () =>
-              new Error(
-                error.statusText + '; ' + error.error + '; ' + error.message
-              )
-          )
+          throwError(() => new Error(error.statusText + '; ' + error.error + '; ' + error.message))
         )
       );
   }
-  public getUserOpeningPointReport(
-    usr: string,
-    daysbackto: number
-  ): Observable<number> {
+  public getUserOpeningPointReport(usr: string, daysbackto: number): Observable<number> {
     if (environment.mockdata) {
       return throwError(() => new Error(this.mockModeFailMsg));
     }
@@ -2135,12 +1839,7 @@ export class ODataService {
           return 0;
         }),
         catchError((error: HttpErrorResponse) =>
-          throwError(
-            () =>
-              new Error(
-                error.statusText + '; ' + error.error + '; ' + error.message
-              )
-          )
+          throwError(() => new Error(error.statusText + '; ' + error.error + '; ' + error.message))
         )
       );
   }
@@ -2174,12 +1873,7 @@ export class ODataService {
           return rtn;
         }),
         catchError((error: HttpErrorResponse) =>
-          throwError(
-            () =>
-              new Error(
-                error.statusText + '; ' + error.error + '; ' + error.message
-              )
-          )
+          throwError(() => new Error(error.statusText + '; ' + error.error + '; ' + error.message))
         )
       );
   }
@@ -2217,12 +1911,7 @@ export class ODataService {
           return rtns;
         }),
         catchError((error: HttpErrorResponse) =>
-          throwError(
-            () =>
-              new Error(
-                error.statusText + '; ' + error.error + '; ' + error.message
-              )
-          )
+          throwError(() => new Error(error.statusText + '; ' + error.error + '; ' + error.message))
         )
       );
   }
@@ -2246,12 +1935,7 @@ export class ODataService {
       .pipe(
         map(() => true),
         catchError((error: HttpErrorResponse) =>
-          throwError(
-            () =>
-              new Error(
-                error.statusText + '; ' + error.error + '; ' + error.message
-              )
-          )
+          throwError(() => new Error(error.statusText + '; ' + error.error + '; ' + error.message))
         )
       );
   }

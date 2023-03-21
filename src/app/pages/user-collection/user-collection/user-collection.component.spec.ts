@@ -21,9 +21,7 @@ describe('UserCollectionComponent', () => {
 
   beforeAll(() => {
     odataservice = jasmine.createSpyObj('ODataService', ['getUserCollections']);
-    getUserCollectionsSpy = odataservice.getUserCollections.and.returnValue(
-      of({})
-    );
+    getUserCollectionsSpy = odataservice.getUserCollections.and.returnValue(of({}));
   });
 
   beforeEach(async () => {
@@ -39,10 +37,7 @@ describe('UserCollectionComponent', () => {
         getTranslocoModule(),
       ],
       declarations: [UserCollectionComponent],
-      providers: [
-        UIUtilityService,
-        { provide: ODataService, useValue: odataservice },
-      ],
+      providers: [UIUtilityService, { provide: ODataService, useValue: odataservice }],
     }).compileComponents();
   });
 

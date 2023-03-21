@@ -1,17 +1,7 @@
-import {
-  AfterContentInit,
-  Component,
-  ElementRef,
-  HostListener,
-  ViewChild,
-} from '@angular/core';
+import { AfterContentInit, Component, ElementRef, HostListener, ViewChild } from '@angular/core';
 
 import { Gobang } from 'src/app/models';
-import {
-  CanvasCellPositionInf,
-  getCanvasCellPosition,
-  getCanvasMouseEventPosition,
-} from 'actslib';
+import { CanvasCellPositionInf, getCanvasCellPosition, getCanvasMouseEventPosition } from 'actslib';
 import { environment } from 'src/environments/environment';
 import { MatDialog } from '@angular/material/dialog';
 import { ResultDialogComponent } from '../result-dialog/result-dialog.component';
@@ -34,11 +24,7 @@ export class GobangGameComponent implements AfterContentInit {
   @HostListener('mousedown', ['$event'])
   public onGobangCanvasMouseDown(evt: MouseEvent) {
     const loc = getCanvasMouseEventPosition(evt.target, evt);
-    const cellloc = getCanvasCellPosition(
-      loc,
-      this._cellwidth,
-      this._cellheight
-    );
+    const cellloc = getCanvasCellPosition(loc, this._cellwidth, this._cellheight);
 
     // Process step
     this.onProcessStep(cellloc);
@@ -67,20 +53,10 @@ export class GobangGameComponent implements AfterContentInit {
 
   private drawWholeRect() {
     const ctx2 = this.canvasGobang.nativeElement.getContext('2d');
-    ctx2.clearRect(
-      0,
-      0,
-      this.canvasGobang.nativeElement.width,
-      this.canvasGobang.nativeElement.height
-    );
+    ctx2.clearRect(0, 0, this.canvasGobang.nativeElement.width, this.canvasGobang.nativeElement.height);
     ctx2.save();
     ctx2.fillStyle = 'rgba(0, 0, 100, 0.2)';
-    ctx2.fillRect(
-      0,
-      0,
-      this.canvasGobang.nativeElement.width,
-      this.canvasGobang.nativeElement.height
-    );
+    ctx2.fillRect(0, 0, this.canvasGobang.nativeElement.width, this.canvasGobang.nativeElement.height);
     ctx2.restore();
 
     for (let i = 0; i <= this._cellsize; i++) {
@@ -103,11 +79,9 @@ export class GobangGameComponent implements AfterContentInit {
 
     const image = new Image();
     if (this._userStep) {
-      image.src =
-        environment.basehref + 'assets/image/gobangresource/blackchess.png';
+      image.src = environment.basehref + 'assets/image/gobangresource/blackchess.png';
     } else {
-      image.src =
-        environment.basehref + 'assets/image/gobangresource/whitechess.png';
+      image.src = environment.basehref + 'assets/image/gobangresource/whitechess.png';
     }
 
     image.onload = () => {
@@ -150,10 +124,8 @@ export class GobangGameComponent implements AfterContentInit {
             this._instance.init();
 
             // Resize the canvas size
-            this.canvasGobang.nativeElement.width =
-              this._cellwidth * this._cellsize;
-            this.canvasGobang.nativeElement.height =
-              this._cellheight * this._cellsize;
+            this.canvasGobang.nativeElement.width = this._cellwidth * this._cellsize;
+            this.canvasGobang.nativeElement.height = this._cellheight * this._cellsize;
 
             // Draw the border
             this.drawWholeRect();

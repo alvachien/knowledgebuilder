@@ -21,9 +21,7 @@ describe('KnowledgeItemsComponent', () => {
 
   beforeAll(() => {
     odataservice = jasmine.createSpyObj('ODataService', ['getKnowledgeItems']);
-    getKnowledgeItemsSpy = odataservice.getKnowledgeItems.and.returnValue(
-      of({})
-    );
+    getKnowledgeItemsSpy = odataservice.getKnowledgeItems.and.returnValue(of({}));
   });
 
   beforeEach(waitForAsync(() => {

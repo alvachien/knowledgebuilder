@@ -1,10 +1,4 @@
-import {
-  ExerciseItem,
-  ExerciseItemType,
-  InvitedUser,
-  KnowledgeItem,
-  KnowledgeItemCategory,
-} from 'src/app/models';
+import { ExerciseItem, ExerciseItemType, InvitedUser, KnowledgeItem, KnowledgeItemCategory } from 'src/app/models';
 
 export class FakeData {
   readonly userID1: string = 'abcdefg';

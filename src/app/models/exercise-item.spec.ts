@@ -1,9 +1,4 @@
-import {
-  ExerciseItemType,
-  getExerciseItemTypeName,
-  getExerciseItemTypeNames,
-  ExerciseItem,
-} from './exercise-item';
+import { ExerciseItemType, getExerciseItemTypeName, getExerciseItemTypeNames, ExerciseItem } from './exercise-item';
 
 describe('getExerciseItemTypeName', () => {
   it('Go through all enu', () => {

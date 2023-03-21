@@ -37,10 +37,7 @@ describe('PreviewComponent', () => {
         getTranslocoModule(),
       ],
       declarations: [PreviewComponent],
-      providers: [
-        UIUtilityService,
-        { provide: ODataService, useValue: odataSvc },
-      ],
+      providers: [UIUtilityService, { provide: ODataService, useValue: odataSvc }],
     }).compileComponents();
   });
 

@@ -107,8 +107,7 @@ export class AwardRuleGroup {
     }
     if (val && val.RuleType) {
       if (isNaN(+val.RuleType)) {
-        this.ruleType =
-          AwardRuleTypeEnum[val.RuleType as keyof typeof AwardRuleTypeEnum];
+        this.ruleType = AwardRuleTypeEnum[val.RuleType as keyof typeof AwardRuleTypeEnum];
       } else {
         this.ruleType = +val.RuleType;
       }
@@ -143,8 +142,7 @@ export class AwardRuleGroup {
     if (!isCreatedMode) {
       jobj.ID = this.id;
     }
-    (jobj.RuleType = AwardRuleTypeEnum[this.ruleType]),
-      (jobj.TargetUser = this.targetUser);
+    (jobj.RuleType = AwardRuleTypeEnum[this.ruleType]), (jobj.TargetUser = this.targetUser);
     jobj.Desp = this.desp;
     jobj.ValidFrom = this.validFrom.format(momentDateFormat);
     jobj.ValidTo = this.validTo.format(momentDateFormat);
@@ -192,11 +190,7 @@ export class AwardRuleDetail {
       case AwardRuleTypeEnum.GoToBedTime:
       case AwardRuleTypeEnum.SchoolWorkTime:
         {
-          if (
-            this.timeStart === undefined ||
-            this.timeEnd === undefined ||
-            this.timeStart > this.timeEnd
-          ) {
+          if (this.timeStart === undefined || this.timeEnd === undefined || this.timeStart > this.timeEnd) {
             return false;
           }
         }
@@ -403,28 +397,16 @@ export class DailyTrace {
     if (val && val.GoToBedTime !== undefined && val.GoToBedTime !== null) {
       this.goToBedTime = val.GoToBedTime;
     }
-    if (
-      val &&
-      val.SchoolWorkTime !== undefined &&
-      val.SchoolWorkTime !== null
-    ) {
+    if (val && val.SchoolWorkTime !== undefined && val.SchoolWorkTime !== null) {
       this.schoolWorkTime = val.SchoolWorkTime;
     }
     if (val && val.HomeWorkCount !== undefined && val.HomeWorkCount !== null) {
       this.homeWorkCount = val.HomeWorkCount;
     }
-    if (
-      val &&
-      val.BodyExerciseCount !== undefined &&
-      val.BodyExerciseCount !== null
-    ) {
+    if (val && val.BodyExerciseCount !== undefined && val.BodyExerciseCount !== null) {
       this.bodyExerciseCount = val.BodyExerciseCount;
     }
-    if (
-      val &&
-      val.ErrorsCollection !== undefined &&
-      val.ErrorsCollection !== null
-    ) {
+    if (val && val.ErrorsCollection !== undefined && val.ErrorsCollection !== null) {
       this.errorsCollection = val.ErrorsCollection;
     }
     if (val && val.HandWriting !== undefined && val.HandWriting !== null) {
@@ -433,18 +415,10 @@ export class DailyTrace {
     if (val && val.CleanDesk !== undefined && val.CleanDesk !== null) {
       this.cleanDesk = val.CleanDesk;
     }
-    if (
-      val &&
-      val.HouseKeepingCount !== undefined &&
-      val.HouseKeepingCount !== null
-    ) {
+    if (val && val.HouseKeepingCount !== undefined && val.HouseKeepingCount !== null) {
       this.houseKeepingCount = +val.HouseKeepingCount;
     }
-    if (
-      val &&
-      val.PoliteBehavior !== undefined &&
-      val.PoliteBehavior !== null
-    ) {
+    if (val && val.PoliteBehavior !== undefined && val.PoliteBehavior !== null) {
       this.politeBehavior = val.PoliteBehavior;
     }
     if (val && val.Comment) {

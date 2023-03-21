@@ -23,9 +23,7 @@ describe('UserCollectionDetailComponent', () => {
 
   beforeAll(() => {
     odataservice = jasmine.createSpyObj('ODataService', ['readUserCollection']);
-    readUserCollectionSpy = odataservice.readUserCollection.and.returnValue(
-      of({})
-    );
+    readUserCollectionSpy = odataservice.readUserCollection.and.returnValue(of({}));
   });
 
   beforeEach(async () => {

@@ -40,9 +40,7 @@ export class ExerciseItemAddToCollDialog implements AfterViewInit {
   public isItemExistedInColl(coll: UserCollection): boolean {
     return (
       coll.Items.findIndex(
-        (item) =>
-          item.RefID === this.data.excitemid &&
-          item.RefType === TagReferenceType.ExerciseItem
+        (item) => item.RefID === this.data.excitemid && item.RefType === TagReferenceType.ExerciseItem
       ) !== -1
     );
   }

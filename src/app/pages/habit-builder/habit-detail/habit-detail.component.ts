@@ -1,11 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { ReplaySubject } from 'rxjs';
 import { ActivatedRoute } from '@angular/router';
-import {
-  UntypedFormBuilder,
-  UntypedFormGroup,
-  Validators,
-} from '@angular/forms';
+import { UntypedFormBuilder, UntypedFormGroup, Validators } from '@angular/forms';
 import { UIMode } from 'actslib';
 
 import {
@@ -72,9 +68,7 @@ export class HabitDetailComponent implements OnInit {
   }
   public getUserDisplayAs(usrId: string): string {
     if (usrId && this.authService.userDetail) {
-      const idx = this.authService.userDetail.awardUsers.findIndex(
-        (val) => val.targetUser === usrId
-      );
+      const idx = this.authService.userDetail.awardUsers.findIndex((val) => val.targetUser === usrId);
       if (idx !== -1) {
         return this.authService.userDetail.awardUsers[idx].displayAs;
       }
@@ -110,30 +104,14 @@ export class HabitDetailComponent implements OnInit {
           this.odataSrv.readUserHabit(this.routerID).subscribe({
             next: (val) => {
               this.currentObject = val;
-              this.detailFormGroup
-                .get('targetuserCtrl')
-                ?.setValue(this.currentObject.targetUser);
-              this.detailFormGroup
-                .get('nameCtrl')
-                ?.setValue(this.currentObject.name);
-              this.detailFormGroup
-                .get('validFromCtrl')
-                ?.setValue(this.currentObject.validFrom);
-              this.detailFormGroup
-                .get('validToCtrl')
-                ?.setValue(this.currentObject.validTo);
-              this.detailFormGroup
-                .get('freqCtrl')
-                ?.setValue(this.currentObject.frequency);
-              this.detailFormGroup
-                .get('compCtgyCtrl')
-                ?.setValue(this.currentObject.completeCategory);
-              this.detailFormGroup
-                .get('compCondCtrl')
-                ?.setValue(this.currentObject.completeCondition);
-              this.detailFormGroup
-                .get('startDateCtrl')
-                ?.setValue(this.currentObject.startDate);
+              this.detailFormGroup.get('targetuserCtrl')?.setValue(this.currentObject.targetUser);
+              this.detailFormGroup.get('nameCtrl')?.setValue(this.currentObject.name);
+              this.detailFormGroup.get('validFromCtrl')?.setValue(this.currentObject.validFrom);
+              this.detailFormGroup.get('validToCtrl')?.setValue(this.currentObject.validTo);
+              this.detailFormGroup.get('freqCtrl')?.setValue(this.currentObject.frequency);
+              this.detailFormGroup.get('compCtgyCtrl')?.setValue(this.currentObject.completeCategory);
+              this.detailFormGroup.get('compCondCtrl')?.setValue(this.currentObject.completeCondition);
+              this.detailFormGroup.get('startDateCtrl')?.setValue(this.currentObject.startDate);
 
               if (this.uiMode === UIMode.Display) {
                 this.detailFormGroup.disable();

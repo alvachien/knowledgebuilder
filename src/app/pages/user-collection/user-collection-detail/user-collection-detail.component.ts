@@ -5,12 +5,7 @@ import { ActivatedRoute } from '@angular/router';
 import { MatDialog } from '@angular/material/dialog';
 
 import { UIMode } from 'actslib';
-import {
-  TagReferenceType,
-  UserCollection,
-  UserCollectionItem,
-  getTagReferenceTypeName,
-} from 'src/app/models';
+import { TagReferenceType, UserCollection, UserCollectionItem, getTagReferenceTypeName } from 'src/app/models';
 import { ODataService, UIUtilityService } from 'src/app/services';
 import { AuthService } from 'src/app/services/auth.service';
 
@@ -94,18 +89,16 @@ export class UserCollectionDetailComponent implements OnInit, OnDestroy {
         }
 
         if (this.routerID !== -1) {
-          this.odataService
-            .readUserCollection(this.routerID, this.uiMode === UIMode.Update)
-            .subscribe({
-              next: (exitem) => {
-                this.onSetHeaderData(exitem);
-                this.itemObject = exitem;
-                this.dataSource = exitem.Items;
-              },
-              error: (err) => {
-                this.uiUtilSrv.showSnackInfo(err);
-              },
-            });
+          this.odataService.readUserCollection(this.routerID, this.uiMode === UIMode.Update).subscribe({
+            next: (exitem) => {
+              this.onSetHeaderData(exitem);
+              this.itemObject = exitem;
+              this.dataSource = exitem.Items;
+            },
+            error: (err) => {
+              this.uiUtilSrv.showSnackInfo(err);
+            },
+          });
         }
       },
       error: (err) => {
@@ -123,9 +116,7 @@ export class UserCollectionDetailComponent implements OnInit, OnDestroy {
   onSetHeaderData(val: UserCollection): void {
     this.itemFormGroup.get('idControl')?.setValue(val.ID);
     this.itemFormGroup.get('idControl')?.disable();
-    this.itemFormGroup
-      .get('userControl')
-      ?.setValue(this.authService.userDetail?.userID);
+    this.itemFormGroup.get('userControl')?.setValue(this.authService.userDetail?.userID);
     this.itemFormGroup.get('userControl')?.disable();
     this.itemFormGroup.get('nameControl')?.setValue(val.Name);
     this.itemFormGroup.get('commentControl')?.setValue(val.Comment);
@@ -180,9 +171,7 @@ export class UserCollectionDetailComponent implements OnInit, OnDestroy {
       this.odataService.removeExerciseItemFromCollection(row).subscribe({
         next: () => {
           this.uiUtilSrv.showSnackInfo('DONE');
-          const idx = this.dataSource.findIndex(
-            (item) => item.RefID === row.RefID && item.RefType === row.RefType
-          );
+          const idx = this.dataSource.findIndex((item) => item.RefID === row.RefID && item.RefType === row.RefType);
           if (idx !== -1) {
             this.dataSource.splice(idx, 1);
           }
@@ -195,9 +184,7 @@ export class UserCollectionDetailComponent implements OnInit, OnDestroy {
       this.odataService.removeKnowledgeItemFromCollection(row).subscribe({
         next: () => {
           this.uiUtilSrv.showSnackInfo('DONE');
-          const idx = this.dataSource.findIndex(
-            (item) => item.RefID === row.RefID && item.RefType === row.RefType
-          );
+          const idx = this.dataSource.findIndex((item) => item.RefID === row.RefID && item.RefType === row.RefType);
           if (idx !== -1) {
             this.dataSource.splice(idx, 1);
           }

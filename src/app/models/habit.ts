@@ -92,9 +92,7 @@ export enum HabitCompleteCategory {
   NumberOfCount = 1,
 }
 
-export const getHabitCompleteCategoryName = (
-  ctgy: HabitCompleteCategory
-): string => {
+export const getHabitCompleteCategoryName = (ctgy: HabitCompleteCategory): string => {
   let rtn = '';
   switch (ctgy) {
     case HabitCompleteCategory.NumberOfCount:
@@ -136,8 +134,7 @@ export class UserHabit {
   public validFrom: moment.Moment = moment();
   public validTo: moment.Moment = moment();
   public frequency: HabitFrequency = HabitFrequency.Daily;
-  public completeCategory: HabitCompleteCategory =
-    HabitCompleteCategory.NumberOfTimes;
+  public completeCategory: HabitCompleteCategory = HabitCompleteCategory.NumberOfTimes;
   /// <summary>
   /// Complete Condition
   ///
@@ -276,9 +273,7 @@ export class UserHabit {
     return true;
   }
   get validity(): string {
-    return `${this.validFrom.format(momentDateFormat)}; ${this.validTo.format(
-      momentDateFormat
-    )}`;
+    return `${this.validFrom.format(momentDateFormat)}; ${this.validTo.format(momentDateFormat)}`;
   }
 
   public parseData(val: SafeAny): void {
@@ -287,8 +282,7 @@ export class UserHabit {
     }
     if (val && val.Category) {
       if (isNaN(+val.Category)) {
-        this.category =
-          HabitCategory[val.Category as keyof typeof HabitCategory];
+        this.category = HabitCategory[val.Category as keyof typeof HabitCategory];
       } else {
         this.category = +val.Category;
       }
@@ -310,18 +304,14 @@ export class UserHabit {
     }
     if (val && val.Frequency) {
       if (isNaN(+val.Frequency)) {
-        this.frequency =
-          HabitFrequency[val.Frequency as keyof typeof HabitFrequency];
+        this.frequency = HabitFrequency[val.Frequency as keyof typeof HabitFrequency];
       } else {
         this.frequency = +val.Frequency;
       }
     }
     if (val && val.CompleteCategory) {
       if (isNaN(+val.CompleteCategory)) {
-        this.completeCategory =
-          HabitCompleteCategory[
-            val.CompleteCategory as keyof typeof HabitCompleteCategory
-          ];
+        this.completeCategory = HabitCompleteCategory[val.CompleteCategory as keyof typeof HabitCompleteCategory];
       } else {
         this.completeCategory = +val.CompleteCategory;
       }
@@ -597,11 +587,7 @@ export class UserHabitRecordView {
   public habitValidFrom: moment.Moment = moment();
   public habitValidTo: moment.Moment = moment();
   get habitValidString(): string {
-    return (
-      this.habitValidFrom.format(momentDateFormat) +
-      '; ' +
-      this.habitValidTo.format(momentDateFormat)
-    );
+    return this.habitValidFrom.format(momentDateFormat) + '; ' + this.habitValidTo.format(momentDateFormat);
   }
   public ruleDaysFrom?: number;
   public ruleDaysTo?: number;

@@ -70,9 +70,7 @@ export class Calculate24Component {
 
     while (this.Cal24items.length < 4) {
       const nNum =
-        Math.floor(
-          Math.random() * (this.Cal24NumberRangeEnd - this.Cal24NumberRangeBgn)
-        ) + this.Cal24NumberRangeBgn;
+        Math.floor(Math.random() * (this.Cal24NumberRangeEnd - this.Cal24NumberRangeBgn)) + this.Cal24NumberRangeBgn;
       const nExistIdx = this.Cal24items.findIndex((val) => val === nNum);
       if (nExistIdx === -1) {
         this.Cal24items.push(nNum);
@@ -98,10 +96,7 @@ export class Calculate24Component {
   }
   public OnCal24Backspace(): void {
     if (this.Cal24Input.length > 1) {
-      this.Cal24Input = this.Cal24Input.substring(
-        0,
-        this.Cal24Input.length - 1
-      );
+      this.Cal24Input = this.Cal24Input.substring(0, this.Cal24Input.length - 1);
     } else {
       this.Cal24Input = '';
     }

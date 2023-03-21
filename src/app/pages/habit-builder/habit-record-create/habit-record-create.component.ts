@@ -1,10 +1,5 @@
 import { Component } from '@angular/core';
-import {
-  UntypedFormBuilder,
-  UntypedFormControl,
-  UntypedFormGroup,
-  Validators,
-} from '@angular/forms';
+import { UntypedFormBuilder, UntypedFormControl, UntypedFormGroup, Validators } from '@angular/forms';
 import moment from 'moment';
 import { forkJoin } from 'rxjs';
 
@@ -40,13 +35,7 @@ export class HabitRecordCreateComponent {
   currentObject: UserHabitRecord | null = null;
   firstFormGroup: UntypedFormGroup;
   arHabits: AvailableHabit[] = [];
-  displayedColumns: string[] = [
-    'hid',
-    'name',
-    'frequency',
-    'compCategory',
-    'compFact',
-  ];
+  displayedColumns: string[] = ['hid', 'name', 'frequency', 'compCategory', 'compFact'];
 
   constructor(
     private _formBuilder: UntypedFormBuilder,
@@ -68,9 +57,7 @@ export class HabitRecordCreateComponent {
   }
   public getUserDisplayAs(usrId: string): string {
     if (usrId && this.authService.userDetail) {
-      const idx = this.authService.userDetail.awardUsers.findIndex(
-        (val) => val.targetUser === usrId
-      );
+      const idx = this.authService.userDetail.awardUsers.findIndex((val) => val.targetUser === usrId);
       if (idx !== -1) {
         return this.authService.userDetail.awardUsers[idx].displayAs;
       }
@@ -87,9 +74,7 @@ export class HabitRecordCreateComponent {
   public onUserSelected(): void {
     // Get the result
     const tgtuser = this.firstFormGroup.get('targetuserCtrl')?.value;
-    const pickedDate = this.firstFormGroup
-      .get('dateCtrl')
-      ?.value.format(momentDateFormat);
+    const pickedDate = this.firstFormGroup.get('dateCtrl')?.value.format(momentDateFormat);
 
     this.odataSrv
       .getUserHabits(

@@ -461,13 +461,7 @@ export class AdditionQuizItem extends PrimarySchoolMathFAOQuizItem {
   }
 
   public override getCorrectFormula(): string {
-    return (
-      this.LeftNumber.toString() +
-      ' + ' +
-      this.RightNumber.toString() +
-      ' = ' +
-      this.Result.toString()
-    );
+    return this.LeftNumber.toString() + ' + ' + this.RightNumber.toString() + ' = ' + this.Result.toString();
   }
 
   public override getInputtedForumla(): string {
@@ -476,21 +470,13 @@ export class AdditionQuizItem extends PrimarySchoolMathFAOQuizItem {
       ' + ' +
       this.RightNumber.toString() +
       ' = ' +
-      (this.InputtedResult !== undefined && this.InputtedResult !== null
-        ? this.InputtedResult.toString()
-        : '')
+      (this.InputtedResult !== undefined && this.InputtedResult !== null ? this.InputtedResult.toString() : '')
     );
   }
 
   public override getQuizFormat(): string {
     const rststr = super.getQuizFormat();
-    return (
-      rststr +
-      this.LeftNumber.toString() +
-      ' + ' +
-      this.RightNumber.toString() +
-      ' = '
-    );
+    return rststr + this.LeftNumber.toString() + ' + ' + this.RightNumber.toString() + ' = ';
   }
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -554,13 +540,7 @@ export class SubtractionQuizItem extends PrimarySchoolMathFAOQuizItem {
   }
 
   public override getCorrectFormula(): string {
-    return (
-      this.LeftNumber.toString() +
-      ' - ' +
-      this.RightNumber.toString() +
-      ' = ' +
-      this.Result.toString()
-    );
+    return this.LeftNumber.toString() + ' - ' + this.RightNumber.toString() + ' = ' + this.Result.toString();
   }
 
   public override getInputtedForumla(): string {
@@ -569,28 +549,22 @@ export class SubtractionQuizItem extends PrimarySchoolMathFAOQuizItem {
       ' - ' +
       this.RightNumber.toString() +
       ' = ' +
-      (this.InputtedResult !== undefined && this.InputtedResult !== null
-        ? this.InputtedResult.toString()
-        : '')
+      (this.InputtedResult !== undefined && this.InputtedResult !== null ? this.InputtedResult.toString() : '')
     );
   }
 
   public override getQuizFormat(): string {
     const rststr = super.getQuizFormat();
-    return (
-      rststr +
-      this.LeftNumber.toString() +
-      ' - ' +
-      this.RightNumber.toString() +
-      ' = '
-    );
+    return rststr + this.LeftNumber.toString() + ' - ' + this.RightNumber.toString() + ' = ';
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   protected override storeToJsonObject(): any {
     const jobj = super.storeToJsonObject();
     return jobj;
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   protected override restoreFromJsonObject(jobj: any): void {
     super.restoreFromJsonObject(jobj);
   }
@@ -645,13 +619,7 @@ export class MultiplicationQuizItem extends PrimarySchoolMathFAOQuizItem {
   }
 
   public override getCorrectFormula(): string {
-    return (
-      this.LeftNumber.toString() +
-      ' × ' +
-      this.RightNumber.toString() +
-      ' = ' +
-      this.Result.toString()
-    );
+    return this.LeftNumber.toString() + ' × ' + this.RightNumber.toString() + ' = ' + this.Result.toString();
   }
 
   public override getInputtedForumla(): string {
@@ -660,23 +628,16 @@ export class MultiplicationQuizItem extends PrimarySchoolMathFAOQuizItem {
       ' × ' +
       this.RightNumber.toString() +
       ' = ' +
-      (this.InputtedResult !== undefined && this.InputtedResult !== null
-        ? this.InputtedResult.toString()
-        : '')
+      (this.InputtedResult !== undefined && this.InputtedResult !== null ? this.InputtedResult.toString() : '')
     );
   }
 
   public override getQuizFormat(): string {
     const rststr = super.getQuizFormat();
-    return (
-      rststr +
-      this.LeftNumber.toString() +
-      ' × ' +
-      this.RightNumber.toString() +
-      ' = '
-    );
+    return rststr + this.LeftNumber.toString() + ' × ' + this.RightNumber.toString() + ' = ';
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   protected override storeToJsonObject(): any {
     const jobj = super.storeToJsonObject();
     return jobj;
@@ -753,10 +714,7 @@ export class DivisionQuizItem extends PrimarySchoolMathFAOQuizItem {
       return false;
     }
 
-    if (
-      this._inputtedQuotient === this._quotient &&
-      this._inputtedRemainder === this._remainder
-    ) {
+    if (this._inputtedQuotient === this._quotient && this._inputtedRemainder === this._remainder) {
       return true;
     }
 
@@ -780,9 +738,7 @@ export class DivisionQuizItem extends PrimarySchoolMathFAOQuizItem {
       ' ÷ ' +
       this.RightNumber.toString() +
       ' = ' +
-      (this.InputtedQuotient !== undefined && this.InputtedQuotient !== null
-        ? this.InputtedQuotient.toString()
-        : '') +
+      (this.InputtedQuotient !== undefined && this.InputtedQuotient !== null ? this.InputtedQuotient.toString() : '') +
       (this.InputtedRemainder !== undefined && this.InputtedRemainder !== null
         ? ' ... ' + this.InputtedRemainder.toString()
         : '')
@@ -791,13 +747,7 @@ export class DivisionQuizItem extends PrimarySchoolMathFAOQuizItem {
 
   public override getQuizFormat(): string {
     const rststr = super.getQuizFormat();
-    return (
-      rststr +
-      this.LeftNumber.toString() +
-      ' ÷ ' +
-      this.RightNumber.toString() +
-      ' = '
-    );
+    return rststr + this.LeftNumber.toString() + ' ÷ ' + this.RightNumber.toString() + ' = ';
   }
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -902,12 +852,14 @@ export class MixedOperationQuizItem extends PrimarySchoolMathQuizItem {
     return rststr + this._formula.replace('*', '×').replace('/', '÷') + ' = ';
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   protected override storeToJsonObject(): any {
     const jobj = super.storeToJsonObject();
     jobj.forumla = this._formula;
     return jobj;
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   protected override restoreFromJsonObject(jobj: any): void {
     super.restoreFromJsonObject(jobj);
 

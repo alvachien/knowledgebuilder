@@ -11,13 +11,6 @@ import { HelpRoutingModule } from './help-routing.module';
 
 @NgModule({
   declarations: [HelpComponent, AboutComponent, CreditsComponent],
-  imports: [
-    CommonModule,
-    FormsModule,
-    ReactiveFormsModule,
-    MaterialModulesModule,
-    HelpRoutingModule,
-    TranslocoModule,
-  ],
+  imports: [CommonModule, FormsModule, ReactiveFormsModule, MaterialModulesModule, HelpRoutingModule, TranslocoModule],
 })
 export class HelpModule {}

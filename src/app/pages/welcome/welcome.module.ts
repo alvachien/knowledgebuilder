@@ -8,11 +8,6 @@ import { MaterialModulesModule } from 'src/app/material-modules';
 
 @NgModule({
   declarations: [WelcomeComponent],
-  imports: [
-    CommonModule,
-    WelcomeRoutingModule,
-    MaterialModulesModule,
-    TranslocoModule,
-  ],
+  imports: [CommonModule, WelcomeRoutingModule, MaterialModulesModule, TranslocoModule],
 })
 export class WelcomeModule {}

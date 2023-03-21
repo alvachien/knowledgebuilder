@@ -1,15 +1,5 @@
-import {
-  Component,
-  ViewChild,
-  ElementRef,
-  ChangeDetectorRef,
-} from '@angular/core';
-import {
-  AbstractControl,
-  UntypedFormControl,
-  UntypedFormGroup,
-  ValidationErrors,
-} from '@angular/forms';
+import { Component, ViewChild, ElementRef, ChangeDetectorRef } from '@angular/core';
+import { AbstractControl, UntypedFormControl, UntypedFormGroup, ValidationErrors } from '@angular/forms';
 import { Validators } from '@angular/forms';
 import { MatDialog } from '@angular/material/dialog';
 import { MatSelectionList } from '@angular/material/list';
@@ -17,16 +7,8 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 import { Router } from '@angular/router';
 import { Observable } from 'rxjs';
 
-import {
-  MixedOperationQuizItem,
-  PrimarySchoolMathQuizSection,
-  QuizSection,
-} from 'src/app/models';
-import {
-  CanComponentDeactivate,
-  CanDeactivateGuard,
-  QuizService,
-} from 'src/app/services';
+import { MixedOperationQuizItem, PrimarySchoolMathQuizSection, QuizSection } from 'src/app/models';
+import { CanComponentDeactivate, CanDeactivateGuard, QuizService } from 'src/app/services';
 import { QuizFailureDailogComponent } from '../../quiz-failure-dailog';
 
 @Component({
@@ -38,27 +20,13 @@ export class MixedOperationsComponent implements CanDeactivateGuard {
   isQuizStarted = false;
   quizControlFormGroup: UntypedFormGroup = new UntypedFormGroup(
     {
-      countControl: new UntypedFormControl(20, [
-        Validators.required,
-        Validators.min(1),
-        Validators.max(1000),
-      ]),
-      failedFactorControl: new UntypedFormControl(2, [
-        Validators.min(0),
-        Validators.max(10),
-      ]),
+      countControl: new UntypedFormControl(20, [Validators.required, Validators.min(1), Validators.max(1000)]),
+      failedFactorControl: new UntypedFormControl(2, [Validators.min(0), Validators.max(10)]),
       leftNumberControl: new UntypedFormControl(0),
       rightNumberControl: new UntypedFormControl(100),
       negControl: new UntypedFormControl(false),
-      decControl: new UntypedFormControl(0, [
-        Validators.min(0),
-        Validators.max(5),
-      ]),
-      operatorCountControl: new UntypedFormControl(2, [
-        Validators.required,
-        Validators.min(1),
-        Validators.max(4),
-      ]),
+      decControl: new UntypedFormControl(0, [Validators.min(0), Validators.max(5)]),
+      operatorCountControl: new UntypedFormControl(2, [Validators.required, Validators.min(1), Validators.max(4)]),
     },
     { validators: this.basicValidator }
   );
@@ -101,9 +69,7 @@ export class MixedOperationsComponent implements CanDeactivateGuard {
     private dialog: MatDialog
   ) {}
 
-  canDeactivate(
-    component: CanComponentDeactivate
-  ): boolean | Observable<boolean> | Promise<boolean> {
+  canDeactivate(component: CanComponentDeactivate): boolean | Observable<boolean> | Promise<boolean> {
     return !this.isQuizStarted;
   }
 
@@ -121,13 +87,8 @@ export class MixedOperationsComponent implements CanDeactivateGuard {
   onQuizStart(): void {
     if (!this.quizService.ActiveQuiz) {
       const quiz = this.quizService.startNewQuiz(this.quizService.NextQuizID);
-      this.generateQuizSection(
-        this.quizControlFormGroup.get('countControl')!.value
-      );
-      const quizSection = new QuizSection(
-        quiz.NextSectionID,
-        this.QuizItems.length
-      );
+      this.generateQuizSection(this.quizControlFormGroup.get('countControl')!.value);
+      const quizSection = new QuizSection(quiz.NextSectionID, this.QuizItems.length);
       quiz.startNewSection(quizSection);
 
       this.isQuizStarted = true;
@@ -154,18 +115,14 @@ export class MixedOperationsComponent implements CanDeactivateGuard {
 
         // Complete current section, and start another one!
         this.quizService.ActiveQuiz?.completeActionSection(failedItems.length);
-        const failedfactor = this.quizControlFormGroup.get(
-          'failedFactorControl'
-        )!.value;
+        const failedfactor = this.quizControlFormGroup.get('failedFactorControl')!.value;
 
         if (failedItems.length > 0 && failedfactor > 0) {
           // this.snackBar.open(`Failed items: ${failedItems.length}, please retry`, undefined, {
           //   duration: 2000,
           // });
           this.quizService.FailedQuizItems = failedItems;
-          this.quizService.CurrentScore =
-            (this.QuizItems.length - failedItems.length) /
-            this.QuizItems.length;
+          this.quizService.CurrentScore = (this.QuizItems.length - failedItems.length) / this.QuizItems.length;
           const dialogRef = this.dialog.open(QuizFailureDailogComponent, {
             disableClose: false,
             width: '500px',
@@ -177,10 +134,7 @@ export class MixedOperationsComponent implements CanDeactivateGuard {
             this.setNextButtonText();
 
             const curquiz = this.quizService.ActiveQuiz!;
-            const quizSection = new QuizSection(
-              curquiz.NextSectionID,
-              this.QuizItems.length
-            );
+            const quizSection = new QuizSection(curquiz.NextSectionID, this.QuizItems.length);
             curquiz.startNewSection(quizSection);
           });
         } else {
@@ -219,11 +173,8 @@ export class MixedOperationsComponent implements CanDeactivateGuard {
   }
 
   private generateQuizItem(idx: number): MixedOperationQuizItem {
-    const allowneg: boolean = this.quizControlFormGroup.get('negControl')!
-      .value as boolean;
-    const opercnt = this.quizControlFormGroup.get(
-      'operatorCountControl'
-    )!.value;
+    const allowneg: boolean = this.quizControlFormGroup.get('negControl')!.value as boolean;
+    const opercnt = this.quizControlFormGroup.get('operatorCountControl')!.value;
     let qz: MixedOperationQuizItem = new MixedOperationQuizItem();
     while (1 === 1) {
       let fmt = this.getNumber().toString();
@@ -251,11 +202,7 @@ export class MixedOperationsComponent implements CanDeactivateGuard {
         });
       }
       qz = new MixedOperationQuizItem(fmt);
-      if (
-        isNaN(qz.Result) ||
-        !isFinite(qz.Result) ||
-        (!allowneg && qz.Result < 0)
-      ) {
+      if (isNaN(qz.Result) || !isFinite(qz.Result) || (!allowneg && qz.Result < 0)) {
         continue;
       }
       qz.QuizIndex = idx;
@@ -268,10 +215,8 @@ export class MixedOperationsComponent implements CanDeactivateGuard {
     let mfactor = 0;
     const decplace = this.quizControlFormGroup.get('decControl')!.value;
     mfactor = Math.pow(10, decplace);
-    const leftNumb =
-      mfactor * this.quizControlFormGroup.get('leftNumberControl')!.value;
-    const rightNumb =
-      mfactor * this.quizControlFormGroup.get('rightNumberControl')!.value;
+    const leftNumb = mfactor * this.quizControlFormGroup.get('leftNumberControl')!.value;
+    const rightNumb = mfactor * this.quizControlFormGroup.get('rightNumberControl')!.value;
 
     let rnum1 = Math.round(Math.random() * (rightNumb - leftNumb)) + leftNumb;
     if (mfactor !== 0) {

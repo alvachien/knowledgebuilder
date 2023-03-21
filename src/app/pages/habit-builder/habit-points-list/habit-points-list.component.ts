@@ -1,9 +1,5 @@
 import { Component, Inject, OnInit } from '@angular/core';
-import {
-  MatDialog,
-  MatDialogRef,
-  MAT_DIALOG_DATA,
-} from '@angular/material/dialog';
+import { MatDialog, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import moment from 'moment';
 import { forkJoin } from 'rxjs';
 
@@ -23,13 +19,7 @@ import { AuthService, ODataService, UIUtilityService } from 'src/app/services';
   styleUrls: ['./habit-points-list.component.scss'],
 })
 export class HabitPointsListComponent implements OnInit {
-  displayedColumnsManualPoint: string[] = [
-    'id',
-    'targetUser',
-    'recordDate',
-    'point',
-    'comment',
-  ];
+  displayedColumnsManualPoint: string[] = ['id', 'targetUser', 'recordDate', 'point', 'comment'];
   dataSourceManualPoints: UserHabitPoint[] = [];
   displayedColumnsHabitPoint: string[] = [
     'targetUser',
@@ -63,9 +53,7 @@ export class HabitPointsListComponent implements OnInit {
   }
   public getUserDisplayAs(usrId: string): string {
     if (usrId && this.authService.userDetail) {
-      const idx = this.authService.userDetail.awardUsers.findIndex(
-        (val) => val.targetUser === usrId
-      );
+      const idx = this.authService.userDetail.awardUsers.findIndex((val) => val.targetUser === usrId);
       if (idx !== -1) {
         return this.authService.userDetail.awardUsers[idx].displayAs;
       }
@@ -95,29 +83,19 @@ export class HabitPointsListComponent implements OnInit {
     const arAxis: string[] = [];
     const daysInAxisOrigin = daysInAxis;
     while (daysInAxis >= 0) {
-      arAxis.push(
-        dateEnd.clone().subtract(daysInAxis, 'days').format(momentDateFormat)
-      );
+      arAxis.push(dateEnd.clone().subtract(daysInAxis, 'days').format(momentDateFormat));
       daysInAxis--;
     }
-    const filterstr = `TargetUser eq '${
-      this.selectedUser
-    }' and RecordDate ge ${dateBgn.format(
+    const filterstr = `TargetUser eq '${this.selectedUser}' and RecordDate ge ${dateBgn.format(
       momentDateFormat
     )} and RecordDate le ${dateEnd.format(momentDateFormat)}`;
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const arSeries: any[] = [];
     forkJoin([
-      this.odataSrv.getHabitOpeningPointsByUserDate(
-        this.selectedUser ?? '',
-        daysInAxisOrigin
-      ),
+      this.odataSrv.getHabitOpeningPointsByUserDate(this.selectedUser ?? '', daysInAxisOrigin),
       this.odataSrv.getHabitPointsByUserDateReport(filterstr),
-      this.odataSrv.getUserOpeningPointReport(
-        this.selectedUser!,
-        daysInAxisOrigin
-      ),
+      this.odataSrv.getUserOpeningPointReport(this.selectedUser!, daysInAxisOrigin),
       this.odataSrv.getUserHabitPointReports(filterstr),
     ]).subscribe({
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -135,9 +113,7 @@ export class HabitPointsListComponent implements OnInit {
         let prvSumPoint = openPoint1 + openPoint2;
 
         arAxis.forEach((axisDate) => {
-          const idxUserDate = arHabitPoints.findIndex(
-            (val) => val.recordDateString === axisDate
-          );
+          const idxUserDate = arHabitPoints.findIndex((val) => val.recordDateString === axisDate);
           if (idxUserDate !== -1) {
             prvHabitPoint = arHabitPoints[idxUserDate].point;
           } else {
@@ -145,9 +121,7 @@ export class HabitPointsListComponent implements OnInit {
           }
           habitData.push(prvHabitPoint);
 
-          const idxManual = arManualPoints.findIndex(
-            (val) => val.recordDateString === axisDate
-          );
+          const idxManual = arManualPoints.findIndex((val) => val.recordDateString === axisDate);
           if (idxManual !== -1) {
             prvManualPoint += arManualPoints[idxManual].point;
           } else {
@@ -234,16 +208,14 @@ export class HabitPointsListComponent implements OnInit {
       this.dataSourceHabitPoints = [];
 
       const filterStr = `RecordDate eq ${event.name} and TargetUser eq '${this.selectedUser}' and RulePoint gt 0`;
-      this.odataSrv
-        .getUserHabitRecordViews(100, 0, undefined, undefined, filterStr)
-        .subscribe({
-          next: (val) => {
-            this.dataSourceHabitPoints = val.items;
-          },
-          error: (err) => {
-            this.uiUtilSrv.showSnackInfo(err);
-          },
-        });
+      this.odataSrv.getUserHabitRecordViews(100, 0, undefined, undefined, filterStr).subscribe({
+        next: (val) => {
+          this.dataSourceHabitPoints = val.items;
+        },
+        error: (err) => {
+          this.uiUtilSrv.showSnackInfo(err);
+        },
+      });
     } else if (event.seriesIndex === 1) {
       // Points from manual input.
       if (event.name) {

@@ -14,11 +14,7 @@ import { jsPDF, jsPDFOptions } from 'jspdf';
 import html2canvas from 'html2canvas';
 import { SafeAny } from 'src/app/common';
 
-export const generateNumber = (
-  endnr: number,
-  bgnnr: number,
-  dcmplace: number
-): number => {
+export const generateNumber = (endnr: number, bgnnr: number, dcmplace: number): number => {
   let rnum1 = Math.random() * (endnr - bgnnr) + bgnnr;
   if (dcmplace > 0) {
     rnum1 = parseFloat(rnum1.toFixed(dcmplace));
@@ -48,16 +44,10 @@ export class PrintableQuizComponent {
   arFractQuizFinal: SafeAny[] = [];
 
   get amountMixOp(): number | SafeAny {
-    return (
-      this.contentFormGroup.get('amountMixOpCtrl') &&
-      +this.contentFormGroup.get('amountMixOpCtrl')?.value
-    );
+    return this.contentFormGroup.get('amountMixOpCtrl') && +this.contentFormGroup.get('amountMixOpCtrl')?.value;
   }
   get amountFract(): number | SafeAny {
-    return (
-      this.contentFormGroup.get('amountFractCtrl') &&
-      +this.contentFormGroup.get('amountFractCtrl')?.value
-    );
+    return this.contentFormGroup.get('amountFractCtrl') && +this.contentFormGroup.get('amountFractCtrl')?.value;
   }
   get fontSize(): number {
     if (this.quizFormGroup && this.quizFormGroup.get('fontSizeCtrl')) {
@@ -75,8 +65,7 @@ export class PrintableQuizComponent {
     return this.quizFormGroup.get('enableScoreCtrl')?.value as boolean;
   }
   get arPlaceHolder(): SafeAny[] {
-    const dcmplace: number =
-      +this.contentFormGroup.get('decimalPlacesCtrl')?.value;
+    const dcmplace: number = +this.contentFormGroup.get('decimalPlacesCtrl')?.value;
     const endnr: number = +this.contentFormGroup.get('numberEndCtrl')?.value;
     const amtLength: number = 2 * (endnr.toString().length + dcmplace);
 
@@ -115,9 +104,7 @@ export class PrintableQuizComponent {
     );
   }
 
-  contentValidator: ValidatorFn = (
-    group: AbstractControl
-  ): ValidationErrors | null => {
+  contentValidator: ValidatorFn = (group: AbstractControl): ValidationErrors | null => {
     const addamt: number = +group.get('amountAddCtrl')?.value;
     const subamt: number = +group.get('amountSubCtrl')?.value;
     const mulamt: number = +group.get('amountMulCtrl')?.value;
@@ -125,11 +112,7 @@ export class PrintableQuizComponent {
     const frtamt: number = +group.get('amountFractCtrl')?.value;
     const mops: SafeAny[] = group.get('mixOpsCtrl')?.value;
     if (
-      (addamt <= 0 &&
-        subamt <= 0 &&
-        mulamt <= 0 &&
-        mopamt <= 0 &&
-        frtamt <= 0) ||
+      (addamt <= 0 && subamt <= 0 && mulamt <= 0 && mopamt <= 0 && frtamt <= 0) ||
       addamt + subamt + mulamt + mopamt + frtamt <= 0
     ) {
       return { invalidamount: true };
@@ -149,9 +132,7 @@ export class PrintableQuizComponent {
     return null;
   };
 
-  printSettingValidator: ValidatorFn = (
-    group: AbstractControl
-  ): ValidationErrors | null => {
+  printSettingValidator: ValidatorFn = (group: AbstractControl): ValidationErrors | null => {
     const cpyamt: number = +group.get('amountOfCopyCtrl')?.value;
     if (cpyamt <= 0) {
       return { invalidcopyamount: true };
@@ -177,10 +158,8 @@ export class PrintableQuizComponent {
     const frtamt: number = +this.contentFormGroup.get('amountFractCtrl')?.value;
     const bgnnr: number = +this.contentFormGroup.get('numberBeginCtrl')?.value;
     const endnr: number = +this.contentFormGroup.get('numberEndCtrl')?.value;
-    const dcmplace: number =
-      +this.contentFormGroup.get('decimalPlacesCtrl')?.value;
-    const randminput: boolean =
-      this.contentFormGroup.get('randomInputCtrl')?.value;
+    const dcmplace: number = +this.contentFormGroup.get('decimalPlacesCtrl')?.value;
+    const randminput: boolean = this.contentFormGroup.get('randomInputCtrl')?.value;
 
     // Add.
     this.generateAddQuizs(addamt, endnr, bgnnr, dcmplace, randminput);
@@ -189,21 +168,9 @@ export class PrintableQuizComponent {
     // Multipy.
     this.generateMulQuizs(mulamt, endnr, bgnnr, dcmplace, randminput);
     // Mixed operators
-    this.generateMixOpQuiz(
-      mopamt,
-      endnr,
-      bgnnr,
-      dcmplace,
-      randminput,
-      this.contentFormGroup.get('mixOpsCtrl')?.value
-    );
+    this.generateMixOpQuiz(mopamt, endnr, bgnnr, dcmplace, randminput, this.contentFormGroup.get('mixOpsCtrl')?.value);
     // Fraction
-    this.generatFractQuiz(
-      frtamt,
-      endnr,
-      bgnnr,
-      this.contentFormGroup.get('mixOpsCtrl')?.value
-    );
+    this.generatFractQuiz(frtamt, endnr, bgnnr, this.contentFormGroup.get('mixOpsCtrl')?.value);
   }
 
   public onGenerate(): void {
@@ -320,13 +287,7 @@ export class PrintableQuizComponent {
     );
   }
 
-  private generateMulQuizs(
-    mulamt: number,
-    endnr: number,
-    bgnnr: number,
-    dcmplace: number,
-    randminput: boolean
-  ) {
+  private generateMulQuizs(mulamt: number, endnr: number, bgnnr: number, dcmplace: number, randminput: boolean) {
     this.arMulQuizFinal = [];
 
     const arMulQuiz: SafeAny[] = [];
@@ -359,11 +320,7 @@ export class PrintableQuizComponent {
     }
     for (let i = 0; i < mulamt; i += 3) {
       if (i < mulamt - 2) {
-        this.arMulQuizFinal.push([
-          arMulQuiz[i],
-          arMulQuiz[i + 1],
-          arMulQuiz[i + 2],
-        ]);
+        this.arMulQuizFinal.push([arMulQuiz[i], arMulQuiz[i + 1], arMulQuiz[i + 2]]);
       } else if (i < mulamt - 1) {
         this.arMulQuizFinal.push([arMulQuiz[i], arMulQuiz[i + 1]]);
       } else {
@@ -372,13 +329,7 @@ export class PrintableQuizComponent {
     }
   }
 
-  private generateSubQuizs(
-    subamt: number,
-    endnr: number,
-    bgnnr: number,
-    dcmplace: number,
-    randminput: boolean
-  ) {
+  private generateSubQuizs(subamt: number, endnr: number, bgnnr: number, dcmplace: number, randminput: boolean) {
     this.arSubQuizFinal = [];
 
     const arSubQuiz: SafeAny[] = [];
@@ -417,11 +368,7 @@ export class PrintableQuizComponent {
     }
     for (let i = 0; i < subamt; i += 3) {
       if (i < subamt - 2) {
-        this.arSubQuizFinal.push([
-          arSubQuiz[i],
-          arSubQuiz[i + 1],
-          arSubQuiz[i + 2],
-        ]);
+        this.arSubQuizFinal.push([arSubQuiz[i], arSubQuiz[i + 1], arSubQuiz[i + 2]]);
       } else if (i < subamt - 1) {
         this.arSubQuizFinal.push([arSubQuiz[i], arSubQuiz[i + 1]]);
       } else {
@@ -430,13 +377,7 @@ export class PrintableQuizComponent {
     }
   }
 
-  private generateAddQuizs(
-    addamt: number,
-    endnr: number,
-    bgnnr: number,
-    dcmplace: number,
-    randminput: boolean
-  ) {
+  private generateAddQuizs(addamt: number, endnr: number, bgnnr: number, dcmplace: number, randminput: boolean) {
     this.arAddQuizFinal = [];
 
     const arAddQuiz: SafeAny[] = [];
@@ -470,11 +411,7 @@ export class PrintableQuizComponent {
     }
     for (let i = 0; i < addamt; i += 3) {
       if (i < addamt - 2) {
-        this.arAddQuizFinal.push([
-          arAddQuiz[i],
-          arAddQuiz[i + 1],
-          arAddQuiz[i + 2],
-        ]);
+        this.arAddQuizFinal.push([arAddQuiz[i], arAddQuiz[i + 1], arAddQuiz[i + 2]]);
       } else if (i < addamt - 1) {
         this.arAddQuizFinal.push([arAddQuiz[i], arAddQuiz[i + 1]]);
       } else {
@@ -518,9 +455,7 @@ export class PrintableQuizComponent {
           if (i === 0) {
             finformat += numlist[i].toString();
           } else {
-            finformat +=
-              (arops[i - 1] === 'X' ? '*' : arops[i - 1]) +
-              numlist[i].toString();
+            finformat += (arops[i - 1] === 'X' ? '*' : arops[i - 1]) + numlist[i].toString();
 
             const midrst = eval(finformat);
             if (midrst < 0) {
@@ -530,10 +465,7 @@ export class PrintableQuizComponent {
               const midrststring = midrst.toString();
               const dotidx = midrststring.indexOf('.');
               if (dcmplace > 0) {
-                if (
-                  dotidx === -1 ||
-                  (dotidx !== -1 && midrststring.length > dotidx + dcmplace + 1)
-                ) {
+                if (dotidx === -1 || (dotidx !== -1 && midrststring.length > dotidx + dcmplace + 1)) {
                   bneg = true;
                   break;
                 }
@@ -590,12 +522,7 @@ export class PrintableQuizComponent {
     }
   }
 
-  private generatFractQuiz(
-    frtamt: number,
-    endnr: number,
-    bgnnr: number,
-    oplist: string[]
-  ) {
+  private generatFractQuiz(frtamt: number, endnr: number, bgnnr: number, oplist: string[]) {
     this.arFractQuizFinal = [];
 
     const arFractQuiz: SafeAny[] = [];

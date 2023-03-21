@@ -1,9 +1,4 @@
-import {
-  ComponentFixture,
-  fakeAsync,
-  TestBed,
-  tick,
-} from '@angular/core/testing';
+import { ComponentFixture, fakeAsync, TestBed, tick } from '@angular/core/testing';
 import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { NoopAnimationsModule } from '@angular/platform-browser/animations';
@@ -32,11 +27,7 @@ describe('PrintableQuizComponent', () => {
         BrowserDynamicTestingModule,
         getTranslocoModule(),
       ],
-      declarations: [
-        PrintableQuizComponent,
-        PrintableQuizSectionComponent,
-        PrintableQuizSectionItemComponent,
-      ],
+      declarations: [PrintableQuizComponent, PrintableQuizSectionComponent, PrintableQuizSectionItemComponent],
     }).compileComponents();
   });
 

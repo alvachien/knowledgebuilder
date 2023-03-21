@@ -120,8 +120,7 @@ export class UserCollectionItem {
     }
     if (data && data.RefType) {
       if (isNaN(+data.RefType)) {
-        this.RefType =
-          TagReferenceType[data.RefType as keyof typeof TagReferenceType];
+        this.RefType = TagReferenceType[data.RefType as keyof typeof TagReferenceType];
       } else {
         this.RefType = +data.RefType;
       }

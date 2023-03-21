@@ -1,13 +1,7 @@
 import { AfterViewInit, Component, OnInit, ViewChild } from '@angular/core';
 import { MatPaginator } from '@angular/material/paginator';
 import { BehaviorSubject, merge, of as observableOf } from 'rxjs';
-import {
-  catchError,
-  finalize,
-  map,
-  startWith,
-  switchMap,
-} from 'rxjs/operators';
+import { catchError, finalize, map, startWith, switchMap } from 'rxjs/operators';
 
 import {
   KnowledgeItem,
@@ -20,11 +14,7 @@ import {
   getKnowledgeItemCategoryName,
   KnowledgeItemCategory,
 } from 'src/app/models';
-import {
-  ODataService,
-  PreviewObject,
-  UIUtilityService,
-} from 'src/app/services';
+import { ODataService, PreviewObject, UIUtilityService } from 'src/app/services';
 
 @Component({
   selector: 'app-knowledge-item-search',
@@ -49,13 +39,9 @@ export class KnowledgeItemSearchComponent implements OnInit, AfterViewInit {
   displayedColumns: string[] = ['id', 'category', 'title', 'createdat'];
   dataSource: KnowledgeItem[] = [];
 
-  constructor(
-    private odataService: ODataService,
-    private uiUtilSrv: UIUtilityService
-  ) {
+  constructor(private odataService: ODataService, private uiUtilSrv: UIUtilityService) {
     this.resultsLength = 0;
-    this.allOperators =
-      UIDisplayStringUtil.getGeneralFilterOperatorDisplayStrings();
+    this.allOperators = UIDisplayStringUtil.getGeneralFilterOperatorDisplayStrings();
     this.allFields = [
       {
         displayas: 'Content',
@@ -99,13 +85,7 @@ export class KnowledgeItemSearchComponent implements OnInit, AfterViewInit {
           const top = this.paginator.pageSize;
           const skip = top * this.paginator.pageIndex;
 
-          return this.odataService.getKnowledgeItems(
-            top,
-            skip,
-            undefined,
-            undefined,
-            filter
-          );
+          return this.odataService.getKnowledgeItems(top, skip, undefined, undefined, filter);
         }),
         finalize(() => (this.isLoadingResults = false)),
         // eslint-disable-next-line @typescript-eslint/no-explicit-any

@@ -21,9 +21,7 @@ describe('ExerciseItemSearchComponent', () => {
   let searchExerciseItemsSpy: any;
 
   beforeAll(() => {
-    odataservice = jasmine.createSpyObj('ODataService', [
-      'searchExerciseItems',
-    ]);
+    odataservice = jasmine.createSpyObj('ODataService', ['searchExerciseItems']);
     searchExerciseItemsSpy = odataservice.searchExerciseItems.and.returnValue(
       of({
         totalCount: 0,
@@ -46,10 +44,7 @@ describe('ExerciseItemSearchComponent', () => {
         getTranslocoModule(),
       ],
       declarations: [ExerciseItemSearchComponent],
-      providers: [
-        UIUtilityService,
-        { provide: ODataService, useValue: odataservice },
-      ],
+      providers: [UIUtilityService, { provide: ODataService, useValue: odataservice }],
     }).compileComponents();
   });
 

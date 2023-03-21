@@ -63,10 +63,7 @@ export class TypingGameComponent implements OnInit, AfterViewInit {
         this.arComparison[i].inputted = this.inputtedString?.charAt(i) ?? '';
 
         if (issucc) {
-          if (
-            this.arComparison[i].expected !==
-            (this.inputtedString?.charAt(i) ?? '')
-          ) {
+          if (this.arComparison[i].expected !== (this.inputtedString?.charAt(i) ?? '')) {
             issucc = false;
           }
         }
@@ -87,8 +84,7 @@ export class TypingGameComponent implements OnInit, AfterViewInit {
         let nhtml = '';
         for (const cmp of this.arComparison) {
           if (cmp.inputted !== null && cmp.inputted !== cmp.expected) {
-            nhtml +=
-              '<span style="color: #FF0000;">' + cmp.inputted + '</span>';
+            nhtml += '<span style="color: #FF0000;">' + cmp.inputted + '</span>';
           } else if (cmp.inputted !== null) {
             nhtml += '<span>' + cmp.inputted + '</span>';
           }
@@ -165,9 +161,7 @@ export class TypingGameComponent implements OnInit, AfterViewInit {
         const kid = this.getElementIDByKey(evt.key);
         if (kid !== undefined && kid.length > 0) {
           this.currHittingKeyID = kid;
-          this.keyboardER.nativeElement
-            .querySelector('#' + kid)
-            .classList.add('keyhitting');
+          this.keyboardER.nativeElement.querySelector('#' + kid).classList.add('keyhitting');
         }
       }
 
@@ -180,13 +174,8 @@ export class TypingGameComponent implements OnInit, AfterViewInit {
   @HostListener('keyup', ['$event'])
   public onPGTypingTourKeyUp(evt: KeyboardEvent) {
     if (this.keyboardER !== null && this.keyboardER !== undefined) {
-      if (
-        this.currHittingKeyID !== undefined &&
-        this.currHittingKeyID.length > 0
-      ) {
-        this.keyboardER.nativeElement
-          .querySelector('#' + this.currHittingKeyID)
-          .classList.remove('keyhitting');
+      if (this.currHittingKeyID !== undefined && this.currHittingKeyID.length > 0) {
+        this.keyboardER.nativeElement.querySelector('#' + this.currHittingKeyID).classList.remove('keyhitting');
       }
     }
   }

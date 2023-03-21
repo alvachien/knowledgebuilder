@@ -39,10 +39,7 @@ describe('KnowledgeItemSearchComponent', () => {
         getTranslocoModule(),
       ],
       declarations: [KnowledgeItemSearchComponent],
-      providers: [
-        { provide: ODataService, useValue: odataSvc },
-        UIUtilityService,
-      ],
+      providers: [{ provide: ODataService, useValue: odataSvc }, UIUtilityService],
     }).compileComponents();
   });
 

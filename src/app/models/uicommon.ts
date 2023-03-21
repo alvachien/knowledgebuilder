@@ -112,9 +112,7 @@ export class UIDisplayStringUtil {
       } else {
         arrst.push({
           value: +rfe,
-          i18nterm: UIDisplayStringUtil.getGeneralFilterOperatorDisplayString(
-            +rfe
-          ),
+          i18nterm: UIDisplayStringUtil.getGeneralFilterOperatorDisplayString(+rfe),
           displaystring: '',
         });
       }
@@ -122,9 +120,7 @@ export class UIDisplayStringUtil {
 
     return arrst;
   }
-  public static getGeneralFilterOperatorDisplayString(
-    opte: GeneralFilterOperatorEnum
-  ): string {
+  public static getGeneralFilterOperatorDisplayString(opte: GeneralFilterOperatorEnum): string {
     switch (opte) {
       case GeneralFilterOperatorEnum.Between:
         return 'Sys.Operator.Between';

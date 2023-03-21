@@ -3,11 +3,7 @@
 //
 
 import { AwardRuleTypeEnum } from '.';
-import {
-  getAwardRuleTypeName,
-  getAwardRuleTypeNames,
-  AwardRuleGroup,
-} from './award';
+import { getAwardRuleTypeName, getAwardRuleTypeNames, AwardRuleGroup } from './award';
 
 describe('getAwardRuleTypeName', () => {
   it('Go through all enu', () => {

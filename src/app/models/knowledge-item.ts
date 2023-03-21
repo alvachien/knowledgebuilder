@@ -7,9 +7,7 @@ export enum KnowledgeItemCategory {
   Formula = 1,
 }
 
-export const getKnowledgeItemCategoryName = (
-  ctgy: KnowledgeItemCategory
-): string => {
+export const getKnowledgeItemCategoryName = (ctgy: KnowledgeItemCategory): string => {
   let rtn = '';
   switch (ctgy) {
     case KnowledgeItemCategory.Formula:
@@ -102,10 +100,7 @@ export class KnowledgeItem {
     }
     if (val && val.Category) {
       if (isNaN(+val.Category)) {
-        this.ItemCategory =
-          KnowledgeItemCategory[
-            val.Category as keyof typeof KnowledgeItemCategory
-          ];
+        this.ItemCategory = KnowledgeItemCategory[val.Category as keyof typeof KnowledgeItemCategory];
       } else {
         this.ItemCategory = +val.Category;
       }

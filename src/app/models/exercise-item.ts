@@ -119,8 +119,7 @@ export class ExerciseItem {
     }
     if (val && val.ExerciseType) {
       if (isNaN(+val.ExerciseType)) {
-        this.ItemType =
-          ExerciseItemType[val.ExerciseType as keyof typeof ExerciseItemType];
+        this.ItemType = ExerciseItemType[val.ExerciseType as keyof typeof ExerciseItemType];
       } else {
         this.ItemType = +val.ExerciseType;
       }
@@ -200,8 +199,7 @@ export class ExerciseItemSearchResult {
     }
     if (data && data.ExerciseType) {
       if (isNaN(+data.ExerciseType)) {
-        this.ItemType =
-          ExerciseItemType[data.ExerciseType as keyof typeof ExerciseItemType];
+        this.ItemType = ExerciseItemType[data.ExerciseType as keyof typeof ExerciseItemType];
       } else {
         this.ItemType = +data.ExerciseType;
       }

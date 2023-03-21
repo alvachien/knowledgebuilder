@@ -11,11 +11,7 @@ describe('UIUtilityService', () => {
 
   beforeEach(() => {
     TestBed.configureTestingModule({
-      imports: [
-        RouterTestingModule,
-        HttpClientTestingModule,
-        MaterialModulesModule,
-      ],
+      imports: [RouterTestingModule, HttpClientTestingModule, MaterialModulesModule],
     });
     service = TestBed.inject(UIUtilityService);
   });
@@ -39,10 +35,7 @@ describe('UIUtilityService', () => {
     service.navigateExerciseItemCreatePage();
 
     expect(routerstub.navigate).toHaveBeenCalled();
-    expect(routerstub.navigate).toHaveBeenCalledWith([
-      'exercise-item',
-      'create',
-    ]);
+    expect(routerstub.navigate).toHaveBeenCalledWith(['exercise-item', 'create']);
   });
 
   it('navigateExerciseItemDisplayPage shall work', () => {
@@ -52,11 +45,7 @@ describe('UIUtilityService', () => {
     service.navigateExerciseItemDisplayPage(2);
 
     expect(routerstub.navigate).toHaveBeenCalled();
-    expect(routerstub.navigate).toHaveBeenCalledWith([
-      'exercise-item',
-      'display',
-      '2',
-    ]);
+    expect(routerstub.navigate).toHaveBeenCalledWith(['exercise-item', 'display', '2']);
   });
 
   it('navigateExerciseItemChangePage shall work', () => {
@@ -66,11 +55,7 @@ describe('UIUtilityService', () => {
     service.navigateExerciseItemChangePage(2);
 
     expect(routerstub.navigate).toHaveBeenCalled();
-    expect(routerstub.navigate).toHaveBeenCalledWith([
-      'exercise-item',
-      'edit',
-      '2',
-    ]);
+    expect(routerstub.navigate).toHaveBeenCalledWith(['exercise-item', 'edit', '2']);
   });
 
   it('navigateExerciseItemSearchPage shall work', () => {
@@ -80,10 +65,7 @@ describe('UIUtilityService', () => {
     service.navigateExerciseItemSearchPage();
 
     expect(routerstub.navigate).toHaveBeenCalled();
-    expect(routerstub.navigate).toHaveBeenCalledWith([
-      'exercise-item',
-      'search',
-    ]);
+    expect(routerstub.navigate).toHaveBeenCalledWith(['exercise-item', 'search']);
   });
 
   it('navigatePreviewPage shall work', () => {
@@ -111,10 +93,7 @@ describe('UIUtilityService', () => {
     service.navigateKnowledgeItemCreatePage();
 
     expect(routerstub.navigate).toHaveBeenCalled();
-    expect(routerstub.navigate).toHaveBeenCalledWith([
-      'knowledge-item',
-      'create',
-    ]);
+    expect(routerstub.navigate).toHaveBeenCalledWith(['knowledge-item', 'create']);
   });
 
   it('navigateKnowledgeItemDisplayPage shall work', () => {
@@ -123,11 +102,7 @@ describe('UIUtilityService', () => {
     service.navigateKnowledgeItemDisplayPage(2);
 
     expect(routerstub.navigate).toHaveBeenCalled();
-    expect(routerstub.navigate).toHaveBeenCalledWith([
-      'knowledge-item',
-      'display',
-      '2',
-    ]);
+    expect(routerstub.navigate).toHaveBeenCalledWith(['knowledge-item', 'display', '2']);
   });
 
   it('navigateKnowledgeItemChangePage shall work', () => {
@@ -136,11 +111,7 @@ describe('UIUtilityService', () => {
     service.navigateKnowledgeItemChangePage(2);
 
     expect(routerstub.navigate).toHaveBeenCalled();
-    expect(routerstub.navigate).toHaveBeenCalledWith([
-      'knowledge-item',
-      'edit',
-      '2',
-    ]);
+    expect(routerstub.navigate).toHaveBeenCalledWith(['knowledge-item', 'edit', '2']);
   });
 
   it('navigateKnowledgeItemSearchPage shall work', () => {
@@ -149,10 +120,7 @@ describe('UIUtilityService', () => {
     service.navigateKnowledgeItemSearchPage();
 
     expect(routerstub.navigate).toHaveBeenCalled();
-    expect(routerstub.navigate).toHaveBeenCalledWith([
-      'knowledge-item',
-      'search',
-    ]);
+    expect(routerstub.navigate).toHaveBeenCalledWith(['knowledge-item', 'search']);
   });
 
   it('navigateUserCollectionListPage shall work', () => {
@@ -170,10 +138,7 @@ describe('UIUtilityService', () => {
     service.navigateUserCollectionCreatePage();
 
     expect(routerstub.navigate).toHaveBeenCalled();
-    expect(routerstub.navigate).toHaveBeenCalledWith([
-      'user-collection',
-      'create',
-    ]);
+    expect(routerstub.navigate).toHaveBeenCalledWith(['user-collection', 'create']);
   });
 
   it('navigateUserCollectionChangePage shall work', () => {
@@ -182,11 +147,7 @@ describe('UIUtilityService', () => {
     service.navigateUserCollectionChangePage(2);
 
     expect(routerstub.navigate).toHaveBeenCalled();
-    expect(routerstub.navigate).toHaveBeenCalledWith([
-      'user-collection',
-      'edit',
-      '2',
-    ]);
+    expect(routerstub.navigate).toHaveBeenCalledWith(['user-collection', 'edit', '2']);
   });
 
   it('navigateUserCollectionDisplayPage shall work', () => {
@@ -195,11 +156,7 @@ describe('UIUtilityService', () => {
     service.navigateUserCollectionDisplayPage(2);
 
     expect(routerstub.navigate).toHaveBeenCalled();
-    expect(routerstub.navigate).toHaveBeenCalledWith([
-      'user-collection',
-      'display',
-      '2',
-    ]);
+    expect(routerstub.navigate).toHaveBeenCalledWith(['user-collection', 'display', '2']);
   });
 
   it('navigateAwardRuleGenerationPage shall work', () => {
@@ -208,10 +165,7 @@ describe('UIUtilityService', () => {
     service.navigateAwardRuleGenerationPage();
 
     expect(routerstub.navigate).toHaveBeenCalled();
-    expect(routerstub.navigate).toHaveBeenCalledWith([
-      'award',
-      'rule-generation',
-    ]);
+    expect(routerstub.navigate).toHaveBeenCalledWith(['award', 'rule-generation']);
   });
 
   it('navigateAwardRuleGroupListPage shall work', () => {
@@ -229,11 +183,7 @@ describe('UIUtilityService', () => {
     service.navigateAwardRuleGroupDisplayPage(2);
 
     expect(routerstub.navigate).toHaveBeenCalled();
-    expect(routerstub.navigate).toHaveBeenCalledWith([
-      'award',
-      'rule-group-display',
-      '2',
-    ]);
+    expect(routerstub.navigate).toHaveBeenCalledWith(['award', 'rule-group-display', '2']);
   });
 
   it('navigateHabitListPage shall work', () => {
@@ -269,11 +219,7 @@ describe('UIUtilityService', () => {
     service.navigateHabitRecordListPage();
 
     expect(routerstub.navigate).toHaveBeenCalled();
-    expect(routerstub.navigate).toHaveBeenCalledWith([
-      'habit',
-      'record',
-      'list',
-    ]);
+    expect(routerstub.navigate).toHaveBeenCalledWith(['habit', 'record', 'list']);
   });
 
   it('navigateHabitRecordCreatePage shall work', () => {
@@ -282,11 +228,7 @@ describe('UIUtilityService', () => {
     service.navigateHabitRecordCreatePage();
 
     expect(routerstub.navigate).toHaveBeenCalled();
-    expect(routerstub.navigate).toHaveBeenCalledWith([
-      'habit',
-      'record',
-      'create',
-    ]);
+    expect(routerstub.navigate).toHaveBeenCalledWith(['habit', 'record', 'create']);
   });
 
   it('navigateHabitRecordDisplayPage shall work', () => {
@@ -295,11 +237,7 @@ describe('UIUtilityService', () => {
     service.navigateHabitRecordDisplayPage();
 
     expect(routerstub.navigate).toHaveBeenCalled();
-    expect(routerstub.navigate).toHaveBeenCalledWith([
-      'habit',
-      'record',
-      'display',
-    ]);
+    expect(routerstub.navigate).toHaveBeenCalledWith(['habit', 'record', 'display']);
   });
 
   it('clearHabitRecordDisplay shall work', () => {

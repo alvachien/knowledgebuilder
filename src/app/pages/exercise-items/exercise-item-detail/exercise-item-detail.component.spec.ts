@@ -37,10 +37,7 @@ describe('ExerciseItemDetailComponent', () => {
         getTranslocoModule(),
       ],
       declarations: [ExerciseItemDetailComponent],
-      providers: [
-        UIUtilityService,
-        { provide: ODataService, useValue: odataSvc },
-      ],
+      providers: [UIUtilityService, { provide: ODataService, useValue: odataSvc }],
     }).compileComponents();
   }));
 

@@ -1,20 +1,11 @@
-import {
-  Component,
-  EventEmitter,
-  ViewChild,
-  AfterViewInit,
-} from '@angular/core';
+import { Component, EventEmitter, ViewChild, AfterViewInit } from '@angular/core';
 import { MatPaginator } from '@angular/material/paginator';
 import { MatSort } from '@angular/material/sort';
 import { merge, of as observableOf } from 'rxjs';
 import { catchError, map, startWith, switchMap } from 'rxjs/operators';
 
 import { UserCollection } from 'src/app/models';
-import {
-  ODataService,
-  PreviewObject,
-  UIUtilityService,
-} from '../../../services';
+import { ODataService, PreviewObject, UIUtilityService } from '../../../services';
 
 @Component({
   selector: 'app-user-collection',
@@ -32,10 +23,7 @@ export class UserCollectionComponent implements AfterViewInit {
   @ViewChild(MatPaginator) paginator!: MatPaginator;
   @ViewChild(MatSort) sort!: MatSort;
 
-  constructor(
-    private odataService: ODataService,
-    private uiUtilSrv: UIUtilityService
-  ) {}
+  constructor(private odataService: ODataService, private uiUtilSrv: UIUtilityService) {}
 
   ngAfterViewInit() {
     // If the user changes the sort order, reset back to the first page.
@@ -49,12 +37,7 @@ export class UserCollectionComponent implements AfterViewInit {
 
           const top = this.paginator.pageSize;
           const skip = top * this.paginator.pageIndex;
-          return this.odataService.getUserCollections(
-            top,
-            skip,
-            this.sort.active,
-            this.sort.direction
-          );
+          return this.odataService.getUserCollections(top, skip, this.sort.active, this.sort.direction);
         }),
         map((data) => {
           // Flip flag to show that loading has finished.
