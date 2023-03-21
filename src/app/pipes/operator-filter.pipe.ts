@@ -12,6 +12,7 @@ export class OperatorFilterPipe implements PipeTransform {
   transform(
     allOperators: UIDisplayString[],
     args?: GeneralFilterValueType
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
   ): any {
     return allOperators.filter((value: UIDisplayString) => {
       if (args) {

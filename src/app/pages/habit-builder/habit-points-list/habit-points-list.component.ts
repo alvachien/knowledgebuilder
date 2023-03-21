@@ -9,10 +9,8 @@ import { forkJoin } from 'rxjs';
 
 import {
   UserHabitPointsByUserDate,
-  UserHabitPointsByUserHabitDate,
   UserHabitPoint,
   UserHabitPointReport,
-  UserHabit,
   momentDateFormat,
   AwardUserView,
   UserHabitRecordView,
@@ -44,6 +42,7 @@ export class HabitPointsListComponent implements OnInit {
   ];
   dataSourceHabitPoints: UserHabitRecordView[] = [];
   selectedUser: string | null = null;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   chartOption: any;
   selectedPeriod = '2';
   showManualPointResult = false;
@@ -78,6 +77,7 @@ export class HabitPointsListComponent implements OnInit {
     this.selectedPeriod = '2';
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   public onReportParameterSelectionChange(event: any) {
     if (this.selectedUser !== null) {
       this.refreshData();
@@ -106,10 +106,11 @@ export class HabitPointsListComponent implements OnInit {
       momentDateFormat
     )} and RecordDate le ${dateEnd.format(momentDateFormat)}`;
 
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const arSeries: any[] = [];
     forkJoin([
       this.odataSrv.getHabitOpeningPointsByUserDate(
-        this.selectedUser!,
+        this.selectedUser ?? '',
         daysInAxisOrigin
       ),
       this.odataSrv.getHabitPointsByUserDateReport(filterstr),
@@ -119,6 +120,7 @@ export class HabitPointsListComponent implements OnInit {
       ),
       this.odataSrv.getUserHabitPointReports(filterstr),
     ]).subscribe({
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       next: (val: any[]) => {
         const openPoint1 = val[0] as number;
         const arHabitPoints = val[1] as UserHabitPointsByUserDate[];
@@ -224,6 +226,7 @@ export class HabitPointsListComponent implements OnInit {
     });
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   onChartClick(event: any): void {
     if (event.seriesIndex === 0) {
       // Points from habit.
@@ -271,7 +274,7 @@ export class HabitPointsListComponent implements OnInit {
   public onDeleteManualPoint(pid: number) {
     // Delete point
     this.odataSrv.deleteHabitPoint(pid).subscribe({
-      next: (val) => {
+      next: () => {
         this.uiUtilSrv.showSnackInfo('DONE');
         this.showManualPointResult = false;
         this.refreshData();
@@ -293,7 +296,7 @@ export class HabitPointsListComponent implements OnInit {
     dialogRef.afterClosed().subscribe((result) => {
       if (result) {
         this.odataSrv.createHabitPoint(result).subscribe({
-          next: (val) => {
+          next: () => {
             this.refreshData();
           },
           error: (err) => {

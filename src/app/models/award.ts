@@ -61,6 +61,8 @@ export const getAwardRuleTypeName = (ruletype: AwardRuleTypeEnum): string => {
   }
   return rtn;
 };
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export const getAwardRuleTypeNames = (): any[] => {
   const rtn = [];
 
@@ -98,6 +100,7 @@ export class AwardRuleGroup {
 
     return true;
   }
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   public parseData(val: any): void {
     if (val && val.ID) {
       this.id = +val.ID;
@@ -124,6 +127,7 @@ export class AwardRuleGroup {
     }
     this.rules = [];
     if (val && val.Rules) {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const items: any[] = val.Rules as any[];
       items.forEach((tg) => {
         const item = new AwardRuleDetail();
@@ -132,7 +136,9 @@ export class AwardRuleGroup {
       });
     }
   }
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   public writeJSONObject(isCreatedMode = true): any {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const jobj: any = {};
     if (!isCreatedMode) {
       jobj.ID = this.id;
@@ -229,6 +235,7 @@ export class AwardRuleDetail {
     return true;
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   public parseData(val: any): void {
     if (val && val.ID) {
       this.id = +val.ID;
@@ -261,7 +268,10 @@ export class AwardRuleDetail {
       this.point = val.Point;
     }
   }
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   public writeJSONObject(isCreatedMode = true): any {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const jobj: any = {};
     if (!isCreatedMode) {
       jobj.ID = this.id;
@@ -329,10 +339,13 @@ export class AwardRule {
     this.point = oldrule.point;
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   public parseData(val: any): void {
     // TBD.
   }
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   public writeJSONObject(isCreatedMode = true): any {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const jobj: any = {};
     return jobj;
   }
@@ -379,6 +392,7 @@ export class DailyTrace {
     return true;
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   public parseData(val: any): void {
     if (val && val.TargetUser) {
       this.targetUser = val.TargetUser;
@@ -437,7 +451,9 @@ export class DailyTrace {
       this.comment = val.Comment;
     }
   }
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   public writeJSONObject(): any {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const jobj: any = {};
     jobj.TargetUser = this.targetUser;
     jobj.RecordDate = this.recordDate.format(momentDateFormat);
@@ -501,6 +517,7 @@ export class AwardPoint {
     return true;
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   public parseData(val: any): void {
     if (val && val.ID) {
       this.id = val.ID;
@@ -524,7 +541,9 @@ export class AwardPoint {
       this.comment = val.Comment;
     }
   }
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   public writeJSONObject(createdMode = true): any {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const jobj: any = {};
     if (!createdMode) {
       jobj.ID = this.id;
@@ -550,6 +569,7 @@ export class AwardPointReport {
   public getRecordDateDisplayString(): string {
     return this.recordDate.format(momentDateFormat);
   }
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   public parseData(val: any): void {
     if (val && val.TargetUser) {
       this.targetUser = val.TargetUser;
@@ -569,6 +589,7 @@ export class AwardPointReport {
 export class AwardUser {
   public targetUser = '';
   public supervisor = '';
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   public parseData(val: any): void {
     if (val && val.TargetUser) {
       this.targetUser = val.TargetUser;
@@ -583,6 +604,7 @@ export class AwardUserView extends AwardUser {
   public userName = '';
   public displayAs = '';
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   public override parseData(val: any): void {
     super.parseData(val);
     if (val && val.UserName) {

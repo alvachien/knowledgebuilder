@@ -1,7 +1,5 @@
 import {
   Component,
-  OnInit,
-  OnDestroy,
   ViewChild,
   ElementRef,
   ChangeDetectorRef,
@@ -10,9 +8,7 @@ import {
   AbstractControl,
   UntypedFormControl,
   UntypedFormGroup,
-  NgForm,
   ValidationErrors,
-  ValidatorFn,
 } from '@angular/forms';
 import { Validators } from '@angular/forms';
 import { MatDialog } from '@angular/material/dialog';
@@ -38,9 +34,7 @@ import { QuizFailureDailogComponent } from '../../quiz-failure-dailog';
   templateUrl: './mixed-operations.component.html',
   styleUrls: ['./mixed-operations.component.scss'],
 })
-export class MixedOperationsComponent
-  implements OnInit, OnDestroy, CanDeactivateGuard
-{
+export class MixedOperationsComponent implements CanDeactivateGuard {
   isQuizStarted = false;
   quizControlFormGroup: UntypedFormGroup = new UntypedFormGroup(
     {
@@ -91,6 +85,7 @@ export class MixedOperationsComponent
   }
   @ViewChild('opers', { static: false }) operatorsCtrl?: MatSelectionList;
   quizSections: PrimarySchoolMathQuizSection[] = [];
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   allowedOperators: any[] = [
     { display: ' + ', value: '+' },
     { display: ' - ', value: '-' },
@@ -111,9 +106,6 @@ export class MixedOperationsComponent
   ): boolean | Observable<boolean> | Promise<boolean> {
     return !this.isQuizStarted;
   }
-
-  ngOnInit(): void {}
-  ngOnDestroy(): void {}
 
   canStart(): boolean {
     return (
@@ -232,8 +224,8 @@ export class MixedOperationsComponent
     const opercnt = this.quizControlFormGroup.get(
       'operatorCountControl'
     )!.value;
-    let qz: MixedOperationQuizItem;
-    while (true) {
+    let qz: MixedOperationQuizItem = new MixedOperationQuizItem();
+    while (1 === 1) {
       let fmt = this.getNumber().toString();
 
       if (opercnt >= this.operatorsCtrl!.selectedOptions.selected.length) {

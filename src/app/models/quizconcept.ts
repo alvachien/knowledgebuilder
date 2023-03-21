@@ -14,6 +14,7 @@ export abstract class StorableObject implements IStorableObject {
    * Store to a string
    */
   public storeToString(): string {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const jobj: any = this.storeToJsonObject();
     return JSON && JSON.stringify(jobj);
   }
@@ -30,9 +31,11 @@ export abstract class StorableObject implements IStorableObject {
     }
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   protected storeToJsonObject(): any {
     return {};
   }
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   protected restoreFromJsonObject(data: any): void {
     // Do nothing
   }
@@ -191,9 +194,11 @@ export abstract class QuizItem extends StorableObject {
     return '';
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   protected override storeToJsonObject(): any {
     return super.storeToJsonObject();
   }
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   protected override restoreFromJsonObject(data: any): void {
     super.restoreFromJsonObject(data);
   }
@@ -232,10 +237,12 @@ export class PrimarySchoolMathQuizItem extends QuizItem {
     return rststr;
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   protected override storeToJsonObject(): any {
     return super.storeToJsonObject();
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   protected override restoreFromJsonObject(data: any): void {
     super.restoreFromJsonObject(data);
   }
@@ -321,6 +328,7 @@ export class PrimarySchoolMathFAOQuizItem extends PrimarySchoolMathQuizItem {
     return rststr;
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   protected override storeToJsonObject(): any {
     const jobj = super.storeToJsonObject();
     jobj.leftNumber = this._leftNumber;
@@ -328,6 +336,7 @@ export class PrimarySchoolMathFAOQuizItem extends PrimarySchoolMathQuizItem {
     jobj.decimalPlaces = this.decimalPlaces;
     return jobj;
   }
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   protected override restoreFromJsonObject(jobj: any): void {
     if (jobj && jobj.leftNumber) {
       this._leftNumber = +jobj.leftNumber;
@@ -484,11 +493,13 @@ export class AdditionQuizItem extends PrimarySchoolMathFAOQuizItem {
     );
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   protected override storeToJsonObject(): any {
     const jobj = super.storeToJsonObject();
     return jobj;
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   protected override restoreFromJsonObject(jobj: any): void {
     super.restoreFromJsonObject(jobj);
   }
@@ -671,6 +682,7 @@ export class MultiplicationQuizItem extends PrimarySchoolMathFAOQuizItem {
     return jobj;
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   protected override restoreFromJsonObject(jobj: any): void {
     super.restoreFromJsonObject(jobj);
   }
@@ -788,11 +800,13 @@ export class DivisionQuizItem extends PrimarySchoolMathFAOQuizItem {
     );
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   protected override storeToJsonObject(): any {
     const jobj = super.storeToJsonObject();
     return jobj;
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   protected override restoreFromJsonObject(jobj: any): void {
     super.restoreFromJsonObject(jobj);
   }

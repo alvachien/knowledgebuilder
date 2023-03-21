@@ -1,9 +1,5 @@
-import { Component, OnInit, OnDestroy, ViewChild } from '@angular/core';
-import {
-  UntypedFormGroup,
-  UntypedFormControl,
-  Validators,
-} from '@angular/forms';
+import { Component, OnInit, OnDestroy } from '@angular/core';
+import { UntypedFormGroup, UntypedFormControl } from '@angular/forms';
 import { ReplaySubject } from 'rxjs';
 import { ActivatedRoute } from '@angular/router';
 import { MatDialog } from '@angular/material/dialog';
@@ -156,7 +152,7 @@ export class UserCollectionDetailComponent implements OnInit, OnDestroy {
       this.itemObject.Name = this.itemFormGroup.get('nameControl')?.value;
       this.itemObject.Comment = this.itemFormGroup.get('commentControl')?.value;
       // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-      this.itemObject.User = this.authService.userDetail?.userID!;
+      this.itemObject.User = this.authService.userDetail?.userID ?? '';
       this.odataService.createUserCollection(this.itemObject).subscribe({
         next: (val) => {
           // Display current collection
@@ -176,7 +172,9 @@ export class UserCollectionDetailComponent implements OnInit, OnDestroy {
   public onCreateNewOne(): void {
     this.uiUtilSrv.navigateUserCollectionCreatePage();
   }
-  public onCreateItem(): void {}
+  public onCreateItem(): void {
+    // TBD.
+  }
   public onDeleteCollItem(row: UserCollectionItem): void {
     if (row.RefType === TagReferenceType.ExerciseItem) {
       this.odataService.removeExerciseItemFromCollection(row).subscribe({

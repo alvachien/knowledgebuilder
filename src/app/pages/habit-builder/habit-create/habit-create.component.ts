@@ -125,6 +125,7 @@ export const habitFormValidator: ValidatorFn = (
 export class HabitCreateComponent implements OnInit {
   // Step 1: HEADER
   firstFormGroup: UntypedFormGroup;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   arRuleTypes: any[] = [];
   // Step 2: DAYS
   secondFormGroup: UntypedFormGroup;
@@ -135,8 +136,11 @@ export class HabitCreateComponent implements OnInit {
   pointCompleted = false;
   createdHabitID = -1;
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   arCategories: any[] = [];
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   arFrequencies: any[] = [];
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   arCompleteCategories: any[] = [];
   currentObject: UserHabit;
 
@@ -206,6 +210,7 @@ export class HabitCreateComponent implements OnInit {
   }
 
   // Step 1: Habit
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   public onFreqencyAndCompleteCategoryChange(val: any): void {
     const compCtgy: HabitCompleteCategory = this.firstFormGroup.get(
       'compCtgyCtrl'
@@ -226,6 +231,7 @@ export class HabitCreateComponent implements OnInit {
   }
 
   // Step 2: Continuous days
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   public onContDayChange(val: any) {
     this.contDays = [];
 
@@ -262,6 +268,7 @@ export class HabitCreateComponent implements OnInit {
   }
 
   // Step 3: Points
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   public onPointCellChanged(event: any): void {
     let failcnt = 0;
     this.arRules.forEach((row) => {

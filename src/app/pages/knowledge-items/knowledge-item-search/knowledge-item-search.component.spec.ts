@@ -14,7 +14,9 @@ import { AppUIModule } from 'src/app/app-ui.module';
 describe('KnowledgeItemSearchComponent', () => {
   let component: KnowledgeItemSearchComponent;
   let fixture: ComponentFixture<KnowledgeItemSearchComponent>;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   let odataSvc: any;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   let getOverviewInfoSpy: any;
 
   beforeAll(() => {

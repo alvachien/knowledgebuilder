@@ -1,7 +1,5 @@
 import {
   Component,
-  OnInit,
-  OnDestroy,
   ViewChild,
   ElementRef,
   ChangeDetectorRef,
@@ -119,6 +117,7 @@ export class SubtractionExerciseComponent implements CanDeactivateGuard {
 
   onQuizSubmit(): void {
     if (this.QuizItems[this.QuizCursor].InputtedResult === undefined) {
+      // Empty
     } else {
       if (this.QuizCursor === this.QuizItems.length - 1) {
         // do real submit
@@ -207,11 +206,11 @@ export class SubtractionExerciseComponent implements CanDeactivateGuard {
   }
   private generateQuizItem(idx: number): SubtractionQuizItem {
     const decplace = this.quizControlFormGroup.get('decControl')!.value;
-    const allowneg: boolean = this.quizControlFormGroup.get('negControl')!
-      .value as boolean;
+    const allowneg: boolean = this.quizControlFormGroup.get('negControl')
+      ?.value as boolean;
     let rnum1 = 0;
     let rnum2 = 0;
-    while (true) {
+    while (1 === 1) {
       rnum1 = this.getNumber();
       rnum2 = this.getNumber();
       if (!allowneg && rnum1 < rnum2) {

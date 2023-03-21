@@ -47,6 +47,7 @@ export class KnowledgeItemDetailComponent implements OnInit, OnDestroy {
   addOnBlur = true;
   readonly separatorKeysCodes: number[] = [ENTER, COMMA];
   tags: string[] = [];
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   arKnowledgeCtgies: any[] = [];
   currentItem: KnowledgeItem | undefined;
 
@@ -212,6 +213,7 @@ export class KnowledgeItemDetailComponent implements OnInit, OnDestroy {
       next: (val) => {
         console.log(val);
 
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         val.forEach((entry: any) => {
           this.content += `
 ![Img](${entry.url})

@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { ResultDialogComponent } from '../result-dialog/result-dialog.component';
 
@@ -118,6 +118,7 @@ export class Calculate24Component {
       let realstring = this.Cal24Input.replace('×', '*');
       realstring = realstring.replace('÷', '/');
       rst = <number>eval(realstring);
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (exp: any) {
       errmsg = exp.toString();
     }
@@ -125,6 +126,7 @@ export class Calculate24Component {
     let retry = false;
     let isWin = false;
     if (rst !== 24) {
+      //  Lose
     } else {
       isWin = true;
     }
@@ -143,5 +145,7 @@ export class Calculate24Component {
     });
   }
 
-  public OnCal24Surrender(): void {}
+  public OnCal24Surrender(): void {
+    // Surrender
+  }
 }

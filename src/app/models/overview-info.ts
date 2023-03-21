@@ -4,6 +4,7 @@ export class OverviewInfo {
   public RefType!: TagReferenceType;
   public Count!: number;
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   public parseData(val: any): void {
     if (val && val.RefType) {
       if (isNaN(+val.RefType)) {

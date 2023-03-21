@@ -7,7 +7,7 @@ import {
 import { MatDialog } from '@angular/material/dialog';
 import { MatPaginator } from '@angular/material/paginator';
 import { MatSort } from '@angular/material/sort';
-import { merge, Observable, of as observableOf } from 'rxjs';
+import { merge, of as observableOf } from 'rxjs';
 import { catchError, map, startWith, switchMap } from 'rxjs/operators';
 
 import {
@@ -36,6 +36,7 @@ export class KnowledgeItemsComponent implements AfterViewInit {
 
   resultsLength = 0;
   isLoadingResults = true;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   refreshEvent: EventEmitter<any> = new EventEmitter();
 
   @ViewChild(MatPaginator) paginator!: MatPaginator;
@@ -105,7 +106,7 @@ export class KnowledgeItemsComponent implements AfterViewInit {
 
   public onDeleteItem(itemid: number): void {
     this.odataService.deleteExerciseItem(itemid).subscribe({
-      next: (val) => {
+      next: () => {
         // Delete the item specified.
         this.onRefreshList();
       },
@@ -129,8 +130,10 @@ export class KnowledgeItemsComponent implements AfterViewInit {
           },
         });
 
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         dialogRef.afterClosed().subscribe((result: any) => {
           const collitems: UserCollectionItem[] = [];
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
           result.collids.forEach((collid: any) => {
             const colidx = arColls.findIndex((coll) => coll.ID === +collid);
             if (colidx !== -1) {
@@ -146,7 +149,7 @@ export class KnowledgeItemsComponent implements AfterViewInit {
             this.odataService
               .addKnowledgeItemToCollection(collitems)
               .subscribe({
-                next: (val2) => {
+                next: () => {
                   this.uiUtilSrv.showSnackInfo('DONE');
                 },
                 error: (err) => {

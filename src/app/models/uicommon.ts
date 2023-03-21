@@ -1,8 +1,6 @@
 // import { NativeDateAdapter } from "@angular/material/core";
 // import { MatPaginatorIntl } from '@angular/material/paginator';
 
-import moment from 'moment';
-
 export const momentDateFormat = 'YYYY-MM-DD';
 
 /**
@@ -77,6 +75,7 @@ export enum GeneralFilterValueType {
 export class GeneralFilterItem {
   fieldName: string;
   operator: GeneralFilterOperatorEnum;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   value: any[];
   valueType: GeneralFilterValueType;
 
@@ -190,16 +189,17 @@ export class UIDisplayStringUtil {
 // }
 
 export class EnumUtility {
-  private constructor() {}
-
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   static getNamesAndValues<T extends number>(e: any) {
     return EnumUtility.getNames(e).map((n) => ({ name: n, value: e[n] as T }));
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   static getNames(e: any) {
     return Object.keys(e).filter((k) => typeof e[k] === 'number') as string[];
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   static getValues<T extends number>(e: any) {
     return Object.keys(e)
       .map((k) => e[k])

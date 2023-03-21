@@ -1,4 +1,4 @@
-import { Component, OnInit, ViewChild } from '@angular/core';
+import { Component, ViewChild } from '@angular/core';
 import { MatDialogRef } from '@angular/material/dialog';
 import { forkJoin } from 'rxjs';
 
@@ -9,24 +9,25 @@ import { ODataService } from '../../services';
   templateUrl: './image-upload.component.html',
   styleUrls: ['./image-upload.component.scss'],
 })
-export class ImageUploadComponent implements OnInit {
+export class ImageUploadComponent {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   @ViewChild('file', { static: false }) file: any;
 
   public files: Set<File> = new Set();
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   results: any;
   canBeClosed = true;
   primaryButtonText = 'Upload';
   showCancelButton = true;
   uploading = false;
   uploadSuccessful = false;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   uploadResults: any[] = [];
 
   constructor(
     public dialogRef: MatDialogRef<ImageUploadComponent>,
     public uploadService: ODataService
   ) {}
-
-  ngOnInit() {}
 
   onFilesAdded() {
     const files: { [key: string]: File } = this.file.nativeElement.files;
@@ -54,6 +55,7 @@ export class ImageUploadComponent implements OnInit {
     this.results = this.uploadService.uploadFiles(this.files);
     // console.log(this.progress);
     for (const key in this.results) {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       this.results[key].result.subscribe((val: any) => {
         // console.log(val);
         this.uploadResults.push(val);
@@ -79,7 +81,7 @@ export class ImageUploadComponent implements OnInit {
     this.showCancelButton = false;
 
     // When all progress-observables are completed...
-    forkJoin(allProgressObservables).subscribe((end) => {
+    forkJoin(allProgressObservables).subscribe(() => {
       // ... the dialog can be closed again...
       this.canBeClosed = true;
       this.dialogRef.disableClose = false;

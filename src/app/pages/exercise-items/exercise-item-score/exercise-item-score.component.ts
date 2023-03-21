@@ -7,9 +7,8 @@ import {
 } from '@angular/core';
 import { MatPaginator } from '@angular/material/paginator';
 import { MatSort } from '@angular/material/sort';
-import { OidcSecurityService } from 'angular-auth-oidc-client';
 import moment from 'moment';
-import { BehaviorSubject, merge, Observable, of as observableOf } from 'rxjs';
+import { BehaviorSubject, merge, of as observableOf } from 'rxjs';
 import { catchError, map, startWith, switchMap } from 'rxjs/operators';
 
 import {
@@ -35,6 +34,7 @@ import {
 export class ExerciseItemScoreComponent implements OnInit, AfterViewInit {
   public filters: GeneralFilterItem[] = [];
   public allOperators: UIDisplayString[] = [];
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   public allFields: any[] = [];
   filterEditable = true;
 
@@ -42,7 +42,9 @@ export class ExerciseItemScoreComponent implements OnInit, AfterViewInit {
   dataSource: ExerciseItemUserScore[] = [];
   resultsLength = 0;
   isLoadingResults = true;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   refreshEvent: EventEmitter<any> = new EventEmitter();
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   subjFilters: BehaviorSubject<any> = new BehaviorSubject([]);
 
   @ViewChild(MatPaginator) paginator!: MatPaginator;
@@ -105,6 +107,7 @@ export class ExerciseItemScoreComponent implements OnInit, AfterViewInit {
           const skip = top * this.paginator.pageIndex;
           return this.odataService.getExerciseItemUserScores(top, skip, filter);
         }),
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         map((data: any) => {
           // Flip flag to show that loading has finished.
           this.isLoadingResults = false;
@@ -129,12 +132,14 @@ export class ExerciseItemScoreComponent implements OnInit, AfterViewInit {
     }
   }
   public onFieldSelectionChanged(filter: GeneralFilterItem): void {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     this.allFields.forEach((value: any) => {
       if (value.value === filter.fieldName) {
         filter.valueType = value.valueType;
       }
     });
   }
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   prepareFilters(arFilter: any[]): string {
     let rstfilter = '';
     arFilter.sort((a, b) => a.fieldName.localeCompare(b.fieldName));
@@ -217,8 +222,10 @@ export class ExerciseItemScoreComponent implements OnInit, AfterViewInit {
   }
   public onSearch(): void {
     // Do the translate first
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const arRealFilter: any[] = [];
     this.filters.forEach((value: GeneralFilterItem) => {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const val: any = {};
       val.valueType = +value.valueType;
       switch (value.valueType) {
@@ -283,7 +290,7 @@ export class ExerciseItemScoreComponent implements OnInit, AfterViewInit {
   public onDeleteItem(itemid: number): void {
     // Delete item
     this.odataService.deleteExerciseItemUserScore(itemid).subscribe({
-      next: (val) => {
+      next: () => {
         this.uiUtilSrv.showSnackInfo('DONE');
         this.onRefreshList();
       },

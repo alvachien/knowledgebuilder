@@ -48,6 +48,7 @@ export class HabitListComponent implements OnInit, AfterViewInit {
   ];
   recordCount = 0;
   isLoadingResults = false;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   refreshEvent: EventEmitter<any> = new EventEmitter();
 
   @ViewChild(MatPaginator) paginator!: MatPaginator;
@@ -133,7 +134,7 @@ export class HabitListComponent implements OnInit, AfterViewInit {
 
   public onDeleteHabit(hid: number): void {
     this.odataSrv.deleteUserHabit(hid).subscribe({
-      next: (val) => {
+      next: () => {
         this.refreshList();
       },
       error: (err) => {

@@ -88,9 +88,9 @@ export class TagDetailComponent implements OnInit, AfterViewInit {
   public onRefIDClicked(row: Tag): void {
     // console.log(`Count link clicked: ${row}`);
     if (row.RefType === TagReferenceType.ExerciseItem) {
-      this.uiUtilSrv.navigateExerciseItemDisplayPage(row.RefID!);
+      this.uiUtilSrv.navigateExerciseItemDisplayPage(row.RefID ?? 0);
     } else if (row.RefType === TagReferenceType.KnowledgeItem) {
-      this.uiUtilSrv.navigateKnowledgeItemDisplayPage(row.RefID!);
+      this.uiUtilSrv.navigateKnowledgeItemDisplayPage(row.RefID ?? 0);
     }
   }
   public onGoToPreview(): void {

@@ -15,7 +15,9 @@ import { InvitedUser } from 'src/app/models';
 describe('HabitListComponent', () => {
   let component: HabitListComponent;
   let fixture: ComponentFixture<HabitListComponent>;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   let odataservice: any;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   let getUserHabitsSpy: any;
   let userDetail: InvitedUser;
 

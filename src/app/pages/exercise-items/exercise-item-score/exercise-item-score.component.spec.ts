@@ -14,7 +14,9 @@ import { AppUIModule } from 'src/app/app-ui.module';
 describe('ExerciseItemScoreComponent', () => {
   let component: ExerciseItemScoreComponent;
   let fixture: ComponentFixture<ExerciseItemScoreComponent>;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   let odataSvc: any;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   let getOverviewInfoSpy: any;
 
   beforeAll(() => {

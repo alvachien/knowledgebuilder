@@ -17,7 +17,6 @@ import {
   HabitCompleteCategory,
   HabitFrequency,
   UserHabit,
-  UserHabitRule,
 } from 'src/app/models';
 import { AuthService, ODataService, UIUtilityService } from 'src/app/services';
 
@@ -32,8 +31,11 @@ export class HabitDetailComponent implements OnInit {
   detailFormGroup: UntypedFormGroup;
   uiMode: UIMode = UIMode.Display;
   currentMode = 'Common.Display';
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   arCategories: any[] = [];
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   arFrequencies: any[] = [];
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   arCompleteCategories: any[] = [];
   currentObject: UserHabit = new UserHabit();
   displayedColumns: string[] = ['ruleID', 'completedCountRange', 'point'];

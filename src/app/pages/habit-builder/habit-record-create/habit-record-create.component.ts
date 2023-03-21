@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component } from '@angular/core';
 import {
   UntypedFormBuilder,
   UntypedFormControl,
@@ -36,7 +36,7 @@ class AvailableHabit {
   templateUrl: './habit-record-create.component.html',
   styleUrls: ['./habit-record-create.component.scss'],
 })
-export class HabitRecordCreateComponent implements OnInit {
+export class HabitRecordCreateComponent {
   currentObject: UserHabitRecord | null = null;
   firstFormGroup: UntypedFormGroup;
   arHabits: AvailableHabit[] = [];
@@ -83,8 +83,6 @@ export class HabitRecordCreateComponent implements OnInit {
   public getHabitFrequencyName(frq: HabitFrequency): string {
     return getHabitFrequencyName(frq);
   }
-
-  ngOnInit(): void {}
 
   public onUserSelected(): void {
     // Get the result
@@ -134,6 +132,7 @@ export class HabitRecordCreateComponent implements OnInit {
   }
   public onSaveRecord(): void {
     // Save the records
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const arreq: any[] = [];
     this.arHabits.forEach((hbt) => {
       if (hbt.CompleteFact !== null) {

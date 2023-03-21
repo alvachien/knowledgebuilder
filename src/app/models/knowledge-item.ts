@@ -24,6 +24,7 @@ export const getKnowledgeItemCategoryName = (
   return rtn;
 };
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export const getKnowledgeItemCategoryNames = (): any[] => {
   const rtn = [];
 
@@ -94,6 +95,7 @@ export class KnowledgeItem {
     this._modifiedAt = ua;
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   public parseData(val: any) {
     if (val && val.ID) {
       this.ID = +val.ID;
@@ -122,6 +124,7 @@ export class KnowledgeItem {
     }
     // Tags
     if (val && val.Tags) {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const tags: any[] = val.Tags as any[];
       this._tags = [];
       tags.forEach((tg) => {
@@ -130,6 +133,7 @@ export class KnowledgeItem {
     }
   }
   public generateString(isupdate?: boolean): string {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const exobj: any = {
       Content: this._content,
       Title: this._title,

@@ -2,7 +2,7 @@ import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { NuMonacoEditorModule } from '@ng-util/monaco-editor';
-import { MarkdownModule, MarkedOptions } from 'ngx-markdown';
+import { MarkdownModule } from 'ngx-markdown';
 import { TranslocoModule } from '@ngneat/transloco';
 
 import { MaterialModulesModule } from '../../material-modules';

@@ -9,6 +9,7 @@ import { QuizService } from '../../services';
   styleUrls: ['./quiz-summary.component.scss'],
 })
 export class QuizSummaryComponent implements OnInit {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   data: any[] = [];
   displayedColumns: string[] = ['qid', 'count', 'timespent'];
   constructor(private quizSrv: QuizService) {}

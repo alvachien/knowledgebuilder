@@ -14,7 +14,9 @@ import { UserCollectionComponent } from './user-collection.component';
 describe('UserCollectionComponent', () => {
   let component: UserCollectionComponent;
   let fixture: ComponentFixture<UserCollectionComponent>;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   let odataservice: any;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   let getUserCollectionsSpy: any;
 
   beforeAll(() => {

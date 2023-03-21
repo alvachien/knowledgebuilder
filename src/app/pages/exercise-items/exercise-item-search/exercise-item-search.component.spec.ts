@@ -15,7 +15,9 @@ import { of } from 'rxjs';
 describe('ExerciseItemSearchComponent', () => {
   let component: ExerciseItemSearchComponent;
   let fixture: ComponentFixture<ExerciseItemSearchComponent>;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   let odataservice: any;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   let searchExerciseItemsSpy: any;
 
   beforeAll(() => {

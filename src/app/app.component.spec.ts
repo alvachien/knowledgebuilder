@@ -13,6 +13,7 @@ import { NavItemFilterPipe } from './pipes';
 import { InvitedUser } from './models';
 
 describe('AppComponent', () => {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   let odataervice: any;
   let userDetail: InvitedUser;
 

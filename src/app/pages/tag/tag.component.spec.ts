@@ -13,7 +13,9 @@ import { ODataService, UIUtilityService } from 'src/app/services';
 describe('TagComponent', () => {
   let component: TagComponent;
   let fixture: ComponentFixture<TagComponent>;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   let odataSvc: any;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   let readExerciseItemSpy: any;
 
   beforeAll(() => {

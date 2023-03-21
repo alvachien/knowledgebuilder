@@ -6,7 +6,7 @@ import {
 } from '@angular/core';
 import { MatPaginator } from '@angular/material/paginator';
 import { MatSort } from '@angular/material/sort';
-import { merge, Observable, of as observableOf } from 'rxjs';
+import { merge, of as observableOf } from 'rxjs';
 import { catchError, map, startWith, switchMap } from 'rxjs/operators';
 
 import { UserCollection } from 'src/app/models';
@@ -26,6 +26,7 @@ export class UserCollectionComponent implements AfterViewInit {
   dataSource: UserCollection[] = [];
   resultsLength = 0;
   isLoadingResults = true;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   refreshEvent: EventEmitter<any> = new EventEmitter();
 
   @ViewChild(MatPaginator) paginator!: MatPaginator;

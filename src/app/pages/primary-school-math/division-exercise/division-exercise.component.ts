@@ -1,7 +1,5 @@
 import {
   Component,
-  OnInit,
-  OnDestroy,
   ViewChild,
   ElementRef,
   ChangeDetectorRef,
@@ -10,9 +8,7 @@ import {
   AbstractControl,
   UntypedFormControl,
   UntypedFormGroup,
-  NgForm,
   ValidationErrors,
-  ValidatorFn,
 } from '@angular/forms';
 import { Validators } from '@angular/forms';
 import { MatDialog } from '@angular/material/dialog';
@@ -37,9 +33,7 @@ import { QuizFailureDailogComponent } from '../../quiz-failure-dailog';
   templateUrl: './division-exercise.component.html',
   styleUrls: ['./division-exercise.component.scss'],
 })
-export class DivisionExerciseComponent
-  implements OnInit, OnDestroy, CanDeactivateGuard
-{
+export class DivisionExerciseComponent implements CanDeactivateGuard {
   isQuizStarted = false;
   quizControlFormGroup: UntypedFormGroup = new UntypedFormGroup(
     {
@@ -105,9 +99,6 @@ export class DivisionExerciseComponent
     return !this.isQuizStarted;
   }
 
-  ngOnInit(): void {}
-  ngOnDestroy(): void {}
-
   canStart(): boolean {
     return !this.isQuizStarted && this.quizControlFormGroup.valid;
   }
@@ -117,7 +108,7 @@ export class DivisionExerciseComponent
       const quiz = this.quizService.startNewQuiz(this.quizService.NextQuizID);
 
       this.generateQuizSection(
-        this.quizControlFormGroup.get('countControl')!.value
+        this.quizControlFormGroup.get('countControl')?.value ?? 0
       );
 
       const quizSection = new QuizSection(
@@ -152,9 +143,8 @@ export class DivisionExerciseComponent
 
         // Complete current section, and start another one!
         this.quizService.ActiveQuiz?.completeActionSection(failedItems.length);
-        const failedfactor = this.quizControlFormGroup.get(
-          'failedFactorControl'
-        )!.value;
+        const failedfactor =
+          this.quizControlFormGroup.get('failedFactorControl')?.value ?? 0;
 
         if (failedItems.length > 0 && failedfactor > 0) {
           this.quizService.FailedQuizItems = failedItems;
@@ -166,7 +156,7 @@ export class DivisionExerciseComponent
             width: '500px',
           });
 
-          dialogRef.afterClosed().subscribe((x) => {
+          dialogRef.afterClosed().subscribe(() => {
             this.generateQuizSection(failedItems.length * failedfactor);
             this.QuizCursor = 0;
             this.setNextButtonText();

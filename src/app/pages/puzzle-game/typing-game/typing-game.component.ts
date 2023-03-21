@@ -24,6 +24,7 @@ export class TypingGameComponent implements OnInit, AfterViewInit {
   @ViewChild('inpword', { static: true }) inpWordER!: ElementRef;
   @ViewChild('inpword2', { static: true }) inpWord2ER!: ElementRef;
   @ViewChild('keyboard', { static: true }) keyboardER!: ElementRef;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   @Output() finishEvent: EventEmitter<any> = new EventEmitter();
   public expectedString = '';
   public inputtedString: string | null = '';

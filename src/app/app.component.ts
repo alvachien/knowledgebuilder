@@ -35,6 +35,7 @@ export class AppComponent implements OnDestroy {
     changeDetectorRef: ChangeDetectorRef,
     media: MediaMatcher,
     private translocoService: TranslocoService,
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     private dateAdapter: DateAdapter<any>,
     public dialog: MatDialog,
     public oDataSrv: ODataService,
@@ -213,6 +214,7 @@ export class AppComponent implements OnDestroy {
 })
 // eslint-disable-next-line @angular-eslint/component-class-suffix
 export class CurrentUserDialog {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   displayedColumns: any[] = ['userid', 'username', 'displayas'];
 
   constructor(

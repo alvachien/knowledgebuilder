@@ -2,13 +2,12 @@ import {
   AfterViewInit,
   Component,
   EventEmitter,
-  OnInit,
   ViewChild,
 } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { MatPaginator } from '@angular/material/paginator';
 import { MatSort } from '@angular/material/sort';
-import { merge, Observable, of as observableOf } from 'rxjs';
+import { merge, of as observableOf } from 'rxjs';
 import {
   catchError,
   finalize,
@@ -17,7 +16,7 @@ import {
   switchMap,
 } from 'rxjs/operators';
 
-import { UserHabit, UserHabitRecordView } from 'src/app/models';
+import { UserHabitRecordView } from 'src/app/models';
 import { ODataService, UIUtilityService } from 'src/app/services';
 import { AuthService } from 'src/app/services/auth.service';
 
@@ -26,7 +25,7 @@ import { AuthService } from 'src/app/services/auth.service';
   templateUrl: './habit-record-list.component.html',
   styleUrls: ['./habit-record-list.component.scss'],
 })
-export class HabitRecordListComponent implements OnInit, AfterViewInit {
+export class HabitRecordListComponent implements AfterViewInit {
   arRecords: UserHabitRecordView[] = [];
   displayedColumns: string[] = [
     'targetUser',
@@ -40,6 +39,7 @@ export class HabitRecordListComponent implements OnInit, AfterViewInit {
   ];
   recordCount = 0;
   isLoadingResults = false;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   refreshEvent: EventEmitter<any> = new EventEmitter();
 
   @ViewChild(MatPaginator) paginator!: MatPaginator;
@@ -63,8 +63,6 @@ export class HabitRecordListComponent implements OnInit, AfterViewInit {
     }
     return '';
   }
-
-  ngOnInit(): void {}
 
   ngAfterViewInit(): void {
     this.sort.sortChange.subscribe(() => (this.paginator.pageIndex = 0));
@@ -113,9 +111,9 @@ export class HabitRecordListComponent implements OnInit, AfterViewInit {
   }
   public onDeleteRecord(row: UserHabitRecordView): void {
     this.odataSrv
-      .deleteUserHabitRecord(row.habitID!, row.recordDateString, row.subID)
+      .deleteUserHabitRecord(row.habitID ?? 0, row.recordDateString, row.subID)
       .subscribe({
-        next: (val) => {
+        next: () => {
           this.uiUtilSrv.showSnackInfo('Delete successfully');
         },
         error: (err) => {

@@ -15,7 +15,9 @@ import { InvitedUser } from 'src/app/models';
 describe('KnowledgeItemDetailComponent', () => {
   let component: KnowledgeItemDetailComponent;
   let fixture: ComponentFixture<KnowledgeItemDetailComponent>;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   let odataSvc: any;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   let readKnowledgeItemSpy: any;
   let userDetail: InvitedUser;
 

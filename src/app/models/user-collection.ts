@@ -36,6 +36,7 @@ export class UserCollection {
     this._modifiedAt = ua;
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   public parseData(data: any): void {
     if (data && data.ID) {
       this.ID = data.ID;
@@ -57,6 +58,7 @@ export class UserCollection {
     }
     this.Items = [];
     if (data && data.Items) {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const items: any[] = data.Items as any[];
       items.forEach((tg) => {
         const item = new UserCollectionItem();
@@ -66,6 +68,7 @@ export class UserCollection {
     }
   }
   public writeJSONString(isupdate?: boolean): string {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const coll: any = {
       User: this.User,
       Name: this.Name,
@@ -110,6 +113,7 @@ export class UserCollectionItem {
   set CreatedAt(ca: Date | undefined) {
     this._createdAt = ca;
   }
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   public parseData(data: any): void {
     if (data && data.ID) {
       this.ID = data.ID;
@@ -129,7 +133,9 @@ export class UserCollectionItem {
       this.CreatedAt = new Date(data.CreatedAt);
     }
   }
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   public writeJSONObject(isupdate?: boolean): any {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const item: any = {
       RefType: TagReferenceType[this.RefType],
       RefID: this.RefID,
@@ -144,6 +150,7 @@ export class UserCollectionItem {
     return item;
   }
   public writeJSONString(isupdate?: boolean): string {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const item: any = {
       RefType: TagReferenceType[this.RefType],
       RefID: this.RefID,

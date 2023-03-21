@@ -40,6 +40,7 @@ export const getExerciseItemTypeName = (reftype: ExerciseItemType): string => {
   return rtn;
 };
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export const getExerciseItemTypeNames = (): any[] => {
   const rtn = [];
 
@@ -108,6 +109,7 @@ export class ExerciseItem {
     this._answer = awr;
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   public parseData(val: any): void {
     if (val && val.ID) {
       this.ID = +val.ID;
@@ -138,6 +140,7 @@ export class ExerciseItem {
     }
     // Tags
     if (val && val.Tags) {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const tags: any[] = val.Tags as any[];
       this._tags = [];
       tags.forEach((tg) => {
@@ -146,6 +149,7 @@ export class ExerciseItem {
     }
   }
   public generateString(isupdate?: boolean): string {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const exobj: any = {
       Content: this.Content,
       ExerciseType: ExerciseItemType[this.ItemType],
@@ -186,6 +190,7 @@ export class ExerciseItemSearchResult {
   public ItemType: ExerciseItemType = ExerciseItemType.Question;
   public Tags = '';
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   public parseData(data: any): void {
     if (data && data.ID) {
       this.ID = data.ID;
@@ -220,6 +225,7 @@ export class ExerciseItemUserScore {
   public TakenDate?: Date;
   public Score: number;
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   public parseData(data: any): void {
     if (data && data.ID) {
       this.ID = data.ID;
@@ -238,6 +244,7 @@ export class ExerciseItemUserScore {
     }
   }
   public writeJSONString(isupdate?: boolean): string {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const exobj: any = {
       User: this.User,
       RefID: this.RefID,

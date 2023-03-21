@@ -3,7 +3,6 @@ import {
   Component,
   ElementRef,
   HostListener,
-  OnDestroy,
   OnInit,
   ViewChild,
 } from '@angular/core';
@@ -243,7 +242,6 @@ export class SudouComponent implements OnInit, AfterContentInit {
   }
 
   private onDraw(): void {
-    const cvBuffer = null;
     const ctx2 = this.canvasSudou.nativeElement.getContext('2d');
 
     ctx2.fillStyle = '#ffffff';
@@ -266,6 +264,7 @@ export class SudouComponent implements OnInit, AfterContentInit {
 
         ctx2.fillStyle = '#008800';
         if (cell.num === null) {
+          // TBD.
         } else {
           if (cell.inConflict) {
             ctx2.fillStyle = 'red';
@@ -303,7 +302,9 @@ export class SudouComponent implements OnInit, AfterContentInit {
   }
 
   @HostListener('mousedown', ['$event'])
-  public onSudouCanvasMouseDown(evt: MouseEvent) {}
+  public onSudouCanvasMouseDown(evt: MouseEvent) {
+    // Mouse down
+  }
 
   @HostListener('mouseup', ['$event'])
   public onSudouCanvasMouseUp(evt: MouseEvent) {

@@ -10,7 +10,7 @@ import {
 import { UIMode } from 'actslib';
 import moment from 'moment';
 
-import { AwardUserView, UserHabit, UserHabitRecord } from 'src/app/models';
+import { AwardUserView, UserHabitRecord } from 'src/app/models';
 import { AuthService, ODataService, UIUtilityService } from 'src/app/services';
 
 @Component({
@@ -120,7 +120,9 @@ export class HabitRecordDetailComponent implements OnInit {
     });
   }
 
-  public onOK() {}
+  public onOK() {
+    // OK
+  }
   public onReturnToList() {
     this.uiUtilSrv.navigateHabitRecordListPage();
   }

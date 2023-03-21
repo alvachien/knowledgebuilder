@@ -13,7 +13,9 @@ import { PreviewComponent } from './preview.component';
 describe('PreviewComponent', () => {
   let component: PreviewComponent;
   let fixture: ComponentFixture<PreviewComponent>;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   let odataSvc: any;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   let readKnowledgeItemSpy: any;
 
   beforeAll(() => {

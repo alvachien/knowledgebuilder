@@ -1,6 +1,5 @@
 import {
   Component,
-  OnInit,
   ViewChild,
   AfterViewInit,
   EventEmitter,
@@ -8,7 +7,7 @@ import {
 import { MatDialog } from '@angular/material/dialog';
 import { MatPaginator } from '@angular/material/paginator';
 import { MatSort } from '@angular/material/sort';
-import { merge, Observable, of as observableOf } from 'rxjs';
+import { merge, of as observableOf } from 'rxjs';
 import {
   catchError,
   finalize,
@@ -50,6 +49,7 @@ export class ExerciseItemsComponent implements AfterViewInit {
 
   resultsLength = 0;
   isLoadingResults = true;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   refreshEvent: EventEmitter<any> = new EventEmitter();
 
   @ViewChild(MatPaginator) paginator!: MatPaginator;
@@ -114,7 +114,7 @@ export class ExerciseItemsComponent implements AfterViewInit {
 
   public onDeleteItem(itemid: number): void {
     this.odataService.deleteExerciseItem(itemid).subscribe({
-      next: (val) => {
+      next: () => {
         // Delete the item specified.
         this.onRefreshList();
       },
@@ -151,8 +151,10 @@ export class ExerciseItemsComponent implements AfterViewInit {
           },
         });
 
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         dialogRef.afterClosed().subscribe((result: any) => {
           const collitems: UserCollectionItem[] = [];
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
           result.collids.forEach((collid: any) => {
             const colidx = arColls.findIndex((coll) => coll.ID === +collid);
             if (colidx !== -1) {
@@ -166,7 +168,7 @@ export class ExerciseItemsComponent implements AfterViewInit {
 
           if (collitems.length > 0) {
             this.odataService.addExerciseItemToCollection(collitems).subscribe({
-              next: (val2) => {
+              next: () => {
                 this.uiUtilSrv.showSnackInfo('DONE');
               },
               error: (err) => {
@@ -201,7 +203,7 @@ export class ExerciseItemsComponent implements AfterViewInit {
       // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
       nscore.User = this.authService.currentUserId;
       this.odataService.createExerciseItemUserScore(nscore).subscribe({
-        next: (val) => {
+        next: () => {
           this.uiUtilSrv.showSnackInfo('DONE');
         },
         error: (err) => {

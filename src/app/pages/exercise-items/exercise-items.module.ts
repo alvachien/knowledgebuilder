@@ -1,13 +1,8 @@
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
-import { MarkdownModule, MarkedOptions } from 'ngx-markdown';
+import { MarkdownModule } from 'ngx-markdown';
 import { TranslocoModule } from '@ngneat/transloco';
-import {
-  DateAdapter,
-  MAT_DATE_FORMATS,
-  NativeDateAdapter,
-} from '@angular/material/core';
 
 import { MaterialModulesModule } from '../../material-modules';
 import { ImageUploadModule } from '../image-upload/image-upload.module';

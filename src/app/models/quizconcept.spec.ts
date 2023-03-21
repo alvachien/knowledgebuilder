@@ -1,8 +1,6 @@
 import {
   QuizSection,
   Quiz,
-  PrimarySchoolMathQuizItem,
-  PrimarySchoolMathFAOQuizItem,
   AdditionQuizItem,
   SubtractionQuizItem,
   MultiplicationQuizItem,

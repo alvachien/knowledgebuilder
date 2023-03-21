@@ -1,9 +1,5 @@
-import { Component, OnInit, OnDestroy, ViewChild } from '@angular/core';
-import {
-  UntypedFormGroup,
-  UntypedFormControl,
-  Validators,
-} from '@angular/forms';
+import { Component, OnInit, OnDestroy } from '@angular/core';
+import { UntypedFormGroup, UntypedFormControl } from '@angular/forms';
 import { ReplaySubject } from 'rxjs';
 import { COMMA, ENTER } from '@angular/cdk/keycodes';
 import { ActivatedRoute } from '@angular/router';
@@ -50,6 +46,7 @@ export class ExerciseItemDetailComponent implements OnInit, OnDestroy {
   addOnBlur = true;
   readonly separatorKeysCodes: number[] = [ENTER, COMMA];
   tags: string[] = [];
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   arExerciseTypes: any[] = [];
 
   get isDisplayMode(): boolean {
@@ -198,6 +195,7 @@ export class ExerciseItemDetailComponent implements OnInit, OnDestroy {
       next: (val) => {
         console.log(val);
 
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         val.forEach((entry: any) => {
           this.content += `
 ![Img](${entry.url})
@@ -216,6 +214,7 @@ export class ExerciseItemDetailComponent implements OnInit, OnDestroy {
       next: (val) => {
         console.log(val);
 
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         val.forEach((entry: any) => {
           this.answerContent += `
   ![Img](${entry.url})

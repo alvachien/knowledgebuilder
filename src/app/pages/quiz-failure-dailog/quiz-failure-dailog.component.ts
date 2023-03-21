@@ -10,6 +10,7 @@ import { QuizService } from 'src/app/services';
 export class QuizFailureDailogComponent implements OnInit {
   displayedColumns = ['qid', 'expected', 'inputted'];
   currentScore = 0;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   failedItems: any[] = [];
   constructor(private quizSrv: QuizService) {}
 

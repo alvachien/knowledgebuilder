@@ -15,7 +15,9 @@ import { InvitedUser } from 'src/app/models';
 describe('UserCollectionDetailComponent', () => {
   let component: UserCollectionDetailComponent;
   let fixture: ComponentFixture<UserCollectionDetailComponent>;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   let odataservice: any;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   let readUserCollectionSpy: any;
   let userDetail: InvitedUser;
 

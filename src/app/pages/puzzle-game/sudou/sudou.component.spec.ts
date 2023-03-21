@@ -6,7 +6,6 @@ import { RouterTestingModule } from '@angular/router/testing';
 import { BrowserDynamicTestingModule } from '@angular/platform-browser-dynamic/testing';
 import { getTranslocoModule } from 'src/testing';
 import { MaterialModulesModule } from 'src/app/material-modules';
-import { of } from 'rxjs';
 
 import { SudouComponent } from './sudou.component';
 

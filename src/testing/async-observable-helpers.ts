@@ -13,11 +13,13 @@
 import { defer } from 'rxjs';
 
 /** Create async observable that emits-once and completes after a JS engine turn */
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export function asyncData<T>(data: T): any {
   return defer(() => Promise.resolve(data));
 }
 
 /** Create async observable error that errors after a JS engine turn */
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export function asyncError<T>(errorObject: T): any {
   return defer(() => Promise.reject(errorObject));
 }

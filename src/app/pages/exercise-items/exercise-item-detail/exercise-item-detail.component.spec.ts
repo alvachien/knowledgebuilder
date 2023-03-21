@@ -7,14 +7,15 @@ import { BrowserDynamicTestingModule } from '@angular/platform-browser-dynamic/t
 import { getTranslocoModule } from 'src/testing';
 import { MaterialModulesModule } from 'src/app/material-modules';
 import { of } from 'rxjs';
-import { AuthService, ODataService, UIUtilityService } from 'src/app/services';
+import { ODataService, UIUtilityService } from 'src/app/services';
 import { ExerciseItemDetailComponent } from './exercise-item-detail.component';
 
 describe('ExerciseItemDetailComponent', () => {
   let component: ExerciseItemDetailComponent;
   let fixture: ComponentFixture<ExerciseItemDetailComponent>;
-
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   let odataSvc: any;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   let readExerciseItemSpy: any;
 
   beforeAll(() => {

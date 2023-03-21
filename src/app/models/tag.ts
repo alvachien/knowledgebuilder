@@ -22,6 +22,7 @@ export class Tag {
   public RefType?: TagReferenceType;
   public RefID?: number;
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   public parseData(val: any): void {
     if (val && val.TagTerm) {
       this.TagTerm = val.TagTerm;
@@ -45,6 +46,7 @@ export class TagCount {
   public RefType?: TagReferenceType;
   public Count?: number;
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   public parseData(val: any): void {
     if (val && val.Tag) {
       this.TagTerm = val.Tag;
@@ -67,6 +69,7 @@ export class TagCountByRefType {
   public RefType?: TagReferenceType;
   public Count?: number;
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   public parseData(val: any): void {
     if (val && val.RefType) {
       if (isNaN(+val.RefType)) {

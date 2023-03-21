@@ -6,7 +6,6 @@ import { RouterTestingModule } from '@angular/router/testing';
 import { BrowserDynamicTestingModule } from '@angular/platform-browser-dynamic/testing';
 import { getTranslocoModule } from 'src/testing';
 import { MaterialModulesModule } from 'src/app/material-modules';
-import { of } from 'rxjs';
 
 import { ImageUploadComponent } from './image-upload.component';
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
@@ -15,6 +14,7 @@ import { ODataService } from 'src/app/services';
 describe('ImageUploadComponent', () => {
   let component: ImageUploadComponent;
   let fixture: ComponentFixture<ImageUploadComponent>;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   let odataSvc: any;
 
   beforeAll(() => {

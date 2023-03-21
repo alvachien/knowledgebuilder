@@ -23,13 +23,13 @@ export class KnowledgeItemAddToCollDialog implements AfterViewInit {
 
   ngAfterViewInit() {
     this.colls.selectionChange.subscribe({
-      next: (val: any) => {
+      next: () => {
         this.data.collids = [];
         this.colls.selectedOptions.selected.forEach((sel) => {
           this.data.collids.push(+sel.value);
         });
       },
-      error: (err: any) => {
+      error: () => {
         // Error handling
       },
     });

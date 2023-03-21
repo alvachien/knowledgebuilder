@@ -100,7 +100,7 @@ export class MultiplicationExerciseComponent implements CanDeactivateGuard {
       const quiz = this.quizService.startNewQuiz(this.quizService.NextQuizID);
 
       this.generateQuizSection(
-        this.quizControlFormGroup.get('countControl')!.value
+        this.quizControlFormGroup.get('countControl')?.value ?? 0
       );
       const quizSection = new QuizSection(
         quiz.NextSectionID,
@@ -116,6 +116,7 @@ export class MultiplicationExerciseComponent implements CanDeactivateGuard {
 
   onQuizSubmit(): void {
     if (this.QuizItems[this.QuizCursor].InputtedResult === undefined) {
+      // TBD.
     } else {
       if (this.QuizCursor === this.QuizItems.length - 1) {
         // do real submit
@@ -128,9 +129,8 @@ export class MultiplicationExerciseComponent implements CanDeactivateGuard {
 
         // Complete current section, and start another one!
         this.quizService.ActiveQuiz?.completeActionSection(failedItems.length);
-        const failedfactor = this.quizControlFormGroup.get(
-          'failedFactorControl'
-        )!.value;
+        const failedfactor =
+          this.quizControlFormGroup.get('failedFactorControl')?.value ?? 0;
 
         if (failedItems.length > 0 && failedfactor > 0) {
           // this.snackBar.open(`Failed items: ${failedItems.length}, please retry`, undefined, {
@@ -145,7 +145,7 @@ export class MultiplicationExerciseComponent implements CanDeactivateGuard {
             width: '500px',
           });
 
-          dialogRef.afterClosed().subscribe((x) => {
+          dialogRef.afterClosed().subscribe(() => {
             this.generateQuizSection(failedItems.length * failedfactor);
             this.QuizCursor = 0;
             this.setNextButtonText();
@@ -188,12 +188,12 @@ export class MultiplicationExerciseComponent implements CanDeactivateGuard {
 
   private getNumber(): number {
     let mfactor = 0;
-    const decplace = this.quizControlFormGroup.get('decControl')!.value;
+    const decplace = this.quizControlFormGroup.get('decControl')?.value ?? 0;
     mfactor = Math.pow(10, decplace);
     const leftNumb =
-      mfactor * this.quizControlFormGroup.get('leftNumberControl')!.value;
+      mfactor * this.quizControlFormGroup.get('leftNumberControl')?.value ?? 0;
     const rightNumb =
-      mfactor * this.quizControlFormGroup.get('rightNumberControl')!.value;
+      mfactor * this.quizControlFormGroup.get('rightNumberControl')?.value ?? 0;
 
     let rnum1 = Math.round(Math.random() * (rightNumb - leftNumb)) + leftNumb;
     if (mfactor !== 0) {
@@ -202,7 +202,7 @@ export class MultiplicationExerciseComponent implements CanDeactivateGuard {
     return rnum1;
   }
   private generateQuizItem(idx: number): MultiplicationQuizItem {
-    const decplace = this.quizControlFormGroup.get('decControl')!.value;
+    const decplace = this.quizControlFormGroup.get('decControl')?.value ?? 0;
     const qz: MultiplicationQuizItem = new MultiplicationQuizItem(
       this.getNumber(),
       this.getNumber(),

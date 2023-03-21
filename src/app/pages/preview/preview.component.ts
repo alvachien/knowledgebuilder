@@ -5,7 +5,6 @@ import { KatexOptions } from 'ngx-markdown';
 
 import {
   KnowledgeItem,
-  Tag,
   ExerciseItem,
   TagReferenceType,
   ExerciseItemType,

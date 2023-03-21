@@ -1,11 +1,10 @@
 import { AfterViewInit, Component, OnInit, ViewChild } from '@angular/core';
 import { MatPaginator } from '@angular/material/paginator';
-import { BehaviorSubject, merge, of as observableOf, scheduled } from 'rxjs';
+import { BehaviorSubject, merge, of as observableOf } from 'rxjs';
 import {
   catchError,
   finalize,
   map,
-  mergeAll,
   startWith,
   switchMap,
 } from 'rxjs/operators';
@@ -35,6 +34,7 @@ import {
 export class KnowledgeItemSearchComponent implements OnInit, AfterViewInit {
   filters: GeneralFilterItem[] = [];
   allOperators: UIDisplayString[] = [];
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   allFields: any[] = [];
   filterEditable = true;
 
@@ -43,6 +43,7 @@ export class KnowledgeItemSearchComponent implements OnInit, AfterViewInit {
   pageSizeOptions = [20, 40, 60, 100];
   isLoadingResults = false;
   resultsLength = 0;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   subjFilters: BehaviorSubject<any> = new BehaviorSubject([]);
   // Result
   displayedColumns: string[] = ['id', 'category', 'title', 'createdat'];
@@ -107,6 +108,7 @@ export class KnowledgeItemSearchComponent implements OnInit, AfterViewInit {
           );
         }),
         finalize(() => (this.isLoadingResults = false)),
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         map((data: any) => {
           this.resultsLength = data.totalCount;
 
@@ -138,12 +140,14 @@ export class KnowledgeItemSearchComponent implements OnInit, AfterViewInit {
     }
   }
   public onFieldSelectionChanged(filter: GeneralFilterItem): void {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     this.allFields.forEach((value: any) => {
       if (value.value === filter.fieldName) {
         filter.valueType = value.valueType;
       }
     });
   }
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   prepareFilters(arFilter: any[]): string {
     let rstfilter = '';
     arFilter.sort((a, b) => a.fieldName.localeCompare(b.fieldName));
@@ -165,6 +169,7 @@ export class KnowledgeItemSearchComponent implements OnInit, AfterViewInit {
   }
   public onSearch(): void {
     // Do the translate first
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const arRealFilter: any[] = [];
     this.filters.forEach((value: GeneralFilterItem) => {
       const val: any = {};
