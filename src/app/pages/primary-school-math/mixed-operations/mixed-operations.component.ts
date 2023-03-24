@@ -6,6 +6,7 @@ import { MatSelectionList } from '@angular/material/list';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { Router } from '@angular/router';
 import { Observable } from 'rxjs';
+import { SafeAny } from 'src/app/common';
 
 import { MixedOperationQuizItem, PrimarySchoolMathQuizSection, QuizSection } from 'src/app/models';
 import { CanComponentDeactivate, CanDeactivateGuard, QuizService } from 'src/app/services';
@@ -69,6 +70,7 @@ export class MixedOperationsComponent implements CanDeactivateGuard {
     private dialog: MatDialog
   ) {}
 
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   canDeactivate(component: CanComponentDeactivate): boolean | Observable<boolean> | Promise<boolean> {
     return !this.isQuizStarted;
   }
@@ -77,9 +79,13 @@ export class MixedOperationsComponent implements CanDeactivateGuard {
     return (
       !this.isQuizStarted &&
       this.quizControlFormGroup.valid &&
+      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
       this.operatorsCtrl! &&
+      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
       this.operatorsCtrl!.selectedOptions.selected.length > 0 &&
+      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
       this.quizControlFormGroup.get('operatorCountControl')!.value <=
+        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
         this.operatorsCtrl!.selectedOptions.selected.length
     );
   }
@@ -87,6 +93,7 @@ export class MixedOperationsComponent implements CanDeactivateGuard {
   onQuizStart(): void {
     if (!this.quizService.ActiveQuiz) {
       const quiz = this.quizService.startNewQuiz(this.quizService.NextQuizID);
+      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
       this.generateQuizSection(this.quizControlFormGroup.get('countControl')!.value);
       const quizSection = new QuizSection(quiz.NextSectionID, this.QuizItems.length);
       quiz.startNewSection(quizSection);
@@ -115,6 +122,7 @@ export class MixedOperationsComponent implements CanDeactivateGuard {
 
         // Complete current section, and start another one!
         this.quizService.ActiveQuiz?.completeActionSection(failedItems.length);
+        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
         const failedfactor = this.quizControlFormGroup.get('failedFactorControl')!.value;
 
         if (failedItems.length > 0 && failedfactor > 0) {
@@ -128,11 +136,12 @@ export class MixedOperationsComponent implements CanDeactivateGuard {
             width: '500px',
           });
 
-          dialogRef.afterClosed().subscribe((x) => {
+          dialogRef.afterClosed().subscribe(() => {
             this.generateQuizSection(failedItems.length * failedfactor);
             this.QuizCursor = 0;
             this.setNextButtonText();
 
+            // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
             const curquiz = this.quizService.ActiveQuiz!;
             const quizSection = new QuizSection(curquiz.NextSectionID, this.QuizItems.length);
             curquiz.startNewSection(quizSection);
@@ -173,19 +182,25 @@ export class MixedOperationsComponent implements CanDeactivateGuard {
   }
 
   private generateQuizItem(idx: number): MixedOperationQuizItem {
+    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
     const allowneg: boolean = this.quizControlFormGroup.get('negControl')!.value as boolean;
+    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
     const opercnt = this.quizControlFormGroup.get('operatorCountControl')!.value;
     let qz: MixedOperationQuizItem = new MixedOperationQuizItem();
-    while (1 === 1) {
+    // eslint-disable-next-line no-constant-condition
+    while (true) {
       let fmt = this.getNumber().toString();
 
+      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
       if (opercnt >= this.operatorsCtrl!.selectedOptions.selected.length) {
+        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
         this.operatorsCtrl!.selectedOptions.selected.forEach((vop) => {
           fmt += vop.value;
           fmt += this.getNumber().toString();
         });
       } else {
-        const ops: any[] = [];
+        const ops: SafeAny[] = [];
+        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
         this.operatorsCtrl!.selectedOptions.selected.forEach((vop) => {
           ops.push(vop.value);
         });
@@ -213,9 +228,12 @@ export class MixedOperationsComponent implements CanDeactivateGuard {
   }
   private getNumber(): number {
     let mfactor = 0;
+    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
     const decplace = this.quizControlFormGroup.get('decControl')!.value;
     mfactor = Math.pow(10, decplace);
+    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
     const leftNumb = mfactor * this.quizControlFormGroup.get('leftNumberControl')!.value;
+    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
     const rightNumb = mfactor * this.quizControlFormGroup.get('rightNumberControl')!.value;
 
     let rnum1 = Math.round(Math.random() * (rightNumb - leftNumb)) + leftNumb;

@@ -180,8 +180,8 @@ export class PrintableQuizComponent {
       // Generate the PDF
       this.pdfFileGenerate();
 
-      this._eventPDF.subscribe(
-        (val: boolean) => {
+      this._eventPDF.subscribe({
+        next: () => {
           aoc--;
           if (aoc >= 1) {
             // Regeneate the whole page
@@ -196,13 +196,13 @@ export class PrintableQuizComponent {
             this.onReset();
           }
         },
-        (error: SafeAny) => {
+        error: (err: SafeAny) => {
           // Failed
-          this.snackbar.open(error.toString(), undefined, {
+          this.snackbar.open(err.toString(), undefined, {
             duration: 2000,
           });
-        }
-      );
+        },
+      });
     }
   }
 

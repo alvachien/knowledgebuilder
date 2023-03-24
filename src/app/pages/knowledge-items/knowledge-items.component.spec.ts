@@ -11,12 +11,14 @@ import { of } from 'rxjs';
 import { AuthService, ODataService, UIUtilityService } from 'src/app/services';
 import { KnowledgeItemsComponent } from './knowledge-items.component';
 import { InvitedUser } from 'src/app/models';
+import { SafeAny } from 'src/app/common';
 
 describe('KnowledgeItemsComponent', () => {
   let component: KnowledgeItemsComponent;
   let fixture: ComponentFixture<KnowledgeItemsComponent>;
-  let odataservice: any;
-  let getKnowledgeItemsSpy: any;
+  let odataservice: SafeAny;
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  let getKnowledgeItemsSpy: SafeAny;
   let userDetail: InvitedUser;
 
   beforeAll(() => {

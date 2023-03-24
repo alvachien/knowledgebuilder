@@ -15,7 +15,7 @@ describe('TagDetailComponent', () => {
   let fixture: ComponentFixture<TagDetailComponent>;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   let odataSvc: any;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any, @typescript-eslint/no-unused-vars
   let readExerciseItemSpy: any;
 
   beforeAll(() => {

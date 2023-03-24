@@ -2,6 +2,7 @@ import { Component, Inject, OnInit } from '@angular/core';
 import { MatDialog, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import moment from 'moment';
 import { forkJoin } from 'rxjs';
+import { SafeAny } from 'src/app/common';
 
 import {
   UserHabitPointsByUserDate,
@@ -65,8 +66,8 @@ export class HabitPointsListComponent implements OnInit {
     this.selectedPeriod = '2';
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  public onReportParameterSelectionChange(event: any) {
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  public onReportParameterSelectionChange(event: SafeAny) {
     if (this.selectedUser !== null) {
       this.refreshData();
     }
@@ -95,11 +96,11 @@ export class HabitPointsListComponent implements OnInit {
     forkJoin([
       this.odataSrv.getHabitOpeningPointsByUserDate(this.selectedUser ?? '', daysInAxisOrigin),
       this.odataSrv.getHabitPointsByUserDateReport(filterstr),
+      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
       this.odataSrv.getUserOpeningPointReport(this.selectedUser!, daysInAxisOrigin),
       this.odataSrv.getUserHabitPointReports(filterstr),
     ]).subscribe({
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      next: (val: any[]) => {
+      next: (val: SafeAny[]) => {
         const openPoint1 = val[0] as number;
         const arHabitPoints = val[1] as UserHabitPointsByUserDate[];
         const openPoint2 = val[2] as number;
@@ -200,8 +201,7 @@ export class HabitPointsListComponent implements OnInit {
     });
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  onChartClick(event: any): void {
+  onChartClick(event: SafeAny): void {
     if (event.seriesIndex === 0) {
       // Points from habit.
       this.showHabitPointResult = true;

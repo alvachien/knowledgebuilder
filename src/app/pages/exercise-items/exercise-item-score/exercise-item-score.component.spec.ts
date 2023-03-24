@@ -10,14 +10,14 @@ import { of } from 'rxjs';
 import { ODataService, UIUtilityService } from 'src/app/services';
 import { ExerciseItemScoreComponent } from './exercise-item-score.component';
 import { AppUIModule } from 'src/app/app-ui.module';
+import { SafeAny } from 'src/app/common';
 
 describe('ExerciseItemScoreComponent', () => {
   let component: ExerciseItemScoreComponent;
   let fixture: ComponentFixture<ExerciseItemScoreComponent>;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  let odataSvc: any;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  let getOverviewInfoSpy: any;
+  let odataSvc: SafeAny;
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  let getOverviewInfoSpy: SafeAny;
 
   beforeAll(() => {
     odataSvc = jasmine.createSpyObj('ODataService', ['getOverviewInfo']);

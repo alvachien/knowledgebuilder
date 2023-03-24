@@ -275,6 +275,7 @@ export class SudouComponent implements OnInit, AfterContentInit {
   }
 
   @HostListener('mousedown', ['$event'])
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   public onSudouCanvasMouseDown(evt: MouseEvent) {
     // Mouse down
   }
@@ -310,6 +311,7 @@ export class SudouComponent implements OnInit, AfterContentInit {
       const ctx2 = this.canvasSudou.nativeElement.getContext('2d');
       this._editPanel.Draw(ctx2);
     } else {
+      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
       const seleN = this._editPanel!.GetHitNumber(pos.x, pos.y);
       if (seleN == null) {
         this._dataCells[this._editingCellIndex.row][this._editingCellIndex.column].N = null;

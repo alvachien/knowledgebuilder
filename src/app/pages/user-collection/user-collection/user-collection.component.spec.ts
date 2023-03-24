@@ -16,7 +16,7 @@ describe('UserCollectionComponent', () => {
   let fixture: ComponentFixture<UserCollectionComponent>;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   let odataservice: any;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any, @typescript-eslint/no-unused-vars
   let getUserCollectionsSpy: any;
 
   beforeAll(() => {

@@ -10,14 +10,14 @@ import { of } from 'rxjs';
 import { AuthService, ODataService, UIUtilityService } from 'src/app/services';
 import { HabitPointsListComponent } from './habit-points-list.component';
 import { InvitedUser } from 'src/app/models';
+import { SafeAny } from 'src/app/common';
 
 describe('HabitPointsListComponent', () => {
   let component: HabitPointsListComponent;
   let fixture: ComponentFixture<HabitPointsListComponent>;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  let odataSvc: any;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  let getOverviewInfoSpy: any;
+  let odataSvc: SafeAny;
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  let getOverviewInfoSpy: SafeAny;
   let userDetail: InvitedUser;
 
   beforeAll(() => {

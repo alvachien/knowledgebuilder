@@ -65,6 +65,8 @@ export class DivisionExerciseComponent implements CanDeactivateGuard {
     private changeDef: ChangeDetectorRef,
     private dialog: MatDialog
   ) {}
+
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   canDeactivate(component: CanComponentDeactivate): boolean | Observable<boolean> | Promise<boolean> {
     return !this.isQuizStarted;
   }
@@ -123,6 +125,7 @@ export class DivisionExerciseComponent implements CanDeactivateGuard {
             this.QuizCursor = 0;
             this.setNextButtonText();
 
+            // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
             const curquiz = this.quizService.ActiveQuiz!;
             const quizSection = new QuizSection(curquiz.NextSectionID, this.QuizItems.length);
             curquiz.startNewSection(quizSection);
@@ -164,14 +167,19 @@ export class DivisionExerciseComponent implements CanDeactivateGuard {
 
   private getNumber(isdivisor = false): number {
     let mfactor = 0;
+    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
     const decplace = this.quizControlFormGroup.get('decControl')!.value;
     mfactor = Math.pow(10, decplace);
     const leftNumb = isdivisor
-      ? mfactor * this.quizControlFormGroup.get('leftNumber2Control')!.value
-      : mfactor * this.quizControlFormGroup.get('leftNumberControl')!.value;
+      ? // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+        mfactor * this.quizControlFormGroup.get('leftNumber2Control')!.value
+      : // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+        mfactor * this.quizControlFormGroup.get('leftNumberControl')!.value;
     const rightNumb = isdivisor
-      ? mfactor * this.quizControlFormGroup.get('rightNumber2Control')!.value
-      : mfactor * this.quizControlFormGroup.get('rightNumberControl')!.value;
+      ? // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+        mfactor * this.quizControlFormGroup.get('rightNumber2Control')!.value
+      : // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+        mfactor * this.quizControlFormGroup.get('rightNumberControl')!.value;
 
     let rnum1 = Math.round(Math.random() * (rightNumb - leftNumb)) + leftNumb;
     if (mfactor !== 0) {
@@ -180,6 +188,7 @@ export class DivisionExerciseComponent implements CanDeactivateGuard {
     return rnum1;
   }
   private generateQuizItem(idx: number): DivisionQuizItem {
+    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
     const decplace = this.quizControlFormGroup.get('decControl')!.value;
 
     const qz: DivisionQuizItem = new DivisionQuizItem(this.getNumber(), this.getNumber(true), decplace);

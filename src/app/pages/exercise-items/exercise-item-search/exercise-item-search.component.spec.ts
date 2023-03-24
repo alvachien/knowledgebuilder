@@ -11,14 +11,14 @@ import { AppUIModule } from 'src/app/app-ui.module';
 import { ExerciseItemSearchComponent } from './exercise-item-search.component';
 import { ODataService, UIUtilityService } from 'src/app/services';
 import { of } from 'rxjs';
+import { SafeAny } from 'src/app/common';
 
 describe('ExerciseItemSearchComponent', () => {
   let component: ExerciseItemSearchComponent;
   let fixture: ComponentFixture<ExerciseItemSearchComponent>;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  let odataservice: any;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  let searchExerciseItemsSpy: any;
+  let odataservice: SafeAny;
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  let searchExerciseItemsSpy: SafeAny;
 
   beforeAll(() => {
     odataservice = jasmine.createSpyObj('ODataService', ['searchExerciseItems']);

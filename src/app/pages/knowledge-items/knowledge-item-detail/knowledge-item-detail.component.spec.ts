@@ -11,14 +11,14 @@ import { MaterialModulesModule } from 'src/app/material-modules';
 import { AuthService, ODataService, UIUtilityService } from 'src/app/services';
 import { KnowledgeItemDetailComponent } from './knowledge-item-detail.component';
 import { InvitedUser } from 'src/app/models';
+import { SafeAny } from 'src/app/common';
 
 describe('KnowledgeItemDetailComponent', () => {
   let component: KnowledgeItemDetailComponent;
   let fixture: ComponentFixture<KnowledgeItemDetailComponent>;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  let odataSvc: any;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  let readKnowledgeItemSpy: any;
+  let odataSvc: SafeAny;
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  let readKnowledgeItemSpy: SafeAny;
   let userDetail: InvitedUser;
 
   beforeAll(() => {

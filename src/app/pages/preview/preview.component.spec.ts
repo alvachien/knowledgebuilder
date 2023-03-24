@@ -15,7 +15,7 @@ describe('PreviewComponent', () => {
   let fixture: ComponentFixture<PreviewComponent>;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   let odataSvc: any;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any, @typescript-eslint/no-unused-vars
   let readKnowledgeItemSpy: any;
 
   beforeAll(() => {

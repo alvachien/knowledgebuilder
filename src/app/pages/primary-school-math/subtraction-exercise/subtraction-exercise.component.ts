@@ -58,6 +58,7 @@ export class SubtractionExerciseComponent implements CanDeactivateGuard {
     private changeDef: ChangeDetectorRef,
     private dialog: MatDialog
   ) {}
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   canDeactivate(component: CanComponentDeactivate): boolean | Observable<boolean> | Promise<boolean> {
     return !this.isQuizStarted;
   }
@@ -70,6 +71,7 @@ export class SubtractionExerciseComponent implements CanDeactivateGuard {
     if (!this.quizService.ActiveQuiz) {
       const quiz = this.quizService.startNewQuiz(this.quizService.NextQuizID);
 
+      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
       this.generateQuizSection(this.quizControlFormGroup.get('countControl')!.value);
       const quizSection = new QuizSection(quiz.NextSectionID, this.QuizItems.length);
       quiz.startNewSection(quizSection);
@@ -95,6 +97,7 @@ export class SubtractionExerciseComponent implements CanDeactivateGuard {
 
         // Complete current section, and start another one!
         this.quizService.ActiveQuiz?.completeActionSection(failedItems.length);
+        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
         const failedfactor = this.quizControlFormGroup.get('failedFactorControl')!.value;
 
         if (failedItems.length > 0 && failedfactor > 0) {
@@ -109,11 +112,12 @@ export class SubtractionExerciseComponent implements CanDeactivateGuard {
             width: '500px',
           });
 
-          dialogRef.afterClosed().subscribe((x) => {
+          dialogRef.afterClosed().subscribe(() => {
             this.generateQuizSection(failedItems.length * failedfactor);
             this.QuizCursor = 0;
             this.setNextButtonText();
 
+            // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
             const curquiz = this.quizService.ActiveQuiz!;
             const quizSection = new QuizSection(curquiz.NextSectionID, this.QuizItems.length);
             curquiz.startNewSection(quizSection);
@@ -149,9 +153,12 @@ export class SubtractionExerciseComponent implements CanDeactivateGuard {
 
   private getNumber(): number {
     let mfactor = 0;
+    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
     const decplace = this.quizControlFormGroup.get('decControl')!.value;
     mfactor = Math.pow(10, decplace);
+    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
     const leftNumb = mfactor * this.quizControlFormGroup.get('leftNumberControl')!.value;
+    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
     const rightNumb = mfactor * this.quizControlFormGroup.get('rightNumberControl')!.value;
 
     let rnum1 = Math.round(Math.random() * (rightNumb - leftNumb)) + leftNumb;
@@ -161,11 +168,13 @@ export class SubtractionExerciseComponent implements CanDeactivateGuard {
     return rnum1;
   }
   private generateQuizItem(idx: number): SubtractionQuizItem {
+    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
     const decplace = this.quizControlFormGroup.get('decControl')!.value;
     const allowneg: boolean = this.quizControlFormGroup.get('negControl')?.value as boolean;
     let rnum1 = 0;
     let rnum2 = 0;
-    while (1 === 1) {
+    // eslint-disable-next-line no-constant-condition
+    while (true) {
       rnum1 = this.getNumber();
       rnum2 = this.getNumber();
       if (!allowneg && rnum1 < rnum2) {

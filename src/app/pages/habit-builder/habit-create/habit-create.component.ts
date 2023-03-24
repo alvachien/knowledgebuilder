@@ -9,6 +9,7 @@ import {
   ValidatorFn,
 } from '@angular/forms';
 import moment from 'moment';
+import { SafeAny } from 'src/app/common';
 
 import {
   AwardUserView,
@@ -200,8 +201,8 @@ export class HabitCreateComponent implements OnInit {
   }
 
   // Step 1: Habit
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  public onFreqencyAndCompleteCategoryChange(val: any): void {
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  public onFreqencyAndCompleteCategoryChange(val: SafeAny): void {
     const compCtgy: HabitCompleteCategory = this.firstFormGroup.get('compCtgyCtrl')?.value as HabitCompleteCategory;
     const frq: HabitFrequency = this.firstFormGroup.get('freqCtrl')?.value as HabitFrequency;
     if (frq === HabitFrequency.Daily) {
@@ -218,8 +219,7 @@ export class HabitCreateComponent implements OnInit {
   }
 
   // Step 2: Continuous days
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  public onContDayChange(val: any) {
+  public onContDayChange(val: SafeAny) {
     this.contDays = [];
 
     if (val) {
@@ -255,8 +255,8 @@ export class HabitCreateComponent implements OnInit {
   }
 
   // Step 3: Points
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  public onPointCellChanged(event: any): void {
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  public onPointCellChanged(event: SafeAny): void {
     let failcnt = 0;
     this.arRules.forEach((row) => {
       if (isNaN(row.point)) {

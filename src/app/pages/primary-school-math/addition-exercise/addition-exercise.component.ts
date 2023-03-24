@@ -58,6 +58,7 @@ export class AdditionExerciseComponent implements CanDeactivateGuard {
     private dialog: MatDialog
   ) {}
 
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   canDeactivate(component: CanComponentDeactivate): boolean | Observable<boolean> | Promise<boolean> {
     return !this.isQuizStarted;
   }
@@ -69,6 +70,7 @@ export class AdditionExerciseComponent implements CanDeactivateGuard {
   onQuizStart(): void {
     if (!this.quizService.ActiveQuiz) {
       const quiz = this.quizService.startNewQuiz(this.quizService.NextQuizID);
+      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
       this.generateQuizSection(this.quizControlFormGroup.get('countControl')!.value);
       const quizSection = new QuizSection(quiz.NextSectionID, this.QuizItems.length);
       quiz.startNewSection(quizSection);
@@ -97,6 +99,7 @@ export class AdditionExerciseComponent implements CanDeactivateGuard {
 
         // Complete current section, and start another one!
         this.quizService.ActiveQuiz?.completeActionSection(failedItems.length);
+        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
         const failedfactor = this.quizControlFormGroup.get('failedFactorControl')!.value;
 
         if (failedItems.length > 0 && failedfactor > 0) {
@@ -107,11 +110,12 @@ export class AdditionExerciseComponent implements CanDeactivateGuard {
             width: '500px',
           });
 
-          dialogRef.afterClosed().subscribe((x) => {
+          dialogRef.afterClosed().subscribe(() => {
             this.generateQuizSection(failedItems.length * failedfactor);
             this.QuizCursor = 0;
             this.setNextButtonText();
 
+            // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
             const curquiz = this.quizService.ActiveQuiz!;
             const quizSection = new QuizSection(curquiz.NextSectionID, this.QuizItems.length);
             curquiz.startNewSection(quizSection);
@@ -156,9 +160,12 @@ export class AdditionExerciseComponent implements CanDeactivateGuard {
 
   private getNumber(): number {
     let mfactor = 0;
+    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
     const decplace = this.quizControlFormGroup.get('decControl')!.value;
     mfactor = Math.pow(10, decplace);
+    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
     const leftNumb = mfactor * this.quizControlFormGroup.get('leftNumberControl')!.value;
+    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
     const rightNumb = mfactor * this.quizControlFormGroup.get('rightNumberControl')!.value;
 
     let rnum1 = Math.round(Math.random() * (rightNumb - leftNumb)) + leftNumb;
@@ -168,6 +175,7 @@ export class AdditionExerciseComponent implements CanDeactivateGuard {
     return rnum1;
   }
   private generateQuizItem(idx: number): AdditionQuizItem {
+    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
     const decplace = this.quizControlFormGroup.get('decControl')!.value;
     const qz: AdditionQuizItem = new AdditionQuizItem(this.getNumber(), this.getNumber(), decplace);
     qz.QuizIndex = idx;

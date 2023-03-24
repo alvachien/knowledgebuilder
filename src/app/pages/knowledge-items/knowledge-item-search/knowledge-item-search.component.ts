@@ -2,6 +2,7 @@ import { AfterViewInit, Component, OnInit, ViewChild } from '@angular/core';
 import { MatPaginator } from '@angular/material/paginator';
 import { BehaviorSubject, merge, of as observableOf } from 'rxjs';
 import { catchError, finalize, map, startWith, switchMap } from 'rxjs/operators';
+import { SafeAny } from 'src/app/common';
 
 import {
   KnowledgeItem,
@@ -150,9 +151,9 @@ export class KnowledgeItemSearchComponent implements OnInit, AfterViewInit {
   public onSearch(): void {
     // Do the translate first
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const arRealFilter: any[] = [];
+    const arRealFilter: SafeAny[] = [];
     this.filters.forEach((value: GeneralFilterItem) => {
-      const val: any = {};
+      const val: SafeAny = {};
       val.valueType = +value.valueType;
       switch (value.valueType) {
         case GeneralFilterValueType.boolean: {

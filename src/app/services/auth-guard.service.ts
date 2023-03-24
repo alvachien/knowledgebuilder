@@ -23,6 +23,8 @@ export class AuthGuardService implements CanActivate {
   //     return true;
   //   }));
   // }
+
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   canActivate(route: ActivatedRouteSnapshot, state: RouterStateSnapshot): Observable<boolean | UrlTree> {
     return this.authService.isAuthenticated$.pipe(
       map(({ isAuthenticated }) => {

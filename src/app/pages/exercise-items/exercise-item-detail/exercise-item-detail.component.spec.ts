@@ -9,14 +9,14 @@ import { MaterialModulesModule } from 'src/app/material-modules';
 import { of } from 'rxjs';
 import { ODataService, UIUtilityService } from 'src/app/services';
 import { ExerciseItemDetailComponent } from './exercise-item-detail.component';
+import { SafeAny } from 'src/app/common';
 
 describe('ExerciseItemDetailComponent', () => {
   let component: ExerciseItemDetailComponent;
   let fixture: ComponentFixture<ExerciseItemDetailComponent>;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  let odataSvc: any;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  let readExerciseItemSpy: any;
+  let odataSvc: SafeAny;
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  let readExerciseItemSpy: SafeAny;
 
   beforeAll(() => {
     odataSvc = jasmine.createSpyObj('ODataService', ['readExerciseItem']);

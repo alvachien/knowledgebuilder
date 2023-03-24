@@ -4,6 +4,7 @@
 /* eslint-disable no-shadow */
 
 import moment from 'moment';
+import { SafeAny } from '../common';
 import { momentDateFormat } from './uicommon';
 
 /**
@@ -333,14 +334,17 @@ export class AwardRule {
     this.point = oldrule.point;
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  public parseData(val: any): void {
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  public parseData(val: SafeAny): void {
     // TBD.
   }
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  public writeJSONObject(isCreatedMode = true): any {
+  public writeJSONObject(isCreatedMode = true): SafeAny {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const jobj: any = {};
+    if (isCreatedMode) {
+      // TBD.
+    }
     return jobj;
   }
   public writeJSONString(isCreatedMode = true): string {

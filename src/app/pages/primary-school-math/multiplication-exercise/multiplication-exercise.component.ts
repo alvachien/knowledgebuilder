@@ -57,6 +57,8 @@ export class MultiplicationExerciseComponent implements CanDeactivateGuard {
     private changeDef: ChangeDetectorRef,
     private dialog: MatDialog
   ) {}
+
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   canDeactivate(component: CanComponentDeactivate): boolean | Observable<boolean> | Promise<boolean> {
     return !this.isQuizStarted;
   }
@@ -112,6 +114,7 @@ export class MultiplicationExerciseComponent implements CanDeactivateGuard {
             this.QuizCursor = 0;
             this.setNextButtonText();
 
+            // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
             const curquiz = this.quizService.ActiveQuiz!;
             const quizSection = new QuizSection(curquiz.NextSectionID, this.QuizItems.length);
             curquiz.startNewSection(quizSection);

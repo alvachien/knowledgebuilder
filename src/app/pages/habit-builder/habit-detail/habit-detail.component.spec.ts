@@ -10,14 +10,14 @@ import { of } from 'rxjs';
 import { AuthService, ODataService, UIUtilityService } from 'src/app/services';
 import { HabitDetailComponent } from './habit-detail.component';
 import { InvitedUser } from 'src/app/models';
+import { SafeAny } from 'src/app/common';
 
 describe('HabitDetailComponent', () => {
   let component: HabitDetailComponent;
   let fixture: ComponentFixture<HabitDetailComponent>;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  let odataSvc: any;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  let getOverviewInfoSpy: any;
+  let odataSvc: SafeAny;
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  let getOverviewInfoSpy: SafeAny;
   let userDetail: InvitedUser;
 
   beforeAll(() => {

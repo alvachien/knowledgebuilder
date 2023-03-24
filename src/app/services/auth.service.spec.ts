@@ -15,6 +15,7 @@ describe('AuthService', () => {
   let eventService: SafeAny;
   let checkAuthSpy: SafeAny;
   let authorizeSpy: SafeAny;
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   let registerForEventsSpy: SafeAny;
 
   beforeAll(() => {

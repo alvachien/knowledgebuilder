@@ -73,6 +73,7 @@ export class UserCollectionComponent implements AfterViewInit {
     this.uiUtilSrv.navigatePreviewPage(arobj);
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   public onDeleteItem(itemid: number): void {
     // this.odataService.deleteExerciseItem(itemid).subscribe({
     //   next: val => {

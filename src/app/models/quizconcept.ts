@@ -1,3 +1,5 @@
+import { SafeAny } from '../common';
+
 /**
  * Storable object
  */
@@ -32,11 +34,11 @@ export abstract class StorableObject implements IStorableObject {
   }
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  protected storeToJsonObject(): any {
+  protected storeToJsonObject(): SafeAny {
     return {};
   }
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  protected restoreFromJsonObject(data: any): void {
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  protected restoreFromJsonObject(data: SafeAny): void {
     // Do nothing
   }
 
@@ -811,6 +813,7 @@ export class MixedOperationQuizItem extends PrimarySchoolMathQuizItem {
   set InputtedResult(ia: number) {
     this._inputtedResult = ia;
   }
+  // eslint-disable-next-line @typescript-eslint/adjacent-overload-signatures
   set decimalPlace(dplace: number) {
     this._decimalPlace = dplace;
   }

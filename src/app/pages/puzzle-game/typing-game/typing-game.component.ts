@@ -172,6 +172,7 @@ export class TypingGameComponent implements OnInit, AfterViewInit {
   }
 
   @HostListener('keyup', ['$event'])
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   public onPGTypingTourKeyUp(evt: KeyboardEvent) {
     if (this.keyboardER !== null && this.keyboardER !== undefined) {
       if (this.currHittingKeyID !== undefined && this.currHittingKeyID.length > 0) {

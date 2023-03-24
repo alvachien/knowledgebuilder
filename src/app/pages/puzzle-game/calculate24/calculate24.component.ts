@@ -113,9 +113,12 @@ export class Calculate24Component {
       let realstring = this.Cal24Input.replace('×', '*');
       realstring = realstring.replace('÷', '/');
       rst = <number>eval(realstring);
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    } catch (exp: any) {
-      errmsg = exp.toString();
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    } catch (exp) {
+      errmsg = exp?.toString() ?? '';
+      if (errmsg) {
+        // TBD
+      }
     }
 
     let retry = false;
