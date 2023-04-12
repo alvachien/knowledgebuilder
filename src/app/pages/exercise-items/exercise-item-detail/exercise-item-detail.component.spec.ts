@@ -36,8 +36,13 @@ describe('ExerciseItemDetailComponent', () => {
         BrowserDynamicTestingModule,
         getTranslocoModule(),
       ],
-      declarations: [ExerciseItemDetailComponent],
-      providers: [UIUtilityService, { provide: ODataService, useValue: odataSvc }],
+      declarations: [
+        ExerciseItemDetailComponent
+      ],
+      providers: [
+        UIUtilityService, 
+        { provide: ODataService, useValue: odataSvc }
+      ],
     }).compileComponents();
   }));
 

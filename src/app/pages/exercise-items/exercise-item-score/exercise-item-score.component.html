@@ -18,22 +18,22 @@
         <mat-option *ngFor="let opr of allOperators | operatorFilter: filter.valueType" [value]="opr.value">{{ opr.i18nterm | transloco }}</mat-option>
       </mat-select>
     </mat-form-field>
-    <div [ngSwitch]="filter.valueType" class="col-6 row gx-5">
+    <div [ngSwitch]="filter.valueType" class="col-4 gx-5">
       <div *ngSwitchCase="1" class="row">
-        <mat-form-field>
+        <mat-form-field class="col-6">
           <input matInput type="number" placeholder="{{'Value' | transloco}}" name="lvalue_1" [(ngModel)]="filter.value[0]">
         </mat-form-field>
-        <mat-form-field>
+        <mat-form-field class="col-6">
           <input matInput type="number" placeholder="{{'Value' | transloco}}" name="hvalue_1" [(ngModel)]="filter.value[1]">
-        </mat-form-field>    
+        </mat-form-field>
       </div>
       <div *ngSwitchCase="3" class="row">
-        <mat-form-field>
+        <mat-form-field class="col-6">
           <input matInput [(ngModel)]="filter.value[0]" [matDatepicker]="lvpicker" placeholder="{{'Value' | transloco}}">
           <mat-datepicker-toggle matSuffix [for]="lvpicker"></mat-datepicker-toggle>
           <mat-datepicker #lvpicker></mat-datepicker>
         </mat-form-field>
-        <mat-form-field>
+        <mat-form-field class="col-6">
           <input matInput [(ngModel)]="filter.value[1]" [matDatepicker]="hvpicker" placeholder="{{'Value' | transloco}}">
           <mat-datepicker-toggle matSuffix [for]="hvpicker"></mat-datepicker-toggle>
           <mat-datepicker #hvpicker></mat-datepicker>
@@ -44,15 +44,17 @@
         </mat-checkbox>  
       </div>
       <div *ngSwitchDefault class="row">
-        <input matInput type="text" placeholder="{{'Value' | transloco}}" name="lvalue_2" [(ngModel)]="filter.value[0]">        
+        <input matInput placeholder="{{'Value' | transloco}}" name="lvalue_2" [(ngModel)]="filter.value[0]">        
       </div>
     </div>
-    <button mat-button mat-icon-button aria-label="Add" (click)="onAddFilter()">
-      <mat-icon>add</mat-icon>
-    </button>
-    <button mat-button mat-icon-button aria-label="Clear" (click)="onRemoveFilter(idxfilter)">
-      <mat-icon>close</mat-icon>
-    </button>
+    <div class="col-2 row">
+      <button mat-button class="col-6" aria-label="Add" (click)="onAddFilter()">
+        <mat-icon>add</mat-icon>
+      </button>
+      <button mat-button class="col-6" aria-label="Clear" (click)="onRemoveFilter(idxfilter)">
+        <mat-icon>close</mat-icon>
+      </button>
+    </div>
   </div>
   <div class="control-full-width">
     <button mat-button aria-label="Search" color="primary" (click)="onSearch()">
@@ -64,10 +66,10 @@
 
 <mat-toolbar-row>
   <section>
-    <button mat-icon-button color="accent" (click)="onGoToPreview()" [disabled]="dataSource.length <= 0" matTooltip="{{'Common.Preview' | transloco}}">
+    <button mat-button color="accent" (click)="onGoToPreview()" [disabled]="dataSource.length <= 0" matTooltip="{{'Common.Preview' | transloco}}">
       <mat-icon>slideshow</mat-icon>
     </button>
-    <button mat-icon-button color="accent" (click)="onRefreshList()" matTooltip="{{'Common.Refresh' | transloco}}">
+    <button mat-button color="accent" (click)="onRefreshList()" matTooltip="{{'Common.Refresh' | transloco}}">
       <mat-icon>refresh</mat-icon>
     </button>
   </section>
