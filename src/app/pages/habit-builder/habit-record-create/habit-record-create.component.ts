@@ -1,7 +1,8 @@
 import { Component } from '@angular/core';
 import { UntypedFormBuilder, UntypedFormControl, UntypedFormGroup, Validators } from '@angular/forms';
 import moment from 'moment';
-import { forkJoin } from 'rxjs';
+import { Observable, forkJoin } from 'rxjs';
+import { SafeAny } from 'src/app/common';
 
 import {
   AwardUserView,
@@ -76,14 +77,7 @@ export class HabitRecordCreateComponent {
     const tgtuser = this.firstFormGroup.get('targetuserCtrl')?.value;
     const pickedDate = this.firstFormGroup.get('dateCtrl')?.value.format(momentDateFormat);
 
-    this.odataSrv
-      .getUserHabits(
-        100,
-        0,
-        undefined,
-        undefined,
-        `TargetUser eq '${tgtuser}' and ValidFrom le ${pickedDate} and ValidTo ge ${pickedDate}`
-      )
+    this.odataSrv.getUserHabits(100, 0, undefined, undefined, `TargetUser eq '${tgtuser}' and ValidFrom le ${pickedDate} and ValidTo ge ${pickedDate}`)
       .subscribe({
         next: (val: { totalCount: number; items: UserHabit[] }) => {
           this.arHabits = [];
@@ -117,8 +111,8 @@ export class HabitRecordCreateComponent {
   }
   public onSaveRecord(): void {
     // Save the records
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const arreq: any[] = [];
+    const arreq: Array<Observable<SafeAny>> = [];
+
     this.arHabits.forEach((hbt) => {
       if (hbt.CompleteFact !== null) {
         const record = new UserHabitRecord();
@@ -132,7 +126,7 @@ export class HabitRecordCreateComponent {
 
     forkJoin(arreq).subscribe({
       next: (val) => {
-        console.log(val);
+        console.debug(val);
       },
       error: (err) => {
         this.uiUtilSrv.showSnackInfo(err, 1500);
