@@ -1,4 +1,4 @@
-import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { ComponentFixture, TestBed, fakeAsync, tick } from '@angular/core/testing';
 
 import { TypingGameComponent } from './typing-game.component';
 
@@ -15,10 +15,22 @@ describe('TypingGameComponent', () => {
   beforeEach(() => {
     fixture = TestBed.createComponent(TypingGameComponent);
     component = fixture.componentInstance;
-    fixture.detectChanges();
+    // fixture.detectChanges();
   });
 
   it('should create', () => {
     expect(component).toBeTruthy();
   });
+
+  it('shall work after initlaized', fakeAsync(() => {
+    fixture.detectChanges();
+
+    expect(component).toBeTruthy();
+
+    window.dispatchEvent(new KeyboardEvent('keydown', { key: 'k', }));
+    fixture.detectChanges();
+
+    tick();
+    fixture.detectChanges();
+  }));
 });

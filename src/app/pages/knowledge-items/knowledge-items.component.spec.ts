@@ -1,17 +1,19 @@
-import { waitForAsync, ComponentFixture, TestBed } from '@angular/core/testing';
+import { waitForAsync, ComponentFixture, TestBed, fakeAsync, tick } from '@angular/core/testing';
 import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { NoopAnimationsModule } from '@angular/platform-browser/animations';
 import { RouterTestingModule } from '@angular/router/testing';
 import { BrowserDynamicTestingModule } from '@angular/platform-browser-dynamic/testing';
-import { getTranslocoModule } from 'src/testing';
+import { asyncData, getTranslocoModule } from 'src/testing';
 import { MaterialModulesModule } from 'src/app/material-modules';
 import { of } from 'rxjs';
+import { Router } from '@angular/router';
 
 import { AuthService, ODataService, UIUtilityService } from 'src/app/services';
 import { KnowledgeItemsComponent } from './knowledge-items.component';
 import { InvitedUser } from 'src/app/models';
 import { SafeAny } from 'src/app/common';
+import { KnowledgeItemAddToCollDialog } from './knowledge-items-add-coll-dlg.component';
 
 describe('KnowledgeItemsComponent', () => {
   let component: KnowledgeItemsComponent;
@@ -19,11 +21,28 @@ describe('KnowledgeItemsComponent', () => {
   let odataservice: SafeAny;
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   let getKnowledgeItemsSpy: SafeAny;
+  let deleteExerciseItemSpy: SafeAny;
+  let getUserCollectionsSpy: SafeAny;
+  let addKnowledgeItemToCollectionSpy: SafeAny;
   let userDetail: InvitedUser;
 
   beforeAll(() => {
-    odataservice = jasmine.createSpyObj('ODataService', ['getKnowledgeItems']);
-    getKnowledgeItemsSpy = odataservice.getKnowledgeItems.and.returnValue(of({}));
+    odataservice = jasmine.createSpyObj('ODataService', [
+      'getKnowledgeItems',
+      'deleteExerciseItem',
+      'getUserCollections',
+      'addKnowledgeItemToCollection',
+    ]);
+    getKnowledgeItemsSpy = odataservice.getKnowledgeItems.and.returnValue(of({
+      totalCount: 0,
+      items: []
+    }));
+    deleteExerciseItemSpy = odataservice.deleteExerciseItem.and.returnValue(of(false));
+    getUserCollectionsSpy = odataservice.getUserCollections.and.returnValue(of({
+      totalCount: 0,
+      items: []
+    }));
+    addKnowledgeItemToCollectionSpy = odataservice.addKnowledgeItemToCollection.and.returnValue(of([]));
   });
 
   beforeEach(waitForAsync(() => {
@@ -46,7 +65,10 @@ describe('KnowledgeItemsComponent', () => {
         BrowserDynamicTestingModule,
         getTranslocoModule(),
       ],
-      declarations: [KnowledgeItemsComponent],
+      declarations: [
+        KnowledgeItemsComponent,
+        KnowledgeItemAddToCollDialog
+      ],
       providers: [
         UIUtilityService,
         { provide: AuthService, useValue: authStub },
@@ -63,5 +85,60 @@ describe('KnowledgeItemsComponent', () => {
 
   it('should create', () => {
     expect(component).toBeTruthy();
+  });
+
+  describe('work with data', () => {
+    beforeEach(() => {
+      getKnowledgeItemsSpy = odataservice.getKnowledgeItems.and.returnValue(asyncData({
+        totalCount: 0,
+        items: []
+      }));
+      deleteExerciseItemSpy = odataservice.deleteExerciseItem.and.returnValue(asyncData(false));
+      getUserCollectionsSpy = odataservice.getUserCollections.and.returnValue(asyncData({
+        totalCount: 0,
+        items: []
+      }));
+      addKnowledgeItemToCollectionSpy = odataservice.addKnowledgeItemToCollection.and.returnValue(of([]));
+    });
+
+    it('init without error', fakeAsync(() => {
+      fixture.detectChanges();
+      tick();
+      fixture.detectChanges();
+
+      expect(component).toBeTruthy();
+
+      component.onRefreshList();
+      component.resetPaging();
+
+      //component.onAddToCollection(1);
+
+      tick();
+      fixture.detectChanges();
+    }));
+
+    it('navigation to search shall work', fakeAsync(() => {
+      fixture.detectChanges();
+      tick();
+      fixture.detectChanges();
+
+      const routerstub = TestBed.inject(Router);
+      spyOn(routerstub, 'navigate');
+    
+      component.onGoToSearch();
+      expect(routerstub.navigate).toHaveBeenCalled();    
+    }));
+
+    it('navigation to preview shall work', fakeAsync(() => {
+      fixture.detectChanges();
+      tick();
+      fixture.detectChanges();
+
+      const routerstub = TestBed.inject(Router);
+      spyOn(routerstub, 'navigate');
+    
+      component.onGoToPreview();
+      expect(routerstub.navigate).toHaveBeenCalled();    
+    }));
   });
 });

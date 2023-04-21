@@ -91,13 +91,11 @@ export class HabitPointsListComponent implements OnInit {
       momentDateFormat
     )} and RecordDate le ${dateEnd.format(momentDateFormat)}`;
 
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const arSeries: any[] = [];
+    const arSeries: SafeAny[] = [];
     forkJoin([
       this.odataSrv.getHabitOpeningPointsByUserDate(this.selectedUser ?? '', daysInAxisOrigin),
       this.odataSrv.getHabitPointsByUserDateReport(filterstr),
-      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-      this.odataSrv.getUserOpeningPointReport(this.selectedUser!, daysInAxisOrigin),
+      this.odataSrv.getUserOpeningPointReport(this.selectedUser ?? '', daysInAxisOrigin),
       this.odataSrv.getUserHabitPointReports(filterstr),
     ]).subscribe({
       next: (val: SafeAny[]) => {
