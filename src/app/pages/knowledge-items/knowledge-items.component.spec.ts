@@ -1,4 +1,4 @@
-import { waitForAsync, ComponentFixture, TestBed, fakeAsync, tick } from '@angular/core/testing';
+import { waitForAsync, ComponentFixture, TestBed, fakeAsync, tick, discardPeriodicTasks, flush } from '@angular/core/testing';
 import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { NoopAnimationsModule } from '@angular/platform-browser/animations';
@@ -89,16 +89,16 @@ describe('KnowledgeItemsComponent', () => {
 
   describe('work with data', () => {
     beforeEach(() => {
-      getKnowledgeItemsSpy = odataservice.getKnowledgeItems.and.returnValue(asyncData({
+      getKnowledgeItemsSpy.and.returnValue(asyncData({
         totalCount: 0,
         items: []
       }));
-      deleteExerciseItemSpy = odataservice.deleteExerciseItem.and.returnValue(asyncData(false));
-      getUserCollectionsSpy = odataservice.getUserCollections.and.returnValue(asyncData({
+      deleteExerciseItemSpy.and.returnValue(asyncData(false));
+      getUserCollectionsSpy.and.returnValue(asyncData({
         totalCount: 0,
         items: []
       }));
-      addKnowledgeItemToCollectionSpy = odataservice.addKnowledgeItemToCollection.and.returnValue(of([]));
+      addKnowledgeItemToCollectionSpy.and.returnValue(of([]));
     });
 
     it('init without error', fakeAsync(() => {
@@ -115,6 +115,9 @@ describe('KnowledgeItemsComponent', () => {
 
       tick();
       fixture.detectChanges();
+
+      discardPeriodicTasks();
+      flush();
     }));
 
     it('navigation to search shall work', fakeAsync(() => {
@@ -126,7 +129,10 @@ describe('KnowledgeItemsComponent', () => {
       spyOn(routerstub, 'navigate');
     
       component.onGoToSearch();
-      expect(routerstub.navigate).toHaveBeenCalled();    
+      expect(routerstub.navigate).toHaveBeenCalled();
+
+      discardPeriodicTasks();
+      flush();
     }));
 
     it('navigation to preview shall work', fakeAsync(() => {
@@ -138,7 +144,10 @@ describe('KnowledgeItemsComponent', () => {
       spyOn(routerstub, 'navigate');
     
       component.onGoToPreview();
-      expect(routerstub.navigate).toHaveBeenCalled();    
+      expect(routerstub.navigate).toHaveBeenCalled();
+
+      discardPeriodicTasks();
+      flush();
     }));
   });
 });

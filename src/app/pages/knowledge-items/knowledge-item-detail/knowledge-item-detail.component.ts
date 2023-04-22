@@ -217,7 +217,7 @@ export class KnowledgeItemDetailComponent implements OnInit, OnDestroy {
   }
 
   addTag(event: MatChipInputEvent): void {
-    const input = event.input;
+    const input = event.chipInput.inputElement;
     const value = event.value;
 
     // Add our fruit

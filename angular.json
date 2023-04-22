@@ -163,6 +163,7 @@
             "scripts": [
               "node_modules/marked/marked.min.js",
               "node_modules/katex/dist/katex.min.js",
+              "node_modules/katex/dist/contrib/auto-render.min.js",
               "node_modules/jspdf/dist/jspdf.umd.min.js",
               "node_modules/echarts/dist/echarts.js"
             ]

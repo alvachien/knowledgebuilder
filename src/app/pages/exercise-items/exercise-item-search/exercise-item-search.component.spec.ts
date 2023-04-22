@@ -113,7 +113,5 @@ describe('ExerciseItemSearchComponent', () => {
       discardPeriodicTasks();
       flush();
     }));
-
   });
-
 });
