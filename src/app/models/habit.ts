@@ -230,7 +230,7 @@ export class UserHabit {
                 if (this.startDate < 0 || this.startDate > 27) {
                   return false;
                 }
-                if (this.completeCondition < 0 || this.completeCategory > 27) {
+                if (this.completeCondition < 0 || this.completeCondition > 27) {
                   return false;
                 }
               }

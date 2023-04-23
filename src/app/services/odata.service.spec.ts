@@ -1211,4 +1211,350 @@ describe('ODataService', () => {
       });
     });
   });
+
+  describe('getHabitOpeningPointsByUserDate', () => {
+    const callurl = `${environment.apiurlRoot}/UserHabitPointsByUserDates/GetOpeningPoint`;
+
+    afterEach(() => {
+      // After every test, assert that there are no more pending requests.
+      httpTestingController.verify();
+    });
+
+    it('should return error if no login', () => {
+      authStub.isAuthenticated = false;
+      service.getHabitOpeningPointsByUserDate('test', 1).subscribe({
+        next: (val: SafeAny) => {
+          expect(val).toBeFalsy();
+        },
+        error: (err) => {
+          expect(err).toBeTruthy();
+        },
+      });
+    });
+
+    describe('After user login', () => {
+      beforeEach(() => {
+        authStub.isAuthenticated = true;
+      });
+
+      it('should return expected data', () => {
+        service.getHabitOpeningPointsByUserDate('test', 1).subscribe({
+          next: (val) => {
+            expect(val).toBeTruthy();
+            expect(val).toEqual(23);
+          },
+          error: (err) => {
+            expect(err).toBeFalsy();
+          },
+        });
+
+        // Service should have made one request to GET data from expected URL
+        const req: SafeAny = httpTestingController.expectOne((requrl: SafeAny) => {
+          return requrl.method === 'POST' && requrl.url === callurl;
+        });
+
+        // Respond with the mock data
+        req.flush({value: 23});
+      });
+
+      it('should return error in case error appear', () => {
+        const msg = 'Deliberate 404';
+        service.getHabitOpeningPointsByUserDate('test', 1).subscribe({
+          next: (val) => {
+            expect(val).toBeTruthy();
+          },
+          error: (err) => {
+            expect(err.toString()).toContain(msg);
+          },
+        });
+
+        const req: SafeAny = httpTestingController.expectOne((requrl: SafeAny) => {
+          return requrl.method === 'POST' && requrl.url === callurl;
+        });
+
+        // respond with a 404 and the error message in the body
+        req.flush(msg, { status: 404, statusText: 'Not Found' });
+      });
+    });
+  });
+
+  describe('getHabitPointsByUserDateReport', () => {
+    const callurl = `${environment.apiurlRoot}/UserHabitPointsByUserDates`;
+
+    afterEach(() => {
+      // After every test, assert that there are no more pending requests.
+      httpTestingController.verify();
+    });
+
+    it('should return error if no login', () => {
+      authStub.isAuthenticated = false;
+      service.getHabitPointsByUserDateReport('test').subscribe({
+        next: (val: SafeAny) => {
+          expect(val).toBeFalsy();
+        },
+        error: (err) => {
+          expect(err).toBeTruthy();
+        },
+      });
+    });
+
+    describe('After user login', () => {
+      beforeEach(() => {
+        authStub.isAuthenticated = true;
+      });
+
+      it('should return expected data', () => {
+        service.getHabitPointsByUserDateReport('test').subscribe({
+          next: (val) => {
+            expect(val).toBeTruthy();
+          },
+          error: (err) => {
+            expect(err).toBeFalsy();
+          },
+        });
+
+        // Service should have made one request to GET data from expected URL
+        const req: SafeAny = httpTestingController.expectOne((requrl: SafeAny) => {
+          return requrl.method === 'GET' && requrl.url === callurl;
+        });
+
+        // Respond with the mock data
+        req.flush({value: [
+          {
+            TargetUser: 'test',
+            RecordDate: '2022-02-01',
+            Point: 30
+          }
+        ]});
+      });
+
+      it('should return error in case error appear', () => {
+        const msg = 'Deliberate 404';
+        service.getHabitPointsByUserDateReport('test').subscribe({
+          next: (val) => {
+            expect(val).toBeTruthy();
+          },
+          error: (err) => {
+            expect(err.toString()).toContain(msg);
+          },
+        });
+
+        const req: SafeAny = httpTestingController.expectOne((requrl: SafeAny) => {
+          return requrl.method === 'GET' && requrl.url === callurl;
+        });
+
+        // respond with a 404 and the error message in the body
+        req.flush(msg, { status: 404, statusText: 'Not Found' });
+      });
+    });
+  });
+
+  describe('getHabitPointsByUserHabitDates', () => {
+    const callurl = `${environment.apiurlRoot}/UserHabitPointsByUserHabitDates`;
+
+    afterEach(() => {
+      // After every test, assert that there are no more pending requests.
+      httpTestingController.verify();
+    });
+
+    it('should return error if no login', () => {
+      authStub.isAuthenticated = false;
+      service.getHabitPointsByUserHabitDates().subscribe({
+        next: (val: SafeAny) => {
+          expect(val).toBeFalsy();
+        },
+        error: (err) => {
+          expect(err).toBeTruthy();
+        },
+      });
+    });
+
+    describe('After user login', () => {
+      beforeEach(() => {
+        authStub.isAuthenticated = true;
+      });
+
+      it('should return expected data', () => {
+        service.getHabitPointsByUserHabitDates().subscribe({
+          next: (val) => {
+            expect(val).toBeTruthy();
+          },
+          error: (err) => {
+            expect(err).toBeFalsy();
+          },
+        });
+
+        // Service should have made one request to GET data from expected URL
+        const req: SafeAny = httpTestingController.expectOne((requrl: SafeAny) => {
+          return requrl.method === 'GET' && requrl.url === callurl;
+        });
+
+        // Respond with the mock data
+        req.flush({value: [
+          {
+            TargetUser: 'test',
+            RecordDate: '2022-02-01',
+            Point: 30,
+            HabitID: 11,
+          }
+        ]});
+      });
+
+      it('should return error in case error appear', () => {
+        const msg = 'Deliberate 404';
+        service.getHabitPointsByUserHabitDates().subscribe({
+          next: (val) => {
+            expect(val).toBeTruthy();
+          },
+          error: (err) => {
+            expect(err.toString()).toContain(msg);
+          },
+        });
+
+        const req: SafeAny = httpTestingController.expectOne((requrl: SafeAny) => {
+          return requrl.method === 'GET' && requrl.url === callurl;
+        });
+
+        // respond with a 404 and the error message in the body
+        req.flush(msg, { status: 404, statusText: 'Not Found' });
+      });
+    });
+  });
+
+  describe('getUserHabitPointReports', () => {
+    const callurl = `${environment.apiurlRoot}/UserHabitPointReports`;
+
+    afterEach(() => {
+      // After every test, assert that there are no more pending requests.
+      httpTestingController.verify();
+    });
+
+    it('should return error if no login', () => {
+      authStub.isAuthenticated = false;
+      service.getUserHabitPointReports('test').subscribe({
+        next: (val: SafeAny) => {
+          expect(val).toBeFalsy();
+        },
+        error: (err) => {
+          expect(err).toBeTruthy();
+        },
+      });
+    });
+
+    describe('After user login', () => {
+      beforeEach(() => {
+        authStub.isAuthenticated = true;
+      });
+
+      it('should return expected data', () => {
+        service.getUserHabitPointReports('test').subscribe({
+          next: (val) => {
+            expect(val).toBeTruthy();
+          },
+          error: (err) => {
+            expect(err).toBeFalsy();
+          },
+        });
+
+        // Service should have made one request to GET data from expected URL
+        const req: SafeAny = httpTestingController.expectOne((requrl: SafeAny) => {
+          return requrl.method === 'GET' && requrl.url === callurl;
+        });
+
+        // Respond with the mock data
+        req.flush({value: [
+          {
+            TargetUser: 'test',
+            RecordDate: '2022-02-01',
+            Point: 30,
+          }
+        ]});
+      });
+
+      it('should return error in case error appear', () => {
+        const msg = 'Deliberate 404';
+        service.getUserHabitPointReports('test').subscribe({
+          next: (val) => {
+            expect(val).toBeTruthy();
+          },
+          error: (err) => {
+            expect(err.toString()).toContain(msg);
+          },
+        });
+
+        const req: SafeAny = httpTestingController.expectOne((requrl: SafeAny) => {
+          return requrl.method === 'GET' && requrl.url === callurl;
+        });
+
+        // respond with a 404 and the error message in the body
+        req.flush(msg, { status: 404, statusText: 'Not Found' });
+      });
+    });
+  });
+
+  describe('getUserOpeningPointReport', () => {
+    const callurl = `${environment.apiurlRoot}/UserHabitPoints/GetOpeningPoint`;
+
+    afterEach(() => {
+      // After every test, assert that there are no more pending requests.
+      httpTestingController.verify();
+    });
+
+    it('should return error if no login', () => {
+      authStub.isAuthenticated = false;
+      service.getUserOpeningPointReport('test', 1).subscribe({
+        next: (val: SafeAny) => {
+          expect(val).toBeFalsy();
+        },
+        error: (err) => {
+          expect(err).toBeTruthy();
+        },
+      });
+    });
+
+    describe('After user login', () => {
+      beforeEach(() => {
+        authStub.isAuthenticated = true;
+      });
+
+      it('should return expected data', () => {
+        service.getUserOpeningPointReport('test', 1).subscribe({
+          next: (val) => {
+            expect(val).toBeTruthy();
+            expect(val).toEqual(23);
+          },
+          error: (err) => {
+            expect(err).toBeFalsy();
+          },
+        });
+
+        // Service should have made one request to GET data from expected URL
+        const req: SafeAny = httpTestingController.expectOne((requrl: SafeAny) => {
+          return requrl.method === 'POST' && requrl.url === callurl;
+        });
+
+        // Respond with the mock data
+        req.flush({value: 23});
+      });
+
+      it('should return error in case error appear', () => {
+        const msg = 'Deliberate 404';
+        service.getUserOpeningPointReport('test', 1).subscribe({
+          next: (val) => {
+            expect(val).toBeTruthy();
+          },
+          error: (err) => {
+            expect(err.toString()).toContain(msg);
+          },
+        });
+
+        const req: SafeAny = httpTestingController.expectOne((requrl: SafeAny) => {
+          return requrl.method === 'POST' && requrl.url === callurl;
+        });
+
+        // respond with a 404 and the error message in the body
+        req.flush(msg, { status: 404, statusText: 'Not Found' });
+      });
+    });
+  });
 });
