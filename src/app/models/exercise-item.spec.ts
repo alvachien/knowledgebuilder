@@ -1,4 +1,5 @@
-import { ExerciseItemType, getExerciseItemTypeName, getExerciseItemTypeNames, ExerciseItem } from './exercise-item';
+import { ExerciseItemType, getExerciseItemTypeName, getExerciseItemTypeNames,
+  ExerciseItem, ExerciseItemSearchResult, ExerciseItemUserScore } from './exercise-item';
 
 describe('getExerciseItemTypeName', () => {
   it('Go through all enu', () => {
@@ -30,5 +31,29 @@ describe('ExerciseItem', () => {
 
     const wrtobj = item.generateString();
     expect(wrtobj).toBeTruthy();
+  });
+});
+
+describe('ExerciseItemSearchResult', () => {
+  let testobj: ExerciseItemSearchResult;
+
+  beforeEach(() => {
+    testobj = new ExerciseItemSearchResult();
+  });
+
+  it('default value', () => {
+    expect(testobj.Content).toEqual('');
+  });
+});
+
+describe('ExerciseItemUserScore', () => {
+  let testobj: ExerciseItemUserScore;
+
+  beforeEach(() => {
+    testobj = new ExerciseItemUserScore();
+  });
+
+  it('default value', () => {
+    expect(testobj.Score).toEqual(0);
   });
 });
