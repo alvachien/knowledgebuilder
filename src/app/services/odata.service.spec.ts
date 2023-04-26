@@ -389,6 +389,143 @@ describe('ODataService', () => {
     });
   });
 
+  describe('changeKnowledgeItem', () => {
+    const callurl = `${environment.apiurlRoot}/KnowledgeItems(21)`;
+    let objtc: KnowledgeItem;
+
+    beforeEach(() => {
+      authStub.isAuthenticated = true;
+      objtc = new KnowledgeItem();
+      objtc.ID = 21;
+      objtc.Title = 'test';
+      objtc.Content = 'test';
+      objtc.ItemCategory = KnowledgeItemCategory.Concept;
+    });
+
+    afterEach(() => {
+      // After every test, assert that there are no more pending requests.
+      httpTestingController.verify();
+    });
+
+    it('should return error if no login', () => {
+      authStub.isAuthenticated = false;
+      service.changeKnowledgeItem(objtc).subscribe({
+        next: (val: KnowledgeItem) => {
+          expect(val).toBeFalsy();
+        },
+        error: (err) => {
+          expect(err).toBeTruthy();
+        },
+      });
+    });
+
+    describe('After user login', () => {
+      it('should return expected items', () => {
+        service.changeKnowledgeItem(objtc).subscribe({
+          next: (val: KnowledgeItem) => {
+            expect(val).toBeTruthy();
+          },
+          error: (err) => {
+            expect(err).toBeFalsy();
+          },
+        });
+
+        const req: SafeAny = httpTestingController.expectOne((requrl: SafeAny) => {
+          return requrl.method === 'PUT' && requrl.url === callurl;
+        });
+
+        // respond with a 404 and the error message in the body
+        req.flush({
+          ID: 1,
+        });
+      });
+      it('should return error', () => {
+        const msg = 'Error 404';
+        service.changeKnowledgeItem(objtc).subscribe({
+          next: () => {
+            fail('shall not reach here');
+          },
+          error: (err) => {
+            expect(err.toString()).toContain(msg);
+          },
+        });
+
+        const req: SafeAny = httpTestingController.expectOne((requrl: SafeAny) => {
+          return requrl.method === 'PUT' && requrl.url === callurl;
+        });
+
+        // respond with a 404 and the error message in the body
+        req.flush(msg, { status: 404, statusText: 'Not Found' });
+      });
+    });
+  });
+
+  describe('deleteKnowledgeItem', () => {
+    const callurl = `${environment.apiurlRoot}/KnowledgeItems(21)`;
+
+    beforeEach(() => {
+      authStub.isAuthenticated = true;
+    });
+
+    afterEach(() => {
+      // After every test, assert that there are no more pending requests.
+      httpTestingController.verify();
+    });
+
+    it('should return error if no login', () => {
+      authStub.isAuthenticated = false;
+      service.deleteKnowledgeItem(21).subscribe({
+        next: (val) => {
+          expect(val).toBeFalsy();
+        },
+        error: (err) => {
+          expect(err).toBeTruthy();
+        },
+      });
+    });
+
+    describe('After user login', () => {
+      it('should return expected items', () => {
+        service.deleteKnowledgeItem(21).subscribe({
+          next: (val) => {
+            expect(val).toBeTruthy();
+          },
+          error: (err) => {
+            expect(err).toBeFalsy();
+          },
+        });
+
+        const req: SafeAny = httpTestingController.expectOne((requrl: SafeAny) => {
+          return requrl.method === 'DELETE' && requrl.url === callurl;
+        });
+
+        // respond with a 404 and the error message in the body
+        req.flush({
+          ID: 1,
+        });
+      });
+      it('should return error', () => {
+        const msg = 'Error 404';
+        service.deleteKnowledgeItem(21).subscribe({
+          next: () => {
+            fail('shall not reach here');
+          },
+          error: (err) => {
+            expect(err.toString()).toContain(msg);
+          },
+        });
+
+        const req: SafeAny = httpTestingController.expectOne((requrl: SafeAny) => {
+          return requrl.method === 'DELETE' && requrl.url === callurl;
+        });
+
+        // respond with a 404 and the error message in the body
+        req.flush(msg, { status: 404, statusText: 'Not Found' });
+      });
+    });
+
+  });
+
   describe('getExerciseItems', () => {
     const callurl = `${environment.apiurlRoot}/ExerciseItems`;
 
@@ -635,6 +772,141 @@ describe('ODataService', () => {
 
         const req: SafeAny = httpTestingController.expectOne((requrl: SafeAny) => {
           return requrl.method === 'POST' && requrl.url === callurl;
+        });
+
+        // respond with a 404 and the error message in the body
+        req.flush(msg, { status: 404, statusText: 'Not Found' });
+      });
+    });
+  });
+
+  describe('changeExerciseItem', () => {
+    const callurl = `${environment.apiurlRoot}/ExerciseItems(21)`;
+    let objtc: ExerciseItem;
+
+    beforeEach(() => {
+      authStub.isAuthenticated = true;
+      objtc = new ExerciseItem();
+      objtc.ID = 21;
+      objtc.ItemType = ExerciseItemType.EssayQuestions;
+      objtc.Content = 'test';
+    });
+
+    afterEach(() => {
+      // After every test, assert that there are no more pending requests.
+      httpTestingController.verify();
+    });
+
+    it('should return error if no login', () => {
+      authStub.isAuthenticated = false;
+      service.changeExerciseItem(objtc).subscribe({
+        next: (val: ExerciseItem) => {
+          expect(val).toBeFalsy();
+        },
+        error: (err) => {
+          expect(err).toBeTruthy();
+        },
+      });
+    });
+
+    describe('After user login', () => {
+      it('should return expected items', () => {
+        service.changeExerciseItem(objtc).subscribe({
+          next: (val: ExerciseItem) => {
+            expect(val).toBeTruthy();
+          },
+          error: (err) => {
+            expect(err).toBeFalsy();
+          },
+        });
+
+        const req: SafeAny = httpTestingController.expectOne((requrl: SafeAny) => {
+          return requrl.method === 'PUT' && requrl.url === callurl;
+        });
+
+        // respond with a 404 and the error message in the body
+        req.flush({
+          ID: 1,
+        });
+      });
+      it('should return error', () => {
+        const msg = 'Error 404';
+        service.changeExerciseItem(objtc).subscribe({
+          next: () => {
+            fail('shall not reach here');
+          },
+          error: (err) => {
+            expect(err.toString()).toContain(msg);
+          },
+        });
+
+        const req: SafeAny = httpTestingController.expectOne((requrl: SafeAny) => {
+          return requrl.method === 'PUT' && requrl.url === callurl;
+        });
+
+        // respond with a 404 and the error message in the body
+        req.flush(msg, { status: 404, statusText: 'Not Found' });
+      });
+    });
+  });
+
+  describe('deleteExerciseItem', () => {
+    const callurl = `${environment.apiurlRoot}/ExerciseItems(21)`;
+
+    beforeEach(() => {
+      authStub.isAuthenticated = true;
+    });
+
+    afterEach(() => {
+      // After every test, assert that there are no more pending requests.
+      httpTestingController.verify();
+    });
+
+    it('should return error if no login', () => {
+      authStub.isAuthenticated = false;
+      service.deleteExerciseItem(21).subscribe({
+        next: (val) => {
+          expect(val).toBeFalsy();
+        },
+        error: (err) => {
+          expect(err).toBeTruthy();
+        },
+      });
+    });
+
+    describe('After user login', () => {
+      it('should return expected items', () => {
+        service.deleteExerciseItem(21).subscribe({
+          next: (val) => {
+            expect(val).toBeTruthy();
+          },
+          error: (err) => {
+            expect(err).toBeFalsy();
+          },
+        });
+
+        const req: SafeAny = httpTestingController.expectOne((requrl: SafeAny) => {
+          return requrl.method === 'DELETE' && requrl.url === callurl;
+        });
+
+        // respond with a 404 and the error message in the body
+        req.flush({
+          ID: 1,
+        });
+      });
+      it('should return error', () => {
+        const msg = 'Error 404';
+        service.deleteExerciseItem(21).subscribe({
+          next: () => {
+            fail('shall not reach here');
+          },
+          error: (err) => {
+            expect(err.toString()).toContain(msg);
+          },
+        });
+
+        const req: SafeAny = httpTestingController.expectOne((requrl: SafeAny) => {
+          return requrl.method === 'DELETE' && requrl.url === callurl;
         });
 
         // respond with a 404 and the error message in the body
