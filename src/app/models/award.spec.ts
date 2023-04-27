@@ -4,7 +4,7 @@
 
 import { AwardRuleTypeEnum, DailyTrace } from '.';
 import { getAwardRuleTypeName, getAwardRuleTypeNames, AwardRuleGroup, AwardRuleDetail,
-  AwardRule, AwardPoint, } from './award';
+  AwardRule, AwardPoint, AwardPointReport, } from './award';
 
 describe('getAwardRuleTypeName', () => {
   it('Go through all enu', () => {
@@ -135,6 +135,27 @@ describe('DailyTrace', () => {
     let ivld = testobj.isValid();
     expect(ivld).toBeFalse();
   });
+
+  it('parse data', () => {
+    testobj.parseData({
+      TargetUser: 'test',
+      RecordDate: '2022-01-02',
+      GoToBedTime: 9,
+      SchoolWorkTime: 3,
+      HomeWorkCount: 20,
+      BodyExerciseCount: 10,
+      ErrorsCollection: 2,
+      HandWriting: true,
+      CleanDesk: true,
+      HouseKeepingCount: 3,
+      PoliteBehavior: 4,
+      Comment: 'test'
+    });
+    expect(testobj.homeWorkCount).toEqual(20);
+
+    let objstr = testobj.writeJSONString();
+    expect(objstr).toBeTruthy();
+  });
 });
 
 describe('AwardPoint', () => {
@@ -147,5 +168,60 @@ describe('AwardPoint', () => {
   it('default value', () => {
     expect(testobj.comment).toEqual('');
     expect(testobj.getRecordDateDisplayString()).toBeTruthy();
+  });
+
+  it('check valid', () => {
+    let isvalid = testobj.isValid();
+    expect(isvalid).toBeFalse();
+
+    testobj.targetUser = 'aaa';
+    isvalid = testobj.isValid();
+    expect(isvalid).toBeFalse();
+
+    testobj.point = 10;
+    isvalid = testobj.isValid();
+    expect(isvalid).toBeTrue();
+  });
+
+  it('parse data', () => {
+    testobj.parseData({
+      ID: 12,
+      TargetUser: 'aaa',
+      RecordDate: '2022-01-03',
+      MatchedRuleID: 12,
+      CountOfDay: 3,
+      Point: 10,
+      Comment: 'test'
+    });
+    expect(testobj.countOfDay).toEqual(3);
+    expect(testobj.point).toEqual(10);
+
+    let objstr = testobj.writeJSONString();
+    expect(objstr).toBeTruthy();
+  });
+});
+
+describe('AwardPointReport', () => {
+  let objtc: AwardPointReport;
+
+  beforeEach(() => {
+    objtc = new AwardPointReport();
+  });
+
+  it('default value', () => {
+    expect(objtc.aggPoint).toEqual(0);
+    expect(objtc.getRecordDateDisplayString()).toBeTruthy();
+  });
+
+  it('parse data', () => {
+    objtc.parseData({
+      TargetUser: 'aaa',
+      RecordDate: '2022-01-04',
+      Point: 10,
+      AggPoint: 12,
+    });
+
+    expect(objtc.point).toEqual(10);
+    expect(objtc.aggPoint).toEqual(12);
   });
 });

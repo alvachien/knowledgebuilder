@@ -915,6 +915,298 @@ describe('ODataService', () => {
     });
   });
 
+  describe('searchExerciseItems', () => {
+    const callurl = `${environment.apiurlRoot}/ExerciseItemWithTagViews`;
+
+    beforeEach(() => {
+      authStub.isAuthenticated = true;
+    });
+
+    afterEach(() => {
+      // After every test, assert that there are no more pending requests.
+      httpTestingController.verify();
+    });
+
+    it('should return error if no login', () => {
+      authStub.isAuthenticated = false;
+      service.searchExerciseItems().subscribe({
+        next: (val) => {
+          expect(val).toBeFalsy();
+        },
+        error: (err) => {
+          expect(err).toBeTruthy();
+        },
+      });
+    });
+
+    describe('After user login', () => {
+      it('should return expected items', () => {
+        service.searchExerciseItems().subscribe({
+          next: (val) => {
+            expect(val).toBeTruthy();
+          },
+          error: (err) => {
+            expect(err).toBeFalsy();
+          },
+        });
+
+        const req: SafeAny = httpTestingController.expectOne((requrl: SafeAny) => {
+          return requrl.method === 'GET' && requrl.url === callurl;
+        });
+
+        // respond with a 404 and the error message in the body
+        req.flush({
+          value: [
+            {
+              ID: 1,
+              Content: '111'
+            }, {
+              ID: 2,
+              Content: '222'
+            }
+          ],
+        });
+      });
+      it('should return error', () => {
+        const msg = 'Error 404';
+        service.searchExerciseItems().subscribe({
+          next: () => {
+            fail('shall not reach here');
+          },
+          error: (err) => {
+            expect(err.toString()).toContain(msg);
+          },
+        });
+
+        const req: SafeAny = httpTestingController.expectOne((requrl: SafeAny) => {
+          return requrl.method === 'GET' && requrl.url === callurl;
+        });
+
+        // respond with a 404 and the error message in the body
+        req.flush(msg, { status: 404, statusText: 'Not Found' });
+      });
+    });
+  });
+
+  describe('getTagCounts', () => {
+    const callurl = `${environment.apiurlRoot}/TagCounts`;
+
+    beforeEach(() => {
+      authStub.isAuthenticated = true;
+    });
+
+    afterEach(() => {
+      // After every test, assert that there are no more pending requests.
+      httpTestingController.verify();
+    });
+
+    it('should return error if no login', () => {
+      authStub.isAuthenticated = false;
+      service.getTagCounts().subscribe({
+        next: (val) => {
+          expect(val.totalCount).toEqual(0);
+        },
+        error: (err) => {
+          expect(err).toBeTruthy();
+        },
+      });
+    });
+
+    describe('After user login', () => {
+      it('should return expected items', () => {
+        service.getTagCounts().subscribe({
+          next: (val) => {
+            expect(val).toBeTruthy();
+          },
+          error: (err) => {
+            expect(err).toBeFalsy();
+          },
+        });
+
+        const req: SafeAny = httpTestingController.expectOne((requrl: SafeAny) => {
+          return requrl.method === 'GET' && requrl.url === callurl;
+        });
+
+        // respond with a 404 and the error message in the body
+        req.flush({
+          value: [
+            {
+              Tag: 'aaa',
+              Count: 10
+            }, {
+              Tag: 'bbb',
+              Count: 20
+            }
+          ],
+        });
+      });
+      it('should return error', () => {
+        const msg = 'Error 404';
+        service.getTagCounts().subscribe({
+          next: () => {
+            fail('shall not reach here');
+          },
+          error: (err) => {
+            expect(err.toString()).toContain(msg);
+          },
+        });
+
+        const req: SafeAny = httpTestingController.expectOne((requrl: SafeAny) => {
+          return requrl.method === 'GET' && requrl.url === callurl;
+        });
+
+        // respond with a 404 and the error message in the body
+        req.flush(msg, { status: 404, statusText: 'Not Found' });
+      });
+    });
+  });
+
+  describe('getTags', () => {
+    const callurl = `${environment.apiurlRoot}/Tags`;
+
+    beforeEach(() => {
+      authStub.isAuthenticated = true;
+    });
+
+    afterEach(() => {
+      // After every test, assert that there are no more pending requests.
+      httpTestingController.verify();
+    });
+
+    it('should return error if no login', () => {
+      authStub.isAuthenticated = false;
+      service.getTags('aaa').subscribe({
+        next: (val) => {
+          expect(val).toBeFalsy();
+        },
+        error: (err) => {
+          expect(err).toBeTruthy();
+        },
+      });
+    });
+
+    describe('After user login', () => {
+      it('should return expected items', () => {
+        service.getTags('aaa').subscribe({
+          next: (val) => {
+            expect(val).toBeTruthy();
+          },
+          error: (err) => {
+            expect(err).toBeFalsy();
+          },
+        });
+
+        const req: SafeAny = httpTestingController.expectOne((requrl: SafeAny) => {
+          return requrl.method === 'GET' && requrl.url === callurl;
+        });
+
+        // respond with a 404 and the error message in the body
+        req.flush({
+          value: [
+            {
+              Tag: 'aaa',
+              RefID: 10
+            }, {
+              Tag: 'bbb',
+              RefID: 20
+            }
+          ],
+        });
+      });
+      it('should return error', () => {
+        const msg = 'Error 404';
+        service.getTags('aaa').subscribe({
+          next: () => {
+            fail('shall not reach here');
+          },
+          error: (err) => {
+            expect(err.toString()).toContain(msg);
+          },
+        });
+
+        const req: SafeAny = httpTestingController.expectOne((requrl: SafeAny) => {
+          return requrl.method === 'GET' && requrl.url === callurl;
+        });
+
+        // respond with a 404 and the error message in the body
+        req.flush(msg, { status: 404, statusText: 'Not Found' });
+      });
+    });
+  });
+
+  describe('getOverviewInfo', () => {
+    const callurl = `${environment.apiurlRoot}/OverviewInfos`;
+
+    beforeEach(() => {
+      authStub.isAuthenticated = true;
+    });
+
+    afterEach(() => {
+      // After every test, assert that there are no more pending requests.
+      httpTestingController.verify();
+    });
+
+    it('should return error if no login', () => {
+      authStub.isAuthenticated = false;
+      service.getOverviewInfo().subscribe({
+        next: (val) => {
+          expect(val).toBeFalsy();
+        },
+        error: (err) => {
+          expect(err).toBeTruthy();
+        },
+      });
+    });
+
+    describe('After user login', () => {
+      it('should return expected items', () => {
+        service.getOverviewInfo().subscribe({
+          next: (val) => {
+            expect(val).toBeTruthy();
+          },
+          error: (err) => {
+            expect(err).toBeFalsy();
+          },
+        });
+
+        const req: SafeAny = httpTestingController.expectOne((requrl: SafeAny) => {
+          return requrl.method === 'GET' && requrl.url === callurl;
+        });
+
+        // respond with a 404 and the error message in the body
+        req.flush({
+          value: [
+            {
+              RefType: 'ExerciseItem',
+              Count: 2,
+            }, {
+              RefType: 'ExerciseItem',
+              Count: 3,
+            }
+          ],
+        });
+      });
+      it('should return error', () => {
+        const msg = 'Error 404';
+        service.getOverviewInfo().subscribe({
+          next: () => {
+            fail('shall not reach here');
+          },
+          error: (err) => {
+            expect(err.toString()).toContain(msg);
+          },
+        });
+
+        const req: SafeAny = httpTestingController.expectOne((requrl: SafeAny) => {
+          return requrl.method === 'GET' && requrl.url === callurl;
+        });
+
+        // respond with a 404 and the error message in the body
+        req.flush(msg, { status: 404, statusText: 'Not Found' });
+      });
+    });
+  });
+
   describe('getUserCollections', () => {
     const callurl = `${environment.apiurlRoot}/UserCollections`;
 
@@ -1001,6 +1293,76 @@ describe('ODataService', () => {
       it('should return error in case error appear', () => {
         const msg = 'Deliberate 404';
         service.getUserCollections().subscribe({
+          next: (val) => {
+            expect(val).toBeTruthy();
+          },
+          error: (err) => {
+            expect(err.toString()).toContain(msg);
+          },
+        });
+
+        const req: SafeAny = httpTestingController.expectOne((requrl: SafeAny) => {
+          return requrl.method === 'GET' && requrl.url === callurl;
+        });
+
+        // respond with a 404 and the error message in the body
+        req.flush(msg, { status: 404, statusText: 'Not Found' });
+      });
+    });
+  });
+
+  describe('readUserCollection', () => {
+    const callurl = `${environment.apiurlRoot}/UserCollections(22)`;
+
+    afterEach(() => {
+      // After every test, assert that there are no more pending requests.
+      httpTestingController.verify();
+    });
+
+    it('should return error if no login', () => {
+      authStub.isAuthenticated = false;
+      service.readUserCollection(22).subscribe({
+        next: (val) => {
+          expect(val).toBeFalsy();
+        },
+        error: (err) => {
+          expect(err).toBeTruthy();
+        },
+      });
+    });
+
+    describe('After user login', () => {
+      beforeEach(() => {
+        authStub.isAuthenticated = true;
+      });
+
+      it('should return expected data', () => {
+        service.readUserCollection(22).subscribe({
+          next: (val) => {
+            expect(val).toBeTruthy();
+          },
+          error: (err) => {
+            expect(err).toBeFalsy();
+          },
+        });
+
+        // Service should have made one request to GET data from expected URL
+        const req: SafeAny = httpTestingController.expectOne((requrl: SafeAny) => {
+          return requrl.method === 'GET' && requrl.url === callurl;
+        });
+
+        // Respond with the mock data
+        req.flush({
+          ID: 12,
+          User: 'test',
+          Name: 'test',
+          Comment: 'tres',
+        });
+      });
+
+      it('should return error in case error appear', () => {
+        const msg = 'Deliberate 404';
+        service.readUserCollection(22).subscribe({
           next: (val) => {
             expect(val).toBeTruthy();
           },

@@ -5,6 +5,8 @@ import {
   SubtractionQuizItem,
   MultiplicationQuizItem,
   DivisionQuizItem,
+  MixedOperationQuizItem,
+  PrimarySchoolMathQuizSection,
 } from './quizconcept';
 
 describe('QuizSection', () => {
@@ -170,5 +172,29 @@ describe('DivisionQuizItem', () => {
     objtbt.InputtedRemainder = 0;
     expect(objtbt.InputtedRemainder).toEqual(0);
     expect(objtbt.IsCorrect()).toBeTrue();
+  });
+});
+
+describe('MixedOperationQuizItem', () => {
+  let objtc: MixedOperationQuizItem;
+  
+  beforeEach(() => {
+    objtc = new MixedOperationQuizItem('20+30');
+  });
+
+  it('default value', () => {
+    expect(objtc).toBeTruthy();
+  });
+});
+
+describe('PrimarySchoolMathQuizSection', () => {
+  let objtc: PrimarySchoolMathQuizSection;
+
+  beforeEach(() => {
+    objtc = new PrimarySchoolMathQuizSection(20, 10);
+  });
+
+  it('default value', () => {
+    expect(objtc).toBeTruthy();    
   });
 });
