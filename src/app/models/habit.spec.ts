@@ -2,9 +2,9 @@
 // Unit test for habit.ts
 //
 import moment from 'moment';
-import { HabitCategory, HabitCompleteCategory, HabitFrequency, UserHabit, UserHabitPoint, UserHabitPointsByUserDate,
-  UserHabitPointsByUserHabitDate, UserHabitPointReport, UserHabitRecord,
-  UserHabitRule, } from './habit';
+import { HabitCategory, HabitCompleteCategory, HabitFrequency, UserHabit, UserHabitPoint,
+  UserHabitPointsByUserDate, UserHabitPointsByUserHabitDate, UserHabitPointReport, UserHabitRecord,
+  UserHabitRule, UserHabitRecordView, } from './habit';
 
 describe('UserHabit', () => {
   let testobj: UserHabit;
@@ -325,5 +325,36 @@ describe('UserHabitPointReport', () => {
     expect(testobj.targetUser).toEqual(objdata.TargetUser);
     expect(testobj.point).toEqual(objdata.Point);
     expect(testobj.recordDateString).toBeTruthy();
+  });
+});
+
+describe('UserHabitRecordView', () => {
+  let objtc: UserHabitRecordView;
+
+  beforeEach(() => {
+    objtc = new UserHabitRecordView();    
+  })
+
+  it('parse data', () => {
+    expect(objtc.recordDateString).toBeTruthy();
+    expect(objtc.habitValidString).toBeTruthy();
+
+    objtc.parseData({
+      HabitID: 12,
+      RecordDate: '2022-02-03',
+      SubID: 23,
+      CompleteFact: 2,
+      RuleID: 12,
+      ContinuousCount: 7,
+      Comment: 'test',
+      TargetUser: 'test',
+      HabitName: 'test',
+      HabitValidFrom: '2022-02-04',
+      HabitValidTo: '2023-02-04',
+      RuleDaysFrom: 2,
+      RuleDaysTo: 4,
+      RulePoint: 20  
+    });
+    expect(objtc).toBeTruthy();
   });
 });

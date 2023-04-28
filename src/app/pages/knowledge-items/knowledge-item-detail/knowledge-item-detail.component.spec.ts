@@ -9,7 +9,7 @@ import { ActivatedRoute, Router, UrlSegment } from '@angular/router';
 import { MarkdownModule, MarkedOptions } from 'ngx-markdown';
 import { MatChipInputEvent } from '@angular/material/chips';
 
-import { ActivatedRouteUrlStub, asyncData, getTranslocoModule } from 'src/testing';
+import { ActivatedRouteUrlStub, asyncData, asyncError, getTranslocoModule } from 'src/testing';
 import { MaterialModulesModule } from 'src/app/material-modules';
 import { AuthService, ODataService, UIUtilityService } from 'src/app/services';
 import { KnowledgeItemDetailComponent } from './knowledge-item-detail.component';
@@ -34,10 +34,10 @@ describe('KnowledgeItemDetailComponent', () => {
     odataSvc = jasmine.createSpyObj('ODataService', [
       'readKnowledgeItem',
       'createKnowledgeItem',
-      'changeKnowledgeItem'
+      'changeKnowledgeItem',
     ]);
 
-    readKnowledgeItemSpy = odataSvc.readKnowledgeItem.and.returnValue(of(''));
+    readKnowledgeItemSpy = odataSvc.readKnowledgeItem.and.returnValue(of({}));
     createKnowledgeItemSpy = odataSvc.createKnowledgeItem.and.returnValue(of(''));
     changeKnowledgeItemSpy = odataSvc.changeKnowledgeItem.and.returnValue(of(''));
   });
@@ -49,7 +49,8 @@ describe('KnowledgeItemDetailComponent', () => {
     const authStub: Partial<AuthService> = {
       userDetail: userDetail,
       isAuthenticated: true,
-    };
+    };    
+
     activatedRouteStub = new ActivatedRouteUrlStub([new UrlSegment('create', {})] as UrlSegment[]);
 
     TestBed.configureTestingModule({
@@ -83,7 +84,7 @@ describe('KnowledgeItemDetailComponent', () => {
       providers: [
         { provide: AuthService, useValue: authStub },
         { provide: ActivatedRoute, useValue: activatedRouteStub },
-        { provoide: ODataService, useValue: odataSvc },
+        { provide: ODataService, useValue: odataSvc },
         UIUtilityService,
       ],
     }).compileComponents();
@@ -101,8 +102,14 @@ describe('KnowledgeItemDetailComponent', () => {
 
   describe('create mode', () => {
     beforeEach(() => {
-      readKnowledgeItemSpy.and.returnValue(of(''));
-      createKnowledgeItemSpy.and.returnValue(of(''));
+      let objtbt = new KnowledgeItem();
+      objtbt.ID = 122;
+      objtbt.Content = 'aaa';
+      objtbt.Title = 'aaa';
+      objtbt.ItemCategory = KnowledgeItemCategory.Concept;
+
+      readKnowledgeItemSpy.and.returnValue(asyncData({}));
+      createKnowledgeItemSpy.and.returnValue(asyncData(objtbt));
       changeKnowledgeItemSpy.and.returnValue(of(''));
     });
 
@@ -119,6 +126,17 @@ describe('KnowledgeItemDetailComponent', () => {
       expect(component.isUpdateMode).toBeFalse();
       expect(component.isDisplayMode).toBeFalse();
 
+      // Error
+      component.onOK();
+
+      component.itemFormGroup.get('ctgyControl')?.setValue(KnowledgeItemCategory.Concept);
+      component.itemFormGroup.get('titleControl')?.setValue('test');
+      component.content = 'test';
+
+      const routerstub = TestBed.inject(Router);
+      spyOn(routerstub, 'navigate');
+      component.onOK();
+
       discardPeriodicTasks();
       flush();
     }));
@@ -127,9 +145,9 @@ describe('KnowledgeItemDetailComponent', () => {
   describe('display mode', () => {
     beforeEach(() => {
       activatedRouteStub.setURL([new UrlSegment('display', {}), new UrlSegment('122', {})] as UrlSegment[]);
-
+  
       let objtbt = new KnowledgeItem();
-      objtbt.ID = 1;
+      objtbt.ID = 122;
       objtbt.Content = 'aaa';
       objtbt.Title = 'aaa';
       objtbt.ItemCategory = KnowledgeItemCategory.Concept;
@@ -150,10 +168,78 @@ describe('KnowledgeItemDetailComponent', () => {
       expect(component.uiMode).toEqual(UIMode.Display);
       expect(component.isCreateMode).toBeFalse();
       expect(component.isUpdateMode).toBeFalse();
+      expect(component.isDisplayMode).toBeTrue();      
+
+      tick();
+      fixture.detectChanges();
+      flush();
+
+      //expect(readKnowledgeItemSpy).toHaveBeenCalled();
+
+      discardPeriodicTasks();
+      flush();
+    }));
+
+    it('handle error', fakeAsync(() => {
+      readKnowledgeItemSpy.and.returnValue(asyncError<string>('read order failed'));
+
+      fixture.detectChanges();
+      tick();
+      fixture.detectChanges();
+      tick();
+      fixture.detectChanges();
+
+      expect(component).toBeTruthy();
+      expect(component.uiMode).toEqual(UIMode.Display);
+      expect(component.isCreateMode).toBeFalse();
+      expect(component.isUpdateMode).toBeFalse();
       expect(component.isDisplayMode).toBeTrue();
 
       tick();
       fixture.detectChanges();
+
+      discardPeriodicTasks();
+      flush();
+    }));
+  });
+
+  describe('edit mode', () => {
+    beforeEach(() => {
+      activatedRouteStub.setURL([new UrlSegment('edit', {}), new UrlSegment('122', {})] as UrlSegment[]);
+  
+      let objtbt = new KnowledgeItem();
+      objtbt.ID = 122;
+      objtbt.Content = 'aaa';
+      objtbt.Title = 'aaa';
+      objtbt.ItemCategory = KnowledgeItemCategory.Concept;
+  
+      readKnowledgeItemSpy.and.returnValue(asyncData(objtbt));
+      createKnowledgeItemSpy.and.returnValue(of(''));
+      changeKnowledgeItemSpy.and.returnValue(asyncData(objtbt));
+    });
+
+    it('init without error', fakeAsync(() => {
+      fixture.detectChanges();
+      tick();
+      fixture.detectChanges();
+      tick();
+      fixture.detectChanges();
+
+      expect(component).toBeTruthy();
+      expect(component.uiMode).toEqual(UIMode.Update);
+      expect(component.isCreateMode).toBeFalse();
+      expect(component.isUpdateMode).toBeTrue();
+      expect(component.isDisplayMode).toBeFalse();      
+
+      tick();
+      fixture.detectChanges();
+      flush();
+
+      expect(readKnowledgeItemSpy).toHaveBeenCalled();
+
+      const routerstub = TestBed.inject(Router);
+      spyOn(routerstub, 'navigate');
+      component.onOK();
 
       discardPeriodicTasks();
       flush();

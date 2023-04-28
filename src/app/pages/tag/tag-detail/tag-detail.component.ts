@@ -1,4 +1,4 @@
-import { Component, OnInit, ViewChild, AfterViewInit } from '@angular/core';
+import { Component, OnInit, ViewChild, AfterViewInit, AfterContentInit } from '@angular/core';
 import { MatPaginator } from '@angular/material/paginator';
 import { MatSort } from '@angular/material/sort';
 import { ActivatedRoute } from '@angular/router';
@@ -13,7 +13,7 @@ import { PreviewObject, UIUtilityService, ODataService } from 'src/app/services'
   templateUrl: './tag-detail.component.html',
   styleUrls: ['./tag-detail.component.scss'],
 })
-export class TagDetailComponent implements OnInit, AfterViewInit {
+export class TagDetailComponent implements OnInit, AfterContentInit {
   displayedColumns: string[] = ['tag', 'reftype', 'refid'];
   dataSource: Tag[] = [];
   currenttag = '';
@@ -55,7 +55,7 @@ export class TagDetailComponent implements OnInit, AfterViewInit {
     });
   }
 
-  ngAfterViewInit(): void {
+  ngAfterContentInit(): void {
     // If the user changes the sort order, reset back to the first page.
     this.sort.sortChange.subscribe(() => (this.paginator.pageIndex = 0));
 

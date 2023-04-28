@@ -14,7 +14,6 @@ import { AuthService, ODataService, UIUtilityService } from 'src/app/services';
   styleUrls: ['./habit-record-detail.component.scss'],
 })
 export class HabitRecordDetailComponent implements OnInit {
-  private destroyed$?: ReplaySubject<boolean>;
   uiMode: UIMode = UIMode.Create;
   currentMode = 'Common.Display';
   currentObject: UserHabitRecord | null = null;
@@ -25,7 +24,6 @@ export class HabitRecordDetailComponent implements OnInit {
     private activateRoute: ActivatedRoute,
     private uiUtilSrv: UIUtilityService,
     private authService: AuthService,
-    private odataSrv: ODataService
   ) {
     this.detailFormGroup = this._formBuilder.group({
       targetuserCtrl: new UntypedFormControl('', Validators.required),

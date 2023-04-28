@@ -180,7 +180,7 @@ export class UserCollectionDetailComponent implements OnInit, OnDestroy {
           this.uiUtilSrv.showSnackInfo(err);
         },
       });
-    } else if (row.RefID === TagReferenceType.KnowledgeItem) {
+    } else if (row.RefType === TagReferenceType.KnowledgeItem) {
       this.odataService.removeKnowledgeItemFromCollection(row).subscribe({
         next: () => {
           this.uiUtilSrv.showSnackInfo('DONE');

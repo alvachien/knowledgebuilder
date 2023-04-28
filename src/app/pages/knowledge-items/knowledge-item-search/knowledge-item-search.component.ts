@@ -1,4 +1,4 @@
-import { AfterViewInit, Component, OnInit, ViewChild } from '@angular/core';
+import { AfterContentInit, AfterViewInit, Component, OnInit, ViewChild } from '@angular/core';
 import { MatPaginator } from '@angular/material/paginator';
 import { BehaviorSubject, merge, of as observableOf } from 'rxjs';
 import { catchError, finalize, map, startWith, switchMap } from 'rxjs/operators';
@@ -22,7 +22,7 @@ import { ODataService, PreviewObject, UIUtilityService } from 'src/app/services'
   templateUrl: './knowledge-item-search.component.html',
   styleUrls: ['./knowledge-item-search.component.scss'],
 })
-export class KnowledgeItemSearchComponent implements OnInit, AfterViewInit {
+export class KnowledgeItemSearchComponent implements OnInit, AfterContentInit {
   filters: GeneralFilterItem[] = [];
   allOperators: UIDisplayString[] = [];
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -65,7 +65,7 @@ export class KnowledgeItemSearchComponent implements OnInit, AfterViewInit {
    * Set the paginator after the view init since this component will
    * be able to query its view for the initialized paginator.
    */
-  ngAfterViewInit(): void {
+  ngAfterContentInit(): void {
     // this.dataSource.paginator = this.paginator;
     this.subjFilters.subscribe(() => (this.paginator.pageIndex = 0));
 

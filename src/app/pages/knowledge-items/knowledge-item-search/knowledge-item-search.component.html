@@ -50,15 +50,15 @@
                     <mat-checkbox [(ngModel)]="filter.value[0]">
                     </mat-checkbox>
                 </div>
-                <button mat-button mat-icon-button aria-label="Add" (click)="onAddFilter()">
+                <button mat-icon-button aria-label="Add" (click)="onAddFilter()">
                     <mat-icon>add</mat-icon>
                 </button>
-                <button mat-button mat-icon-button aria-label="Clear" (click)="onRemoveFilter(idxfilter)">
+                <button mat-icon-button aria-label="Clear" (click)="onRemoveFilter(idxfilter)">
                     <mat-icon>close</mat-icon>
                 </button>
             </div>
             <div class="control-full-width">
-                <button mat-button aria-label="Search" (click)="onSearch()">
+                <button mat-icon-button aria-label="Search" (click)="onSearch()">
                     <mat-icon>search</mat-icon>
                     {{'Common.Search' | transloco}}
                 </button>

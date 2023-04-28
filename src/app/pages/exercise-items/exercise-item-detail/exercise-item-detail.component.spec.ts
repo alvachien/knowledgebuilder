@@ -90,8 +90,13 @@ describe('ExerciseItemDetailComponent', () => {
 
   describe('create mode', () => {
     beforeEach(() => {
+      let objtbt = new ExerciseItem();
+      objtbt.Answer = 'test';
+      objtbt.Content = 'test';
+      objtbt.ItemType = ExerciseItemType.EssayQuestions;
+
       readExerciseItemSpy.and.returnValue(of(''));
-      createExerciseItemSpy.and.returnValue(of(''));
+      createExerciseItemSpy.and.returnValue(asyncData(objtbt));
       changeExerciseItemSpy.and.returnValue(of(''));
     });
 
@@ -107,6 +112,16 @@ describe('ExerciseItemDetailComponent', () => {
       expect(component.isCreateMode).toBeTrue();
       expect(component.isUpdateMode).toBeFalse();
       expect(component.isDisplayMode).toBeFalse();
+
+      const routerstub = TestBed.inject(Router);
+      spyOn(routerstub, 'navigate');
+      component.onOK();
+
+      component.itemFormGroup.get('typeControl')?.setValue(ExerciseItemType.EssayQuestions);
+      component.content = 'test';
+      component.answerContent = 'test';
+
+      component.onOK();
 
       discardPeriodicTasks();
       flush();
@@ -139,6 +154,42 @@ describe('ExerciseItemDetailComponent', () => {
       expect(component.isCreateMode).toBeFalse();
       expect(component.isUpdateMode).toBeFalse();
       expect(component.isDisplayMode).toBeTrue();
+
+      discardPeriodicTasks();
+      flush();
+    }));
+  });
+
+  describe('edit mode', () => {
+    beforeEach(() => {
+      activatedRouteStub.setURL([new UrlSegment('edit', {}), new UrlSegment('122', {})] as UrlSegment[]);
+
+      let objtbt = new ExerciseItem();
+      objtbt.Answer = 'test';
+      objtbt.Content = 'test';
+      objtbt.ItemType = ExerciseItemType.EssayQuestions;
+  
+      readExerciseItemSpy.and.returnValue(asyncData(objtbt));
+      createExerciseItemSpy.and.returnValue(of(''));
+      changeExerciseItemSpy.and.returnValue(asyncData(objtbt));
+    });
+
+    it('init without error', fakeAsync(() => {
+      fixture.detectChanges();
+      tick();
+      fixture.detectChanges();
+      tick();
+      fixture.detectChanges();
+
+      expect(component).toBeTruthy();
+      expect(component.uiMode).toEqual(UIMode.Update);
+      expect(component.isCreateMode).toBeFalse();
+      expect(component.isUpdateMode).toBeTrue();
+      expect(component.isDisplayMode).toBeFalse();
+
+      const routerstub = TestBed.inject(Router);
+      spyOn(routerstub, 'navigate');
+      component.onOK();
 
       discardPeriodicTasks();
       flush();
