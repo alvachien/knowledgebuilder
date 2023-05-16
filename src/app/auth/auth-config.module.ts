@@ -7,6 +7,7 @@ import { environment } from 'src/environments/environment';
     AuthModule.forRoot({
       config: {
         authority: environment.idServerUrl,
+
         redirectUrl: environment.AppHost, // window.location.origin,
         postLogoutRedirectUri: environment.AppHost, // window.location.origin,
 
@@ -25,7 +26,7 @@ import { environment } from 'src/environments/environment';
         // allowUnsafeReuseRefreshToken: true, // this is required if the refresh token is not rotated
         //triggerRefreshWhenIdTokenExpired: false, // required to refresh the browser if id_token is not updated after the first authentication
         //autoUserInfo: false, // if the user endpoint is not supported
-        logLevel: LogLevel.Error,
+        logLevel: LogLevel.Warn,
       },
     }),
   ],
