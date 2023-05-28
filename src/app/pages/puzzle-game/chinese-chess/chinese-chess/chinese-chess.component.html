@@ -1,1 +1,27 @@
-<p>chinese-chess works!</p>
+<mat-toolbar>
+  <h1>{{'PuzzleGames.ChineseChess' | transloco}}</h1>
+  <div class="toolbar-spacer"></div>
+  <mat-form-field class="form-field-item">
+    <mat-label>先走方</mat-label>
+    <mat-select required [(ngModel)]="selectedMoveMode" (selectionChange)="onSelectedMoveModeChange($event)">
+      <mat-option value="0">我</mat-option>
+      <mat-option value="1">电脑</mat-option>
+      <mat-option value="2">无电脑</mat-option>
+    </mat-select>
+  </mat-form-field>
+  <mat-form-field class="form-field-item">
+    <mat-label>AI等级</mat-label>
+    <mat-select required [(ngModel)]="selectedAILevel" (selectionChange)="onSelectedAILevelChange($event)">
+      <mat-option value="0">低</mat-option>
+      <mat-option value="1">中等</mat-option>
+      <mat-option value="2">难</mat-option>
+    </mat-select>
+  </mat-form-field>
+  <mat-checkbox [(ngModel)]="audioEnabled">音效</mat-checkbox>  
+</mat-toolbar>
+
+<div style="margin: 10px;">
+  <div #chesscontainer class="chess-container">
+
+  </div>
+</div>

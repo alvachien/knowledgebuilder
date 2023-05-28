@@ -13,6 +13,10 @@ const routes: Routes = [
   { path: 'gobang', component: GobangGameComponent },
   { path: 'typegame', component: TypingGameComponent },
   { path: 'sudou', component: SudouComponent },
+  {
+    path: 'chinesechess',
+    loadChildren: () => import('./chinese-chess/chinese-chess.module').then((m) => m.ChineseChessModule),
+  },
 ];
 
 @NgModule({

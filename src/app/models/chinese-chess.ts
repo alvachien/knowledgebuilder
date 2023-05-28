@@ -548,8 +548,8 @@ export class ChineseChessPosition {
 
   PreGen_zobristKeyPlayer: number;
   PreGen_zobristLockPlayer: number;
-  PreGen_zobristKeyTable: number[] = [];
-  PreGen_zobristLockTable: number[] = [];
+  PreGen_zobristKeyTable: any[] = [];
+  PreGen_zobristLockTable: any[] = [];
 
   constructor() {
     const rc4 = new ChineseChessRC4([0]);
@@ -588,320 +588,323 @@ export class ChineseChessPosition {
   }
 
   public initialize(fen: string) {
-    // fromFEN
-    // 将FEN串转为一维数组，初始化棋局
-    this.clearBoard();
-    let y = RANK_TOP;
-    let x = FILE_LEFT;
-    let index = 0;
-    if (index === fen.length) {
-      this.setIrrev();
-      return;
-    }
-    let c = fen.charAt(index);
-    while (c !== ' ') {
-      if (c === '/') {
-        x = FILE_LEFT;
-        y++;
-        if (y > RANK_BOTTOM) {
-          break;
-        }
-      } else if (c >= '1' && c <= '9') {
-        x += this.utilObj.charCodeAt(c) - this.utilObj.charCodeAt('0');
-      } else if (c >= 'A' && c <= 'Z') {
-        if (x <= FILE_RIGHT) {
-          const pt = this.utilObj.getPieceFromChar(c);
-          if (pt >= 0) {
-            this.addPiece(COORD_XY(x, y), pt + 8);
-          }
-          x++;
-        }
-      } else if (c >= 'a' && c <= 'z') {
-        if (x <= FILE_RIGHT) {
-          var pt = CHAR_TO_PIECE(CHR(ASC(c) + ASC('A') - ASC('a')));
-          if (pt >= 0) {
-            this.addPiece(COORD_XY(x, y), pt + 16);
-          }
-          x++;
-        }
-      }
-      index++;
-      if (index == fen.length) {
-        this.setIrrev();
-        return;
-      }
-      c = fen.charAt(index);
-    }
-    index++;
-    if (index == fen.length) {
-      this.setIrrev();
-      return;
-    }
+    // TBD.
+    // // fromFEN
+    // // 将FEN串转为一维数组，初始化棋局
+    // this.clearBoard();
+    // let y = RANK_TOP;
+    // let x = FILE_LEFT;
+    // let index = 0;
+    // if (index === fen.length) {
+    //   this.setIrrev();
+    //   return;
+    // }
+    // let c = fen.charAt(index);
+    // while (c !== ' ') {
+    //   if (c === '/') {
+    //     x = FILE_LEFT;
+    //     y++;
+    //     if (y > RANK_BOTTOM) {
+    //       break;
+    //     }
+    //   } else if (c >= '1' && c <= '9') {
+    //     x += this.utilObj.charCodeAt(c) - this.utilObj.charCodeAt('0');
+    //   } else if (c >= 'A' && c <= 'Z') {
+    //     if (x <= FILE_RIGHT) {
+    //       const pt = this.utilObj.getPieceFromChar(c);
+    //       if (pt >= 0) {
+    //         this.addPiece(COORD_XY(x, y), pt + 8);
+    //       }
+    //       x++;
+    //     }
+    //   } else if (c >= 'a' && c <= 'z') {
+    //     if (x <= FILE_RIGHT) {
+    //       var pt = CHAR_TO_PIECE(CHR(ASC(c) + ASC('A') - ASC('a')));
+    //       if (pt >= 0) {
+    //         this.addPiece(COORD_XY(x, y), pt + 16);
+    //       }
+    //       x++;
+    //     }
+    //   }
+    //   index++;
+    //   if (index == fen.length) {
+    //     this.setIrrev();
+    //     return;
+    //   }
+    //   c = fen.charAt(index);
+    // }
+    // index++;
+    // if (index == fen.length) {
+    //   this.setIrrev();
+    //   return;
+    // }
 
-    this.setIrrev();
+    // this.setIrrev();
   }
 
   // 生成棋局的所有走法，vls不为null时，生成吃子走法
-  public generateMoves(vls) {
-    var mvs = [];
-    var pcSelfSide = this.utilObj.sideTag(this.sdPlayer);
-    var pcOppSide = this.utilObj.oppSideTag(this.sdPlayer);
-    for (var sqSrc = 0; sqSrc < 256; sqSrc++) {
-      var pcSrc = this.squares[sqSrc];
-      if ((pcSrc & pcSelfSide) === 0) {
-        continue;
-      }
-      switch (pcSrc - pcSelfSide) {
-        case PIECE_KING: {
-          for (var i = 0; i < 4; i++) {
-            var sqDst = sqSrc + KING_DELTA[i];
-            if (!this.utilObj.inFort(sqDst)) {
-              continue;
-            }
-            var pcDst = this.squares[sqDst];
-            if (vls == null) {
-              if ((pcDst & pcSelfSide) == 0) {
-                mvs.push(this.utilObj.move(sqSrc, sqDst));
-              }
-            } else if ((pcDst & pcOppSide) != 0) {
-              // 目标位置存在对方棋子（这是要生成吃子走法）
-              mvs.push(this.utilObj.move(sqSrc, sqDst)); // 存储吃子走法
-              vls.push(this.utilObj.mvvLva(pcDst, 5)); // 该吃子走法的分值（MVV/LVA启发）
-            }
-          }
-          break;
-        }
+  public generateMoves(vls: any) {
+    // TBD.
+    // var mvs = [];
+    // var pcSelfSide = this.utilObj.sideTag(this.sdPlayer);
+    // var pcOppSide = this.utilObj.oppSideTag(this.sdPlayer);
+    // for (var sqSrc = 0; sqSrc < 256; sqSrc++) {
+    //   var pcSrc = this.squares[sqSrc];
+    //   if ((pcSrc & pcSelfSide) === 0) {
+    //     continue;
+    //   }
+    //   switch (pcSrc - pcSelfSide) {
+    //     case PIECE_KING: {
+    //       for (var i = 0; i < 4; i++) {
+    //         var sqDst = sqSrc + KING_DELTA[i];
+    //         if (!this.utilObj.inFort(sqDst)) {
+    //           continue;
+    //         }
+    //         var pcDst = this.squares[sqDst];
+    //         if (vls == null) {
+    //           if ((pcDst & pcSelfSide) == 0) {
+    //             mvs.push(this.utilObj.move(sqSrc, sqDst));
+    //           }
+    //         } else if ((pcDst & pcOppSide) != 0) {
+    //           // 目标位置存在对方棋子（这是要生成吃子走法）
+    //           mvs.push(this.utilObj.move(sqSrc, sqDst)); // 存储吃子走法
+    //           vls.push(this.utilObj.mvvLva(pcDst, 5)); // 该吃子走法的分值（MVV/LVA启发）
+    //         }
+    //       }
+    //       break;
+    //     }
 
-        case PIECE_ADVISOR: {
-          for (var i = 0; i < 4; i++) {
-            var sqDst = sqSrc + advisorDelta[i];
-            if (!this.utilObj.inFort(sqDst)) {
-              continue;
-            }
-            var pcDst = this.squares[sqDst];
-            if (vls == null) {
-              if ((pcDst & pcSelfSide) == 0) {
-                mvs.push(this.utilObj.move(sqSrc, sqDst));
-              }
-            } else if ((pcDst & pcOppSide) != 0) {
-              mvs.push(this.utilObj.move(sqSrc, sqDst));
-              vls.push(this.utilObj.mvvLva(pcDst, 1));
-            }
-          }
-          break;
-        }
+    //     case PIECE_ADVISOR: {
+    //       for (var i = 0; i < 4; i++) {
+    //         var sqDst = sqSrc + advisorDelta[i];
+    //         if (!this.utilObj.inFort(sqDst)) {
+    //           continue;
+    //         }
+    //         var pcDst = this.squares[sqDst];
+    //         if (vls == null) {
+    //           if ((pcDst & pcSelfSide) == 0) {
+    //             mvs.push(this.utilObj.move(sqSrc, sqDst));
+    //           }
+    //         } else if ((pcDst & pcOppSide) != 0) {
+    //           mvs.push(this.utilObj.move(sqSrc, sqDst));
+    //           vls.push(this.utilObj.mvvLva(pcDst, 1));
+    //         }
+    //       }
+    //       break;
+    //     }
 
-        case PIECE_BISHOP: {
-          for (var i = 0; i < 4; i++) {
-            var sqDst = sqSrc + advisorDelta[i];
-            if (
-              !(this.utilObj.inBoard(sqDst) && this.utilObj.homeHalf(sqDst, this.sdPlayer) && this.squares[sqDst] === 0)
-            ) {
-              continue;
-            }
-            sqDst += advisorDelta[i];
-            var pcDst = this.squares[sqDst];
-            if (vls === null) {
-              if ((pcDst & pcSelfSide) === 0) {
-                mvs.push(this.utilObj.move(sqSrc, sqDst));
-              }
-            } else if ((pcDst & pcOppSide) !== 0) {
-              mvs.push(this.utilObj.move(sqSrc, sqDst));
-              vls.push(this.utilObj.mvvLva(pcDst, 1));
-            }
-          }
-          break;
-        }
+    //     case PIECE_BISHOP: {
+    //       for (var i = 0; i < 4; i++) {
+    //         var sqDst = sqSrc + advisorDelta[i];
+    //         if (
+    //           !(this.utilObj.inBoard(sqDst) && this.utilObj.homeHalf(sqDst, this.sdPlayer) && this.squares[sqDst] === 0)
+    //         ) {
+    //           continue;
+    //         }
+    //         sqDst += advisorDelta[i];
+    //         var pcDst = this.squares[sqDst];
+    //         if (vls === null) {
+    //           if ((pcDst & pcSelfSide) === 0) {
+    //             mvs.push(this.utilObj.move(sqSrc, sqDst));
+    //           }
+    //         } else if ((pcDst & pcOppSide) !== 0) {
+    //           mvs.push(this.utilObj.move(sqSrc, sqDst));
+    //           vls.push(this.utilObj.mvvLva(pcDst, 1));
+    //         }
+    //       }
+    //       break;
+    //     }
 
-        case PIECE_KNIGHT: {
-          for (var i = 0; i < 4; i++) {
-            var sqDst = sqSrc + kingDelta[i];
-            if (this.squares[sqDst] > 0) {
-              continue;
-            }
-            for (var j = 0; j < 2; j++) {
-              sqDst = sqSrc + knightDelta[i][j];
-              if (!this.utilObj.inBoard(sqDst)) {
-                continue;
-              }
-              var pcDst = this.squares[sqDst];
-              if (vls === null) {
-                if ((pcDst & pcSelfSide) == 0) {
-                  mvs.push(this.utilObj.move(sqSrc, sqDst));
-                }
-              } else if ((pcDst & pcOppSide) != 0) {
-                mvs.push(this.utilObj.move(sqSrc, sqDst));
-                vls.push(this.utilObj.mvvLva(pcDst, 1));
-              }
-            }
-          }
-          break;
-        }
+    //     case PIECE_KNIGHT: {
+    //       for (var i = 0; i < 4; i++) {
+    //         var sqDst = sqSrc + kingDelta[i];
+    //         if (this.squares[sqDst] > 0) {
+    //           continue;
+    //         }
+    //         for (var j = 0; j < 2; j++) {
+    //           sqDst = sqSrc + knightDelta[i][j];
+    //           if (!this.utilObj.inBoard(sqDst)) {
+    //             continue;
+    //           }
+    //           var pcDst = this.squares[sqDst];
+    //           if (vls === null) {
+    //             if ((pcDst & pcSelfSide) == 0) {
+    //               mvs.push(this.utilObj.move(sqSrc, sqDst));
+    //             }
+    //           } else if ((pcDst & pcOppSide) != 0) {
+    //             mvs.push(this.utilObj.move(sqSrc, sqDst));
+    //             vls.push(this.utilObj.mvvLva(pcDst, 1));
+    //           }
+    //         }
+    //       }
+    //       break;
+    //     }
 
-        case PIECE_ROOK: {
-          for (var i = 0; i < 4; i++) {
-            var delta = kingDelta[i];
-            var sqDst = sqSrc + delta;
-            while (this.utilObj.inBoard(sqDst)) {
-              var pcDst = this.squares[sqDst];
-              if (pcDst == 0) {
-                if (vls == null) {
-                  mvs.push(this.utilObj.move(sqSrc, sqDst));
-                }
-              } else {
-                if ((pcDst & pcOppSide) != 0) {
-                  mvs.push(this.utilObj.move(sqSrc, sqDst));
-                  if (vls != null) {
-                    vls.push(this.utilObj.mvvLva(pcDst, 4));
-                  }
-                }
-                break;
-              }
-              sqDst += delta;
-            }
-          }
-          break;
-        }
+    //     case PIECE_ROOK: {
+    //       for (var i = 0; i < 4; i++) {
+    //         var delta = kingDelta[i];
+    //         var sqDst = sqSrc + delta;
+    //         while (this.utilObj.inBoard(sqDst)) {
+    //           var pcDst = this.squares[sqDst];
+    //           if (pcDst == 0) {
+    //             if (vls == null) {
+    //               mvs.push(this.utilObj.move(sqSrc, sqDst));
+    //             }
+    //           } else {
+    //             if ((pcDst & pcOppSide) != 0) {
+    //               mvs.push(this.utilObj.move(sqSrc, sqDst));
+    //               if (vls != null) {
+    //                 vls.push(this.utilObj.mvvLva(pcDst, 4));
+    //               }
+    //             }
+    //             break;
+    //           }
+    //           sqDst += delta;
+    //         }
+    //       }
+    //       break;
+    //     }
 
-        case PIECE_CANNON: {
-          for (var i = 0; i < 4; i++) {
-            var delta = kingDelta[i];
-            var sqDst = sqSrc + delta;
-            while (this.utilObj.inBoard(sqDst)) {
-              var pcDst = this.squares[sqDst];
-              if (pcDst == 0) {
-                if (vls == null) {
-                  mvs.push(this.utilObj.move(sqSrc, sqDst));
-                }
-              } else {
-                break;
-              }
-              sqDst += delta;
-            }
-            sqDst += delta;
-            while (this.utilObj.inBoard(sqDst)) {
-              var pcDst = this.squares[sqDst];
-              if (pcDst > 0) {
-                if ((pcDst & pcOppSide) != 0) {
-                  mvs.push(this.utilObj.move(sqSrc, sqDst));
-                  if (vls != null) {
-                    vls.push(this.utilObj.mvvLva(pcDst, 4));
-                  }
-                }
-                break;
-              }
-              sqDst += delta;
-            }
-          }
-          break;
-        }
+    //     case PIECE_CANNON: {
+    //       for (var i = 0; i < 4; i++) {
+    //         var delta = kingDelta[i];
+    //         var sqDst = sqSrc + delta;
+    //         while (this.utilObj.inBoard(sqDst)) {
+    //           var pcDst = this.squares[sqDst];
+    //           if (pcDst == 0) {
+    //             if (vls == null) {
+    //               mvs.push(this.utilObj.move(sqSrc, sqDst));
+    //             }
+    //           } else {
+    //             break;
+    //           }
+    //           sqDst += delta;
+    //         }
+    //         sqDst += delta;
+    //         while (this.utilObj.inBoard(sqDst)) {
+    //           var pcDst = this.squares[sqDst];
+    //           if (pcDst > 0) {
+    //             if ((pcDst & pcOppSide) != 0) {
+    //               mvs.push(this.utilObj.move(sqSrc, sqDst));
+    //               if (vls != null) {
+    //                 vls.push(this.utilObj.mvvLva(pcDst, 4));
+    //               }
+    //             }
+    //             break;
+    //           }
+    //           sqDst += delta;
+    //         }
+    //       }
+    //       break;
+    //     }
 
-        case PIECE_PAWN: {
-          var sqDst = SQUARE_FORWARD(sqSrc, this.sdPlayer);
-          if (IN_BOARD(sqDst)) {
-            var pcDst = this.squares[sqDst];
-            if (vls == null) {
-              if ((pcDst & pcSelfSide) == 0) {
-                mvs.push(this.utilObj.move(sqSrc, sqDst));
-              }
-            } else if ((pcDst & pcOppSide) != 0) {
-              mvs.push(this.utilObj.move(sqSrc, sqDst));
-              vls.push(MVV_LVA(pcDst, 2));
-            }
-          }
-          if (AWAY_HALF(sqSrc, this.sdPlayer)) {
-            for (var delta = -1; delta <= 1; delta += 2) {
-              sqDst = sqSrc + delta;
-              if (IN_BOARD(sqDst)) {
-                var pcDst = this.squares[sqDst];
-                if (vls == null) {
-                  if ((pcDst & pcSelfSide) == 0) {
-                    mvs.push(this.utilObj.move(sqSrc, sqDst));
-                  }
-                } else if ((pcDst & pcOppSide) != 0) {
-                  mvs.push(this.utilObj.move(sqSrc, sqDst));
-                  vls.push(MVV_LVA(pcDst, 2));
-                }
-              }
-            }
-          }
-          break;
-        }
-      }
-    }
-    return mvs;
+    //     case PIECE_PAWN: {
+    //       var sqDst = SQUARE_FORWARD(sqSrc, this.sdPlayer);
+    //       if (IN_BOARD(sqDst)) {
+    //         var pcDst = this.squares[sqDst];
+    //         if (vls == null) {
+    //           if ((pcDst & pcSelfSide) == 0) {
+    //             mvs.push(this.utilObj.move(sqSrc, sqDst));
+    //           }
+    //         } else if ((pcDst & pcOppSide) != 0) {
+    //           mvs.push(this.utilObj.move(sqSrc, sqDst));
+    //           vls.push(MVV_LVA(pcDst, 2));
+    //         }
+    //       }
+    //       if (AWAY_HALF(sqSrc, this.sdPlayer)) {
+    //         for (var delta = -1; delta <= 1; delta += 2) {
+    //           sqDst = sqSrc + delta;
+    //           if (IN_BOARD(sqDst)) {
+    //             var pcDst = this.squares[sqDst];
+    //             if (vls == null) {
+    //               if ((pcDst & pcSelfSide) == 0) {
+    //                 mvs.push(this.utilObj.move(sqSrc, sqDst));
+    //               }
+    //             } else if ((pcDst & pcOppSide) != 0) {
+    //               mvs.push(this.utilObj.move(sqSrc, sqDst));
+    //               vls.push(MVV_LVA(pcDst, 2));
+    //             }
+    //           }
+    //         }
+    //       }
+    //       break;
+    //     }
+    //   }
+    // }
+    // return mvs;
   }
 
   // 判断步骤是否合法。是则返回true，否则返回false
-  public legalMove(mv) {
-    var sqSrc = SRC(mv); // 获取走法的起点位置
-    var pcSrc = this.squares[sqSrc]; // 获取起点位置的棋子
-    var pcSelfSide = SIDE_TAG(this.sdPlayer); // 红黑标记(红子是8，黑子是16)
+  public legalMove(mv: any) {
+    // TBD.
+    // var sqSrc = SRC(mv); // 获取走法的起点位置
+    // var pcSrc = this.squares[sqSrc]; // 获取起点位置的棋子
+    // var pcSelfSide = SIDE_TAG(this.sdPlayer); // 红黑标记(红子是8，黑子是16)
 
-    if ((pcSrc & pcSelfSide) == 0) {
-      // 起点位置的棋子，不是本方棋子。（是对方棋子，或者根本没有棋子）
-      return false;
-    }
+    // if ((pcSrc & pcSelfSide) == 0) {
+    //   // 起点位置的棋子，不是本方棋子。（是对方棋子，或者根本没有棋子）
+    //   return false;
+    // }
 
-    var sqDst = DST(mv); // 获取走法的终点位置
-    var pcDst = this.squares[sqDst]; // 获取终点位置的棋子
+    // var sqDst = DST(mv); // 获取走法的终点位置
+    // var pcDst = this.squares[sqDst]; // 获取终点位置的棋子
 
-    if ((pcDst & pcSelfSide) != 0) {
-      // 终点位置有棋子，而且是本方棋子
-      return false;
-    }
+    // if ((pcDst & pcSelfSide) != 0) {
+    //   // 终点位置有棋子，而且是本方棋子
+    //   return false;
+    // }
 
-    switch (pcSrc - pcSelfSide) {
-      case PIECE_KING: // 起点棋子是将（帅），校验走法
-        return IN_FORT(sqDst) && KING_SPAN(sqSrc, sqDst);
-      case PIECE_ADVISOR: // 起点棋子是仕（仕），校验走法
-        return IN_FORT(sqDst) && ADVISOR_SPAN(sqSrc, sqDst);
-      case PIECE_BISHOP: // 起点棋子是象（相），校验走法
-        return SAME_HALF(sqSrc, sqDst) && BISHOP_SPAN(sqSrc, sqDst) && this.squares[BISHOP_PIN(sqSrc, sqDst)] == 0;
-      case PIECE_KNIGHT: // 起点棋子是马，校验走法
-        var sqPin = KNIGHT_PIN(sqSrc, sqDst);
-        return sqPin != sqSrc && this.squares[sqPin] == 0;
-      case PIECE_ROOK: // 起点棋子是车，校验走法
-      case PIECE_CANNON: // 起点棋子是炮，校验走法
-        var delta; // 标识沿哪个方向走棋
-        if (SAME_RANK(sqSrc, sqDst)) {
-          // 起点和终点位于同一行。再根据起点和终点的大小关系，判断具体是沿哪个方向走棋。
-          delta = sqDst < sqSrc ? -1 : 1;
-        } else if (SAME_FILE(sqSrc, sqDst)) {
-          // 起点和终点位于同一列。再根据起点和终点的大小关系，判断具体是沿哪个方向走棋。
-          delta = sqDst < sqSrc ? -16 : 16;
-        } else {
-          // 起点和终点不在同一行，也不在同一列。走法是非法的。
-          return false;
-        }
-        var sqPin = sqSrc + delta; // 沿着方向delta走一步棋
-        while (sqPin != sqDst && this.squares[sqPin] == 0) {
-          // 沿方向delta一步步向前走，直到遇到棋子，或者sqPin走到了终点的位置上
-          sqPin += delta;
-        }
-        if (sqPin == sqDst) {
-          // 如果终点没有棋子，不管是车还是炮，这步棋都是合法的。如果是车，不管终点有没有棋子（对方棋子），这步棋都合法。
-          return pcDst == 0 || pcSrc - pcSelfSide == PIECE_ROOK;
-        }
-        // 此时已经翻山，终点必须有棋子，并且行棋的是炮，否则这步棋不合法
-        if (pcDst == 0 || pcSrc - pcSelfSide != PIECE_CANNON) {
-          return false;
-        }
-        sqPin += delta;
-        while (sqPin != sqDst && this.squares[sqPin] == 0) {
-          sqPin += delta;
-        }
-        return sqPin == sqDst;
-      case PIECE_PAWN:
-        // 兵已过河，并且是左右两个方向走的
-        if (AWAY_HALF(sqDst, this.sdPlayer) && (sqDst == sqSrc - 1 || sqDst == sqSrc + 1)) {
-          return true;
-        }
-        // 判断兵是不是在向前走
-        return sqDst == SQUARE_FORWARD(sqSrc, this.sdPlayer);
-      default:
-        return false;
-    }
+    // switch (pcSrc - pcSelfSide) {
+    //   case PIECE_KING: // 起点棋子是将（帅），校验走法
+    //     return IN_FORT(sqDst) && KING_SPAN(sqSrc, sqDst);
+    //   case PIECE_ADVISOR: // 起点棋子是仕（仕），校验走法
+    //     return IN_FORT(sqDst) && ADVISOR_SPAN(sqSrc, sqDst);
+    //   case PIECE_BISHOP: // 起点棋子是象（相），校验走法
+    //     return SAME_HALF(sqSrc, sqDst) && BISHOP_SPAN(sqSrc, sqDst) && this.squares[BISHOP_PIN(sqSrc, sqDst)] == 0;
+    //   case PIECE_KNIGHT: // 起点棋子是马，校验走法
+    //     var sqPin = KNIGHT_PIN(sqSrc, sqDst);
+    //     return sqPin != sqSrc && this.squares[sqPin] == 0;
+    //   case PIECE_ROOK: // 起点棋子是车，校验走法
+    //   case PIECE_CANNON: // 起点棋子是炮，校验走法
+    //     var delta; // 标识沿哪个方向走棋
+    //     if (SAME_RANK(sqSrc, sqDst)) {
+    //       // 起点和终点位于同一行。再根据起点和终点的大小关系，判断具体是沿哪个方向走棋。
+    //       delta = sqDst < sqSrc ? -1 : 1;
+    //     } else if (SAME_FILE(sqSrc, sqDst)) {
+    //       // 起点和终点位于同一列。再根据起点和终点的大小关系，判断具体是沿哪个方向走棋。
+    //       delta = sqDst < sqSrc ? -16 : 16;
+    //     } else {
+    //       // 起点和终点不在同一行，也不在同一列。走法是非法的。
+    //       return false;
+    //     }
+    //     var sqPin = sqSrc + delta; // 沿着方向delta走一步棋
+    //     while (sqPin != sqDst && this.squares[sqPin] == 0) {
+    //       // 沿方向delta一步步向前走，直到遇到棋子，或者sqPin走到了终点的位置上
+    //       sqPin += delta;
+    //     }
+    //     if (sqPin == sqDst) {
+    //       // 如果终点没有棋子，不管是车还是炮，这步棋都是合法的。如果是车，不管终点有没有棋子（对方棋子），这步棋都合法。
+    //       return pcDst == 0 || pcSrc - pcSelfSide == PIECE_ROOK;
+    //     }
+    //     // 此时已经翻山，终点必须有棋子，并且行棋的是炮，否则这步棋不合法
+    //     if (pcDst == 0 || pcSrc - pcSelfSide != PIECE_CANNON) {
+    //       return false;
+    //     }
+    //     sqPin += delta;
+    //     while (sqPin != sqDst && this.squares[sqPin] == 0) {
+    //       sqPin += delta;
+    //     }
+    //     return sqPin == sqDst;
+    //   case PIECE_PAWN:
+    //     // 兵已过河，并且是左右两个方向走的
+    //     if (AWAY_HALF(sqDst, this.sdPlayer) && (sqDst == sqSrc - 1 || sqDst == sqSrc + 1)) {
+    //       return true;
+    //     }
+    //     // 判断兵是不是在向前走
+    //     return sqDst == SQUARE_FORWARD(sqSrc, this.sdPlayer);
+    //   default:
+    //     return false;
+    // }
   }
 
   /**
@@ -977,14 +980,16 @@ export class ChineseChessPosition {
 
   // 被将死？ 无棋可走的话，返回true，否则返回false
   public isMate(): boolean {
-    var mvs = this.generateMoves(null);
-    for (var i = 0; i < mvs.length; i++) {
-      if (this.makeMove(mvs[i])) {
-        this.undoMakeMove();
-        return false;
-      }
-    }
-    return true;
+    return false;
+    // TBD.
+    // var mvs = this.generateMoves(null);
+    // for (var i = 0; i < mvs.length; i++) {
+    //   if (this.makeMove(mvs[i])) {
+    //     this.undoMakeMove();
+    //     return false;
+    //   }
+    // }
+    // return true;
   }
 
   // 结合搜索深度的输棋分值
@@ -1013,9 +1018,11 @@ export class ChineseChessPosition {
   }
 
   // 出现重复局面时，返回的分值
-  public repValue(vlRep): number {
-    var vlReturn = ((vlRep & 2) === 0 ? 0 : this.banValue()) + ((vlRep & 4) === 0 ? 0 : -this.banValue());
-    return vlReturn == 0 ? this.drawValue() : vlReturn;
+  public repValue(vlRep: any): number {
+    return 0;
+    // TBD.
+    // var vlReturn = ((vlRep & 2) === 0 ? 0 : this.banValue()) + ((vlRep & 4) === 0 ? 0 : -this.banValue());
+    // return vlReturn == 0 ? this.drawValue() : vlReturn;
   }
 
   // 判断是否出现重复局面
@@ -1048,25 +1055,25 @@ export class ChineseChessPosition {
   // 切换走棋方
   public changeSide() {
     this.sdPlayer = 1 - this.sdPlayer;
-    this.zobristKey ^= PreGen_zobristKeyPlayer;
-    this.zobristLock ^= PreGen_zobristLockPlayer;
+    this.zobristKey ^= this.PreGen_zobristKeyPlayer;
+    this.zobristLock ^= this.PreGen_zobristLockPlayer;
   }
 
   // 走一步棋
-  public makeMove(mv) {
-    var zobristKey = this.zobristKey;
-    this.movePiece(mv); // 移动棋子
+  public makeMove(mv: any) {
+    // var zobristKey = this.zobristKey;
+    // this.movePiece(mv); // 移动棋子
 
-    // 检查走棋是否被将军。如果是，说明这是在送死，撤销走棋并返回false。
-    if (this.checked()) {
-      this.undoMovePiece(mv);
-      return false;
-    }
-    this.keyList.push(zobristKey); // 存储局面的zobristKey校验码
-    this.changeSide(); // 切换走棋方
-    this.chkList.push(this.checked()); // 存储走完棋后，对方是否处于被将军的状态
-    this.distance++; // 搜索深度+1
-    return true;
+    // // 检查走棋是否被将军。如果是，说明这是在送死，撤销走棋并返回false。
+    // if (this.checked()) {
+    //   this.undoMovePiece(mv);
+    //   return false;
+    // }
+    // this.keyList.push(zobristKey); // 存储局面的zobristKey校验码
+    // this.changeSide(); // 切换走棋方
+    // this.chkList.push(this.checked()); // 存储走完棋后，对方是否处于被将军的状态
+    // this.distance++; // 搜索深度+1
+    // return true;
   }
 
   // 取消上一步的走棋
@@ -1099,39 +1106,39 @@ export class ChineseChessPosition {
   }
 
   // 根据走法移动棋子，删除终点位置的棋子，将起点位置的棋子放置在终点的位置。
-  public movePiece(mv) {
-    var sqSrc = this.utilObj.Source(mv);
-    var sqDst = this.utilObj.Target(mv);
-    var pc = this.squares[sqDst];
-    this.pcList.push(pc);
-    if (pc > 0) {
-      // 如果终点有棋子，则要删除该棋子
-      this.addPiece(sqDst, pc, DEL_PIECE);
-    }
-    pc = this.squares[sqSrc];
-    this.addPiece(sqSrc, pc, DEL_PIECE); // 删除起点棋子
-    this.addPiece(sqDst, pc, ADD_PIECE); // 将原来起点的棋子添加到终点
-    this.mvList.push(mv);
+  public movePiece(mv: any) {
+    // var sqSrc = this.utilObj.Source(mv);
+    // var sqDst = this.utilObj.Target(mv);
+    // var pc = this.squares[sqDst];
+    // this.pcList.push(pc);
+    // if (pc > 0) {
+    //   // 如果终点有棋子，则要删除该棋子
+    //   this.addPiece(sqDst, pc, DEL_PIECE);
+    // }
+    // pc = this.squares[sqSrc];
+    // this.addPiece(sqSrc, pc, DEL_PIECE); // 删除起点棋子
+    // this.addPiece(sqDst, pc, ADD_PIECE); // 将原来起点的棋子添加到终点
+    // this.mvList.push(mv);
   }
 
   // 取消上一步对棋子的移动
   public undoMovePiece() {
-    var mv = this.mvList.pop();
-    var sqSrc = this.utilObj.Source(mv);
-    var sqDst = this.utilObj.Target(mv);
-    let pc = this.squares[sqDst];
-    this.addPiece(sqDst, pc, DEL_PIECE); // 删除终点棋子
-    this.addPiece(sqSrc, pc, ADD_PIECE); // 将终点位置的棋子添加到起点
-    pc = this.pcList.pop();
-    if (pc > 0) {
-      // 这步棋发生了吃子，需要把吃掉的棋子放回终点位置
-      this.addPiece(sqDst, pc, ADD_PIECE);
-    }
+    // var mv = this.mvList.pop();
+    // var sqSrc = this.utilObj.Source(mv);
+    // var sqDst = this.utilObj.Target(mv);
+    // let pc = this.squares[sqDst];
+    // this.addPiece(sqDst, pc, DEL_PIECE); // 删除终点棋子
+    // this.addPiece(sqSrc, pc, ADD_PIECE); // 将终点位置的棋子添加到起点
+    // pc = this.pcList.pop();
+    // if (pc > 0) {
+    //   // 这步棋发生了吃子，需要把吃掉的棋子放回终点位置
+    //   this.addPiece(sqDst, pc, ADD_PIECE);
+    // }
   }
 
   // 如果bDel为false，则将棋子pc添加进棋局中的sp位置；如果bDel为true，则删除sp位置的棋子。
-  public addPiece(sq, pc, bDel) {
-    var pcAdjust;
+  public addPiece(sq: number, pc: number, bDel: any) {
+    let pcAdjust: number | undefined = undefined;
     // 添加或删除棋子
     this.squares[sq] = bDel ? 0 : pc;
 
@@ -1148,8 +1155,8 @@ export class ChineseChessPosition {
     }
 
     // 更新局面的zobristKey校验码和zobristLock校验码
-    this.zobristKey ^= this.PreGen_zobristKeyTable[pcAdjust][sq];
-    this.zobristLock ^= this.PreGen_zobristLockTable[pcAdjust][sq];
+    this.zobristKey ^= this.PreGen_zobristKeyTable[pcAdjust!][sq];
+    this.zobristLock ^= this.PreGen_zobristLockTable[pcAdjust!][sq];
   }
 
   // 局面评估函数，返回当前走棋方的优势
@@ -1196,10 +1203,18 @@ export enum ChineseChessAILevel {
   Hard = 2,
 }
 
+export enum ChineseChessResult {
+  Unknown = 0,
+  Win = 1,
+  Draw = 2,
+  Loss = 3,
+}
+
 export class ChineseChessBoard {
   private ailevel: ChineseChessAILevel = ChineseChessAILevel.Easy;
   private playMode: ChineseChessPlayMode = ChineseChessPlayMode.PlayerFirst;
   private handicapMode: ChineseChessHandicap = ChineseChessHandicap.None;
+  private result: ChineseChessResult = ChineseChessResult.Unknown;
 
   get AILevel(): ChineseChessAILevel {
     return this.ailevel;
@@ -1218,6 +1233,12 @@ export class ChineseChessBoard {
   }
   set HandicapMode(hm: ChineseChessHandicap) {
     this.handicapMode = hm;
+  }
+  get Result(): ChineseChessResult {
+    return this.result;
+  }
+  set Result(rst: ChineseChessResult) {
+    this.result = rst;
   }
 
   public setLayout(lay: string) {}
