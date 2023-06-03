@@ -30,6 +30,7 @@ export class ChineseChessComponent implements OnInit, AfterViewInit {
     }
 
     this.insBoard = new ChineseChessBoard(this.elementChessContainer?.nativeElement);
+    this.insBoard.setSearch(16);    
   }
 
   onSelectedMoveModeChange(event: any) {

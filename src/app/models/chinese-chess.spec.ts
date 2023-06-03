@@ -7,13 +7,17 @@ describe('ChineseChessUtil', () => {
         testObj = new ChineseChessUtil();
     });
 
-    it('getCoordinate', () => {
-        let coord = testObj.getCoordiate(2, 3);
-        expect(coord).toBeTruthy();
+    it('shall be created', () => {
+        expect(testObj).toBeTruthy();
+    });
 
-        let rn = testObj.getRowFromCoordinate(coord);
-        expect(rn).toEqual(2);
-        let cn = testObj.getColumnFromCoordinate(coord);
-        expect(rn).toEqual(3);
+    it('SQ_X', () => {
+        for(let i = 0; i < 256; i ++) {
+            if (testObj.IN_BOARD(i)) {
+                let rst = testObj.SQ_X(i)
+                expect(rst).toBeTruthy();
+            }
+        }
     });
 });
+

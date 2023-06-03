@@ -1861,8 +1861,10 @@ export class ChineseChessBoard {
       const img = document.createElement("img");
       const style = img.style;
       style.position = "absolute";
-      style.left = this.objUtil.SQ_X(sq).toString();
-      style.top = this.objUtil.SQ_Y(sq).toString();
+	  const sx = this.objUtil.SQ_X(sq);
+	  const sy = this.objUtil.SQ_Y(sq);
+      style.left = sx.toString() + 'px';
+      style.top = sy.toString() + 'px';
       style.width = SQUARE_SIZE.toString();
       style.height = SQUARE_SIZE.toString();
       style.zIndex = '0';
@@ -1874,27 +1876,209 @@ export class ChineseChessBoard {
 	this.flushBoard();
   }
 
-  clickSquare(sq: number) {
-    // if (this.busy || this.result != RESULT_UNKNOWN) {
-    //   return;
-    // }
-    // var sq = this.flipped(sq_);
-    // var pc = this.pos.squares[sq];
-    // if ((pc & SIDE_TAG(this.pos.sdPlayer)) != 0) {
+  clickSquare(sq_: number) {
+    if (this.busy || this.result !== ChineseChessResult.Unknown) {
+      return;
+    }
+    let sq = this.flipped(sq_);
+    let pc = this.pos.squares[sq];
+    if ((pc & this.objUtil.SIDE_TAG(this.pos.sdPlayer)) !== 0) {
     //   this.playSound("click");
-    //   if (this.mvLast != 0) {
-    //     this.drawSquare(SRC(this.mvLast), false);
-    //     this.drawSquare(DST(this.mvLast), false);
-    //   }
-    //   if (this.sqSelected) {
-    //     this.drawSquare(this.sqSelected, false);
-    //   }
-    //   this.drawSquare(sq, true);
-    //   this.sqSelected = sq;
-    // } else if (this.sqSelected > 0) {
-    //   this.addMove(MOVE(this.sqSelected, sq), false);
-    // }
-  
+      if (this.mvLast != 0) {
+        this.drawSquare(this.objUtil.SRC(this.mvLast), false);
+        this.drawSquare(this.objUtil.DST(this.mvLast), false);
+      }
+      if (this.sqSelected) {
+        this.drawSquare(this.sqSelected, false);
+      }
+      this.drawSquare(sq, true);
+      this.sqSelected = sq;
+    } else if (this.sqSelected > 0) {
+      this.addMove(this.objUtil.MOVE(this.sqSelected, sq), false);
+    }
+  }
+
+  addMove(mv: number, computerMove: boolean) {
+	if (!this.pos.legalMove(mv)) {
+		return;
+	  }
+	  if (!this.pos.makeMove(mv)) {
+		// this.playSound("illegal");
+		return;
+	  }
+	  this.busy = true;
+	  if (!this.animated) {
+		this.postAddMove(mv, computerMove);
+		return;
+	  }
+	
+	  let sqSrc = this.flipped(this.objUtil.SRC(mv));
+	  let xSrc = this.objUtil.SQ_X(sqSrc);
+	  let ySrc = this.objUtil.SQ_Y(sqSrc);
+	  let sqDst = this.flipped(this.objUtil.DST(mv));
+	  let xDst = this.objUtil.SQ_X(sqDst);
+	  let yDst = this.objUtil.SQ_Y(sqDst);
+	  let style = this.imgSquares[sqSrc].style;
+	  style.zIndex = 256;
+	  let step = MAX_STEP - 1;
+
+	  let timer = setInterval(() => {
+		if (step == 0) {
+			clearInterval(timer);
+			style.left = xSrc + "px";
+			style.top = ySrc + "px";
+			style.zIndex = 0;
+			this.postAddMove(mv, computerMove);
+		  } else {
+			style.left = this.objUtil.MOVE_PX(xSrc, xDst, step);
+			style.top = this.objUtil.MOVE_PX(ySrc, yDst, step);
+			step --;
+		}  
+	  }, 16);
+	//   var this_ = this;
+	//   var timer = setInterval(function() {
+	// 	if (step == 0) {
+	// 	  clearInterval(timer);
+	// 	  style.left = xSrc + "px";
+	// 	  style.top = ySrc + "px";
+	// 	  style.zIndex = 0;
+	// 	  this_.postAddMove(mv, computerMove);
+	// 	} else {
+	// 	  style.left = this.objUtil.MOVE_PX(xSrc, xDst, step);
+	// 	  style.top = this.objUtil.MOVE_PX(ySrc, yDst, step);
+	// 	  step --;
+	// 	}
+	//   }, 16);	
+  }
+
+  postAddMove(mv: number, computerMove: boolean) {
+	if (this.mvLast > 0) {
+		this.drawSquare(this.objUtil.SRC(this.mvLast), false);
+		this.drawSquare(this.objUtil.DST(this.mvLast), false);
+	  }
+	  this.drawSquare(this.objUtil.SRC(mv), true);
+	  this.drawSquare(this.objUtil.DST(mv), true);
+	  this.sqSelected = 0;
+	  this.mvLast = mv;
+	
+	  if (this.pos.isMate()) {
+		// this.playSound(computerMove ? "loss" : "win");
+		this.result = computerMove ? ChineseChessResult.Loss :ChineseChessResult.Win;
+	
+		var pc = this.objUtil.SIDE_TAG(this.pos.sdPlayer) + PIECE_KING;
+		var sqMate = 0;
+		for (var sq = 0; sq < 256; sq ++) {
+		  if (this.pos.squares[sq] == pc) {
+			sqMate = sq;
+			break;
+		  }
+		}
+		if (!this.animated || sqMate == 0) {
+		  this.postMate(computerMove);
+		  return;
+		}
+	
+		sqMate = this.flipped(sqMate);
+		var style = this.imgSquares[sqMate].style;
+		style.zIndex = 256;
+		var xMate = this.objUtil.SQ_X(sqMate);
+		var step = MAX_STEP;
+
+		var timer = setInterval(() => {
+		  if (step === 0) {
+			clearInterval(timer);
+			style.left = xMate + "px";
+			style.zIndex = 0;
+			this.imgSquares[sqMate].src = 'assets/image/chinesechess/' +
+				(this.pos.sdPlayer == 0 ? "r" : "b") + "km.gif";
+			this.postMate(computerMove);
+		  } else {
+			style.left = (xMate + ((step & 1) == 0 ? step : -step) * 2) + "px";
+			step --;
+		  }
+		}, 50);
+
+		return;
+	  }
+	
+	  var vlRep = this.pos.repStatus(3);
+	  if (vlRep > 0) {
+		vlRep = this.pos.repValue(vlRep);
+		if (vlRep > -WIN_VALUE && vlRep < WIN_VALUE) {
+			// this.playSound("draw");
+			this.result = ChineseChessResult.Draw; //  RESULT_DRAW;
+			// alertDelay("双方不变作和，辛苦了！");
+		  } else if (computerMove == (vlRep < 0)) {
+			// this.playSound("loss");
+			this.result = ChineseChessResult.Loss; //  RESULT_LOSS;
+			// alertDelay("长打作负，请不要气馁！");
+		  } else {
+			// this.playSound("win");
+			this.result = ChineseChessResult.Win; //  RESULT_WIN;
+			// alertDelay("长打作负，祝贺你取得胜利！");
+		}
+
+        this.postAddMove2();
+		this.busy = false;
+		return;
+	  }
+	
+	  if (this.pos.captured()) {
+		var hasMaterial = false;
+		for (var sq = 0; sq < 256; sq ++) {
+		  if (this.objUtil.IN_BOARD(sq) && (this.pos.squares[sq] & 7) > 2) {
+			hasMaterial = true;
+			break;
+		  }
+		}
+		if (!hasMaterial) {
+		  // this.playSound("draw");
+		  this.result = ChineseChessResult.Draw; // RESULT_DRAW;
+	      // alertDelay("双方都没有进攻棋子了，辛苦了！");
+		  this.postAddMove2();
+		  this.busy = false;
+		  return;
+		}
+	  } else if (this.pos.pcList.length > 100) {
+		var captured = false;
+		for (var i = 2; i <= 100; i ++) {
+		  if (this.pos.pcList[this.pos.pcList.length - i] > 0) {
+			captured = true;
+			break;
+		  }
+		}
+		if (!captured) {
+		  // this.playSound("draw");
+		  this.result = ChineseChessResult.Draw; //  RESULT_DRAW;
+		  // alertDelay("超过自然限着作和，辛苦了！");
+		  this.postAddMove2();
+		  this.busy = false;
+		  return;
+		}
+	  }
+	
+	  if (this.pos.inCheck()) {
+		// this.playSound(computerMove ? "check2" : "check");
+	  } else if (this.pos.captured()) {
+		// this.playSound(computerMove ? "capture2" : "capture");
+	  } else {
+		// this.playSound(computerMove ? "move2" : "move");
+	  }
+	
+	  this.postAddMove2();
+	  this.response();	
+  }
+
+  postAddMove2() {
+	// if (typeof this.onAddMove == "function") {
+	//   this.onAddMove();
+	// }
+  }
+
+  postMate(computerMove: boolean) {
+	// alertDelay(computerMove ? "请再接再厉！" : "祝贺你取得胜利！");
+	this.postAddMove2();
+	this.busy = false;
   }
 
   drawSquare(sq: number, selected?: boolean) {
@@ -1917,28 +2101,38 @@ export class ChineseChessBoard {
     this.result = ChineseChessResult.Unknown;
     this.pos.fromFen(str);
     this.flushBoard();
+
+	this.response();
   }
 
   flipped(sq: number) {
     return this.computer === 0 ? this.objUtil.SQUARE_FLIP(sq) : sq;
   }
   computerMove(): boolean {
-	return this.pos.sdPlayer == this.computer;
+	return this.pos.sdPlayer === this.computer;
+  }
+
+  setSearch(hashLevel: number) {
+	this.search = hashLevel == 0 ? null : new ChineseChessSearch(this.pos, hashLevel);
   }
 
   response() {
-	if (this.search == null || !this.computerMove()) {
+	console.debug('Entering ChineseChessBoard.response');
+	if (this.search === null || !this.computerMove()) {
 		this.busy = false;
 		return;
     }
 
 	//   this.thinking.style.visibility = "visible";
 	//   var this_ = this;
-	//   this.busy = true;
+	this.busy = true;
+	setTimeout(() => {
+		this.addMove(this.search!.searchMain(LIMIT_DEPTH, this.millis), true);
+		// this.thinking.style.visibility = "hidden";
+	}, 250);
 	//   setTimeout(function() {
 	// 	this_.addMove(board.search.searchMain(LIMIT_DEPTH, board.millis), true);
 	// 	this_.thinking.style.visibility = "hidden";
-	// }, 250);
-	
+	// }, 250);	
   }
 }
