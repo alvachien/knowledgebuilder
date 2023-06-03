@@ -17,10 +17,11 @@
       <mat-option value="2">难</mat-option>
     </mat-select>
   </mat-form-field>
-  <mat-checkbox [(ngModel)]="audioEnabled">音效</mat-checkbox>  
+  <mat-checkbox [(ngModel)]="audioEnabled">音效</mat-checkbox>
+  <button mat-button (click)="onStart()">Start</button>
 </mat-toolbar>
 
-<div style="margin: 10px;">
+<div style="margin-top: 60px; margin-left: 100px;">
   <div #chesscontainer class="chess-container">
 
   </div>

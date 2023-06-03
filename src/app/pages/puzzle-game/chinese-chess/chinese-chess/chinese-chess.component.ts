@@ -1,5 +1,5 @@
 import { AfterViewInit, Component, ElementRef, OnInit, ViewChild } from '@angular/core';
-import { ChineseChessBoard } from 'src/app/models/chinese-chess';
+import { ChineseChessBoard, STARTUP_FEN } from 'src/app/models/chinese-chess';
 
 @Component({
   selector: 'app-chinese-chess',
@@ -14,7 +14,7 @@ export class ChineseChessComponent implements OnInit, AfterViewInit {
   @ViewChild('chesscontainer', { static: true }) elementChessContainer: ElementRef | null = null;
 
   constructor() {
-    this.insBoard = new ChineseChessBoard();
+    // Emtpy for now
   }
 
   ngOnInit(): void {
@@ -28,6 +28,8 @@ export class ChineseChessComponent implements OnInit, AfterViewInit {
     if (this.elementChessContainer !== null) {
       this.elementChessContainer.nativeElement.style.background = 'url(assets/image/chinesechess/board.jpg)';
     }
+
+    this.insBoard = new ChineseChessBoard(this.elementChessContainer?.nativeElement);
   }
 
   onSelectedMoveModeChange(event: any) {
@@ -38,5 +40,10 @@ export class ChineseChessComponent implements OnInit, AfterViewInit {
   onSelectedAILevelChange(event: any) {
     console.debug('Entering onSelectedAILevelChange');
     console.debug(event);
+  }
+
+  onStart() {
+    console.debug('Entering onStart');
+    this.insBoard?.start(STARTUP_FEN[0]);
   }
 }

@@ -1,8 +1,9 @@
+/* eslint-disable prettier/prettier */
 //
 // Constants
 //
 
-import { BOOK_DATA as BOOK_DAT } from "./chinese-chess-book";
+import { BOOK_DATA as BOOK_DAT } from './chinese-chess-book';
 //const MATE_VALUE = 10000;
 //const BAN_VALUE = MATE_VALUE - 100;
 //const WIN_VALUE = MATE_VALUE - 200;
@@ -44,8 +45,8 @@ const PIECE_ROOK = 4; // 车
 const PIECE_CANNON = 5; // 炮
 const PIECE_PAWN = 6; // 卒
 
-
-const _IN_BOARD: number[] = [
+const _IN_BOARD: number[] =
+[
   0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
   0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
   0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
@@ -157,8 +158,18 @@ const _KNIGHT_PIN: number[] = [
 
 const KING_DELTA: number[] = [-16, -1, 1, 16];
 const ADVISOR_DELTA: number[] = [-17, -15, 15, 17];
-const KNIGHT_DELTA: number[][] = [[-33, -31], [-18, 14], [-14, 18], [31, 33]];
-const KNIGHT_CHECK_DELTA: number[][] = [[-33, -18], [-31, -14], [14, 31], [18, 33]];
+const KNIGHT_DELTA: number[][] = [
+  [-33, -31],
+  [-18, 14],
+  [-14, 18],
+  [31, 33],
+];
+const KNIGHT_CHECK_DELTA: number[][] = [
+  [-33, -18],
+  [-31, -14],
+  [14, 31],
+  [18, 33],
+];
 const MVV_VALUE: number[] = [50, 10, 10, 30, 40, 30, 20, 0];
 
 const PIECE_VALUE: number[][] = [
@@ -284,14 +295,14 @@ const PIECE_VALUE: number[][] = [
   ],
 ];
 
-const STARTUP_FEN: string[] = [
+export const STARTUP_FEN: string[] = [
   "rnbakabnr/9/1c5c1/p1p1p1p1p/9/9/P1P1P1P1P/1C5C1/9/RNBAKABNR w - - 0 1",
   "rnbakabnr/9/1c5c1/p1p1p1p1p/9/9/P1P1P1P1P/1C5C1/9/R1BAKABNR w - - 0 1",
   "rnbakabnr/9/1c5c1/p1p1p1p1p/9/9/P1P1P1P1P/1C5C1/9/R1BAKAB1R w - - 0 1",
   "rnbakabnr/9/1c5c1/p1p1p1p1p/9/9/9/1C5C1/9/RN2K2NR w - - 0 1",
 ];
 
-const FEN_PIECE: string = "        KABNRCP kabnrcp ";
+const FEN_PIECE = "        KABNRCP kabnrcp ";
 
 const pieceImageName = [
   'oo', null, null, null, null, null, null, null,
@@ -486,24 +497,24 @@ export class ChineseChessUtil {
 	private SHELL_STEP: number[] = [0, 1, 4, 13, 40, 121, 364, 1093];
 
 	public shellSort(mvs: number[], vls: number[]) {
-		var stepLevel = 1;
+		let stepLevel = 1;
 		while (this.SHELL_STEP[stepLevel] < mvs.length) {
 			stepLevel ++;
 		}
 		stepLevel --;
 		while (stepLevel > 0) {
-			var step = this.SHELL_STEP[stepLevel];
-			for (var i = step; i < mvs.length; i ++) {
-			var mvBest = mvs[i];
-			var vlBest = vls[i];
-			var j = i - step;
-			while (j >= 0 && vlBest > vls[j]) {
-				mvs[j + step] = mvs[j];
-				vls[j + step] = vls[j];
-				j -= step;
-			}
-			mvs[j + step] = mvBest;
-			vls[j + step] = vlBest;
+			const step = this.SHELL_STEP[stepLevel];
+			for (let i = step; i < mvs.length; i ++) {
+				const mvBest = mvs[i];
+				const vlBest = vls[i];
+				let j = i - step;
+				while (j >= 0 && vlBest > vls[j]) {
+					mvs[j + step] = mvs[j];
+					vls[j + step] = vls[j];
+					j -= step;
+				}
+				mvs[j + step] = mvBest;
+				vls[j + step] = vlBest;
 			}
 			stepLevel --;
 		}
@@ -514,7 +525,7 @@ export class ChineseChessUtil {
 		let high = vlss.length - 1;
 
 		while (low <= high) {
-		  let mid = (low + high) >> 1;
+		  const mid = (low + high) >> 1;
 		  if (vlss[mid][0] < vl) {
 			low = mid + 1;
 		  } else if (vlss[mid][0] > vl) {
@@ -611,8 +622,8 @@ export class ChineseChessPosition {
 			this.objRC4.nextLong();
 			this.PreGen_zobristLockPlayer = this.objRC4.nextLong();
 			for (let i = 0; i < 14; i ++) {
-			  let keys = [];
-			  let locks = [];
+			  const keys = [];
+			  const locks = [];
 			  for (let j = 0; j < 256; j ++) {
 				keys.push(this.objRC4.nextLong());
 				this.objRC4.nextLong();
@@ -624,15 +635,15 @@ export class ChineseChessPosition {
 		}
 	}
 
-	public sdPlayer: number = 0;
+	public sdPlayer = 0;
 	public squares: number[] = []; // new byte[256];
 
-	public zobristKey: number = 0;
-	public zobristLock: number = 0;
-	public vlWhite: number = 0;
-	public vlBlack: number = 0;
-	public moveNum: number = 0;
-	public distance: number = 0;
+	public zobristKey = 0;
+	public zobristLock = 0;
+	public vlWhite = 0;
+	public vlBlack = 0;
+	public moveNum = 0;
+	public distance = 0;
 
 	public mvList: number[] = []; // = new int[MAX_MOVE_NUM];
 	public pcList: number[] = []; //  = new int[MAX_MOVE_NUM];
@@ -641,7 +652,7 @@ export class ChineseChessPosition {
 	private objUtil: ChineseChessUtil = new ChineseChessUtil();
 
 	constructor() {
-		ChineseChessPosition.init();
+		ChineseChessPosition.init();		
 	}
 
 	public clearBoard() {
@@ -662,7 +673,7 @@ export class ChineseChessPosition {
 	}
 
 	public addPiece(sq: number, pc: number, bDel = false) {
-		var pcAdjust;
+		let pcAdjust = 0;
 		this.squares[sq] = bDel ? 0 : pc;
 		if (pc < 16) {
 		  pcAdjust = pc - 8;
@@ -679,9 +690,9 @@ export class ChineseChessPosition {
     }
 
 	public movePiece(mv: number) {
-		var sqSrc = this.objUtil.SRC(mv);
-		var sqDst = this.objUtil.DST(mv);
-		var pc = this.squares[sqDst];
+		const sqSrc = this.objUtil.SRC(mv);
+		const sqDst = this.objUtil.DST(mv);
+		let pc = this.squares[sqDst];
 		this.pcList.push(pc);
 		if (pc > 0) {
 		  this.addPiece(sqDst, pc, DEL_PIECE);
@@ -693,9 +704,9 @@ export class ChineseChessPosition {
     }
 
 	public undoMovePiece() {
-		let mv = this.mvList.pop();
-		let sqSrc = this.objUtil.SRC(mv!);
-		let sqDst = this.objUtil.DST(mv!);
+		const mv = this.mvList.pop();
+		const sqSrc = this.objUtil.SRC(mv!);
+		const sqDst = this.objUtil.DST(mv!);
 		let pc = this.squares[sqDst];
 		this.addPiece(sqDst, pc, DEL_PIECE);
 		this.addPiece(sqSrc, pc, ADD_PIECE);
@@ -712,7 +723,7 @@ export class ChineseChessPosition {
     }
 
 	public makeMove(mv: number): boolean {
-		let zobristKey = this.zobristKey;
+		const zobristKey = this.zobristKey;
 		this.movePiece(mv);
 		if (this.checked()) {
 		  this.undoMovePiece();
@@ -753,14 +764,14 @@ export class ChineseChessPosition {
 
 	public fromFen(fen: string) {
 		this.clearBoard();
-		var y = RANK_TOP;
-		var x = FILE_LEFT;
-		var index = 0;
+		let y = RANK_TOP;
+		let x = FILE_LEFT;
+		let index = 0;
 		if (index == fen.length) {
 		  this.setIrrev();
 		  return;
 		}
-		var c = fen.charAt(index);
+		let c = fen.charAt(index);
 		while (c != " ") {
 		  if (c == "/") {
 			x = FILE_LEFT;
@@ -772,7 +783,7 @@ export class ChineseChessPosition {
 			x += (this.objUtil.ASC(c) - this.objUtil.ASC("0"));
 		  } else if (c >= "A" && c <= "Z") {
 			if (x <= FILE_RIGHT) {
-			  var pt = this.objUtil.CHAR_TO_PIECE(c);
+			  const pt = this.objUtil.CHAR_TO_PIECE(c);
 			  if (pt >= 0) {
 				this.addPiece(this.objUtil.COORD_XY(x, y), pt + 8);
 			  }
@@ -780,7 +791,7 @@ export class ChineseChessPosition {
 			}
 		  } else if (c >= "a" && c <= "z") {
 			if (x <= FILE_RIGHT) {
-			  var pt = this.objUtil.CHAR_TO_PIECE(this.objUtil.CHR(this.objUtil.ASC(c) + this.objUtil.ASC("A") - this.objUtil.ASC("a")));
+			  const pt = this.objUtil.CHAR_TO_PIECE(this.objUtil.CHR(this.objUtil.ASC(c) + this.objUtil.ASC("A") - this.objUtil.ASC("a")));
 			  if (pt >= 0) {
 				this.addPiece(this.objUtil.COORD_XY(x, y), pt + 16);
 			  }
@@ -806,11 +817,11 @@ export class ChineseChessPosition {
 	}
 
 	public toFen(): string {
-		var fen = "";
-		for (var y = RANK_TOP; y <= RANK_BOTTOM; y ++) {
-		  var k = 0;
-		  for (var x = FILE_LEFT; x <= FILE_RIGHT; x ++) {
-			var pc = this.squares[this.objUtil.COORD_XY(x, y)];
+		let fen = "";
+		for (let y = RANK_TOP; y <= RANK_BOTTOM; y ++) {
+		  let k = 0;
+		  for (let x = FILE_LEFT; x <= FILE_RIGHT; x ++) {
+			const pc = this.squares[this.objUtil.COORD_XY(x, y)];
 			if (pc > 0) {
 			  if (k > 0) {
 				fen += this.objUtil.CHR(this.objUtil.ASC("0") + k);
@@ -831,23 +842,23 @@ export class ChineseChessPosition {
    }
 
 	public generateMoves(vls: number[] | null): number[] {
-		let mvs: number[] = [];
-		let pcSelfSide = this.objUtil.SIDE_TAG(this.sdPlayer);
-		let pcOppSide = this.objUtil.OPP_SIDE_TAG(this.sdPlayer);
+		const mvs: number[] = [];
+		const pcSelfSide = this.objUtil.SIDE_TAG(this.sdPlayer);
+		const pcOppSide = this.objUtil.OPP_SIDE_TAG(this.sdPlayer);
 		for (let sqSrc = 0; sqSrc < 256; sqSrc ++) {
-		  let pcSrc = this.squares[sqSrc];
+		  const pcSrc = this.squares[sqSrc];
 		  if ((pcSrc & pcSelfSide) == 0) {
 			continue;
 		  }
 		  switch (pcSrc - pcSelfSide) {
 		  case PIECE_KING:
 			for (let i = 0; i < 4; i ++) {
-			  let sqDst = sqSrc + KING_DELTA[i];
+			  const sqDst = sqSrc + KING_DELTA[i];
 			  if (!this.objUtil.IN_FORT(sqDst)) {
 				continue;
 			  }
-			  let pcDst = this.squares[sqDst];
-			  if (vls == null) {
+			  const pcDst = this.squares[sqDst];
+			  if (vls === null) {
 				if ((pcDst & pcSelfSide) == 0) {
 				  mvs.push(this.objUtil.MOVE(sqSrc, sqDst));
 				}
@@ -858,13 +869,13 @@ export class ChineseChessPosition {
 			}
 			break;
 		  case PIECE_ADVISOR:
-			for (var i = 0; i < 4; i ++) {
-			  var sqDst = sqSrc + ADVISOR_DELTA[i];
+			for (let i = 0; i < 4; i ++) {
+			  const sqDst = sqSrc + ADVISOR_DELTA[i];
 			  if (!this.objUtil.IN_FORT(sqDst)) {
 				continue;
 			  }
-			  var pcDst = this.squares[sqDst];
-			  if (vls == null) {
+			  const pcDst = this.squares[sqDst];
+			  if (vls === null) {
 				if ((pcDst & pcSelfSide) == 0) {
 				  mvs.push(this.objUtil.MOVE(sqSrc, sqDst));
 				}
@@ -875,15 +886,15 @@ export class ChineseChessPosition {
 			}
 			break;
 		  case PIECE_BISHOP:
-			for (var i = 0; i < 4; i ++) {
-			  var sqDst = sqSrc + ADVISOR_DELTA[i];
+			for (let i = 0; i < 4; i ++) {
+			  let sqDst = sqSrc + ADVISOR_DELTA[i];
 			  if (!(this.objUtil.IN_BOARD(sqDst) && this.objUtil.HOME_HALF(sqDst, this.sdPlayer) &&
 				  this.squares[sqDst] == 0)) {
 				continue;
 			  }
 			  sqDst += ADVISOR_DELTA[i];
-			  var pcDst = this.squares[sqDst];
-			  if (vls == null) {
+			  const pcDst = this.squares[sqDst];
+			  if (vls === null) {
 				if ((pcDst & pcSelfSide) == 0) {
 				  mvs.push(this.objUtil.MOVE(sqSrc, sqDst));
 				}
@@ -895,17 +906,17 @@ export class ChineseChessPosition {
 			break;
 		  case PIECE_KNIGHT:
 			for (let i = 0; i < 4; i ++) {
-			  var sqDst = sqSrc + KING_DELTA[i];
+			  let sqDst = sqSrc + KING_DELTA[i];
 			  if (this.squares[sqDst] > 0) {
 				continue;
 			  }
-			  for (var j = 0; j < 2; j ++) {
+			  for (let j = 0; j < 2; j ++) {
 				sqDst = sqSrc + KNIGHT_DELTA[i][j];
 				if (!this.objUtil.IN_BOARD(sqDst)) {
 				  continue;
 				}
-				var pcDst = this.squares[sqDst];
-				if (vls == null) {
+				const pcDst = this.squares[sqDst];
+				if (vls === null) {
 				  if ((pcDst & pcSelfSide) == 0) {
 					mvs.push(this.objUtil.MOVE(sqSrc, sqDst));
 				  }
@@ -917,19 +928,19 @@ export class ChineseChessPosition {
 			}
 			break;
 		  case PIECE_ROOK:
-			for (var i = 0; i < 4; i ++) {
-			  var delta = KING_DELTA[i];
-			  var sqDst = sqSrc + delta;
+			for (let i = 0; i < 4; i ++) {
+			  const delta = KING_DELTA[i];
+			  let sqDst = sqSrc + delta;
 			  while (this.objUtil.IN_BOARD(sqDst)) {
-				var pcDst = this.squares[sqDst];
-				if (pcDst == 0) {
-				  if (vls == null) {
+				const pcDst = this.squares[sqDst];
+				if (pcDst === 0) {
+				  if (vls === null) {
 					mvs.push(this.objUtil.MOVE(sqSrc, sqDst));
 				  }
 				} else {
 				  if ((pcDst & pcOppSide) != 0) {
 					mvs.push(this.objUtil.MOVE(sqSrc, sqDst));
-					if (vls != null) {
+					if (vls !== null) {
 					  vls.push(this.objUtil.MVV_LVA(pcDst, 4));
 					}
 				  }
@@ -940,12 +951,12 @@ export class ChineseChessPosition {
 			}
 			break;
 		  case PIECE_CANNON:
-			for (var i = 0; i < 4; i ++) {
-			  var delta = KING_DELTA[i];
-			  var sqDst = sqSrc + delta;
+			for (let i = 0; i < 4; i ++) {
+			  const delta = KING_DELTA[i];
+			  let sqDst = sqSrc + delta;
 			  while (this.objUtil.IN_BOARD(sqDst)) {
-				var pcDst = this.squares[sqDst];
-				if (pcDst == 0) {
+				const pcDst = this.squares[sqDst];
+				if (pcDst === 0) {
 				  if (vls == null) {
 					mvs.push(this.objUtil.MOVE(sqSrc, sqDst));
 				  }
@@ -956,7 +967,7 @@ export class ChineseChessPosition {
 			  }
 			  sqDst += delta;
 			  while (this.objUtil.IN_BOARD(sqDst)) {
-				var pcDst = this.squares[sqDst];
+				const pcDst = this.squares[sqDst];
 				if (pcDst > 0) {
 				  if ((pcDst & pcOppSide) != 0) {
 					mvs.push(this.objUtil.MOVE(sqSrc, sqDst));
@@ -971,10 +982,11 @@ export class ChineseChessPosition {
 			}
 			break;
 		  case PIECE_PAWN:
-			var sqDst = this.objUtil.SQUARE_FORWARD(sqSrc, this.sdPlayer);
+			// eslint-disable-next-line no-case-declarations
+			let sqDst = this.objUtil.SQUARE_FORWARD(sqSrc, this.sdPlayer);
 			if (this.objUtil.IN_BOARD(sqDst)) {
-			  var pcDst = this.squares[sqDst];
-			  if (vls == null) {
+			  const pcDst = this.squares[sqDst];
+			  if (vls === null) {
 				if ((pcDst & pcSelfSide) == 0) {
 				  mvs.push(this.objUtil.MOVE(sqSrc, sqDst));
 				}
@@ -984,10 +996,10 @@ export class ChineseChessPosition {
 			  }
 			}
 			if (this.objUtil.AWAY_HALF(sqSrc, this.sdPlayer)) {
-			  for (var delta = -1; delta <= 1; delta += 2) {
+			  for (let delta = -1; delta <= 1; delta += 2) {
 				sqDst = sqSrc + delta;
 				if (this.objUtil.IN_BOARD(sqDst)) {
-				  var pcDst = this.squares[sqDst];
+				  const pcDst = this.squares[sqDst];
 				  if (vls == null) {
 					if ((pcDst & pcSelfSide) == 0) {
 					  mvs.push(this.objUtil.MOVE(sqSrc, sqDst));
@@ -1006,15 +1018,15 @@ export class ChineseChessPosition {
     }
 
 	public legalMove(mv: number): boolean {
-		var sqSrc = this.objUtil.SRC(mv);
-		var pcSrc = this.squares[sqSrc];
-		var pcSelfSide = this.objUtil.SIDE_TAG(this.sdPlayer);
+		const sqSrc = this.objUtil.SRC(mv);
+		const pcSrc = this.squares[sqSrc];
+		const pcSelfSide = this.objUtil.SIDE_TAG(this.sdPlayer);
 		if ((pcSrc & pcSelfSide) == 0) {
 		  return false;
 		}
 	  
-		var sqDst = this.objUtil.DST(mv);
-		var pcDst = this.squares[sqDst];
+		const sqDst = this.objUtil.DST(mv);
+		const pcDst = this.squares[sqDst];
 		if ((pcDst & pcSelfSide) != 0) {
 		  return false;
 		}
@@ -1028,76 +1040,81 @@ export class ChineseChessPosition {
 		  return this.objUtil.SAME_HALF(sqSrc, sqDst) && this.objUtil.BISHOP_SPAN(sqSrc, sqDst) &&
 			  this.squares[this.objUtil.BISHOP_PIN(sqSrc, sqDst)] == 0;
 		case PIECE_KNIGHT:
-		  var sqPin = this.objUtil.KNIGHT_PIN(sqSrc, sqDst);
-		  return sqPin != sqSrc && this.squares[sqPin] == 0;
+			{
+				const sqPin = this.objUtil.KNIGHT_PIN(sqSrc, sqDst);
+				return sqPin !== sqSrc && this.squares[sqPin] === 0;
+			}
+
 		case PIECE_ROOK:
 		case PIECE_CANNON:
-		  var delta;
-		  if (this.objUtil.SAME_RANK(sqSrc, sqDst)) {
-			delta = (sqDst < sqSrc ? -1 : 1);
-		  } else if (this.objUtil.SAME_FILE(sqSrc, sqDst)) {
-			delta = (sqDst < sqSrc ? -16 : 16);
-		  } else {
-			return false;
-		  }
-		  var sqPin = sqSrc + delta;
-		  while (sqPin != sqDst && this.squares[sqPin] == 0) {
-			sqPin += delta;
-		  }
-		  if (sqPin == sqDst) {
-			return pcDst == 0 || pcSrc - pcSelfSide == PIECE_ROOK;
-		  }
-		  if (pcDst == 0 || pcSrc - pcSelfSide != PIECE_CANNON) {
-			return false;
-		  }
-		  sqPin += delta;
-		  while (sqPin != sqDst && this.squares[sqPin] == 0) {
-			sqPin += delta;
-		  }
-		  return sqPin == sqDst;
+			{
+				let delta;
+				if (this.objUtil.SAME_RANK(sqSrc, sqDst)) {
+					delta = (sqDst < sqSrc ? -1 : 1);
+				} else if (this.objUtil.SAME_FILE(sqSrc, sqDst)) {
+					delta = (sqDst < sqSrc ? -16 : 16);
+				} else {
+					return false;
+				}
+				let sqPin = sqSrc + delta;
+				while (sqPin != sqDst && this.squares[sqPin] == 0) {
+					sqPin += delta;
+				}
+				if (sqPin === sqDst) {
+					return pcDst == 0 || pcSrc - pcSelfSide == PIECE_ROOK;
+				}
+				if (pcDst == 0 || pcSrc - pcSelfSide != PIECE_CANNON) {
+					return false;
+				}
+				sqPin += delta;
+				while (sqPin != sqDst && this.squares[sqPin] == 0) {
+					sqPin += delta;
+				}
+				return sqPin === sqDst;
+			}
 		case PIECE_PAWN:
-		  if (this.objUtil.AWAY_HALF(sqDst, this.sdPlayer) && (sqDst == sqSrc - 1 || sqDst == sqSrc + 1)) {
+		  if (this.objUtil.AWAY_HALF(sqDst, this.sdPlayer) && (sqDst === sqSrc - 1 || sqDst === sqSrc + 1)) {
 			return true;
 		  }
-		  return sqDst == this.objUtil.SQUARE_FORWARD(sqSrc, this.sdPlayer);
+		  return sqDst === this.objUtil.SQUARE_FORWARD(sqSrc, this.sdPlayer);
 		default:
 		  return false;
 		}	  
 	}
 
 	public checked(): boolean {
-		var pcSelfSide = this.objUtil.SIDE_TAG(this.sdPlayer);
-		var pcOppSide = this.objUtil.OPP_SIDE_TAG(this.sdPlayer);
-		for (var sqSrc = 0; sqSrc < 256; sqSrc ++) {
-		  if (this.squares[sqSrc] != pcSelfSide + PIECE_KING) {
+		const pcSelfSide = this.objUtil.SIDE_TAG(this.sdPlayer);
+		const pcOppSide = this.objUtil.OPP_SIDE_TAG(this.sdPlayer);
+		for (let sqSrc = 0; sqSrc < 256; sqSrc ++) {
+		  if (this.squares[sqSrc] !== pcSelfSide + PIECE_KING) {
 			continue;
 		  }
-		  if (this.squares[this.objUtil.SQUARE_FORWARD(sqSrc, this.sdPlayer)] == pcOppSide + PIECE_PAWN) {
+		  if (this.squares[this.objUtil.SQUARE_FORWARD(sqSrc, this.sdPlayer)] === pcOppSide + PIECE_PAWN) {
 			return true;
 		  }
-		  for (var delta = -1; delta <= 1; delta += 2) {
-			if (this.squares[sqSrc + delta] == pcOppSide + PIECE_PAWN) {
+		  for (let delta = -1; delta <= 1; delta += 2) {
+			if (this.squares[sqSrc + delta] === pcOppSide + PIECE_PAWN) {
 			  return true;
 			}
 		  }
-		  for (var i = 0; i < 4; i ++) {
+		  for (let i = 0; i < 4; i ++) {
 			if (this.squares[sqSrc + ADVISOR_DELTA[i]] != 0) {
 			  continue;
 			}
-			for (var j = 0; j < 2; j ++) {
-			  var pcDst = this.squares[sqSrc + KNIGHT_CHECK_DELTA[i][j]];
-			  if (pcDst == pcOppSide + PIECE_KNIGHT) {
+			for (let j = 0; j < 2; j ++) {
+			  const pcDst = this.squares[sqSrc + KNIGHT_CHECK_DELTA[i][j]];
+			  if (pcDst === pcOppSide + PIECE_KNIGHT) {
 				return true;
 			  }
 			}
 		  }
-		  for (var i = 0; i < 4; i ++) {
-			var delta = KING_DELTA[i];
-			var sqDst = sqSrc + delta;
+		  for (let i = 0; i < 4; i ++) {
+			const delta = KING_DELTA[i];
+			let sqDst = sqSrc + delta;
 			while (this.objUtil.IN_BOARD(sqDst)) {
-			  var pcDst = this.squares[sqDst];
+			  const pcDst = this.squares[sqDst];
 			  if (pcDst > 0) {
-				if (pcDst == pcOppSide + PIECE_ROOK || pcDst == pcOppSide + PIECE_KING) {
+				if (pcDst === pcOppSide + PIECE_ROOK || pcDst === pcOppSide + PIECE_KING) {
 				  return true;
 				}
 				break;
@@ -1106,9 +1123,9 @@ export class ChineseChessPosition {
 			}
 			sqDst += delta;
 			while (this.objUtil.IN_BOARD(sqDst)) {
-			  var pcDst = this.squares[sqDst];
+			  const pcDst = this.squares[sqDst];
 			  if (pcDst > 0) {
-				if (pcDst == pcOppSide + PIECE_CANNON) {
+				if (pcDst === pcOppSide + PIECE_CANNON) {
 				  return true;
 				}
 				break;
@@ -1122,8 +1139,8 @@ export class ChineseChessPosition {
 	}
 
 	public isMate(): boolean {
-		var mvs = this.generateMoves(null);
-		for (var i = 0; i < mvs.length; i ++) {
+		const mvs = this.generateMoves(null);
+		for (let i = 0; i < mvs.length; i ++) {
 		  if (this.makeMove(mvs[i])) {
 			this.undoMakeMove();
 			return false;
@@ -1145,9 +1162,9 @@ export class ChineseChessPosition {
 	}
 
 	public evaluate(): number {
-		var vl = (this.sdPlayer == 0 ? this.vlWhite - this.vlBlack :
+		const vl = (this.sdPlayer == 0 ? this.vlWhite - this.vlBlack :
 			this.vlBlack - this.vlWhite) + ADVANCED_VALUE;
-		return vl == this.drawValue() ? vl - 1 : vl;
+		return vl === this.drawValue() ? vl - 1 : vl;
     }
 
 	public nullOkay(): boolean {
@@ -1167,23 +1184,23 @@ export class ChineseChessPosition {
 	}
 
 	public repValue(vlRep: number): number {
-		var vlReturn = ((vlRep & 2) == 0 ? 0 : this.banValue()) +
-		((vlRep & 4) == 0 ? 0 : -this.banValue());
-		return vlReturn == 0 ? this.drawValue() : vlReturn;
+		const vlReturn = ((vlRep & 2) === 0 ? 0 : this.banValue()) +
+			((vlRep & 4) == 0 ? 0 : -this.banValue());
+		return vlReturn === 0 ? this.drawValue() : vlReturn;
 	}
 
 	public repStatus(recur_: number): number {
-		var recur = recur_;
-		var selfSide = false;
-		var perpCheck = true;
-		var oppPerpCheck = true;
-		var index = this.mvList.length - 1;
-		while (this.mvList[index] > 0 && this.pcList[index] == 0) {
+		let recur = recur_;
+		let selfSide = false;
+		let perpCheck = true;
+		let oppPerpCheck = true;
+		let index = this.mvList.length - 1;
+		while (this.mvList[index] > 0 && this.pcList[index] === 0) {
 		  if (selfSide) {
 			perpCheck = perpCheck && this.chkList[index];
 			if (this.keyList[index] == this.zobristKey) {
 			  recur --;
-			  if (recur == 0) {
+			  if (recur === 0) {
 				return 1 + (perpCheck ? 2 : 0) + (oppPerpCheck ? 4 : 0);
 			  }
 			}
@@ -1197,10 +1214,10 @@ export class ChineseChessPosition {
     }
 
 	public mirror(): ChineseChessPosition {
-		let npos = new ChineseChessPosition();
+		const npos = new ChineseChessPosition();
 		npos.clearBoard();
 		for (let sq = 0; sq < 256; sq ++) {
-			let pc = this.squares[sq];
+			const pc = this.squares[sq];
 			if (pc > 0) {
 				npos.addPiece(this.objUtil.MIRROR_SQUARE(sq), pc);
 			}
@@ -1232,21 +1249,22 @@ export class ChineseChessPosition {
 			index --;
 		}
 
-		var mvs = [], vls = [];
-		var value = 0;
+		const mvs = [];
+		const vls = [];
+		let value = 0;
 		index ++;
 		while (index < BOOK_DAT.length && BOOK_DAT[index][0] == lock) {
-			var mv = BOOK_DAT[index][1];
+			let mv = BOOK_DAT[index][1];
 			mv = (mirror ? this.objUtil.MIRROR_MOVE(mv) : mv);
 			if (this.legalMove(mv)) {
 			  mvs.push(mv);
-			  var vl = BOOK_DAT[index][2];
+			  const vl = BOOK_DAT[index][2];
 			  vls.push(vl);
 			  value += vl;
 			}
 			index ++;
 		}
-		if (value == 0) {
+		if (value === 0) {
 			return 0;
 		}
 		value = Math.floor(Math.random() * value);
@@ -1340,9 +1358,9 @@ class ChineseChessSearchSortItem {
 
 		if (pos.inCheck()) {
 			this.phase = PHASE_REST;
-			let  mvsAll = pos.generateMoves(null);
+			const mvsAll = pos.generateMoves(null);
 			for (let i = 0; i < mvsAll.length; i ++) {
-				var mv = mvsAll[i]
+				const mv = mvsAll[i]
 				if (!pos.makeMove(mv)) {
 					continue;
 				}
@@ -1361,55 +1379,102 @@ class ChineseChessSearchSortItem {
 	}
 
 	next(): number {
-		switch (this.phase) {
-			case PHASE_HASH:
-			  this.phase = PHASE_KILLER_1;
-			  if (this.mvHash > 0) {
+		if (this.phase === PHASE_HASH) {
+			this.phase = PHASE_KILLER_1;
+
+			if (this.mvHash > 0) {
 				return this.mvHash;
-			  }
-			  // No Break
-			case PHASE_KILLER_1:
-			  this.phase = PHASE_KILLER_2;
-			  if (this.mvKiller1 != this.mvHash && this.mvKiller1 > 0 &&
-				  this.pos.legalMove(this.mvKiller1)) {
-				return this.mvKiller1;
-			  }
-			  // No Break
-			case PHASE_KILLER_2:
-			  this.phase = PHASE_GEN_MOVES;
-			  if (this.mvKiller2 != this.mvHash && this.mvKiller2 > 0 &&
-				  this.pos.legalMove(this.mvKiller2)) {
-				return this.mvKiller2;
-			  }
-			  // No Break
-			case PHASE_GEN_MOVES:
-			  this.phase = PHASE_REST;
-			  this.mvs = this.pos.generateMoves(null);
-			  this.vls = [];
-			  for (var i = 0; i < this.mvs.length; i ++) {
-				this.vls.push(this.historyTable[this.pos.historyIndex(this.mvs[i])]);
-			  }
-			  this.objUtil.shellSort(this.mvs, this.vls);
-			  this.index = 0;
-			  // No Break
-			default:
-			  while (this.index < this.mvs.length) {
-				var mv = this.mvs[this.index];
-				this.index ++;
-				if (mv != this.mvHash && mv != this.mvKiller1 && mv != this.mvKiller2) {
-				  return mv;
-				}
-			  }
+			}
 		}
+
+		if (this.phase === PHASE_KILLER_1) {
+			this.phase = PHASE_KILLER_2;
+			if (this.mvKiller1 != this.mvHash && this.mvKiller1 > 0 &&
+				this.pos.legalMove(this.mvKiller1)) {
+			  return this.mvKiller1;
+			}
+		}
+
+		if (this.phase === PHASE_KILLER_2) {
+			this.phase = PHASE_GEN_MOVES;
+			if (this.mvKiller2 != this.mvHash && this.mvKiller2 > 0 &&
+				this.pos.legalMove(this.mvKiller2)) {
+			  return this.mvKiller2;
+			}
+		}
+
+		if (this.phase === PHASE_GEN_MOVES) {
+			this.phase = PHASE_REST;
+			this.mvs = this.pos.generateMoves(null);
+			this.vls = [];
+			for (let i = 0; i < this.mvs.length; i ++) {
+			  this.vls.push(this.historyTable[this.pos.historyIndex(this.mvs[i])]);
+			}
+			this.objUtil.shellSort(this.mvs, this.vls);
+			this.index = 0;
+		}
+
+		while (this.index < this.mvs.length) {
+			const mv = this.mvs[this.index];
+			this.index ++;
+			if (mv !== this.mvHash && mv !== this.mvKiller1 && mv !== this.mvKiller2) {
+			  return mv;
+			}
+		}
+
+		// switch (this.phase) {
+		// 	case PHASE_HASH:
+		// 	  this.phase = PHASE_KILLER_1;
+		// 	  if (this.mvHash > 0) {
+		// 		return this.mvHash;
+		// 	  }
+		// 	  // No Break
+		// 	// eslint-disable-next-line no-fallthrough
+		// 	case PHASE_KILLER_1:
+		// 	  this.phase = PHASE_KILLER_2;
+		// 	  if (this.mvKiller1 != this.mvHash && this.mvKiller1 > 0 &&
+		// 		  this.pos.legalMove(this.mvKiller1)) {
+		// 		return this.mvKiller1;
+		// 	  }
+		// 	  // No Break
+		// 	// eslint-disable-next-line no-fallthrough
+		// 	case PHASE_KILLER_2:
+		// 	  this.phase = PHASE_GEN_MOVES;
+		// 	  if (this.mvKiller2 != this.mvHash && this.mvKiller2 > 0 &&
+		// 		  this.pos.legalMove(this.mvKiller2)) {
+		// 		return this.mvKiller2;
+		// 	  }
+		// 	  // No Break
+		// 	// eslint-disable-next-line no-fallthrough
+		// 	case PHASE_GEN_MOVES:
+		// 	  this.phase = PHASE_REST;
+		// 	  this.mvs = this.pos.generateMoves(null);
+		// 	  this.vls = [];
+		// 	  for (let i = 0; i < this.mvs.length; i ++) {
+		// 		this.vls.push(this.historyTable[this.pos.historyIndex(this.mvs[i])]);
+		// 	  }
+		// 	  this.objUtil.shellSort(this.mvs, this.vls);
+		// 	  this.index = 0;
+		// 	  // No Break
+		// 	// eslint-disable-next-line no-fallthrough
+		// 	default:
+		// 	  while (this.index < this.mvs.length) {
+		// 		const mv = this.mvs[this.index];
+		// 		this.index ++;
+		// 		if (mv !== this.mvHash && mv !== this.mvKiller1 && mv !== this.mvKiller2) {
+		// 		  return mv;
+		// 		}
+		// 	  }
+		// }
 		return 0;
 	}
 }
 
 export class ChineseChessSearch {
 	private hashMask: number;
-	private mvResult: number = 0;
-	private allNodes: number = 0;
-	private allMillis: number = 0;
+	private mvResult = 0;
+	private allNodes = 0;
+	private allMillis = 0;
 	private hashTable: SearchHashItem[] = [];
 	private pos: ChineseChessPosition;
 	private historyTable: number[] = []; // new int[4096];
@@ -1427,7 +1492,7 @@ export class ChineseChessSearch {
 	}
 
 	private probeHash(vlAlpha: number, vlBeta: number, depth: number, mv: number[]) {
-		let hash = this.getHashItem();
+		const hash = this.getHashItem();
 		if (hash.zobristLock != this.pos.zobristLock) {
 		  mv[0] = 0;
 		  return -MATE_VALUE;
@@ -1462,7 +1527,7 @@ export class ChineseChessSearch {
 	}
 
 	private recordHash(flag: number, vl: number, depth: number, mv: number) {
-		var hash = this.getHashItem();
+		const hash = this.getHashItem();
 		if (hash.depth > depth) {
 		  return;
 		}
@@ -1489,7 +1554,7 @@ export class ChineseChessSearch {
 
 	private setBestMove(mv: number, depth: number) {
 		this.historyTable[this.pos.historyIndex(mv)] += depth * depth;
-		let mvsKiller = this.killerTable[this.pos.distance];
+		const mvsKiller = this.killerTable[this.pos.distance];
 		if (mvsKiller[0] !== mv) {
 		  mvsKiller[1] = mvsKiller[0];
 		  mvsKiller[0] = mv;
@@ -1503,7 +1568,7 @@ export class ChineseChessSearch {
 		if (vl >= vlBeta) {
 		  return vl;
 		}
-		let vlRep = this.pos.repStatus(1);
+		const vlRep = this.pos.repStatus(1);
 		if (vlRep > 0) {
 		  return this.pos.repValue(vlRep);
 		}
@@ -1512,7 +1577,7 @@ export class ChineseChessSearch {
 		}
 		let vlBest = -MATE_VALUE;
 		let mvs = [];
-		let vls: any[] = [];
+		const vls: any[] = [];
 		if (this.pos.inCheck()) {
 		  mvs = this.pos.generateMoves(null);
 		  for (let i = 0; i < mvs.length; i ++) {
@@ -1572,11 +1637,11 @@ export class ChineseChessSearch {
 		if (vl >= vlBeta) {
 		  return vl;
 		}
-		let vlRep = this.pos.repStatus(1);
+		const vlRep = this.pos.repStatus(1);
 		if (vlRep > 0) {
 		  return this.pos.repValue(vlRep);
 		}
-		let mvHash = [0];
+		const mvHash = [0];
 		vl = this.probeHash(vlAlpha, vlBeta, depth, mvHash);
 		if (vl > -MATE_VALUE) {
 		  return vl;
@@ -1596,13 +1661,13 @@ export class ChineseChessSearch {
 		let hashFlag = HASH_ALPHA;
 		let vlBest = -MATE_VALUE;
 		let mvBest = 0;
-		let sort = new ChineseChessSearchSortItem(this.pos, mvHash[0], this.killerTable, this.historyTable);
+		const sort = new ChineseChessSearchSortItem(this.pos, mvHash[0], this.killerTable, this.historyTable);
 		let mv = 0;
 		while ((mv = sort.next()) > 0) {
 		  if (!this.pos.makeMove(mv)) {
 			continue;
 		  }
-		  let newDepth = this.pos.inCheck() || sort.singleReply ? depth : depth - 1;
+		  const newDepth = this.pos.inCheck() || sort.singleReply ? depth : depth - 1;
 		  if (vlBest === -MATE_VALUE) {
 			vl = -this.searchFull(-vlBeta, -vlAlpha, newDepth, false);
 		  } else {
@@ -1638,13 +1703,13 @@ export class ChineseChessSearch {
 
 	private searchRoot(depth: number): number {
 		let vlBest = -MATE_VALUE;
-		let sort = new ChineseChessSearchSortItem(this.pos, this.mvResult, this.killerTable, this.historyTable);
+		const sort = new ChineseChessSearchSortItem(this.pos, this.mvResult, this.killerTable, this.historyTable);
 		let mv = 0;
 		while ((mv = sort.next()) > 0) {
 		  if (!this.pos.makeMove(mv)) {
 			continue;
 		  }
-		  let newDepth = this.pos.inCheck() ? depth : depth - 1;
+		  const newDepth = this.pos.inCheck() ? depth : depth - 1;
 		  let vl = 0;
 		  if (vlBest === -MATE_VALUE) {
 			vl = -this.searchFull(-MATE_VALUE, MATE_VALUE, newDepth, true);
@@ -1670,14 +1735,14 @@ export class ChineseChessSearch {
     }
 
 	public searchUnique(vlBeta: number, depth: number): boolean {
-		let sort = new ChineseChessSearchSortItem(this.pos, this.mvResult, this.killerTable, this.historyTable);
+		const sort = new ChineseChessSearchSortItem(this.pos, this.mvResult, this.killerTable, this.historyTable);
 		sort.next();
 		let mv = 0;
 		while ((mv = sort.next()) > 0) {
 		  if (!this.pos.makeMove(mv)) {
 			continue;
 		  }
-		  let vl = -this.searchFull(-vlBeta, 1 - vlBeta,
+		  const vl = -this.searchFull(-vlBeta, 1 - vlBeta,
 			  this.pos.inCheck() ? depth : depth - 1, false);
 		  this.pos.undoMakeMove();
 		  if (vl >= vlBeta) {
@@ -1716,9 +1781,9 @@ export class ChineseChessSearch {
 		this.mvResult = 0;
 		this.allNodes = 0;
 		this.pos.distance = 0;
-		let t = new Date().getTime();
+		const t = new Date().getTime();
 		for (let i = 1; i <= depth; i ++) {
-		  let vl = this.searchRoot(i);
+		  const vl = this.searchRoot(i);
 		  this.allMillis = new Date().getTime() - t;
 		  if (this.allMillis > millis) {
 			break;
@@ -1743,11 +1808,17 @@ export class ChineseChessBoard {
   private playMode: ChineseChessPlayMode = ChineseChessPlayMode.PlayerFirst;
   private handicapMode: ChineseChessHandicap = ChineseChessHandicap.None;
   private result: ChineseChessResult = ChineseChessResult.Unknown;
-  private insPos: ChineseChessPosition = new ChineseChessPosition();
+  private pos: ChineseChessPosition = new ChineseChessPosition();
   private objUtil: ChineseChessUtil = new ChineseChessUtil();
-  private mvLast: number = 0;
+  private mvLast = 0;
   private imgSquares: any[] = [];
-  private computer: number = 0;
+  private computer = -1;
+  private animated = true;
+  private sound = true;
+  private search: ChineseChessSearch | null = null;
+  private sqSelected = 0;
+  private millis = 0;
+  private busy = false;
 
   get AILevel(): ChineseChessAILevel {
     return this.ailevel;
@@ -1774,27 +1845,33 @@ export class ChineseChessBoard {
     this.result = rst;
   }
 
-  public setLayout(lay: string) {}
+  public setLayout(lay: string) {
+	// TBD.
+  }
 
   constructor(container: any) {
+	this.pos.fromFen("rnbakabnr/9/1c5c1/p1p1p1p1p/9/9/P1P1P1P1P/1C5C1/9/RNBAKABNR w - - 0 1");
+
     for (let sq = 0; sq < 256; sq ++) {
       if (!this.objUtil.IN_BOARD(sq)) {
         this.imgSquares.push(null);
         continue;
       }
 
-    //   let img = document.createElement("img");
-    //   let style = img.style;
-    //   style.position = "absolute";
-    //   style.left = this.objUtil.SQ_X(sq).toString();
-    //   style.top = this.objUtil.SQ_Y(sq).toString();
-    //   style.width = SQUARE_SIZE.toString();
-    //   style.height = SQUARE_SIZE.toString();
-    //   style.zIndex = '0';
-    //   img.onmousedown = sq_ => this.clickSquare(sq_);
-    //   container.appendChild(img);
-    //   this.imgSquares.push(img);
-    }     
+      const img = document.createElement("img");
+      const style = img.style;
+      style.position = "absolute";
+      style.left = this.objUtil.SQ_X(sq).toString();
+      style.top = this.objUtil.SQ_Y(sq).toString();
+      style.width = SQUARE_SIZE.toString();
+      style.height = SQUARE_SIZE.toString();
+      style.zIndex = '0';
+      img.onmousedown = () => this.clickSquare(sq);
+      container.appendChild(img);
+      this.imgSquares.push(img);
+    }
+
+	this.flushBoard();
   }
 
   clickSquare(sq: number) {
@@ -1820,29 +1897,48 @@ export class ChineseChessBoard {
   
   }
 
-  drawSquare(sq: number, selected?: number) {
-    // var img = this.imgSquares[this.flipped(sq)];
-    // img.src = this.images + pieceImageName[this.pos.squares[sq]] + ".gif";
-    // img.style.backgroundImage = selected ? "url(" + this.images + "oos.gif)" : "";
+  drawSquare(sq: number, selected?: boolean) {
+    const img = this.imgSquares[this.flipped(sq)];
+    img.src = 'assets/image/chinesechess/' + pieceImageName[this.pos.squares[sq]] + ".gif";
+    img.style.backgroundImage = selected ? "url(" + 'assets/image/chinesechess/' + "oos.gif)" : "";
   }
 
   flushBoard() {
-    // this.mvLast = this.insPos.mvList[this.insPos.mvList.length - 1];
-    // for (let sq = 0; sq < 256; sq ++) {
-    //   if (this.objUtil.inBoard(sq)) {
-    //     this.drawSquare(sq, sq === this.objUtil.Source(this.mvLast) || sq === this.objUtil.Target(this.mvLast));
-    //   }
-    // }
+    this.mvLast = this.pos.mvList[this.pos.mvList.length - 1];
+    for (let sq = 0; sq < 256; sq ++) {
+      if (this.objUtil.IN_BOARD(sq)) {
+        this.drawSquare(sq, sq === this.objUtil.SRC(this.mvLast) || sq === this.objUtil.DST(this.mvLast));
+      }
+    }
   }
 
   start(str: string) {
     // Reset result
     this.result = ChineseChessResult.Unknown;
-    this.insPos.fromFen(str);
+    this.pos.fromFen(str);
     this.flushBoard();
   }
 
   flipped(sq: number) {
     return this.computer === 0 ? this.objUtil.SQUARE_FLIP(sq) : sq;
+  }
+  computerMove(): boolean {
+	return this.pos.sdPlayer == this.computer;
+  }
+
+  response() {
+	if (this.search == null || !this.computerMove()) {
+		this.busy = false;
+		return;
+    }
+
+	//   this.thinking.style.visibility = "visible";
+	//   var this_ = this;
+	//   this.busy = true;
+	//   setTimeout(function() {
+	// 	this_.addMove(board.search.searchMain(LIMIT_DEPTH, board.millis), true);
+	// 	this_.thinking.style.visibility = "hidden";
+	// }, 250);
+	
   }
 }
