@@ -1,0 +1,114 @@
+import { AfterViewInit, Component, ElementRef, OnDestroy, ViewChild } from '@angular/core';
+
+import { BC_Screen_Height, BC_Screen_Width, BattleCityGlobalContext, 
+  BattleCityMap, GAME_STATE_INIT, GAME_STATE_MENU, GAME_STATE_OVER, 
+  GAME_STATE_START, GAME_STATE_WIN } from 'src/app/models/battle-city';
+
+@Component({
+  selector: 'app-battle-city',
+  templateUrl: './battle-city.component.html',
+  styleUrls: ['./battle-city.component.scss'],
+})
+export class BattleCityComponent implements AfterViewInit, OnDestroy {
+  timerGame?: any;
+
+  @ViewChild('canvasDiv', { static: true }) elementCanvasContainer: ElementRef | null = null;
+  @ViewChild('stageCanvas', { static: true }) elementStageCanvas: ElementRef | null = null;
+  @ViewChild('wallCanvas', { static: true }) elementWallCanvas: ElementRef | null = null;
+  @ViewChild('tankCanvas', { static: true }) elementTankCanvas: ElementRef | null = null;
+  @ViewChild('grassCanvas', { static: true }) elementGrassCanvas: ElementRef | null = null;
+  @ViewChild('overCanvas', { static: true }) elementOverCanvas: ElementRef | null = null;
+
+  ngAfterViewInit(): void {
+    console.debug('Entering BattleCityComponent.ngAfterViewInit');
+
+    if (this.elementCanvasContainer !== null) {
+      this.elementCanvasContainer.nativeElement.style.width = `${BC_Screen_Width}px`;
+      this.elementCanvasContainer.nativeElement.style.height = `${BC_Screen_Height}px`;
+    }
+    if (this.elementStageCanvas !== null) {
+      this.elementStageCanvas.nativeElement.style.width = `${BC_Screen_Width}px`;
+      this.elementStageCanvas.nativeElement.style.height = `${BC_Screen_Height}px`;  
+    }
+    if (this.elementWallCanvas !== null) {
+      this.elementWallCanvas.nativeElement.style.width = `${BC_Screen_Width}px`;
+      this.elementWallCanvas.nativeElement.style.height = `${BC_Screen_Height}px`;  
+    }
+    if (this.elementTankCanvas !== null) {
+      this.elementTankCanvas.nativeElement.style.width = `${BC_Screen_Width}px`;
+      this.elementTankCanvas.nativeElement.style.height = `${BC_Screen_Height}px`;  
+    }
+    if (this.elementGrassCanvas !== null) {
+      this.elementGrassCanvas.nativeElement.style.width = `${BC_Screen_Width}px`;
+      this.elementGrassCanvas.nativeElement.style.height = `${BC_Screen_Height}px`;  
+    }
+    if (this.elementOverCanvas !== null) {
+      this.elementOverCanvas.nativeElement.style.width = `${BC_Screen_Width}px`;
+      this.elementOverCanvas.nativeElement.style.height = `${BC_Screen_Height}px`;  
+    }
+
+    // Global context
+    if (!BattleCityGlobalContext.imageMenu) {
+      BattleCityGlobalContext.imageMenu = new Image();
+      BattleCityGlobalContext.imageMenu.src = 'assets/image/battlecity/menu.gif';
+    }
+    if (!BattleCityGlobalContext.imageResource) {
+      BattleCityGlobalContext.imageResource = new Image();
+      BattleCityGlobalContext.imageResource.src = 'assets/image/battlecity/tankAll.gif';
+    }
+
+    BattleCityGlobalContext.initObject(
+      this.elementStageCanvas?.nativeElement.getContext('2d'),
+      this.elementWallCanvas?.nativeElement.getContext('2d'),
+      this.elementGrassCanvas?.nativeElement.getContext('2d'),
+      this.elementTankCanvas?.nativeElement.getContext('2d'),
+      this.elementOverCanvas?.nativeElement.getContext('2d')
+    );
+
+    this.timerGame = setInterval(() => this.gameLoop(), 20);
+  }
+
+  ngOnDestroy(): void {
+    console.debug('Entering BattleCityComponent::ngOnDestroy');
+    if (this.timerGame !== undefined) {
+      clearInterval(this.timerGame);
+    }
+  }
+
+  gameLoop() {
+    console.debug('Entering BattleCityComponent.gameLoop');
+
+    switch(BattleCityGlobalContext.gameState){
+      case GAME_STATE_MENU:
+        BattleCityGlobalContext.menu.draw();
+        break;
+
+      case GAME_STATE_INIT:
+        BattleCityGlobalContext.stage!.draw();
+        if(BattleCityGlobalContext.stage!.isReady == true){
+          BattleCityGlobalContext.gameState = GAME_STATE_START;
+        }
+        break;
+      case GAME_STATE_START:
+        // TBD.
+        // this.drawAll();
+        // if(isGameOver ||(player1.lives <=0 && player2.lives <= 0)){
+        //   gameState = GAME_STATE_OVER;
+        //   map.homeHit();
+        //   PLAYER_DESTROY_AUDIO.play();
+        // }
+        // if(appearEnemy == maxEnemy && enemyArray.length == 0){
+        //   gameState  = GAME_STATE_WIN;
+        // }
+        break;
+      case GAME_STATE_WIN:
+        // TBD.
+        // nextLevel();
+        break;
+      case GAME_STATE_OVER:
+        // TBD.
+        // gameOver();
+        break;
+    }
+  }
+}

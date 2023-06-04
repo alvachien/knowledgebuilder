@@ -133,6 +133,11 @@ export class AppComponent implements OnDestroy {
         route: 'puzzle-games/chinesechess',
         group: AppNavItemGroupEnum.games,
       },
+      {
+        name: 'PuzzleGames.BattleCity',
+        route: 'puzzle-games/battlecity',
+        group: AppNavItemGroupEnum.games,
+      },
 
       // { name: 'Award.Overview', route: '/award', group: AppNavItemGroupEnum.award },
       // { name: 'Award.Rules', route: '/award/rules', group: AppNavItemGroupEnum.award },

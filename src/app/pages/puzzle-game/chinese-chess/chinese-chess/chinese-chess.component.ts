@@ -39,7 +39,6 @@ export class ChineseChessComponent implements OnInit, AfterViewInit {
   private imgSquares: any[] = [];
   private computer = -1;
   private animated = true;
-  private sound = true;
   private search: ChineseChessSearch | null = null;
   private sqSelected = 0;
   private millis = 0;
@@ -53,6 +52,7 @@ export class ChineseChessComponent implements OnInit, AfterViewInit {
   arPieceStyleDisplayStrings: UIDisplayString[] = [];
 
   constructor() {
+    console.debug('Entering ChineseChessComponent.constructor');
     this.arPlayModeDisplayStrings = UIDisplayStringUtil.getChineseChessPlayModeDisplayStrings();
     this.arAILevelDisplayStrings = UIDisplayStringUtil.getChineseChessAILevelDisplayStrings();
     this.arBoardStyleDisplayStrings = UIDisplayStringUtil.getChineseChessBoardStyleDisplayStrings();
@@ -61,15 +61,12 @@ export class ChineseChessComponent implements OnInit, AfterViewInit {
 
   ngOnInit(): void {
     console.debug('Entering ChineseChessComponent.ngOnInit');
-    // TBD.
   }
 
   ngAfterViewInit(): void {
     console.debug('Entering ChineseChessComponent.ngAfterViewInit');
 
-    if (this.elementChessContainer !== null) {
-      //this.elementChessContainer.nativeElement.style.background = `url(assets/image/chinesechess/${this.selectedBoardStyle}.aif)`;
-
+    if (this.elementChessContainer !== null && this.imgSquares.length !== 256) {
       for (let sq = 0; sq < 256; sq++) {
         if (!this.objUtil.IN_BOARD(sq)) {
           this.imgSquares.push(null);
@@ -94,25 +91,26 @@ export class ChineseChessComponent implements OnInit, AfterViewInit {
   }
 
   onSelectedMoveModeChange(event: any) {
-    console.debug('Entering onSelectedMoveModeChange');
+    console.debug('Entering ChineseChessComponent.onSelectedMoveModeChange');
     console.debug(event);
   }
 
   onSelectedAILevelChange(event: any) {
-    console.debug('Entering onSelectedAILevelChange');
+    console.debug('Entering ChineseChessComponent.onSelectedAILevelChange');
     console.debug(event);
   }
 
   onSurrend() {
-    console.debug('Entering onSurrend');
+    console.debug('Entering ChineseChessComponent.onSurrend');
     this.isStarted = false;
   }
 
   onStart() {
-    console.debug(`Entering onStart: board - ${this.selectedBoardStyle}, piece - ${this.selectedPieceStyle}`);
+    console.debug(`Entering ChineseChessComponent.onStart`);
     if (!this.isStarted) {
       this.isStarted = true;
 
+      // Set background
       this.elementChessContainer!.nativeElement.style.background = `url(assets/image/chinesechess/boards/${this.selectedBoardStyle}.gif)`;
 
       // Really start the game
@@ -135,7 +133,7 @@ export class ChineseChessComponent implements OnInit, AfterViewInit {
   }
 
   drawSquare(sq: number, selected?: boolean) {
-    console.debug('Entering drawSquare');
+    console.debug('Entering ChineseChessComponent.drawSquare');
 
     const img = this.imgSquares[this.flipped(sq)];
     img.src =
@@ -144,7 +142,7 @@ export class ChineseChessComponent implements OnInit, AfterViewInit {
   }
 
   flushBoard() {
-    console.debug('Entering flushBoard');
+    console.debug('Entering ChineseChessComponent.flushBoard');
 
     this.mvLast = this.pos!.mvList[this.pos!.mvList.length - 1];
     for (let sq = 0; sq < 256; sq++) {
@@ -155,7 +153,7 @@ export class ChineseChessComponent implements OnInit, AfterViewInit {
   }
 
   clickSquare(sq_: number) {
-    console.debug('Entering clickSquare');
+    console.debug('Entering ChineseChessComponent.clickSquare');
 
     if (this.busy || this.result !== ChineseChessResult.Unknown) {
       return;
@@ -204,7 +202,7 @@ export class ChineseChessComponent implements OnInit, AfterViewInit {
   }
 
   addMove(mv: number, computerMove: boolean) {
-    console.debug('Entering addMove()');
+    console.debug('Entering ChineseChessComponent.addMove()');
     if (!this.pos!.legalMove(mv)) {
       return;
     }
@@ -259,7 +257,7 @@ export class ChineseChessComponent implements OnInit, AfterViewInit {
   }
 
   postAddMove(mv: number, computerMove: boolean) {
-    console.debug('Entering postAddMove');
+    console.debug('Entering ChineseChessComponent.postAddMove');
 
     if (this.mvLast > 0) {
       this.drawSquare(this.objUtil.SRC(this.mvLast), false);
@@ -384,6 +382,7 @@ export class ChineseChessComponent implements OnInit, AfterViewInit {
   }
 
   postMate(computerMove: boolean) {
+    console.debug('Entering ChineseChessComponent.postMate');
     // alertDelay(computerMove ? "请再接再厉！" : "祝贺你取得胜利！");
     if (computerMove) {
       // Computer win

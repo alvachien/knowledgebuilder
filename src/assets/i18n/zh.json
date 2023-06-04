@@ -171,9 +171,8 @@
         "LeftKnight": "左马",
         "NinePiece": "九子",
         "TwoKnights": "双马",
-        "NoHandicap": "不让子"
-        
-
+        "NoHandicap": "不让子",
+        "BattleCity": "Battle City"
     },
     "Quiz": {
         "QuizItemCount": "试题数量",

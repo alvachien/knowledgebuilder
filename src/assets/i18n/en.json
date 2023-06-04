@@ -171,7 +171,8 @@
         "LeftKnight": "Left Knight",
         "NinePiece": "Nine Pieces",
         "TwoKnights": "Two Knights",
-        "NoHandicap": "No Handicap"
+        "NoHandicap": "No Handicap",
+        "BattleCity": "Battle City"
     },
     "Quiz": {
         "QuizItemCount": "Count of Quiz Item",

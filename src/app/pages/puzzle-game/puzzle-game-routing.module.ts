@@ -17,6 +17,10 @@ const routes: Routes = [
     path: 'chinesechess',
     loadChildren: () => import('./chinese-chess/chinese-chess.module').then((m) => m.ChineseChessModule),
   },
+  {
+    path: 'battlecity',
+    loadChildren: () => import('./battle-city/battle-city.module').then((m) => m.BattleCityModule),
+  }
 ];
 
 @NgModule({
