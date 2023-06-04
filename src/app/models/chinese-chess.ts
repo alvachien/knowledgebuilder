@@ -4,6 +4,7 @@
 //
 
 import { BOOK_DATA as BOOK_DAT } from './chinese-chess-book';
+import { ChineseChessAILevel } from './uicommon';
 //const MATE_VALUE = 10000;
 //const BAN_VALUE = MATE_VALUE - 100;
 //const WIN_VALUE = MATE_VALUE - 200;
@@ -14,7 +15,7 @@ import { BOOK_DATA as BOOK_DAT } from './chinese-chess-book';
 
 const MATE_VALUE = 10000; // 最高分值
 const BAN_VALUE = MATE_VALUE - 100; // 长将判负的分值
-const WIN_VALUE = MATE_VALUE - 200; // 赢棋分值（高于此分值都是赢棋）
+export const WIN_VALUE = MATE_VALUE - 200; // 赢棋分值（高于此分值都是赢棋）
 const DRAW_VALUE = 20; // 和棋时返回的分数(取负值)
 const NULL_SAFE_MARGIN = 400; // 空步裁剪有效的最小优势
 const NULL_OKAY_MARGIN = 200; // 可以进行空步裁剪的最小优势
@@ -37,7 +38,7 @@ const MAX_BOOK_SIZE = 16384;
 // 车 R 车 r rook
 // 炮 C 炮 c cannon
 // 兵 P 卒 p pawn
-const PIECE_KING = 0; // 将
+export const PIECE_KING = 0; // 将
 const PIECE_ADVISOR = 1; // 士
 const PIECE_BISHOP = 2; // 象
 const PIECE_KNIGHT = 3; // 马
@@ -304,7 +305,7 @@ export const STARTUP_FEN: string[] = [
 
 const FEN_PIECE = "        KABNRCP kabnrcp ";
 
-const pieceImageName = [
+export const pieceImageName = [
   'oo', null, null, null, null, null, null, null,
   'rk', 'ra', 'rb', 'rn', 'rr', 'rc', 'rp', null,
   'bk', 'ba', 'bb', 'bn', 'br', 'bc', 'bp', null,
@@ -327,13 +328,13 @@ const DEL_PIECE = true;
 
 const BOARD_WIDTH = 521;
 const BOARD_HEIGHT = 577;
-const SQUARE_SIZE = 57;
+export const SQUARE_SIZE = 57;
 const SQUARE_LEFT = (BOARD_WIDTH - SQUARE_SIZE * 9) >> 1;
 const SQUARE_TOP = (BOARD_HEIGHT - SQUARE_SIZE * 10) >> 1;
 const THINKING_SIZE = 32;
 const THINKING_LEFT = (BOARD_WIDTH - THINKING_SIZE) >> 1;
 const THINKING_TOP = (BOARD_HEIGHT - THINKING_SIZE) >> 1;
-const MAX_STEP = 8;
+export const MAX_STEP = 8;
 
 // Utility
 export class ChineseChessUtil {
@@ -1298,11 +1299,6 @@ export enum ChineseChessHandicap {
 }
 
 // Level of AI
-export enum ChineseChessAILevel {
-  Easy = 0,
-  Medium = 1,
-  Hard = 2,
-}
 
 export enum ChineseChessResult {
   Unknown = 0,
@@ -1323,7 +1319,7 @@ interface SearchHashItem {
 const HASH_ALPHA = 1;
 const HASH_BETA = 2;
 const HASH_PV = 3;
-const LIMIT_DEPTH = 64;
+export const LIMIT_DEPTH = 64;
 const NULL_DEPTH = 2;
 const RANDOM_MASK = 7;
 // const MAX_GEN_MOVES = Position.MAX_GEN_MOVES;
@@ -1880,8 +1876,8 @@ export class ChineseChessBoard {
     if (this.busy || this.result !== ChineseChessResult.Unknown) {
       return;
     }
-    let sq = this.flipped(sq_);
-    let pc = this.pos.squares[sq];
+    const sq = this.flipped(sq_);
+    const pc = this.pos.squares[sq];
     if ((pc & this.objUtil.SIDE_TAG(this.pos.sdPlayer)) !== 0) {
     //   this.playSound("click");
       if (this.mvLast != 0) {
@@ -1912,17 +1908,17 @@ export class ChineseChessBoard {
 		return;
 	  }
 	
-	  let sqSrc = this.flipped(this.objUtil.SRC(mv));
-	  let xSrc = this.objUtil.SQ_X(sqSrc);
-	  let ySrc = this.objUtil.SQ_Y(sqSrc);
-	  let sqDst = this.flipped(this.objUtil.DST(mv));
-	  let xDst = this.objUtil.SQ_X(sqDst);
-	  let yDst = this.objUtil.SQ_Y(sqDst);
-	  let style = this.imgSquares[sqSrc].style;
+	  const sqSrc = this.flipped(this.objUtil.SRC(mv));
+	  const xSrc = this.objUtil.SQ_X(sqSrc);
+	  const ySrc = this.objUtil.SQ_Y(sqSrc);
+	  const sqDst = this.flipped(this.objUtil.DST(mv));
+	  const xDst = this.objUtil.SQ_X(sqDst);
+	  const yDst = this.objUtil.SQ_Y(sqDst);
+	  const style = this.imgSquares[sqSrc].style;
 	  style.zIndex = 256;
 	  let step = MAX_STEP - 1;
 
-	  let timer = setInterval(() => {
+	  const timer = setInterval(() => {
 		if (step == 0) {
 			clearInterval(timer);
 			style.left = xSrc + "px";
@@ -1965,10 +1961,10 @@ export class ChineseChessBoard {
 		// this.playSound(computerMove ? "loss" : "win");
 		this.result = computerMove ? ChineseChessResult.Loss :ChineseChessResult.Win;
 	
-		var pc = this.objUtil.SIDE_TAG(this.pos.sdPlayer) + PIECE_KING;
-		var sqMate = 0;
-		for (var sq = 0; sq < 256; sq ++) {
-		  if (this.pos.squares[sq] == pc) {
+		const pc = this.objUtil.SIDE_TAG(this.pos.sdPlayer) + PIECE_KING;
+		let sqMate = 0;
+		for (let sq = 0; sq < 256; sq ++) {
+		  if (this.pos.squares[sq] === pc) {
 			sqMate = sq;
 			break;
 		  }
@@ -1979,12 +1975,12 @@ export class ChineseChessBoard {
 		}
 	
 		sqMate = this.flipped(sqMate);
-		var style = this.imgSquares[sqMate].style;
+		const style = this.imgSquares[sqMate].style;
 		style.zIndex = 256;
-		var xMate = this.objUtil.SQ_X(sqMate);
-		var step = MAX_STEP;
+		const xMate = this.objUtil.SQ_X(sqMate);
+		let step = MAX_STEP;
 
-		var timer = setInterval(() => {
+		const timer = setInterval(() => {
 		  if (step === 0) {
 			clearInterval(timer);
 			style.left = xMate + "px";
@@ -2001,7 +1997,7 @@ export class ChineseChessBoard {
 		return;
 	  }
 	
-	  var vlRep = this.pos.repStatus(3);
+	  let vlRep = this.pos.repStatus(3);
 	  if (vlRep > 0) {
 		vlRep = this.pos.repValue(vlRep);
 		if (vlRep > -WIN_VALUE && vlRep < WIN_VALUE) {
@@ -2024,8 +2020,8 @@ export class ChineseChessBoard {
 	  }
 	
 	  if (this.pos.captured()) {
-		var hasMaterial = false;
-		for (var sq = 0; sq < 256; sq ++) {
+		let hasMaterial = false;
+		for (let sq = 0; sq < 256; sq ++) {
 		  if (this.objUtil.IN_BOARD(sq) && (this.pos.squares[sq] & 7) > 2) {
 			hasMaterial = true;
 			break;
@@ -2040,8 +2036,8 @@ export class ChineseChessBoard {
 		  return;
 		}
 	  } else if (this.pos.pcList.length > 100) {
-		var captured = false;
-		for (var i = 2; i <= 100; i ++) {
+		let captured = false;
+		for (let i = 2; i <= 100; i ++) {
 		  if (this.pos.pcList[this.pos.pcList.length - i] > 0) {
 			captured = true;
 			break;
@@ -2077,6 +2073,12 @@ export class ChineseChessBoard {
 
   postMate(computerMove: boolean) {
 	// alertDelay(computerMove ? "请再接再厉！" : "祝贺你取得胜利！");
+	if (computerMove) {
+		// Computer win
+	} else {
+		// Player win
+	}
+
 	this.postAddMove2();
 	this.busy = false;
   }

@@ -87,11 +87,74 @@ export class GeneralFilterItem {
   }
 }
 
+export enum ChineseChessAILevel {
+  Easy = 0,
+  Medium = 1,
+  Hard = 2,
+}
+export enum ChineseChessPlayMode {
+  PlayerFirst = 0,
+  AIFirst = 1,
+  NoAI = 2,
+}
+
+// Handicap
+export enum ChineseChessHandicap {
+  None = 0,
+  LeftKnight = 1,
+  TwoKnights = 2,
+  Nine = 3,
+}
+
+export enum ChineseChessBoardStyle {
+  Wood = 'wood',
+  Canvas = 'canvas',
+  Drops = 'drops',
+  Green = 'green',
+  Qianhong = 'qianhong',
+  Sheet = 'sheet',
+  White = 'white',
+}
+
+export enum ChineseChessPieceStyle {
+  Wood = 'wood',
+  Delicate = 'delicate',
+  Polish = 'polish',
+}
+
+export class EnumUtility {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  static getNamesAndValues<T extends number>(e: any) {
+    return EnumUtility.getNames(e).map((n) => ({ name: n, value: e[n] as T }));
+  }
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  static getNames(e: any) {
+    return Object.keys(e).filter((k) => typeof e[k] === 'number') as string[];
+  }
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  static getValues<T extends number>(e: any) {
+    return Object.keys(e)
+      .map((k) => e[k])
+      .filter((v) => typeof v === 'number') as T[];
+  }
+}
+
 /**
  * UI Display string
  */
+
+export type UIDisplayStringEnum =
+  | GeneralFilterOperatorEnum
+  | ChineseChessPlayMode
+  | ChineseChessAILevel
+  | ChineseChessHandicap
+  | ChineseChessBoardStyle
+  | ChineseChessPieceStyle;
+
 export class UIDisplayString {
-  public value: GeneralFilterOperatorEnum;
+  public value: UIDisplayStringEnum;
   public i18nterm: string;
   public displaystring: string;
 
@@ -142,64 +205,166 @@ export class UIDisplayStringUtil {
         return '';
     }
   }
-}
 
-// @Injectable()
-// export class AppDateAdapter extends NativeDateAdapter {format(date: Date, displayFormat: any): string {
-//   if (displayFormat === 'DISPLAY') {
-//     return date.toISOString();
-//   }
-//   return date.toDateString();
-// }}
+  public static getChineseChessPlayModeDisplayStrings(): UIDisplayString[] {
+    const arrst: UIDisplayString[] = [];
 
-// export const MY_DATE_FORMATS = {
-//   parse: {
-//     dateInput: 'PARSE',
-//   },
-//   display: {
-//     dateInput: 'DISPLAY',
-//     monthYearLabel: 'MMM YYYY',
-//     dateA11yLabel: 'LL',
-//     monthYearA11yLabel: 'MMMM YYYY',
-//   },
-// };
+    // for (const rfe in EnumUtility.getValues(ChineseChessPlayMode)) {
+    //   arrst.push({
+    //     value: +rfe,
+    //     i18nterm: UIDisplayStringUtil.getGeneralFilterOperatorDisplayString(+rfe),
+    //     displaystring: '',
+    //   });
+    // }
+    for (const rfe in ChineseChessPlayMode) {
+      if (Number.isNaN(+rfe)) {
+        // Do nothing
+      } else {
+        arrst.push({
+          value: +rfe,
+          i18nterm: UIDisplayStringUtil.getChineseChessPlayModeDisplayString(+rfe),
+          displaystring: '',
+        });
+      }
+    }
 
-// @Injectable()
-// export class MatPaginatorIntlCro extends MatPaginatorIntl {
-//   itemsPerPageLabel = 'Stavki po stranici';
-//   nextPageLabel     = 'Slijedeća stranica';
-//   previousPageLabel = 'Prethodna stranica';
-
-//   getRangeLabel = function (page, pageSize, length) {
-//     if (length === 0 || pageSize === 0) {
-//       return '0 od ' + length;
-//     }
-//     length = Math.max(length, 0);
-//     const startIndex = page * pageSize;
-//     // If the start index exceeds the list length, do not try and fix the end index to the end.
-//     const endIndex = startIndex < length ?
-//       Math.min(startIndex + pageSize, length) :
-//       startIndex + pageSize;
-//     return startIndex + 1 + ' - ' + endIndex + ' od ' + length;
-//   };
-// }
-
-export class EnumUtility {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  static getNamesAndValues<T extends number>(e: any) {
-    return EnumUtility.getNames(e).map((n) => ({ name: n, value: e[n] as T }));
+    return arrst;
+  }
+  public static getChineseChessPlayModeDisplayString(opts: ChineseChessPlayMode): string {
+    switch (opts) {
+      case ChineseChessPlayMode.AIFirst:
+        return `PuzzleGames.ComputerFirst`;
+      case ChineseChessPlayMode.PlayerFirst:
+        return `PuzzleGames.PlayerFirst`;
+      case ChineseChessPlayMode.NoAI:
+        return `PuzzleGames.TwoPlayers`;
+      default:
+        return '';
+    }
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  static getNames(e: any) {
-    return Object.keys(e).filter((k) => typeof e[k] === 'number') as string[];
+  public static getChineseChessAILevelDisplayStrings(): UIDisplayString[] {
+    const arrst: UIDisplayString[] = [];
+
+    for (const rfe in ChineseChessAILevel) {
+      if (Number.isNaN(+rfe)) {
+        // Do nothing
+      } else {
+        arrst.push({
+          value: +rfe,
+          i18nterm: UIDisplayStringUtil.getChineseChessAILevelDisplayString(+rfe),
+          displaystring: '',
+        });
+      }
+    }
+
+    return arrst;
+  }
+  public static getChineseChessAILevelDisplayString(opts: ChineseChessAILevel): string {
+    switch (opts) {
+      case ChineseChessAILevel.Medium:
+        return `PuzzleGames.Medium`;
+      case ChineseChessAILevel.Easy:
+        return `PuzzleGames.Easy`;
+      case ChineseChessAILevel.Hard:
+        return `PuzzleGames.Hard`;
+      default:
+        return '';
+    }
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  static getValues<T extends number>(e: any) {
-    return Object.keys(e)
-      .map((k) => e[k])
-      .filter((v) => typeof v === 'number') as T[];
+  public static getChineseChessHandicapDisplayStrings(): UIDisplayString[] {
+    const arrst: UIDisplayString[] = [];
+
+    for (const rfe in ChineseChessAILevel) {
+      if (Number.isNaN(+rfe)) {
+        // Do nothing
+      } else {
+        arrst.push({
+          value: +rfe,
+          i18nterm: UIDisplayStringUtil.getChineseChessAILevelDisplayString(+rfe),
+          displaystring: '',
+        });
+      }
+    }
+
+    return arrst;
+  }
+  public static getChineseChessHandicapDisplayString(opts: ChineseChessHandicap): string {
+    switch (opts) {
+      case ChineseChessHandicap.LeftKnight:
+        return `PuzzleGames.LeftKnight`;
+      case ChineseChessHandicap.Nine:
+        return `PuzzleGames.NinePiece`;
+      case ChineseChessHandicap.TwoKnights:
+        return `PuzzleGames.TwoKnights`;
+      case ChineseChessHandicap.None:
+        return 'PuzzleGames.NoHandicap';
+      default:
+        return '';
+    }
+  }
+  public static getChineseChessBoardStyleDisplayStrings(): UIDisplayString[] {
+    const arrst: UIDisplayString[] = [];
+
+    arrst.push({
+      value: ChineseChessBoardStyle.Wood,
+      displaystring: ChineseChessBoardStyle.Wood,
+      i18nterm: '',
+    });
+    arrst.push({
+      value: ChineseChessBoardStyle.Canvas,
+      displaystring: ChineseChessBoardStyle.Canvas,
+      i18nterm: '',
+    });
+    arrst.push({
+      value: ChineseChessBoardStyle.Drops,
+      displaystring: ChineseChessBoardStyle.Drops,
+      i18nterm: '',
+    });
+    arrst.push({
+      value: ChineseChessBoardStyle.Green,
+      displaystring: ChineseChessBoardStyle.Green,
+      i18nterm: '',
+    });
+    arrst.push({
+      value: ChineseChessBoardStyle.Qianhong,
+      displaystring: ChineseChessBoardStyle.Qianhong,
+      i18nterm: '',
+    });
+    arrst.push({
+      value: ChineseChessBoardStyle.Sheet,
+      displaystring: ChineseChessBoardStyle.Sheet,
+      i18nterm: '',
+    });
+    arrst.push({
+      value: ChineseChessBoardStyle.White,
+      displaystring: ChineseChessBoardStyle.White,
+      i18nterm: '',
+    });
+
+    return arrst;
+  }
+  public static getChineseChessPieceStyleDisplayStrings(): UIDisplayString[] {
+    const arrst: UIDisplayString[] = [];
+
+    arrst.push({
+      value: ChineseChessPieceStyle.Wood,
+      displaystring: ChineseChessPieceStyle.Wood,
+      i18nterm: '',
+    });
+    arrst.push({
+      value: ChineseChessPieceStyle.Delicate,
+      displaystring: ChineseChessPieceStyle.Delicate,
+      i18nterm: '',
+    });
+    arrst.push({
+      value: ChineseChessPieceStyle.Polish,
+      displaystring: ChineseChessPieceStyle.Polish,
+      i18nterm: '',
+    });
+
+    return arrst;
   }
 }
 

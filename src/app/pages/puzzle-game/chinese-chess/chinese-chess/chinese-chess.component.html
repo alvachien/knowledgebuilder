@@ -2,27 +2,37 @@
   <h1>{{'PuzzleGames.ChineseChess' | transloco}}</h1>
   <div class="toolbar-spacer"></div>
   <mat-form-field class="form-field-item">
+    <mat-label>Board</mat-label>
+    <mat-select [disabled]="isStarted" required [(ngModel)]="selectedBoardStyle">
+      <mat-option *ngFor="let sts of arBoardStyleDisplayStrings" [value]="sts.value">{{sts.displaystring}}</mat-option>
+    </mat-select>
+  </mat-form-field>
+  <mat-form-field class="form-field-item">
+    <mat-label>Piece</mat-label>
+    <mat-select [disabled]="isStarted" required [(ngModel)]="selectedPieceStyle">
+      <mat-option *ngFor="let sts of arPieceStyleDisplayStrings" [value]="sts.value">{{sts.displaystring}}</mat-option>
+    </mat-select>
+  </mat-form-field>
+  <mat-form-field class="form-field-item">
     <mat-label>先走方</mat-label>
-    <mat-select required [(ngModel)]="selectedMoveMode" (selectionChange)="onSelectedMoveModeChange($event)">
-      <mat-option value="0">我</mat-option>
-      <mat-option value="1">电脑</mat-option>
-      <mat-option value="2">无电脑</mat-option>
+    <mat-select [disabled]="isStarted" required [(ngModel)]="selectedMoveMode" (selectionChange)="onSelectedMoveModeChange($event)">
+      <mat-option *ngFor="let sts of arPlayModeDisplayStrings"
+        [value]="sts.value">{{sts.i18nterm | transloco}}</mat-option>
     </mat-select>
   </mat-form-field>
   <mat-form-field class="form-field-item">
     <mat-label>AI等级</mat-label>
-    <mat-select required [(ngModel)]="selectedAILevel" (selectionChange)="onSelectedAILevelChange($event)">
-      <mat-option value="0">低</mat-option>
-      <mat-option value="1">中等</mat-option>
-      <mat-option value="2">难</mat-option>
+    <mat-select [disabled]="isStarted" required [(ngModel)]="selectedAILevel" (selectionChange)="onSelectedAILevelChange($event)">
+      <mat-option *ngFor="let sts of arAILevelDisplayStrings"
+        [value]="sts.value">{{sts.i18nterm | transloco}}</mat-option>
     </mat-select>
   </mat-form-field>
-  <mat-checkbox [(ngModel)]="audioEnabled">音效</mat-checkbox>
-  <button mat-button (click)="onStart()">Start</button>
+  <mat-checkbox [(ngModel)]="audioEnabled" [disabled]="isStarted">音效</mat-checkbox>
+  <button mat-button (click)="onStart()" [disabled]="isStarted"> 开始</button>
+  <button mat-button (click)="onSurrend()" [disabled]="!isStarted">投降</button>
 </mat-toolbar>
 
 <div style="margin-top: 60px; margin-left: 100px;">
   <div #chesscontainer class="chess-container">
-
   </div>
 </div>
