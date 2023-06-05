@@ -57,8 +57,8 @@ const CRACK_TYPE_BULLET = "bullet";
 // Global runtime context
 export class BattleCityGlobalContext {
     // static 
-    static imageMenu: HTMLImageElement;
-    static imageResource: HTMLImageElement;
+    static imageMenu: any;
+    static imageResource: any;
 
     static menu: BattleCityMenu;
     static stage: BattleCityStage;
@@ -1080,11 +1080,11 @@ export class BattleCityStage {
 }
 
 export class BattleCityMenu {
-    private x = 0;
-    private y = BC_Screen_Height;
+    x = 0;
+    y = BC_Screen_Height;
 	selectTank = new BattleCitySelectTank();
-	private playNum = 1;
-	private times = 0;
+	playNum = 1;
+	times = 0;
     private context: CanvasRenderingContext2D;
 
     constructor(ctx: CanvasRenderingContext2D) {
@@ -1092,11 +1092,12 @@ export class BattleCityMenu {
     }
 
     draw() {
-        console.debug('Entering BattleCityMenu.draw');
+        // console.debug('Entering BattleCityMenu.draw');
 
-		this.times ++ ;
+		this.times ++;
+
 		let temp = 0;
-		if(parseInt((this.times / 6).toString()) % 2 === 0){
+		if(Math.floor((this.times / 6)) % 2 === 0){
 			temp = 0;
 		} else {
 			temp = this.selectTank.size;
@@ -1109,8 +1110,7 @@ export class BattleCityMenu {
 		this.context.clearRect(0, 0, BC_Screen_Width, BC_Screen_Height);   
 		this.context.save(); 
 		// 画背景
-		this.context.drawImage(BattleCityGlobalContext.imageMenu, 0, 0, BC_Screen_Width, BC_Screen_Height,
-            0, 0, BC_Screen_Width, BC_Screen_Height);
+		this.context.drawImage(BattleCityGlobalContext.imageMenu, this.x, this.y);
         // 画选择坦克
 		this.context.drawImage(BattleCityGlobalContext.imageResource,
             ImagePOS["selectTank"][0], ImagePOS["selectTank"][1] + temp,

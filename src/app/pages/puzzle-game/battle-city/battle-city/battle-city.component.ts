@@ -1,8 +1,10 @@
-import { AfterViewInit, Component, ElementRef, OnDestroy, ViewChild } from '@angular/core';
+import { AfterViewInit, Component, ElementRef, HostListener, OnDestroy, ViewChild } from '@angular/core';
 
-import { BC_Screen_Height, BC_Screen_Width, BattleCityGlobalContext, 
-  BattleCityMap, GAME_STATE_INIT, GAME_STATE_MENU, GAME_STATE_OVER, 
-  GAME_STATE_START, GAME_STATE_WIN } from 'src/app/models/battle-city';
+import {
+  BC_Screen_Height, BC_Screen_Width, BattleCityGlobalContext,
+  BattleCityMap, GAME_STATE_INIT, GAME_STATE_MENU, GAME_STATE_OVER,
+  GAME_STATE_START, GAME_STATE_WIN
+} from 'src/app/models/battle-city';
 
 @Component({
   selector: 'app-battle-city',
@@ -19,32 +21,85 @@ export class BattleCityComponent implements AfterViewInit, OnDestroy {
   @ViewChild('grassCanvas', { static: true }) elementGrassCanvas: ElementRef | null = null;
   @ViewChild('overCanvas', { static: true }) elementOverCanvas: ElementRef | null = null;
 
+  @HostListener('window:keydown', ['$event'])
+  onKeyDownEvent(e: KeyboardEvent) {
+    console.debug(`Entering BattleCityComponent.onKeyUpEvent: key = ${e.key}, code = ${e.code}`);
+    switch (BattleCityGlobalContext.gameState) {
+      case GAME_STATE_MENU:
+        if (e.key === 'Enter') {
+          BattleCityGlobalContext.gameState = GAME_STATE_INIT;
+          //只有一个玩家
+          if (BattleCityGlobalContext.menu.playNum == 1) {
+            BattleCityGlobalContext.player2!.lives = 0;
+          }
+        } else {
+          let n = 0;
+          if (e.key === 'ArrowDown') {
+            n = 1;
+          } else if (e.key === 'ArrowUp') {
+            n = -1;
+          }
+
+          BattleCityGlobalContext.menu.next(n);
+        }
+        break;
+      case GAME_STATE_START:
+        // if (!BattleCityGlobalContext.keys.contain(e.keyCode)) {
+        //   BattleCityGlobalContext.keys.push(e.keyCode);
+        // }
+        // // 射击
+        // if (e.keyCode == keyboard.SPACE && BattleCityGlobalContext.player1.lives > 0) {
+        //   BattleCityGlobalContext.player1.shoot(BULLET_TYPE_PLAYER);
+        // } else if (e.keyCode == keyboard.ENTER && player2.lives > 0) {
+        //   BattleCityGlobalContext.player2.shoot(BULLET_TYPE_ENEMY);
+        // } else if (e.keyCode == keyboard.N) {
+        //   nextLevel();
+        // } else if (e.keyCode == keyboard.P) {
+        //   preLevel();
+        // }
+        break;
+    }
+  }
+
+  @HostListener('window:keyup', ['$event'])
+  onKeyUpEvent(event: KeyboardEvent) {
+    console.debug(`Entering BattleCityComponent.onKeyUpEvent`);
+
+    // if (event.keyCode === KEY_CODE.RIGHT_ARROW) {
+    //   this.increment();
+    // }
+
+    // if (event.keyCode === KEY_CODE.LEFT_ARROW) {
+    //   this.decrement();
+    // }
+  }
+
   ngAfterViewInit(): void {
     console.debug('Entering BattleCityComponent.ngAfterViewInit');
 
     if (this.elementCanvasContainer !== null) {
-      this.elementCanvasContainer.nativeElement.style.width = `${BC_Screen_Width}px`;
-      this.elementCanvasContainer.nativeElement.style.height = `${BC_Screen_Height}px`;
+      this.elementCanvasContainer.nativeElement.width = BC_Screen_Width; // `${BC_Screen_Width}px`;
+      this.elementCanvasContainer.nativeElement.height = BC_Screen_Height; // `${BC_Screen_Height}px`;
     }
     if (this.elementStageCanvas !== null) {
-      this.elementStageCanvas.nativeElement.style.width = `${BC_Screen_Width}px`;
-      this.elementStageCanvas.nativeElement.style.height = `${BC_Screen_Height}px`;  
+      this.elementStageCanvas.nativeElement.width = BC_Screen_Width; // `${BC_Screen_Width}px`;
+      this.elementStageCanvas.nativeElement.height = BC_Screen_Height; // `${BC_Screen_Height}px`;  
     }
     if (this.elementWallCanvas !== null) {
-      this.elementWallCanvas.nativeElement.style.width = `${BC_Screen_Width}px`;
-      this.elementWallCanvas.nativeElement.style.height = `${BC_Screen_Height}px`;  
+      this.elementWallCanvas.nativeElement.width = BC_Screen_Width; // `${BC_Screen_Width}px`;
+      this.elementWallCanvas.nativeElement.height = BC_Screen_Height; // `${BC_Screen_Height}px`;  
     }
     if (this.elementTankCanvas !== null) {
-      this.elementTankCanvas.nativeElement.style.width = `${BC_Screen_Width}px`;
-      this.elementTankCanvas.nativeElement.style.height = `${BC_Screen_Height}px`;  
+      this.elementTankCanvas.nativeElement.width = BC_Screen_Width; // `${BC_Screen_Width}px`;
+      this.elementTankCanvas.nativeElement.height = BC_Screen_Height; // `${BC_Screen_Height}px`;  
     }
     if (this.elementGrassCanvas !== null) {
-      this.elementGrassCanvas.nativeElement.style.width = `${BC_Screen_Width}px`;
-      this.elementGrassCanvas.nativeElement.style.height = `${BC_Screen_Height}px`;  
+      this.elementGrassCanvas.nativeElement.width = BC_Screen_Width; // `${BC_Screen_Width}px`;
+      this.elementGrassCanvas.nativeElement.height = BC_Screen_Height; // `${BC_Screen_Height}px`;  
     }
     if (this.elementOverCanvas !== null) {
-      this.elementOverCanvas.nativeElement.style.width = `${BC_Screen_Width}px`;
-      this.elementOverCanvas.nativeElement.style.height = `${BC_Screen_Height}px`;  
+      this.elementOverCanvas.nativeElement.width = BC_Screen_Width; // `${BC_Screen_Width}px`;
+      this.elementOverCanvas.nativeElement.height = BC_Screen_Height; // `${BC_Screen_Height}px`;  
     }
 
     // Global context
@@ -65,7 +120,7 @@ export class BattleCityComponent implements AfterViewInit, OnDestroy {
       this.elementOverCanvas?.nativeElement.getContext('2d')
     );
 
-    this.timerGame = setInterval(() => this.gameLoop(), 20);
+    this.timerGame = setInterval(() => this.gameLoop(), 100);
   }
 
   ngOnDestroy(): void {
@@ -76,16 +131,16 @@ export class BattleCityComponent implements AfterViewInit, OnDestroy {
   }
 
   gameLoop() {
-    console.debug('Entering BattleCityComponent.gameLoop');
+    // console.debug('Entering BattleCityComponent.gameLoop');
 
-    switch(BattleCityGlobalContext.gameState){
+    switch (BattleCityGlobalContext.gameState) {
       case GAME_STATE_MENU:
         BattleCityGlobalContext.menu.draw();
         break;
 
       case GAME_STATE_INIT:
         BattleCityGlobalContext.stage!.draw();
-        if(BattleCityGlobalContext.stage!.isReady == true){
+        if (BattleCityGlobalContext.stage!.isReady == true) {
           BattleCityGlobalContext.gameState = GAME_STATE_START;
         }
         break;
