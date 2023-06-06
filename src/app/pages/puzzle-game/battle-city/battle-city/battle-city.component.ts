@@ -28,7 +28,7 @@ export class BattleCityComponent implements AfterViewInit, OnDestroy {
       case GAME_STATE_MENU:
         if (e.key === 'Enter') {
           BattleCityGlobalContext.gameState = GAME_STATE_INIT;
-          //只有一个玩家
+          // 只有一个玩家
           if (BattleCityGlobalContext.menu.playNum == 1) {
             BattleCityGlobalContext.player2!.lives = 0;
           }
@@ -140,25 +140,25 @@ export class BattleCityComponent implements AfterViewInit, OnDestroy {
 
       case GAME_STATE_INIT:
         BattleCityGlobalContext.stage!.draw();
-        if (BattleCityGlobalContext.stage!.isReady == true) {
+        if (BattleCityGlobalContext.stage!.isReady === true) {
           BattleCityGlobalContext.gameState = GAME_STATE_START;
         }
         break;
+
       case GAME_STATE_START:
-        // TBD.
-        // this.drawAll();
-        // if(isGameOver ||(player1.lives <=0 && player2.lives <= 0)){
-        //   gameState = GAME_STATE_OVER;
-        //   map.homeHit();
-        //   PLAYER_DESTROY_AUDIO.play();
-        // }
-        // if(appearEnemy == maxEnemy && enemyArray.length == 0){
-        //   gameState  = GAME_STATE_WIN;
-        // }
+        BattleCityGlobalContext.drawAll();
+        if(BattleCityGlobalContext.isGameOver ||(BattleCityGlobalContext.player1!.lives <=0 && BattleCityGlobalContext.player2!.lives <= 0)){
+          BattleCityGlobalContext.gameState = GAME_STATE_OVER;
+          BattleCityGlobalContext.map!.homeHit();
+          // TBD
+          // PLAYER_DESTROY_AUDIO.play();
+        }
+        if(BattleCityGlobalContext.appearEnemy == BattleCityGlobalContext.maxEnemy && BattleCityGlobalContext.enemyArray.length == 0){
+          BattleCityGlobalContext.gameState  = GAME_STATE_WIN;
+        }
         break;
       case GAME_STATE_WIN:
-        // TBD.
-        // nextLevel();
+        BattleCityGlobalContext.nextLevel();
         break;
       case GAME_STATE_OVER:
         // TBD.
