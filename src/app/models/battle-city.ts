@@ -48,20 +48,24 @@ const RIGHT = 3;
 const ENEMY_LOCATION = [192, 0, 384]; //相对与主游戏区
 
 /**************子弹类型*****************/
-const BULLET_TYPE_PLAYER = 1;
-const BULLET_TYPE_ENEMY = 2;
+export const BULLET_TYPE_PLAYER = 1;
+export const BULLET_TYPE_ENEMY = 2;
 /**************爆炸类型****************/
 const CRACK_TYPE_TANK = "tank";
 const CRACK_TYPE_BULLET = "bullet";
 
-const KEYBOARD_W = 87;
-const KEYBOARD_S = 83;
-const KEYBOARD_A = 65;
-const KEYBOARD_D = 68;
-const KEYBOARD_UP = 38;
-const KEYBOARD_DOWN = 40;
-const KEYBOARD_RIGHT = 39;
-const KEYBOARD_LEFT = 37;
+export const KEYBOARD_W = 'W';
+export const KEYBOARD_S = 'S';
+export const KEYBOARD_A = 'A';
+export const KEYBOARD_D = 'D';
+export const KEYBOARD_N = 'N';
+export const KEYBOARD_P = 'P';
+export const KEYBOARD_SPACE = ' ';
+export const KEYBOARD_ENTER = 'Enter';
+export const KEYBOARD_UP = 'ArrowUp';
+export const KEYBOARD_DOWN = 'ArrowDown';
+export const KEYBOARD_RIGHT = 'ArrowRight';
+export const KEYBOARD_LEFT = 'ArrowLeft';
 
 // MAP data
 /**
@@ -654,7 +658,7 @@ export class BattleCityGlobalContext {
 
 	static enemyArray: BattleCityEnemyTank[] = []; //敌方坦克
 	static bulletArray: BattleCityBullet[] = []; //子弹数组
-	static keys: number[] = []; //记录按下的按键
+	static keys: string[] = []; //记录按下的按键
 	static crackArray: BattleCityCrackAnimation[] = []; //爆炸数组
 	static gameState = GAME_STATE_MENU;//默认菜单状态
 	static level = 1;
@@ -1055,40 +1059,43 @@ export class BattleCityGlobalContext {
 	}
 
 	static keyEvent() {
-		if (BattleCityGlobalContext.keys.indexOf(KEYBOARD_W) !== -1) {
-			BattleCityGlobalContext.player1!.dir = UP;
-			BattleCityGlobalContext.player1!.hit = false;
-			BattleCityGlobalContext.player1!.move();
-		} else if (BattleCityGlobalContext.keys.indexOf(KEYBOARD_S) !== -1) {
-			BattleCityGlobalContext.player1!.dir = DOWN;
-			BattleCityGlobalContext.player1!.hit = false;
-			BattleCityGlobalContext.player1!.move();
-		} else if (BattleCityGlobalContext.keys.indexOf(KEYBOARD_A) !== -1) {
-			BattleCityGlobalContext.player1!.dir = LEFT;
-			BattleCityGlobalContext.player1!.hit = false;
-			BattleCityGlobalContext.player1!.move();
-		} else if (BattleCityGlobalContext.keys.indexOf(KEYBOARD_D) !== -1) {
-			BattleCityGlobalContext.player1!.dir = RIGHT;
-			BattleCityGlobalContext.player1!.hit = false;
-			BattleCityGlobalContext.player1!.move();
-		}
-
-		if (BattleCityGlobalContext.keys.indexOf(KEYBOARD_UP) !== -1) {
-			BattleCityGlobalContext.player2!.dir = UP;
-			BattleCityGlobalContext.player2!.hit = false;
-			BattleCityGlobalContext.player2!.move();
-		} else if (BattleCityGlobalContext.keys.indexOf(KEYBOARD_DOWN) !== -1) {
-			BattleCityGlobalContext.player2!.dir = DOWN;
-			BattleCityGlobalContext.player2!.hit = false;
-			BattleCityGlobalContext.player2!.move();
-		} else if (BattleCityGlobalContext.keys.indexOf(KEYBOARD_LEFT) !== -1) {
-			BattleCityGlobalContext.player2!.dir = LEFT;
-			BattleCityGlobalContext.player2!.hit = false;
-			BattleCityGlobalContext.player2!.move();
-		} else if (BattleCityGlobalContext.keys.indexOf(KEYBOARD_RIGHT) !== -1) {
-			BattleCityGlobalContext.player2!.dir = RIGHT;
-			BattleCityGlobalContext.player2!.hit = false;
-			BattleCityGlobalContext.player2!.move();
+		if (BattleCityGlobalContext.keys.length > 0) {
+			if (BattleCityGlobalContext.keys.indexOf(KEYBOARD_W) !== -1) {
+				BattleCityGlobalContext.player2!.dir = UP;
+				BattleCityGlobalContext.player2!.hit = false;
+				BattleCityGlobalContext.player2!.move();
+			} else if (BattleCityGlobalContext.keys.indexOf(KEYBOARD_S) !== -1) {
+				BattleCityGlobalContext.player2!.dir = DOWN;
+				BattleCityGlobalContext.player2!.hit = false;
+				BattleCityGlobalContext.player2!.move();
+			} else if (BattleCityGlobalContext.keys.indexOf(KEYBOARD_A) !== -1) {
+				BattleCityGlobalContext.player2!.dir = LEFT;
+				BattleCityGlobalContext.player2!.hit = false;
+				BattleCityGlobalContext.player2!.move();
+			} else if (BattleCityGlobalContext.keys.indexOf(KEYBOARD_D) !== -1) {
+				BattleCityGlobalContext.player2!.dir = RIGHT;
+				BattleCityGlobalContext.player2!.hit = false;
+				BattleCityGlobalContext.player2!.move();
+			}
+	
+			if (BattleCityGlobalContext.keys.indexOf(KEYBOARD_UP) !== -1) {
+				console.debug('Entering keyEvent: UP');
+				BattleCityGlobalContext.player1!.dir = UP;
+				BattleCityGlobalContext.player1!.hit = false;
+				BattleCityGlobalContext.player1!.move();
+			} else if (BattleCityGlobalContext.keys.indexOf(KEYBOARD_DOWN) !== -1) {				
+				BattleCityGlobalContext.player1!.dir = DOWN;
+				BattleCityGlobalContext.player1!.hit = false;
+				BattleCityGlobalContext.player1!.move();
+			} else if (BattleCityGlobalContext.keys.indexOf(KEYBOARD_LEFT) !== -1) {
+				BattleCityGlobalContext.player1!.dir = LEFT;
+				BattleCityGlobalContext.player1!.hit = false;
+				BattleCityGlobalContext.player1!.move();
+			} else if (BattleCityGlobalContext.keys.indexOf(KEYBOARD_RIGHT) !== -1) {
+				BattleCityGlobalContext.player1!.dir = RIGHT;
+				BattleCityGlobalContext.player1!.hit = false;
+				BattleCityGlobalContext.player1!.move();
+			}	
 		}
 	}
 
@@ -1135,10 +1142,31 @@ export class BattleCityGlobalContext {
 		BattleCityGlobalContext.gameState = GAME_STATE_INIT;
 	}
 
+	static gameOver(){
+		BattleCityGlobalContext.contextOver.clearRect(0, 0, BC_Screen_Width, BC_Screen_Height);
+		BattleCityGlobalContext.contextOver.drawImage(BattleCityGlobalContext.imageResource,
+			ImagePOS["over"][0], ImagePOS["over"][1], 64, 32,
+			BattleCityGlobalContext.overX + BattleCityGlobalContext.map!.offsetX,
+			BattleCityGlobalContext.overY + BattleCityGlobalContext.map!.offsetY,
+			64, 32);
+		BattleCityGlobalContext.overY -= 2 ;
+		// if(BattleCityGlobalContext.overY <= parseInt(BattleCityGlobalContext.map!.mapHeight/2)){
+		if(BattleCityGlobalContext.overY <= Math.floor(BattleCityGlobalContext.map!.mapHeight / 2)){
+			// initObject();
+			BattleCityGlobalContext.reinit();
+			
+			// 只有一个玩家
+			if(BattleCityGlobalContext.menu.playNum == 1){
+				BattleCityGlobalContext.player2!.lives = 0;
+			}
+			BattleCityGlobalContext.gameState = GAME_STATE_MENU;
+		}
+	}	
+
 	static homeNoProtected() {
 		var mapChangeIndex = [[23, 11], [23, 12], [23, 13], [23, 14], [24, 11], [24, 14], [25, 11], [25, 14]];
 		BattleCityGlobalContext.map!.updateMap(mapChangeIndex, WALL);
-	};
+	}
 }
 
 // Num
@@ -1441,15 +1469,15 @@ export abstract class BattleCityTank {
 	 */
 	distroy() {
 		this.isDestroyed = true;
+		
 		// TBD.
-		// crackArray.push(new CrackAnimation(CRACK_TYPE_TANK,this.ctx,this));
 		// TANK_DESTROY_AUDIO.play();
 	}
 
 }
 
 export class BattleCitySelectTank extends BattleCityTank {
-	ys = [250, 281]; //两个Y坐标，分别对应1p和2p
+	ys = [250, 281]; // 两个Y坐标，分别对应1p和2p
 	constructor() {
 		super();
 		this.x = 140;
@@ -1507,13 +1535,19 @@ export class BattleCityTankWithContext extends BattleCityTank {
 			this.isShooting = true;
 		}
 	}
+
+	override distroy() {
+		super.distroy();
+
+		BattleCityGlobalContext.crackArray.push(new BattleCityCrackAnimation(CRACK_TYPE_TANK,this.ctx, this));
+	}
 }
 
 export class BattleCityPlayTank extends BattleCityTankWithContext {
-	lives = 3; //生命值
-	isProtected = true; //是否受保护
-	protectedTime = 500; //保护时间
-	offsetX = 0; //坦克2与坦克1的距离
+	lives = 3; // 生命值
+	isProtected = true; // 是否受保护
+	protectedTime = 500; // 保护时间
+	offsetX = 0; // 坦克2与坦克1的距离
 
 	constructor(context: CanvasRenderingContext2D) {
 		super(context);
@@ -1527,7 +1561,7 @@ export class BattleCityPlayTank extends BattleCityTankWithContext {
 			ImagePOS["player"][0] + this.offsetX + this.dir * this.size,
 			ImagePOS["player"][1], this.size, this.size, this.x, this.y, this.size, this.size);
 		if (this.isProtected) {
-			//var temp = parseInt((500 - this.protectedTime)/5)%2;
+			// var temp = parseInt((500 - this.protectedTime)/5)%2;
 			let temp = Math.floor((500 - this.protectedTime) / 5) % 2;
 			this.ctx.drawImage(BattleCityGlobalContext.imageResource,
 				ImagePOS["protected"][0],
@@ -1542,8 +1576,8 @@ export class BattleCityPlayTank extends BattleCityTankWithContext {
 
 	override distroy() {
 		this.isDestroyed = true;
+		BattleCityGlobalContext.crackArray.push(new BattleCityCrackAnimation(CRACK_TYPE_TANK, this.ctx, this));
 		// TBD.
-		// crackArray.push(new CrackAnimation(CRACK_TYPE_TANK,this.ctx,this));
 		// PLAYER_DESTROY_AUDIO.play();
 	}
 
@@ -1601,7 +1635,7 @@ export class BattleCityEnemyOne extends BattleCityEnemyTank {
 				ImagePOS["enemy1"][0] + this.dir * this.size,
 				ImagePOS["enemy1"][1], 32, 32, this.x, this.y, 32, 32);
 
-			//以一定的概率射击
+			// 以一定的概率射击
 			if (this.times % 50 == 0) {
 				let ra = Math.random();
 				if (ra < this.shootRate) {
@@ -1635,7 +1669,7 @@ export class BattleCityEnemyTwo extends BattleCityEnemyTank {
 		} else {
 			this.ctx.drawImage(BattleCityGlobalContext.imageResource,
 				ImagePOS["enemy2"][0] + this.dir * this.size, ImagePOS["enemy2"][1], 32, 32, this.x, this.y, 32, 32);
-			//以一定的概率射击
+			// 以一定的概率射击
 			if (this.times % 50 == 0) {
 				let ra = Math.random();
 				if (ra < this.shootRate) {
@@ -1671,7 +1705,7 @@ export class BattleCityEnemyThree extends BattleCityEnemyTank {
 			this.ctx.drawImage(BattleCityGlobalContext.imageResource,
 				ImagePOS["enemy3"][0] + this.dir * this.size + (3 - this.lives) * this.size * 4,
 				ImagePOS["enemy3"][1], 32, 32, this.x, this.y, 32, 32);
-			//以一定的概率射击
+			// 以一定的概率射击
 			if (this.times % 50 == 0) {
 				let ra = Math.random();
 				if (ra < this.shootRate) {
@@ -1692,8 +1726,8 @@ export class BattleCityBullet {
 	hit = false;
 	isDestroyed = false;
 	ctx: CanvasRenderingContext2D;
-	owner: BattleCityTank; //子弹的所属者
-	type = 0; //1、玩家  2、敌方
+	owner: BattleCityTank; // 子弹的所属者
+	type = 0; // 1、玩家  2、敌方
 	dir = 0;
 
 	constructor(context: CanvasRenderingContext2D, owner: BattleCityTank, typ: number, dir: number) {
@@ -1730,7 +1764,7 @@ export class BattleCityBullet {
 		if (this.isDestroyed) {
 			return;
 		}
-		//临界检测
+		// 临界检测
 		if (this.x < BattleCityGlobalContext.map!.offsetX) {
 			this.x = BattleCityGlobalContext.map!.offsetX;
 			this.hit = true;
@@ -1760,11 +1794,11 @@ export class BattleCityBullet {
 		}
 
 		if (!this.hit) {
-			//地图检测
+			// 地图检测
 			if (BattleCityGlobalContext.bulletMapCollision(this, BattleCityGlobalContext.map!)) {
 				this.hit = true;
 			}
-			//是否击中坦克
+			// 是否击中坦克
 			if (this.type == BULLET_TYPE_PLAYER) {
 				if (BattleCityGlobalContext.enemyArray.length > 0) {
 					for (let i = 0; i < BattleCityGlobalContext.enemyArray.length; i++) {
@@ -1795,7 +1829,6 @@ export class BattleCityBullet {
 				}
 			}
 		}
-
 
 		if (this.hit) {
 			this.distroy();

@@ -1,9 +1,9 @@
 import { AfterViewInit, Component, ElementRef, HostListener, OnDestroy, ViewChild } from '@angular/core';
 
 import {
-  BC_Screen_Height, BC_Screen_Width, BattleCityGlobalContext,
+  BC_Screen_Height, BC_Screen_Width, BULLET_TYPE_ENEMY, BULLET_TYPE_PLAYER, BattleCityGlobalContext,
   BattleCityMap, GAME_STATE_INIT, GAME_STATE_MENU, GAME_STATE_OVER,
-  GAME_STATE_START, GAME_STATE_WIN
+  GAME_STATE_START, GAME_STATE_WIN, KEYBOARD_DOWN, KEYBOARD_ENTER, KEYBOARD_N, KEYBOARD_P, KEYBOARD_SPACE, KEYBOARD_UP
 } from 'src/app/models/battle-city';
 
 @Component({
@@ -23,40 +23,43 @@ export class BattleCityComponent implements AfterViewInit, OnDestroy {
 
   @HostListener('window:keydown', ['$event'])
   onKeyDownEvent(e: KeyboardEvent) {
-    console.debug(`Entering BattleCityComponent.onKeyUpEvent: key = ${e.key}, code = ${e.code}`);
+    console.debug(`Entering BattleCityComponent.onKeyDownEvent: key = ${e.key}, code = ${e.code}`);
+
     switch (BattleCityGlobalContext.gameState) {
       case GAME_STATE_MENU:
-        if (e.key === 'Enter') {
+        if (e.key === KEYBOARD_ENTER) {
           BattleCityGlobalContext.gameState = GAME_STATE_INIT;
           // 只有一个玩家
           if (BattleCityGlobalContext.menu.playNum == 1) {
             BattleCityGlobalContext.player2!.lives = 0;
           }
         } else {
-          let n = 0;          
-          if (e.key === 'ArrowDown') {
+          let n = 0;
+          if (e.key === KEYBOARD_DOWN) {
             n = 1;
-          } else if (e.key === 'ArrowUp') {
+          } else if (e.key === KEYBOARD_UP) {
             n = -1;
           }
 
           BattleCityGlobalContext.menu.next(n);
         }
         break;
+
       case GAME_STATE_START:
-        // if (!BattleCityGlobalContext.keys.contain(e.keyCode)) {
-        //   BattleCityGlobalContext.keys.push(e.keyCode);
-        // }
-        // // 射击
-        // if (e.keyCode == keyboard.SPACE && BattleCityGlobalContext.player1.lives > 0) {
-        //   BattleCityGlobalContext.player1.shoot(BULLET_TYPE_PLAYER);
-        // } else if (e.keyCode == keyboard.ENTER && player2.lives > 0) {
-        //   BattleCityGlobalContext.player2.shoot(BULLET_TYPE_ENEMY);
-        // } else if (e.keyCode == keyboard.N) {
-        //   nextLevel();
-        // } else if (e.keyCode == keyboard.P) {
-        //   preLevel();
-        // }
+        if (BattleCityGlobalContext.keys.indexOf(e.key) === -1) {
+          BattleCityGlobalContext.keys.push(e.key);
+        }
+
+        // 射击
+        if (e.key === KEYBOARD_SPACE && BattleCityGlobalContext.player1!.lives > 0) {
+          BattleCityGlobalContext.player1!.shoot(BULLET_TYPE_PLAYER);
+        } else if (e.key === KEYBOARD_ENTER && BattleCityGlobalContext.player2!.lives > 0) {
+          BattleCityGlobalContext.player2!.shoot(BULLET_TYPE_ENEMY);
+        } else if (e.key === KEYBOARD_N) {
+          BattleCityGlobalContext.nextLevel();
+        } else if (e.key === KEYBOARD_P) {
+          BattleCityGlobalContext.preLevel();
+        }
         break;
     }
   }
@@ -65,13 +68,12 @@ export class BattleCityComponent implements AfterViewInit, OnDestroy {
   onKeyUpEvent(event: KeyboardEvent) {
     console.debug(`Entering BattleCityComponent.onKeyUpEvent`);
 
-    // if (event.keyCode === KEY_CODE.RIGHT_ARROW) {
-    //   this.increment();
-    // }
-
-    // if (event.keyCode === KEY_CODE.LEFT_ARROW) {
-    //   this.decrement();
-    // }
+    if (BattleCityGlobalContext.keys.length > 0) {
+      const idx = BattleCityGlobalContext.keys.indexOf(event.key);
+      if (idx !== -1) {
+        BattleCityGlobalContext.keys.splice(idx, 1);
+      }  
+    }
   }
 
   ngAfterViewInit(): void {
@@ -120,7 +122,7 @@ export class BattleCityComponent implements AfterViewInit, OnDestroy {
       this.elementOverCanvas?.nativeElement.getContext('2d')
     );
 
-    this.timerGame = setInterval(() => this.gameLoop(), 100);
+    this.timerGame = setInterval(() => this.gameLoop(), 20);
   }
 
   ngOnDestroy(): void {
@@ -161,8 +163,7 @@ export class BattleCityComponent implements AfterViewInit, OnDestroy {
         BattleCityGlobalContext.nextLevel();
         break;
       case GAME_STATE_OVER:
-        // TBD.
-        // gameOver();
+        BattleCityGlobalContext.gameOver();
         break;
     }
   }
