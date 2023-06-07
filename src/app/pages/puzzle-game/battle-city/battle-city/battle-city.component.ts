@@ -33,7 +33,7 @@ export class BattleCityComponent implements AfterViewInit, OnDestroy {
             BattleCityGlobalContext.player2!.lives = 0;
           }
         } else {
-          let n = 0;
+          let n = 0;          
           if (e.key === 'ArrowDown') {
             n = 1;
           } else if (e.key === 'ArrowUp') {

@@ -161,7 +161,18 @@
         "ChineseChess": "中国象棋",
         "Cal24Detail": "使用上面的数字和操作符(+-*/)使其等于24。注意，乘号用*表示，除法用/表示",
         "Cal24NoSolution": "无解! 当前数字在允许的操作符的范畴内无解! ",
-        "Surrender": "投降"
+        "Surrender": "投降",
+        "ComputerFirst": "电脑先手",
+        "PlayerFirst": "玩家先手",
+        "TwoPlayers": "两位玩家",
+        "Easy": "容易",
+        "Medium": "中等",
+        "Hard": "困难",
+        "LeftKnight": "左马",
+        "NinePiece": "九子",
+        "TwoKnights": "双马",
+        "NoHandicap": "不让子",
+        "BattleCity": "Battle City"
     },
     "Quiz": {
         "QuizItemCount": "试题数量",
