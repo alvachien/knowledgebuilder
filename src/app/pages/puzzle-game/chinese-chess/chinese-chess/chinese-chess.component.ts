@@ -212,10 +212,10 @@ export class ChineseChessComponent implements OnInit, AfterViewInit {
     }
 
     this.busy = true;
-    // if (!this.animated) {
-    //   this.postAddMove(mv, computerMove);
-    //   return;
-    // }
+    if (!this.animated) {
+      this.postAddMove(mv, computerMove);
+      return;
+    }
 
     const sqSrc = this.flipped(this.objUtil.SRC(mv));
     const xSrc = this.objUtil.SQ_X(sqSrc);
@@ -228,7 +228,7 @@ export class ChineseChessComponent implements OnInit, AfterViewInit {
     let step = MAX_STEP - 1;
 
     const timer = setInterval(() => {
-      if (step == 0) {
+      if (step === 0) {
         clearInterval(timer);
         style.left = xSrc + 'px';
         style.top = ySrc + 'px';

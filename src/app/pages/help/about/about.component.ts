@@ -10,4 +10,7 @@ export class AboutComponent {
   get versionNumber(): string {
     return environment.version;
   }
+  get buildDate(): string {
+    return environment.buildDate;
+  }
 }

@@ -943,6 +943,11 @@ export class BattleCityGlobalContext {
 		BattleCityGlobalContext.emenyStopTime = 0;
 		BattleCityGlobalContext.homeProtectedTime = -1;
 		BattleCityGlobalContext.propTime = 1000;
+
+		BattleCityGlobalContext.player1!.x = 129 + BattleCityGlobalContext.map!.offsetX;
+		BattleCityGlobalContext.player1!.y = 385 + BattleCityGlobalContext.map!.offsetY;
+		BattleCityGlobalContext.player2!.x = 256 + BattleCityGlobalContext.map!.offsetX;
+		BattleCityGlobalContext.player2!.y = 385 + BattleCityGlobalContext.map!.offsetY;
 	}
 
 	static drawBullet() {
