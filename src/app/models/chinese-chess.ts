@@ -678,11 +678,11 @@ export class ChineseChessPosition {
 		this.squares[sq] = bDel ? 0 : pc;
 		if (pc < 16) {
 		  pcAdjust = pc - 8;
-		  this.vlWhite += bDel ? -PIECE_VALUE[pcAdjust][sq] :
+		  this.vlWhite += bDel ? -1 * PIECE_VALUE[pcAdjust][sq] :
 			  PIECE_VALUE[pcAdjust][sq];
 		} else {
 		  pcAdjust = pc - 16;
-		  this.vlBlack += bDel ? -PIECE_VALUE[pcAdjust][this.objUtil.SQUARE_FLIP(sq)] :
+		  this.vlBlack += bDel ? -1 * PIECE_VALUE[pcAdjust][this.objUtil.SQUARE_FLIP(sq)] :
 			  PIECE_VALUE[pcAdjust][this.objUtil.SQUARE_FLIP(sq)];
 		  pcAdjust += 7;
 		}
@@ -1186,7 +1186,7 @@ export class ChineseChessPosition {
 
 	public repValue(vlRep: number): number {
 		const vlReturn = ((vlRep & 2) === 0 ? 0 : this.banValue()) +
-			((vlRep & 4) == 0 ? 0 : -this.banValue());
+			((vlRep & 4) === 0 ? 0 : -1 * this.banValue());
 		return vlReturn === 0 ? this.drawValue() : vlReturn;
 	}
 
@@ -1199,7 +1199,7 @@ export class ChineseChessPosition {
 		while (this.mvList[index] > 0 && this.pcList[index] === 0) {
 		  if (selfSide) {
 			perpCheck = perpCheck && this.chkList[index];
-			if (this.keyList[index] == this.zobristKey) {
+			if (this.keyList[index] === this.zobristKey) {
 			  recur --;
 			  if (recur === 0) {
 				return 1 + (perpCheck ? 2 : 0) + (oppPerpCheck ? 4 : 0);

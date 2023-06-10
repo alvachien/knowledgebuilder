@@ -1,4 +1,5 @@
 import { AfterViewInit, Component, ElementRef, OnInit, ViewChild } from '@angular/core';
+import { MatSnackBar } from '@angular/material/snack-bar';
 import {
   ChineseChessAILevel,
   ChineseChessBoardStyle,
@@ -51,7 +52,7 @@ export class ChineseChessComponent implements OnInit, AfterViewInit {
   arBoardStyleDisplayStrings: UIDisplayString[] = [];
   arPieceStyleDisplayStrings: UIDisplayString[] = [];
 
-  constructor() {
+  constructor(private _snackBar: MatSnackBar) {
     console.debug('Entering ChineseChessComponent.constructor');
     this.arPlayModeDisplayStrings = UIDisplayStringUtil.getChineseChessPlayModeDisplayStrings();
     this.arAILevelDisplayStrings = UIDisplayStringUtil.getChineseChessAILevelDisplayStrings();
@@ -310,18 +311,19 @@ export class ChineseChessComponent implements OnInit, AfterViewInit {
     let vlRep = this.pos!.repStatus(3);
     if (vlRep > 0) {
       vlRep = this.pos!.repValue(vlRep);
-      if (vlRep > -WIN_VALUE && vlRep < WIN_VALUE) {
+      if (Math.abs(vlRep) < WIN_VALUE) {
+        console.debug(`postAddMove, vlRep = ${vlRep}`);
         // this.playSound("draw");
         this.result = ChineseChessResult.Draw; //  RESULT_DRAW;
-        // alertDelay("双方不变作和，辛苦了！");
+        this._snackBar.open('双方不变作和，辛苦了！');
       } else if (computerMove === vlRep < 0) {
         // this.playSound("loss");
         this.result = ChineseChessResult.Loss; //  RESULT_LOSS;
-        // alertDelay("长打作负，请不要气馁！");
+        this._snackBar.open('长打作负，请不要气馁！');
       } else {
         // this.playSound("win");
         this.result = ChineseChessResult.Win; //  RESULT_WIN;
-        // alertDelay("长打作负，祝贺你取得胜利！");
+        this._snackBar.open('长打作负，祝贺你取得胜利！');
       }
 
       this.postAddMove2();
@@ -340,7 +342,8 @@ export class ChineseChessComponent implements OnInit, AfterViewInit {
       if (!hasMaterial) {
         // this.playSound("draw");
         this.result = ChineseChessResult.Draw; // RESULT_DRAW;
-        // alertDelay("双方都没有进攻棋子了，辛苦了！");
+        this._snackBar.open('双方都没有进攻棋子了，辛苦了！');
+
         this.postAddMove2();
         this.busy = false;
         return;
@@ -356,7 +359,8 @@ export class ChineseChessComponent implements OnInit, AfterViewInit {
       if (!captured) {
         // this.playSound("draw");
         this.result = ChineseChessResult.Draw; //  RESULT_DRAW;
-        // alertDelay("超过自然限着作和，辛苦了！");
+        this._snackBar.open('超过自然限着作和，辛苦了！');
+
         this.postAddMove2();
         this.busy = false;
         return;
