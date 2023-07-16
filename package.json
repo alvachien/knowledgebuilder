@@ -22,6 +22,9 @@
     "upgrade15": "ng update @angular/core@15 @angular/cli@15 @angular/material@15 @angular-eslint/schematics@15"
   },
   "private": true,
+  "engines": {
+    "node": ">=16.0.0"
+  },
   "dependencies": {
     "@angular/animations": "^16.1.4",
     "@angular/cdk": "^16.1.4",
