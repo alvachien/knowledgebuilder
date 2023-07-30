@@ -1,7 +1,7 @@
 export const environment = {
   production: true,
-  version: '0.3.248',
-  buildDate: '2023-07-20',
+  version: '0.3.250',
+  buildDate: '2023-07-30',
   mockdata: false,
   basehref: '/math/',
 
