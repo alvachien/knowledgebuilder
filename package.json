@@ -19,7 +19,7 @@
     "lint": "ng lint",
     "e2e": "ng e2e",
     "deploy-github": "git push origin :gh-pages && git subtree push --prefix dist origin gh-pages",
-    "upgrade15": "ng update @angular/core@15 @angular/cli@15 @angular/material@15 @angular-eslint/schematics@15"
+    "upgrade16": "ng update @angular/core@16 @angular/cli@16 @angular/material@16 @angular-eslint/schematics@16"
   },
   "private": true,
   "engines": {
