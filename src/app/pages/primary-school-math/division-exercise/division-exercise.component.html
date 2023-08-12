@@ -6,10 +6,12 @@
     <form [formGroup]="quizControlFormGroup" *ngIf="!isQuizStarted" style="font-size: 16px">
       <!-- Quiz Item Count -->
       <mat-form-field>
+        <mat-label>{{'Quiz.QuizItemCount' | transloco}}</mat-label>
         <input matInput type="number" placeholder="{{ 'Quiz.QuizItemCount' | transloco }}" formControlName="countControl" required />
       </mat-form-field>
 
       <mat-form-field>
+        <mat-label>{{'Quiz.FailedFactor' | transloco}}</mat-label>
         <input matInput type="number" placeholder="{{ 'Quiz.FailedFactor' | transloco }}" matTooltip="{{ 'Quiz.FailedFactorHint' | transloco }}"
           formControlName="failedFactorControl" />
         <mat-error>This field is required</mat-error>
@@ -19,11 +21,13 @@
         <div class="col-6 row">
           <div class="col-6">
             <mat-form-field>
+              <mat-label>{{'MathExercise.Dividend' | transloco}}</mat-label>
               <input matInput type="number" placeholder="{{ 'MathExercise.Dividend' | transloco }}" formControlName="leftNumberControl" required />
             </mat-form-field>
           </div>
           <div class="col-6">
             <mat-form-field>
+              <mat-label>{{'MathExercise.Dividend' | transloco}}</mat-label>
               <input matInput type="number" placeholder="{{ 'MathExercise.Dividend' | transloco }}" formControlName="rightNumberControl" required />
             </mat-form-field>
           </div>
@@ -31,17 +35,20 @@
         <div class="col-6 row">
           <div class="col-6">
             <mat-form-field>
+              <mat-label>{{'MathExercise.Divisor' | transloco}}</mat-label>
               <input matInput type="number" placeholder="{{ 'MathExercise.Divisor' | transloco }}" formControlName="leftNumber2Control" required />
             </mat-form-field>
           </div>
           <div class="col-6">
             <mat-form-field>
+              <mat-label>{{'MathExercise.Divisor' | transloco}}</mat-label>
               <input matInput type="number" placeholder="{{ 'MathExercise.Divisor' | transloco }}" formControlName="rightNumber2Control" required />
             </mat-form-field>
           </div>          
         </div>
       </div>
       <mat-form-field>
+        <mat-label>{{'MathExercise.DecimalPlaces' | transloco}}</mat-label>
         <input matInput type="number" placeholder="{{ 'MathExercise.DecimalPlaces' | transloco }}" formControlName="decControl"/>
       </mat-form-field>
 

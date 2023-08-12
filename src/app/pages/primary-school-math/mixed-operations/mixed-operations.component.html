@@ -4,12 +4,13 @@
   </mat-card-header>
   <mat-card-content>
     <form [formGroup]="quizControlFormGroup" *ngIf="!isQuizStarted" style="font-size: 16px">
-      <!-- Quiz Item Count -->
       <mat-form-field>
+        <mat-label>{{'Quiz.QuizItemCount' | transloco}}</mat-label>
         <input matInput type="number" placeholder="{{ 'Quiz.QuizItemCount' | transloco }}" formControlName="countControl" required />
       </mat-form-field>
 
       <mat-form-field>
+        <mat-label>{{'Quiz.FailedFactor' | transloco}}</mat-label>
         <input matInput type="number" placeholder="{{ 'Quiz.FailedFactor' | transloco }}" matTooltip="{{ 'Quiz.FailedFactorHint' | transloco }}"
           formControlName="failedFactorControl" />
       </mat-form-field>
@@ -17,11 +18,13 @@
       <div class="control-full-width row gx-5">
         <div class="col-6">
           <mat-form-field>
+            <mat-label>{{'MathExercise.Number' | transloco}}</mat-label>
             <input matInput type="number" placeholder="{{ 'MathExercise.Number' | transloco }}" formControlName="leftNumberControl" required />
           </mat-form-field>
         </div>
         <div class="col-6">
           <mat-form-field>
+            <mat-label>{{'MathExercise.Number' | transloco}}</mat-label>
             <input matInput type="number" placeholder="{{ 'MathExercise.Number' | transloco }}" formControlName="rightNumberControl" required />
           </mat-form-field>
         </div>
@@ -32,16 +35,18 @@
         </div>
         <div class="col-6">
           <mat-form-field>
+            <mat-label>{{'MathExercise.DecimalPlaces' | transloco}}</mat-label>
             <input matInput type="number" placeholder="{{ 'MathExercise.DecimalPlaces' | transloco }}" formControlName="decControl"/>
           </mat-form-field>
         </div>
       </div>
       <mat-divider></mat-divider>
       <mat-form-field>
+        <mat-label>{{'MathExercise.NumberOfOperators' | transloco}}</mat-label>
         <input matInput type="number" placeholder="{{ 'MathExercise.NumberOfOperators' | transloco }}" formControlName="operatorCountControl" />
       </mat-form-field>
       <div class="control-full-width">
-        <div>{{'MathExercise.Operators' | transloco}}:</div>
+        <div>{{'MathExercise.Operators' | transloco}}:</div>        
         <mat-selection-list #opers>
           <mat-list-option *ngFor="let oper of allowedOperators" [value]="oper.value">
             {{oper.display}}

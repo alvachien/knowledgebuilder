@@ -5,8 +5,8 @@
 export const environment = {
   production: false,
   mockdata: false,
-  version: '0.3.250',
-  buildDate: '2023-07-30',
+  version: '0.3.255',
+  buildDate: '2023-08-31',
   basehref: '/',
 
   idServerUrl: 'https://localhost:44353',

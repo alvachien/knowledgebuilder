@@ -8,26 +8,27 @@
         <form [formGroup]="contentFormGroup" #formContent>
           <ng-template matStepLabel>{{'Content' | transloco}}</ng-template>
           <mat-form-field class="control-full-width">
-            <input matInput type="number" placeholder="{{'MathExercise.AdditionExercises' | transloco}}"
-              formControlName="amountAddCtrl">
+            <mat-label>{{'MathExercise.AdditionExercises' | transloco}}</mat-label>
+            <input matInput type="number" placeholder="{{'MathExercise.AdditionExercises' | transloco}}" formControlName="amountAddCtrl">
           </mat-form-field>
           <mat-form-field class="control-full-width">
-            <input matInput type="number" placeholder="{{'MathExercise.SubtractionExercises' | transloco}}"
-            formControlName="amountSubCtrl">
+            <mat-label>{{'MathExercise.SubtractionExercises' | transloco}}</mat-label>
+            <input matInput type="number" placeholder="{{'MathExercise.SubtractionExercises' | transloco}}" formControlName="amountSubCtrl">
           </mat-form-field>
           <mat-form-field class="control-full-width">
-            <input matInput type="number" placeholder="{{'MathExercise.MultiplicationExercises' | transloco}}"
-            formControlName="amountMulCtrl">
+            <mat-label>{{'MathExercise.MultiplicationExercises' | transloco}}</mat-label>
+            <input matInput type="number" placeholder="{{'MathExercise.MultiplicationExercises' | transloco}}" formControlName="amountMulCtrl">
           </mat-form-field>
           <mat-form-field class="control-full-width">
-            <input matInput type="number" placeholder="{{'MathExercise.MixedOperations' | transloco}}"
-            formControlName="amountMixOpCtrl">
+            <mat-label>{{'MathExercise.MixedOperations' | transloco}}</mat-label>
+            <input matInput type="number" placeholder="{{'MathExercise.MixedOperations' | transloco}}" formControlName="amountMixOpCtrl">
           </mat-form-field>
           <mat-form-field class="control-full-width">
-            <input matInput type="number" placeholder="{{'MathExercise.FractionExercises' | transloco}}"
-              formControlName="amountFractCtrl">
+            <mat-label>{{'MathExercise.FractionExercises' | transloco}}</mat-label>
+            <input matInput type="number" placeholder="{{'MathExercise.FractionExercises' | transloco}}" formControlName="amountFractCtrl">
           </mat-form-field>
           <mat-form-field *ngIf="amountMixOp || amountFract">
+            <mat-label>{{'MathExercise.Operators' | transloco}}</mat-label>
             <mat-select placeholder="{{'MathExercise.Operators' | transloco}}" formControlName="mixOpsCtrl" multiple>
               <mat-option *ngFor="let op of mixOpList" [value]="op">{{op}}</mat-option>
             </mat-select>
@@ -38,17 +39,17 @@
             </mat-slide-toggle>
           </div>
           <mat-form-field>
-            <input matInput type="number" placeholder="{{'MathExercise.DecimalPlaces' | transloco}}"
-              formControlName="decimalPlacesCtrl" name="dmlPlaces">
+            <mat-label>{{'MathExercise.DecimalPlaces' | transloco}}</mat-label>
+            <input matInput type="number" placeholder="{{'MathExercise.DecimalPlaces' | transloco}}" formControlName="decimalPlacesCtrl" name="dmlPlaces">
           </mat-form-field>
           <div class="row gx-5">
             <mat-form-field class="col-6">
-              <input matInput type="number" placeholder="{{'MathExercise.Number' | transloco}}" 
-                formControlName="numberBeginCtrl">
+              <mat-label>{{'MathExercise.Number' | transloco}}</mat-label>
+              <input matInput type="number" placeholder="{{'MathExercise.Number' | transloco}}" formControlName="numberBeginCtrl">
             </mat-form-field>
             <mat-form-field class="col-6">
-              <input matInput type="number" placeholder="{{'MathExercise.Number' | transloco}}" 
-                formControlName="numberEndCtrl">
+              <mat-label>{{'MathExercise.Number' | transloco}}</mat-label>
+              <input matInput type="number" placeholder="{{'MathExercise.Number' | transloco}}" formControlName="numberEndCtrl">
             </mat-form-field>
           </div>
 
@@ -68,8 +69,8 @@
           <ng-template matStepLabel>{{'Quiz.PrintSetting' | transloco}}</ng-template>
 
           <mat-form-field>
-            <input matInput type="text" placeholder="{{'Quiz.CustomizeHeader' | transloco}}"
-              formControlName="headerCtrl">
+            <mat-label>{{'Quiz.CustomizeHeader' | transloco}}</mat-label>
+            <input matInput type="text" placeholder="{{'Quiz.CustomizeHeader' | transloco}}" formControlName="headerCtrl">
           </mat-form-field>
           <div class="control-full-width">
             <mat-slide-toggle formControlName="enableScoreCtrl">
@@ -82,12 +83,12 @@
             </mat-slide-toggle>
           </div>
           <mat-form-field class="control-full-width">
-            <input matInput type="number" placeholder="{{'Quiz.FontSize' | transloco}}"
-              formControlName="fontSizeCtrl">
+            <mat-label>{{'Quiz.FontSize' | transloco}}</mat-label>
+            <input matInput type="number" placeholder="{{'Quiz.FontSize' | transloco}}" formControlName="fontSizeCtrl">
           </mat-form-field>
           <mat-form-field>
-            <input matInput type="number" placeholder="{{'Quiz.NumberOfCopies' | transloco}}"
-              formControlName="amountOfCopyCtrl" />
+            <mat-label>{{'Quiz.NumberOfCopies' | transloco}}</mat-label>
+            <input matInput type="number" placeholder="{{'Quiz.NumberOfCopies' | transloco}}" formControlName="amountOfCopyCtrl" />
           </mat-form-field>
 
           <mat-divider></mat-divider>

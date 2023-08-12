@@ -172,7 +172,11 @@
         "NinePiece": "Nine Pieces",
         "TwoKnights": "Two Knights",
         "NoHandicap": "No Handicap",
-        "BattleCity": "Battle City"
+        "BattleCity": "Battle City",
+        "WhatsNext": "What's next step?",
+        "YouWin": "You Win",
+        "YouLose": "You Lose",
+        "HaveAnotherTry": "Have another try?"
     },
     "Quiz": {
         "QuizItemCount": "Count of Quiz Item",

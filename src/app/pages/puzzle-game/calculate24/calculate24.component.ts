@@ -128,7 +128,6 @@ export class Calculate24Component {
       data: { youWin: false },
     });
     dialogRef.afterClosed().subscribe((result) => {
-      console.log(result);
       retry = result;
       if (retry) {
         this.OnCal24Start();
