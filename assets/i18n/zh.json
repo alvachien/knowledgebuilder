@@ -172,7 +172,11 @@
         "NinePiece": "九子",
         "TwoKnights": "双马",
         "NoHandicap": "不让子",
-        "BattleCity": "Battle City"
+        "BattleCity": "Battle City",
+        "WhatsNext": "如何进行下一步？",
+        "YouWin": "你赢了",
+        "YouLose": "你输了",
+        "HaveAnotherTry": "再来一把?"
     },
     "Quiz": {
         "QuizItemCount": "试题数量",
