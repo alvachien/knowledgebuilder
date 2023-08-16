@@ -111,6 +111,11 @@
         "Formula": "Formula"
     },
     "MathExercises": "Math Exercises",
+    "HighSchool": {
+        "HighSchool": "High School",
+        "JuniorHighSchoolMath": "Junior High School - Math",
+        "SeniorHighSchoolMath": "Senior High School - Math"
+    },
     "MathExercise": {
         "PrimarySchoolBasicMath": "Basic Math of P.S.",
         "PrimarySchoolExtendMath": "Extended Math of P.S.",

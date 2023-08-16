@@ -37,6 +37,11 @@ const routes: Routes = [
       import('./pages/primary-school-math/primary-school-math.module').then((m) => m.PrimarySchoolMathModule),
   },
   {
+    path: 'high-school',
+    loadChildren: () =>
+      import('./pages/high-school/high-school.module').then((m) => m.HighSchoolModule),
+  },
+  {
     path: 'puzzle-games',
     loadChildren: () => import('./pages/puzzle-game/puzzle-game.module').then((m) => m.PuzzleGameModule),
   },

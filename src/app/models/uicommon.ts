@@ -27,6 +27,7 @@ export enum AppNavItemGroupEnum {
   help = 6,
   knowledge = 7,
   habit = 8,
+  highschool = 9,
   others = 10,
 }
 

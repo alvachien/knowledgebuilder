@@ -111,6 +111,11 @@
         "Formula": "公式"
     },
     "MathExercises": "Math Exercises",
+    "HighSchool": {
+        "HighSchool": "中学知识",
+        "JuniorHighSchoolMath": "初中数学",
+        "SeniorHighSchoolMath": "高中数学"
+    },
     "MathExercise": {
         "PrimarySchoolBasicMath": "小学数学基础",
         "PrimarySchoolExtendMath": "小学数学强化",
