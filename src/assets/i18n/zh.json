@@ -156,6 +156,11 @@
         "About": "关于",
         "Credits": "致谢"
     },
+    "English": {
+        "EnglishLearning": "英文学习",
+        "Sentence": "英文句子",
+        "Sentences": "英文句子"
+    },
     "PuzzleGames": {
         "Calculate24": "速算24",
         "Sudou": "数独",

@@ -98,6 +98,12 @@ export class AppComponent implements OnDestroy {
       },
 
       {
+        name: 'English.Sentences',
+        route: '/english-learning/sentences',
+        group: AppNavItemGroupEnum.english,
+      },
+
+      {
         name: 'PuzzleGames.Calculate24',
         route: '/puzzle-games/cal24',
         group: AppNavItemGroupEnum.games,

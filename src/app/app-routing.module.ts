@@ -36,11 +36,18 @@ const routes: Routes = [
     loadChildren: () =>
       import('./pages/primary-school-math/primary-school-math.module').then((m) => m.PrimarySchoolMathModule),
   },
+  
   {
     path: 'high-school',
     loadChildren: () =>
       import('./pages/high-school/high-school.module').then((m) => m.HighSchoolModule),
   },
+  {
+    path: 'english-learning',
+    loadChildren: () =>
+      import('./pages/english-learning/english-learning.module').then((m) => m.EnglishLearningModule),
+  },
+
   {
     path: 'puzzle-games',
     loadChildren: () => import('./pages/puzzle-game/puzzle-game.module').then((m) => m.PuzzleGameModule),

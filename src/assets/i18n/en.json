@@ -156,6 +156,11 @@
         "About": "About",
         "Credits": "Credits"
     },
+    "English": {
+        "EnglishLearning": "English Learning",
+        "Sentence": "Sentence",
+        "Sentences": "Sentences"
+    },
     "PuzzleGames": {
         "Calculate24": "Calculate 24",
         "Sudou": "Sudou",
