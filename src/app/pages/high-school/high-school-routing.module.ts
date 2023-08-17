@@ -3,6 +3,7 @@ import { RouterModule, Routes } from '@angular/router';
 
 import { JuniorMathComponent } from './junior-math';
 import { SeniorMathComponent } from './senior-math';
+import { ItemDisplayComponent } from './item-display';
 
 const routes: Routes = [{
     path: 'junior-math',
@@ -10,6 +11,9 @@ const routes: Routes = [{
   }, {
     path: 'senior-math',
     component: SeniorMathComponent,
+  }, {
+    path: 'display-item/:file',
+    component: ItemDisplayComponent,
   }];
 
 @NgModule({
