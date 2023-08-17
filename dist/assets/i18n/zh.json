@@ -111,6 +111,11 @@
         "Formula": "公式"
     },
     "MathExercises": "Math Exercises",
+    "HighSchool": {
+        "HighSchool": "中学知识",
+        "JuniorHighSchoolMath": "初中数学",
+        "SeniorHighSchoolMath": "高中数学"
+    },
     "MathExercise": {
         "PrimarySchoolBasicMath": "小学数学基础",
         "PrimarySchoolExtendMath": "小学数学强化",
@@ -150,6 +155,11 @@
     "Help": {
         "About": "关于",
         "Credits": "致谢"
+    },
+    "English": {
+        "EnglishLearning": "英文学习",
+        "Sentence": "英文句子",
+        "Sentences": "英文句子"
     },
     "PuzzleGames": {
         "Calculate24": "速算24",
