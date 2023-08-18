@@ -17,7 +17,6 @@ export class SeniorMathComponent {
   }
 
   onClick(row: any) {
-    this.router.navigate(['english-learning', 'disp-sentence', row.file]);
+    this.router.navigate(['high-school', 'display-hsmath-item', row.file]);
   }
-
 }

@@ -8,6 +8,7 @@ import { KatexOptions } from 'ngx-markdown';
   styleUrls: ['./item-display.component.scss'],
 })
 export class ItemDisplayComponent {
+  private subfolder = '';
   private filename =  '';
   public mathOptions: KatexOptions = {
     displayMode: true,
@@ -19,7 +20,7 @@ export class ItemDisplayComponent {
   }
 
   get mdFilePath() {
-    return `assets/data/${this.filename}`;
+    return `assets/data/${this.subfolder}/${this.filename}`;
   }
 
   ngOnInit(): void {
@@ -28,7 +29,17 @@ export class ItemDisplayComponent {
         if (val instanceof Array && val.length >= 2) {
           const x = val.length - 2;
           const y = val.length - 1;
-          this.filename = `${val[x] }\\${ val[y] }`;
+          const dispitem = val[x].path;
+          if (dispitem === `display-jrmath-item`) {
+            this.subfolder = 'juniorchool-math';
+            this.filename = `${ val[y].path }`;
+          } else {
+            this.subfolder = 'highschool-math';
+            this.filename = `${ val[y].path }`;
+          }
+
+          console.log(this.subfolder);
+          console.log(this.filename);
         }
       },
       error: err => {

@@ -26,7 +26,7 @@ export class SentencesDetailComponent implements OnInit {
     this.activateRoute.url.subscribe({
       next: (val) => {
         if (val instanceof Array && val.length > 0) {
-          this.filename = (val[val.length - 1] as any) as string;
+          this.filename = `${val[val.length - 1].path}`;
         }
       },
       error: err => {

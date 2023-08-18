@@ -12,7 +12,10 @@ const routes: Routes = [{
     path: 'senior-math',
     component: SeniorMathComponent,
   }, {
-    path: 'display-item/:file',
+    path: 'display-hsmath-item/:file',
+    component: ItemDisplayComponent,
+  }, {
+    path: 'display-jrmath-item/:file',
     component: ItemDisplayComponent,
   }];
 
