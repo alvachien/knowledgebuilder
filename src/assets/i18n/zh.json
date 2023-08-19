@@ -44,7 +44,10 @@
         "DisplayAs": "昵称",
         "Logon": "登录",
         "Logout": "登出",
-        "Done": "完成"
+        "Done": "完成",
+        "Title": "标题",
+        "File": "文件",
+        "Collection": "列表"
     },
     "Type": "类别",
     "Create": "创建",

@@ -44,7 +44,10 @@
         "DisplayAs": "DISPLAY AS",
         "Logon": "LOGON",
         "Logout": "LOGOUT",
-        "Done": "Done"
+        "Done": "Done",
+        "Title": "TITLE",
+        "File": "FILE",
+        "Collection": "COLLECTION"
     },
     "Type": "Type",
     "Create": "Create",

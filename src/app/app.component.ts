@@ -28,6 +28,9 @@ export class AppComponent implements OnDestroy {
   get currentUser(): string {
     return this.authService.currentUserName;
   }
+  get IsMockData(): boolean {
+    return environment.mockdata;
+  }
 
   private _mobileQueryListener: () => void;
 

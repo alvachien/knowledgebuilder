@@ -83,7 +83,7 @@
           </a>
         </mat-nav-list>
       </mat-expansion-panel>
-      <mat-expansion-panel hideToggle="false">
+      <mat-expansion-panel hideToggle="false" *ngIf="!IsMockData">
         <mat-expansion-panel-header>
           <mat-panel-title>
             <mat-icon color="primary">library_books</mat-icon>{{'KnowledgeAndExercise' | transloco}}
@@ -107,7 +107,7 @@
           </a>
         </mat-nav-list>
       </mat-expansion-panel>
-      <mat-expansion-panel hideToggle="false">
+      <mat-expansion-panel hideToggle="false" *ngIf="!IsMockData">
         <mat-expansion-panel-header>
           <mat-panel-title>
             <mat-icon color="primary">fitness_center</mat-icon>{{'Award.HabitBuilder' | transloco}}
