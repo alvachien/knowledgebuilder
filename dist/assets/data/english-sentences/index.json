@@ -1,4 +1,7 @@
 [
     { "title": "TOEFL-100-01", "file": "TOEFL-01.md", "collection": "TOEFL 100" },
-    { "title": "TOEFL-100-02", "file": "TOEFL-02.md", "collection": "TOEFL 100" }
+    { "title": "TOEFL-100-02", "file": "TOEFL-02.md", "collection": "TOEFL 100" },
+    { "title": "TOEFL-100-03", "file": "TOEFL-03.md", "collection": "TOEFL 100" },
+    { "title": "TOEFL-100-04", "file": "TOEFL-04.md", "collection": "TOEFL 100" },
+    { "title": "TOEFL-100-05", "file": "TOEFL-05.md", "collection": "TOEFL 100" }
 ]
