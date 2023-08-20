@@ -3,5 +3,9 @@
     { "title": "TOEFL-100-02", "file": "TOEFL-02.md", "collection": "TOEFL 100" },
     { "title": "TOEFL-100-03", "file": "TOEFL-03.md", "collection": "TOEFL 100" },
     { "title": "TOEFL-100-04", "file": "TOEFL-04.md", "collection": "TOEFL 100" },
-    { "title": "TOEFL-100-05", "file": "TOEFL-05.md", "collection": "TOEFL 100" }
+    { "title": "TOEFL-100-05", "file": "TOEFL-05.md", "collection": "TOEFL 100" },
+    { "title": "TOEFL-100-06", "file": "TOEFL-06.md", "collection": "TOEFL 100" },
+    { "title": "TOEFL-100-07", "file": "TOEFL-07.md", "collection": "TOEFL 100" },
+    { "title": "TOEFL-100-08", "file": "TOEFL-08.md", "collection": "TOEFL 100" },
+    { "title": "TOEFL-100-09", "file": "TOEFL-09.md", "collection": "TOEFL 100" }
 ]
