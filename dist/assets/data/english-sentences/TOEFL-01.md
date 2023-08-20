@@ -6,7 +6,7 @@
 
 理论本质上是对人们构想的现实的一种抽象和符号化的表达。
 
-## Words
+## Vocabulary   
 
 1. **essentially**   
 adv. 本质上；基本上

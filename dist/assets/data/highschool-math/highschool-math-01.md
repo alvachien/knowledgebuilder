@@ -65,8 +65,8 @@
     - **交集**。一般地，给定两个集合`A`, `B`，由既属于`A`又属于`B`的所有元素（即`A`和`B`的公共元素）组成的集合，称为`A`与`B`的交集，记作 $A \cap B$，读作“`A`交`B`”。即 $A \cap B = \lbrace x | x ∈ A 且 x ∈ B \rbrace$。   
     - **并集**。一般地，给定两个集合`A`, `B`，由两个集合的所有元素组成的集合，称为`A`与`B`的并集，记作 $A \cup B$，读作“`A`并`B`”。即 $A \cup B = \lbrace x | x ∈ A或 x ∈ B \rbrace$。   
     - **全集**。如果所要研究的集合都是某个给定集合的子集，那么这个给定的集合为全集，全集通常用`U`表示。       
-    - **补集**。如果集合`A`是全集`U`的一个子集，则由`U`中不属于`A`的所有元素组成的集合，称为`A`在`U`中的补集，记作$ C_u A$ ，读作“`A`在`U`中的补集”。即 $ C_uA = \lbrace x | x ∈ U, x \notin A \rbrace$。    
-        - 如把实数集 $\R$ 看做全集`U`，那么有理数集 $Q$的补集 $C_uQ$就是全体无理数的集合。
+    - **补集**。如果集合`A`是全集`U`的一个子集，则由`U`中不属于`A`的所有元素组成的集合，称为`A`在`U`中的补集，记作$ \complement_u A$ ，读作“`A`在`U`中的补集”。即 $ \complement_uA = \lbrace x | x ∈ U, x \notin A \rbrace$。    
+        - 如把实数集 $\R$ 看做全集`U`，那么有理数集 $Q$的补集 $\complement_uQ$就是全体无理数的集合。
 
 4. **逻辑关系**    
     - **交、并集运算性质**     
@@ -86,11 +86,11 @@
 
     - **补集的运算性质**     
     给定全集`U`及其任意一个子集`A`， 有：   
-    $C_u(C_uA)=A$    
-    $C_u\varnothing=U$      
-    $C_uU=\varnothing$      
-    $A \cap C_uA=\varnothing$      
-    $A \cup C_uA=U$      
+    $\complement_u(\complement_uA)=A$    
+    $\complement_u\varnothing=U$      
+    $\complement_uU=\varnothing$      
+    $A \cap \complement_uA=\varnothing$      
+    $A \cup \complement_uA=U$      
 
     - **分配律、结合律、传递性**     
     **分配律**：    
@@ -104,8 +104,8 @@
     $A \subsetneqq B, B \subsetneqq C \Rightarrow A \subsetneqq C $     
 
     - **反演律（摩根法则）**    
-    $C_u(A \cap B) = C_uA \cup C_uB$     
-    $C_u(A \cup B) = C_uA \cap C_uB$     
+    $\complement_u(A \cap B) = \complement_uA \cup \complement_uB$     
+    $\complement_u(A \cup B) = \complement_uA \cap \complement_uB$     
 
 
 5. **表示交、并、补关系常见的几种维恩图**      
@@ -119,9 +119,9 @@ TBD.
 
 2. 元素个数公式    
 有限集`A`所含元素的个数用`card(A)`表示，并规定$card(\varnothing)=0$。`U`为全集，则有如下公式:
-    - $card(A) + card(C_uA) = card(U)$    
+    - $card(A) + card(\complement_uA) = card(U)$    
     - $card(A \cup B) = card(A) + card(B) - card(A \cap B)$    
-    - $card(A \cap B) = card(A) - card(A \cap C_uB) = card(B) - card(B \cap C_uA)$
+    - $card(A \cap B) = card(A) - card(A \cap \complement_uB) = card(B) - card(B \cap \complement_uA)$
 
 ## 第二节 常用逻辑用语    
 
