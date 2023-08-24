@@ -10,11 +10,11 @@
 ## Vocabulary   
 
 1. **perfectly**   
-adv. 完美地；完全地；   
+ad. 完美地；完全地；   
 
 2. **string**    
 vt. 悬挂；系；串在一起；   
 n. 细绳；一串；弦   
 
 3. **individually**   
-adv. 单独地，个别地；   
+ad. 单独地，个别地；   

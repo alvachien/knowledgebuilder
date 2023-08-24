@@ -9,6 +9,7 @@ import { KatexOptions } from 'ngx-markdown';
 })
 export class SentencesDetailComponent implements OnInit {
   private filename =  '';
+  private foldername = '';
   public mathOptions: KatexOptions = {
     displayMode: true,
     throwOnError: false,
@@ -19,13 +20,14 @@ export class SentencesDetailComponent implements OnInit {
   }
 
   get mdFilePath() {
-    return `assets/data/english-sentences/${this.filename}`;
+    return `assets/data/english-sentences/${this.foldername}/${this.filename}`;
   }
 
   ngOnInit(): void {
     this.activateRoute.url.subscribe({
       next: (val) => {
-        if (val instanceof Array && val.length > 0) {
+        if (val instanceof Array && val.length > 2) {
+          this.foldername = `${val[val.length - 2].path}`;
           this.filename = `${val[val.length - 1].path}`;
         }
       },

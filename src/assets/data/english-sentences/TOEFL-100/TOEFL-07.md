@@ -10,7 +10,7 @@
 ## Vocabulary   
 
 1. **mechanical**   
-adj. 机械的，力学的；   
+a. 机械的，力学的；   
 
 2. **timepiece**    
 n. 钟，表；   
@@ -19,7 +19,7 @@ n. 钟，表；
 vt. 刺激；促进；    
 
 4. **accurate**    
-adj. 准确无误的，精确的；
+a. 准确无误的，精确的；
 
 5. **sundial**    
 n. 日晷   

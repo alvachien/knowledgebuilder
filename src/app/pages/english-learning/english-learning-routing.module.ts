@@ -9,7 +9,7 @@ const routes: Routes = [
     path: 'sentences',
     component: SentencesListComponent
   }, {
-    path: 'disp-sentence/:id',
+    path: 'disp-sentence/:folder/:file',
     component: SentencesDetailComponent
   }
 ];

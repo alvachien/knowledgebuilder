@@ -46,6 +46,7 @@
         "Logout": "LOGOUT",
         "Done": "Done",
         "Title": "TITLE",
+        "Folder": "FOLDER",
         "File": "FILE",
         "Collection": "COLLECTION"
     },
