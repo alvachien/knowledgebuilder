@@ -1,9 +1,11 @@
 import { NgModule } from '@angular/core';
-import { Routes, RouterModule } from '@angular/router';
-import { FunctionCurveComponent } from './function-curve.component';
+import { RouterModule, Routes } from '@angular/router';
+import { FunctionCurveComponent } from './function-curve';
 
 const routes: Routes = [
-  { path: '', component: FunctionCurveComponent },
+  {
+    path: '', component: FunctionCurveComponent
+  }
 ];
 
 @NgModule({
