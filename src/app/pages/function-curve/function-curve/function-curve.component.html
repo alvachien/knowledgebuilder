@@ -1,3 +1,17 @@
+<mat-toolbar>
+    <h1>{{'HighSchool.FunctionCurve' | transloco}}</h1>
+    <div class="toolbar-spacer"></div>
+    <mat-form-field>
+        <mat-label>{{'HighSchool.FunctionCurve' | transloco}}</mat-label>
+        <mat-select [(ngModel)]="selectedFunc" (selectionChange)="onFuncSelectionChanged()" name="func">
+            <mat-option>None</mat-option>
+            <mat-option *ngFor="let fun of supportedFunc" [value]="fun.value">
+                {{fun.disp}}
+            </mat-option>
+        </mat-select>
+    </mat-form-field>
+</mat-toolbar>
+
 <div>
-    <div #func_curve></div>
+    <canvas #func_curve class="curve-container"></canvas>
 </div>

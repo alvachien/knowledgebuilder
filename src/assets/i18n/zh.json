@@ -118,7 +118,8 @@
     "HighSchool": {
         "HighSchool": "中学知识",
         "JuniorHighSchoolMath": "初中数学",
-        "SeniorHighSchoolMath": "高中数学"
+        "SeniorHighSchoolMath": "高中数学",
+        "FunctionCurve": "函数曲线"
     },
     "MathExercise": {
         "PrimarySchoolBasicMath": "小学数学基础",

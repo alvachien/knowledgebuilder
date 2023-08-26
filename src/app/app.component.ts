@@ -99,6 +99,11 @@ export class AppComponent implements OnDestroy {
         route: '/high-school/senior-math',
         group: AppNavItemGroupEnum.highschool,
       },
+      {
+        name: 'HighSchool.FunctionCurve',
+        route: '/function-curve',
+        group: AppNavItemGroupEnum.highschool,
+      },
 
       {
         name: 'English.Sentences',

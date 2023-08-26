@@ -33,19 +33,21 @@ const routes: Routes = [
   },
   {
     path: 'primary-school-math',
-    loadChildren: () =>
-      import('./pages/primary-school-math/primary-school-math.module').then((m) => m.PrimarySchoolMathModule),
+    loadChildren: () => import('./pages/primary-school-math/primary-school-math.module').then((m) => m.PrimarySchoolMathModule),
   },
   
   {
     path: 'high-school',
-    loadChildren: () =>
-      import('./pages/high-school/high-school.module').then((m) => m.HighSchoolModule),
+    loadChildren: () => import('./pages/high-school/high-school.module').then((m) => m.HighSchoolModule),
+  },
+
+  {
+    path: 'function-curve',
+    loadChildren: () => import('./pages/function-curve/function-curve.module').then((m) => m.FunctionCurveModule),
   },
   {
     path: 'english-learning',
-    loadChildren: () =>
-      import('./pages/english-learning/english-learning.module').then((m) => m.EnglishLearningModule),
+    loadChildren: () => import('./pages/english-learning/english-learning.module').then((m) => m.EnglishLearningModule),
   },
 
   {
