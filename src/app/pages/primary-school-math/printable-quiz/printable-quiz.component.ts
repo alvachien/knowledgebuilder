@@ -25,7 +25,7 @@ export const generateNumber = (endnr: number, bgnnr: number, dcmplace: number): 
 };
 
 @Component({
-  selector: 'app-printable-quiz',
+  selector: 'khb-printable-quiz',
   templateUrl: './printable-quiz.component.html',
   styleUrls: ['./printable-quiz.component.scss'],
 })

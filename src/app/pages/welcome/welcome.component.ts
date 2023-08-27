@@ -13,7 +13,7 @@ export interface Tile {
 }
 
 @Component({
-  selector: 'app-welcome',
+  selector: 'khb-welcome',
   templateUrl: './welcome.component.html',
   styleUrls: ['./welcome.component.scss'],
 })

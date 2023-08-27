@@ -8,7 +8,7 @@ import { UserCollection } from 'src/app/models';
 import { ODataService, PreviewObject, UIUtilityService } from '../../../services';
 
 @Component({
-  selector: 'app-user-collection',
+  selector: 'khb-user-collection',
   templateUrl: './user-collection.component.html',
   styleUrls: ['./user-collection.component.scss'],
 })

@@ -11,7 +11,7 @@ import { CanComponentDeactivate, CanDeactivateGuard, QuizService } from 'src/app
 import { QuizFailureDailogComponent } from '../../quiz-failure-dailog';
 
 @Component({
-  selector: 'app-primary-school-math-div-ex',
+  selector: 'khb-primary-school-math-div-ex',
   templateUrl: './division-exercise.component.html',
   styleUrls: ['./division-exercise.component.scss'],
 })

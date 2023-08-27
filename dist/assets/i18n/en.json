@@ -46,6 +46,7 @@
         "Logout": "LOGOUT",
         "Done": "Done",
         "Title": "TITLE",
+        "Folder": "FOLDER",
         "File": "FILE",
         "Collection": "COLLECTION"
     },
@@ -117,7 +118,8 @@
     "HighSchool": {
         "HighSchool": "High School",
         "JuniorHighSchoolMath": "Junior High School - Math",
-        "SeniorHighSchoolMath": "Senior High School - Math"
+        "SeniorHighSchoolMath": "Senior High School - Math",
+        "FunctionCurve": "Function Curve"
     },
     "MathExercise": {
         "PrimarySchoolBasicMath": "Basic Math of P.S.",

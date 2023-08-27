@@ -123,7 +123,7 @@ class SudouEditPanel {
 }
 
 @Component({
-  selector: 'app-sudou',
+  selector: 'khb-sudou',
   templateUrl: './sudou.component.html',
   styleUrls: ['./sudou.component.scss'],
 })

@@ -1,7 +1,7 @@
 import { Component, Input } from '@angular/core';
 
 @Component({
-  selector: 'app-printable-quiz-section',
+  selector: 'khb-printable-quiz-section',
   templateUrl: './printable-quiz-section.component.html',
   styleUrls: ['./printable-quiz-section.component.scss'],
 })

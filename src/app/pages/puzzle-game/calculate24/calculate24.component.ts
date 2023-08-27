@@ -4,7 +4,7 @@ import { ResultDialogComponent } from '../result-dialog/result-dialog.component'
 import { FormulaParser } from 'actslib';
 
 @Component({
-  selector: 'app-calculate24',
+  selector: 'khb-calculate24',
   templateUrl: './calculate24.component.html',
   styleUrls: ['./calculate24.component.scss'],
 })

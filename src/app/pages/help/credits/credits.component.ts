@@ -1,7 +1,7 @@
 import { Component } from '@angular/core';
 
 @Component({
-  selector: 'app-help-credits',
+  selector: 'khb-help-credits',
   templateUrl: './credits.component.html',
   styleUrls: ['./credits.component.scss'],
 })

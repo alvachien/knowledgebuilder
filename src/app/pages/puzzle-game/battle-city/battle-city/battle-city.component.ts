@@ -7,7 +7,7 @@ import {
 } from 'src/app/models/battle-city';
 
 @Component({
-  selector: 'app-battle-city',
+  selector: 'khb-battle-city',
   templateUrl: './battle-city.component.html',
   styleUrls: ['./battle-city.component.scss'],
 })

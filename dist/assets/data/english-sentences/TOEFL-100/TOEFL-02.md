@@ -11,7 +11,7 @@
 1. **irrigation**   
 n. 灌溉
 2. **abundantly**    
-adv. 丰富地、充裕地
+ad. 丰富地、充裕地
 3. **cactus**   
 n. 仙人掌
 4. **sagebrush**    

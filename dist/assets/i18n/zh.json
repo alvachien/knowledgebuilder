@@ -46,6 +46,7 @@
         "Logout": "登出",
         "Done": "完成",
         "Title": "标题",
+        "Folder": "文件目录",
         "File": "文件",
         "Collection": "列表"
     },
@@ -117,7 +118,8 @@
     "HighSchool": {
         "HighSchool": "中学知识",
         "JuniorHighSchoolMath": "初中数学",
-        "SeniorHighSchoolMath": "高中数学"
+        "SeniorHighSchoolMath": "高中数学",
+        "FunctionCurve": "函数曲线"
     },
     "MathExercise": {
         "PrimarySchoolBasicMath": "小学数学基础",

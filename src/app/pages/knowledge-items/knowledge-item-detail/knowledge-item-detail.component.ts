@@ -13,7 +13,7 @@ import { ImageUploadComponent } from '../../image-upload/image-upload.component'
 import { KnowledgeItemCategory, KnowledgeItem, getKnowledgeItemCategoryNames } from 'src/app/models';
 
 @Component({
-  selector: 'app-knowledge-item-detail',
+  selector: 'khb-knowledge-item-detail',
   templateUrl: './knowledge-item-detail.component.html',
   styleUrls: ['./knowledge-item-detail.component.scss'],
 })

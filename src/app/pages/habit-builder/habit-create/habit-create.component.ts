@@ -117,7 +117,7 @@ export const habitFormValidator: ValidatorFn = (control: AbstractControl): Valid
 };
 
 @Component({
-  selector: 'app-habit-create',
+  selector: 'khb-habit-create',
   templateUrl: './habit-create.component.html',
   styleUrls: ['./habit-create.component.scss'],
 })

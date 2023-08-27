@@ -10,7 +10,7 @@ import { ODataService, UIUtilityService } from 'src/app/services';
 import { AuthService } from 'src/app/services/auth.service';
 
 @Component({
-  selector: 'app-user-collection-detail',
+  selector: 'khb-user-collection-detail',
   templateUrl: './user-collection-detail.component.html',
   styleUrls: ['./user-collection-detail.component.scss'],
 })

@@ -19,7 +19,7 @@ import {
 import { AuthService, ODataService, UIUtilityService } from 'src/app/services';
 
 @Component({
-  selector: 'app-habit-list',
+  selector: 'khb-habit-list',
   templateUrl: './habit-list.component.html',
   styleUrls: ['./habit-list.component.scss'],
 })

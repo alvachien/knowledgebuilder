@@ -9,7 +9,7 @@ import { AwardUserView, UserHabitRecord } from 'src/app/models';
 import { AuthService, ODataService, UIUtilityService } from 'src/app/services';
 
 @Component({
-  selector: 'app-habit-record-detail',
+  selector: 'khb-habit-record-detail',
   templateUrl: './habit-record-detail.component.html',
   styleUrls: ['./habit-record-detail.component.scss'],
 })

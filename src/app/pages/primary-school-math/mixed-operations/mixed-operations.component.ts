@@ -13,7 +13,7 @@ import { CanComponentDeactivate, CanDeactivateGuard, QuizService } from 'src/app
 import { QuizFailureDailogComponent } from '../../quiz-failure-dailog';
 
 @Component({
-  selector: 'app-primary-school-math-mixed-op',
+  selector: 'khb-primary-school-math-mixed-op',
   templateUrl: './mixed-operations.component.html',
   styleUrls: ['./mixed-operations.component.scss'],
 })

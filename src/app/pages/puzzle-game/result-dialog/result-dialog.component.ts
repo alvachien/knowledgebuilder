@@ -7,7 +7,7 @@ export interface ResultDialogData {
 }
 
 @Component({
-  selector: 'app-result-dialog',
+  selector: 'khb-result-dialog',
   templateUrl: './result-dialog.component.html',
   styleUrls: ['./result-dialog.component.scss'],
 })

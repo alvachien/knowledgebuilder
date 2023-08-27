@@ -18,7 +18,7 @@ import {
 import { ODataService, PreviewObject, UIUtilityService } from 'src/app/services';
 
 @Component({
-  selector: 'app-knowledge-item-search',
+  selector: 'khb-knowledge-item-search',
   templateUrl: './knowledge-item-search.component.html',
   styleUrls: ['./knowledge-item-search.component.scss'],
 })

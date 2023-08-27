@@ -13,7 +13,7 @@ import { ODataService, UIUtilityService } from '../../../services';
 import { ImageUploadComponent } from '../../image-upload/image-upload.component';
 
 @Component({
-  selector: 'app-exercise-item-detail',
+  selector: 'khb-exercise-item-detail',
   templateUrl: './exercise-item-detail.component.html',
   styleUrls: ['./exercise-item-detail.component.scss'],
 })

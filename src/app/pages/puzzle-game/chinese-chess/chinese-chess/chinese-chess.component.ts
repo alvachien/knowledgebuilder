@@ -23,7 +23,7 @@ import {
 } from 'src/app/models/chinese-chess';
 
 @Component({
-  selector: 'app-chinese-chess',
+  selector: 'khb-chinese-chess',
   templateUrl: './chinese-chess.component.html',
   styleUrls: ['./chinese-chess.component.scss'],
 })

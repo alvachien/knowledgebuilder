@@ -28,7 +28,7 @@ class AvailableHabit {
 }
 
 @Component({
-  selector: 'app-habit-record-create',
+  selector: 'khb-habit-record-create',
   templateUrl: './habit-record-create.component.html',
   styleUrls: ['./habit-record-create.component.scss'],
 })

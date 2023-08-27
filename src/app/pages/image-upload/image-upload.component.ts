@@ -5,7 +5,7 @@ import { forkJoin } from 'rxjs';
 import { ODataService } from '../../services';
 
 @Component({
-  selector: 'app-image-upload',
+  selector: 'khb-image-upload',
   templateUrl: './image-upload.component.html',
   styleUrls: ['./image-upload.component.scss'],
 })

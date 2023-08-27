@@ -15,7 +15,7 @@ export interface QuizSummaryInfo {
 }
 
 @Component({
-  selector: 'app-quiz-summary-detail',
+  selector: 'khb-quiz-summary-detail',
   templateUrl: './quiz-summary-detail.component.html',
   styleUrls: ['./quiz-summary-detail.component.scss'],
 })

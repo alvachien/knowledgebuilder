@@ -17,7 +17,7 @@ import {
 import { ODataService, PreviewObject, UIUtilityService } from 'src/app/services';
 
 @Component({
-  selector: 'app-exercise-item-search',
+  selector: 'khb-exercise-item-search',
   templateUrl: './exercise-item-search.component.html',
   styleUrls: ['./exercise-item-search.component.scss'],
 })

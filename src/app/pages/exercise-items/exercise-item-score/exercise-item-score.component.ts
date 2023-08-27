@@ -17,7 +17,7 @@ import {
 import { ODataService, PreviewObject, UIUtilityService } from '../../../services';
 
 @Component({
-  selector: 'app-exercise-item-score',
+  selector: 'khb-exercise-item-score',
   templateUrl: './exercise-item-score.component.html',
   styleUrls: ['./exercise-item-score.component.scss'],
 })

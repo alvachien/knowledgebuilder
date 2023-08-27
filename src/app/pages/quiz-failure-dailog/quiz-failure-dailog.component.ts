@@ -3,7 +3,7 @@ import { Component, OnInit } from '@angular/core';
 import { QuizService } from 'src/app/services';
 
 @Component({
-  selector: 'app-quiz-failure-dailog',
+  selector: 'khb-quiz-failure-dailog',
   templateUrl: './quiz-failure-dailog.component.html',
   styleUrls: ['./quiz-failure-dailog.component.scss'],
 })

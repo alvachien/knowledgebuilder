@@ -7,7 +7,7 @@ import { MatDialog } from '@angular/material/dialog';
 import { ResultDialogComponent } from '../result-dialog/result-dialog.component';
 
 @Component({
-  selector: 'app-gobang-game',
+  selector: 'khb-gobang-game',
   templateUrl: './gobang-game.component.html',
   styleUrls: ['./gobang-game.component.scss'],
 })

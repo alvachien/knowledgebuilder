@@ -9,7 +9,7 @@ import { Tag, TagReferenceType, getTagReferenceTypeName } from 'src/app/models';
 import { PreviewObject, UIUtilityService, ODataService } from 'src/app/services';
 
 @Component({
-  selector: 'app-tag-detail',
+  selector: 'khb-tag-detail',
   templateUrl: './tag-detail.component.html',
   styleUrls: ['./tag-detail.component.scss'],
 })

@@ -9,7 +9,7 @@
 ## Vocabulary   
 
 1. **essentially**   
-adv. 本质上；基本上
+ad. 本质上；基本上
     - **essence**    
         n. 本质
     - **essential**   
@@ -17,9 +17,9 @@ adv. 本质上；基本上
 2. **theory**   
 n. 理论，原理
 3. **abstract**     
-adj. 抽象的，抽象派的
+a. 抽象的，抽象派的
 4. **symbolic**   
-adj. 象征的，符号的
+a. 象征的，符号的
     - **symbolize**   
         vt. 象征
     - **symbolism**   
@@ -29,7 +29,7 @@ n. 代表；
 6. **conceive**   
 v. 设想，构想
     - **conceivable**   
-    adj. 可想象的 
+    a. 可想象的 
     - **deceive**   
     vt. 欺骗
     - **perceive**   

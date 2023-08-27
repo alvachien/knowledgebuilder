@@ -1,31 +1,32 @@
 ## Sentence
 
-**No social crusade aroused Elizabeth Williams' enthusiasm more than the expansion of educational facilities for immigrants to the United States.**
+**Since wind-pollinated flowers have no need to attract insects or other animals, they have dispensed with bright petals, nectar, and scent.**
 
 ## Translation
 
-没有任何一项社会活动比给美国的移民增加教育设施更能激发伊丽莎白.威廉姆斯的热情。     
+由于靠风传播授粉的花不需要吸引昆虫或其他动物，所以它们不再需要色彩鲜艳的花瓣、花蜜和气味。     
 
 
 ## Vocabulary   
 
-1. **crusade**   
-n. 十字军（远征）；改革运动；    
-vi. 加入十字军，投身正义活动；      
+1. **wind-pollinated**   
+a. 靠风传播授粉的；      
 
-2. **arouse**     
-vt. 唤醒；激起；    
+2. **attract**     
+vt. 吸引，引起（注意等）；    
 
-3. **enthusiasm**     
-n. 热情；积极性；热衷的事物；     
+3. **insect**     
+n. 昆虫，虫；     
 
-4. **educational**     
-n. 教育的；有教育意义的；     
+4. **dispense**     
+vt. 分发；豁免；     
 
-5. **facility**    
-n. 设备；设施；   
+5. **petal**    
+n. 花瓣；   
 
-6. **immigrant**    
-n. （外来）移民；      
-a. 移民的；    
+6. **nectar**    
+n. 花蜜；琼浆玉液；    
+
+7. **scent**    
+n. 香气；气味；     
 

@@ -2,7 +2,7 @@ import { Component } from '@angular/core';
 import { environment } from 'src/environments/environment';
 
 @Component({
-  selector: 'app-help-about',
+  selector: 'khb-help-about',
   templateUrl: './about.component.html',
   styleUrls: ['./about.component.scss'],
 })

@@ -15,7 +15,7 @@ import { ODataService, PreviewObject, UIUtilityService } from 'src/app/services'
 import { PreviewNewScoreSheet } from './preview-newscore-sheet';
 
 @Component({
-  selector: 'app-preview',
+  selector: 'khb-preview',
   templateUrl: './preview.component.html',
   styleUrls: ['./preview.component.scss'],
 })

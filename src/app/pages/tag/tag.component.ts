@@ -9,7 +9,7 @@ import { TagCount, TagReferenceType, getTagReferenceTypeName } from 'src/app/mod
 import { ODataService } from '../../services';
 
 @Component({
-  selector: 'app-tag',
+  selector: 'khb-tag',
   templateUrl: './tag.component.html',
   styleUrls: ['./tag.component.scss'],
 })

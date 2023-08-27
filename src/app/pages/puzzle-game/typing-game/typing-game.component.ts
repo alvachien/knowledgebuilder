@@ -15,7 +15,7 @@ export interface typingCompare {
 }
 
 @Component({
-  selector: 'app-typing-game',
+  selector: 'khb-typing-game',
   templateUrl: './typing-game.component.html',
   styleUrls: ['./typing-game.component.scss'],
 })
