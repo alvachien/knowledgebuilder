@@ -9,15 +9,14 @@ import { KatexOptions } from 'ngx-markdown';
 })
 export class ItemDisplayComponent {
   private subfolder = '';
-  private filename =  '';
+  private filename = '';
   public mathOptions: KatexOptions = {
     displayMode: true,
     throwOnError: false,
     errorColor: '#cc0000',
   };
 
-  constructor(private activateRoute: ActivatedRoute) {    
-  }
+  constructor(private activateRoute: ActivatedRoute) {}
 
   get mdFilePath() {
     return `assets/data/${this.subfolder}/${this.filename}`;
@@ -32,19 +31,19 @@ export class ItemDisplayComponent {
           const dispitem = val[x].path;
           if (dispitem === `display-jrmath-item`) {
             this.subfolder = 'juniorchool-math';
-            this.filename = `${ val[y].path }`;
+            this.filename = `${val[y].path}`;
           } else {
             this.subfolder = 'highschool-math';
-            this.filename = `${ val[y].path }`;
+            this.filename = `${val[y].path}`;
           }
 
           console.log(this.subfolder);
           console.log(this.filename);
         }
       },
-      error: err => {
+      error: (err) => {
         console.error(err);
-      }
+      },
     });
   }
 }

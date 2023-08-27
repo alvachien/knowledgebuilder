@@ -1,4 +1,13 @@
-import { waitForAsync, ComponentFixture, TestBed, fakeAsync, tick, discardPeriodicTasks, flush, inject } from '@angular/core/testing';
+import {
+  waitForAsync,
+  ComponentFixture,
+  TestBed,
+  fakeAsync,
+  tick,
+  discardPeriodicTasks,
+  flush,
+  inject,
+} from '@angular/core/testing';
 import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { NoopAnimationsModule } from '@angular/platform-browser/animations';
@@ -29,7 +38,7 @@ describe('ExerciseItemsComponent', () => {
   const ElementClass_DialogCloseButton = '.ant-modal-close';
   const ElementClass_DialogCancelButton = '.ant-modal-cancel';
   const ElementClass_DialogContent = '.ant-modal-body';
-  
+
   beforeAll(() => {
     odataSvc = jasmine.createSpyObj('ODataService', [
       'getUserCollections',
@@ -64,11 +73,7 @@ describe('ExerciseItemsComponent', () => {
         BrowserDynamicTestingModule,
         getTranslocoModule(),
       ],
-      declarations: [
-        ExerciseItemsComponent,
-        ExerciseItemAddToCollDialog,
-        ExerciseItemNewPracticeDialog,
-      ],
+      declarations: [ExerciseItemsComponent, ExerciseItemAddToCollDialog, ExerciseItemNewPracticeDialog],
       providers: [
         { provide: AuthService, useValue: authStub },
         { provide: ODataService, useValue: odataSvc },
@@ -92,15 +97,19 @@ describe('ExerciseItemsComponent', () => {
     let overlayContainerElement: HTMLElement;
 
     beforeEach(() => {
-      getExerciseItemsSpy.and.returnValue(asyncData({
-        totalCount: 0,
-        items: []
-      }));
+      getExerciseItemsSpy.and.returnValue(
+        asyncData({
+          totalCount: 0,
+          items: [],
+        })
+      );
       deleteExerciseItemSpy.and.returnValue(asyncData(false));
-      getUserCollectionsSpy.and.returnValue(asyncData({
-        totalCount: 0,
-        items: []
-      }));
+      getUserCollectionsSpy.and.returnValue(
+        asyncData({
+          totalCount: 0,
+          items: [],
+        })
+      );
     });
     beforeEach(inject([OverlayContainer], (oc: OverlayContainer) => {
       overlayContainer = oc;
@@ -119,7 +128,7 @@ describe('ExerciseItemsComponent', () => {
       expect(component).toBeTruthy();
 
       discardPeriodicTasks();
-      flush();      
+      flush();
     }));
 
     it('refresh without error', fakeAsync(() => {
@@ -136,7 +145,7 @@ describe('ExerciseItemsComponent', () => {
       expect(component).toBeTruthy();
 
       discardPeriodicTasks();
-      flush();      
+      flush();
     }));
 
     xit('Add to collection', fakeAsync(() => {
@@ -149,7 +158,7 @@ describe('ExerciseItemsComponent', () => {
       fixture.detectChanges();
 
       discardPeriodicTasks();
-      flush();      
+      flush();
     }));
 
     xit('New practice', fakeAsync(() => {

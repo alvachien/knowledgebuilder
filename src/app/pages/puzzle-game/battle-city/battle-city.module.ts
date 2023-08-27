@@ -8,13 +8,7 @@ import { BattleCityRoutingModule } from './battle-city-routing.module';
 import { BattleCityComponent } from './battle-city/battle-city.component';
 
 @NgModule({
-  declarations: [
-    BattleCityComponent
-  ],
-  imports: [
-    CommonModule,
-    FormsModule, MaterialModulesModule, TranslocoModule,
-    BattleCityRoutingModule
-  ]
+  declarations: [BattleCityComponent],
+  imports: [CommonModule, FormsModule, MaterialModulesModule, TranslocoModule, BattleCityRoutingModule],
 })
-export class BattleCityModule { }
+export class BattleCityModule {}

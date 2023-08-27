@@ -41,7 +41,7 @@ export class Calculate24Component {
         Math.round(Math.random() * (this.Cal24NumberRangeEnd - this.Cal24NumberRangeBgn)) + this.Cal24NumberRangeBgn;
       if (nNum > this.Cal24NumberRangeEnd) {
         nNum = this.Cal24NumberRangeEnd;
-      } else if(nNum < this.Cal24NumberRangeBgn) {
+      } else if (nNum < this.Cal24NumberRangeBgn) {
         nNum = this.Cal24NumberRangeBgn;
       }
       const nExistIdx = this.Cal24items.findIndex((val) => val === nNum);
@@ -88,7 +88,7 @@ export class Calculate24Component {
       let realstring = this.Cal24Input.replace('×', '*');
       realstring = realstring.replace('÷', '/');
 
-      let insForm: FormulaParser = new FormulaParser();
+      const insForm: FormulaParser = new FormulaParser();
       insForm.init(realstring);
       rst = insForm.evaulate();
       if (rst !== 24) {

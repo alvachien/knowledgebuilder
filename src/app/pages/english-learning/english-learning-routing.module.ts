@@ -7,15 +7,16 @@ import { SentencesDetailComponent } from './sentences-detail';
 const routes: Routes = [
   {
     path: 'sentences',
-    component: SentencesListComponent
-  }, {
+    component: SentencesListComponent,
+  },
+  {
     path: 'disp-sentence/:folder/:file',
-    component: SentencesDetailComponent
-  }
+    component: SentencesDetailComponent,
+  },
 ];
 
 @NgModule({
   imports: [RouterModule.forChild(routes)],
-  exports: [RouterModule]
+  exports: [RouterModule],
 })
-export class EnglishLearningRoutingModule { }
+export class EnglishLearningRoutingModule {}

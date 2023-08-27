@@ -8,7 +8,7 @@ import { ExerciseItemUserScore } from 'src/app/models';
 import { ODataService } from 'src/app/services';
 
 @Component({
-  selector: 'app-preview-newscore-sheet',
+  selector: 'hkb-preview-newscore-sheet',
   templateUrl: 'preview-newscore-sheet.html',
 })
 export class PreviewNewScoreSheet {

@@ -177,7 +177,7 @@ describe('DivisionQuizItem', () => {
 
 describe('MixedOperationQuizItem', () => {
   let objtc: MixedOperationQuizItem;
-  
+
   beforeEach(() => {
     objtc = new MixedOperationQuizItem('20+30');
   });
@@ -195,6 +195,6 @@ describe('PrimarySchoolMathQuizSection', () => {
   });
 
   it('default value', () => {
-    expect(objtc).toBeTruthy();    
+    expect(objtc).toBeTruthy();
   });
 });

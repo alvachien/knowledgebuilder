@@ -6,15 +6,14 @@ import items from 'src/assets/data/highschool-math/index.json';
 @Component({
   selector: 'khb-highschool-senior-math',
   templateUrl: './senior-math.component.html',
-  styleUrls: ['./senior-math.component.scss']
+  styleUrls: ['./senior-math.component.scss'],
 })
 export class SeniorMathComponent {
   displayedColumns: string[] = ['title', 'file', 'collection'];
   dataSource = items;
   clickedRows = new Set<any>();
 
-  constructor(private router: Router) {    
-  }
+  constructor(private router: Router) {}
 
   onClick(row: any) {
     this.router.navigate(['high-school', 'display-hsmath-item', row.file]);

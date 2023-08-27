@@ -65,9 +65,7 @@ describe('HabitCreateComponent', () => {
   });
 
   describe('work with data', () => {
-    beforeEach(() => {
-
-    });
+    beforeEach(() => {});
 
     it('shall initialize', fakeAsync(() => {
       fixture.detectChanges();
@@ -87,7 +85,7 @@ describe('HabitCreateComponent', () => {
       tick();
       fixture.detectChanges();
 
-      component.secondFormGroup .get('rawCtrl')?.setValue('3;4;6');
+      component.secondFormGroup.get('rawCtrl')?.setValue('3;4;6');
       tick();
       fixture.detectChanges();
 

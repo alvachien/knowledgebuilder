@@ -17,12 +17,12 @@ describe('UserCollectionItem', () => {
       ID: 12,
       RefType: 'KnowledgeItem',
       RefID: 11,
-      CreatedAt: '2022-01-02'
+      CreatedAt: '2022-01-02',
     });
     expect(objtc.ID).toEqual(12);
     expect(objtc.CreatedAt).toBeTruthy();
 
-    let objstr = objtc.writeJSONString();
+    const objstr = objtc.writeJSONString();
     expect(objstr).toBeTruthy();
   });
 });
@@ -50,9 +50,9 @@ describe('UserCollection', () => {
           ID: 12,
           RefType: 'KnowledgeItem',
           RefID: 11,
-          CreatedAt: '2022-01-02'
-        }
-      ]
+          CreatedAt: '2022-01-02',
+        },
+      ],
     });
 
     expect(objtc.CreatedAt).toBeTruthy();

@@ -8,7 +8,7 @@ describe('JuniorMathComponent', () => {
 
   beforeEach(() => {
     TestBed.configureTestingModule({
-      declarations: [JuniorMathComponent]
+      declarations: [JuniorMathComponent],
     });
     fixture = TestBed.createComponent(JuniorMathComponent);
     component = fixture.componentInstance;

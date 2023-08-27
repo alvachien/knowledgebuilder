@@ -1,9 +1,23 @@
 import { AfterViewInit, Component, ElementRef, HostListener, OnDestroy, ViewChild } from '@angular/core';
 
 import {
-  BC_Screen_Height, BC_Screen_Width, BULLET_TYPE_ENEMY, BULLET_TYPE_PLAYER, BattleCityGlobalContext,
-  BattleCityMap, GAME_STATE_INIT, GAME_STATE_MENU, GAME_STATE_OVER,
-  GAME_STATE_START, GAME_STATE_WIN, KEYBOARD_DOWN, KEYBOARD_ENTER, KEYBOARD_N, KEYBOARD_P, KEYBOARD_SPACE, KEYBOARD_UP
+  BC_Screen_Height,
+  BC_Screen_Width,
+  BULLET_TYPE_ENEMY,
+  BULLET_TYPE_PLAYER,
+  BattleCityGlobalContext,
+  BattleCityMap,
+  GAME_STATE_INIT,
+  GAME_STATE_MENU,
+  GAME_STATE_OVER,
+  GAME_STATE_START,
+  GAME_STATE_WIN,
+  KEYBOARD_DOWN,
+  KEYBOARD_ENTER,
+  KEYBOARD_N,
+  KEYBOARD_P,
+  KEYBOARD_SPACE,
+  KEYBOARD_UP,
 } from 'src/app/models/battle-city';
 
 @Component({
@@ -72,7 +86,7 @@ export class BattleCityComponent implements AfterViewInit, OnDestroy {
       const idx = BattleCityGlobalContext.keys.indexOf(event.key);
       if (idx !== -1) {
         BattleCityGlobalContext.keys.splice(idx, 1);
-      }  
+      }
     }
   }
 
@@ -85,23 +99,23 @@ export class BattleCityComponent implements AfterViewInit, OnDestroy {
     }
     if (this.elementStageCanvas !== null) {
       this.elementStageCanvas.nativeElement.width = BC_Screen_Width; // `${BC_Screen_Width}px`;
-      this.elementStageCanvas.nativeElement.height = BC_Screen_Height; // `${BC_Screen_Height}px`;  
+      this.elementStageCanvas.nativeElement.height = BC_Screen_Height; // `${BC_Screen_Height}px`;
     }
     if (this.elementWallCanvas !== null) {
       this.elementWallCanvas.nativeElement.width = BC_Screen_Width; // `${BC_Screen_Width}px`;
-      this.elementWallCanvas.nativeElement.height = BC_Screen_Height; // `${BC_Screen_Height}px`;  
+      this.elementWallCanvas.nativeElement.height = BC_Screen_Height; // `${BC_Screen_Height}px`;
     }
     if (this.elementTankCanvas !== null) {
       this.elementTankCanvas.nativeElement.width = BC_Screen_Width; // `${BC_Screen_Width}px`;
-      this.elementTankCanvas.nativeElement.height = BC_Screen_Height; // `${BC_Screen_Height}px`;  
+      this.elementTankCanvas.nativeElement.height = BC_Screen_Height; // `${BC_Screen_Height}px`;
     }
     if (this.elementGrassCanvas !== null) {
       this.elementGrassCanvas.nativeElement.width = BC_Screen_Width; // `${BC_Screen_Width}px`;
-      this.elementGrassCanvas.nativeElement.height = BC_Screen_Height; // `${BC_Screen_Height}px`;  
+      this.elementGrassCanvas.nativeElement.height = BC_Screen_Height; // `${BC_Screen_Height}px`;
     }
     if (this.elementOverCanvas !== null) {
       this.elementOverCanvas.nativeElement.width = BC_Screen_Width; // `${BC_Screen_Width}px`;
-      this.elementOverCanvas.nativeElement.height = BC_Screen_Height; // `${BC_Screen_Height}px`;  
+      this.elementOverCanvas.nativeElement.height = BC_Screen_Height; // `${BC_Screen_Height}px`;
     }
 
     // Global context
@@ -149,14 +163,20 @@ export class BattleCityComponent implements AfterViewInit, OnDestroy {
 
       case GAME_STATE_START:
         BattleCityGlobalContext.drawAll();
-        if(BattleCityGlobalContext.isGameOver ||(BattleCityGlobalContext.player1!.lives <=0 && BattleCityGlobalContext.player2!.lives <= 0)){
+        if (
+          BattleCityGlobalContext.isGameOver ||
+          (BattleCityGlobalContext.player1!.lives <= 0 && BattleCityGlobalContext.player2!.lives <= 0)
+        ) {
           BattleCityGlobalContext.gameState = GAME_STATE_OVER;
           BattleCityGlobalContext.map!.homeHit();
           // TBD
           // PLAYER_DESTROY_AUDIO.play();
         }
-        if(BattleCityGlobalContext.appearEnemy == BattleCityGlobalContext.maxEnemy && BattleCityGlobalContext.enemyArray.length == 0){
-          BattleCityGlobalContext.gameState  = GAME_STATE_WIN;
+        if (
+          BattleCityGlobalContext.appearEnemy == BattleCityGlobalContext.maxEnemy &&
+          BattleCityGlobalContext.enemyArray.length == 0
+        ) {
+          BattleCityGlobalContext.gameState = GAME_STATE_WIN;
         }
         break;
       case GAME_STATE_WIN:

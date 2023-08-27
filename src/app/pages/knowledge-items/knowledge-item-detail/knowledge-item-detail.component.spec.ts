@@ -1,4 +1,12 @@
-import { waitForAsync, ComponentFixture, TestBed, fakeAsync, tick, discardPeriodicTasks, flush } from '@angular/core/testing';
+import {
+  waitForAsync,
+  ComponentFixture,
+  TestBed,
+  fakeAsync,
+  tick,
+  discardPeriodicTasks,
+  flush,
+} from '@angular/core/testing';
 import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { NoopAnimationsModule } from '@angular/platform-browser/animations';
@@ -49,7 +57,7 @@ describe('KnowledgeItemDetailComponent', () => {
     const authStub: Partial<AuthService> = {
       userDetail: userDetail,
       isAuthenticated: true,
-    };    
+    };
 
     activatedRouteStub = new ActivatedRouteUrlStub([new UrlSegment('create', {})] as UrlSegment[]);
 
@@ -78,9 +86,7 @@ describe('KnowledgeItemDetailComponent', () => {
         }),
         getTranslocoModule(),
       ],
-      declarations: [
-        KnowledgeItemDetailComponent
-      ],
+      declarations: [KnowledgeItemDetailComponent],
       providers: [
         { provide: AuthService, useValue: authStub },
         { provide: ActivatedRoute, useValue: activatedRouteStub },
@@ -102,7 +108,7 @@ describe('KnowledgeItemDetailComponent', () => {
 
   describe('create mode', () => {
     beforeEach(() => {
-      let objtbt = new KnowledgeItem();
+      const objtbt = new KnowledgeItem();
       objtbt.ID = 122;
       objtbt.Content = 'aaa';
       objtbt.Title = 'aaa';
@@ -145,13 +151,13 @@ describe('KnowledgeItemDetailComponent', () => {
   describe('display mode', () => {
     beforeEach(() => {
       activatedRouteStub.setURL([new UrlSegment('display', {}), new UrlSegment('122', {})] as UrlSegment[]);
-  
-      let objtbt = new KnowledgeItem();
+
+      const objtbt = new KnowledgeItem();
       objtbt.ID = 122;
       objtbt.Content = 'aaa';
       objtbt.Title = 'aaa';
       objtbt.ItemCategory = KnowledgeItemCategory.Concept;
-  
+
       readKnowledgeItemSpy.and.returnValue(asyncData(objtbt));
       createKnowledgeItemSpy.and.returnValue(of(''));
       changeKnowledgeItemSpy.and.returnValue(of(''));
@@ -168,7 +174,7 @@ describe('KnowledgeItemDetailComponent', () => {
       expect(component.uiMode).toEqual(UIMode.Display);
       expect(component.isCreateMode).toBeFalse();
       expect(component.isUpdateMode).toBeFalse();
-      expect(component.isDisplayMode).toBeTrue();      
+      expect(component.isDisplayMode).toBeTrue();
 
       tick();
       fixture.detectChanges();
@@ -206,13 +212,13 @@ describe('KnowledgeItemDetailComponent', () => {
   describe('edit mode', () => {
     beforeEach(() => {
       activatedRouteStub.setURL([new UrlSegment('edit', {}), new UrlSegment('122', {})] as UrlSegment[]);
-  
-      let objtbt = new KnowledgeItem();
+
+      const objtbt = new KnowledgeItem();
       objtbt.ID = 122;
       objtbt.Content = 'aaa';
       objtbt.Title = 'aaa';
       objtbt.ItemCategory = KnowledgeItemCategory.Concept;
-  
+
       readKnowledgeItemSpy.and.returnValue(asyncData(objtbt));
       createKnowledgeItemSpy.and.returnValue(of(''));
       changeKnowledgeItemSpy.and.returnValue(asyncData(objtbt));
@@ -229,7 +235,7 @@ describe('KnowledgeItemDetailComponent', () => {
       expect(component.uiMode).toEqual(UIMode.Update);
       expect(component.isCreateMode).toBeFalse();
       expect(component.isUpdateMode).toBeTrue();
-      expect(component.isDisplayMode).toBeFalse();      
+      expect(component.isDisplayMode).toBeFalse();
 
       tick();
       fixture.detectChanges();
@@ -254,7 +260,7 @@ describe('KnowledgeItemDetailComponent', () => {
 
       const routerstub = TestBed.inject(Router);
       spyOn(routerstub, 'navigate');
-    
+
       component.onReturnToList();
       expect(routerstub.navigate).toHaveBeenCalled();
 
@@ -269,7 +275,7 @@ describe('KnowledgeItemDetailComponent', () => {
 
       const routerstub = TestBed.inject(Router);
       spyOn(routerstub, 'navigate');
-    
+
       component.onCreateNewOne();
       expect(routerstub.navigate).toHaveBeenCalled();
 

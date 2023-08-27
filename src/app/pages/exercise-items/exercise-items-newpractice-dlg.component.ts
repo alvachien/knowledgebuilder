@@ -2,7 +2,7 @@ import { Component, Inject } from '@angular/core';
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 
 @Component({
-  selector: 'app-exercise-item-newscore-dlg',
+  selector: 'hkb-exercise-item-newscore-dlg',
   templateUrl: 'exercise-items-newpractice-dlg.html',
 })
 // eslint-disable-next-line @angular-eslint/component-class-suffix

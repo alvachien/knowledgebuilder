@@ -4,7 +4,7 @@ import { QuizSection } from 'src/app/models';
 import { QuizService } from '../../services';
 
 @Component({
-  selector: 'app-quiz-summary',
+  selector: 'hkb-quiz-summary',
   templateUrl: './quiz-summary.component.html',
   styleUrls: ['./quiz-summary.component.scss'],
 })

@@ -6,7 +6,7 @@ import { map, Observable } from 'rxjs';
 @Injectable({
   providedIn: 'root',
 })
-export class AuthGuardService  {
+export class AuthGuardService {
   constructor(private authService: OidcSecurityService, private router: Router) {}
 
   // canActivate(route: ActivatedRouteSnapshot, state: RouterStateSnapshot): Promise<boolean> {

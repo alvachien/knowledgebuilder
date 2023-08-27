@@ -1,4 +1,12 @@
-import { ComponentFixture, TestBed, discardPeriodicTasks, fakeAsync, flush, tick, waitForAsync } from '@angular/core/testing';
+import {
+  ComponentFixture,
+  TestBed,
+  discardPeriodicTasks,
+  fakeAsync,
+  flush,
+  tick,
+  waitForAsync,
+} from '@angular/core/testing';
 
 import { TypingGameComponent } from './typing-game.component';
 
@@ -28,25 +36,25 @@ describe('TypingGameComponent', () => {
     expect(component).toBeTruthy();
 
     let iInput = 0;
-    for(; iInput <= 26; iInput ++) {
+    for (; iInput <= 26; iInput++) {
       if (component.expectedString.length === component.inputtedString?.length) {
         let ntimes = component.expectedString.length;
         do {
-          fixture.nativeElement.dispatchEvent(new KeyboardEvent('keydown', { key: 'Backspace', }));
+          fixture.nativeElement.dispatchEvent(new KeyboardEvent('keydown', { key: 'Backspace' }));
           fixture.detectChanges();
-  
-          ntimes --;
-        } while(ntimes > 0);
+
+          ntimes--;
+        } while (ntimes > 0);
       }
 
-      let charinput = String.fromCharCode(65 + iInput);
-      fixture.nativeElement.dispatchEvent(new KeyboardEvent('keydown', { key: charinput, }));
+      const charinput = String.fromCharCode(65 + iInput);
+      fixture.nativeElement.dispatchEvent(new KeyboardEvent('keydown', { key: charinput }));
       fixture.detectChanges();
     }
 
     iInput = 0;
-    for(; iInput <= 9; iInput ++) {
-      fixture.nativeElement.dispatchEvent(new KeyboardEvent('keydown', { key: iInput.toString(), }));
+    for (; iInput <= 9; iInput++) {
+      fixture.nativeElement.dispatchEvent(new KeyboardEvent('keydown', { key: iInput.toString() }));
       fixture.detectChanges();
     }
 
@@ -55,5 +63,5 @@ describe('TypingGameComponent', () => {
 
     discardPeriodicTasks();
     flush();
-}));
+  }));
 });

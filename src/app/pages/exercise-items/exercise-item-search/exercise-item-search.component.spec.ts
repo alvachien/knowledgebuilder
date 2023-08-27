@@ -40,8 +40,7 @@ describe('ExerciseItemSearchComponent', () => {
         getTranslocoModule(),
       ],
       declarations: [ExerciseItemSearchComponent],
-      providers: [UIUtilityService, 
-        { provide: ODataService, useValue: odataservice }],
+      providers: [UIUtilityService, { provide: ODataService, useValue: odataservice }],
     }).compileComponents();
   });
 
@@ -57,10 +56,12 @@ describe('ExerciseItemSearchComponent', () => {
 
   describe('working with data', () => {
     beforeEach(() => {
-      searchExerciseItemsSpy.and.returnValue(asyncData({
-        totalCount: 0,
-        items: []
-      }));
+      searchExerciseItemsSpy.and.returnValue(
+        asyncData({
+          totalCount: 0,
+          items: [],
+        })
+      );
     });
 
     it('init without error', fakeAsync(() => {

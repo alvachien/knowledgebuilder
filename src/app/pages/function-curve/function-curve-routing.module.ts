@@ -4,12 +4,13 @@ import { FunctionCurveComponent } from './function-curve';
 
 const routes: Routes = [
   {
-    path: '', component: FunctionCurveComponent
-  }
+    path: '',
+    component: FunctionCurveComponent,
+  },
 ];
 
 @NgModule({
   imports: [RouterModule.forChild(routes)],
-  exports: [RouterModule]
+  exports: [RouterModule],
 })
-export class FunctionCurveRoutingModule { }
+export class FunctionCurveRoutingModule {}

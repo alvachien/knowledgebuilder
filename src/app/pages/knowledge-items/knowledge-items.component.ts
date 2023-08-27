@@ -16,7 +16,7 @@ import { AuthService, ODataService, PreviewObject, UIUtilityService } from '../.
 import { KnowledgeItemAddToCollDialog } from './knowledge-items-add-coll-dlg.component';
 
 @Component({
-  selector: 'app-knowledge-items',
+  selector: 'hkb-knowledge-items',
   templateUrl: './knowledge-items.component.html',
   styleUrls: ['./knowledge-items.component.scss'],
 })

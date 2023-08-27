@@ -20,7 +20,7 @@ const routes: Routes = [
   {
     path: 'battlecity',
     loadChildren: () => import('./battle-city/battle-city.module').then((m) => m.BattleCityModule),
-  }
+  },
 ];
 
 @NgModule({

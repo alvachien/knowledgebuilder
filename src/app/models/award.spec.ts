@@ -3,8 +3,15 @@
 //
 
 import { AwardRuleTypeEnum, DailyTrace } from '.';
-import { getAwardRuleTypeName, getAwardRuleTypeNames, AwardRuleGroup, AwardRuleDetail,
-  AwardRule, AwardPoint, AwardPointReport, } from './award';
+import {
+  getAwardRuleTypeName,
+  getAwardRuleTypeNames,
+  AwardRuleGroup,
+  AwardRuleDetail,
+  AwardRule,
+  AwardPoint,
+  AwardPointReport,
+} from './award';
 
 describe('getAwardRuleTypeName', () => {
   it('Go through all enu', () => {
@@ -79,7 +86,7 @@ describe('AwardRuleDetail', () => {
   });
 
   it('parse data', () => {
-    let objdata = {
+    const objdata = {
       GroupID: 1,
       ID: 2,
       CountOfFactLow: 3,
@@ -89,7 +96,7 @@ describe('AwardRuleDetail', () => {
       TimeEnd: 7,
       DaysFrom: 8,
       DaysTo: 9,
-      Point: 10
+      Point: 10,
     };
     testobj.parseData(objdata);
     expect(testobj.point).toEqual(objdata.Point);
@@ -97,10 +104,10 @@ describe('AwardRuleDetail', () => {
     expect(testobj.doneString).toBeTruthy();
     expect(testobj.timeString).toBeTruthy();
 
-    let objdata2 = testobj.writeJSONObject(false);
+    const objdata2 = testobj.writeJSONObject(false);
     expect(objdata2).toBeTruthy();
 
-    let isvalid = testobj.isValid(AwardRuleTypeEnum.BodyExerciseCount);
+    const isvalid = testobj.isValid(AwardRuleTypeEnum.BodyExerciseCount);
     expect(isvalid).toBeTrue();
   });
 });
@@ -116,7 +123,7 @@ describe('AwardRule', () => {
     expect(testobj.id).toEqual(-1);
     expect(testobj.desp).toEqual('');
 
-    let tobj2: AwardRule = new AwardRule();
+    const tobj2: AwardRule = new AwardRule();
     tobj2.copyFrom(testobj);
     expect(tobj2).toBeTruthy();
   });
@@ -132,7 +139,7 @@ describe('DailyTrace', () => {
   it('default value', () => {
     expect(testobj.targetUser).toEqual('');
     expect(testobj.getRecordDateDisplayString()).toBeTruthy();
-    let ivld = testobj.isValid();
+    const ivld = testobj.isValid();
     expect(ivld).toBeFalse();
   });
 
@@ -149,11 +156,11 @@ describe('DailyTrace', () => {
       CleanDesk: true,
       HouseKeepingCount: 3,
       PoliteBehavior: 4,
-      Comment: 'test'
+      Comment: 'test',
     });
     expect(testobj.homeWorkCount).toEqual(20);
 
-    let objstr = testobj.writeJSONString();
+    const objstr = testobj.writeJSONString();
     expect(objstr).toBeTruthy();
   });
 });
@@ -191,12 +198,12 @@ describe('AwardPoint', () => {
       MatchedRuleID: 12,
       CountOfDay: 3,
       Point: 10,
-      Comment: 'test'
+      Comment: 'test',
     });
     expect(testobj.countOfDay).toEqual(3);
     expect(testobj.point).toEqual(10);
 
-    let objstr = testobj.writeJSONString();
+    const objstr = testobj.writeJSONString();
     expect(objstr).toBeTruthy();
   });
 });

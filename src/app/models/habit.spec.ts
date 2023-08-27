@@ -2,9 +2,19 @@
 // Unit test for habit.ts
 //
 import moment from 'moment';
-import { HabitCategory, HabitCompleteCategory, HabitFrequency, UserHabit, UserHabitPoint,
-  UserHabitPointsByUserDate, UserHabitPointsByUserHabitDate, UserHabitPointReport, UserHabitRecord,
-  UserHabitRule, UserHabitRecordView, } from './habit';
+import {
+  HabitCategory,
+  HabitCompleteCategory,
+  HabitFrequency,
+  UserHabit,
+  UserHabitPoint,
+  UserHabitPointsByUserDate,
+  UserHabitPointsByUserHabitDate,
+  UserHabitPointReport,
+  UserHabitRecord,
+  UserHabitRule,
+  UserHabitRecordView,
+} from './habit';
 
 describe('UserHabit', () => {
   let testobj: UserHabit;
@@ -121,7 +131,7 @@ describe('UserHabitRule', () => {
     expect(testobj.continuousRecordFrom).toEqual(1);
     expect(testobj.continuousRecordTo).toEqual(1);
     expect(testobj.point).toEqual(1);
-    expect(testobj.continuousCompletedCounts).toBeTruthy();    
+    expect(testobj.continuousCompletedCounts).toBeTruthy();
   });
 
   it('is valid', () => {
@@ -133,7 +143,7 @@ describe('UserHabitRule', () => {
   });
 
   it('parse and write', () => {
-    let ojson = testobj.writeJSONObject(false);
+    const ojson = testobj.writeJSONObject(false);
     testobj.parseData(ojson);
     expect(testobj.point).toEqual(1);
   });
@@ -161,17 +171,17 @@ describe('UserHabitPoint', () => {
     // testobj.recordDate = moment();
     testobj.point = 30;
     testobj.comment = 'test2';
-    let jstring = testobj.writeJSONObject(true);
+    const jstring = testobj.writeJSONObject(true);
     expect(jstring).toBeTruthy();
   });
 
   it('parseData', () => {
-    let objdata = {
+    const objdata = {
       ID: 122,
       TargetUser: 'Test',
       RecordDate: '2022-12-12',
       Point: 30,
-      Comment: 'test'
+      Comment: 'test',
     };
 
     testobj.parseData(objdata);
@@ -196,14 +206,14 @@ describe('UserHabitRecord', () => {
   });
 
   it('parse data', () => {
-    let objdata = {
+    const objdata = {
       HabitID: 23,
       RecordDate: '2022-02-03',
       SubID: 2,
       CompleteFact: 3,
       RuleID: 4,
       ContinuousCount: 5,
-      Comment: 'test',  
+      Comment: 'test',
     };
     testobj.parseData(objdata);
     expect(testobj.comment).toEqual(objdata.Comment);
@@ -211,7 +221,7 @@ describe('UserHabitRecord', () => {
     expect(testobj.subID).toEqual(objdata.SubID);
     expect(testobj.completeFact).toEqual(objdata.CompleteFact);
     expect(testobj.ruleID).toEqual(objdata.RuleID);
-    expect(testobj.continuousCount).toEqual(objdata.ContinuousCount);    
+    expect(testobj.continuousCount).toEqual(objdata.ContinuousCount);
   });
 
   it('write json string with create mode', () => {
@@ -221,7 +231,7 @@ describe('UserHabitRecord', () => {
     testobj.ruleID = 4;
     testobj.continuousCount = 5;
     testobj.comment = 'tewst';
-    let objdata = testobj.writeJSONObject(true);
+    const objdata = testobj.writeJSONObject(true);
     expect(objdata.RuleID).toBeUndefined();
     expect(objdata.ContinuousCount).toBeUndefined();
     expect(objdata.Comment).toEqual(testobj.comment);
@@ -234,7 +244,7 @@ describe('UserHabitRecord', () => {
     testobj.ruleID = 4;
     testobj.continuousCount = 5;
     testobj.comment = 'tewst';
-    let objdata = testobj.writeJSONObject(false);
+    const objdata = testobj.writeJSONObject(false);
     expect(objdata.RuleID).not.toBeUndefined();
     expect(objdata.ContinuousCount).not.toBeUndefined();
     expect(objdata.Comment).toEqual(testobj.comment);
@@ -255,10 +265,10 @@ describe('UserHabitPointsByUserDate', () => {
   });
 
   it('parse data', () => {
-    let objdata = {
+    const objdata = {
       TargetUser: 'test',
       RecordDate: '2022-02-01',
-      Point: 30
+      Point: 30,
     };
 
     testobj.parseData(objdata);
@@ -284,7 +294,7 @@ describe('UserHabitPointsByUserHabitDate', () => {
   });
 
   it('parse data', () => {
-    let objdata = {
+    const objdata = {
       TargetUser: 'test',
       RecordDate: '2022-02-01',
       Point: 30,
@@ -314,10 +324,10 @@ describe('UserHabitPointReport', () => {
   });
 
   it('parse data', () => {
-    let objdata = {
+    const objdata = {
       TargetUser: 'test',
       RecordDate: '2022-02-01',
-      Point: 30
+      Point: 30,
     };
 
     testobj.parseData(objdata);
@@ -332,8 +342,8 @@ describe('UserHabitRecordView', () => {
   let objtc: UserHabitRecordView;
 
   beforeEach(() => {
-    objtc = new UserHabitRecordView();    
-  })
+    objtc = new UserHabitRecordView();
+  });
 
   it('parse data', () => {
     expect(objtc.recordDateString).toBeTruthy();
@@ -353,7 +363,7 @@ describe('UserHabitRecordView', () => {
       HabitValidTo: '2023-02-04',
       RuleDaysFrom: 2,
       RuleDaysTo: 4,
-      RulePoint: 20  
+      RulePoint: 20,
     });
     expect(objtc).toBeTruthy();
   });

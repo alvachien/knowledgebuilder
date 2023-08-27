@@ -6,15 +6,14 @@ import items from 'src/assets/data/juniorschool-math/index.json';
 @Component({
   selector: 'khb-highschool-junior-math',
   templateUrl: './junior-math.component.html',
-  styleUrls: ['./junior-math.component.scss']
+  styleUrls: ['./junior-math.component.scss'],
 })
 export class JuniorMathComponent {
   displayedColumns: string[] = ['title', 'file', 'collection'];
   dataSource = items;
   clickedRows = new Set<any>();
 
-  constructor(private router: Router) {    
-  }
+  constructor(private router: Router) {}
 
   onClick(row: any) {
     this.router.navigate(['high-school', 'display-item', row.file]);

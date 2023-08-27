@@ -8,7 +8,7 @@ import { KatexOptions } from 'ngx-markdown';
   styleUrls: ['./sentences-detail.component.scss'],
 })
 export class SentencesDetailComponent implements OnInit {
-  private filename =  '';
+  private filename = '';
   private foldername = '';
   public mathOptions: KatexOptions = {
     displayMode: true,
@@ -16,8 +16,7 @@ export class SentencesDetailComponent implements OnInit {
     errorColor: '#cc0000',
   };
 
-  constructor(private activateRoute: ActivatedRoute) {    
-  }
+  constructor(private activateRoute: ActivatedRoute) {}
 
   get mdFilePath() {
     return `assets/data/english-sentences/${this.foldername}/${this.filename}`;
@@ -31,9 +30,9 @@ export class SentencesDetailComponent implements OnInit {
           this.filename = `${val[val.length - 1].path}`;
         }
       },
-      error: err => {
+      error: (err) => {
         console.error(err);
-      }
+      },
     });
   }
 }

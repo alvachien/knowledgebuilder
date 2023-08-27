@@ -523,7 +523,6 @@ describe('ODataService', () => {
         req.flush(msg, { status: 404, statusText: 'Not Found' });
       });
     });
-
   });
 
   describe('getExerciseItems', () => {
@@ -959,11 +958,12 @@ describe('ODataService', () => {
           value: [
             {
               ID: 1,
-              Content: '111'
-            }, {
+              Content: '111',
+            },
+            {
               ID: 2,
-              Content: '222'
-            }
+              Content: '222',
+            },
           ],
         });
       });
@@ -1032,11 +1032,12 @@ describe('ODataService', () => {
           value: [
             {
               Tag: 'aaa',
-              Count: 10
-            }, {
+              Count: 10,
+            },
+            {
               Tag: 'bbb',
-              Count: 20
-            }
+              Count: 20,
+            },
           ],
         });
       });
@@ -1105,11 +1106,12 @@ describe('ODataService', () => {
           value: [
             {
               Tag: 'aaa',
-              RefID: 10
-            }, {
+              RefID: 10,
+            },
+            {
               Tag: 'bbb',
-              RefID: 20
-            }
+              RefID: 20,
+            },
           ],
         });
       });
@@ -1179,10 +1181,11 @@ describe('ODataService', () => {
             {
               RefType: 'ExerciseItem',
               Count: 2,
-            }, {
+            },
+            {
               RefType: 'ExerciseItem',
               Count: 3,
-            }
+            },
           ],
         });
       });
@@ -1643,7 +1646,7 @@ describe('ODataService', () => {
       TargetUser: 'Test',
       RecordDate: '2022-12-12',
       Point: 30,
-      Comment: 'test'
+      Comment: 'test',
     };
     const objModel = new UserHabitPoint();
     objModel.parseData(objtrtn);
@@ -1753,10 +1756,12 @@ describe('ODataService', () => {
 
         // Respond with the mock data
         req.flush({
-          value: [{
-            ID: 1,
-            Name: 'test'
-          }]
+          value: [
+            {
+              ID: 1,
+              Name: 'test',
+            },
+          ],
         });
       });
 
@@ -1888,7 +1893,7 @@ describe('ODataService', () => {
         });
 
         // Respond with the mock data
-        req.flush({value: 23});
+        req.flush({ value: 23 });
       });
 
       it('should return error in case error appear', () => {
@@ -1953,13 +1958,15 @@ describe('ODataService', () => {
         });
 
         // Respond with the mock data
-        req.flush({value: [
-          {
-            TargetUser: 'test',
-            RecordDate: '2022-02-01',
-            Point: 30
-          }
-        ]});
+        req.flush({
+          value: [
+            {
+              TargetUser: 'test',
+              RecordDate: '2022-02-01',
+              Point: 30,
+            },
+          ],
+        });
       });
 
       it('should return error in case error appear', () => {
@@ -2024,14 +2031,16 @@ describe('ODataService', () => {
         });
 
         // Respond with the mock data
-        req.flush({value: [
-          {
-            TargetUser: 'test',
-            RecordDate: '2022-02-01',
-            Point: 30,
-            HabitID: 11,
-          }
-        ]});
+        req.flush({
+          value: [
+            {
+              TargetUser: 'test',
+              RecordDate: '2022-02-01',
+              Point: 30,
+              HabitID: 11,
+            },
+          ],
+        });
       });
 
       it('should return error in case error appear', () => {
@@ -2096,13 +2105,15 @@ describe('ODataService', () => {
         });
 
         // Respond with the mock data
-        req.flush({value: [
-          {
-            TargetUser: 'test',
-            RecordDate: '2022-02-01',
-            Point: 30,
-          }
-        ]});
+        req.flush({
+          value: [
+            {
+              TargetUser: 'test',
+              RecordDate: '2022-02-01',
+              Point: 30,
+            },
+          ],
+        });
       });
 
       it('should return error in case error appear', () => {
@@ -2168,7 +2179,7 @@ describe('ODataService', () => {
         });
 
         // Respond with the mock data
-        req.flush({value: 23});
+        req.flush({ value: 23 });
       });
 
       it('should return error in case error appear', () => {

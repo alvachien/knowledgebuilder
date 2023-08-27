@@ -1,4 +1,12 @@
-import { ComponentFixture, TestBed, discardPeriodicTasks, fakeAsync, flush, tick, waitForAsync } from '@angular/core/testing';
+import {
+  ComponentFixture,
+  TestBed,
+  discardPeriodicTasks,
+  fakeAsync,
+  flush,
+  tick,
+  waitForAsync,
+} from '@angular/core/testing';
 import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { NoopAnimationsModule } from '@angular/platform-browser/animations';
@@ -61,9 +69,7 @@ describe('UserCollectionDetailComponent', () => {
         BrowserDynamicTestingModule,
         getTranslocoModule(),
       ],
-      declarations: [
-        UserCollectionDetailComponent
-      ],
+      declarations: [UserCollectionDetailComponent],
       providers: [
         UIUtilityService,
         { provide: AuthService, useValue: authStub },
@@ -85,11 +91,11 @@ describe('UserCollectionDetailComponent', () => {
 
   describe('create mode', () => {
     beforeEach(() => {
-      let objtc = new UserCollection();
+      const objtc = new UserCollection();
       objtc.Comment = 'test';
       objtc.Name = 'test';
       objtc.User = 'test';
-  
+
       readUserCollectionSpy.and.returnValue(of(''));
       createUserCollectionSpy.and.returnValue(asyncData(objtc));
       removeExerciseItemFromCollectionSpy.and.returnValue(asyncData({}));
@@ -129,7 +135,7 @@ describe('UserCollectionDetailComponent', () => {
       tick();
       fixture.detectChanges();
 
-      let row = new UserCollectionItem();
+      const row = new UserCollectionItem();
       row.RefType = TagReferenceType.ExerciseItem;
       row.RefID = 12;
       component.onDeleteCollItem(row);
@@ -153,11 +159,11 @@ describe('UserCollectionDetailComponent', () => {
     beforeEach(() => {
       activatedRouteStub.setURL([new UrlSegment('display', {}), new UrlSegment('122', {})] as UrlSegment[]);
 
-      let objtc = new UserCollection();
+      const objtc = new UserCollection();
       objtc.Comment = 'test';
       objtc.Name = 'test';
       objtc.User = 'test';
-  
+
       readUserCollectionSpy.and.returnValue(asyncData(objtc));
       createUserCollectionSpy.and.returnValue(of({}));
       removeExerciseItemFromCollectionSpy.and.returnValue(of({}));
@@ -183,11 +189,11 @@ describe('UserCollectionDetailComponent', () => {
     beforeEach(() => {
       activatedRouteStub.setURL([new UrlSegment('edit', {}), new UrlSegment('122', {})] as UrlSegment[]);
 
-      let objtc = new UserCollection();
+      const objtc = new UserCollection();
       objtc.Comment = 'test';
       objtc.Name = 'test';
       objtc.User = 'test';
-  
+
       readUserCollectionSpy.and.returnValue(asyncData(objtc));
       createUserCollectionSpy.and.returnValue(of({}));
       removeExerciseItemFromCollectionSpy.and.returnValue(of({}));
@@ -217,7 +223,7 @@ describe('UserCollectionDetailComponent', () => {
 
       const routerstub = TestBed.inject(Router);
       spyOn(routerstub, 'navigate');
-    
+
       component.onDisplayExerciseItem(23);
       expect(routerstub.navigate).toHaveBeenCalled();
 
@@ -232,7 +238,7 @@ describe('UserCollectionDetailComponent', () => {
 
       const routerstub = TestBed.inject(Router);
       spyOn(routerstub, 'navigate');
-    
+
       component.onChangeExerciseItem(23);
       expect(routerstub.navigate).toHaveBeenCalled();
 
@@ -247,7 +253,7 @@ describe('UserCollectionDetailComponent', () => {
 
       const routerstub = TestBed.inject(Router);
       spyOn(routerstub, 'navigate');
-    
+
       component.onReturnToList();
       expect(routerstub.navigate).toHaveBeenCalled();
 
@@ -262,7 +268,7 @@ describe('UserCollectionDetailComponent', () => {
 
       const routerstub = TestBed.inject(Router);
       spyOn(routerstub, 'navigate');
-    
+
       component.onCreateNewOne();
       expect(routerstub.navigate).toHaveBeenCalled();
 

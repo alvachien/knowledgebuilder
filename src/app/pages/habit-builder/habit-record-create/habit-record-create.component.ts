@@ -77,7 +77,14 @@ export class HabitRecordCreateComponent {
     const tgtuser = this.firstFormGroup.get('targetuserCtrl')?.value;
     const pickedDate = this.firstFormGroup.get('dateCtrl')?.value.format(momentDateFormat);
 
-    this.odataSrv.getUserHabits(100, 0, undefined, undefined, `TargetUser eq '${tgtuser}' and ValidFrom le ${pickedDate} and ValidTo ge ${pickedDate}`)
+    this.odataSrv
+      .getUserHabits(
+        100,
+        0,
+        undefined,
+        undefined,
+        `TargetUser eq '${tgtuser}' and ValidFrom le ${pickedDate} and ValidTo ge ${pickedDate}`
+      )
       .subscribe({
         next: (val: { totalCount: number; items: UserHabit[] }) => {
           this.arHabits = [];

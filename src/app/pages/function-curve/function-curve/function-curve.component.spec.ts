@@ -8,7 +8,7 @@ describe('FunctionCurveComponent', () => {
 
   beforeEach(() => {
     TestBed.configureTestingModule({
-      declarations: [FunctionCurveComponent]
+      declarations: [FunctionCurveComponent],
     });
     fixture = TestBed.createComponent(FunctionCurveComponent);
     component = fixture.componentInstance;

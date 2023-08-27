@@ -1,4 +1,12 @@
-import { waitForAsync, ComponentFixture, TestBed, fakeAsync, tick, discardPeriodicTasks, flush } from '@angular/core/testing';
+import {
+  waitForAsync,
+  ComponentFixture,
+  TestBed,
+  fakeAsync,
+  tick,
+  discardPeriodicTasks,
+  flush,
+} from '@angular/core/testing';
 import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { NoopAnimationsModule } from '@angular/platform-browser/animations';
@@ -56,15 +64,18 @@ describe('WelcomeComponent', () => {
   describe('work with data', () => {
     beforeEach(() => {
       getMetadataSpy.and.returnValue(asyncData('<xml></xml>'));
-      getOverviewInfoSpy.and.returnValue(asyncData([
-        {
-          RefType: TagReferenceType.KnowledgeItem,
-          Count: 12
-        }, {
-          RefType: TagReferenceType.ExerciseItem,
-          Count: 34,
-        }
-      ]));
+      getOverviewInfoSpy.and.returnValue(
+        asyncData([
+          {
+            RefType: TagReferenceType.KnowledgeItem,
+            Count: 12,
+          },
+          {
+            RefType: TagReferenceType.ExerciseItem,
+            Count: 34,
+          },
+        ])
+      );
     });
 
     it('init without error', fakeAsync(() => {
@@ -98,7 +109,7 @@ describe('WelcomeComponent', () => {
 
       expect(component).toBeTruthy();
       expect(component.countOfKnowledge).toEqual(12);
-      
+
       discardPeriodicTasks();
       flush();
     }));

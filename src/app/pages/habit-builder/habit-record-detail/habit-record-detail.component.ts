@@ -23,7 +23,7 @@ export class HabitRecordDetailComponent implements OnInit {
     private _formBuilder: UntypedFormBuilder,
     private activateRoute: ActivatedRoute,
     private uiUtilSrv: UIUtilityService,
-    private authService: AuthService,
+    private authService: AuthService
   ) {
     this.detailFormGroup = this._formBuilder.group({
       targetuserCtrl: new UntypedFormControl('', Validators.required),

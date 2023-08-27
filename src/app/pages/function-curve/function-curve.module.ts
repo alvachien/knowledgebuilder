@@ -26,6 +26,6 @@ import { FunctionCurveComponent } from './function-curve';
     MarkdownModule.forChild(),
 
     FunctionCurveRoutingModule,
-  ]
+  ],
 })
 export class FunctionCurveModule {}

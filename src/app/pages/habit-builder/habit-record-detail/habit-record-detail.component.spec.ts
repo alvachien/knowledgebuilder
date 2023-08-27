@@ -21,8 +21,7 @@ describe('HabitRecordDetailComponent', () => {
   let userDetail: InvitedUser;
   let activatedRouteStub: ActivatedRouteUrlStub;
 
-  beforeAll(() => {
-  });
+  beforeAll(() => {});
 
   beforeEach(async () => {
     userDetail = new InvitedUser();
@@ -67,8 +66,8 @@ describe('HabitRecordDetailComponent', () => {
     beforeEach(() => {
       activatedRouteStub.setURL([new UrlSegment('record', {}), new UrlSegment('display', {})] as UrlSegment[]);
 
-      let uisrv = TestBed.inject(UIUtilityService);
-      let record = new UserHabitRecordView();
+      const uisrv = TestBed.inject(UIUtilityService);
+      const record = new UserHabitRecordView();
       record.habitID = 22;
       record.completeFact = 2;
       record.ruleID = 12;
@@ -105,8 +104,8 @@ describe('HabitRecordDetailComponent', () => {
     beforeEach(() => {
       activatedRouteStub.setURL([new UrlSegment('record', {}), new UrlSegment('edit', {})] as UrlSegment[]);
 
-      let uisrv = TestBed.inject(UIUtilityService);
-      let record = new UserHabitRecordView();
+      const uisrv = TestBed.inject(UIUtilityService);
+      const record = new UserHabitRecordView();
       record.habitID = 22;
       record.completeFact = 2;
       record.ruleID = 12;
@@ -127,7 +126,7 @@ describe('HabitRecordDetailComponent', () => {
       expect(component).toBeTruthy();
       expect(component.uiMode).toEqual(UIMode.Update);
       expect(component.isUpdateMode).toBeTrue();
-      expect(component.isDisplayMode).toBeFalse();      
+      expect(component.isDisplayMode).toBeFalse();
 
       tick();
       fixture.detectChanges();
@@ -146,7 +145,7 @@ describe('HabitRecordDetailComponent', () => {
 
       const routerstub = TestBed.inject(Router);
       spyOn(routerstub, 'navigate');
-    
+
       component.onReturnToList();
       expect(routerstub.navigate).toHaveBeenCalled();
 

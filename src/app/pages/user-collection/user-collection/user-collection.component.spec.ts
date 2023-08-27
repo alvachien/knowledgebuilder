@@ -54,13 +54,17 @@ describe('UserCollectionComponent', () => {
 
   describe('work with data', () => {
     beforeEach(() => {
-      getUserCollectionsSpy.and.returnValue(asyncData({
-        totalCount: 1,
-        items: [{
-          RefType: TagReferenceType.KnowledgeItem,
-          RefID: 12,
-        }]
-      }));
+      getUserCollectionsSpy.and.returnValue(
+        asyncData({
+          totalCount: 1,
+          items: [
+            {
+              RefType: TagReferenceType.KnowledgeItem,
+              RefID: 12,
+            },
+          ],
+        })
+      );
     });
 
     it('shall work', fakeAsync(() => {
@@ -74,7 +78,7 @@ describe('UserCollectionComponent', () => {
       component.onPreview(12);
 
       component.onRefreshList();
-      component.resetPaging();      
+      component.resetPaging();
 
       discardPeriodicTasks();
       flush();

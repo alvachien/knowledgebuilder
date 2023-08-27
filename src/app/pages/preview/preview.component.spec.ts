@@ -28,7 +28,7 @@ describe('PreviewComponent', () => {
     odataSvc = jasmine.createSpyObj('ODataService', [
       'readKnowledgeItem',
       'readExerciseItem',
-      'getLastestExerciseItemUserScore'
+      'getLastestExerciseItemUserScore',
     ]);
 
     readKnowledgeItemSpy = odataSvc.readKnowledgeItem.and.returnValue(of(''));
@@ -61,14 +61,8 @@ describe('PreviewComponent', () => {
         BrowserDynamicTestingModule,
         getTranslocoModule(),
       ],
-      declarations: [
-        PreviewComponent,
-        PreviewNewScoreSheet,
-      ],
-      providers: [
-        UIUtilityService, 
-        { provide: ODataService, useValue: odataSvc }
-      ],
+      declarations: [PreviewComponent, PreviewNewScoreSheet],
+      providers: [UIUtilityService, { provide: ODataService, useValue: odataSvc }],
     }).compileComponents();
   });
 
@@ -84,27 +78,29 @@ describe('PreviewComponent', () => {
 
   describe('work with data', () => {
     beforeEach(() => {
-      let objki: KnowledgeItem = new KnowledgeItem();;
+      const objki: KnowledgeItem = new KnowledgeItem();
       objki.ID = 1;
       objki.Content = 'aaa';
       objki.Title = 'aaa';
       objki.ItemCategory = KnowledgeItemCategory.Concept;
-      let objei = new ExerciseItem();
+      const objei = new ExerciseItem();
       objei.Answer = 'test';
       objei.Content = 'test';
       objei.ItemType = ExerciseItemType.EssayQuestions;
       readKnowledgeItemSpy.and.returnValue(asyncData(objki));
       readExerciseItemSpy.and.returnValue(asyncData(objei));
       getLastestExerciseItemUserScoreSpy.and.returnValue(asyncData({}));
-      
-      let uisrv = TestBed.inject(UIUtilityService);
-      uisrv.previewObjList = [{
-          refType: TagReferenceType.ExerciseItem, 
+
+      const uisrv = TestBed.inject(UIUtilityService);
+      uisrv.previewObjList = [
+        {
+          refType: TagReferenceType.ExerciseItem,
           refId: 12,
-        }, {
-          refType: TagReferenceType.KnowledgeItem, 
+        },
+        {
+          refType: TagReferenceType.KnowledgeItem,
           refId: 12,
-        }
+        },
       ];
     });
 

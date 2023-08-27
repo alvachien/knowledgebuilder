@@ -5,7 +5,7 @@ import { MatSelectionList } from '@angular/material/list';
 import { TagReferenceType, UserCollection } from 'src/app/models';
 
 @Component({
-  selector: 'app-knowledge-item-addcoll-dlg',
+  selector: 'hkb-knowledge-item-addcoll-dlg',
   templateUrl: 'knowledge-items-add-coll-dlg.html',
 })
 // eslint-disable-next-line @angular-eslint/component-class-suffix

@@ -1,4 +1,12 @@
-import { waitForAsync, ComponentFixture, TestBed, fakeAsync, tick, discardPeriodicTasks, flush } from '@angular/core/testing';
+import {
+  waitForAsync,
+  ComponentFixture,
+  TestBed,
+  fakeAsync,
+  tick,
+  discardPeriodicTasks,
+  flush,
+} from '@angular/core/testing';
 import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { NoopAnimationsModule } from '@angular/platform-browser/animations';
@@ -33,15 +41,19 @@ describe('KnowledgeItemsComponent', () => {
       'getUserCollections',
       'addKnowledgeItemToCollection',
     ]);
-    getKnowledgeItemsSpy = odataservice.getKnowledgeItems.and.returnValue(of({
-      totalCount: 0,
-      items: []
-    }));
+    getKnowledgeItemsSpy = odataservice.getKnowledgeItems.and.returnValue(
+      of({
+        totalCount: 0,
+        items: [],
+      })
+    );
     deleteExerciseItemSpy = odataservice.deleteExerciseItem.and.returnValue(of(false));
-    getUserCollectionsSpy = odataservice.getUserCollections.and.returnValue(of({
-      totalCount: 0,
-      items: []
-    }));
+    getUserCollectionsSpy = odataservice.getUserCollections.and.returnValue(
+      of({
+        totalCount: 0,
+        items: [],
+      })
+    );
     addKnowledgeItemToCollectionSpy = odataservice.addKnowledgeItemToCollection.and.returnValue(of([]));
   });
 
@@ -65,10 +77,7 @@ describe('KnowledgeItemsComponent', () => {
         BrowserDynamicTestingModule,
         getTranslocoModule(),
       ],
-      declarations: [
-        KnowledgeItemsComponent,
-        KnowledgeItemAddToCollDialog
-      ],
+      declarations: [KnowledgeItemsComponent, KnowledgeItemAddToCollDialog],
       providers: [
         UIUtilityService,
         { provide: AuthService, useValue: authStub },
@@ -89,15 +98,19 @@ describe('KnowledgeItemsComponent', () => {
 
   describe('work with data', () => {
     beforeEach(() => {
-      getKnowledgeItemsSpy.and.returnValue(asyncData({
-        totalCount: 0,
-        items: []
-      }));
+      getKnowledgeItemsSpy.and.returnValue(
+        asyncData({
+          totalCount: 0,
+          items: [],
+        })
+      );
       deleteExerciseItemSpy.and.returnValue(asyncData(false));
-      getUserCollectionsSpy.and.returnValue(asyncData({
-        totalCount: 0,
-        items: []
-      }));
+      getUserCollectionsSpy.and.returnValue(
+        asyncData({
+          totalCount: 0,
+          items: [],
+        })
+      );
       addKnowledgeItemToCollectionSpy.and.returnValue(of([]));
     });
 
@@ -127,7 +140,7 @@ describe('KnowledgeItemsComponent', () => {
 
       const routerstub = TestBed.inject(Router);
       spyOn(routerstub, 'navigate');
-    
+
       component.onGoToSearch();
       expect(routerstub.navigate).toHaveBeenCalled();
 
@@ -142,7 +155,7 @@ describe('KnowledgeItemsComponent', () => {
 
       const routerstub = TestBed.inject(Router);
       spyOn(routerstub, 'navigate');
-    
+
       component.onGoToPreview();
       expect(routerstub.navigate).toHaveBeenCalled();
 

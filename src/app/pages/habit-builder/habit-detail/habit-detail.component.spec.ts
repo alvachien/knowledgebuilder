@@ -24,9 +24,7 @@ describe('HabitDetailComponent', () => {
   let activatedRouteStub: ActivatedRouteUrlStub;
 
   beforeAll(() => {
-    odataSvc = jasmine.createSpyObj('ODataService', [
-      'readUserHabit',
-    ]);
+    odataSvc = jasmine.createSpyObj('ODataService', ['readUserHabit']);
 
     readUserHabitSpy = odataSvc.readUserHabit.and.returnValue(of(''));
   });
@@ -75,7 +73,7 @@ describe('HabitDetailComponent', () => {
     beforeEach(() => {
       activatedRouteStub.setURL([new UrlSegment('display', {}), new UrlSegment('122', {})] as UrlSegment[]);
 
-      let testobj: UserHabit = new UserHabit();
+      const testobj: UserHabit = new UserHabit();
       testobj.ID = 1;
       testobj.category = HabitCategory.Positive;
       testobj.comment = 'test';
@@ -86,7 +84,7 @@ describe('HabitDetailComponent', () => {
       testobj.startDate = 1; // Monday
       testobj.validFrom = moment('2021-01-01');
       testobj.validTo = moment('2022-01-01');
-  
+
       readUserHabitSpy.and.returnValue(asyncData(testobj));
     });
 
@@ -100,7 +98,7 @@ describe('HabitDetailComponent', () => {
       expect(component).toBeTruthy();
       expect(component.uiMode).toEqual(UIMode.Display);
       expect(component.isUpdateMode).toBeFalse();
-      expect(component.isDisplayMode).toBeTrue();      
+      expect(component.isDisplayMode).toBeTrue();
 
       tick();
       fixture.detectChanges();
@@ -117,7 +115,7 @@ describe('HabitDetailComponent', () => {
     beforeEach(() => {
       activatedRouteStub.setURL([new UrlSegment('edit', {}), new UrlSegment('122', {})] as UrlSegment[]);
 
-      let testobj: UserHabit = new UserHabit();
+      const testobj: UserHabit = new UserHabit();
       testobj.ID = 1;
       testobj.category = HabitCategory.Positive;
       testobj.comment = 'test';
@@ -141,7 +139,7 @@ describe('HabitDetailComponent', () => {
       expect(component).toBeTruthy();
       expect(component.uiMode).toEqual(UIMode.Update);
       expect(component.isUpdateMode).toBeTrue();
-      expect(component.isDisplayMode).toBeFalse();      
+      expect(component.isDisplayMode).toBeFalse();
 
       tick();
       fixture.detectChanges();
@@ -152,6 +150,5 @@ describe('HabitDetailComponent', () => {
       discardPeriodicTasks();
       flush();
     }));
-
   });
 });

@@ -10,14 +10,13 @@ import sentences from 'src/assets/data/english-sentences/index.json';
   styleUrls: ['./sentences-list.component.scss'],
 })
 export class SentencesListComponent implements AfterViewInit {
-  displayedColumns: string[] = ['title', 'folder', 'file', 'collection'];  
+  displayedColumns: string[] = ['title', 'folder', 'file', 'collection'];
   clickedRows = new Set<any>();
   dataSource = new MatTableDataSource<any>(sentences);
 
   @ViewChild(MatPaginator) paginator!: MatPaginator;
 
-  constructor(private router: Router) {    
-  }
+  constructor(private router: Router) {}
 
   ngAfterViewInit() {
     this.dataSource.paginator = this.paginator;

@@ -12,7 +12,7 @@ import { environment } from 'src/environments/environment';
 import { AuthService } from './services/auth.service';
 
 @Component({
-  selector: 'app-root',
+  selector: 'hkb-root',
   templateUrl: './app.component.html',
   styleUrls: ['./app.component.scss'],
 })
@@ -141,65 +141,66 @@ export class AppComponent implements OnDestroy {
         name: 'Help.Credits',
         route: '/help/credits',
         group: AppNavItemGroupEnum.help,
-      },  
+      },
     ];
 
     if (!environment.mockdata) {
-      this.navItems.push(...[
-        {
-          name: 'KnowledgeItem',
-          route: '/knowledge-item',
-          group: AppNavItemGroupEnum.knowledge,
-        },
-        {
-          name: 'ExerciseItem',
-          route: '/exercise-item',
-          group: AppNavItemGroupEnum.knowledge,
-        },
-        { name: 'Tags', route: '/tag', group: AppNavItemGroupEnum.knowledge },
-        {
-          name: 'UserCollections',
-          route: '/user-collection',
-          group: AppNavItemGroupEnum.knowledge,
-        },
-        {
-          name: 'PracticeHistories',
-          route: '/exercise-item/score',
-          group: AppNavItemGroupEnum.knowledge,
-        },
-  
-        {
-          name: 'PuzzleGames.ChineseChess',
-          route: 'puzzle-games/chinesechess',
-          group: AppNavItemGroupEnum.games,
-        },
-        {
-          name: 'PuzzleGames.BattleCity',
-          route: 'puzzle-games/battlecity',
-          group: AppNavItemGroupEnum.games,
-        },
-  
-        // { name: 'Award.Overview', route: '/award', group: AppNavItemGroupEnum.award },
-        // { name: 'Award.Rules', route: '/award/rules', group: AppNavItemGroupEnum.award },
-        // { name: 'Award.DailyTrace', route: '/award/dailytrace', group: AppNavItemGroupEnum.award },
-  
-        {
-          name: 'Award.Point',
-          route: '/habit/points',
-          group: AppNavItemGroupEnum.habit,
-        },
-        {
-          name: 'Habit.Habits',
-          route: '/habit/list',
-          group: AppNavItemGroupEnum.habit,
-        },
-        {
-          name: 'Habit.Records',
-          route: '/habit/record',
-          group: AppNavItemGroupEnum.habit,
-        },
-  
-      ]);
+      this.navItems.push(
+        ...[
+          {
+            name: 'KnowledgeItem',
+            route: '/knowledge-item',
+            group: AppNavItemGroupEnum.knowledge,
+          },
+          {
+            name: 'ExerciseItem',
+            route: '/exercise-item',
+            group: AppNavItemGroupEnum.knowledge,
+          },
+          { name: 'Tags', route: '/tag', group: AppNavItemGroupEnum.knowledge },
+          {
+            name: 'UserCollections',
+            route: '/user-collection',
+            group: AppNavItemGroupEnum.knowledge,
+          },
+          {
+            name: 'PracticeHistories',
+            route: '/exercise-item/score',
+            group: AppNavItemGroupEnum.knowledge,
+          },
+
+          {
+            name: 'PuzzleGames.ChineseChess',
+            route: 'puzzle-games/chinesechess',
+            group: AppNavItemGroupEnum.games,
+          },
+          {
+            name: 'PuzzleGames.BattleCity',
+            route: 'puzzle-games/battlecity',
+            group: AppNavItemGroupEnum.games,
+          },
+
+          // { name: 'Award.Overview', route: '/award', group: AppNavItemGroupEnum.award },
+          // { name: 'Award.Rules', route: '/award/rules', group: AppNavItemGroupEnum.award },
+          // { name: 'Award.DailyTrace', route: '/award/dailytrace', group: AppNavItemGroupEnum.award },
+
+          {
+            name: 'Award.Point',
+            route: '/habit/points',
+            group: AppNavItemGroupEnum.habit,
+          },
+          {
+            name: 'Habit.Habits',
+            route: '/habit/list',
+            group: AppNavItemGroupEnum.habit,
+          },
+          {
+            name: 'Habit.Records',
+            route: '/habit/record',
+            group: AppNavItemGroupEnum.habit,
+          },
+        ]
+      );
     }
 
     this.titleService.setTitle('Knowledge & Habit Builder');
@@ -249,7 +250,7 @@ export class AppComponent implements OnDestroy {
 }
 
 @Component({
-  selector: 'app-current-user-dlg',
+  selector: 'hkb-current-user-dlg',
   templateUrl: 'app-current-user.dialog.html',
   styleUrls: ['./app-current-user.dialog.scss'],
 })

@@ -1,4 +1,12 @@
-import { waitForAsync, ComponentFixture, TestBed, fakeAsync, tick, discardPeriodicTasks, flush } from '@angular/core/testing';
+import {
+  waitForAsync,
+  ComponentFixture,
+  TestBed,
+  fakeAsync,
+  tick,
+  discardPeriodicTasks,
+  flush,
+} from '@angular/core/testing';
 import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { NoopAnimationsModule } from '@angular/platform-browser/animations';
@@ -22,10 +30,7 @@ describe('TagDetailComponent', () => {
   let activatedRouteStub: ActivatedRouteUrlStub;
 
   beforeAll(() => {
-    odataSvc = jasmine.createSpyObj('ODataService', [
-      'readExerciseItem',
-      'getTags',
-    ]);
+    odataSvc = jasmine.createSpyObj('ODataService', ['readExerciseItem', 'getTags']);
 
     readExerciseItemSpy = odataSvc.readExerciseItem.and.returnValue(of(''));
     getTagsSpy = odataSvc.getTags.and.returnValue(of(''));
@@ -47,7 +52,7 @@ describe('TagDetailComponent', () => {
       ],
       declarations: [TagDetailComponent],
       providers: [
-        UIUtilityService, 
+        UIUtilityService,
         { provide: ODataService, useValue: odataSvc },
         { provide: ActivatedRoute, useValue: activatedRouteStub },
       ],
@@ -69,7 +74,7 @@ describe('TagDetailComponent', () => {
       getTagsSpy.and.returnValue({
         totalCount: 0,
         items: [],
-      })
+      });
     });
 
     xit('shall work', fakeAsync(() => {

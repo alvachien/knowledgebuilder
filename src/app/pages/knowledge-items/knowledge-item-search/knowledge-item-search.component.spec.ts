@@ -23,9 +23,7 @@ describe('KnowledgeItemSearchComponent', () => {
   let getKnowledgeItemsSpy: SafeAny;
 
   beforeAll(() => {
-    odataSvc = jasmine.createSpyObj('ODataService', [
-      'getKnowledgeItems'
-    ]);
+    odataSvc = jasmine.createSpyObj('ODataService', ['getKnowledgeItems']);
 
     getKnowledgeItemsSpy = odataSvc.getKnowledgeItems.and.returnValue(of(''));
   });
@@ -44,9 +42,7 @@ describe('KnowledgeItemSearchComponent', () => {
         getTranslocoModule(),
       ],
       declarations: [KnowledgeItemSearchComponent],
-      providers: [
-        { provide: ODataService, useValue: odataSvc },
-        UIUtilityService],
+      providers: [{ provide: ODataService, useValue: odataSvc }, UIUtilityService],
     }).compileComponents();
   });
 
@@ -62,12 +58,12 @@ describe('KnowledgeItemSearchComponent', () => {
 
   describe('work with data', () => {
     beforeEach(() => {
-      getKnowledgeItemsSpy.and.returnValue(asyncData({
-        totalCount: 1,
-        items: [
-          new KnowledgeItem(),
-        ]
-      }));
+      getKnowledgeItemsSpy.and.returnValue(
+        asyncData({
+          totalCount: 1,
+          items: [new KnowledgeItem()],
+        })
+      );
     });
 
     it('shall work', fakeAsync(() => {
@@ -78,11 +74,11 @@ describe('KnowledgeItemSearchComponent', () => {
       fixture.detectChanges();
       tick();
       fixture.detectChanges();
-      
+
       component.onAddFilter();
       component.onRemoveFilter(0);
 
-      let fltr = component.filters[0];
+      const fltr = component.filters[0];
       fltr.fieldName = 'Title';
       component.onFieldSelectionChanged(fltr);
 

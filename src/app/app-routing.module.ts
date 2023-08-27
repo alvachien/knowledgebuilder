@@ -33,9 +33,10 @@ const routes: Routes = [
   },
   {
     path: 'primary-school-math',
-    loadChildren: () => import('./pages/primary-school-math/primary-school-math.module').then((m) => m.PrimarySchoolMathModule),
+    loadChildren: () =>
+      import('./pages/primary-school-math/primary-school-math.module').then((m) => m.PrimarySchoolMathModule),
   },
-  
+
   {
     path: 'high-school',
     loadChildren: () => import('./pages/high-school/high-school.module').then((m) => m.HighSchoolModule),

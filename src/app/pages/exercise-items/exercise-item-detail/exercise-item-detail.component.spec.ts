@@ -1,4 +1,12 @@
-import { waitForAsync, ComponentFixture, TestBed, fakeAsync, tick, discardPeriodicTasks, flush } from '@angular/core/testing';
+import {
+  waitForAsync,
+  ComponentFixture,
+  TestBed,
+  fakeAsync,
+  tick,
+  discardPeriodicTasks,
+  flush,
+} from '@angular/core/testing';
 import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { NoopAnimationsModule } from '@angular/platform-browser/animations';
@@ -28,11 +36,7 @@ describe('ExerciseItemDetailComponent', () => {
   let activatedRouteStub: ActivatedRouteUrlStub;
 
   beforeAll(() => {
-    odataSvc = jasmine.createSpyObj('ODataService', [
-      'readExerciseItem',
-      'createExerciseItem',
-      'changeExerciseItem',
-    ]);
+    odataSvc = jasmine.createSpyObj('ODataService', ['readExerciseItem', 'createExerciseItem', 'changeExerciseItem']);
 
     readExerciseItemSpy = odataSvc.readExerciseItem.and.returnValue(of(''));
     createExerciseItemSpy = odataSvc.createExerciseItem.and.returnValue(of(''));
@@ -67,13 +71,11 @@ describe('ExerciseItemDetailComponent', () => {
         }),
         getTranslocoModule(),
       ],
-      declarations: [
-        ExerciseItemDetailComponent
-      ],
+      declarations: [ExerciseItemDetailComponent],
       providers: [
-        UIUtilityService, 
+        UIUtilityService,
         { provide: ActivatedRoute, useValue: activatedRouteStub },
-        { provide: ODataService, useValue: odataSvc }
+        { provide: ODataService, useValue: odataSvc },
       ],
     }).compileComponents();
   }));
@@ -90,7 +92,7 @@ describe('ExerciseItemDetailComponent', () => {
 
   describe('create mode', () => {
     beforeEach(() => {
-      let objtbt = new ExerciseItem();
+      const objtbt = new ExerciseItem();
       objtbt.Answer = 'test';
       objtbt.Content = 'test';
       objtbt.ItemType = ExerciseItemType.EssayQuestions;
@@ -132,11 +134,11 @@ describe('ExerciseItemDetailComponent', () => {
     beforeEach(() => {
       activatedRouteStub.setURL([new UrlSegment('display', {}), new UrlSegment('122', {})] as UrlSegment[]);
 
-      let objtbt = new ExerciseItem();
+      const objtbt = new ExerciseItem();
       objtbt.Answer = 'test';
       objtbt.Content = 'test';
       objtbt.ItemType = ExerciseItemType.EssayQuestions;
-  
+
       readExerciseItemSpy.and.returnValue(asyncData(objtbt));
       createExerciseItemSpy.and.returnValue(of(''));
       changeExerciseItemSpy.and.returnValue(of(''));
@@ -164,11 +166,11 @@ describe('ExerciseItemDetailComponent', () => {
     beforeEach(() => {
       activatedRouteStub.setURL([new UrlSegment('edit', {}), new UrlSegment('122', {})] as UrlSegment[]);
 
-      let objtbt = new ExerciseItem();
+      const objtbt = new ExerciseItem();
       objtbt.Answer = 'test';
       objtbt.Content = 'test';
       objtbt.ItemType = ExerciseItemType.EssayQuestions;
-  
+
       readExerciseItemSpy.and.returnValue(asyncData(objtbt));
       createExerciseItemSpy.and.returnValue(of(''));
       changeExerciseItemSpy.and.returnValue(asyncData(objtbt));
@@ -204,7 +206,7 @@ describe('ExerciseItemDetailComponent', () => {
 
       const routerstub = TestBed.inject(Router);
       spyOn(routerstub, 'navigate');
-    
+
       component.onReturnToList();
       expect(routerstub.navigate).toHaveBeenCalled();
 
@@ -219,7 +221,7 @@ describe('ExerciseItemDetailComponent', () => {
 
       const routerstub = TestBed.inject(Router);
       spyOn(routerstub, 'navigate');
-    
+
       component.onCreateNewOne();
       expect(routerstub.navigate).toHaveBeenCalled();
 
@@ -228,4 +230,3 @@ describe('ExerciseItemDetailComponent', () => {
     }));
   });
 });
-

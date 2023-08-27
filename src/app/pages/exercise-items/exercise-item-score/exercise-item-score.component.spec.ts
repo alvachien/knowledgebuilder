@@ -23,10 +23,7 @@ describe('ExerciseItemScoreComponent', () => {
   let getExerciseItemUserScoresSpy: SafeAny;
 
   beforeAll(() => {
-    odataSvc = jasmine.createSpyObj('ODataService', [
-      'deleteExerciseItemUserScore',
-      'getExerciseItemUserScores'
-    ]);
+    odataSvc = jasmine.createSpyObj('ODataService', ['deleteExerciseItemUserScore', 'getExerciseItemUserScores']);
 
     deleteExerciseItemUserScoreSpy = odataSvc.deleteExerciseItemUserScore.and.returnValue(of(false));
     getExerciseItemUserScoresSpy = odataSvc.getExerciseItemUserScores.and.returnValue(of({}));
@@ -45,13 +42,8 @@ describe('ExerciseItemScoreComponent', () => {
         AppUIModule,
         getTranslocoModule(),
       ],
-      declarations: [
-        ExerciseItemScoreComponent
-      ],
-      providers: [
-        UIUtilityService, 
-        { provide: ODataService, useValue: odataSvc }
-      ],
+      declarations: [ExerciseItemScoreComponent],
+      providers: [UIUtilityService, { provide: ODataService, useValue: odataSvc }],
     }).compileComponents();
   });
 
@@ -67,10 +59,12 @@ describe('ExerciseItemScoreComponent', () => {
 
   describe('working with data', () => {
     beforeEach(() => {
-      getExerciseItemUserScoresSpy.and.returnValue(asyncData({
-        totalCount: 0,
-        items: []
-      }));
+      getExerciseItemUserScoresSpy.and.returnValue(
+        asyncData({
+          totalCount: 0,
+          items: [],
+        })
+      );
       deleteExerciseItemUserScoreSpy.and.returnValue(asyncData(true));
     });
 
@@ -354,4 +348,3 @@ describe('ExerciseItemScoreComponent', () => {
     });
   });
 });
-

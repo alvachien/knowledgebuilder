@@ -11,11 +11,7 @@ import { SeniorMathComponent } from './senior-math';
 import { ItemDisplayComponent } from './item-display';
 
 @NgModule({
-  declarations: [
-    JuniorMathComponent,
-    SeniorMathComponent,
-    ItemDisplayComponent
-  ],
+  declarations: [JuniorMathComponent, SeniorMathComponent, ItemDisplayComponent],
   imports: [
     CommonModule,
     MaterialModulesModule,
@@ -23,7 +19,7 @@ import { ItemDisplayComponent } from './item-display';
     TranslocoModule,
     AppUIModule,
 
-    HighSchoolRoutingModule
-  ]
+    HighSchoolRoutingModule,
+  ],
 })
-export class HighSchoolModule { }
+export class HighSchoolModule {}

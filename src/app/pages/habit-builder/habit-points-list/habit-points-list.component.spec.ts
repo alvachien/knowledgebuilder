@@ -42,8 +42,8 @@ describe('HabitPointsListComponent', () => {
   beforeEach(async () => {
     userDetail = new InvitedUser();
     userDetail.displayAs = 'test';
-    let auv: AwardUserView[] = [];
-    let au: AwardUserView = new AwardUserView();
+    const auv: AwardUserView[] = [];
+    const au: AwardUserView = new AwardUserView();
     au.userName = 'test1';
     au.displayAs = 'Test 1';
     au.targetUser = 'test1_id';
@@ -89,7 +89,7 @@ describe('HabitPointsListComponent', () => {
       getHabitPointsByUserDateReportSpy = odataSvc.getHabitPointsByUserDateReport.and.returnValue(asyncData([]));
       getUserOpeningPointReportSpy = odataSvc.getUserOpeningPointReport.and.returnValue(asyncData(0));
       getUserHabitPointReportsSpy = odataSvc.getUserHabitPointReports.and.returnValue(asyncData([]));
-      deleteHabitPointSpy = odataSvc.deleteHabitPoint.and.returnValue(asyncData(false));      
+      deleteHabitPointSpy = odataSvc.deleteHabitPoint.and.returnValue(asyncData(false));
     });
 
     it('init without error', fakeAsync(() => {
@@ -108,7 +108,7 @@ describe('HabitPointsListComponent', () => {
       component.selectedUser = 'test1_id';
       component.selectedPeriod = '1';
       component.onReportParameterSelectionChange('event');
-      
+
       component.onHideManualPoints();
       component.onHideHabitPoints();
 

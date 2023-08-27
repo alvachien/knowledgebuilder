@@ -17,7 +17,7 @@ import { ExerciseItemAddToCollDialog } from './exercise-items-add-coll-dlg.compo
 import { ExerciseItemNewPracticeDialog } from './exercise-items-newpractice-dlg.component';
 
 @Component({
-  selector: 'app-exercise-items',
+  selector: 'hkb-exercise-items',
   templateUrl: './exercise-items.component.html',
   styleUrls: ['./exercise-items.component.scss'],
 })

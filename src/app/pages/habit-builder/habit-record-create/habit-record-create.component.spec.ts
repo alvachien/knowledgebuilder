@@ -46,7 +46,6 @@ describe('HabitRecordCreateComponent', () => {
   });
 
   beforeEach(async () => {
-
     await TestBed.configureTestingModule({
       imports: [
         HttpClientTestingModule,
@@ -79,10 +78,12 @@ describe('HabitRecordCreateComponent', () => {
 
   describe('work with data', () => {
     beforeEach(() => {
-      getUserHabitsSpy.and.returnValue(asyncData({
-        totalCount: 0,
-        items: []
-      }));
+      getUserHabitsSpy.and.returnValue(
+        asyncData({
+          totalCount: 0,
+          items: [],
+        })
+      );
       createUserHabitRecordSpy.and.returnValue(asyncData({}));
     });
 
@@ -97,20 +98,25 @@ describe('HabitRecordCreateComponent', () => {
 
   describe('work with data (multiple lines)', () => {
     beforeEach(() => {
-      getUserHabitsSpy.and.returnValue(asyncData({
-        totalCount: 2,
-        items: [{
-          ID: 1,
-          name: 'test1',
-          frequency: HabitFrequency.Daily,
-          completeCategory: HabitCompleteCategory.NumberOfCount
-        }, {
-          ID: 2,
-          name: 'test2',
-          frequency: HabitFrequency.Daily,
-          completeCategory: HabitCompleteCategory.NumberOfCount
-        }]
-      }));
+      getUserHabitsSpy.and.returnValue(
+        asyncData({
+          totalCount: 2,
+          items: [
+            {
+              ID: 1,
+              name: 'test1',
+              frequency: HabitFrequency.Daily,
+              completeCategory: HabitCompleteCategory.NumberOfCount,
+            },
+            {
+              ID: 2,
+              name: 'test2',
+              frequency: HabitFrequency.Daily,
+              completeCategory: HabitCompleteCategory.NumberOfCount,
+            },
+          ],
+        })
+      );
       createUserHabitRecordSpy.and.returnValue(asyncData({}));
     });
 
@@ -125,11 +131,11 @@ describe('HabitRecordCreateComponent', () => {
 
       tick();
       component.onUserSelected();
-      
+
       tick();
       fixture.detectChanges();
 
-      let display = component.getUserDisplayAs('aaa');
+      const display = component.getUserDisplayAs('aaa');
       expect(display).toEqual('');
     }));
 
@@ -144,11 +150,11 @@ describe('HabitRecordCreateComponent', () => {
 
       tick();
       component.onUserSelected();
-      
+
       tick();
       fixture.detectChanges();
 
-      let display = component.getUserDisplayAs('aaa');
+      const display = component.getUserDisplayAs('aaa');
       expect(display).toEqual('');
 
       component.onSaveRecord();

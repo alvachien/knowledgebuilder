@@ -11,10 +11,7 @@ import { TranslocoModule } from '@ngneat/transloco';
 import { AppUIModule } from 'src/app/app-ui.module';
 
 @NgModule({
-  declarations: [
-    SentencesListComponent,
-    SentencesDetailComponent
-  ],
+  declarations: [SentencesListComponent, SentencesDetailComponent],
   imports: [
     CommonModule,
     FormsModule,
@@ -24,7 +21,7 @@ import { AppUIModule } from 'src/app/app-ui.module';
     TranslocoModule,
     AppUIModule,
 
-    EnglishLearningRoutingModule
-  ]
+    EnglishLearningRoutingModule,
+  ],
 })
-export class EnglishLearningModule { }
+export class EnglishLearningModule {}
