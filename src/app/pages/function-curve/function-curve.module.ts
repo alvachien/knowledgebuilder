@@ -7,14 +7,13 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatToolbarModule } from '@angular/material/toolbar';
 
 import { TranslocoModule } from '@ngneat/transloco';
+import { MarkdownModule } from 'ngx-markdown';
 
 import { FunctionCurveRoutingModule } from './function-curve-routing.module';
 import { FunctionCurveComponent } from './function-curve';
 
 @NgModule({
-  declarations: [
-    FunctionCurveComponent
-  ],
+  declarations: [FunctionCurveComponent],
   imports: [
     CommonModule,
     FormsModule,
@@ -24,8 +23,9 @@ import { FunctionCurveComponent } from './function-curve';
     MatToolbarModule,
 
     TranslocoModule,
+    MarkdownModule.forChild(),
 
-    FunctionCurveRoutingModule
+    FunctionCurveRoutingModule,
   ]
 })
-export class FunctionCurveModule { }
+export class FunctionCurveModule {}

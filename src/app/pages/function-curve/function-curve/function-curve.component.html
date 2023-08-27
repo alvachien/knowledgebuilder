@@ -3,7 +3,7 @@
     <div class="toolbar-spacer"></div>
     <mat-form-field>
         <mat-label>{{'HighSchool.FunctionCurve' | transloco}}</mat-label>
-        <mat-select [(ngModel)]="selectedFunc" (selectionChange)="onFuncSelectionChanged()" name="func">
+        <mat-select [(ngModel)]="selectedFuncVal" (selectionChange)="onFuncSelectionChanged()" name="func">
             <mat-option>None</mat-option>
             <mat-option *ngFor="let fun of supportedFunc" [value]="fun.value">
                 {{fun.disp}}
@@ -12,6 +12,11 @@
     </mat-form-field>
 </mat-toolbar>
 
-<div>
+<div style="margin: 16px;" *ngIf="selectedFuncVal"> 
+    <span>Formula:</span>
+    <markdown ngPreserveWhitespaces [data]="selectedFuncFormat" katex [katexOptions]="mathOptions"></markdown>
+</div>
+
+<div style="margin: 16px;">
     <canvas #func_curve class="curve-container"></canvas>
 </div>
