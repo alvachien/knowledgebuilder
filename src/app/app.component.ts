@@ -12,7 +12,7 @@ import { environment } from 'src/environments/environment';
 import { AuthService } from './services/auth.service';
 
 @Component({
-  selector: 'hkb-root',
+  selector: 'khb-root',
   templateUrl: './app.component.html',
   styleUrls: ['./app.component.scss'],
 })
