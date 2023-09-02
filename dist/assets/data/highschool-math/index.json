@@ -3,5 +3,6 @@
     { "title": "第二章 等式与不等式", "file": "highschool-math-02.md", "collection": "高中数学基础" },
     { "title": "第三章 函数", "file": "highschool-math-03.md", "collection": "高中数学基础" },
     { "title": "第四章 指数函数、对数函数与幂函数", "file": "highschool-math-04.md", "collection": "高中数学基础" },
-    { "title": "第五章 统计与概率", "file": "highschool-math-05.md", "collection": "高中数学基础" }
+    { "title": "第五章 统计与概率", "file": "highschool-math-05.md", "collection": "高中数学基础" },
+    { "title": "第六章 平面向量初步", "file": "highschool-math-06.md", "collection": "高中数学基础" }
 ]
