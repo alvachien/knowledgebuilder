@@ -62,5 +62,7 @@
     { "title": "TOEFL-100-61", "folder": "TOEFL-100", "file": "TOEFL-61.md", "collection": "TOEFL 100" },
     { "title": "TOEFL-100-62", "folder": "TOEFL-100", "file": "TOEFL-62.md", "collection": "TOEFL 100" },
     { "title": "TOEFL-100-63", "folder": "TOEFL-100", "file": "TOEFL-63.md", "collection": "TOEFL 100" },
-    { "title": "TOEFL-100-64", "folder": "TOEFL-100", "file": "TOEFL-64.md", "collection": "TOEFL 100" }
+    { "title": "TOEFL-100-64", "folder": "TOEFL-100", "file": "TOEFL-64.md", "collection": "TOEFL 100" },
+    { "title": "TOEFL-100-65", "folder": "TOEFL-100", "file": "TOEFL-65.md", "collection": "TOEFL 100" },
+    { "title": "TOEFL-100-66", "folder": "TOEFL-100", "file": "TOEFL-66.md", "collection": "TOEFL 100" }
 ]
