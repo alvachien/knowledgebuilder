@@ -8,11 +8,15 @@
 
 ## Vocabulary   
 
-1. **irrigation**   
-n. 灌溉
-2. **abundantly**    
-ad. 丰富地、充裕地
-3. **cactus**   
-n. 仙人掌
-4. **sagebrush**    
-n. 灌木蒿；灌木丛   
+1. **irrigation**     
+n. 灌溉     
+
+2. **abundantly**      
+ad. 丰富地、充裕地     
+
+3. **cactus**      
+n. 仙人掌       
+
+4. **sagebrush**      
+n. 灌木蒿；灌木丛       
+
