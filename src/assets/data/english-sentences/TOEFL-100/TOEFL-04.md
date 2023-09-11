@@ -8,9 +8,9 @@
 
 ## Vocabulary   
 
-1. **comet**   
-n. 彗星
+1. **comet**      
+n. 彗星     
 
-2. **Halley's Comet**   
-n. 哈雷彗星   
+2. **Halley's Comet**    
+n. 哈雷彗星      
 
