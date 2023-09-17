@@ -106,11 +106,34 @@ TBD.
 --|--|--|--
 0|0|1|0
 $\cfrac{\pi}{6}$|$\cfrac{1}{2}$|$\cfrac{\sqrt{3}}{2}$|$\cfrac{\sqrt{3}}{3}$
-$\cfrac{\pi}{4}$|$\cfrac{\sqrt{2}}{2}$|$\cfrac{\sqrt{2}}{2}$|1
+$\cfrac{\pi}{4}$|$\cfrac{\sqrt{2}}{2}$|$\cfrac{\sqrt{2}}{2}$|$1$
 $\cfrac{\pi}{3}$|$\cfrac{\sqrt{3}}{2}$|$\cfrac{1}{2}$|$\sqrt{3}$
 $\cfrac{\pi}{2}$|1|0|-
+$\cfrac{2}{3}\pi$|$\cfrac{\sqrt{3}}{2}$|$-\cfrac{1}{2}$|$-\sqrt{3}$
+$\cfrac{3}{4}\pi$|$\cfrac{\sqrt{2}}{2}$|$-\cfrac{\sqrt{2}}{2}$|$-1$
+$\cfrac{5}{6}\pi$|$\cfrac{1}{2}$|$-\cfrac{\sqrt{3}}{2}$|$-\cfrac{\sqrt{3}}{3}$
+$\pi$|$0$|$-1$|$0$
 
 
 ### 二、同角三角函数基本关系式及诱导公式    
 
+1. 同角三角函数的基本关系式       
+商数关系：$\tan \alpha = \cfrac{\sin \alpha}{\cos \alpha}$.       
+平方关系：$\sin^2\alpha + \cos^2 \alpha = 1$.                
 
+2. 同角三角函数基本关系式的应用      
+    - 已知某个角的一个三角函数值，求它的其余各三角函数值；      
+    - 化简三角函数式；     
+    - 证明三角恒等式；      
+    - 解三角方程       
+
+3. 诱导公式       
+    - 常用的诱导公式：      
+    公式一：$\sin(\alpha + k \cdot 2 \pi)=\sin \alpha, \cos(\alpha + k \cdot 2 \pi)=\cos \alpha, \tan(\alpha + k \cdot 2 \pi)=\tan \alpha$.     
+    公式二：$\sin(- \alpha)=-\sin \alpha, \cos(- \alpha)=\cos \alpha, \tan(- \alpha)=-\tan \alpha$.       
+    公式三：$\sin(\pi - \alpha)=\sin \alpha, \cos(\pi - \alpha)=-\cos \alpha, \tan(\pi - \alpha)=\tan \alpha$.       
+    公式四：$\sin(\pi + \alpha)=-\sin \alpha, \cos(\pi + \alpha)=-\cos \alpha, \tan(\pi + \alpha)=\tan \alpha$.      
+
+
+
+    - 诱导公式巧记        
