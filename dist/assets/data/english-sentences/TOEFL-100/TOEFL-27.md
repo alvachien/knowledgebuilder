@@ -1,10 +1,10 @@
 ## Sentence
 
-**The application of electronic controls made possible by the microprocessor and computer storage has multiplied the uses of the modern typewriter.**
+<h1>The application of electronic controls made possible by the microprocessor and computer storage has multiplied the uses of the modern typewriter.</h1>
 
 ## Translation
 
-借助微处理器和电脑存储，电子控制装置的运用成为可能，该运用成倍地增加了现代打字机的功能。     
+<h2>借助微处理器和电脑存储，电子控制装置的运用成为可能，该运用成倍地增加了现代打字机的功能。</h2>
 
 
 ## Vocabulary   

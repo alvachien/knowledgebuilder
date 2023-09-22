@@ -1,11 +1,10 @@
 ## Sentence
 
-**Perfectly matched pearls, strung into a necklace, bring a far higher price than the same pearls sold individually.**
+<h1>Perfectly matched pearls, strung into a necklace, bring a far higher price than the same pearls sold individually.</h1>
 
 ## Translation
 
-完美搭配的珍珠串成一条项链，能带来比单颗售卖高得多的价钱。      
-
+<h2>完美搭配的珍珠串成一条项链，能带来比单颗售卖高得多的价钱。</h2>
 
 ## Vocabulary   
 

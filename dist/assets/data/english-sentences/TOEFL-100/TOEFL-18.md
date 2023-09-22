@@ -1,10 +1,10 @@
 ## Sentence
 
-**The worker and soldier castes of termites consist of both males and females, and the queen lives permanently with a male consort.**
+<h1>The worker and soldier castes of termites consist of both males and females, and the queen lives permanently with a male consort.</h1>
 
 ## Translation
 
-白蚁中的工蚁和兵蚁的阶层由雄性和雌性共同组成，而女王永久地和一个雄性配偶生活在一起。      
+<h2>白蚁中的工蚁和兵蚁的阶层由雄性和雌性共同组成，而女王永久地和一个雄性配偶生活在一起。</h2>
 
 
 ## Vocabulary   

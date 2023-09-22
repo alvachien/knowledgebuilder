@@ -1,10 +1,10 @@
 ## Sentence
 
-**Even though the precise qualities of hero in literay words may vary over time, the basic exemplary function of the hero seems to remain constant.**
+<h1>Even though the precise qualities of hero in literay words may vary over time, the basic exemplary function of the hero seems to remain constant.</h1>
 
 ## Translation
 
-即便文学语言中描述的英雄所具备的确切品质会随时代变化，但英雄基本的典范作用似乎是保持不变的。     
+<h2>即便文学语言中描述的英雄所具备的确切品质会随时代变化，但英雄基本的典范作用似乎是保持不变的。</h2>
 
 
 ## Vocabulary   

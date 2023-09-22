@@ -1,10 +1,10 @@
 ## Sentence
 
-**Buildings contribute to human life when they provide shelter, enrich space, complement their site, suite the climate, and are economically feasible.**
+<h1>Buildings contribute to human life when they provide shelter, enrich space, complement their site, suite the climate, and are economically feasible.</h1>
 
 ## Translation
 
-建筑物为人类生活贡献良多，它们提供遮蔽处，丰富活动空间，完善人们的居所，使人们适应气候，同时在经济上使人觉得可承受。     
+<h2>建筑物为人类生活贡献良多，它们提供遮蔽处，丰富活动空间，完善人们的居所，使人们适应气候，同时在经济上使人觉得可承受。</h2>
 
 
 ## Vocabulary     

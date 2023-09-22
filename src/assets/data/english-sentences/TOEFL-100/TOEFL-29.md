@@ -1,10 +1,10 @@
 ## Sentence
 
-**When Henry Ford first sought financial backing for making cars, the very notion of farmers and clerks owning automobiles was considered ridiculous.**
+<h1>When Henry Ford first sought financial backing for making cars, the very notion of farmers and clerks owning automobiles was considered ridiculous.</h1>
 
 ## Translation
 
-当亨利.福特最初为制作汽车寻求资金支持时，人们觉得“农民和一般职员都能拥有汽车”这种想法太可笑了。     
+<h2>当亨利.福特最初为制作汽车寻求资金支持时，人们觉得“农民和一般职员都能拥有汽车”这种想法太可笑了。</h2>
 
 
 ## Vocabulary   

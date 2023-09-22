@@ -1,10 +1,10 @@
 ## Sentence
 
-**Studies of the gravity field of the Earth indicate that its crust and mantle yield when unusual weight is placed on them.**
+<h1>Studies of the gravity field of the Earth indicate that its crust and mantle yield when unusual weight is placed on them.</h1>
 
 ## Translation
 
-对地球重力场的研究表明，当被施加不寻常重力时，地球的地壳和地幔会发生变形。      
+<h2>对地球重力场的研究表明，当被施加不寻常重力时，地球的地壳和地幔会发生变形。</h2>
 
 
 ## Vocabulary   

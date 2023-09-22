@@ -133,7 +133,59 @@ $\pi$|$0$|$-1$|$0$
     公式二：$\sin(- \alpha)=-\sin \alpha, \cos(- \alpha)=\cos \alpha, \tan(- \alpha)=-\tan \alpha$.       
     公式三：$\sin(\pi - \alpha)=\sin \alpha, \cos(\pi - \alpha)=-\cos \alpha, \tan(\pi - \alpha)=\tan \alpha$.       
     公式四：$\sin(\pi + \alpha)=-\sin \alpha, \cos(\pi + \alpha)=-\cos \alpha, \tan(\pi + \alpha)=\tan \alpha$.      
+    公式五：$\sin(\cfrac{\pi}{2} - \alpha)=\cos \alpha, \cos(\cfrac{\pi}{2} - \alpha)=\sin \alpha$.      
+    公式六：$\sin(\cfrac{\pi}{2} + \alpha)=\cos \alpha, \cos(\cfrac{\pi}{2} + \alpha)=-\sin \alpha$.      
+    公式七：$\sin(\cfrac{3\pi}{2} + \alpha)=-\cos \alpha, \cos(\cfrac{3\pi}{2} + \alpha)=\sin \alpha$.      
+    公式八：$\sin(\cfrac{3\pi}{2} - \alpha)=-\cos \alpha, \cos(\cfrac{3\pi}{2} - \alpha)=-\sin \alpha$.      
 
 
 
     - 诱导公式巧记        
+    记忆口诀是：奇变偶不变，符号看象限。诱导公式可概括为$k \cdot \cfrac{\pi}{2} \pm \alpha \space (k \in \Z) $的各个三角函数值，如$2\pi - \alpha = 4 \cdot \cfrac{\pi}{2} - \alpha, \space \cfrac{3}{2}\pi + \alpha = 3 \cdot \cfrac{\pi}{2} + \alpha$，当$k$为偶数时，得角$\alpha$的同名函数值；当$k$为奇数时，得角$\alpha$相应的余名函数值，然后前面加上把$\alpha$看成锐角时原函数值的符号，如$\sin(2\pi - \pi)=\sin(4 \cdot \cfrac{\pi}{2} - \alpha), k = 4$为偶数，故取$\sin \alpha$。    
+    TBD.
+
+
+## 第三节 三角函数的性质与图案      
+
+### 一、三角函数的图像与性质    
+
+1. “五点法”画三角函数的图像      
+在作正弦曲线和余弦曲线有五个点在固定图像形状时，起着关键作用。    
+
+2. 三角函数的图像与性质      
+
+函数|$y=\sin x$|$y=\cos x$|$y=\tan x$    
+--|--|--|--    
+定义域|$\R$|$\R$|$\set{x \mid x \not = k \pi + \frac{\pi}{2}, k \in \Z }$ 
+在一个周期的图像|TBD|TBD|TBD
+值域|[-1, 1]|[-1, 1]|R
+奇偶性|奇|偶|奇
+单调性|TBD|TBD|TBD
+最值|TBD|TBD|TBD
+对称性|TBD|TBD|TBD
+最小正周期|$2\pi$|$2\pi$|$\pi$
+
+
+
+### 二、函数$y=A \sin(\omega x + \varphi)$的图像与性质
+
+1. 函数$y=A \sin(\omega x + \varphi) \space (A > 0)$的图像的画法
+    - 五点法     
+    - 变换法       
+    三角函数图像常见的几种变化：    
+    - 振幅变换     
+    - 周期变换       
+    - 相位变换        
+    - 平移变换       
+    - 对称变换        
+
+2. 函数$y=A \sin(\omega x + \varphi) \space (A > 0)$的性质
+
+由函数$y=A \sin(\omega x + \varphi) \space (A > 0)$的图像，可以得到函数的性质：    
+- 定义域    
+- 值域      
+- 最小正周期       
+- 单调性    
+- 奇偶性       
+- 对称性      
+

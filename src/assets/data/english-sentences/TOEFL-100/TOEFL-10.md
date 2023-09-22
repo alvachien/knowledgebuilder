@@ -1,11 +1,10 @@
 ## Sentence
 
-**Fungi are important in the process of decay, which returns ingredients to the soil, enhances soil fertility, and decomposes animal debris.**
+<h1>Fungi are important in the process of decay, which returns ingredients to the soil, enhances soil fertility, and decomposes animal debris.</h1>
 
 ## Translation
 
-真菌在腐化过程中十分重要，腐化过程将各种成分回馈于土壤，提高其肥力，并分解动物残骸。      
-
+<h2>真菌在腐化过程中十分重要，腐化过程将各种成分回馈于土壤，提高其肥力，并分解动物残骸。</h2>
 
 ## Vocabulary   
 

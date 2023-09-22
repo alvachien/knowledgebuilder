@@ -1,10 +1,10 @@
 ## Sentence
 
-**With modern offices becoming more mechanized, designers are attempting to be personalize them with warmer, less severe interiors.**
+<h1>With modern offices becoming more mechanized, designers are attempting to be personalize them with warmer, less severe interiors.</h1>
 
 ## Translation
 
-随着现代办公室变得越来越呆板，设计师们正尝试利用更加温暖且不过于简朴的内部装饰来使办公室个性化。      
+<h2>随着现代办公室变得越来越呆板，设计师们正尝试利用更加温暖且不过于简朴的内部装饰来使办公室个性化。</h2>
 
 
 ## Vocabulary   

@@ -1,10 +1,10 @@
 ## Sentence
 
-**Out in remote areas of the countryside, in rural locations, music was more traditional; the same songs were enjoyed by previous generations.**
+<h1>Out in remote areas of the countryside, in rural locations, music was more traditional; the same songs were enjoyed by previous generations.</h1>
 
 ## Translation
 
-在遥远偏僻的乡村，在农村地区，音乐更传统；同样的歌曲，几代人都在听。     
+<h2>在遥远偏僻的乡村，在农村地区，音乐更传统；同样的歌曲，几代人都在听。</h2>
 
 
 ## Vocabulary   

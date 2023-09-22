@@ -1,10 +1,10 @@
 ## Sentence
 
-**Research into the dynamics of storms is directed toward improving the ability to predict these events and thus to minimize damage and avoid loss of life.**
+<h1>Research into the dynamics of storms is directed toward improving the ability to predict these events and thus to minimize damage and avoid loss of life.</h1>
 
 ## Translation
 
-对风暴动力学的研究旨在提供对这类风暴事件预测的能力，从而减少损失，避免人员伤亡。     
+<h2>对风暴动力学的研究旨在提供对这类风暴事件预测的能力，从而减少损失，避免人员伤亡。</h2>
 
 
 ## Vocabulary     

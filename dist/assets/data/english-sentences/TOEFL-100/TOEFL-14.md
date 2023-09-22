@@ -1,10 +1,10 @@
 ## Sentence
 
-**Finally, the coughing reflex in reaction to irritants in the airway produces not a cough during sleep but a cessation of breathing.**
+<h1>Finally, the coughing reflex in reaction to irritants in the airway produces not a cough during sleep but a cessation of breathing.</h1>
 
 ## Translation
 
-最后，在应对呼吸道中的刺激物时，咳嗽反射引起的不是睡眠中的咳嗽，而是呼吸停止。      
+<h2>最后，在应对呼吸道中的刺激物时，咳嗽反射引起的不是睡眠中的咳嗽，而是呼吸停止。</h2>
 
 
 ## Vocabulary   

@@ -1,10 +1,10 @@
 ## Sentence
 
-**With no oceans to dissolve it, outgassed carbon dioxide began to accumulate in the atmosphere, intensifying the greenhouse effect even more.**
+<h1>With no oceans to dissolve it, outgassed carbon dioxide began to accumulate in the atmosphere, intensifying the greenhouse effect even more.</h1>
 
 ## Translation
 
-没有海洋溶解二氧化碳，排出的二氧化碳开始在大气中聚集，进一步加剧了温室效应。     
+<h2>没有海洋溶解二氧化碳，排出的二氧化碳开始在大气中聚集，进一步加剧了温室效应。</h2>
 
 
 ## Vocabulary     

@@ -1,11 +1,10 @@
 ## Sentence
 
-**Although apparently rigid, bones exhibit a degree of elasticity that enables the skeleton to withstand considerable impact.**
+<h1>Although apparently rigid, bones exhibit a degree of elasticity that enables the skeleton to withstand considerable impact.</h1>
 
 ## Translation
 
-虽然骨头看起来坚硬，但它也显示出一定的弹性，使得骨骼能够承受较大的冲击。      
-
+<h2>虽然骨头看起来坚硬，但它也显示出一定的弹性，使得骨骼能够承受较大的冲击。</h2>
 
 ## Vocabulary   
 

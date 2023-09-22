@@ -1,6 +1,6 @@
 ## Sentence
 
-**The greater the population there is in a locality, the greater the need there is for water, transportation, and disposal of refuse.**   
+<h1>The greater the population there is in a locality, the greater the need there is for water, transportation, and disposal of refuse.</h1>
 
 ## Grammar   
 
@@ -8,7 +8,7 @@
 
 ## Translation
 
-一个地方的人口越多，其对水、交通和垃圾处理的需求就会越大。   
+<h2>一个地方的人口越多，其对水、交通和垃圾处理的需求就会越大。</h2> 
 
 ## Vocabulary   
 

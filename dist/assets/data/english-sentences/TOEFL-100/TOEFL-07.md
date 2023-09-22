@@ -1,11 +1,10 @@
 ## Sentence
 
-**The development of mechanical timepieces spurred the search for more accurate sundials with which to regulate them.**
+<h1>The development of mechanical timepieces spurred the search for more accurate sundials with which to regulate them.</h1>
 
 ## Translation
 
-机械计时器的发展促使人们寻求更精准的日晷，以便校准机械计时器。      
-
+<h2>机械计时器的发展促使人们寻求更精准的日晷，以便校准机械计时器。</h2>
 
 ## Vocabulary   
 

@@ -106,5 +106,13 @@
     { "title": "JuniorHighSchool-100-04", "folder": "JuniorHighSchool-100", "file": "S-04.md", "collection": "Junior Highschool 100" },
     { "title": "JuniorHighSchool-100-05", "folder": "JuniorHighSchool-100", "file": "S-05.md", "collection": "Junior Highschool 100" },
     { "title": "JuniorHighSchool-100-06", "folder": "JuniorHighSchool-100", "file": "S-06.md", "collection": "Junior Highschool 100" },
-    { "title": "JuniorHighSchool-100-07", "folder": "JuniorHighSchool-100", "file": "S-07.md", "collection": "Junior Highschool 100" }
+    { "title": "JuniorHighSchool-100-07", "folder": "JuniorHighSchool-100", "file": "S-07.md", "collection": "Junior Highschool 100" },
+
+    { "title": "SeniorHighSchool-100-01", "folder": "SeniorHighSchool-100", "file": "S-01.md", "collection": "Senior Highschool 100" },
+    { "title": "SeniorHighSchool-100-02", "folder": "SeniorHighSchool-100", "file": "S-02.md", "collection": "Senior Highschool 100" },
+    { "title": "SeniorHighSchool-100-03", "folder": "SeniorHighSchool-100", "file": "S-03.md", "collection": "Senior Highschool 100" },
+    { "title": "SeniorHighSchool-100-04", "folder": "SeniorHighSchool-100", "file": "S-04.md", "collection": "Senior Highschool 100" },
+    { "title": "SeniorHighSchool-100-05", "folder": "SeniorHighSchool-100", "file": "S-05.md", "collection": "Senior Highschool 100" },
+    { "title": "SeniorHighSchool-100-06", "folder": "SeniorHighSchool-100", "file": "S-06.md", "collection": "Senior Highschool 100" },
+    { "title": "SeniorHighSchool-100-07", "folder": "SeniorHighSchool-100", "file": "S-07.md", "collection": "Senior Highschool 100" }
 ]

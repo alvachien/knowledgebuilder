@@ -1,10 +1,10 @@
 ## Sentence
 
-**Since wind-pollinated flowers have no need to attract insects or other animals, they have dispensed with bright petals, nectar, and scent.**
+<h1>Since wind-pollinated flowers have no need to attract insects or other animals, they have dispensed with bright petals, nectar, and scent.</h1>
 
 ## Translation
 
-由于靠风传播授粉的花不需要吸引昆虫或其他动物，所以它们不再需要色彩鲜艳的花瓣、花蜜和气味。     
+<h2>由于靠风传播授粉的花不需要吸引昆虫或其他动物，所以它们不再需要色彩鲜艳的花瓣、花蜜和气味。</h2>
 
 
 ## Vocabulary   

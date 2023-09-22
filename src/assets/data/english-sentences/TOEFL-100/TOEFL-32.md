@@ -1,10 +1,10 @@
 ## Sentence
 
-**Since the consumer considers the best fruit to be that which is the most attractive, the grower must provide products that satisfy the discerning eye.**
+<h1>Since the consumer considers the best fruit to be that which is the most attractive, the grower must provide products that satisfy the discerning eye.</h1>
 
 ## Translation
 
-因为顾客认为最好的水果应该是看起来最吸引人的，所以种植者必须提供能满足顾客挑剔眼光的产品。     
+<h2>因为顾客认为最好的水果应该是看起来最吸引人的，所以种植者必须提供能满足顾客挑剔眼光的产品。</h2>
 
 
 ## Vocabulary     

@@ -1,11 +1,10 @@
 ## Sentence
 
-**But when consumers do not know they are being lobbied, they may accept claims they would otherwise be suspicious of.**
+<h1>But when consumers do not know they are being lobbied, they may accept claims they would otherwise be suspicious of.</h1>
 
 ## Translation
 
-但当消费者不知道自己正被游说时，他们可能接受原本会表示怀疑的说法。      
-
+<h2>但当消费者不知道自己正被游说时，他们可能接受原本会表示怀疑的说法。</h2>
 
 ## Vocabulary   
 

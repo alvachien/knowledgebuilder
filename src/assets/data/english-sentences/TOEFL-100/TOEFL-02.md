@@ -1,10 +1,10 @@
 ## Sentence
 
-**Thanks to modern irrigation, crops now grow abundantly in areas where once nothing but cacti and sagebrush could live.**   
+<h1>Thanks to modern irrigation, crops now grow abundantly in areas where once nothing but cacti and sagebrush could live.</h1>
 
 ## Translation
 
-受当代灌溉设施之赐，在原来只有仙人掌和灌木蒿才能生存的地方，现在农作物也生长旺盛。   
+<h2>受当代灌溉设施之赐，在原来只有仙人掌和灌木蒿才能生存的地方，现在农作物也生长旺盛。</h2>
 
 ## Vocabulary   
 

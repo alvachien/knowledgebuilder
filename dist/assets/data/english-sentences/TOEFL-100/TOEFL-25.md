@@ -1,10 +1,10 @@
 ## Sentence
 
-**In the second half of the millennium, in the south around the city of Uruk, there was an enormous secalation in the area occupied by permanent settlements.**
+<h1>In the second half of the millennium, in the south around the city of Uruk, there was an enormous secalation in the area occupied by permanent settlements.</h1>
 
 ## Translation
 
-在一千年的后半段，在乌鲁克城南部，被永久定居点占用的地域在大幅度增长。     
+<h2>在一千年的后半段，在乌鲁克城南部，被永久定居点占用的地域在大幅度增长。</h2>
 
 
 ## Vocabulary   

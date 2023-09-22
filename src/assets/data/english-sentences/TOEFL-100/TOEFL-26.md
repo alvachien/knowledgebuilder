@@ -1,10 +1,10 @@
 ## Sentence
 
-**By fossils, we mean traces of prehistoric animals such as bones, which become mineralized, or impressions of bones or organs that are left in stone.**
+<h1>By fossils, we mean traces of prehistoric animals such as bones, which become mineralized, or impressions of bones or organs that are left in stone.</h1>
 
 ## Translation
 
-提到化石，我们指的是史前生物的遗迹，比如已经矿化的骨头，或者是骨头或器官在石头上留下的印记。     
+<h2>提到化石，我们指的是史前生物的遗迹，比如已经矿化的骨头，或者是骨头或器官在石头上留下的印记。</h2>
 
 
 ## Vocabulary   

@@ -1,10 +1,10 @@
 ## Sentence
 
-**Even before the discovery of germs, beliefs that disease spread by "miasmas" (noxious forms of bad air) prompted attention to sewers and open garbage.**
+<h1>Even before the discovery of germs, beliefs that disease spread by "miasmas" (noxious forms of bad air) prompted attention to sewers and open garbage.</h1>
 
 ## Translation
 
-甚至在发现细菌以前，疾病通过“瘴气”（有毒的恶性气体）传播的观点就已激起人们对排水沟和露天垃圾的关注。     
+<h2>甚至在发现细菌以前，疾病通过“瘴气”（有毒的恶性气体）传播的观点就已激起人们对排水沟和露天垃圾的关注。</h2>
 
 
 ## Vocabulary     

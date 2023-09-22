@@ -1,10 +1,10 @@
 ## Sentence
 
-**Anthropologists have discovered that fear, happiness, sadness, and surprise are universally reflected in facial expressions.**   
+<h1>Anthropologists have discovered that fear, happiness, sadness, and surprise are universally reflected in facial expressions.</h1>
 
 ## Translation
 
-人类学家已经发现，恐惧、快乐、悲伤和惊奇会反映在面部表情上，这在全人类是共通的。   
+<h2>人类学家已经发现，恐惧、快乐、悲伤和惊奇会反映在面部表情上，这在全人类是共通的。</h>
 
 ## Vocabulary   
 

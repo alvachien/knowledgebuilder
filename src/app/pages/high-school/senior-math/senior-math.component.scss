@@ -7,4 +7,16 @@
 .mat-mdc-row:hover .mat-mdc-cell {
   border-color: currentColor;
 }
-  
+
+.example-spacer {
+  flex: 1 1 auto;
+}
+
+.mat-mdc-button-base {
+  margin: 8px 8px 8px 0;
+}
+
+mat-form-field {
+  width: 240px;
+  margin: 0px 8px 8px 8px;
+}

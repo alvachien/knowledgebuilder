@@ -1,10 +1,10 @@
 ## Sentence
 
-**Lucretia Mott's influence was so significant that she has been credited by some authorities as the originator of feminism in the United States.**
+<h1>Lucretia Mott's influence was so significant that she has been credited by some authorities as the originator of feminism in the United States.</h1>
 
 ## Translation
 
-路克瑞莎.马特的影响是如此巨大，以至于一些权威部门认定她是美国女性运动的发起人。     
+<h2>路克瑞莎.马特的影响是如此巨大，以至于一些权威部门认定她是美国女性运动的发起人。</h2>
 
 
 ## Vocabulary   

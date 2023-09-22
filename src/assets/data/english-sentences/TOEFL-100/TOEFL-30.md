@@ -1,10 +1,10 @@
 ## Sentence
 
-**Many people who wanted to become archaeologists ended up pursuing other careers and contributing to archaeological research only as unpaid amateurs.**
+<h1>Many people who wanted to become archaeologists ended up pursuing other careers and contributing to archaeological research only as unpaid amateurs.</h1>
 
 ## Translation
 
-很多想要称为考古学家的人最后都从事了其它的职业，只作为无偿的业务爱好者对考古研究作出贡献。     
+<h2>很多想要称为考古学家的人最后都从事了其它的职业，只作为无偿的业务爱好者对考古研究作出贡献。</h2>
 
 
 ## Vocabulary     

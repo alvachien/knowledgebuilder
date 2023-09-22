@@ -1,10 +1,10 @@
 ## Sentence
 
-**Buyers and sellers should be aware of new developments in technology which can and does affect marketing activities.**
+<h1>Buyers and sellers should be aware of new developments in technology which can and does affect marketing activities.</h1>
 
 ## Translation
 
-购买者和销售者们都应该意识到技术方面的新发展，这些技术能够且确实影响着营销活动。      
+<h2>购买者和销售者们都应该意识到技术方面的新发展，这些技术能够且确实影响着营销活动。</h2>
 
 
 ## Vocabulary   

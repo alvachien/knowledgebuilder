@@ -1,10 +1,10 @@
 ## Sentence
 
-**Essentially, a theory is an abstract, symbolic representation of what is conceived to be reality.**
+<h1>Essentially, a theory is an abstract, symbolic representation of what is conceived to be reality.</h1>
 
 ## Translation
 
-理论本质上是对人们构想的现实的一种抽象和符号化的表达。
+<h2>理论本质上是对人们构想的现实的一种抽象和符号化的表达。</h2>
 
 ## Vocabulary   
 

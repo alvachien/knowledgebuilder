@@ -1,10 +1,10 @@
 ## Sentence
 
-**Children with parents whose guidance is firm, consistent, and rational are inclined to possess high levels of self-confidence.**
+<h1>Children with parents whose guidance is firm, consistent, and rational are inclined to possess high levels of self-confidence.</h1>
 
 ## Translation
 
-父母的教导是坚定、始终如一和理性的，孩子就倾向于具有高度的自信。     
+<h2>父母的教导是坚定、始终如一和理性的，孩子就倾向于具有高度的自信。</h2>
 
 
 ## Vocabulary   

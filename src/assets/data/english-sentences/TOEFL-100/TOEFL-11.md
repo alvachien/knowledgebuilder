@@ -1,10 +1,10 @@
 ## Sentence
 
-**Most substances contract when they freeze so that the density of a substance's solid is higher than the density of its liquid.**
+<h1>Most substances contract when they freeze so that the density of a substance's solid is higher than the density of its liquid.</h1>
 
 ## Translation
 
-大多数物资冻结时会收缩，所以，它们的密度在固态时高于液态时。      
+<h2>大多数物资冻结时会收缩，所以，它们的密度在固态时高于液态时。</h2>
 
 
 ## Vocabulary   
