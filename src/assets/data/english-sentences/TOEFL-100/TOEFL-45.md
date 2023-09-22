@@ -1,10 +1,10 @@
 ## Sentence
 
-**Anarchism is a term describing a cluster of doctrines and attitudes whose principal uniting feature is the belief that government is both harmful and unnecessary.**
+<h1>Anarchism is a term describing a cluster of doctrines and attitudes whose principal uniting feature is the belief that government is both harmful and unnecessary.</h1>
 
 ## Translation
 
-无政府主义这个词描述的一组学说和态度，它们的主要共同特点在于相信政府是有害的而且没有必要的。     
+<h2>无政府主义这个词描述的一组学说和态度，它们的主要共同特点在于相信政府是有害的而且没有必要的。</h2>
 
 
 ## Vocabulary     

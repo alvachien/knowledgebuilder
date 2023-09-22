@@ -1,10 +1,10 @@
 ## Sentence
 
-**Meanwhile, the deadliest strains of the virus perished with their hosts as natural selection favored strains that could infect hosts but not kill them. Thus, natural selection stabilized this host-parasite relationship.**      
+<h1>Meanwhile, the deadliest strains of the virus perished with their hosts as natural selection favored strains that could infect hosts but not kill them. Thus, natural selection stabilized this host-parasite relationship.</h1>
 
 ## Translation
 
-同时，由于自然选择更倾向于那些能够感染宿主但不致其死亡的品系，这种病毒中最致命的品系也随寄主灭亡了。因此，自然选择使得寄主和寄生物的关系趋于稳定。     
+<h2>同时，由于自然选择更倾向于那些能够感染宿主但不致其死亡的品系，这种病毒中最致命的品系也随寄主灭亡了。因此，自然选择使得寄主和寄生物的关系趋于稳定。</h2>
 
 ## Vocabulary   
 

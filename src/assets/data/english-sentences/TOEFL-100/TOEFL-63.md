@@ -1,10 +1,10 @@
 ## Sentence
 
-**The recognition that many aspects of the modern flora and fauna were present on both sides of the Bering Sea as remnants of the iceage landscape led to this region being named Beringia.**
+<h1>The recognition that many aspects of the modern flora and fauna were present on both sides of the Bering Sea as remnants of the iceage landscape led to this region being named Beringia.</h1>
 
 ## Translation
 
-人们认识到，作为冰河时代地貌的遗迹，现代植物群和动物群的许多特征过去在白令海两岸也存在。这一认识使得该地区被命名为白令吉亚。     
+<h2>人们认识到，作为冰河时代地貌的遗迹，现代植物群和动物群的许多特征过去在白令海两岸也存在。这一认识使得该地区被命名为白令吉亚。</h2>
 
 
 ## Vocabulary     

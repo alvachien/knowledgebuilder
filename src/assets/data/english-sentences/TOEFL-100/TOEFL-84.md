@@ -1,10 +1,10 @@
 ## Sentence
 
-**Widely reported, if somewhat distrusted, accounts by figures like the famous traveler from Venice, Macro Polo, of the willingness of people in China to trade with Europeans and of the immensity of the wealth to be gained by such contact made the idea irresistible.**      
+<h1>Widely reported, if somewhat distrusted, accounts by figures like the famous traveler from Venice, Macro Polo, of the willingness of people in China to trade with Europeans and of the immensity of the wealth to be gained by such contact made the idea irresistible.</h1>
 
 ## Translation
 
-据广泛报道，虽然可能不足为伍，诸如威尼斯著名旅行家马可.波罗在内的名人曾描述过，中国人愿意和欧洲人通商，并且欧洲通过这样的贸易关系可以获得巨额财富，这些描述使得这一想法变得让人难以抗拒。     
+<h2>据广泛报道，虽然可能不足为伍，诸如威尼斯著名旅行家马可.波罗在内的名人曾描述过，中国人愿意和欧洲人通商，并且欧洲通过这样的贸易关系可以获得巨额财富，这些描述使得这一想法变得让人难以抗拒。</h2>
 
 ## Vocabulary   
 

@@ -1,10 +1,10 @@
 ## Sentence
 
-**A rotary engine attached to the steam engine enabled shafts to be turned and machines to be driven, resulting in mills using steam power to spin and weave cotton.**
+<h1>A rotary engine attached to the steam engine enabled shafts to be turned and machines to be driven, resulting in mills using steam power to spin and weave cotton.</h1>
 
 ## Translation
 
-与蒸汽机相连的旋转式发动机带动轴承转动，从而驱动机器，结果是运用蒸汽动力防止棉布的工厂随之出现。     
+<h2>与蒸汽机相连的旋转式发动机带动轴承转动，从而驱动机器，结果是运用蒸汽动力防止棉布的工厂随之出现。</h2>
 
 
 ## Vocabulary     

@@ -1,10 +1,10 @@
 ## Sentence
 
-**Futurism, an early twentieth-century movement in art, rejected all traditions and attempted to glorify contemporary life by emphasizing the machine and motion.**
+<h1>Futurism, an early twentieth-century movement in art, rejected all traditions and attempted to glorify contemporary life by emphasizing the machine and motion.</h1>
 
 ## Translation
 
-未来主义是20世纪早期的一股艺术思潮，它拒绝一切传统，试图通过强调机械和运动来美化当代生活。     
+<h2>未来主义是20世纪早期的一股艺术思潮，它拒绝一切传统，试图通过强调机械和运动来美化当代生活。</h2>
 
 
 ## Vocabulary     

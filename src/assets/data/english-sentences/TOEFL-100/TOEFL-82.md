@@ -1,10 +1,10 @@
 ## Sentence
 
-**This is because the gaps among the original grains are often not totally plugged with cementing chemicals; also, parts of the original grains may become dissolved by percolating groundwater, either while consolidation is taking place or at any time afterwards.**      
+<h1>This is because the gaps among the original grains are often not totally plugged with cementing chemicals; also, parts of the original grains may become dissolved by percolating groundwater, either while consolidation is taking place or at any time afterwards.</h1>
 
 ## Translation
 
-这时因为最初颗粒间的缝隙通常并未完全被黏固的化学物资塞满，而且部分颗粒很可能在固化时或固化后被渗入的地下水溶解。     
+<h2>这时因为最初颗粒间的缝隙通常并未完全被黏固的化学物资塞满，而且部分颗粒很可能在固化时或固化后被渗入的地下水溶解。</h2>
 
 ## Vocabulary   
 

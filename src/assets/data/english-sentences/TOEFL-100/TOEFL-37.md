@@ -1,10 +1,10 @@
 ## Sentence
 
-**Scientists do not know why dinosaurs became extinct, but some theories postulate that changes in geography, climate, and sea levels were responsible.**
+<h1>Scientists do not know why dinosaurs became extinct, but some theories postulate that changes in geography, climate, and sea levels were responsible.</h1>
 
 ## Translation
 
-科学家们不知道恐龙为啥灭绝了，但是一些理念推断这是地理、气候和海平面的变化造成的。     
+<h2>科学家们不知道恐龙为啥灭绝了，但是一些理念推断这是地理、气候和海平面的变化造成的。</h2>
 
 
 ## Vocabulary     

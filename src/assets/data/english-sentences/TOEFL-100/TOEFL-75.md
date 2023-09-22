@@ -1,10 +1,10 @@
 ## Sentence
 
-**These residence time is the average length of time that any particular molecule of water remains in the lake, and it is calculated by dividing the volume of water in the lake by the rate at which water leaves the lake.**      
+<h1>These residence time is the average length of time that any particular molecule of water remains in the lake, and it is calculated by dividing the volume of water in the lake by the rate at which water leaves the lake.</h1>
 
 ## Translation
 
-停留时间是指特定水分子在湖中的停留的平均时长。这是通过将湖水量除以水流出湖泊的速度计算出来的。     
+<h2>停留时间是指特定水分子在湖中的停留的平均时长。这是通过将湖水量除以水流出湖泊的速度计算出来的。</h2>
 
 ## Vocabulary   
 

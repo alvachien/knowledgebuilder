@@ -1,10 +1,10 @@
 ## Sentence
 
-**Offshore drilling platforms extend the search for oil to the ocean's continental shelves - those gently sloping submarine regions at the edges of the continents.**
+<h1>Offshore drilling platforms extend the search for oil to the ocean's continental shelves - those gently sloping submarine regions at the edges of the continents.</h1>
 
 ## Translation
 
-近海钻探平台将寻找石油的区域延伸到了海洋大陆架上————陆地附近浅海下缓缓的斜坡。     
+<h2>近海钻探平台将寻找石油的区域延伸到了海洋大陆架上————陆地附近浅海下缓缓的斜坡。</h2>
 
 
 ## Vocabulary     

@@ -1,10 +1,10 @@
 ## Sentence
 
-**Researches can drill core smaples, uh, basically get a cross-section of a tree without having to kill it, look at the rings and get a picture of what the climate was like in the basin for each of the tree's year.**      
+<h1>Researches can drill core smaples, uh, basically get a cross-section of a tree without having to kill it, look at the rings and get a picture of what the climate was like in the basin for each of the tree's year.</h1>
 
 ## Translation
 
-研究人员可以钻取芯部样本，基本上获取一个树的横截面而不导致树的死亡，然后观察年轮，了解这棵树所在盆地每年的气候状况。     
+<h2>研究人员可以钻取芯部样本，基本上获取一个树的横截面而不导致树的死亡，然后观察年轮，了解这棵树所在盆地每年的气候状况。</h2>
 
 ## Vocabulary   
 

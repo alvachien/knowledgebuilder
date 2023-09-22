@@ -1,10 +1,10 @@
 ## Sentence
 
-**Various committees acted as an executive branch, implementing policies of the assembly and supervising, for instance, the food and water supplies and public buildings.**
+<h1>Various committees acted as an executive branch, implementing policies of the assembly and supervising, for instance, the food and water supplies and public buildings.</h2>
 
 ## Translation
 
-各委员会作为一个行政部门贯彻执行议会政策，并对诸如食物、水供应以及公共建筑进行监督管理。     
+<h2>各委员会作为一个行政部门贯彻执行议会政策，并对诸如食物、水供应以及公共建筑进行监督管理。</h2>
 
 
 ## Vocabulary     

@@ -1,10 +1,10 @@
 ## Sentence
 
-**Because eastern plows could not penetrate the densely tangled roots of prairie grass, the ealiest settlers erected farms along the boundary separating the forest from the prairie.**
+<h1>Because eastern plows could not penetrate the densely tangled roots of prairie grass, the ealiest settlers erected farms along the boundary separating the forest from the prairie.</h1>
 
 ## Translation
 
-由于东方的犁无法穿透大草原那浓密缠结的草的根部，早期移民沿着森林和草原的分界建立了农场。     
+<h2>由于东方的犁无法穿透大草原那浓密缠结的草的根部，早期移民沿着森林和草原的分界建立了农场。</h2>
 
 
 ## Vocabulary     

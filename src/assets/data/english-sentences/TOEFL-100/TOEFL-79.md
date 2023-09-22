@@ -1,10 +1,10 @@
 ## Sentence
 
-**While the men who make faithful copies of sand paintings from the past represent the principle of stability in Navajo thought, women embody dynamism and create new designs for every weaving they make.**      
+<h1>While the men who make faithful copies of sand paintings from the past represent the principle of stability in Navajo thought, women embody dynamism and create new designs for every weaving they make.</h1>
 
 ## Translation
 
-如实复制了过去的沙画的男人们代表着纳瓦霍人思想中的稳定性原则，而女性代表着活力，每次编织她们都创造了新的设计。     
+<h2>如实复制了过去的沙画的男人们代表着纳瓦霍人思想中的稳定性原则，而女性代表着活力，每次编织她们都创造了新的设计。</h2>
 
 ## Vocabulary   
 

@@ -1,10 +1,10 @@
 ## Sentence
 
-**In turn, a deep attachment to the land, and to the stability which rural life engenders, fostered the Roman virtues: gravitas, a sense of responsibility, pietas, a sense of devotion to family and country, and iustitia, a sense of the natural order.**      
+<h1>In turn, a deep attachment to the land, and to the stability which rural life engenders, fostered the Roman virtues: gravitas, a sense of responsibility, pietas, a sense of devotion to family and country, and iustitia, a sense of the natural order.</h1>
 
 ## Translation
 
-反过来，对土地及乡村生活所带来的稳定性的深深孕育了罗马人的品格：gravitas， 一种责任感；pietas 对家庭和国家的奉献；以及iustitia，一种自然的秩序感。     
+<h2>反过来，对土地及乡村生活所带来的稳定性的深深孕育了罗马人的品格：gravitas， 一种责任感；pietas 对家庭和国家的奉献；以及iustitia，一种自然的秩序感。</h2>
 
 ## Vocabulary   
 

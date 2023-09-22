@@ -1,10 +1,10 @@
 ## Sentence
 
-**Though it may be difficult to imagine from a later perspective, a strain of critical opinion in the 1920s predicted that sound film would be a technical novelty that would soon fade from sight, just as had many previous attempts, dating well back before the First World War, to link images with recorded sound.**      
+<h1>Though it may be difficult to imagine from a later perspective, a strain of critical opinion in the 1920s predicted that sound film would be a technical novelty that would soon fade from sight, just as had many previous attempts, dating well back before the First World War, to link images with recorded sound.</h1>
 
 ## Translation
 
-虽然从后来的视角来看也许难以想象，但是在20世纪20年代，一种批判性观点预测有声电影这项技术新玩意儿将会迅速淡出人们的视线，就像以前————追溯到第一次世界大战之前————多次试图将画面与录音连在一起的技术那样。     
+<h2>虽然从后来的视角来看也许难以想象，但是在20世纪20年代，一种批判性观点预测有声电影这项技术新玩意儿将会迅速淡出人们的视线，就像以前————追溯到第一次世界大战之前————多次试图将画面与录音连在一起的技术那样。</h2>
 
 ## Vocabulary   
 

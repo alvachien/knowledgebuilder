@@ -1,10 +1,10 @@
 ## Sentence
 
-**The Athenian philosopher Socrates (470-399 B.C.) was the first person in Greece to propose a morality based on individual conscience rather than the demands of the state, and for this he was accused of not believing in the city's gods and so corrupting the youth, and he was condemned to death.**      
+<h1>The Athenian philosopher Socrates (470-399 B.C.) was the first person in Greece to propose a morality based on individual conscience rather than the demands of the state, and for this he was accused of not believing in the city's gods and so corrupting the youth, and he was condemned to death.</h1>
 
 ## Translation
 
-雅典哲学家苏格拉底（公元前470-399）是希腊第一个提出基于个人良心而不是国家要求的道德准则的人，他因此被控诉不信仰联邦众神并因此使青年堕落，被判了死刑。     
+<h2>雅典哲学家苏格拉底（公元前470-399）是希腊第一个提出基于个人良心而不是国家要求的道德准则的人，他因此被控诉不信仰联邦众神并因此使青年堕落，被判了死刑。</h2>
 
 ## Vocabulary   
 

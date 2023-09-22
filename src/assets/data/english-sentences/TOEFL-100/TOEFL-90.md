@@ -1,10 +1,10 @@
 ## Sentence
 
-**Unlike short-term financial cooperation between investors for a single commercial undertaking, joint-stock companies provided permanent funding of capital by drawing on the investments of merchants and other investors who purchased shares in the company.**      
+<h1>Unlike short-term financial cooperation between investors for a single commercial undertaking, joint-stock companies provided permanent funding of capital by drawing on the investments of merchants and other investors who purchased shares in the company.</h1>
 
 ## Translation
 
-与由投资者组成的以单个商业项目为目的的短期财团不同，股份制公司通过利用商人和其他购买公司股份的投资者的投资来提供长期的资金。     
+<h2>与由投资者组成的以单个商业项目为目的的短期财团不同，股份制公司通过利用商人和其他购买公司股份的投资者的投资来提供长期的资金。</h2>
 
 ## Vocabulary   
 

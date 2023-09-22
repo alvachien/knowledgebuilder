@@ -1,10 +1,10 @@
 ## Sentence
 
-**An eye is a collection of cells that are specialized for light detection through the presence of photosensitive pigment as well as a means of restricting the direction of incoming light that will strike the photosensitive cells.**      
+<h1>An eye is a collection of cells that are specialized for light detection through the presence of photosensitive pigment as well as a means of restricting the direction of incoming light that will strike the photosensitive cells.</h1>
 
 ## Translation
 
-眼睛由专门探测光源的细胞聚合而成，这些细胞通过使用光敏色素来探测光源，同时眼睛也用于限制射到感光细胞的入射光的方向。     
+<h2>眼睛由专门探测光源的细胞聚合而成，这些细胞通过使用光敏色素来探测光源，同时眼睛也用于限制射到感光细胞的入射光的方向。</h2>
 
 ## Vocabulary   
 

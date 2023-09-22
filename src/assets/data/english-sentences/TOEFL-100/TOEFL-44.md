@@ -1,10 +1,10 @@
 ## Sentence
 
-**According to anthropologists, the earliest ancestors of humans that stood upright resembled chimpanzees facially, with sloping foreheads and protruding brows.**
+<h1>According to anthropologists, the earliest ancestors of humans that stood upright resembled chimpanzees facially, with sloping foreheads and protruding brows.</h1>
 
 ## Translation
 
-根据人类学家的说法，直立行走的最早的人类祖先的面部轮廓与黑猩猩相似，前额倾斜，眉毛突出。     
+<h2>根据人类学家的说法，直立行走的最早的人类祖先的面部轮廓与黑猩猩相似，前额倾斜，眉毛突出。</h2>
 
 
 ## Vocabulary     

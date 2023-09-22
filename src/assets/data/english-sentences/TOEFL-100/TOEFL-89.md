@@ -1,10 +1,10 @@
 ## Sentence
 
-**In the 1960s, James Watt prefected a separate condenser for the steam, so that the cylinder did not have to be cooled at every stroke; then he devised a way to make the piston turn a wheel and thus convert reciprocating (back and forth) motion into rotary motion.**      
+<h1>In the 1960s, James Watt prefected a separate condenser for the steam, so that the cylinder did not have to be cooled at every stroke; then he devised a way to make the piston turn a wheel and thus convert reciprocating (back and forth) motion into rotary motion.</h1>
 
 ## Translation
 
-18世纪60年代，詹姆斯.瓦特完善了分离的蒸汽冷凝器，因此不必每个冲程后都要冷却气缸；随后，他又发明了一种新的方法，使得活塞可以旋转运动，即从原来的（前后）往复运动演变成旋转运动。     
+<h2>18世纪60年代，詹姆斯.瓦特完善了分离的蒸汽冷凝器，因此不必每个冲程后都要冷却气缸；随后，他又发明了一种新的方法，使得活塞可以旋转运动，即从原来的（前后）往复运动演变成旋转运动。</h2>
 
 ## Vocabulary   
 

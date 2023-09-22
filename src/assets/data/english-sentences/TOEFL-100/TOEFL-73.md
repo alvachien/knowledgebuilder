@@ -1,10 +1,10 @@
 ## Sentence
 
-**These plants propagate by producing spores - tiny fertilized cells that contain all the instructions for making a new plant - but the spores are unprotected by any outer coating and carry no supply of nutrient.**      
+<h1>These plants propagate by producing spores - tiny fertilized cells that contain all the instructions for making a new plant - but the spores are unprotected by any outer coating and carry no supply of nutrient.</h1>
 
 ## Translation
 
-这些植物通过产生孢子来繁殖————孢子是一些微小的已受精细胞，它们携带了生成一株新植物的所有指令信息————但是孢子没有任何外部表皮的保护，也没有营养供应。     
+<h2>这些植物通过产生孢子来繁殖————孢子是一些微小的已受精细胞，它们携带了生成一株新植物的所有指令信息————但是孢子没有任何外部表皮的保护，也没有营养供应。</h2>
 
 ## Vocabulary   
 

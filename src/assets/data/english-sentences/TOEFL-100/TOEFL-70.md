@@ -1,10 +1,10 @@
 ## Sentence
 
-**Confronted with a multitude of unreliable figures, economists have compared the population records with the aggregate data for cultivated land area and grain production in six centuries since 1368.**      
+<h1>Confronted with a multitude of unreliable figures, economists have compared the population records with the aggregate data for cultivated land area and grain production in six centuries since 1368.</h1>
 
 ## Translation
 
-面对大量不可靠数字，经济学家将人口记录与1368年以来六个世纪的耕地面积和粮食产量的汇总数据进行了比较。     
+<h2>面对大量不可靠数字，经济学家将人口记录与1368年以来六个世纪的耕地面积和粮食产量的汇总数据进行了比较。</h2>
 
 ## Vocabulary   
 
