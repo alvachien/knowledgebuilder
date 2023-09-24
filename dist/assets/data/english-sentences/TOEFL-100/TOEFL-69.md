@@ -1,10 +1,10 @@
 ## Sentence
 
-**Great Britain's better-developed banking and credit system also helped speed the industrial progress, as did the fact that it was the home of an impressive array of entrepreneurs and inventors.**      
+<h1>Great Britain's better-developed banking and credit system also helped speed the industrial progress, as did the fact that it was the home of an impressive array of entrepreneurs and inventors.</h1>
 
 ## Translation
 
-英国较成熟的银行和信贷体系也有助于加快工业进步，就像英国有一大批令人赞叹的企业家和发明家这一事实有助于工业进步一样。     
+<h2>英国较成熟的银行和信贷体系也有助于加快工业进步，就像英国有一大批令人赞叹的企业家和发明家这一事实有助于工业进步一样。</h2>
 
 ## Vocabulary   
 

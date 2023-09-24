@@ -1,10 +1,10 @@
 ## Sentence
 
-**Acids are chemcial compounds that, in water solution, have a sharp taste, a corrosive action on metals, and the ability to turn certain blue vegetable dyes red.**
+<h1>Acids are chemcial compounds that, in water solution, have a sharp taste, a corrosive action on metals, and the ability to turn certain blue vegetable dyes red.</h1>
 
 ## Translation
 
-酸一种化合物，在溶于水时，它具有强烈的气味，对金属有腐蚀作用，并且能够使某些蓝色植物染料变红。     
+<h2>酸一种化合物，在溶于水时，它具有强烈的气味，对金属有腐蚀作用，并且能够使某些蓝色植物染料变红。</h2>
 
 
 ## Vocabulary     

@@ -1,10 +1,10 @@
 ## Sentence
 
-**The elimination of inflation would ensure that the amount of money used in repaying a loan would have the same value as the amount of money borrowed.**
+<h1>The elimination of inflation would ensure that the amount of money used in repaying a loan would have the same value as the amount of money borrowed.</h1>
 
 ## Translation
 
-消除通货膨胀，可确保用来偿还贷款的钱与借贷的钱价值相等。     
+<h2>消除通货膨胀，可确保用来偿还贷款的钱与借贷的钱价值相等。</h2>
 
 
 ## Vocabulary     

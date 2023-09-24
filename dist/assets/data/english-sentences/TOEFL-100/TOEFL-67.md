@@ -1,10 +1,10 @@
 ## Sentence
 
-**The question of why infantile amnesia occurs has intrigued psychologists for decades, especially in light of ample evidence that infants and young children can display impressive memory capabilities.**
+<h1>The question of why infantile amnesia occurs has intrigued psychologists for decades, especially in light of ample evidence that infants and young children can display impressive memory capabilities.</h1>
 
 ## Translation
 
-数十年来，为什么会发生婴儿期遗忘这个问题一直让心理学家们感兴趣，尤其是鉴于大量的证据表明婴幼儿能够表现出令人惊讶的记忆能力。     
+<h2>数十年来，为什么会发生婴儿期遗忘这个问题一直让心理学家们感兴趣，尤其是鉴于大量的证据表明婴幼儿能够表现出令人惊讶的记忆能力。</h2>
 
 ## Vocabulary   
 

@@ -1,10 +1,10 @@
 ## Sentence
 
-**Sociologists view primary groups are bridges between individuals and the larger society because they transmit, mediate, and interpret a society's cultural patterns and provide the sense of oneness so critical for social solidarity.**      
+<h1>Sociologists view primary groups are bridges between individuals and the larger society because they transmit, mediate, and interpret a society's cultural patterns and provide the sense of oneness so critical for social solidarity.</h1>
 
 ## Translation
 
-社会学家将初级群体看作个体与更大社会群体之间的桥梁，因为它们能传达、调解和解读一个社会的文化模式，并提供对社会团结至关重要的和谐感。     
+<h2>社会学家将初级群体看作个体与更大社会群体之间的桥梁，因为它们能传达、调解和解读一个社会的文化模式，并提供对社会团结至关重要的和谐感。</h2>
 
 ## Vocabulary   
 

@@ -1,10 +1,10 @@
 ## Sentence
 
-**Many ecologists now think that the relative long-term stability of climax communities comes not from diversity but from the "patchiness" of the environment; an environment that varies from place to place supports more kinds of organisms than an environment that is uniform.**      
+<h1>Many ecologists now think that the relative long-term stability of climax communities comes not from diversity but from the "patchiness" of the environment; an environment that varies from place to place supports more kinds of organisms than an environment that is uniform.</h1>
 
 ## Translation
 
-现在很多生态学家们认为，顶级群落相对长期的稳定性并非来自于多样性，而是来自环境的“补缀”，随处变换的环境比始终如一的环境更有利于多种有机体的生存。     
+<h2>现在很多生态学家们认为，顶级群落相对长期的稳定性并非来自于多样性，而是来自环境的“补缀”，随处变换的环境比始终如一的环境更有利于多种有机体的生存。</h2>
 
 ## Vocabulary   
 

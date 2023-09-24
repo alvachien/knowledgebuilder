@@ -55,7 +55,7 @@
         - 若$\lambda \not = 0, a \not = 0$，*λa*的模为 *|λ||a|*，且其方向为：当*λ > 0*时，与*a*的方向相同；当*λ < 0*时，与*a*的方向相反；       
         - 若$\lambda = 0$ 或 $a = 0$时，$\lambda a = 0$.       
     - 坐标法计算。        
-    若*λ*为实数， $a=(x, y), \lambda a-b=(\lambda x, \lambda y)$.     
+    若*λ*为实数， $a=(x, y), \lambda a=(\lambda x, \lambda y)$.     
     - 运算律。       
     设*λ*, *μ*为实数，*a*, *b*为向量。     
         - $\lambda (\mu a)=(\lambda \mu)a$.      

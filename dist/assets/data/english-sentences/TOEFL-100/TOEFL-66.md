@@ -1,10 +1,10 @@
 ## Sentence
 
-**Before starting on a sea voyage, prudent navigators learn the sea charts, study the sailing directions, and memorize lighthouse locations to prepare themselves for any conditions they might encounter.**
+<h1>Before starting on a sea voyage, prudent navigators learn the sea charts, study the sailing directions, and memorize lighthouse locations to prepare themselves for any conditions they might encounter.</h1>
 
 ## Translation
 
-谨慎的航海员在出航前，会学习海图，研究航向，并熟记灯塔的位置，以便对各种他们可能遇到的情况做到有备无患。     
+<h2>谨慎的航海员在出航前，会学习海图，研究航向，并熟记灯塔的位置，以便对各种他们可能遇到的情况做到有备无患。</h2>
 
 
 ## Vocabulary     

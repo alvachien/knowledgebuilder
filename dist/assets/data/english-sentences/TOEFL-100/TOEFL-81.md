@@ -1,10 +1,10 @@
 ## Sentence
 
-**In contrast to mammals and birds, amphibians are unable to produce thermal energy through their metabolic activity, which would allow them to regulate their body temperature independent of the surrounding or ambient temperature.**      
+<h1>In contrast to mammals and birds, amphibians are unable to produce thermal energy through their metabolic activity, which would allow them to regulate their body temperature independent of the surrounding or ambient temperature.</h1>
 
 ## Translation
 
-与哺乳动物和鸟类相反，两栖类动物不能通过它们的代谢活动产生热能，这使得它们可以脱离周围的环境温度来调节体温。     
+<h2>与哺乳动物和鸟类相反，两栖类动物不能通过它们的代谢活动产生热能，这使得它们可以脱离周围的环境温度来调节体温。</h2>
 
 ## Vocabulary   
 

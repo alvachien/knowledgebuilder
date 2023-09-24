@@ -8,14 +8,14 @@ import sentences from 'src/assets/data/english-sentences/index.json';
 @Component({
   selector: 'khb-sentences-list',
   templateUrl: './sentences-list.component.html',
-  styleUrls: ['./sentences-list.component.scss']
+  styleUrls: ['./sentences-list.component.scss'],
 })
 export class SentencesListComponent implements OnInit, AfterViewInit {
   displayedColumns: string[] = ['title', 'folder', 'file', 'collection'];
   clickedRows = new Set<any>();
   dataSource = new MatTableDataSource<any>(sentences);
   allCollections: string[] = [];
-  selectedCollection: string = '';
+  selectedCollection = '';
   // Preview mode
   isPreviewMode = false;
   public mathOptions: KatexOptions = {
@@ -46,8 +46,8 @@ export class SentencesListComponent implements OnInit, AfterViewInit {
   constructor(private router: Router) {}
 
   ngOnInit(): void {
-    let setColl = new Set<string>();
-    this.dataSource.data.forEach(val => {
+    const setColl = new Set<string>();
+    this.dataSource.data.forEach((val) => {
       if (!setColl.has(val.collection)) {
         setColl.add(val.collection);
       }

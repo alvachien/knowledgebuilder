@@ -1,10 +1,10 @@
 ## Sentence
 
-**German printers had the disadvantage of working with the complex typeface that the Italians sneeringly referred to as "Gothic" and that later became known as black letter.**
+<h1>German printers had the disadvantage of working with the complex typeface that the Italians sneeringly referred to as "Gothic" and that later became known as black letter.</h1>
 
 ## Translation
 
-德国打印机的缺点是使用一种复杂的字体，意大利人嘲讽地称之为“哥特式”字体，后来这种字体被称为黑体字。     
+<h2>德国打印机的缺点是使用一种复杂的字体，意大利人嘲讽地称之为“哥特式”字体，后来这种字体被称为黑体字。</h2>
 
 
 ## Vocabulary     

@@ -1,10 +1,10 @@
 ## Sentence
 
-**In other instances, such as the Indus River Valley, the cities lacked a royal precinct and the ostentatious palaces that marked their contemporaries elsewhere.**
+<h1>In other instances, such as the Indus River Valley, the cities lacked a royal precinct and the ostentatious palaces that marked their contemporaries elsewhere.</h1>
 
 ## Translation
 
-在其他情况下，比如在印度河流域，城市就没有像同时期其他地方那样标志性的皇家区域和豪华造谣的宫殿。     
+<h2>在其他情况下，比如在印度河流域，城市就没有像同时期其他地方那样标志性的皇家区域和豪华造谣的宫殿。</h2>
 
 
 ## Vocabulary     

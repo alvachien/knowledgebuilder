@@ -1,10 +1,10 @@
 ## Sentence
 
-**This was an important innovation, because the camel's abilities to thrive in harsh desert conditions and to carry large loads cheaply made it an effective and efficient means of transportation.**
+<h1>This was an important innovation, because the camel's abilities to thrive in harsh desert conditions and to carry large loads cheaply made it an effective and efficient means of transportation.</h1>
 
 ## Translation
 
-这是一项重要革新，因为骆驼能在恶劣的沙漠环境繁衍生息，并以低廉的成本运输大量的货物，这使它成为一种有效且高效的运输方式。     
+<h2>这是一项重要革新，因为骆驼能在恶劣的沙漠环境繁衍生息，并以低廉的成本运输大量的货物，这使它成为一种有效且高效的运输方式。</h2>
 
 
 ## Vocabulary     

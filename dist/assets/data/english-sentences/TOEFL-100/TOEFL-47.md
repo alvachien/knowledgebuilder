@@ -1,10 +1,10 @@
 ## Sentence
 
-**Self-awareness, even in its earliest stages, might entail an awareness of others, the ability to see their perspective and to look at the world from another's point of view.**
+<h1>Self-awareness, even in its earliest stages, might entail an awareness of others, the ability to see their perspective and to look at the world from another's point of view.</h1>
 
 ## Translation
 
-自我意识，即使是在最初阶段，也可能涉及对他人的感知，即理解他人观点和能从他人的角度看世界的能力。     
+<h2>自我意识，即使是在最初阶段，也可能涉及对他人的感知，即理解他人观点和能从他人的角度看世界的能力。</h2>
 
 
 ## Vocabulary     

@@ -1,10 +1,10 @@
 ## Sentence
 
-**These people exploited the landscape intensively, foraging on hill slopes for wild cereal grasses and nuts, while hunting gazelles and other game on grassy lowlands and in river valleys.**
+<h1>These people exploited the landscape intensively, foraging on hill slopes for wild cereal grasses and nuts, while hunting gazelles and other game on grassy lowlands and in river valleys.</h1>
 
 ## Translation
 
-这些人对该地区做了高强度开发，他们在山坡上搜寻野生的谷物和坚果，在长满青草的低地和河谷中捕获瞪羚及其他猎物。     
+<h2>这些人对该地区做了高强度开发，他们在山坡上搜寻野生的谷物和坚果，在长满青草的低地和河谷中捕获瞪羚及其他猎物。</h2>
 
 
 ## Vocabulary     

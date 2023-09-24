@@ -1,10 +1,10 @@
 ## Sentence
 
-**In the multiplicity of small-scale local egalitarian or quasi-egalitarian organizations for fellowship, worship, and production that flourished in the laissez-faire environment, individuals could interact with one another within a community of harmony and ideological equality following their own popularly elected leaders and governing themselves by shared consensus while minimizing distinctions of wealth and power.**      
+<h1>In the multiplicity of small-scale local egalitarian or quasi-egalitarian organizations for fellowship, worship, and production that flourished in the laissez-faire environment, individuals could interact with one another within a community of harmony and ideological equality following their own popularly elected leaders and governing themselves by shared consensus while minimizing distinctions of wealth and power.<h1>
 
 ## Translation
 
-当地小规模的有关友谊、礼拜和生产的平等主义的或类似平等主义的组织在放任自由的环境中繁荣发展，在这样的多元化中，个体之间可以通过和谐和意识形态平等的社群中相互影响，追随他们自己普选处的领导，通过共识实现自我管理，同时将财富和权利差异最小化。     
+<h2>当地小规模的有关友谊、礼拜和生产的平等主义的或类似平等主义的组织在放任自由的环境中繁荣发展，在这样的多元化中，个体之间可以通过和谐和意识形态平等的社群中相互影响，追随他们自己普选处的领导，通过共识实现自我管理，同时将财富和权利差异最小化。</h2>
 
 ## Vocabulary   
 

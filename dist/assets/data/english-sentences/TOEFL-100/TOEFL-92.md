@@ -1,10 +1,10 @@
 ## Sentence
 
-**There were no other large public buildings, suggesting that the priests who were in charge of the temples also were responible for governing the city and organizing people to work in the fields and on irrigation projects building and maintaining systems of ditches and dams.**      
+<h1>There were no other large public buildings, suggesting that the priests who were in charge of the temples also were responible for governing the city and organizing people to work in the fields and on irrigation projects building and maintaining systems of ditches and dams.</h1>
 
 ## Translation
 
-没有其他大的建筑物，这意味着主管寺庙的祭司也负责管理城市，组织人们在田间劳作，兴修水利工程、维护沟渠和水坝系统。     
+<h2>没有其他大的建筑物，这意味着主管寺庙的祭司也负责管理城市，组织人们在田间劳作，兴修水利工程、维护沟渠和水坝系统。</h2>
 
 ## Vocabulary   
 

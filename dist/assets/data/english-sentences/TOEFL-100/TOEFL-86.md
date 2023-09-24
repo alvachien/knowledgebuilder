@@ -1,10 +1,10 @@
 ## Sentence
 
-**While many programs designed for preschoolers focus primarily on social and emotional factors, some are geared mainly toward promoting cognitive gains and preparing preschoolers for the formal instruction they will experience when they start kindergarten.**      
+<h1>While many programs designed for preschoolers focus primarily on social and emotional factors, some are geared mainly toward promoting cognitive gains and preparing preschoolers for the formal instruction they will experience when they start kindergarten.</h1>
 
 ## Translation
 
-许多为学龄前儿童设计的项目主要集中在社会因素和情感因素上，而有些主要是为提升学龄前儿童的认知收获，为他们上幼儿园后要经历的正规教学做准备。     
+<h2>许多为学龄前儿童设计的项目主要集中在社会因素和情感因素上，而有些主要是为提升学龄前儿童的认知收获，为他们上幼儿园后要经历的正规教学做准备。</h2>
 
 ## Vocabulary   
 

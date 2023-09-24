@@ -1,10 +1,10 @@
 ## Sentence
 
-**Their streamlined bodies, the absence of hind legs, and the presence of a fluke and blowhole cannot disguise their affinities with land dwelling mammals.**
+<h1>Their streamlined bodies, the absence of hind legs, and the presence of a fluke and blowhole cannot disguise their affinities with land dwelling mammals.</h1>
 
 ## Translation
 
-它们呈现流线型的身体，后退的消失，尾片和气孔的出现，这些特征都不能掩饰它们和陆生哺乳动物的相似之处。     
+<h2>它们呈现流线型的身体，后退的消失，尾片和气孔的出现，这些特征都不能掩饰它们和陆生哺乳动物的相似之处。</h2>
 
 
 ## Vocabulary     

@@ -24,6 +24,9 @@ export class SeniorMathComponent {
   };
   prvIndex = 0;
 
+  get previewTitle() {
+    return this.dataSource.filteredData.at(this.prvIndex).title;
+  }
   get previewFolderName() {
     return this.dataSource.filteredData.at(this.prvIndex).folder;
   }

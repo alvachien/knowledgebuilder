@@ -1,10 +1,10 @@
 ## Sentence
 
-**We've gone over where coral reefs are usually formed - along the edges of shallow ocean banks in tropical or subtropical regions, and the fact that they are declining at an alarming rate.**
+<h1>We've gone over where coral reefs are usually formed - along the edges of shallow ocean banks in tropical or subtropical regions, and the fact that they are declining at an alarming rate.</h1>
 
 ## Translation
 
-我们已经讲过珊瑚礁通常在哪里形成————沿着热带或亚热带地区浅海沿岸的边缘地带————以及珊瑚礁正在以让人担忧的速度消失这一事实。     
+<h2>我们已经讲过珊瑚礁通常在哪里形成————沿着热带或亚热带地区浅海沿岸的边缘地带————以及珊瑚礁正在以让人担忧的速度消失这一事实。</h2>
 
 
 ## Vocabulary     

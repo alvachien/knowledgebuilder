@@ -1,10 +1,10 @@
 ## Sentence
 
-**Even those artists who were most dependent on photography became reluctant to admit that they made use of it, in case this compromised their professional standing.**
+<h1>Even those artists who were most dependent on photography became reluctant to admit that they made use of it, in case this compromised their professional standing.</h1>
 
 ## Translation
 
-即使是那些对摄影技术最为依赖的艺术家们也变得不愿意承认他们使用过摄影术，以防这会影响他们的专业地位。     
+<h2>即使是那些对摄影技术最为依赖的艺术家们也变得不愿意承认他们使用过摄影术，以防这会影响他们的专业地位。</h2>
 
 
 ## Vocabulary     

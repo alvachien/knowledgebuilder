@@ -1,10 +1,10 @@
 ## Sentence
 
-**Inequalities of wealth and rank certainly exist, and have probably existed in most pastoralist societies, but except in periods of military conquest, they are normally too slight to generate the stable, hereditary hierarchies that are usually implied by the use of the term class.**      
+<h1>Inequalities of wealth and rank certainly exist, and have probably existed in most pastoralist societies, but except in periods of military conquest, they are normally too slight to generate the stable, hereditary hierarchies that are usually implied by the use of the term class.</h1>
 
 ## Translation
 
-财富和地位上的不平等确实存在，而且可能存在在绝大多数游牧社会里。但是除了军事征服时期，这种不平等通常太过轻微，难以形成那种常用“阶级”这个词暗指的稳定、世袭的等级制度。     
+<h2>财富和地位上的不平等确实存在，而且可能存在在绝大多数游牧社会里。但是除了军事征服时期，这种不平等通常太过轻微，难以形成那种常用“阶级”这个词暗指的稳定、世袭的等级制度。</h2>
 
 ## Vocabulary   
 

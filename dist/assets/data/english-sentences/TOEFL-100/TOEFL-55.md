@@ -1,10 +1,10 @@
 ## Sentence
 
-**So musical instruments evolved in ways that optimze their acoustical properties -- how the instrument vibrates and sends those vibrations through the air to our eardrums.**
+<h1>So musical instruments evolved in ways that optimze their acoustical properties -- how the instrument vibrates and sends those vibrations through the air to our eardrums.</h1>
 
 ## Translation
 
-因此乐器的演变方式就是优化它们的声学特效，即乐器如何振动，以及如何将所产生的振动通过空气传到我们的耳膜。     
+<h2>因此乐器的演变方式就是优化它们的声学特效，即乐器如何振动，以及如何将所产生的振动通过空气传到我们的耳膜。</h2>
 
 
 ## Vocabulary     

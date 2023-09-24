@@ -1,10 +1,10 @@
 ## Sentence
 
-**The industrial Revolution had several roots, one of which was a commercial revolution that, beginning as far back as the sixteenth century, accompanied Europe's expansion overseas.**
+<h1>The industrial Revolution had several roots, one of which was a commercial revolution that, beginning as far back as the sixteenth century, accompanied Europe's expansion overseas.</h1>
 
 ## Translation
 
-工业革命有几个根源，其中一个是商业革命，商业革命开始的时间可追溯到16世纪，盘随着欧洲在海外的扩张。     
+<h2>工业革命有几个根源，其中一个是商业革命，商业革命开始的时间可追溯到16世纪，盘随着欧洲在海外的扩张。</h2>
 
 
 ## Vocabulary     

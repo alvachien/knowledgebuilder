@@ -1,5 +1,6 @@
 <mat-toolbar-row>
-  <h4>Senior High School - Math</h4>
+  <h4 *ngIf="!isPreviewMode">Senior High School - Math</h4>
+  <h4 *ngIf="isPreviewMode">{{previewTitle}}</h4>
   <span class="example-spacer"></span>
   <button mat-raised-button color="primary" *ngIf="!isPreviewMode" (click)="onStartPreview()">Preview</button>
   <button mat-raised-button *ngIf="isPreviewMode" (click)="onPreviousPreviewItem()" [disabled]="!isPreviousButtonEnabled">{{'Common.Previous' | transloco}}</button>
