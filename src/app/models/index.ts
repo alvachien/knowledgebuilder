@@ -12,3 +12,4 @@ export * from './user-collection';
 export * from './inviteduser';
 export * from './habit';
 export * from './func-curve';
+export * from './english-learning';
