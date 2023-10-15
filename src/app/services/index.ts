@@ -5,3 +5,4 @@ export * from './selective-preloading-strategy.service';
 export * from './uiutility.service';
 export * from './auth-guard.service';
 export * from './auth.service';
+export * from './english-learning.service';

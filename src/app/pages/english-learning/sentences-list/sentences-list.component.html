@@ -9,6 +9,7 @@
     </mat-select>
   </mat-form-field>
   <button mat-raised-button color="primary" *ngIf="!isPreviewMode" (click)="onStartPreview()">Preview</button>
+  <button mat-raised-button color="primary" *ngIf="!isPreviewMode" (click)="onStartExercise()">Start Exercise</button>
   <button mat-raised-button *ngIf="isPreviewMode" (click)="onPreviousPreviewItem()" [disabled]="!isPreviousButtonEnabled">{{'Common.Previous' | transloco}}</button>
   <span *ngIf="isPreviewMode" style="margin-left: 8px; margin-right: 8px;"> {{prvIndex + 1}} / {{dataSource.filteredData.length}}</span>
   <button mat-raised-button *ngIf="isPreviewMode" (click)="onNextPreviewItem()" [disabled]="!isNextPreviewButtonEnabled">{{'Common.Next' | transloco}}</button>

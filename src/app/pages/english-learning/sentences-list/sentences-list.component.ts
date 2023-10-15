@@ -3,6 +3,8 @@ import { MatPaginator } from '@angular/material/paginator';
 import { MatTableDataSource } from '@angular/material/table';
 import { Router } from '@angular/router';
 import { KatexOptions } from 'ngx-markdown';
+import { EnglishSentence } from 'src/app/models';
+import { EnglishLearningService, ODataService } from 'src/app/services';
 import sentences from 'src/assets/data/english-sentences/index.json';
 
 @Component({
@@ -43,7 +45,9 @@ export class SentencesListComponent implements OnInit, AfterViewInit {
 
   @ViewChild(MatPaginator) paginator!: MatPaginator;
 
-  constructor(private router: Router) {}
+  constructor(private router: Router,
+    private _service: ODataService,
+    private _engService: EnglishLearningService) {}
 
   ngOnInit(): void {
     const setColl = new Set<string>();
@@ -75,6 +79,35 @@ export class SentencesListComponent implements OnInit, AfterViewInit {
     this.dataSource.filter = this.selectedCollection;
   }
 
+  // Exercise 
+  onStartExercise() {
+    let bfound = false;
+    this.dataSource.data.forEach(ds => {
+      if (!bfound) {
+        bfound = true;
+        
+        console.log(ds);
+
+        this._service.readFileContent(`assets/data/english-sentences/${ds.folder}/${ds.file}`).subscribe({
+          next: val => {
+            let sen = new EnglishSentence();
+            sen.parseData(val);
+
+            // console.log(sen.sentence);
+            // console.log();
+            // console.log(sen.explain);
+            // console.log();
+            this._engService.englishLearningInstance.addSentence(sen);
+          },
+          error: err => {
+            console.error(err);
+          }
+        });        
+      }
+    });
+  }
+
+  // Preview
   onStartPreview() {
     this.prvIndex = 0;
     this.isPreviewMode = true;

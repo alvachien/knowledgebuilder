@@ -1939,4 +1939,17 @@ export class ODataService {
         )
       );
   }
+
+  // English learning
+  public readFileContent(filePath: string): Observable<any> {
+    return this.http.get(`/${filePath}`,{ responseType:'text' })
+      .pipe(
+        map((cont: any) => {
+          return cont;
+        }),
+        catchError((error: HttpErrorResponse) =>
+          throwError(() => new Error(error.statusText + '; ' + error.error + '; ' + error.message))
+        )
+      );
+  }
 }

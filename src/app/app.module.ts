@@ -14,7 +14,7 @@ import { translocoConfig, TranslocoModule, TRANSLOCO_CONFIG } from '@ngneat/tran
 import { NgxEchartsModule } from 'ngx-echarts';
 import * as echarts from 'echarts';
 
-import { ODataService, QuizService, UIUtilityService, AuthGuardService } from './services';
+import { ODataService, QuizService, UIUtilityService, AuthGuardService, EnglishLearningService } from './services';
 import { environment } from 'src/environments/environment';
 import { NavItemFilterPipe } from './pipes';
 import { QuizFailureDailogComponent } from './pages/quiz-failure-dailog';
@@ -58,6 +58,7 @@ import { NuMonacoEditorModule } from '@ng-util/monaco-editor';
     ODataService,
     UIUtilityService,
     QuizService,
+    EnglishLearningService,
     AuthGuardService,
     {
       provide: TRANSLOCO_CONFIG,
