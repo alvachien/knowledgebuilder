@@ -32,41 +32,79 @@ export class EnglishSentence {
     id = -1;
     sentence = '';
     explain = '';
+    gammar = ''; 
 
     words: EnglishWord[] = [];
 
     parseData(val: string) {
-        let cursor = val.indexOf('## Sentence');
-        if (cursor === -1) {
+        let lines = val.split(/\r?\n/);;
+
+        let sentidx = -1, expidx = -1, gammaridx = -1, wordidx = -1;
+        for(let i = 0; i < lines.length; i ++) {
+            let strline = lines[i];
+            strline = strline.trim();
+            if (strline.startsWith('## Sentence')) {
+                sentidx = i;
+            } else if(strline.startsWith('## Translation')) {
+                expidx = i;
+            } else if(strline.startsWith('## Gramma')) {
+                gammaridx = i;
+            } else if(strline.startsWith('## Vocabulary ')) {
+                wordidx = i;
+            }
+        }
+        if (sentidx === -1 || expidx === -1) {
             return;
         }
+
+        // let = lines.some()
 
         // Sentence
-        cursor = val.indexOf(`<h1>`, cursor);
-        if (cursor === -1) {
-            return;
-        }
-        let cursor2 = val.indexOf(`</h1>`, cursor);
-        if (cursor2 === -1) {
-            return;
+        let cursor = val.indexOf('## Sentence');
+        let cursor2 = cursor;
+        if (cursor !== -1) {
+            cursor = val.indexOf(`<h1>`, cursor);
+            if (cursor === -1) {
+                return;
+            }
+            cursor2 = val.indexOf(`</h1>`, cursor);
+            if (cursor2 === -1) {
+                return;
+            }
+
+            this.sentence = val.substring(cursor + 4, cursor2);
         }
 
-        this.sentence = val.substring(cursor + 4, cursor2);
-
+        // Explain
         cursor = val.indexOf(`## Translation`, cursor2);
-        if (cursor === -1) {
-            return;
-        }
-        cursor = val.indexOf(`<h2>`, cursor);
-        if (cursor === -1) {
-            return;
-        }
-        cursor2 = val.indexOf(`</h2>`, cursor);
-        if (cursor2 === -1) {
-            return;
+        if (cursor !== -1) {
+            cursor = val.indexOf(`<h2>`, cursor);
+            if (cursor === -1) {
+                return;
+            }
+            cursor2 = val.indexOf(`</h2>`, cursor);
+            if (cursor2 === -1) {
+                return;
+            }
+    
+            this.explain = val.substring(cursor + 4, cursor2);
         }
 
-        this.explain = val.substring(cursor + 4, cursor2);
+        // Gammar
+        cursor = val.indexOf(`## Gramma`, cursor2);
+        if (cursor !== -1) {
+            cursor = val.indexOf(`<h2>`, cursor);
+            if (cursor === -1) {
+                return;
+            }
+            cursor2 = val.indexOf(`</h2>`, cursor);
+            if (cursor2 === -1) {
+                return;
+            }
+    
+            this.explain = val.substring(cursor + 4, cursor2);
+        }
+
     }
 }
 
