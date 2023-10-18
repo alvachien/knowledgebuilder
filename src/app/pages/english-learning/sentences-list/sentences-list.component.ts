@@ -82,7 +82,7 @@ export class SentencesListComponent implements OnInit, AfterViewInit {
   // Exercise 
   onStartExercise() {
     let bfound = false;
-    this.dataSource.data.forEach(ds => {
+    this.dataSource.filteredData.forEach(ds => {
       if (!bfound) {
         bfound = true;
         
@@ -102,7 +102,7 @@ export class SentencesListComponent implements OnInit, AfterViewInit {
           error: err => {
             console.error(err);
           }
-        });        
+        });
       }
     });
   }

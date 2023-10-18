@@ -49,7 +49,7 @@ export class EnglishSentence {
                 expidx = i;
             } else if(strline.startsWith('## Gramma')) {
                 gammaridx = i;
-            } else if(strline.startsWith('## Vocabulary ')) {
+            } else if(strline.startsWith('## Vocabulary')) {
                 wordidx = i;
             }
         }
@@ -57,53 +57,83 @@ export class EnglishSentence {
             return;
         }
 
-        // let = lines.some()
+        let arsent = lines.filter((val: string, index: number) => {
+            return index > sentidx && index < expidx;
+        });
+        let strsent = arsent.join('');
+        strsent = strsent.trim();
+        strsent = strsent.replace('<h1>', '');
+        strsent = strsent.replace('</h1>', '');
+        this.sentence = strsent;
 
-        // Sentence
-        let cursor = val.indexOf('## Sentence');
-        let cursor2 = cursor;
-        if (cursor !== -1) {
-            cursor = val.indexOf(`<h1>`, cursor);
-            if (cursor === -1) {
-                return;
+        let arexp = lines.filter((val: string, index: number) => {
+            if (gammaridx === -1) {
+                return index > expidx && index < wordidx;
             }
-            cursor2 = val.indexOf(`</h1>`, cursor);
-            if (cursor2 === -1) {
-                return;
-            }
+            return index > expidx && index < gammaridx;
+        });
+        let strexp = arexp.join('');
+        strexp = strexp.trim();
+        strexp = strexp.replace('<h2>', '');
+        strexp = strexp.replace('</h2>', '');
+        this.explain = strexp;
 
-            this.sentence = val.substring(cursor + 4, cursor2);
+        if (gammaridx !== -1) {
+            let argam = lines.filter((val: string, index: number) => {
+                return index > gammaridx && index < wordidx;
+            });
+            let strgam = argam.join('');
+            strgam = strgam.trim();
+            this.gammar = strgam;
         }
 
-        // Explain
-        cursor = val.indexOf(`## Translation`, cursor2);
-        if (cursor !== -1) {
-            cursor = val.indexOf(`<h2>`, cursor);
-            if (cursor === -1) {
-                return;
-            }
-            cursor2 = val.indexOf(`</h2>`, cursor);
-            if (cursor2 === -1) {
-                return;
-            }
+        // // let = lines.some()
+
+        // // Sentence
+        // let cursor = val.indexOf('## Sentence');
+        // let cursor2 = cursor;
+        // if (cursor !== -1) {
+        //     cursor = val.indexOf(`<h1>`, cursor);
+        //     if (cursor === -1) {
+        //         return;
+        //     }
+        //     cursor2 = val.indexOf(`</h1>`, cursor);
+        //     if (cursor2 === -1) {
+        //         return;
+        //     }
+
+        //     this.sentence = val.substring(cursor + 4, cursor2);
+        // }
+
+        // // Explain
+        // cursor = val.indexOf(`## Translation`, cursor2);
+        // if (cursor !== -1) {
+        //     cursor = val.indexOf(`<h2>`, cursor);
+        //     if (cursor === -1) {
+        //         return;
+        //     }
+        //     cursor2 = val.indexOf(`</h2>`, cursor);
+        //     if (cursor2 === -1) {
+        //         return;
+        //     }
     
-            this.explain = val.substring(cursor + 4, cursor2);
-        }
+        //     this.explain = val.substring(cursor + 4, cursor2);
+        // }
 
         // Gammar
-        cursor = val.indexOf(`## Gramma`, cursor2);
-        if (cursor !== -1) {
-            cursor = val.indexOf(`<h2>`, cursor);
-            if (cursor === -1) {
-                return;
-            }
-            cursor2 = val.indexOf(`</h2>`, cursor);
-            if (cursor2 === -1) {
-                return;
-            }
+        // cursor = val.indexOf(`## Gramma`, cursor2);
+        // if (cursor !== -1) {
+        //     cursor = val.indexOf(`<h2>`, cursor);
+        //     if (cursor === -1) {
+        //         return;
+        //     }
+        //     cursor2 = val.indexOf(`</h2>`, cursor);
+        //     if (cursor2 === -1) {
+        //         return;
+        //     }
     
-            this.explain = val.substring(cursor + 4, cursor2);
-        }
+        //     this.explain = val.substring(cursor + 4, cursor2);
+        // }
 
     }
 }
