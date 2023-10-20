@@ -81,29 +81,22 @@ export class SentencesListComponent implements OnInit, AfterViewInit {
 
   // Exercise 
   onStartExercise() {
-    let bfound = false;
     this.dataSource.filteredData.forEach(ds => {
-      if (!bfound) {
-        bfound = true;
-        
-        console.log(ds);
+      this._service.readFileContent(`assets/data/english-sentences/${ds.folder}/${ds.file}`).subscribe({
+        next: val => {
+          let sen = new EnglishSentence();
+          sen.parseData(val);
 
-        this._service.readFileContent(`assets/data/english-sentences/${ds.folder}/${ds.file}`).subscribe({
-          next: val => {
-            let sen = new EnglishSentence();
-            sen.parseData(val);
-
-            // console.log(sen.sentence);
-            // console.log();
-            // console.log(sen.explain);
-            // console.log();
-            this._engService.englishLearningInstance.addSentence(sen);
-          },
-          error: err => {
-            console.error(err);
-          }
-        });
-      }
+          // console.log(sen.sentence);
+          // console.log();
+          // console.log(sen.explain);
+          // console.log();
+          this._engService.englishLearningInstance.addSentence(sen);
+        },
+        error: err => {
+          console.error(err);
+        }
+      });
     });
   }
 

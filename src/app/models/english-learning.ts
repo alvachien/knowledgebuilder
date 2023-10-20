@@ -19,20 +19,56 @@ export class EnglishWordExplaination {
     expidx = -1;
     partsOfSpeech = EnglishPartsofSpeechEnum.Nouns;
     explain = '';
+
+    parseData(expstr: string) {
+        let spidx = expstr.indexOf(' ');
+        if (spidx !== -1) {
+            let spstr = expstr.substring(0, spidx);
+            let spt = spstr.indexOf('/');
+            if (spt === -1) {
+                if (spstr === 'n.') {
+                    this.partsOfSpeech = EnglishPartsofSpeechEnum.Nouns;
+                } else if(spstr === 'v.') {
+                    this.partsOfSpeech = EnglishPartsofSpeechEnum.Verb;
+                } else if(spstr === 'a.' || spstr === 'adj.') {
+                    this.partsOfSpeech = EnglishPartsofSpeechEnum.Adjectives;
+                } else if(spstr === 'ad.' || spstr === 'adv.') {
+                    this.partsOfSpeech = EnglishPartsofSpeechEnum.Adverb;
+                }
+                this.explain = expstr.substring(spidx + 1);
+            } else {
+
+            }
+        }
+    }
 }
 
 export class EnglishWord {
     id = -1;
     word = '';
     isPhase = false;
-    explains: EnglishWordExplaination[] = [];    
+    explains: EnglishWordExplaination[] = [];
+    
+    parseData(wordstrs: string[]) {
+        // Word
+        let wdbgn = wordstrs[0].indexOf('. **');
+        let wdend = wordstrs[0].indexOf('**');
+        this.word = wordstrs[0].substring(wdbgn + 3, wdend);
+
+        // Explains
+        for(let i = 1; i < wordstrs.length; i ++) {
+            let exp = new EnglishWordExplaination();
+            exp.parseData(wordstrs[i]);
+            this.explains.push(exp);
+        }
+    }
 }
 
 export class EnglishSentence {
     id = -1;
     sentence = '';
     explain = '';
-    gammar = ''; 
+    grammar = ''; 
 
     words: EnglishWord[] = [];
 
@@ -57,6 +93,7 @@ export class EnglishSentence {
             return;
         }
 
+        // Sentence
         let arsent = lines.filter((val: string, index: number) => {
             return index > sentidx && index < expidx;
         });
@@ -66,6 +103,7 @@ export class EnglishSentence {
         strsent = strsent.replace('</h1>', '');
         this.sentence = strsent;
 
+        // Explain
         let arexp = lines.filter((val: string, index: number) => {
             if (gammaridx === -1) {
                 return index > expidx && index < wordidx;
@@ -78,13 +116,43 @@ export class EnglishSentence {
         strexp = strexp.replace('</h2>', '');
         this.explain = strexp;
 
+        // Grammar
         if (gammaridx !== -1) {
             let argam = lines.filter((val: string, index: number) => {
                 return index > gammaridx && index < wordidx;
             });
             let strgam = argam.join('');
             strgam = strgam.trim();
-            this.gammar = strgam;
+            this.grammar = strgam;
+        }
+
+        // Words
+        if (wordidx !== -1) {
+            let arwords = lines.filter((val: string, index: number) => {
+                return index > wordidx;
+            });
+
+            let wordcursor = -1;
+            for(let idx = 0; idx < arwords.length; idx ++) {
+                let wordline = arwords[idx].trim();
+                if (wordline.length === 0) {
+                    if (wordcursor !== -1) {
+                        let wordstrs = arwords.filter((val: string, index: number) => {
+                            return index > wordcursor && index < idx;
+                        });
+
+                        let objword = new EnglishWord();
+                        objword.parseData(wordstrs);
+                        this.words.push(objword);
+
+                        wordcursor = -1;
+                    }
+                } else {
+                    if (wordcursor === -1) {
+                        wordcursor = idx;
+                    }
+                }
+            }
         }
 
         // // let = lines.some()
