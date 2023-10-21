@@ -68,6 +68,7 @@ export class ODataService {
   private contentType = 'Content-Type';
   private appJson = 'application/json';
   private strAccept = 'Accept';
+  setSentFile = new Set<string>();
 
   constructor(private http: HttpClient, private authService: AuthService) {}
 

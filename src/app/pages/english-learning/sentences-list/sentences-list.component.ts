@@ -6,6 +6,8 @@ import { KatexOptions } from 'ngx-markdown';
 import { EnglishSentence } from 'src/app/models';
 import { EnglishLearningService, ODataService } from 'src/app/services';
 import sentences from 'src/assets/data/english-sentences/index.json';
+import { ExerciseSentenceDialog } from './exercise-sent-dlg.component';
+import { MatDialog } from '@angular/material/dialog';
 
 @Component({
   selector: 'khb-sentences-list',
@@ -26,6 +28,7 @@ export class SentencesListComponent implements OnInit, AfterViewInit {
     errorColor: '#cc0000',
   };
   prvIndex = 0;
+  execScore = 0;
 
   get previewFolderName() {
     return this.dataSource.filteredData.at(this.prvIndex).folder;
@@ -47,7 +50,8 @@ export class SentencesListComponent implements OnInit, AfterViewInit {
 
   constructor(private router: Router,
     private _service: ODataService,
-    private _engService: EnglishLearningService) {}
+    private _engService: EnglishLearningService,
+    private _dialog: MatDialog) { }
 
   ngOnInit(): void {
     const setColl = new Set<string>();
@@ -81,24 +85,55 @@ export class SentencesListComponent implements OnInit, AfterViewInit {
 
   // Exercise 
   onStartExercise() {
-    this.dataSource.filteredData.forEach(ds => {
-      this._service.readFileContent(`assets/data/english-sentences/${ds.folder}/${ds.file}`).subscribe({
-        next: val => {
-          let sen = new EnglishSentence();
-          sen.parseData(val);
+    let sentcnt = this.dataSource.filteredData.length;
 
-          // console.log(sen.sentence);
-          // console.log();
-          // console.log(sen.explain);
-          // console.log();
-          this._engService.englishLearningInstance.addSentence(sen);
-        },
-        error: err => {
-          console.error(err);
+    this.dataSource.filteredData.forEach(ds => {
+      let fileurl = `assets/data/english-sentences/${ds.folder}/${ds.file}`;
+      if (!this._service.setSentFile.has(fileurl)) {
+        this._service.setSentFile.add(fileurl);
+
+        this._service.readFileContent(fileurl).subscribe({
+          next: val => {
+            let sen = new EnglishSentence();
+            sen.parseData(val);
+
+            this._engService.englishLearningInstance.addSentence(sen);
+
+            sentcnt--;
+
+            if (sentcnt === 0) {
+              this.openDialog();
+            }
+          },
+          error: err => {
+            console.error(err);
+          }
+        });
+      } else {
+        sentcnt--;
+
+        if (sentcnt === 0) {
+          this.openDialog();
         }
-      });
+      }
     });
   }
+
+  openDialog(): void {
+    this._engService.generateExerciseSentences();
+
+    const dialogRef = this._dialog.open(ExerciseSentenceDialog, {
+      data: { score: this.execScore },
+      width: '600px',
+      height: '600px'
+    });
+
+    dialogRef.afterClosed().subscribe(result => {
+      console.log('The dialog was closed');
+      this.execScore = result;
+    });
+  }
+
 
   // Preview
   onStartPreview() {

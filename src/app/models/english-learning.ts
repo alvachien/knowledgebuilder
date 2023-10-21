@@ -17,28 +17,43 @@ export enum EnglishPartsofSpeechEnum {
 
 export class EnglishWordExplaination {
     expidx = -1;
-    partsOfSpeech = EnglishPartsofSpeechEnum.Nouns;
+    partsOfSpeeches: EnglishPartsofSpeechEnum[] = [];
     explain = '';
 
-    parseData(expstr: string) {
-        let spidx = expstr.indexOf(' ');
-        if (spidx !== -1) {
-            let spstr = expstr.substring(0, spidx);
-            let spt = spstr.indexOf('/');
-            if (spt === -1) {
-                if (spstr === 'n.') {
-                    this.partsOfSpeech = EnglishPartsofSpeechEnum.Nouns;
-                } else if(spstr === 'v.') {
-                    this.partsOfSpeech = EnglishPartsofSpeechEnum.Verb;
-                } else if(spstr === 'a.' || spstr === 'adj.') {
-                    this.partsOfSpeech = EnglishPartsofSpeechEnum.Adjectives;
-                } else if(spstr === 'ad.' || spstr === 'adv.') {
-                    this.partsOfSpeech = EnglishPartsofSpeechEnum.Adverb;
-                }
-                this.explain = expstr.substring(spidx + 1);
-            } else {
-
-            }
+    parseData(expstr: string, isphase = false) {
+        if (!isphase) {
+            let spidx = expstr.indexOf(' ');
+            if (spidx !== -1) {
+                let spstr = expstr.substring(0, spidx);
+                let sptes = spstr.split('/');
+    
+                sptes.forEach(spstr => {
+                    if (spstr === 'n.') {
+                        this.partsOfSpeeches.push(EnglishPartsofSpeechEnum.Nouns);
+                    } else if(spstr === 'pron.') {
+                        this.partsOfSpeeches.push(EnglishPartsofSpeechEnum.Pronouns);
+                    } else if(spstr === 'num.') {
+                        this.partsOfSpeeches.push(EnglishPartsofSpeechEnum.Numerals);
+                    } else if(spstr === 'art.') {
+                        this.partsOfSpeeches.push(EnglishPartsofSpeechEnum.Article);
+                    } else if(spstr === 'prep.') {
+                        this.partsOfSpeeches.push(EnglishPartsofSpeechEnum.Prepositoin);
+                    } else if(spstr === 'conj.') {
+                        this.partsOfSpeeches.push(EnglishPartsofSpeechEnum.Conjunction);
+                    } else if(spstr === 'int.') {
+                        this.partsOfSpeeches.push(EnglishPartsofSpeechEnum.Interjection);
+                    } else if(spstr === 'v.') {
+                        this.partsOfSpeeches.push(EnglishPartsofSpeechEnum.Verb);
+                    } else if(spstr === 'a.' || spstr === 'adj.') {
+                        this.partsOfSpeeches.push(EnglishPartsofSpeechEnum.Adjectives);
+                    } else if(spstr === 'ad.' || spstr === 'adv.') {
+                        this.partsOfSpeeches.push(EnglishPartsofSpeechEnum.Adverb);
+                    }
+                });
+            }    
+            this.explain = expstr.substring(spidx + 1);
+        } else {
+            this.explain = expstr;
         }
     }
 }
@@ -54,11 +69,12 @@ export class EnglishWord {
         let wdbgn = wordstrs[0].indexOf('. **');
         let wdend = wordstrs[0].indexOf('**');
         this.word = wordstrs[0].substring(wdbgn + 3, wdend);
+        this.isPhase = (this.word.indexOf(' ') !== -1);
 
         // Explains
         for(let i = 1; i < wordstrs.length; i ++) {
             let exp = new EnglishWordExplaination();
-            exp.parseData(wordstrs[i]);
+            exp.parseData(wordstrs[i], this.isPhase);
             this.explains.push(exp);
         }
     }
@@ -209,6 +225,16 @@ export class EnglishSentence {
 export class EnglishLearningContext {
     private words: EnglishWord[] = [];
     private sentences: EnglishSentence[] = [];
+
+    get SentenceCount(): number {
+        return this.sentences.length;
+    }
+    public getSentence(idx: number): EnglishSentence | null {
+        if (idx >= this.sentences.length || idx < 0) {
+            return null;
+        }
+        return this.sentences[idx];
+    }
 
     public addSentence(sent: EnglishSentence) {
         this.sentences.push(sent);
