@@ -9,6 +9,7 @@ import { MaterialModulesModule } from 'src/app/material-modules';
 import { MarkdownModule } from 'ngx-markdown';
 import { TranslocoModule } from '@ngneat/transloco';
 import { AppUIModule } from 'src/app/app-ui.module';
+import { NuMonacoEditorModule } from '@ng-util/monaco-editor';
 
 @NgModule({
   declarations: [SentencesListComponent, SentencesDetailComponent],
@@ -19,6 +20,7 @@ import { AppUIModule } from 'src/app/app-ui.module';
     MaterialModulesModule,
     MarkdownModule.forChild(),
     TranslocoModule,
+    NuMonacoEditorModule,
     AppUIModule,
 
     EnglishLearningRoutingModule,

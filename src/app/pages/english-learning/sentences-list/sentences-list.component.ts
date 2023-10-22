@@ -124,8 +124,8 @@ export class SentencesListComponent implements OnInit, AfterViewInit {
 
     const dialogRef = this._dialog.open(ExerciseSentenceDialog, {
       data: { score: this.execScore },
-      width: '600px',
-      height: '600px'
+      width: '800px',
+      height: '620px'
     });
 
     dialogRef.afterClosed().subscribe(result => {
