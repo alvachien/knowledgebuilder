@@ -120,11 +120,11 @@ export class SentencesListComponent implements OnInit, AfterViewInit {
   }
 
   openDialog(): void {
-    this._engService.generateExerciseSentences();
+    this._engService.generateExerciseSentences(10);
 
     const dialogRef = this._dialog.open(ExerciseSentenceDialog, {
       data: { score: this.execScore },
-      width: '800px',
+      width: '1000px',
       height: '620px'
     });
 

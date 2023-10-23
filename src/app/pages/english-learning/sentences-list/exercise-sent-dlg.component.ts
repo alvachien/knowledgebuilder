@@ -9,7 +9,7 @@ import { MatPaginatorModule, PageEvent } from '@angular/material/paginator';
 
 import { EnglishSentence } from "src/app/models";
 import { EnglishLearningService } from "src/app/services";
-import { NuMonacoEditorModule } from '@ng-util/monaco-editor';
+import { NuMonacoEditorDiffModel, NuMonacoEditorModule } from '@ng-util/monaco-editor';
 
 export interface EnglishSentenceExerciseDlgData {
     score: number;
@@ -41,28 +41,9 @@ export class ExerciseSentenceDialog {
     inputs: EnglishSentenceExerciseResult[] = [];
     testingMode = true;
     editorOptions = { theme: 'vs', renderSideBySide: false, };
-    elementDiffContainer!: ElementRef;
-    @ViewChild('diffcontainer', { static: false }) set content(content: ElementRef) {
-        if (content) {
-          // initially setter gets called with undefined
-          this.elementDiffContainer = content;
-          // this.itemForm.nativeElement.focus();
-        }
-    }
-    diffEditor?: any;
 
-    // get oldModel(): NuMonacoEditorDiffModel {
-    //     return {
-    //         code: this.sents[this.currentIdx].sentence,
-    //         language: 'text/plain'
-    //     };
-    // }
-    // get newModel(): NuMonacoEditorDiffModel {
-    //     return {
-    //         code: this.inputs[this.currentIdx].inputted,
-    //         language: 'text/plain'
-    //     };
-    // }
+    originalModel: NuMonacoEditorDiffModel = { code: ''};
+    modifiedModel: NuMonacoEditorDiffModel = { code: ''};
 
     constructor(
         public dialogRef: MatDialogRef<ExerciseSentenceDialog>,
@@ -79,20 +60,15 @@ export class ExerciseSentenceDialog {
 
     handlePageEvent(e: PageEvent) {
         this.currentIdx = e.pageIndex;
-        if (!this.testingMode && this.diffEditor !== undefined) {
-            let originalModel = monaco.editor.createModel(
-                this.sents[this.currentIdx].sentence,
-                "text/plain"
-            );
-            var modifiedModel = monaco.editor.createModel(
-                this.inputs[this.currentIdx].inputted,
-                "text/plain"
-            );
-            
-            this.diffEditor.setModel({
-                original: originalModel,
-                modified: modifiedModel,
-            });
+        if (!this.testingMode) {
+            this.originalModel = {
+                code: this.sents[this.currentIdx].sentence,
+                language: "text/plain"
+            };
+            this.modifiedModel = {
+                code: this.inputs[this.currentIdx].inputted,
+                language: "text/plain"
+            };
         }
     }
 
@@ -100,16 +76,17 @@ export class ExerciseSentenceDialog {
         this.dialogRef.close();
     }
     onSubmit(): void {
-        if (this.diffEditor === undefined) {
-            this.diffEditor = monaco.editor.createDiffEditor(
-                this.elementDiffContainer.nativeElement,
-                {
-                    // You can optionally disable the resizing
-                    enableSplitViewResizing: false,
-                }
-            );
-        }
-
-        this.testingMode = false;
+        setTimeout(() => {
+            this.testingMode = false;
+            this.currentIdx = 0;
+            this.originalModel = {
+                code: this.sents[this.currentIdx].sentence,
+                language: "text/plain"
+            };
+            this.modifiedModel = {
+                code: this.inputs[this.currentIdx].inputted,
+                language: "text/plain"
+            };
+        }, 1000);
     }
 }

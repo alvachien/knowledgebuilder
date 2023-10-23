@@ -15,7 +15,7 @@
     </div>
 
     <div *ngIf="!testingMode">
-        <div #diffcontainer></div>
+        <nu-monaco-diff-editor [options]="editorOptions" [old]="originalModel" [new]="modifiedModel"></nu-monaco-diff-editor>
     </div>
 
     <mat-paginator #paginator [length]="sents.length" pageSize="1" showFirstLastButtons
