@@ -1,13 +1,15 @@
-import { AfterViewInit, Component, OnInit, ViewChild } from '@angular/core';
+import { AfterViewInit, Component, Inject, OnInit, ViewChild } from '@angular/core';
 import { MatPaginator } from '@angular/material/paginator';
 import { MatTableDataSource } from '@angular/material/table';
 import { Router } from '@angular/router';
 import { KatexOptions } from 'ngx-markdown';
+import { MatDialog } from '@angular/material/dialog';
+
+import { environment } from 'src/environments/environment';
 import { EnglishSentence } from 'src/app/models';
 import { EnglishLearningService, ODataService } from 'src/app/services';
-import sentences from 'src/assets/data/english-sentences/index.json';
 import { ExerciseSentenceDialog } from './exercise-sent-dlg.component';
-import { MatDialog } from '@angular/material/dialog';
+import sentences from 'src/assets/data/english-sentences/index.json';
 
 @Component({
   selector: 'khb-sentences-list',
@@ -88,7 +90,7 @@ export class SentencesListComponent implements OnInit, AfterViewInit {
     let sentcnt = this.dataSource.filteredData.length;
 
     this.dataSource.filteredData.forEach(ds => {
-      let fileurl = `assets/data/english-sentences/${ds.folder}/${ds.file}`;
+      let fileurl = environment.basehref === '/' ? `assets/data/english-sentences/${ds.folder}/${ds.file}` : `${environment.basehref.substring(1)}/assets/data/english-sentences/${ds.folder}/${ds.file}`;
       if (!this._service.setSentFile.has(fileurl)) {
         this._service.setSentFile.add(fileurl);
 
