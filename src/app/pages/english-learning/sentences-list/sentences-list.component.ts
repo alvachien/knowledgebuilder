@@ -10,6 +10,7 @@ import { EnglishSentence } from 'src/app/models';
 import { EnglishLearningService, ODataService } from 'src/app/services';
 import { ExerciseSentenceDialog } from './exercise-sent-dlg.component';
 import sentences from 'src/assets/data/english-sentences/index.json';
+import { DictationSettingDialog } from '../dictation-setting-dlg.component';
 
 @Component({
   selector: 'khb-sentences-list',
@@ -122,20 +123,33 @@ export class SentencesListComponent implements OnInit, AfterViewInit {
   }
 
   openDialog(): void {
-    this._engService.generateExerciseSentences(10);
-
-    const dialogRef = this._dialog.open(ExerciseSentenceDialog, {
-      data: { score: this.execScore },
-      width: '1000px',
-      height: '620px'
+    let numOfExercise = 10;
+    const dialogSettingRef = this._dialog.open(DictationSettingDialog, {
+      data: { numOfExercise: numOfExercise },
+      width: '300px',
+      height: '240px'
     });
 
-    dialogRef.afterClosed().subscribe(result => {
+    dialogSettingRef.afterClosed().subscribe(result => {
       console.log('The dialog was closed');
-      this.execScore = result;
+      numOfExercise = result;
+      
+      if (numOfExercise > 0) {
+        this._engService.generateExerciseSentences(numOfExercise);
+
+        const dialogRef = this._dialog.open(ExerciseSentenceDialog, {
+          data: { score: this.execScore },
+          width: '1000px',
+          height: '620px'
+        });
+    
+        dialogRef.afterClosed().subscribe(result => {
+          console.log('The dialog was closed');
+          this.execScore = result;
+        });    
+      }
     });
   }
-
 
   // Preview
   onStartPreview() {

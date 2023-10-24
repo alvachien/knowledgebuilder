@@ -1,15 +1,10 @@
-import { Component, ElementRef, Inject, ViewChild } from '@angular/core';
+import { Component, Inject } from '@angular/core';
 import { MAT_DIALOG_DATA, MatDialogRef, MatDialogModule } from '@angular/material/dialog';
-import { NgIf } from '@angular/common';
-import { MatButtonModule } from '@angular/material/button';
-import { FormsModule } from '@angular/forms';
-import { MatInputModule } from '@angular/material/input';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatPaginatorModule, PageEvent } from '@angular/material/paginator';
 
 import { EnglishSentence } from "src/app/models";
 import { EnglishLearningService } from "src/app/services";
 import { NuMonacoEditorDiffModel, NuMonacoEditorModule } from '@ng-util/monaco-editor';
+import { PageEvent } from '@angular/material/paginator';
 
 export interface EnglishSentenceExerciseDlgData {
     score: number;
@@ -22,17 +17,6 @@ export interface EnglishSentenceExerciseResult {
     selector: 'khb-englrn-exe-sent-dlg',
     templateUrl: 'exercise-sent-dlg.component.html',
     styleUrls: ['./exercise-sent-dlg.component.scss'],
-    standalone: true,
-    imports: [
-        MatFormFieldModule,
-        MatInputModule,
-        FormsModule,
-        MatButtonModule,
-        NgIf,
-        MatDialogModule,
-        MatPaginatorModule,
-        NuMonacoEditorModule,
-    ],
 })
 export class ExerciseSentenceDialog {
     score = 0;
@@ -42,8 +26,8 @@ export class ExerciseSentenceDialog {
     testingMode = true;
     editorOptions = { theme: 'vs', renderSideBySide: false, };
 
-    originalModel: NuMonacoEditorDiffModel = { code: ''};
-    modifiedModel: NuMonacoEditorDiffModel = { code: ''};
+    originalModel: NuMonacoEditorDiffModel = { code: '' };
+    modifiedModel: NuMonacoEditorDiffModel = { code: '' };
 
     constructor(
         public dialogRef: MatDialogRef<ExerciseSentenceDialog>,

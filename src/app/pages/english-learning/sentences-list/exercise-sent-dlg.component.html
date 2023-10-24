@@ -1,15 +1,15 @@
-<h1 mat-dialog-title>Sentences Exercise</h1>
+<h1 mat-dialog-title>{{'English.Dictation' | transloco}}</h1>
 <div mat-dialog-content class="dialog-content">
-    <p>Index {{currentIdx + 1}}</p>
+    <p># {{currentIdx + 1}}</p>
 
     <mat-form-field class="field-full-width">
-        <mat-label>Explain</mat-label>
+        <mat-label>{{'English.Translation' | transloco}}</mat-label>
         <textarea matInput readonly [ngModel]="sents[currentIdx].explain" rows="5"></textarea>
     </mat-form-field>
 
     <div *ngIf="testingMode">
         <mat-form-field class="field-full-width">
-            <mat-label>Answer</mat-label>
+            <mat-label>{{'Answer' | transloco}}</mat-label>
             <textarea matInput [(ngModel)]="inputs[currentIdx].inputted" rows="5"></textarea>
         </mat-form-field>    
     </div>
@@ -23,7 +23,7 @@
     </mat-paginator>
 </div>
 <div mat-dialog-actions>
-    <button mat-button color="warn" (click)="onNoClick()">Abandon</button>
-    <button mat-button cdkFocusInitial (click)="onSubmit()">Submit</button>
-    <button mat-button [mat-dialog-close]="data.score" cdkFocusInitial>Close</button>
+    <button mat-button color="warn" (click)="onNoClick()">{{'PuzzleGames.Surrender' | transloco}}</button>
+    <button mat-button cdkFocusInitial (click)="onSubmit()">{{'Common.Submit' | transloco}}</button>
+    <button mat-button [mat-dialog-close]="data.score" cdkFocusInitial>{{'Common.Close' | transloco}}</button>
 </div>

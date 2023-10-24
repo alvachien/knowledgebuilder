@@ -1,0 +1,11 @@
+<h1 mat-dialog-title>{{'Setting' | transloco}}</h1>
+<div mat-dialog-content class="dialog-content">
+    <mat-form-field class="field-full-width">
+        <mat-label>{{'English.NumberOfExercises' | transloco}}</mat-label>
+        <input matInput type="number" [(ngModel)]="data.numOfExercise" />
+    </mat-form-field>
+</div>
+<div mat-dialog-actions>
+    <button mat-button color="warn" (click)="onNoClick()">{{'Common.Cancel' | transloco}}</button>
+    <button mat-button [mat-dialog-close]="data.numOfExercise" [disabled]="data.numOfExercise <= 0" cdkFocusInitial>OK</button>
+</div>

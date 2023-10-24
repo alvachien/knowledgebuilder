@@ -81,6 +81,7 @@
     "Field": "Field",
     "Operator": "Operator",
     "Value": "Value",
+    "Setting": "Setting",
     "KnowledgeAndExercise": "Knowledge & Exercises",
     "NewKnowledgeItem": "New Knowledge Item",
     "NewExerciseItem": "New Exercise Item",
@@ -164,7 +165,10 @@
     "English": {
         "EnglishLearning": "English Learning",
         "Sentence": "Sentence",
-        "Sentences": "Sentences"
+        "Sentences": "Sentences",
+        "Translation": "Translation",
+        "Dictation": "Dictation",
+        "NumberOfExercises": "Number of exercises"
     },
     "PuzzleGames": {
         "Calculate24": "Calculate 24",
