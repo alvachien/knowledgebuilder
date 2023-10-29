@@ -81,6 +81,7 @@
     "Field": "字段",
     "Operator": "操作符",
     "Value": "值",
+    "Setting": "设置",
     "KnowledgeAndExercise": "知识与习题",
     "NewKnowledgeItem": "新建知识点",
     "NewExerciseItem": "新建练习题",
@@ -164,7 +165,10 @@
     "English": {
         "EnglishLearning": "英文学习",
         "Sentence": "英文句子",
-        "Sentences": "英文句子"
+        "Sentences": "英文句子",
+        "Translation": "翻译",
+        "Dictation": "默写",
+        "NumberOfExercises": "练习数量"
     },
     "PuzzleGames": {
         "Calculate24": "速算24",

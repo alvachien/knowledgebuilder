@@ -127,7 +127,8 @@ export class SentencesListComponent implements OnInit, AfterViewInit {
     const dialogSettingRef = this._dialog.open(DictationSettingDialog, {
       data: { numOfExercise: numOfExercise },
       width: '300px',
-      height: '240px'
+      height: '240px',
+      ariaModal: true
     });
 
     dialogSettingRef.afterClosed().subscribe(result => {
@@ -140,7 +141,8 @@ export class SentencesListComponent implements OnInit, AfterViewInit {
         const dialogRef = this._dialog.open(ExerciseSentenceDialog, {
           data: { score: this.execScore },
           width: '1000px',
-          height: '620px'
+          height: '620px',
+          ariaModal: true
         });
     
         dialogRef.afterClosed().subscribe(result => {

@@ -84,32 +84,34 @@ export class WelcomeComponent implements OnInit {
       this.currentSlogan = 'KeepLearning9';
     }
 
-    this.odataSrv.getMetadata().subscribe({
-      next: (val) => {
-        if (!environment.production) {
-          console.log(val);
-        }
-      },
-      error: (err) => {
-        console.error(err);
-      },
-    });
+    // this.odataSrv.getMetadata().subscribe({
+    //   next: (val) => {
+    //     if (!environment.production) {
+    //       console.log(val);
+    //     }
+    //   },
+    //   error: (err) => {
+    //     console.error(err);
+    //   },
+    // });
 
-    this.odataSrv.getOverviewInfo().subscribe({
-      next: (val: OverviewInfo[]) => {
-        val.forEach((oi) => {
-          if (oi.RefType === TagReferenceType.KnowledgeItem) {
-            this.countOfKnowledge = oi.Count;
-            this.tiles[2].text = `Knowledge Items: ${this.countOfKnowledge ? this.countOfKnowledge : 0}`;
-          } else if (oi.RefType === TagReferenceType.ExerciseItem) {
-            this.countOfExercise = oi.Count;
-            this.tiles[3].text = `Exercise Items: ${this.countOfExercise ? this.countOfExercise : 0}`;
-          }
-        });
-      },
-      error: (err) => {
-        console.error(err);
-      },
-    });
+    if (!environment.mockdata) {
+      this.odataSrv.getOverviewInfo().subscribe({
+        next: (val: OverviewInfo[]) => {
+          val.forEach((oi) => {
+            if (oi.RefType === TagReferenceType.KnowledgeItem) {
+              this.countOfKnowledge = oi.Count;
+              this.tiles[2].text = `Knowledge Items: ${this.countOfKnowledge ? this.countOfKnowledge : 0}`;
+            } else if (oi.RefType === TagReferenceType.ExerciseItem) {
+              this.countOfExercise = oi.Count;
+              this.tiles[3].text = `Exercise Items: ${this.countOfExercise ? this.countOfExercise : 0}`;
+            }
+          });
+        },
+        error: (err) => {
+          console.error(err);
+        },
+      });  
+    }
   }
 }
