@@ -5,7 +5,7 @@
 export const environment = {
   production: false,
   mockdata: false,
-  version: '0.3.278',
+  version: '0.3.280',
   buildDate: '2023-12-31',
   basehref: '/',
 
