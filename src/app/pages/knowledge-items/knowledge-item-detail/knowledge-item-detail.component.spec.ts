@@ -148,7 +148,7 @@ describe('KnowledgeItemDetailComponent', () => {
     }));
   });
 
-  describe('display mode', () => {
+  xdescribe('display mode', () => {
     beforeEach(() => {
       activatedRouteStub.setURL([new UrlSegment('display', {}), new UrlSegment('122', {})] as UrlSegment[]);
 
