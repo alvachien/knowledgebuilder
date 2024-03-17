@@ -8,10 +8,11 @@ import { MaterialModulesModule } from 'src/app/material-modules';
 import { HighSchoolRoutingModule } from './high-school-routing.module';
 import { JuniorMathComponent } from './junior-math';
 import { SeniorMathComponent } from './senior-math';
+import { SeniorPhysicsComponent } from './senior-physics';
 import { ItemDisplayComponent } from './item-display';
 
 @NgModule({
-  declarations: [JuniorMathComponent, SeniorMathComponent, ItemDisplayComponent],
+  declarations: [JuniorMathComponent, SeniorMathComponent, SeniorPhysicsComponent, ItemDisplayComponent],
   imports: [
     CommonModule,
     MaterialModulesModule,

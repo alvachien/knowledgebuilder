@@ -1,0 +1,40 @@
+<mat-toolbar-row>
+  <h4 *ngIf="!isPreviewMode">Senior High School - Physics</h4>
+  <h4 *ngIf="isPreviewMode">{{previewTitle}}</h4>
+  <span class="example-spacer"></span>
+  <button mat-raised-button color="primary" *ngIf="!isPreviewMode" (click)="onStartPreview()">Preview</button>
+  <button mat-raised-button *ngIf="isPreviewMode" (click)="onPreviousPreviewItem()" [disabled]="!isPreviousButtonEnabled">{{'Common.Previous' | transloco}}</button>
+  <span *ngIf="isPreviewMode" style="margin-left: 8px; margin-right: 8px;"> {{prvIndex + 1}} / {{dataSource.filteredData.length}}</span>
+  <button mat-raised-button *ngIf="isPreviewMode" (click)="onNextPreviewItem()" [disabled]="!isNextPreviewButtonEnabled">{{'Common.Next' | transloco}}</button>
+  <button mat-raised-button color="primary" *ngIf="isPreviewMode" (click)="onStopPreview()">Stop Preview</button>
+</mat-toolbar-row>
+<div *ngIf="isPreviewMode">
+  <div style="width: 100%; height: 100%; margin: 32px;">
+    <markdown ngPreserveWhitespaces [src]="mdFilePath" katex [katexOptions]="mathOptions"></markdown>
+  </div>
+</div>
+<div *ngIf="!isPreviewMode">
+  <table mat-table [dataSource]="dataSource" class="mat-elevation-z8 demo-table">
+    <!-- Title Column -->
+    <ng-container matColumnDef="title">
+      <th mat-header-cell *matHeaderCellDef>{{'Common.Title' | transloco}}</th>
+      <td mat-cell *matCellDef="let element">{{element.title}}</td>
+    </ng-container>
+
+    <!-- File Column -->
+    <ng-container matColumnDef="file">
+      <th mat-header-cell *matHeaderCellDef>{{'Common.File' | transloco}}</th>
+      <td mat-cell *matCellDef="let element">{{element.file}}</td>
+    </ng-container>
+
+    <!-- Collection Column -->
+    <ng-container matColumnDef="collection">
+      <th mat-header-cell *matHeaderCellDef>{{'Common.Collection' | transloco}}</th>
+      <td mat-cell *matCellDef="let element">{{element.collection}}</td>
+    </ng-container>
+
+    <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+    <tr mat-row (click)="onClick(row)" *matRowDef="let row; columns: displayedColumns;">
+    </tr>
+  </table>
+</div>

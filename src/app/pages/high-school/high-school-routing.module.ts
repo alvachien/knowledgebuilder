@@ -22,6 +22,10 @@ const routes: Routes = [
     path: 'display-jrmath-item/:file',
     component: ItemDisplayComponent,
   },
+  {
+    path: 'display-hsphysics-item/:file',
+    component: ItemDisplayComponent,
+  },
 ];
 
 @NgModule({
