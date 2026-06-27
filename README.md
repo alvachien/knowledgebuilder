@@ -1,10 +1,10 @@
-# alvachien.com
+# Knowledge Builder
 
-My Personal Website
+An AI-powered web-based Learning app for English, Chinese, and Knowledge Bank.
 
-## branch `learning-dev`
+## Branch `feature/v2`
 
-Development of web app `learning` folder.
+Development of the Knowledge Builder web app (Angular 21, standalone components).
 
 This project was generated with [Angular CLI](https://github.com/angular/angular-cli) version 21.1.2.
 
@@ -168,6 +168,28 @@ sequenceDiagram
 | `environment.prod.ts` | `true` | Feature routes require a valid session |
 
 To activate login on dev, flip `loginRequired` to `true` and point `idServerUrl` / `oidcClientId` / `oidcScope` at a real identity server whose allowed redirect URIs include `${appHost}/signin-callback`.
+
+
+## API Backend
+
+The frontend connects to different backend APIs depending on the version:
+
+| Version | Package Version | API Repository | Protocol |
+|---|---|---|---|
+| **V1** | `0.*` | [Knowledge Builder API](https://github.com/alvachien/knowledgebuilderapi) | OData |
+| **V2** | `1.*`+ | [aclearningutil](https://github.com/alvachien/aclearningutil) | REST |
+
+The API URL is configured in `src/environments/environment*.ts` via `apiUrl`.
+
+
+## Versions
+
+| Version | Package Version | Branch | Status |
+|---|---|---|---|
+| **V1** | `0.*` | `v1` | Legacy — live on `gh-pages` branch |
+| **V2** | `1.*`+ | `main`, `feature/v2` | Active development |
+
+The `gh-pages` branch currently serves V1.
 
 
 ## Documentation
