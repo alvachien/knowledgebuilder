@@ -1,0 +1,52 @@
+[
+	{
+		"id": "22-1-1",
+		"startTime": 11000,
+		"endTime": 51000
+	},
+	{
+		"id": "22-1-2",
+		"startTime": 57000,
+		"endTime": 102000
+	},
+	{
+		"id": "22-1-3",
+		"startTime": 106000,
+		"endTime": 156000
+	},
+	{
+		"id": "22-1-4",
+		"startTime": 161000,
+		"endTime": 226000
+	},
+	{
+		"id": "22-2-1",
+		"startTime": 235500,
+		"endTime": 314000
+	},
+	{
+		"id": "22-2-2",
+		"startTime": 323500,
+		"endTime": 390000
+	},
+	{
+		"id": "22-2-3",
+		"startTime": 395500,
+		"endTime": 526000
+	},
+	{
+		"id": "22-2-4",
+		"startTime": 535500,
+		"endTime": 631000
+	},
+	{
+		"id": "22-2-5",
+		"startTime": 636000,
+		"endTime": 830000
+	},
+	{
+		"id": "22-3-1",
+		"startTime": 839000,
+		"endTime": 970500
+	}
+]

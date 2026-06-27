@@ -1,0 +1,29 @@
+<div *transloco="let t">
+  <h2 mat-dialog-title>{{ t('formulaRecites.chatWithAI') }}</h2>
+  <mat-dialog-content>
+    <mat-form-field class="control-full-width">
+      <mat-label>{{ t('formulaRecites.mode') }}</mat-label>
+      <mat-select matNativeControl [(value)]="mode">
+        @for (lvl of allAIModes; track lvl.value ) {
+          <mat-option [value]="lvl.value">{{getAIModeName(lvl.value)}}</mat-option>
+        }
+      </mat-select>
+    </mat-form-field>
+    <mat-form-field class="control-full-width">
+      <mat-label>{{ t('formulaRecites.name') }}</mat-label>
+      <input matInput type="text" [(ngModel)]="data.name" readonly>
+    </mat-form-field>
+    <mat-form-field class="control-full-width">
+      <mat-label>{{ t('formulaRecites.value') }}</mat-label>
+      <textarea matInput rows="5" [(ngModel)]="data.content" readonly="true"></textarea>
+    </mat-form-field>
+    <mat-form-field class="control-full-width">
+      <mat-label>{{ t('formulaRecites.aiReply') }}</mat-label>
+      <textarea matInput placeholder="AI replys..." rows="8" [(ngModel)]="aireply" readonly="true"></textarea>
+    </mat-form-field>
+  </mat-dialog-content>
+  <mat-dialog-actions>
+    <button mat-button (click)="onSubmit()" cdkFocusInitial>{{ t('formulaRecites.submit') }}</button>
+    <button mat-button (click)="onNoClick()">{{ t('formulaRecites.close') }}</button>
+  </mat-dialog-actions>
+</div>

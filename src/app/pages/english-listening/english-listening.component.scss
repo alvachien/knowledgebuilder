@@ -1,0 +1,56 @@
+:host,
+.english-listening-page {
+  // Ensures that the footer is pushed to the bottom if the page is too short.
+  display: flex;
+  flex-direction: column;
+  flex-grow: 1;
+}
+
+.english-listening-page-content {
+  display: flex;
+  flex-wrap: wrap;
+  align-content: center;
+  justify-content: center;
+}
+
+.toolbar-spacer {
+  flex: 1 1 auto;
+}
+
+.control-full-width {
+  width: 100%;
+}
+
+.input-content {
+  width: 30%;
+  text-align: center;
+  padding-bottom: 12px;
+}
+
+section {
+  display: flex;
+  align-items: center;
+}
+
+.toolbar-fab-button {
+  margin-right: 4px;
+  margin-left: 4px;
+}
+
+.function-control {
+  display: block;
+}
+
+.function-control-button-row {
+  max-width: 600px;
+}
+
+.function-control-button-row .mat-mdc-button-base {
+  margin: 8px 8px 8px 0;
+}
+
+.function-control-flex-container {
+  display: flex;
+  justify-content: space-between;
+  flex-wrap: wrap;
+}

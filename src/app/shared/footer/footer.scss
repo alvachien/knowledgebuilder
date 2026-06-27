@@ -1,0 +1,78 @@
+:host {
+  display: block;
+  margin-top: 100px;
+}
+
+.learning-footer {
+  padding: 12px;
+  font-size: 12px;
+}
+
+.learning-footer-list {
+  align-items: center;
+  display: flex;
+  flex-flow: row wrap;
+  padding: 8px;
+}
+
+.learning-footer-logo {
+  flex: 1;
+}
+
+app-logo {
+  width: 50px;
+  height: 50px;
+}
+
+.learning-footer-note {
+  flex: 1;
+}
+
+.learning-footer-copyright {
+  display: flex;
+  flex: 1;
+  justify-content: flex-end;
+  flex-direction: column;
+  min-width: 225px;
+  margin-top: 16px;
+
+  > div {
+    display: flex;
+    flex-direction: column;
+    align-self: flex-end;
+    text-align: center;
+  }
+
+  @media (min-width: 885px) {
+    margin-top: 0;
+  }
+}
+
+.learning-footer-logo {
+  display: flex;
+  align-items: center;
+
+  a {
+    display: inline-block;
+    line-height: 50px;
+    margin: 0 16px;
+    vertical-align: bottom;
+    font-size: 16px;
+  }
+}
+
+a {
+  text-decoration: none;
+  color: inherit;
+
+  &:hover,
+  &:focus {
+    text-decoration: underline;
+  }
+}
+
+@media screen and (max-width: 884px){
+  .learning-footer-list {
+    flex-direction: column;
+  }
+}

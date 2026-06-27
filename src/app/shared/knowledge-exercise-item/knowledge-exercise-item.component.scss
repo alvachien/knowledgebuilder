@@ -1,0 +1,60 @@
+.child-container {
+  width: 100%;
+}
+
+.sub-child-container {
+  padding-left: 24px;
+}
+
+input[type="text"] {
+  max-width: 100%;
+  box-sizing: border-box;
+}
+
+.print-input {
+  border: none;
+  border-bottom: 1px solid #000;
+  padding: 2px 5px;
+  background: transparent;
+  height: 28px;
+  max-width: 100%;
+  box-sizing: border-box;
+}
+
+.print-textarea {
+  background: linear-gradient(to bottom,
+      transparent 0%,
+      transparent calc(100% - 1px),
+      #000 calc(100% - 1px),
+      #000 100%);
+  background-size: 100% 1.5em;
+  /* 行高 */
+  line-height: 1.5em;
+  border: none;
+  outline: none;
+  resize: none;
+  // width: 300px;
+  padding-left: 5px;
+  width: 100%;
+}
+
+@media print {
+  input {
+    border: none;
+  }
+
+  textarea {
+    border: none;
+    background: transparent;
+    padding: 0;
+    line-height: 1.5;
+    resize: none;
+    min-height: auto;
+    height: auto;
+
+    /* 创建下划线效果 */
+    background-image: linear-gradient(to bottom, transparent, transparent calc(1.5em - 1px), #000 1px, #000 1px);
+    background-size: 100% 1.5em;
+    background-repeat: repeat-y;
+  }
+}

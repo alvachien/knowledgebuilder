@@ -1,0 +1,47 @@
+[
+	{
+		"id": "26-1-1",
+		"startTime": 10000,
+		"endTime": 36000
+	},
+	{
+		"id": "26-1-2",
+		"startTime": 40000,
+		"endTime": 54000
+	},
+	{
+		"id": "26-1-3",
+		"startTime": 58000,
+		"endTime": 95000
+	},
+	{
+		"id": "26-1-4",
+		"startTime": 99000,
+		"endTime": 153000
+	},
+	{
+		"id": "26-2-1",
+		"startTime": 165500,
+		"endTime": 282000
+	},
+	{
+		"id": "26-2-2",
+		"startTime": 289000,
+		"endTime": 402000
+	},
+	{
+		"id": "26-2-3",
+		"startTime": 407000,
+		"endTime": 499000
+	},
+	{
+		"id": "26-2-4",
+		"startTime": 505000,
+		"endTime": 768000
+	},
+	{
+		"id": "26-3-1",
+		"startTime": 773000,
+		"endTime": 875900
+	}
+]

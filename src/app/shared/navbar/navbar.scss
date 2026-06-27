@@ -1,0 +1,190 @@
+.app-navbar-header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  padding: 8px 16px;
+}
+
+.mat-mdc-icon-button {
+  color: inherit;
+}
+
+.github-logo,
+app-logo {
+  margin-right: 8px;
+  width: 24px;
+  height: 24px;
+}
+
+.flex-spacer {
+  flex-grow: 1;
+}
+
+.app-navbar-link {
+  text-decoration: inherit;
+  flex: 1;
+}
+
+.app-navbar-show-small {
+  display: none;
+}
+
+.skip-link-wrapper {
+  position: absolute;
+  top: 10px;
+  left: 50%;
+  transform: translateX(-50%);
+  border-radius: 5px;
+}
+
+// Hamburger button - only visible on small screens
+.app-navbar-hamburger {
+  margin-right: 4px;
+  flex-shrink: 0;
+}
+
+// ── Mobile drawer (custom overlay) ────────────────────────────────
+.app-navbar-drawer-backdrop {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(0, 0, 0, 0.4);
+  z-index: 999;
+}
+
+.app-navbar-drawer-panel {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 280px;
+  max-width: 80vw;
+  height: 100vh;
+  z-index: 1000;
+  transform: translateX(-100%);
+  transition: transform 200ms ease-in-out;
+  overflow-y: auto;
+  box-shadow: 2px 0 8px rgba(0, 0, 0, 0.15);
+}
+
+.app-navbar-drawer-panel.open {
+  transform: translateX(0);
+}
+
+.app-navbar-drawer-content {
+  display: flex;
+  flex-direction: column;
+  padding: 8px 0;
+
+  .mat-mdc-button {
+    justify-content: flex-start;
+    width: 100%;
+    text-align: left;
+    padding: 8px 16px;
+    gap: 12px;
+    border-radius: 0;
+    height: 48px;
+  }
+
+  .mat-mdc-button .mat-icon {
+    margin-right: 0;
+  }
+
+  .mat-mdc-divider {
+    margin: 8px 0;
+  }
+}
+
+// ── Three-tier responsive layout ──────────────────────────────────
+// Default (>1200px): full text visible, short text hidden
+.app-navbar-header .app-navbar-full-text {
+  display: inline !important;
+}
+
+.app-navbar-header .app-navbar-short-text {
+  display: none !important;
+}
+
+// Medium screens (601px–1200px): abbreviated text, user name hidden
+@media (max-width: 1200px) {
+  .app-navbar-header .app-navbar-full-text {
+    display: none !important;
+  }
+
+  .app-navbar-header .app-navbar-short-text {
+    display: inline !important;
+  }
+
+  .app-navbar-hide-medium {
+    display: none !important;
+  }
+}
+
+// User icon color classes — actual colors set in _navbar-theme.scss
+// using theme-aware primary/outline colors.
+
+// Small screens (≤820px): hamburger menu, nav links hidden
+@media (max-width: 820px) {
+  .app-navbar-hide-small {
+    display: none !important;
+  }
+
+  .app-navbar-show-small {
+    display: inline-flex !important;
+  }
+
+  .github-logo {
+    margin: 0;
+  }
+}
+
+theme-picker {
+  display: none;
+
+  @media (min-width: 328px) {
+    display: block;
+  }
+}
+
+// ── Auth error banner ───────────────────────────────────────────────
+// Shown above the navbar when the IDP is unreachable or an auth error
+// occurs. Stays visible until the user dismisses it or retries.
+.app-auth-error-banner {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 16px;
+  background-color: #fdecea;
+  color: #5f2120;
+  border-bottom: 1px solid #f5b7b1;
+  font-size: 14px;
+}
+
+.app-auth-error-icon {
+  color: #d32f2f;
+  flex-shrink: 0;
+}
+
+.app-auth-error-msg {
+  flex: 1;
+}
+
+:host-context(body.dark-theme) .app-auth-error-banner {
+  background-color: #4a1c1c;
+  color: #f5b7b1;
+  border-bottom-color: #6d2c2c;
+}
+
+:host-context(body.dark-theme) .app-auth-error-icon {
+  color: #ef5350;
+}
+
+// ── Auth error snackbar ─────────────────────────────────────────────
+::ng-deep .auth-error-snackbar .mdc-snackbar__surface {
+  background-color: #d32f2f !important;
+}
+
+::ng-deep .auth-error-snackbar .mdc-snackbar__label {
+  color: #fff !important;
+}

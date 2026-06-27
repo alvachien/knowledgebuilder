@@ -1,0 +1,33 @@
+@use '@angular/material' as mat;
+
+@mixin theme($theme) {
+  .knowledge-exercises-page {
+    color: mat.get-theme-color($theme, on-surface-variant);
+  }
+  .knowledge-exercise-list-page {
+    color: mat.get-theme-color($theme, on-surface-variant);
+  }
+  .knowledge-exercises-detail-page {
+    color: mat.get-theme-color($theme, on-surface-variant);
+    // Add background color for the detail container to ensure contrast
+    .container {
+      background: mat.get-theme-color($theme, surface);
+    }
+  }
+  .knowledge-exercises-detail-v2-page {
+    color: mat.get-theme-color($theme, on-surface-variant);
+  }
+
+  .knowledge-exercises-page-content {
+    color: mat.get-theme-color($theme, on-surface-variant);
+  }
+
+  .knowledge-exercises-item {
+    color: mat.get-theme-color($theme, on-surface-variant);
+  }
+
+  // Specific styling for the markdown content area in detail views
+  .knowledge-exercise-list-page .container {
+    background: mat.get-theme-color($theme, surface);
+  }
+}

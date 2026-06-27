@@ -1,0 +1,44 @@
+@use '@angular/material' as mat;
+
+@mixin theme($theme) {
+  app-navbar {
+    color: mat.get-theme-color($theme, primary);
+
+    .app-navbar-header {
+      background: mat.get-theme-color($theme, primary-container);
+
+      .app-navbar-header-item-selected {
+        background: rgba(mat.get-theme-color($theme, primary), 0.1);
+      }
+    }
+
+    .app-navbar-drawer-panel {
+      background: mat.get-theme-color($theme, surface-container);
+      color: mat.get-theme-color($theme, on-surface);
+    }
+
+    .app-navbar-drawer-content {
+      .mat-mdc-button {
+        color: mat.get-theme-color($theme, on-surface);
+
+        &.app-navbar-header-item-selected {
+          background: rgba(mat.get-theme-color($theme, primary), 0.1);
+          color: mat.get-theme-color($theme, primary);
+        }
+      }
+
+      .mat-mdc-divider {
+        border-top-color: mat.get-theme-color($theme, outline-variant);
+      }
+    }
+
+    // User icon colors: primary color for logged-in, muted for logged-out
+    .app-navbar-user-icon-logged-in {
+      color: mat.get-theme-color($theme, primary) !important;
+    }
+
+    .app-navbar-user-icon-logged-out {
+      color: mat.get-theme-color($theme, outline) !important;
+    }
+  }
+}

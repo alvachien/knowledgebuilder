@@ -1,0 +1,33 @@
+:host,
+.translate-page {
+  // Ensures that the footer is pushed to the bottom if the page is too short.
+  display: flex;
+  flex-direction: column;
+  flex-grow: 1;
+}
+
+.translate-page-content {
+  display: flex;
+  flex-wrap: wrap;
+  align-content: center;
+  justify-content: center;
+}
+
+.toolbar-spacer {
+  flex: 1 1 auto;
+}
+
+.control-full-width {
+  width: 100%;
+}
+
+.example-button-container {
+  display: flex;
+  justify-content: center;
+  width: 60px;
+}
+
+.page-toolbar-item {
+  margin-top: 4px;
+  padding-top: 4px;
+}

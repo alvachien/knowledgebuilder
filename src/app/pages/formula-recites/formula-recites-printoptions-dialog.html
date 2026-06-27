@@ -1,0 +1,37 @@
+<div *transloco="let t">
+  <h2 mat-dialog-title>{{ t('formulaRecites.optionsOfPrinting') }}</h2>
+  <mat-dialog-content>
+    <mat-form-field class="control-full-width">
+      <mat-label>{{ t('formulaRecites.subTitle') }}</mat-label>
+      <input matInput type="name" [(ngModel)]="subtitle">
+      <span matTextPrefix>{{data.filename}}</span>
+    </mat-form-field>
+    <mat-form-field class="control-full-width">
+      <mat-label>{{ t('formulaRecites.count') }}</mat-label>
+      <input matInput type="number" [(ngModel)]="countOfItems" [disabled]="data.disableCount">
+      <span matSuffix>{{data.reciteContentCount}}</span>
+    </mat-form-field>
+    <mat-checkbox class="control-full-width" [(ngModel)]="printEntryDate">{{ t('formulaRecites.printEntryDate') }}</mat-checkbox>
+    <div class="control-full-width">
+      <mat-label>{{ t('formulaRecites.execDateOption') }}</mat-label>
+      <mat-radio-group aria-label="Select an option" class="control-full-width" [(ngModel)]="selectedExecDateModel">
+        @for (lvl of allPrintExecDates; track $index) {
+          <mat-radio-button [value]="lvl.value">{{lvl.label}}</mat-radio-button>
+        }
+      </mat-radio-group>
+    </div>
+    <mat-form-field class="control-full-width">
+      <mat-label>{{ t('formulaRecites.execDate') }}</mat-label>
+      <input matInput [(ngModel)]="execDate" [matDatepicker]="picker" [disabled]="selectedExecDateModel() !== 2">
+      <mat-datepicker-toggle matIconSuffix [for]="picker"></mat-datepicker-toggle>
+      <mat-datepicker #picker></mat-datepicker>
+    </mat-form-field>
+
+    <mat-checkbox class="control-full-width" [(ngModel)]="printSource">{{ t('formulaRecites.printSource') }}</mat-checkbox>
+    <mat-checkbox class="control-full-width" [(ngModel)]="randomOrder">{{ t('formulaRecites.printItemWithRandomOrder') }}</mat-checkbox>
+  </mat-dialog-content>
+  <mat-dialog-actions>
+    <button mat-button (click)="onNoClick()">{{ t('close') }}</button>
+    <button mat-button (click)="onYesClick()" cdkFocusInitial>{{ t('ok') }}</button>
+  </mat-dialog-actions>
+</div>

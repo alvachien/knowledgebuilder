@@ -1,58 +1,54 @@
-import { TestBed, waitForAsync } from '@angular/core/testing';
-import { HttpClientTestingModule } from '@angular/common/http/testing';
-import { FormsModule, ReactiveFormsModule } from '@angular/forms';
-import { NoopAnimationsModule } from '@angular/platform-browser/animations';
+import { Component } from '@angular/core';
+import { TestBed } from '@angular/core/testing';
+import { RouterOutlet } from '@angular/router';
 import { RouterTestingModule } from '@angular/router/testing';
-import { BrowserDynamicTestingModule } from '@angular/platform-browser-dynamic/testing';
-import { getTranslocoModule } from 'src/testing';
+
 import { AppComponent } from './app.component';
-import { AuthService, ODataService, UIUtilityService } from './services';
-import { MaterialModulesModule } from './material-modules';
-import { AppUIModule } from './app-ui.module';
-import { NavItemFilterPipe } from './pipes';
-import { InvitedUser } from './models';
+import { NavigationFocusService } from './shared/navigation-focus/navigation-focus.service';
+
+@Component({
+  selector: 'app-navbar',
+  template: '<div>Mock Navbar</div>',
+  standalone: true,
+})
+class MockNavbarComponent {}
+
+class MockNavigationFocusService {
+  getSkipLinkHref() {
+    return '';
+  }
+}
 
 describe('AppComponent', () => {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  let odataervice: any;
-  let userDetail: InvitedUser;
-
-  beforeAll(() => {
-    odataervice = jasmine.createSpyObj('ODataService', ['searchExerciseItems']);
+  beforeEach(async () => {
+    await TestBed.configureTestingModule({
+      imports: [AppComponent, RouterTestingModule.withRoutes([])],
+      providers: [{ provide: NavigationFocusService, useClass: MockNavigationFocusService }],
+    })
+      .overrideComponent(AppComponent, {
+        set: {
+          imports: [MockNavbarComponent, RouterOutlet], // Replace NavBar with mock and add RouterOutlet
+        },
+      })
+      .compileComponents();
   });
-
-  beforeEach(waitForAsync(() => {
-    userDetail = new InvitedUser();
-    userDetail.displayAs = 'test';
-    userDetail.awardUsers = [];
-    const authStub: Partial<AuthService> = {
-      userDetail: userDetail,
-    };
-
-    TestBed.configureTestingModule({
-      imports: [
-        HttpClientTestingModule,
-        FormsModule,
-        ReactiveFormsModule,
-        RouterTestingModule,
-        NoopAnimationsModule,
-        BrowserDynamicTestingModule,
-        MaterialModulesModule,
-        AppUIModule,
-        getTranslocoModule(),
-      ],
-      declarations: [NavItemFilterPipe, AppComponent],
-      providers: [
-        { provide: AuthService, useValue: authStub },
-        { provide: ODataService, useValue: odataervice },
-        UIUtilityService,
-      ],
-    }).compileComponents();
-  }));
 
   it('should create the app', () => {
     const fixture = TestBed.createComponent(AppComponent);
     const app = fixture.componentInstance;
     expect(app).toBeTruthy();
+  });
+
+  it(`should have the 'Knowledge Builder' title`, () => {
+    const fixture = TestBed.createComponent(AppComponent);
+    const app = fixture.componentInstance;
+    expect(app.title).toEqual('Knowledge Builder');
+  });
+
+  it('should render navbar', () => {
+    const fixture = TestBed.createComponent(AppComponent);
+    fixture.detectChanges();
+    const compiled = fixture.nativeElement as HTMLElement;
+    expect(compiled.querySelector('app-navbar')).toBeTruthy();
   });
 });

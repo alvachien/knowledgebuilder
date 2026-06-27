@@ -1,0 +1,1 @@
+export * from './knowledge-exercises-detail-v2.component';

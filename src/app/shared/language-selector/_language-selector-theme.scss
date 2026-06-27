@@ -1,0 +1,13 @@
+@use '@angular/material' as mat;
+
+@mixin theme($theme) {
+  .app-language-selector-menu {
+    .mat-mdc-menu-item {
+      .app-language-icon {
+        margin-right: 0;
+        margin-left: 24px;
+        order: 1;
+      }
+    }
+  }
+}

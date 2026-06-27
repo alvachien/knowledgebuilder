@@ -1,0 +1,204 @@
+// Shared table styles for all exercise page components
+// Applied globally to all mat-table instances
+
+// =============================================================================
+// Base table structure
+// =============================================================================
+
+table[mat-table] {
+  // Header cells
+  th.mat-mdc-header-cell {
+    font-weight: 500;
+    text-align: center;
+    background: rgba(0, 0, 0, 0.03);
+  }
+
+  // Data cells - consistent padding and borders
+  td.mat-mdc-cell {
+    padding: 8px 12px;
+    border-right: 1px solid rgba(0, 0, 0, 0.08);
+  }
+
+  // Remove right border on last cell to avoid double border
+  td.mat-mdc-cell:last-child {
+    border-right: none;
+  }
+
+  // Row hover effect
+  tr.mat-mdc-row:hover {
+    background: rgba(0, 0, 0, 0.04);
+  }
+
+  // Zebra striping for odd/even rows
+  tr.mat-mdc-row:nth-child(odd) {
+    background: transparent;
+  }
+
+  tr.mat-mdc-row:nth-child(even) {
+    background: rgba(0, 0, 0, 0.02);
+  }
+
+  // Sticky header
+  tr.mat-mdc-header-row {
+    position: sticky;
+    top: 0;
+    z-index: 2;
+    background: white;
+  }
+}
+
+// =============================================================================
+// Common column widths
+// =============================================================================
+
+// Checkbox / select column
+.mat-column-select {
+  width: 50px;
+  text-align: center;
+  border-right: 1px solid rgba(0, 0, 0, 0.12);
+}
+
+// ID column
+.mat-column-id {
+  width: 80px;
+  text-align: center;
+  border-right: 1px solid rgba(0, 0, 0, 0.12);
+}
+
+// Rating column (mat-button-toggle-group)
+.mat-column-rating {
+  width: 200px;
+  text-align: center;
+}
+
+// Action button columns
+.mat-column-ai,
+.mat-column-extraInfo {
+  width: 60px;
+  text-align: center;
+}
+
+.mat-column-ai {
+  border-right: 1px solid rgba(0, 0, 0, 0.12);
+}
+
+// Source column
+.mat-column-source {
+  width: 120px;
+  text-align: left;
+  border-right: 1px solid rgba(0, 0, 0, 0.12);
+}
+
+// Type columns
+.mat-column-type,
+.mat-column-itemtype {
+  width: 80px;
+  text-align: center;
+  border-right: 1px solid rgba(0, 0, 0, 0.12);
+}
+
+// Difficulty column
+.mat-column-difficulty {
+  width: 80px;
+  text-align: center;
+  border-right: 1px solid rgba(0, 0, 0, 0.12);
+}
+
+// Suggested completion time
+.mat-column-suggestedCompletionTime {
+  width: 100px;
+  text-align: center;
+  border-right: 1px solid rgba(0, 0, 0, 0.12);
+}
+
+// Tags column
+.mat-column-tags {
+  width: 150px;
+  text-align: left;
+}
+
+// Name / subject columns
+.mat-column-name,
+.mat-column-subject {
+  width: 150px;
+  text-align: center;
+  font-weight: bold;
+  border-right: 1px solid rgba(0, 0, 0, 0.12);
+}
+
+// Author column
+.mat-column-author {
+  width: 120px;
+  text-align: center;
+  border-right: 1px solid rgba(0, 0, 0, 0.12);
+}
+
+// Math checkbox column
+.mat-column-math {
+  width: 60px;
+  text-align: center;
+  border-right: 1px solid rgba(0, 0, 0, 0.12);
+}
+
+// Vocabulary columns
+.mat-column-enword,
+.mat-column-word {
+  width: 150px;
+  text-align: left;
+  border-right: 1px solid rgba(0, 0, 0, 0.12);
+}
+
+.mat-column-cnword {
+  width: 150px;
+  text-align: left;
+  border-right: 1px solid rgba(0, 0, 0, 0.12);
+}
+
+// Sentence columns (auto width, content-heavy)
+.mat-column-ensent,
+.mat-column-cnsent,
+.mat-column-enwords {
+  text-align: left;
+  border-right: 1px solid rgba(0, 0, 0, 0.12);
+}
+
+// Content column (Chinese textarea)
+.mat-column-content {
+  text-align: left;
+  border-right: 1px solid rgba(0, 0, 0, 0.12);
+}
+
+// Value column (formula)
+.mat-column-value {
+  text-align: left;
+}
+
+// Listening-specific columns
+.mat-column-title {
+  text-align: left;
+  border-right: 1px solid rgba(0, 0, 0, 0.12);
+}
+
+.mat-column-sectioncount,
+.mat-column-contentcount {
+  text-align: center;
+  border-right: 1px solid rgba(0, 0, 0, 0.12);
+}
+
+.mat-column-supplementary,
+.mat-column-vocabulary,
+.mat-column-item {
+  text-align: center;
+}
+
+// Dialog result table columns
+.mat-column-expected,
+.mat-column-inputted,
+.mat-column-correct {
+  text-align: center;
+  border-right: 1px solid rgba(0, 0, 0, 0.12);
+}
+
+.mat-column-correct {
+  width: 80px;
+}

@@ -1,0 +1,77 @@
+[
+    {
+        "id": "p1-1-1",
+        "startTime": 19000,
+        "endTime": 47000
+    },
+    {
+        "id": "p1-1-2",
+        "startTime": 51000,
+        "endTime": 72000
+    },
+    {
+        "id": "p1-1-3",
+        "startTime": 76000,
+        "endTime": 98000
+    },
+    {
+        "id": "p1-1-4",
+        "startTime": 102000,
+        "endTime": 125000
+    },
+    {
+        "id": "p1-1-5",
+        "startTime": 130000,
+        "endTime": 150000
+    },
+    {
+        "id": "p1-1-6",
+        "startTime": 153000,
+        "endTime": 176000
+    },
+    {
+        "id": "p1-1-7",
+        "startTime": 180000,
+        "endTime": 203000
+    },
+    {
+        "id": "p1-1-8",
+        "startTime": 207000,
+        "endTime": 255000
+    },
+    {
+        "id": "p1-1-9",
+        "startTime": 258000,
+        "endTime": 270000
+    },
+    {
+        "id": "p1-1-10",
+        "startTime": 278000,
+        "endTime": 345000
+    },
+    {
+        "id": "p1-1-11",
+        "startTime": 402000,
+        "endTime": 455000
+    },
+    {
+        "id": "p1-1-12",
+        "startTime": 462000,
+        "endTime": 488000
+    },
+    {
+        "id": "p1-2-1",
+        "startTime": 495000,
+        "endTime": 511000
+    },
+    {
+        "id": "p1-2-2",
+        "startTime": 514000,
+        "endTime": 522000
+    },
+    {
+        "id": "p1-2-3",
+        "startTime": 526000,
+        "endTime": 535000
+    }
+]

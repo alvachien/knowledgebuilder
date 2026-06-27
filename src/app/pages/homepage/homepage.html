@@ -1,0 +1,162 @@
+<header appFocusOnNavigation class="modern-hero-section"
+        [attr.aria-label]="'start_learning_journey_today' | transloco" id="homepage-header">
+  <div class="hero-container">
+    <div class="hero-content">
+      <div class="hero-text">
+        <div class="hero-badge">{{ 'knowledge_builder_with_ai_assistant' | transloco }}</div>
+        <h1 class="hero-title">
+          {{ 'build_knowledge' | transloco }}<br>
+          {{ 'master_skills' | transloco }}
+        </h1>
+        <p class="hero-description">{{ 'transform_learning_journey' | transloco }}</p>
+        <div class="hero-stats">
+          <div class="stat-item">
+            <span class="stat-number">{{daysleft1}}</span>
+            <span class="stat-label">{{ 'days_to_college_2027' | transloco }}</span>
+          </div>
+          <div class="stat-divider"></div>
+          <div class="stat-item">
+            <span class="stat-number">{{daysleft2}}</span>
+            <span class="stat-label">{{ 'days_to_shanghai_zhongkao_2028' | transloco }}</span>
+          </div>
+          <div class="stat-divider"></div>
+          <div class="stat-item">
+            <span class="stat-number">{{daysleft3}}</span>
+            <span class="stat-label">{{ 'days_to_gaokao_2031' | transloco }}</span>
+          </div>
+        </div>
+      </div>
+      <div class="hero-visual">
+        <div class="feature-grid">
+          <a mat-raised-button routerLink="/vocabulary" class="feature-card vocabulary-card">
+            <div class="feature-icon">
+              <mat-icon>translate</mat-icon>
+            </div>
+            <div class="feature-content">
+              <h3>{{ 'vocabulary' | transloco }}</h3>
+              <p>{{ 'expand_your_word_power' | transloco }}</p>
+            </div>
+          </a>
+          <a mat-raised-button routerLink="/translating" class="feature-card sentence-card">
+            <div class="feature-icon">
+              <mat-icon>format_quote</mat-icon>
+            </div>
+            <div class="feature-content">
+              <h3>{{ 'sentences' | transloco }}</h3>
+              <p>{{ 'master_sentence_structures' | transloco }}</p>
+            </div>
+          </a>
+          <a mat-raised-button routerLink="/listening" class="feature-card listening-card">
+            <div class="feature-icon">
+              <mat-icon>headphones</mat-icon>
+            </div>
+            <div class="feature-content">
+              <h3>{{ 'listening' | transloco }}</h3>
+              <p>{{ 'improve_comprehension' | transloco }}</p>
+            </div>
+          </a>
+          <a mat-raised-button routerLink="/chinese" class="feature-card chinese-card">
+            <div class="feature-icon">
+              <mat-icon>language</mat-icon>
+            </div>
+            <div class="feature-content">
+              <h3>{{ 'chinese' | transloco }}</h3>
+              <p>{{ 'classical_literature' | transloco }}</p>
+            </div>
+          </a>
+          <a mat-raised-button routerLink="/formula" class="feature-card formula-card">
+            <div class="feature-icon">
+              <mat-icon>functions</mat-icon>
+            </div>
+            <div class="feature-content">
+              <h3>{{ 'formula' | transloco }}</h3>
+              <p>{{ 'math_science_formulas' | transloco }}</p>
+            </div>
+          </a>
+          <a mat-raised-button routerLink="/knowledge" class="feature-card knowledge-card">
+            <div class="feature-icon">
+              <mat-icon>school</mat-icon>
+            </div>
+            <div class="feature-content">
+              <h3>{{ 'knowledge_bank' | transloco }}</h3>
+              <p>{{ 'comprehensive_learning' | transloco }}</p>
+            </div>
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+</header>
+
+<main class="features-section">
+  <div class="features-container">
+    <div class="section-header">
+      <h2>{{ 'why_choose_knowledge_builder' | transloco }}</h2>
+      <p class="section-subtitle">{{ 'designed_for_effective_learning' | transloco }}</p>
+    </div>
+    
+    <div class="features-grid">
+      <div class="feature-highlight">
+        <div class="highlight-icon">
+          <mat-icon>smart_toy</mat-icon>
+        </div>
+        <div class="highlight-content">
+          <h3>{{ 'ai_powered_learning' | transloco }}</h3>
+          <p>{{ 'ai_powered_learning_desc' | transloco }}</p>
+          <div class="highlight-note">{{ 'requires_invitation_code' | transloco }}</div>
+        </div>
+      </div>
+      
+      <div class="feature-highlight">
+        <div class="highlight-icon">
+          <mat-icon>translate</mat-icon>
+        </div>
+        <div class="highlight-content">
+          <h3>{{ 'comprehensive_language' | transloco }}</h3>
+          <p>{{ 'comprehensive_language_desc' | transloco }}</p>
+        </div>
+      </div>
+      
+      <div class="feature-highlight">
+        <div class="highlight-icon">
+          <mat-icon>calculate</mat-icon>
+        </div>
+        <div class="highlight-content">
+          <h3>{{ 'formula_mastery' | transloco }}</h3>
+          <p>{{ 'formula_mastery_desc' | transloco }}</p>
+        </div>
+      </div>
+      
+      <div class="feature-highlight">
+        <div class="highlight-icon">
+          <mat-icon>library_books</mat-icon>
+        </div>
+        <div class="highlight-content">
+          <h3>{{ 'knowledge_bank' | transloco }}</h3>
+          <p>{{ 'knowledge_bank_desc' | transloco }}</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</main>
+
+<section class="cta-section">
+  <div class="cta-container">
+    <div class="cta-content">
+      <h2>{{ 'start_learning_journey_today' | transloco }}</h2>
+      <p>{{ 'join_thousands_of_learners' | transloco }}</p>
+      <div class="cta-actions">
+        <a mat-raised-button routerLink="/vocabulary" class="cta-button primary">
+          <mat-icon>play_arrow</mat-icon>
+          <span>{{ 'get_started' | transloco }}</span>
+        </a>
+        <a mat-raised-button routerLink="/knowledge" class="cta-button secondary">
+          <mat-icon>explore</mat-icon>
+          <span>{{ 'explore_features' | transloco }}</span>
+        </a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<app-footer></app-footer>

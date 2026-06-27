@@ -1,0 +1,173 @@
+<!-- TODO: figure out if the <nav> should go inside of a <header> element. -->
+@if (authError) {
+  <div class="app-auth-error-banner" role="alert">
+    <mat-icon class="app-auth-error-icon">error_outline</mat-icon>
+    <span class="app-auth-error-msg">{{ authError }}</span>
+    <button mat-button (click)="onLogon()" matTooltip="{{ 'auth.retry_login' | transloco }}">
+      <mat-icon>refresh</mat-icon>
+      {{ 'auth.retry' | transloco }}
+    </button>
+    <button mat-icon-button (click)="onDismissError()" [attr.aria-label]="'auth.dismiss_error' | transloco">
+      <mat-icon>close</mat-icon>
+    </button>
+  </div>
+}
+<nav class="app-navbar-header" aria-label="Top Toolbar">
+  @if (skipLinkHidden) {
+    <div class="skip-link-wrapper" [class.cdk-visually-hidden]="skipLinkHidden">
+      <a mat-raised-button [href]="skipLinkHref" (focus)="skipLinkHidden = false" (blur)="skipLinkHidden = true" color="accent">
+        {{ 'skip_to_main_content' | transloco }}
+      </a>
+    </div>
+  }
+
+  <!-- Hamburger button (small screens only: ≤600px) -->
+  <button mat-icon-button class="app-navbar-show-small app-navbar-hamburger"
+    (click)="toggleDrawer()" [attr.aria-label]="'menu' | transloco">
+    <mat-icon>menu</mat-icon>
+  </button>
+
+  <a mat-button routerLink="/" aria-label="Knowledge Builder">
+    <app-logo matButtonIcon/>
+    <span class="app-navbar-full-text">{{ 'knowledge_builder' | transloco }}</span>
+    <span class="app-navbar-short-text">KHB</span>
+  </a>
+
+  <!-- Navigation links (hidden at ≤600px, abbreviated at 601–1200px, full at >1200px) -->
+  <a mat-button class="app-navbar-hide-small" routerLink="./vocabulary" routerLinkActive="app-navbar-header-item-selected">
+    <span class="app-navbar-full-text">{{ 'vocabulary' | transloco }}</span>
+    <span class="app-navbar-short-text">Voc</span>
+  </a>
+  <a mat-button class="app-navbar-hide-small" routerLink="./translating" routerLinkActive="app-navbar-header-item-selected">
+    <span class="app-navbar-full-text">{{ 'sentences' | transloco }}</span>
+    <span class="app-navbar-short-text">Sent</span>
+  </a>
+  <a mat-button class="app-navbar-hide-small" routerLink="./listening" routerLinkActive="app-navbar-header-item-selected">
+    <span class="app-navbar-full-text">{{ 'listening' | transloco }}</span>
+    <span class="app-navbar-short-text">Listen</span>
+  </a>
+  <a mat-button class="app-navbar-hide-small" routerLink="./chinese" routerLinkActive="app-navbar-header-item-selected">
+    <span class="app-navbar-full-text">{{ 'chinese' | transloco }}</span>
+    <span class="app-navbar-short-text">中</span>
+  </a>
+  <a mat-button class="app-navbar-hide-small" routerLink="./formula" routerLinkActive="app-navbar-header-item-selected">
+    <span class="app-navbar-full-text">{{ 'formula' | transloco }}</span>
+    <span class="app-navbar-short-text">Form</span>
+  </a>
+  <a mat-button class="app-navbar-hide-small" routerLink="./knowledge" routerLinkActive="app-navbar-header-item-selected">
+    <span class="app-navbar-full-text">{{ 'knowledge_bank' | transloco }}</span>
+    <span class="app-navbar-short-text">KB</span>
+  </a>
+  <div class="flex-spacer"></div>
+
+  <!-- User code button (desktop only) -->
+  <a mat-button class="app-navbar-hide-small" (click)="onSetUser()" matTooltip="{{ 'enter_code_for_invited_user' | transloco }}"><mat-icon>verified_user</mat-icon></a>
+
+  @if (isLoggedIn) {
+    <button mat-button class="app-navbar-hide-small" [matMenuTriggerFor]="userMenu" matTooltip="{{ userName }}">
+      <mat-icon class="app-navbar-user-icon-logged-in">account_circle</mat-icon>
+      <span class="app-navbar-hide-medium">{{ userName }}</span>
+    </button>
+    <mat-menu #userMenu="matMenu">
+      <button mat-menu-item disabled>{{ 'welcome' | transloco }}, {{ userName }}</button>
+      <button mat-menu-item (click)="onUserDetail()">
+        <mat-icon>person</mat-icon>
+        <span>{{ 'user_detail' | transloco }}</span>
+      </button>
+      <button mat-menu-item (click)="onLogout()">
+        <mat-icon>exit_to_app</mat-icon>
+        <span>{{ 'logout' | transloco }}</span>
+      </button>
+    </mat-menu>
+  } @else {
+    <a mat-button class="app-navbar-hide-small" (click)="onLogon()" matTooltip="{{ 'login' | transloco }}">
+      <mat-icon class="app-navbar-user-icon-logged-out">login</mat-icon>
+      <span class="app-navbar-hide-medium">{{ 'login' | transloco }}</span>
+    </a>
+  }
+
+  <app-theme-picker></app-theme-picker>
+  <app-language-selector></app-language-selector>
+
+  <!-- GitHub link (desktop only) -->
+  <a mat-button class="app-navbar-hide-small" href="https://github.com/alvachien/alvachien.com/tree/learning-dev"
+      aria-label="GitHub Repository" target="_blank" matTooltip="{{ 'github_repository' | transloco }}">
+    <span matButtonIcon *ngTemplateOutlet="githubIcon"></span>
+  </a>
+</nav>
+
+<!-- Mobile drawer (small screens only) -->
+@if (drawerOpened) {
+  <div class="app-navbar-drawer-backdrop" (click)="closeDrawer()"></div>
+}
+<div class="app-navbar-drawer-panel" [class.open]="drawerOpened" *transloco="let t">
+  <div class="app-navbar-drawer-content">
+    <a mat-button routerLink="./vocabulary" routerLinkActive="app-navbar-header-item-selected"
+      (click)="closeDrawer()">
+      <mat-icon>menu_book</mat-icon>
+      {{ t('vocabulary') }}
+    </a>
+    <a mat-button routerLink="./translating" routerLinkActive="app-navbar-header-item-selected"
+      (click)="closeDrawer()">
+      <mat-icon>translate</mat-icon>
+      {{ t('sentences') }}
+    </a>
+    <a mat-button routerLink="./listening" routerLinkActive="app-navbar-header-item-selected"
+      (click)="closeDrawer()">
+      <mat-icon>headphones</mat-icon>
+      {{ t('listening') }}
+    </a>
+    <a mat-button routerLink="./chinese" routerLinkActive="app-navbar-header-item-selected"
+      (click)="closeDrawer()">
+      <mat-icon>font_download</mat-icon>
+      {{ t('chinese') }}
+    </a>
+    <a mat-button routerLink="./formula" routerLinkActive="app-navbar-header-item-selected"
+      (click)="closeDrawer()">
+      <mat-icon>functions</mat-icon>
+      {{ t('formula') }}
+    </a>
+    <a mat-button routerLink="./knowledge" routerLinkActive="app-navbar-header-item-selected"
+      (click)="closeDrawer()">
+      <mat-icon>account_balance</mat-icon>
+      {{ t('knowledge_bank') }}
+    </a>
+
+    <mat-divider></mat-divider>
+
+    <a mat-button (click)="onSetUser(); closeDrawer()">
+      <mat-icon>verified_user</mat-icon>
+      {{ t('enter_code_for_invited_user') }}
+    </a>
+
+    @if (isLoggedIn) {
+      <button mat-button (click)="onUserDetail(); closeDrawer()">
+        <mat-icon>person</mat-icon>
+        {{ userName }}
+      </button>
+      <button mat-button (click)="onLogout(); closeDrawer()">
+        <mat-icon>exit_to_app</mat-icon>
+        {{ t('logout') }}
+      </button>
+    } @else {
+      <a mat-button (click)="onLogon(); closeDrawer()">
+        <mat-icon>login</mat-icon>
+        {{ t('login') }}
+      </a>
+    }
+
+    <mat-divider></mat-divider>
+
+    <a mat-button href="https://github.com/alvachien/alvachien.com/tree/learning-dev"
+      target="_blank" (click)="closeDrawer()">
+      <span matButtonIcon *ngTemplateOutlet="githubIcon"></span>
+      {{ t('github_repository') }}
+    </a>
+  </div>
+</div>
+
+<ng-template #githubIcon>
+  <svg viewBox="0 0 20 20" class="github-logo" aria-hidden="true">
+    <path d="M10 0C4.477 0 0 4.477 0 10c0 4.42 2.87 8.17 6.84 9.5.5.08.66-.23.66-.5v-1.69c-2.77.6-3.36-1.34-3.36-1.34-.46-1.16-1.11-1.47-1.11-1.47-.91-.62.07-.6.07-.6 1 .07 1.53 1.03 1.53 1.03.87 1.52 2.34 1.07 2.91.83.09-.65.35-1.09.63-1.34-2.22-.25-4.55-1.11-4.55-4.92 0-1.11.38-2 1.03-2.71-.1-.25-.45-1.29.1-2.64 0 0 .84-.27 2.75 1.02.79-.22 1.65-.33 2.5-.33.85 0 1.71.11 2.5.33 1.91-1.29 2.75-1.02 2.75-1.02.55 1.35.2 2.39.1 2.64.65.71 1.03 1.6 1.03 2.71 0 3.82-2.34 4.66-4.57 4.91.36.31.69.92.69 1.85V19c0 .27.16.59.67.5C17.14 18.16 20 14.42 20 10A10 10 0 0 0 10 0z" fill="currentColor" fill-rule="evenodd"/>
+  </svg>
+</ng-template>

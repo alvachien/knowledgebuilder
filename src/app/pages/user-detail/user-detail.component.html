@@ -1,0 +1,25 @@
+<mat-card class="user-detail-card">
+  <mat-card-header>
+    <mat-card-title>{{ 'user_detail' | transloco }}</mat-card-title>
+  </mat-card-header>
+
+  <mat-card-content>
+    <dl class="user-detail-list">
+      <div class="user-detail-row">
+        <dt>{{ 'user_id' | transloco }}</dt>
+        <dd>{{ userId }}</dd>
+      </div>
+      <div class="user-detail-row">
+        <dt>{{ 'user_name' | transloco }}</dt>
+        <dd>{{ userName }}</dd>
+      </div>
+    </dl>
+  </mat-card-content>
+
+  <mat-card-actions align="end">
+    <button mat-flat-button color="warn" (click)="onLogout()">
+      <mat-icon>exit_to_app</mat-icon>
+      {{ 'logout' | transloco }}
+    </button>
+  </mat-card-actions>
+</mat-card>

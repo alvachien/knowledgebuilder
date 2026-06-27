@@ -1,0 +1,29 @@
+<div *transloco="let t">
+  <h2 mat-dialog-title>{{ t('vocabularyExercises.optionsOfSelection') }}</h2>
+  <mat-dialog-content class="control-full-width">
+    <mat-form-field class="control-full-width">
+      <mat-label>{{ t('vocabularyExercises.mode') }}</mat-label>
+      <mat-select matNativeControl class="control-full-width" [(value)]="selectedSelectMode">
+        @for (lvl of allSelectModes.keys(); track $index) {
+          <mat-option [value]="lvl">{{allSelectModes.get(lvl)}}</mat-option>
+        }
+      </mat-select>
+    </mat-form-field>
+    <mat-form-field class="control-full-width">
+      <mat-label>{{ t('vocabularyExercises.wordsSplitter') }}</mat-label>
+      <textarea matInput rows="5" [(ngModel)]="importWords" placeholder="Words" [disabled]="!isSelectByID"></textarea>
+    </mat-form-field>
+    <mat-form-field class="control-full-width">
+      <mat-label>{{ t('vocabularyExercises.countOfSelection') }}</mat-label>
+      <input matInput type="number" [(ngModel)]="countOfItems" placeholder="Count" [disabled]="isSelectByID" />
+    </mat-form-field>
+    <mat-form-field class="control-full-width">
+      <mat-label>{{ t('vocabularyExercises.countOfOffset') }}</mat-label>
+      <input matInput type="number" [(ngModel)]="countOfOffset" placeholder="Offset" [disabled]="!isSelectByCount" />
+    </mat-form-field>
+  </mat-dialog-content>
+  <mat-dialog-actions>
+    <button mat-button (click)="onNoClick()" cdkFocusInitial>{{ t('no') }}</button>
+    <button mat-button (click)="onYesClick()" [disabled]="isFormInvalid">{{ t('ok') }}</button>
+  </mat-dialog-actions>
+</div>

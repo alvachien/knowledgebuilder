@@ -1,0 +1,37 @@
+[
+    {
+        "id": "8-1-1",
+        "startTime": 10000,
+        "endTime": 22000
+    },
+    {
+        "id": "8-1-2",
+        "startTime": 28500,
+        "endTime": 39000
+    },
+    {
+        "id": "8-2-1",
+        "startTime": 316600,
+        "endTime": 502000
+    },
+    {
+        "id": "8-2-2",
+        "startTime": 508000,
+        "endTime": 581000
+    },
+    {
+        "id": "8-2-3",
+        "startTime": 586500,
+        "endTime": 623000
+    },
+    {
+        "id": "8-3-1",
+        "startTime": 635000,
+        "endTime": 705000
+    },
+    {
+        "id": "8-3-2",
+        "startTime": 710000,
+        "endTime": 771000
+    }
+]

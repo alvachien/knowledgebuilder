@@ -1,0 +1,280 @@
+<main focusOnNavigation aria-label="Listening" class="english-listening-page" *transloco="let t">
+  <div class="english-listening-page-content">
+    @if (isLessonListPage) {
+    <mat-toolbar class="container">
+      <mat-toolbar-row>
+        <span>
+          <h5>{{ t('englishListening.pageTitle') }}</h5>
+        </span>
+        <span class="toolbar-spacer"></span>
+        <mat-form-field class="page-toolbar-item">
+          <mat-label>{{ t('englishListening.files') }}</mat-label>
+          <mat-select matNativeControl [(value)]="selectedFile" (selectionChange)="onFileSelectionChanged($event)">
+            <mat-option value="">{{ t('englishListening.none') }}</mat-option>
+            @for (file of allFiles; track file.id ) {
+            <mat-option [value]="file">{{file.nameEnglish}}</mat-option>
+            }
+          </mat-select>
+        </mat-form-field>
+      </mat-toolbar-row>
+    </mat-toolbar>
+
+    <div class="container">
+      <mat-form-field class="w-full">
+        <mat-label>{{ t('englishListening.filter') }}</mat-label>
+        <input matInput (keyup)="applyFilter($event)" #input>
+      </mat-form-field>
+
+      <table mat-table [dataSource]="dataSourceLesson" class="mat-elevation-z8 w-full">
+        <!-- Title Column -->
+        <ng-container matColumnDef="title">
+          <th mat-header-cell *matHeaderCellDef> {{ t('englishListening.columnTitle') }} </th>
+          <td mat-cell *matCellDef="let element"> {{element.title}} </td>
+        </ng-container>
+
+        <!-- Sections count Column -->
+        <ng-container matColumnDef="sectioncount">
+          <th mat-header-cell *matHeaderCellDef> {{ t('englishListening.sections') }} </th>
+          <td mat-cell *matCellDef="let element"> {{element.sections.length}} | <button mat-button
+              (click)="openSectionList(element)">{{ t('englishListening.openSection') }}</button> </td>
+        </ng-container>
+
+        <!-- Supplement Column -->
+        <ng-container matColumnDef="supplementary">
+          <th mat-header-cell *matHeaderCellDef> {{ t('englishListening.supplementary') }} </th>
+          <td mat-cell *matCellDef="let element">
+            @if(element.supplementary && element.supplementary.length > 0) {
+            <button mat-button (click)="toggleSupplementary(element)">{{ t('englishListening.displaySupplementary')
+              }}</button>
+            }
+          </td>
+        </ng-container>
+
+        <tr mat-header-row *matHeaderRowDef="displayedLessonColumns; sticky: true"></tr>
+        <tr mat-row *matRowDef="let row; columns: displayedLessonColumns;"></tr>
+      </table>
+      <mat-paginator #pgLessonList [pageSizeOptions]="[20, 50, 100, 200]" showFirstLastButtons
+        aria-label="Select page of periodic elements">
+      </mat-paginator>
+    </div>
+    }
+
+    @if (isSectionListPage) {
+    <mat-toolbar class="container">
+      <mat-toolbar-row>
+        <span>
+          <h5>{{selectedLesson?.title}}</h5>
+        </span>
+        <span class="toolbar-spacer"></span>
+        <button mat-stroked-button matTooltip="{{ t('englishListening.returnToLessonList') }}"
+          (click)="onReturnToLessonList()">{{ t('englishListening.returnToLessonList') }}</button>
+      </mat-toolbar-row>
+    </mat-toolbar>
+
+    <div class="container">
+      <mat-form-field class="w-full">
+        <mat-label>{{ t('englishListening.filter') }}</mat-label>
+        <input matInput (keyup)="applySectionFilter($event)" #input>
+      </mat-form-field>
+
+      <table mat-table [dataSource]="dataSourceSection" class="mat-elevation-z8 w-full">
+        <!-- Title Column -->
+        <ng-container matColumnDef="title">
+          <th mat-header-cell *matHeaderCellDef> {{ t('englishListening.section') }} </th>
+          <td mat-cell *matCellDef="let element"> {{element.title}} </td>
+        </ng-container>
+
+        <!-- Content count Column -->
+        <ng-container matColumnDef="contentcount">
+          <th mat-header-cell *matHeaderCellDef> {{ t('englishListening.countOfExercises') }} </th>
+          <td mat-cell *matCellDef="let element"> {{element.exercises.length}} | <button mat-button
+              (click)="openSectionDetail(element)">{{ t('englishListening.openDetail') }}</button> </td>
+        </ng-container>
+
+        <!-- Vocabulary column -->
+        <ng-container matColumnDef="vocabulary">
+          <th mat-header-cell *matHeaderCellDef> {{ t('englishListening.vocabularyColumn') }} </th>
+          <td mat-cell *matCellDef="let element">
+            @if(element.vocabulary && element.vocabulary.length > 0) {
+            <button mat-button (click)="displayVocabulary(element)">{{ t('englishListening.displayVocabulary')
+              }}</button>
+            }
+          </td>
+        </ng-container>
+
+        <tr mat-header-row *matHeaderRowDef="displayedSectionColumns; sticky: true"></tr>
+        <tr mat-row *matRowDef="let row; columns: displayedSectionColumns;"></tr>
+      </table>
+      <mat-paginator #pgSectionList [pageSizeOptions]="[20, 50, 100, 200]" showFirstLastButtons
+        aria-label="Select page of periodic elements">
+      </mat-paginator>
+    </div>
+    }
+
+    @if(isSectionDetailPage) {
+    <mat-toolbar class="container">
+      <mat-toolbar-row>
+        <span style="margin-right: 8px;">
+          <h5>{{selectedLesson?.title}}</h5>
+        </span>
+        <mat-divider [vertical]="true" style="height: 80%"></mat-divider>
+        <span style="margin-left: 8px;">
+          <h5>{{selectedSection?.title}}</h5>
+        </span>
+        <span class="toolbar-spacer"></span>
+        <button mat-fab class="toolbar-fab-button" matTooltip="{{ t('englishListening.playSection') }}"
+          (click)="onPlaySection()"><mat-icon color="primary">playlist_play</mat-icon></button>
+        <button mat-fab class="toolbar-fab-button" matTooltip="{{ t('englishListening.returnToSectionList') }}"
+          (click)="onReturnToSectionList()"><mat-icon color="primary">door_back</mat-icon></button>
+      </mat-toolbar-row>
+    </mat-toolbar>
+
+    <div class="container">
+      <table mat-table [dataSource]="dataSourceSectionContent" class="mat-elevation-z8 w-full">
+        <!-- Title Column -->
+        <ng-container matColumnDef="title">
+          <th mat-header-cell *matHeaderCellDef> {{ t('englishListening.columnTitle') }} </th>
+          <td mat-cell *matCellDef="let element"> {{element.title}} </td>
+        </ng-container>
+
+        <!-- Item Column -->
+        <ng-container matColumnDef="item">
+          <th mat-header-cell *matHeaderCellDef> {{ t('englishListening.itemCollection') }} </th>
+          <td mat-cell *matCellDef="let element">
+            <button mat-button (click)="startExercise(element)">{{ t('englishListening.startExercise') }}</button>
+          </td>
+        </ng-container>
+
+        <tr mat-header-row *matHeaderRowDef="displayedSectionContentColumns; sticky: true"></tr>
+        <tr mat-row *matRowDef="let row; columns: displayedSectionContentColumns;"></tr>
+      </table>
+      <mat-paginator #pgSectionContentList [pageSizeOptions]="[20, 50, 100, 200]" showFirstLastButtons
+        aria-label="Select page of periodic elements">
+      </mat-paginator>
+    </div>
+    }
+
+    @if (isExerciseInProcess) {
+    <mat-toolbar class="container" style="margin-bottom: 8px;">
+      <mat-toolbar-row>
+        <span style="margin-right: 8px;">
+          <h5>{{selectedLesson?.title}}</h5>
+        </span>
+        <mat-divider [vertical]="true" style="height: 80%"></mat-divider>
+        <span style="margin-left: 8px; margin-right: 8px;">
+          <h5>{{selectedSection?.title}}</h5>
+        </span>
+        <mat-divider [vertical]="true" style="height: 80%"></mat-divider>
+        <span class="function-control-flex-container" style="margin-left: 8px;">
+          <button mat-fab class="toolbar-fab-button" matTooltip="{{ t('englishListening.previousItem') }}"
+            (click)="onPreviousItem()" [disabled]="currentItemIndexInSection <= 0"><mat-icon
+              color="primary">arrow_left</mat-icon></button>
+          <span style="height: 56px;">
+            <h5 style="height: 56px; line-height: 56px;">{{currentItemTitle}}</h5>
+          </span>
+          <button mat-fab class="toolbar-fab-button" matTooltip="{{ t('englishListening.nextItem') }}"
+            (click)="onNextItem()" [disabled]="currentItemIndexInSection >= totalItemsInSection - 1"><mat-icon
+              color="primary">arrow_right</mat-icon></button>
+        </span>
+        <span class="toolbar-spacer"></span>
+        @if (state$ | async; as state) {
+        <span class="function-control-flex-container">
+          <button mat-fab class="toolbar-fab-button" matTooltip="{{ t('englishListening.playAudio') }}"
+            (click)="onPlayAudio()" [disabled]="state === 'playing'"><mat-icon
+              color="primary">play_circle</mat-icon></button>
+          <button mat-fab class="toolbar-fab-button" matTooltip="{{ t('englishListening.pauseAudio') }}"
+            (click)="onPauseAudio()" [disabled]="state !== 'playing'"><mat-icon
+              color="primary">pause_circle</mat-icon></button>
+          <button mat-fab class="toolbar-fab-button" matTooltip="{{ t('englishListening.stopAudio') }}"
+            (click)="onStopAudio()" [disabled]="state !== 'playing' && state !== 'paused'"><mat-icon
+              color="primary">stop_circle</mat-icon></button>
+        </span>
+        <mat-divider [vertical]="true" style="height: 80%"></mat-divider>
+        }
+        <span class="function-control-flex-container">
+          <button mat-fab class="toolbar-fab-button" matTooltip="{{ t('englishListening.toggleAnswer') }}"
+            (click)="onToggleAnswer()"><mat-icon color="primary">forum</mat-icon></button>
+          <button mat-fab class="toolbar-fab-button" matTooltip="{{ t('englishListening.toggleScripts') }}"
+            (click)="onToggleScripts()"><mat-icon color="primary">article</mat-icon></button>
+          <button mat-fab class="toolbar-fab-button" matTooltip="{{ t('englishListening.print') }}"
+            [useExistingCss]="true" printSectionId="print-section" ngxPrint><mat-icon
+              color="primary">print</mat-icon></button>
+          <button mat-fab class="toolbar-fab-button" matTooltip="{{ t('englishListening.returnToSectionDetail') }}"
+            (click)="onReturnToSectionDetail()"><mat-icon color="primary">door_back</mat-icon></button>
+        </span>
+      </mat-toolbar-row>
+    </mat-toolbar>
+
+    <div class="container">
+      @if(selectedSectionExerciseItems) {
+      <div class="mat-elevation-z8 print-container">
+        <div id="print-section">
+          <app-markdown-content [markdown]="markdownStr" [enableMath]="false"></app-markdown-content>
+        </div>
+      </div>
+      }
+      @if(showScripts) {
+      <div class="mat-elevation-z8">
+        <h3>{{ t('englishListening.tapeScript') }}</h3>
+        @for(script of currentScripts; track $index) {
+        <app-markdown-content [markdown]="script" [enableMath]="false"></app-markdown-content>
+        }
+      </div>
+      }
+      @if(showAnswer) {
+      <div class="mat-elevation-z8">
+        <h3>{{ t('englishListening.answer') }}</h3>
+        <app-markdown-content [markdown]="currentAnswer" [enableMath]="false"></app-markdown-content>
+      </div>
+      }
+    </div>
+    }
+
+    @if(isSupplementaryPage) {
+    <mat-toolbar class="container">
+      <mat-toolbar-row>
+        <span>
+          <h5>{{selectedLesson?.title}}</h5>
+        </span>
+        <span class="toolbar-spacer"></span>
+        <button mat-stroked-button matTooltip="{{ t('englishListening.returnToLessonList') }}"
+          (click)="onReturnToLessonList()">{{ t('englishListening.returnToLessonList') }}</button>
+      </mat-toolbar-row>
+    </mat-toolbar>
+
+    <div class="container">
+      <div class="mat-elevation-z8">
+        <h3>{{ t('englishListening.supplementary') }}：</h3>
+        @for(supplementary of selectedLesson?.supplementary ?? []; track $index) {
+        <app-markdown-content [markdown]="supplementary" [enableMath]="false"></app-markdown-content>
+        <br />
+        }
+      </div>
+    </div>
+    }
+
+    @if(isVocabularyPage) {
+    <mat-toolbar class="container">
+      <mat-toolbar-row>
+        <span>
+          <h5>{{selectedLesson?.title}}</h5>
+        </span>
+        <span class="toolbar-spacer"></span>
+        <button mat-fab class="toolbar-fab-button" matTooltip="{{ t('englishListening.returnToSectionList') }}"
+          (click)="onReturnToSectionList()"><mat-icon color="primary">door_back</mat-icon></button>
+      </mat-toolbar-row>
+    </mat-toolbar>
+
+    <div class="container">
+      <div class="mat-elevation-z8">
+        <h3>{{ t('englishListening.vocabularyColumn') }}：</h3>
+        @for(vocab of selectedSection?.vocabulary ?? []; track $index) {
+        <app-markdown-content [markdown]="vocab" [enableMath]="false"></app-markdown-content>
+        }
+      </div>
+    </div>
+    }
+  </div>
+</main>
+
+<app-footer></app-footer>

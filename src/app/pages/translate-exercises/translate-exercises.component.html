@@ -1,0 +1,243 @@
+<main focusOnNavigation aria-label="Translate Exercise page" class="translate-page" *transloco="let t">
+  <div class="translate-page-content">
+    @if (isTranslateNotStarted) {
+      <mat-toolbar class="container">
+        <mat-toolbar-row>
+          <span>
+            <h5>{{ t('translateExercises.title') }}</h5>
+          </span>
+          <span class="toolbar-spacer"></span>
+          <mat-form-field class="page-toolbar-item">
+            <mat-label>{{ t('translateExercises.files') }}</mat-label>
+            <mat-select matNativeControl [(value)]="selectedFile" (selectionChange)="onFileSelectionChanged($event)"
+              [disabled]="isLoadingContents" [placeholder]="isLoadingContents ? t('loading') : t('translateExercises.files')">
+              @if (isLoadingContents) {
+                <mat-option disabled>
+                  <mat-spinner diameter="18"></mat-spinner>
+                  {{ t('loading') }}
+                </mat-option>
+              }
+              <mat-option value="">{{ t('translateExercises.none') }}</mat-option>
+              @for (file of allFiles; track file.id) {
+                <mat-option [value]="file">{{file.nameEnglish}}</mat-option>
+              }
+            </mat-select>
+          </mat-form-field>
+          <span class="toolbar-item-count" matSuffix><small>{{ t('translateExercises.items') }}: {{reciteQueuesCount}}</small></span>
+          <section>
+            <div class="example-button-container">
+              <button mat-fab (click)="onPrintWithOptions()" [disabled]="!selectedFile">
+                <mat-icon>print</mat-icon>
+              </button>
+            </div>
+          </section>
+          <section>
+            <div class="example-button-container">
+              <button mat-fab (click)="onStartWithOptions()" [disabled]="!selectedFile">
+                <mat-icon>keyboard</mat-icon>
+              </button>
+            </div>
+          </section>
+        </mat-toolbar-row>
+      </mat-toolbar>
+
+      <div class="container">
+        <mat-form-field class="w-full">
+          <mat-label>{{ t('translateExercises.filter') }}</mat-label>
+          <input matInput (keyup)="applyFilter($event)" #input>
+        </mat-form-field>
+
+        <table mat-table [dataSource]="dataSource" matSort class="mat-elevation-z8 w-full">
+          <!-- Checkbox Column -->
+          <ng-container matColumnDef="select">
+            <th mat-header-cell *matHeaderCellDef>
+              <mat-checkbox (change)="$event ? toggleAllRows() : null"
+                            [checked]="selection.hasValue() && isAllSelected()"
+                            [indeterminate]="selection.hasValue() && !isAllSelected()">
+              </mat-checkbox>
+            </th>
+            <td mat-cell *matCellDef="let row">
+              <mat-checkbox (click)="$event.stopPropagation()"
+                            (change)="$event ? selection.toggle(row) : null"
+                            [checked]="selection.isSelected(row)">
+              </mat-checkbox>
+            </td>
+          </ng-container>
+
+          <!-- ID Column -->
+          <ng-container matColumnDef="id">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header sortActionDescription="Sort by ID"> {{ t('translateExercises.id') }} </th>
+            <td mat-cell *matCellDef="let element"> {{element.id}} </td>
+          </ng-container>
+
+          <!-- English Sentence Column -->
+          <ng-container matColumnDef="ensent">
+            <th mat-header-cell *matHeaderCellDef> {{ t('translateExercises.english') }} </th>
+            <td mat-cell *matCellDef="let element"> {{element.ensent}} </td>
+          </ng-container>
+
+          <!-- AI Column -->
+          <ng-container matColumnDef="ai">
+            <th mat-header-cell *matHeaderCellDef> {{ t('translateExercises.ai') }} </th>
+            <td mat-cell *matCellDef="let element">
+              <div class="example-button-container">
+                <button mat-mini-fab aria-label="Play" (click)="onPlayTTS(element.ensent)" [disabled]="!usercode.isUserCodeEntered">
+                  <mat-icon>play_arrow</mat-icon>
+                </button>
+                <button mat-mini-fab aria-label="Play" (click)="onLLMExplain(element.ensent)" [disabled]="!usercode.isUserCodeEntered">
+                  <mat-icon>psychology_alt</mat-icon>
+                </button>
+              </div>
+            </td>
+          </ng-container>
+
+<!-- English Words Column -->
+          <ng-container matColumnDef="enwords">
+            <th mat-header-cell *matHeaderCellDef> {{ t('translateExercises.words') }} </th>
+            <td mat-cell *matCellDef="let element"> {{element.enwords?.join(', ') || ''}} </td>
+          </ng-container>
+
+<!-- Chinese Sentence Column -->
+          <ng-container matColumnDef="cnsent">
+            <th mat-header-cell *matHeaderCellDef> {{ t('translateExercises.chinese') }} </th>
+            <td mat-cell *matCellDef="let element"> {{element.cnsent}} </td>
+          </ng-container>
+
+          <!-- Explanation Column -->
+          <ng-container matColumnDef="explaination">
+            <th mat-header-cell *matHeaderCellDef> {{ t('translateExercises.explain') }} </th>
+            <td mat-cell *matCellDef="let element">
+              <button mat-mini-fab (click)="onShowExplanation(element.explaination)" [disabled]="!element.explaination">
+                <mat-icon>info</mat-icon>
+              </button>
+            </td>
+          </ng-container>
+
+          <!-- Extra Info Column -->
+          <ng-container matColumnDef="extraInfo">
+            <th mat-header-cell *matHeaderCellDef> {{ t('translateExercises.extraInfo') }} </th>
+            <td mat-cell *matCellDef="let element">
+              <button mat-mini-fab (click)="onShowExtraInfo(element.extraInfo)" [disabled]="!element.extraInfo">
+                <mat-icon>description</mat-icon>
+              </button>
+            </td>
+          </ng-container>
+
+          <!-- Rating Column -->
+          <ng-container matColumnDef="rating">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header sortActionDescription="Sort by rating"> {{ t('translateExercises.rating') }} </th>
+            <td mat-cell *matCellDef="let element">
+              <mat-button-toggle-group [ngModel]="getRating(element.id)" aria-label="Rating"
+                (change)="onContentRatingChanged(element, $event)">
+                <mat-button-toggle [value]="1">1</mat-button-toggle>
+                <mat-button-toggle [value]="2">2</mat-button-toggle>
+                <mat-button-toggle [value]="3">3</mat-button-toggle>
+                <mat-button-toggle [value]="4">4</mat-button-toggle>
+                <mat-button-toggle [value]="5">5</mat-button-toggle>
+              </mat-button-toggle-group>
+            </td>
+          </ng-container>
+
+          <tr mat-header-row *matHeaderRowDef="displayedPreviewColumns; sticky: true"></tr>
+          <tr mat-row *matRowDef="let row; columns: displayedPreviewColumns;"></tr>
+        </table>
+        <mat-paginator [pageSizeOptions]="[20, 50, 100]"
+          showFirstLastButtons
+          aria-label="Select page of periodic elements">
+        </mat-paginator>
+      </div>
+    }
+
+    @if (isTranslateInProgress) {
+      <mat-toolbar class="container">
+        <mat-toolbar-row>
+          <span class="toolbar-spacer"></span>
+          <section>
+            <div class="example-button-container">
+              <mat-progress-bar mode="determinate" [value]="currentProgress">
+              </mat-progress-bar>
+            </div>
+          </section>
+        </mat-toolbar-row>
+      </mat-toolbar>
+
+      <div class="container" id="translate-container">
+        @if (currentQueueItem) {
+        @if (isEnglishToChineseDirection) {
+          <mat-label class="w-full">
+            {{currentQueueItem.ensent}}
+          </mat-label>
+
+          <div class="w-full">
+            <mat-form-field class="control-full-width">
+              <input matInput type="text" [(ngModel)]="currentQueueItem.inputted">
+            </mat-form-field>
+          </div>
+        }
+        @if (isChineseToEnglishDirection) {
+          <mat-label class="w-full">
+            {{currentQueueItem.cnsent}}
+          </mat-label>
+
+          <div class="w-full">
+            <mat-form-field class="control-full-width">
+              <input matInput type="text" [(ngModel)]="currentQueueItem.inputted">
+            </mat-form-field>
+          </div>
+        }
+        }
+      </div>
+
+      <mat-divider></mat-divider>
+      <mat-toolbar class="container">
+        <mat-toolbar-row>
+          <span class="toolbar-spacer"></span>
+          <section>
+            <div class="example-button-container">
+              <button mat-flat-button (click)="onSubmitToNext()">
+                {{ t('translateExercises.submit') }}
+              </button>
+            </div>
+          </section>
+        </mat-toolbar-row>
+      </mat-toolbar>
+    }
+
+    @if (isTranslateCompleted) {
+      <div class="result-content">
+        <div>{{ t('translateExercises.timeCost') }}: {{( currentStatus.endTime.getTime() - currentStatus.startTime.getTime() ) / 1000}}</div>
+
+        <table mat-table [dataSource]="dataSourceResult" class="mat-elevation-z8 w-full">
+          <!-- English Sent Column -->
+          <ng-container matColumnDef="ensent">
+            <th mat-header-cell *matHeaderCellDef> {{ t('translateExercises.english') }} </th>
+            <td mat-cell *matCellDef="let element"> {{element.ensent}} </td>
+          </ng-container>
+
+<!-- English Words Column -->
+          <ng-container matColumnDef="enwords">
+            <th mat-header-cell *matHeaderCellDef> {{ t('translateExercises.words') }} </th>
+            <td mat-cell *matCellDef="let element"> {{element.enwords?.join(', ') || ''}} </td>
+          </ng-container>
+        
+          <!-- Chinese Sent Column -->
+          <ng-container matColumnDef="cnsent">
+            <th mat-header-cell *matHeaderCellDef> {{ t('translateExercises.chinese') }} </th>
+            <td mat-cell *matCellDef="let element"> {{element.cnsent}} </td>
+          </ng-container>
+
+          <!-- Inputted Sent Column -->
+          <ng-container matColumnDef="inputted">
+            <th mat-header-cell *matHeaderCellDef> {{ t('translateExercises.inputted') }} </th>
+            <td mat-cell *matCellDef="let element"> {{element.inputted}} </td>
+          </ng-container>
+        
+          <tr mat-header-row *matHeaderRowDef="displayedResultColumns; sticky: true"></tr>
+          <tr mat-row *matRowDef="let row; columns: displayedResultColumns;"></tr>
+        </table>
+      </div>
+    }
+  </div>
+</main>
+
+<app-footer></app-footer>

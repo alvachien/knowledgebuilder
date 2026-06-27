@@ -1,0 +1,40 @@
+<div *transloco="let t">
+  <h2 mat-dialog-title>{{ t('vocabularyExercises.optionsOfPrinting') }}</h2>
+  <mat-dialog-content class="control-full-width">
+    <mat-form-field class="control-full-width">
+      <mat-label>{{ t('vocabularyExercises.count') }}</mat-label>
+      <input matInput type="number" [(ngModel)]="countOfItems" [disabled]="data.withSelection">
+      <span matSuffix>{{data.wordQueueCount}}</span>
+    </mat-form-field>
+    <mat-form-field class="control-full-width">
+      <mat-label>{{ t('vocabularyExercises.subTitle') }}</mat-label>
+      <input matInput type="text" [(ngModel)]="subTitle">
+    </mat-form-field>
+    <div class="control-full-width">
+      <mat-checkbox [(ngModel)]="printEntryDate"> {{ t('vocabularyExercises.printEntryDate') }} </mat-checkbox>
+    </div>
+    <div class="control-full-width">
+      <mat-checkbox [(ngModel)]="printFirstLetter"> {{ t('vocabularyExercises.printFirstLetter') }} </mat-checkbox>
+    </div>
+    <mat-form-field class="control-full-width">
+      <mat-label>{{ t('vocabularyExercises.leadingCharacter') }}</mat-label>
+      <mat-select [(ngModel)]="wordLeadingCharacter" multiple [disabled]="data.withSelection">
+        @for (char of allCharacters; track $index) {
+          <mat-option [value]="char">{{char}}</mat-option>
+        }
+      </mat-select>
+    </mat-form-field>
+    <mat-form-field class="control-full-width">
+      <mat-label>{{ t('vocabularyExercises.excludedPart') }}</mat-label>
+      <mat-select [(ngModel)]="excludePart" [disabled]="data.withSelection">
+        @for (char of allExcludeParts; track $index) {
+          <mat-option [value]="char.value">{{char.label}}</mat-option>
+        }
+      </mat-select>
+    </mat-form-field>
+  </mat-dialog-content>
+  <mat-dialog-actions>
+    <button mat-button (click)="onNoClick()">{{ t('no') }}</button>
+    <button mat-button (click)="onYesClick()" cdkFocusInitial>{{ t('ok') }}</button>
+  </mat-dialog-actions>
+</div>

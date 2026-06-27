@@ -1,13 +1,69 @@
 /* You can add global styles to this file, and also import other style files */
+@use '@angular/material' as mat;
+@use './app-theme';
+@use './styles/markdown';
+@use './styles/general';
+@use './styles/shared-tables';
+@use './styles/shared-toolbars';
 
-html, body { height: 100%; }
-body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
+$theme: mat.define-theme((
+  color: (
+    theme-type: light,
+    primary: mat.$azure-palette,
+    tertiary: mat.$blue-palette,
+  )
+));
 
-.toolbar-spacer {
-  flex: 1 1 auto;
+// Include material core styles.
+@include mat.elevation-classes();
+@include mat.app-background();
+@include mat.color-variants-backwards-compatibility($theme);
+@include app-theme.theme($theme);
+
+:root {
+  @include mat.all-component-themes($theme);
 }
 
 .control-full-width {
   width: 100%;
 }
 
+@media print {
+  .markdown-content {
+    width: 100%;
+    max-width: none;
+  }
+
+  .markdown-content,
+  .markdown-content * {
+    background: transparent !important;
+    color: black !important;
+    box-shadow: none !important;
+    text-shadow: none !important;
+  }
+
+  .markdown-content img {
+    max-width: 100% !important;
+    page-break-inside: avoid;
+  }
+
+  .markdown-content h1, .markdown-content h2, .markdown-content h3,
+  .markdown-content h4, .markdown-content h5, .markdown-content h6 {
+    page-break-after: avoid;
+  }
+  .markdown-content pre, .markdown-content blockquote {
+    page-break-inside: avoid;
+  }
+  .markdown-content thead { page-break-inside: avoid; }
+  .markdown-content tr { page-break-inside: avoid; }
+  .markdown-content td, .markdown-content th { page-break-inside: avoid; }
+
+  .markdown-content table {
+    font-size: 0.8em;
+  }
+}
+
+// Using tailwindcss
+@tailwind base;
+@tailwind components;
+@tailwind utilities;

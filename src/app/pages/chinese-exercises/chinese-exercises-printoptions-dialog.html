@@ -1,0 +1,42 @@
+<h2 mat-dialog-title>Options of Chinese Reciting</h2>
+<mat-dialog-content class="control-full-width">
+  <mat-form-field class="control-full-width">
+    <mat-label>Level</mat-label>
+      <mat-select [(ngModel)]="selectedLevel" name="recitLevel">
+        @for (lvl of allLevels; track $index) {
+          <mat-option [value]="lvl">{{getQuestionBankLevelName(lvl)}}</mat-option>
+        }
+    </mat-select>
+  </mat-form-field>
+
+  <mat-form-field class="control-full-width">
+    <mat-label>Count</mat-label>
+    <input matInput type="number" [(ngModel)]="countOfItems" name="recitCount" [disabled]="data.disableCount">
+    <span matSuffix>{{data.reciteContentCount}}</span>
+  </mat-form-field>
+
+  <div class="control-full-width">
+    <mat-checkbox [(ngModel)]="printEntryDate" name="reciteEntryDate"> Print Entry Date </mat-checkbox>
+  </div>
+
+  <div class="control-full-width">
+    <mat-label>Exec. Date Option</mat-label>
+    <mat-radio-group aria-label="Select an option" class="control-full-width" name="reciteExecDateOption" [(ngModel)]="selectedExecDateModel">
+      @for (ped of allPrintExecDates; track $index) {
+        <mat-radio-button [value]="ped.value">{{ped.label}}</mat-radio-button>
+      }
+    </mat-radio-group>
+  </div>
+
+  <mat-form-field class="control-full-width">
+    <mat-label>Exec. Date</mat-label>
+    <input matInput [(ngModel)]="execDate" name="reciteExecDate" [matDatepicker]="picker" [disabled]="selectedExecDateModel() !== 2">
+    <mat-datepicker-toggle matIconSuffix [for]="picker"></mat-datepicker-toggle>
+    <mat-datepicker #picker></mat-datepicker>
+  </mat-form-field>
+
+</mat-dialog-content>
+<mat-dialog-actions>
+  <button mat-button (click)="onNoClick()">No Thanks</button>
+  <button mat-button (click)="onYesClick()" cdkFocusInitial>OK</button>
+</mat-dialog-actions>

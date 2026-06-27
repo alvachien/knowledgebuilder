@@ -1,0 +1,48 @@
+.form-title {
+	font-size: 2rem;
+	font-weight: bold;
+	margin-bottom: 1rem;
+	text-align: center;
+}
+
+.form-sub-title {
+	font-size: 1.2rem;
+	text-align: center;
+	margin-bottom: 1rem;
+}
+
+.form-answer-container {
+	display: flex;
+	flex-direction: row; 
+	flex-wrap: wrap;
+	gap: 8px; /* 相邻子元素之间的间距 */
+}
+.form_answer_content {
+	border-bottom: 1px solid #000;
+}
+
+@media print {
+	input {
+		border: none;
+	}
+
+	.form-title {
+		font-size: 1.2rem;
+		font-weight: bold;
+		text-align: center;
+	}
+	.form-sub-title {
+		font-size: 1rem;
+		text-align: center;
+		margin-bottom: 1rem;
+	}
+	.form-answer-container {
+		display: flex;
+		flex-direction: row; 
+		flex-wrap: wrap;
+  		gap: 8px; /* 相邻子元素之间的间距 */
+	}
+	.form_answer_content {
+		border-bottom: 1px solid #000;
+	}
+}

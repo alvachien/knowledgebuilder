@@ -1,0 +1,47 @@
+[
+    {
+        "id": "33-1-1",
+        "startTime": 6000,
+        "endTime": 45000
+    },
+    {
+        "id": "33-1-2",
+        "startTime": 48000,
+        "endTime": 105000
+    },
+    {
+        "id": "33-1-3",
+        "startTime": 109000,
+        "endTime": 156000
+    },
+    {
+        "id": "33-2-1",
+        "startTime": 165000,
+        "endTime": 218000
+    },
+    {
+        "id": "33-2-2",
+        "startTime": 226000,
+        "endTime": 323000
+    },
+    {
+        "id": "33-2-3",
+        "startTime": 330000,
+        "endTime": 486000
+    },
+    {
+        "id": "33-2-4",
+        "startTime": 495000,
+        "endTime": 592000
+    },
+    {
+        "id": "33-3-1",
+        "startTime": 603000,
+        "endTime": 841000
+    },
+    {
+        "id": "33-3-2",
+        "startTime": 847000,
+        "endTime": 977400
+    }
+]

@@ -1,0 +1,84 @@
+<div class="container">
+	@if(printMode()) {
+		<div id="print-section">
+			@if(printSetting()) {
+				<div class="form-title">{{printFormTitle}}, <small>{{printID}}</small></div>
+				@if(printEntryDate || printScore) {
+					<div class="form-sub-title">
+						@if(printEntryDate) {
+							<span>Date: ______;</span>
+						}
+						<span>Duration: ______(min);</span>
+						@if(printScore) {
+							<span>Score: ______;</span>
+						}
+					</div>
+				}
+			}
+
+			@for (question of questions; track question) {
+				<div class="form-row">
+					<app-knowledge-exercise-item [question]="question" [hideLabels]="hideLabelOfQuestionType" [printMode]="true" />
+				</div>
+			}
+			@if(printAnswer) {
+				<div style="page-break-before: always;"></div>
+				<div class="form-row">
+					<div class="form-title">{{printFormTitle}}, <small>{{printID}}</small></div>
+					<div class="form-answer-container">
+						@for (question of questions; track question) {
+							<div>{{question.order}}. </div>
+							@for(answer_content of getQuestionAnswer(question); track $index) {
+								<div class="form_answer_content">
+									{{answer_content}}
+									@if(printSetting()?.printHintOfAnswer) {
+										<span class="form_answer_content">
+											{{question.hintofanswer}}
+										</span>
+									}
+								</div>
+							}
+						}
+					</div>
+				</div>
+			}
+		</div>
+		<div class="form-row">
+			<button mat-button [useExistingCss]="true" printSectionId="print-section" ngxPrint>Print</button>
+		</div>
+	} @else {
+		@if(printSetting()) {
+			<div class="form-title">{{printFormTitle}}, <small>{{printID}}</small></div>
+			@if(printEntryDate || printScore) {
+				<div class="form-sub-title">
+					@if(printEntryDate) {
+						<span>Date: ______;</span>
+					}
+   				<span>Duration: ______(min);</span>
+					@if(printScore) {
+						<span>Score: ______;</span>
+					}
+				</div>
+			}
+		}
+		@if(form) {
+			<form (ngSubmit)="onSubmit()" [formGroup]="form">
+				@for (question of questions; track question) {
+					<section class="form-row">
+						<app-knowledge-exercise-item [question]="question" [form]="form" [hideLabels]="hideLabelOfQuestionType" [isSubItem]="false" [printMode]="false" />
+					</section>
+				}
+				<div class="form-row">
+					@if(printMode()) {
+						<button mat-button>Print</button>
+					} @else {
+						<button mat-button type="submit" [disabled]="!form.valid">Save</button>
+					}
+				</div>
+			</form>
+			@if (payLoad) {
+				<div class="form-row"><strong>Saved the following values</strong><br />{{ payLoad }}</div>
+			}
+		}
+	}
+</div>

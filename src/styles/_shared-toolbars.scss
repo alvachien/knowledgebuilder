@@ -1,0 +1,95 @@
+// Shared responsive toolbar styles for all exercise page components
+// Applied globally to all mat-toolbar instances in page content
+
+// =============================================================================
+// Base toolbar styles
+// =============================================================================
+
+mat-toolbar.container {
+  flex-wrap: wrap;
+}
+
+// File selector dropdown - responsive width
+mat-toolbar .page-toolbar-item,
+mat-toolbar .toolbar-item {
+  max-width: 240px;
+  min-width: 120px;
+}
+
+// Item count span - hide on small screens
+mat-toolbar .toolbar-item-count {
+  white-space: nowrap;
+}
+
+// Action button sections
+mat-toolbar .example-button-container {
+  display: flex;
+  gap: 4px;
+}
+
+// =============================================================================
+// Medium screens (821px–1200px): Compact single-row layout
+// =============================================================================
+
+@media (max-width: 1200px) and (min-width: 821px) {
+  mat-toolbar .page-toolbar-item,
+  mat-toolbar .toolbar-item {
+    max-width: 180px;
+    min-width: 100px;
+  }
+
+  // Hide item count on medium screens
+  mat-toolbar .toolbar-item-count {
+    display: none;
+  }
+}
+
+// =============================================================================
+// Small screens (≤820px): Two-row layout
+// =============================================================================
+
+@media (max-width: 820px) {
+  mat-toolbar.container {
+    // Allow toolbar to expand for two rows
+    min-height: auto;
+    padding: 8px 16px;
+  }
+
+  mat-toolbar .page-toolbar-item,
+  mat-toolbar .toolbar-item {
+    max-width: 160px;
+    min-width: 80px;
+    flex: 1 1 auto;
+  }
+
+  // Hide item count on small screens
+  mat-toolbar .toolbar-item-count {
+    display: none;
+  }
+
+  // Make toolbar-spacer not grow on small screens (let items wrap)
+  mat-toolbar .toolbar-spacer {
+    flex: 0 0 auto;
+    width: 8px;
+  }
+
+  // Use smaller buttons on small screens
+  mat-toolbar button.mat-mdc-fab,
+  mat-toolbar a.mat-mdc-fab {
+    width: 40px;
+    height: 40px;
+  }
+
+  mat-toolbar button.mat-mdc-fab .mat-mdc-button-touch-target,
+  mat-toolbar a.mat-mdc-fab .mat-mdc-button-touch-target {
+    width: 40px;
+    height: 40px;
+  }
+
+  mat-toolbar button.mat-mdc-fab .mat-icon,
+  mat-toolbar a.mat-mdc-fab .mat-icon {
+    font-size: 20px;
+    width: 20px;
+    height: 20px;
+  }
+}

@@ -1,0 +1,52 @@
+[
+	{
+		"id": "24-1-1",
+		"startTime": 11000,
+		"endTime": 91000
+	},
+	{
+		"id": "24-1-2",
+		"startTime": 97000,
+		"endTime": 141000
+	},
+	{
+		"id": "24-1-3",
+		"startTime": 147000,
+		"endTime": 246000
+	},
+	{
+		"id": "24-2-1",
+		"startTime": 255000,
+		"endTime": 316000
+	},
+	{
+		"id": "24-2-2",
+		"startTime": 321000,
+		"endTime": 352000
+	},
+	{
+		"id": "24-2-3",
+		"startTime": 358000,
+		"endTime": 443000
+	},
+	{
+		"id": "24-2-4",
+		"startTime": 449500,
+		"endTime": 553000
+	},
+	{
+		"id": "24-2-5",
+		"startTime": 565000,
+		"endTime": 690000
+	},
+	{
+		"id": "24-2-6",
+		"startTime": 696000,
+		"endTime": 906000
+	},
+	{
+		"id": "24-3-1",
+		"startTime": 914000,
+		"endTime": 991000
+	}
+]
