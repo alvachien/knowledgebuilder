@@ -1,0 +1,37 @@
+[
+    {
+        "id": "31-1-1",
+        "startTime": 5600,
+        "endTime": 118000
+    },
+    {
+        "id": "31-2-1",
+        "startTime": 127000,
+        "endTime": 197000
+    },
+    {
+        "id": "31-2-2",
+        "startTime": 205000,
+        "endTime": 278000
+    },
+    {
+        "id": "31-2-3",
+        "startTime": 284000,
+        "endTime": 385000
+    },
+    {
+        "id": "31-2-4",
+        "startTime": 391000,
+        "endTime": 612000
+    },
+    {
+        "id": "31-3-1",
+        "startTime": 622000,
+        "endTime": 777000
+    },
+    {
+        "id": "31-3-2",
+        "startTime": 784000,
+        "endTime": 993500
+    }
+]

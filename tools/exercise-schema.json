@@ -1,0 +1,289 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "array",
+  "description": "试题集合",
+  "items": {
+    "type": "object",
+    "required": [
+      "id",
+      "itemType",
+      "question"
+    ],
+    "properties": {
+      "id": {
+        "type": "string",
+        "description": "题目唯一标识符"
+      },
+      "order": {
+        "type": "integer",
+        "description": "题目序号（可选）"
+      },
+      "itemType": {
+        "type": "string",
+        "enum": [
+          "FillInTheBlank",
+          "SingleChoice",
+          "MultipleChoice",
+          "TrueFalse",
+          "Dictation",
+          "ShortAnswer",
+          "Essay",
+          "ReadingComprehension",
+          "Cloze"
+        ],
+        "description": "题目类型"
+      },
+      "question": {
+        "type": "string",
+        "description": "题目内容"
+      },
+      "questionFormat": {
+        "type": "string",
+        "enum": [
+          "PlainText",
+          "WithLatex",
+          "Markdown"
+        ],
+        "description": "题目格式（可选，标识是否包含LaTeX公式）"
+      },
+      "options": {
+        "type": "object",
+        "description": "选择题选项（适用于SingleChoice、MultipleChoice、TrueFalse类型）",
+        "additionalProperties": {
+          "type": "string"
+        }
+      },
+      "answer": {
+        "type": "string",
+        "description": "单选题答案（适用于SingleChoice、TrueFalse类型）"
+      },
+      "answers": {
+        "type": "array",
+        "items": {
+          "type": "string"
+        },
+        "description": "多选题答案列表、多行答案内容、或Dictation的分段答案"
+      },
+      "hintofanswer": {
+        "type": "string",
+        "description": "答案提示/解析说明（可选）"
+      },
+      "rowsOfAnswers": {
+        "type": "integer",
+        "description": "答题区域行数（适用于ShortAnswer、Essay类型）"
+      },
+      "difficulty": {
+        "type": "integer",
+        "minimum": 1,
+        "maximum": 5,
+        "description": "题目难度等级（数字，1-5，可选）"
+      },
+      "questionLevel": {
+        "type": "string",
+        "enum": [
+          "Easy",
+          "Medium",
+          "Hard"
+        ],
+        "description": "题目难度等级（字符串形式，仅适用于Dictation类型）"
+      },
+      "suggestedCompletionTime": {
+        "type": "integer",
+        "description": "建议完成时间（分钟，可选）"
+      },
+      "tags": {
+        "type": "array",
+        "items": {
+          "type": "string"
+        },
+        "description": "题目标签/分类（可选，用于题目分类和搜索）"
+      },
+      "extraInfo": {
+        "type": "array",
+        "items": {
+          "type": "string"
+        },
+        "description": "额外信息（可选，如Word Bank等补充材料）"
+      },
+      "items": {
+        "type": "array",
+        "description": "子题目列表（适用于ReadingComprehension、Cloze类型）",
+        "items": {
+          "type": "object",
+          "required": [
+            "id",
+            "itemType",
+            "question"
+          ],
+          "properties": {
+            "id": {
+              "type": "string",
+              "description": "子题目唯一标识符"
+            },
+            "itemType": {
+              "type": "string",
+              "enum": [
+                "ShortAnswer",
+                "SingleChoice",
+                "MultipleChoice",
+                "FillInTheBlank",
+                "TrueFalse"
+              ],
+              "description": "子题目类型"
+            },
+            "question": {
+              "type": "string",
+              "description": "子题目内容"
+            },
+            "options": {
+              "type": "object",
+              "description": "子题目选项",
+              "additionalProperties": {
+                "type": "string"
+              }
+            },
+            "answer": {
+              "type": "string",
+              "description": "子题目单选答案"
+            },
+            "answers": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              },
+              "description": "子题目答案列表"
+            },
+            "hintofanswer": {
+              "type": "string",
+              "description": "子题目答案提示/解析"
+            },
+            "rowsOfAnswers": {
+              "type": "integer",
+              "description": "子题目答题区域行数"
+            }
+          },
+          "allOf": [
+            {
+              "if": {
+                "properties": {
+                  "itemType": {
+                    "const": "FillInTheBlank"
+                  }
+                },
+                "required": [
+                  "itemType"
+                ]
+              },
+              "then": {
+                "properties": {
+                  "question": {
+                    "type": "string",
+                    "pattern": "@[^@]+@",
+                    "description": "填空题必须使用@答案@格式标注答案位置"
+                  }
+                },
+                "not": {
+                  "required": [
+                    "answer"
+                  ]
+                }
+              }
+            }
+          ]
+        }
+      }
+    },
+    "allOf": [
+      {
+        "if": {
+          "properties": {
+            "itemType": {
+              "const": "FillInTheBlank"
+            }
+          },
+          "required": [
+            "itemType"
+          ]
+        },
+        "then": {
+          "properties": {
+            "question": {
+              "type": "string",
+              "pattern": "@[^@]+@",
+              "description": "填空题必须使用@答案@格式标注答案位置"
+            }
+          },
+          "not": {
+            "required": [
+              "answer"
+            ]
+          }
+        }
+      }
+    ],
+    "dependentSchemas": {
+      "options": {
+        "properties": {
+          "itemType": {
+            "enum": [
+              "SingleChoice",
+              "MultipleChoice",
+              "TrueFalse",
+              "Cloze"
+            ]
+          }
+        }
+      },
+      "answer": {
+        "properties": {
+          "itemType": {
+            "enum": [
+              "SingleChoice",
+              "TrueFalse",
+              "ShortAnswer"
+            ]
+          }
+        }
+      },
+      "answers": {
+        "properties": {
+          "itemType": {
+            "enum": [
+              "MultipleChoice",
+              "Dictation",
+              "ShortAnswer",
+              "Essay"
+            ]
+          }
+        }
+      },
+      "rowsOfAnswers": {
+        "properties": {
+          "itemType": {
+            "enum": [
+              "ShortAnswer",
+              "Essay"
+            ]
+          }
+        }
+      },
+      "items": {
+        "properties": {
+          "itemType": {
+            "enum": [
+              "ReadingComprehension",
+              "Cloze"
+            ]
+          }
+        }
+      },
+      "questionLevel": {
+        "properties": {
+          "itemType": {
+            "const": "Dictation"
+          }
+        }
+      }
+    }
+  }
+}

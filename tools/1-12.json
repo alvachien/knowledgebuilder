@@ -1,0 +1,37 @@
+[
+    {
+        "id": "12-1-1",
+        "startTime": 10500,
+        "endTime": 18000
+    },
+    {
+        "id": "12-1-5",
+        "startTime": 91000,
+        "endTime": 106000
+    },
+    {
+        "id": "12-1-6",
+        "startTime": 111600,
+        "endTime": 124000
+    },
+    {
+        "id": "12-1-7",
+        "startTime": 135000,
+        "endTime": 144000
+    },
+    {
+        "id": "12-1-8",
+        "startTime": 150000,
+        "endTime": 175000
+    },
+    {
+        "id": "12-3-3",
+        "startTime": 463300,
+        "endTime": 485000
+    },
+    {
+        "id": "12-3-5",
+        "startTime": 525000,
+        "endTime": 544000
+    }
+]

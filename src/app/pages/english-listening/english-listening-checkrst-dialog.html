@@ -1,0 +1,26 @@
+<div *transloco="let t">
+  <h2 mat-dialog-title>{{ t('englishListening.checkResult') }}</h2>
+  <mat-dialog-content class="control-full-width">
+      <div class="container">
+          <table mat-table [dataSource]="data.result" class="mat-elevation-z8 w-full">
+            <!-- Expected Column -->
+            <ng-container matColumnDef="expected">
+              <th mat-header-cell *matHeaderCellDef> {{ t('englishListening.expected') }} </th>
+              <td mat-cell *matCellDef="let element"> {{element.expected}} </td>
+            </ng-container>
+
+            <!-- Inputted Column -->
+            <ng-container matColumnDef="inputted">
+              <th mat-header-cell *matHeaderCellDef> {{ t('englishListening.inputted') }} </th>
+              <td mat-cell *matCellDef="let element"> {{element.inputted}} </td>
+            </ng-container>
+
+            <tr mat-header-row *matHeaderRowDef="displayedResultColumns"></tr>
+            <tr mat-row *matRowDef="let row; columns: displayedResultColumns;"></tr>
+          </table>
+      </div>
+  </mat-dialog-content>
+  <mat-dialog-actions>
+    <button mat-button (click)="onCloseClick()" cdkFocusInitial>{{ t('englishListening.close') }}</button>
+  </mat-dialog-actions>
+</div>

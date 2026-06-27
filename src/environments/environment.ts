@@ -1,19 +1,21 @@
-// This file can be replaced during build by using the `fileReplacements` array.
-// `ng build --prod` replaces `environment.ts` with `environment.prod.ts`.
-// The list of file replacements can be found in `angular.json`.
+// The file contents for the current environment will overwrite these during build.
+// The build system defaults to the dev environment which uses `environment.ts`, but if you do
+// `ng build --env=prod` then `environment.prod.ts` will be used instead.
+// The list of which env maps to which file can be found in `angular-cli.json`.
 
 export const environment = {
+  homeurl: 'http://localhost:29800',
   production: false,
-  mockdata: false,
-  version: '0.3.280',
-  buildDate: '2023-12-31',
-  basehref: '/',
-
-  idServerUrl: 'https://localhost:44353',
-  homePageUrl: 'https://localhost:44367',
-  AppHost: 'https://localhost:44367',
-
-  apiurlRoot: 'https://localhost:44355',
+  releasedate: '2026-06-26',
+  version: '1.8.399',
+  apiUrl: 'https://localhost:7135',
+  pageTitle: 'Knowledge Builder',
+  loginRequired: true,
+  idServerUrl: 'https://localhost:7228',
+  appHost: 'http://localhost:29800',
+  appLogoutCallbackUrl: 'http://localhost:29800',
+  oidcClientId: 'knowledgebuilder.js',
+  oidcScope: 'openid profile email offline_access api.knowledgebuilder',
 };
 
 /*
@@ -23,4 +25,4 @@ export const environment = {
  * This import should be commented out in production mode because it will have a negative impact
  * on performance if an error is thrown.
  */
-// import 'zone.js/dist/zone-error';  // Included with Angular CLI.
+// import 'zone.js/fesm2015/zone-error';  // Included with Angular CLI.

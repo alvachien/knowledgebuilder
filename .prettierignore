@@ -1,0 +1,15 @@
+# Ignore artifacts:
+dist
+coverage
+.angular
+node_modules
+
+# Ignore all HTML files (Angular templates):
+*.html
+
+# Ignore configuration files:
+*.json
+*.md
+*.yml
+*.yaml
+*.toml

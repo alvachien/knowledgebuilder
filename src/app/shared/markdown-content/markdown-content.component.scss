@@ -1,0 +1,33 @@
+.markdown-content {
+  width: 100%;
+
+  // Ensure proper contrast in dark themes
+  color: inherit;
+  background: inherit;
+
+  // Preserve the original functionality
+  > p {
+    overflow-wrap: break-word;
+  }
+
+  // Handle text elements appropriately in dark mode
+  p,
+  div,
+  span,
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6,
+  li,
+  blockquote {
+    color: inherit;
+  }
+
+  // Handle code blocks appropriately in dark mode
+  code {
+    // Override potential conflicting styles
+    background: rgba(var(--mdc-code-block-container-color, 255, 255, 255), 0.1);
+  }
+}

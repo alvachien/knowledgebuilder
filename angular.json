@@ -3,170 +3,149 @@
   "version": 1,
   "newProjectRoot": "projects",
   "projects": {
-    "knowledgebuilder": {
+    "learning": {
       "projectType": "application",
       "schematics": {
         "@schematics/angular:component": {
           "style": "scss"
-        },
-        "@schematics/angular:application": {
-          "strict": true
         }
       },
       "root": "",
       "sourceRoot": "src",
-      "prefix": "khb",
+      "prefix": "app",
       "architect": {
         "build": {
-          "builder": "@angular-devkit/build-angular:browser",
+          "builder": "@angular/build:application",
           "options": {
-            "outputPath": "dist",
+            "sourceMap": true,
+            "outputPath": {
+              "base": "dist"
+            },
             "index": "src/index.html",
-            "main": "src/main.ts",
-            "polyfills": "src/polyfills.ts",
-            "tsConfig": "tsconfig.app.json",
-            "allowedCommonJsDependencies": [
-              "core-js",
-              "raf",
-              "moment",
-              "flat",
-              "rgbcolor",
-              "html2canvas"
+            "polyfills": [
+              "zone.js"
             ],
-            "inlineStyleLanguage": "scss",
+            "allowedCommonJsDependencies": [
+              "howler",
+              "rgbcolor",
+              "raf",
+              "core-js",
+              "extract-math",
+              "dompurify"
+            ],
+            "tsConfig": "tsconfig.app.json",
             "assets": [
-              "src/favicon.ico",
-              "src/assets",
-              "src/.htaccess",
               {
                 "glob": "**/*",
-                "input": "./node_modules/monaco-editor/min/vs",
-                "output": "/assets/vs/"
+                "input": "public"
+              },
+              {
+                "glob": "**/*",
+                "input": "src/assets"
               }
             ],
             "styles": [
-              "node_modules/@angular/material/prebuilt-themes/purple-green.css",
-              "node_modules/bootstrap/scss/bootstrap.scss",
-              "node_modules/katex/dist/katex.min.css",
-              "src/styles.scss"
+              {
+                "input": "src/styles.scss"
+              },
+              {
+                "input": "node_modules/katex/dist/katex.min.css"
+              },
+              {
+                "inject": false,
+                "input": "src/styles/custom-themes/rose-red.scss",
+                "bundleName": "rose-red"
+              },
+              {
+                "inject": false,
+                "input": "src/styles/custom-themes/azure-blue.scss",
+                "bundleName": "azure-blue"
+              },
+              {
+                "inject": false,
+                "input": "src/styles/custom-themes/sunshine-coral.scss",
+                "bundleName": "sunshine-coral"
+              },
+              {
+                "inject": false,
+                "input": "src/styles/custom-themes/forest-green.scss",
+                "bundleName": "forest-green"
+              }
             ],
+            "stylePreprocessorOptions": {
+              "includePaths": [
+                "src/styles"
+              ]
+            },
             "scripts": [
-              "node_modules/marked/marked.min.js",
               "node_modules/katex/dist/katex.min.js",
-              "node_modules/katex/dist/contrib/auto-render.min.js",
-              "node_modules/jspdf/dist/jspdf.umd.min.js",
-              "node_modules/echarts/dist/echarts.js"
-            ]
+              "node_modules/katex/dist/contrib/mhchem.min.js",
+              "node_modules/katex/dist/contrib/auto-render.min.js"
+            ],
+            "extractLicenses": false,
+            "optimization": false,
+            "namedChunks": true,
+            "browser": "src/main.ts"
           },
           "configurations": {
             "production": {
+              "budgets": [
+                {
+                  "type": "initial",
+                  "maximumWarning": "2MB",
+                  "maximumError": "4MB"
+                },
+                {
+                  "type": "anyComponentStyle",
+                  "maximumWarning": "24kB",
+                  "maximumError": "32kB"
+                }
+              ],
+              "optimization": true,
+              "outputHashing": "all",
+              "sourceMap": false,
+              "namedChunks": false,
+              "extractLicenses": true,
               "fileReplacements": [
                 {
                   "replace": "src/environments/environment.ts",
                   "with": "src/environments/environment.prod.ts"
                 }
-              ],
-              "baseHref": "/math/",
-              "outputHashing": "all",
-              "optimization": {
-                "scripts": true,
-                "styles": true,
-                "fonts": false
-              },
-              "budgets": [
-                {
-                  "type": "initial",
-                  "maximumWarning": "6mb",
-                  "maximumError": "10mb"
-                },
-                {
-                  "type": "anyComponentStyle",
-                  "maximumWarning": "6kb",
-                  "maximumError": "10kb"
-                }
-              ]
-            },
-            "github": {
-              "fileReplacements": [
-                {
-                  "replace": "src/environments/environment.ts",
-                  "with": "src/environments/environment.github.ts"
-                }
-              ],
-              "baseHref": "/knowledgebuilder/",
-              "outputHashing": "all",
-              "budgets": [
-                {
-                  "type": "initial",
-                  "maximumWarning": "5mb",
-                  "maximumError": "10mb"
-                },
-                {
-                  "type": "anyComponentStyle",
-                  "maximumWarning": "6kb",
-                  "maximumError": "10kb"
-                }
               ]
             },
             "development": {
-              "buildOptimizer": false,
               "optimization": false,
-              "vendorChunk": true,
               "extractLicenses": false,
-              "sourceMap": true,
-              "namedChunks": true
+              "sourceMap": true
             }
           },
           "defaultConfiguration": "production"
         },
         "serve": {
-          "builder": "@angular-devkit/build-angular:dev-server",
+          "builder": "@angular/build:dev-server",
           "options": {
-            "browserTarget": "knowledgebuilder:build",
-            "port": 44367,
-            "host": "localhost"
+            "port": 29800,
+            "host": "localhost",
+            "buildTarget": "learning:build:development"
           },
           "configurations": {
             "production": {
-              "browserTarget": "knowledgebuilder:build:production"
-            },
-            "github": {
-              "browserTarget": "knowledgebuilder:build:github"
+              "buildTarget": "learning:build:production"
             },
             "development": {
-              "browserTarget": "knowledgebuilder:build:development"
+              "buildTarget": "learning:build:development"
             }
           },
           "defaultConfiguration": "development"
         },
         "extract-i18n": {
-          "builder": "@angular-devkit/build-angular:extract-i18n",
-          "options": {
-            "browserTarget": "knowledgebuilder:build"
-          }
+          "builder": "@angular/build:extract-i18n"
         },
         "test": {
-          "builder": "@angular-devkit/build-angular:karma",
+          "builder": "@angular/build:unit-test",
           "options": {
-            "main": "src/test.ts",
-            "polyfills": "src/polyfills.ts",
             "tsConfig": "tsconfig.spec.json",
-            "karmaConfig": "karma.conf.js",
-            "assets": [
-              "src/favicon.ico",
-              "src/assets"
-            ],
-            "styles": [
-              "node_modules/@angular/material/prebuilt-themes/deeppurple-amber.css",
-              "src/styles.scss"
-            ],
-            "scripts": [
-              "node_modules/marked/marked.min.js",
-              "node_modules/katex/dist/katex.min.js",
-              "node_modules/katex/dist/contrib/auto-render.min.js",
-              "node_modules/jspdf/dist/jspdf.umd.min.js",
-              "node_modules/echarts/dist/echarts.js"
-            ]
+            "setupFiles": ["src/test-setup.ts"]
           }
         },
         "lint": {
@@ -182,17 +161,32 @@
     }
   },
   "cli": {
-    "schematicCollections": [
-      "@angular-eslint/schematics"
-    ],
     "analytics": false
   },
   "schematics": {
-    "@angular-eslint/schematics:application": {
-      "setParserOptionsProject": true
+    "@schematics/angular:component": {
+      "type": "component"
     },
-    "@angular-eslint/schematics:library": {
-      "setParserOptionsProject": true
+    "@schematics/angular:directive": {
+      "type": "directive"
+    },
+    "@schematics/angular:service": {
+      "type": "service"
+    },
+    "@schematics/angular:guard": {
+      "typeSeparator": "."
+    },
+    "@schematics/angular:interceptor": {
+      "typeSeparator": "."
+    },
+    "@schematics/angular:module": {
+      "typeSeparator": "."
+    },
+    "@schematics/angular:pipe": {
+      "typeSeparator": "."
+    },
+    "@schematics/angular:resolver": {
+      "typeSeparator": "."
     }
   }
 }

@@ -1,0 +1,38 @@
+@use '@angular/material' as mat;
+
+@use './app/pages/vocabulary-exercises/vocabulary-exercises-theme';
+@use './app/pages/translate-exercises/translate-exercises-theme';
+@use './app/pages/chinese-exercises/chinese-exercises-theme';
+@use './app/pages/formula-recites/formula-recites-theme';
+@use './app/pages/english-listening/english-listening-theme';
+@use './app/pages/knowledge-exercises/knowledge-exercises-theme';
+@use './app/pages/homepage/homepage-theme';
+@use './app/pages/not-found/not-found-theme';
+@use './app/shared/footer/footer-theme';
+@use './app/shared/navbar/navbar-theme';
+@use './app/shared/theme-picker/theme-picker-theme';
+@use './app/shared/language-selector/language-selector-theme';
+@use './styles/markdown-theme';
+@use './styles/svg-theme';
+
+// Styles for the docs app that are based on the current theme.
+@mixin theme($theme) {
+  .app-background {
+    background: mat.get-theme-color($theme, surface);
+  }
+
+  // TBD.
+  @include markdown-theme.theme($theme);
+  @include svg-theme.theme($theme);
+  @include footer-theme.theme($theme);
+  @include homepage-theme.theme($theme);
+  @include vocabulary-exercises-theme.theme($theme);
+  @include translate-exercises-theme.theme($theme);
+  @include chinese-exercises-theme.theme($theme);
+  @include formula-recites-theme.theme($theme);
+  @include english-listening-theme.theme($theme);
+  @include not-found-theme.theme($theme);
+  @include navbar-theme.theme($theme);
+  @include theme-picker-theme.theme($theme);
+  @include language-selector-theme.theme($theme);
+}

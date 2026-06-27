@@ -1,0 +1,26 @@
+<h2 mat-dialog-title>Options of Chinese Reciting</h2>
+<mat-dialog-content class="control-full-width">
+  <mat-form-field class="page-toolbar-item">
+    <mat-label>Level</mat-label>
+    <mat-select matNativeControl class="control-full-width" [(value)]="selectedLevel">
+      @for (lvl of allLevels; track $index) {
+        <mat-option [value]="lvl">{{getQuestionBankLevelName(lvl)}}</mat-option>
+      }
+    </mat-select>
+  </mat-form-field>
+
+  <mat-form-field class="control-full-width">
+    <mat-label>Count</mat-label>
+    <input matInput type="number" [(ngModel)]="countOfItems" [disabled]="data.disableCount">
+    <span matSuffix>{{data.reciteContentCount}}</span>
+  </mat-form-field>
+
+  <div class="control-full-width">
+    <mat-checkbox [(ngModel)]="allowEmptyAnswer"> Allow Empty Answer </mat-checkbox>
+  </div>
+
+</mat-dialog-content>
+<mat-dialog-actions>
+  <button mat-button (click)="onNoClick()">No Thanks</button>
+  <button mat-button (click)="onYesClick()" cdkFocusInitial>OK</button>
+</mat-dialog-actions>

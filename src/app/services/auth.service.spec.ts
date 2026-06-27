@@ -1,120 +1,240 @@
-import { HttpClientTestingModule, HttpTestingController } from '@angular/common/http/testing';
-import { discardPeriodicTasks, fakeAsync, flush, TestBed, tick, waitForAsync } from '@angular/core/testing';
-import { OidcSecurityService, PublicEventsService } from 'angular-auth-oidc-client';
-import { of } from 'rxjs';
-import { environment } from 'src/environments/environment';
+import { HttpClient } from '@angular/common/http';
+import { TestBed } from '@angular/core/testing';
+import { Router } from '@angular/router';
+import { EventTypes, OidcSecurityService, PublicEventsService } from 'angular-auth-oidc-client';
+import { Subject, of, throwError } from 'rxjs';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 
-import { asyncData } from 'src/testing';
+import { UserAuthInfo } from '../interfaces';
 import { AuthService } from './auth.service';
-import { SafeAny } from '../common';
 
 describe('AuthService', () => {
   let service: AuthService;
-  let httpTestingController: HttpTestingController;
-  let securService: SafeAny;
-  let eventService: SafeAny;
-  let checkAuthSpy: SafeAny;
-  let authorizeSpy: SafeAny;
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  let registerForEventsSpy: SafeAny;
+  let oidcSpy: {
+    checkAuth: ReturnType<typeof vi.fn>;
+    authorize: ReturnType<typeof vi.fn>;
+    logoffAndRevokeTokens: ReturnType<typeof vi.fn>;
+  };
+  let httpSpy: { get: ReturnType<typeof vi.fn> };
+  let eventsSubject: Subject<{ type: EventTypes }>;
 
-  beforeAll(() => {
-    securService = jasmine.createSpyObj('OidcSecurityService', ['checkAuth', 'authorize']);
-    checkAuthSpy = securService.checkAuth.and.returnValue(of({}));
-    authorizeSpy = securService.authorize.and.returnValue();
+  beforeEach(() => {
+    eventsSubject = new Subject();
 
-    eventService = jasmine.createSpyObj('PublicEventsService', ['registerForEvents']);
-    registerForEventsSpy = eventService.registerForEvents.and.returnValue(of({}));
-  });
+    oidcSpy = {
+      checkAuth: vi.fn().mockReturnValue(
+        of({ isAuthenticated: false, userData: null, accessToken: null }),
+      ),
+      authorize: vi.fn(),
+      logoffAndRevokeTokens: vi.fn().mockReturnValue(of(null)),
+    };
 
-  beforeEach(waitForAsync(() => {
+    httpSpy = {
+      get: vi.fn().mockReturnValue(of('ok')),
+    };
+
     TestBed.configureTestingModule({
-      imports: [HttpClientTestingModule],
       providers: [
         AuthService,
-        { provide: OidcSecurityService, useValue: securService },
-        { provide: PublicEventsService, useValue: eventService },
+        { provide: OidcSecurityService, useValue: oidcSpy },
+        {
+          provide: PublicEventsService,
+          useValue: { registerForEvents: () => eventsSubject.asObservable() },
+        },
+        { provide: Router, useValue: { navigate: vi.fn() } },
+        { provide: HttpClient, useValue: httpSpy },
       ],
     });
 
-    httpTestingController = TestBed.inject(HttpTestingController);
     service = TestBed.inject(AuthService);
-  }));
+  });
 
   it('should be created', () => {
     expect(service).toBeTruthy();
   });
 
-  xit('shall not authorized by default', () => {
-    expect(service).toBeTruthy();
-    expect(service.isAuthenticated).toBeFalsy();
-    expect(service.accessToken).toBeFalsy();
-    expect(service.currentUserId).toBeFalsy();
-    expect(service.currentUserName).toBeFalsy();
-    expect(service.userDetail).toBeFalsy();
+  describe('constructor', () => {
+    it('should call checkAuth on init', () => {
+      expect(oidcSpy.checkAuth).toHaveBeenCalled();
+    });
+
+    it('should set authSubject to unauthorized when checkAuth returns not authenticated', () => {
+      const value = service.authSubject.getValue();
+      expect(value.isAuthorized).toBe(false);
+    });
   });
 
-  describe('work with authorized result', () => {
-    beforeEach(() => {
-      checkAuthSpy.and.returnValue(
-        asyncData({
+  describe('doLogin', () => {
+    it('should call oidc.authorize() when IDP is reachable', () => {
+      httpSpy.get.mockReturnValue(of('ok'));
+      service.doLogin();
+      expect(oidcSpy.authorize).toHaveBeenCalled();
+    });
+
+    it('should set error when IDP is unreachable', () => {
+      httpSpy.get.mockReturnValue(throwError(() => new Error('Network error')));
+      service.doLogin();
+      const value = service.authSubject.getValue();
+      expect(value.isAuthorized).toBe(false);
+      expect(value.getErrorMessage()).toBe('auth.idp_unreachable');
+      expect(oidcSpy.authorize).not.toHaveBeenCalled();
+    });
+  });
+
+  describe('doLogout', () => {
+    it('should call oidc.logoffAndRevokeTokens and clean authSubject', () => {
+      oidcSpy.checkAuth.mockReturnValue(
+        of({
           isAuthenticated: true,
-          userData: '',
-          accessToken: 'abac',
-          idToken: 'avc',
-        })
+          userData: { sub: 'user-123', name: 'Test' },
+          accessToken: 'tok',
+        }),
       );
+      service.checkAuth();
+      expect(service.authSubject.getValue().isAuthorized).toBe(true);
+
+      service.doLogout();
+      expect(oidcSpy.logoffAndRevokeTokens).toHaveBeenCalled();
+      expect(service.authSubject.getValue().isAuthorized).toBe(false);
+      expect(service.authSubject.getValue().getUserName()).toBeUndefined();
     });
 
-    afterEach(() => {
-      // After every test, assert that there are no more pending requests.
-      httpTestingController.verify();
+    it('should still clean local state when IDP revoke call fails', () => {
+      oidcSpy.logoffAndRevokeTokens.mockReturnValue(
+        throwError(() => new Error('IDP down')),
+      );
+
+      // Set as authorized first
+      oidcSpy.checkAuth.mockReturnValue(
+        of({
+          isAuthenticated: true,
+          userData: { sub: 'u', name: 'T' },
+          accessToken: 't',
+        }),
+      );
+      service.checkAuth();
+      expect(service.authSubject.getValue().isAuthorized).toBe(true);
+
+      service.doLogout();
+      expect(service.authSubject.getValue().isAuthorized).toBe(false);
+    });
+  });
+
+  describe('checkAuth', () => {
+    it('should populate authSubject when authenticated', () => {
+      oidcSpy.checkAuth.mockReturnValue(
+        of({
+          isAuthenticated: true,
+          userData: { sub: 'user-123', name: 'Test User' },
+          accessToken: 'test-token',
+        }),
+      );
+      service.checkAuth();
+      const value = service.authSubject.getValue();
+      expect(value.isAuthorized).toBe(true);
+      expect(value.getUserName()).toBe('Test User');
+      expect(value.getUserId()).toBe('user-123');
+      expect(value.getAccessToken()).toBe('test-token');
     });
 
-    xit('shall authorized with positive result', fakeAsync(() => {
-      authorizeSpy.and.callFake(() => {
-        securService.checkAuth();
+    it('should clean authSubject when not authenticated', () => {
+      oidcSpy.checkAuth.mockReturnValue(
+        of({ isAuthenticated: false, userData: null, accessToken: null }),
+      );
+      service.checkAuth();
+      const value = service.authSubject.getValue();
+      expect(value.isAuthorized).toBe(false);
+      expect(value.getUserName()).toBeUndefined();
+    });
+
+    it('should set error when checkAuth throws', () => {
+      oidcSpy.checkAuth.mockReturnValue(
+        throwError(() => new Error('IDP unreachable')),
+      );
+      service.checkAuth();
+      const value = service.authSubject.getValue();
+      expect(value.isAuthorized).toBe(false);
+      expect(value.getErrorMessage()).toBe('auth.check_auth_failed');
+    });
+  });
+
+  describe('event handling', () => {
+    it('should call doLogin on first SilentRenewFailed event', () => {
+      const loginSpy = vi.spyOn(service, 'doLogin');
+      eventsSubject.next({ type: EventTypes.SilentRenewFailed });
+      expect(loginSpy).toHaveBeenCalledTimes(1);
+    });
+
+    it('should set error after 3 consecutive SilentRenewFailed events', () => {
+      // Mock IDP reachable so doLogin doesn't get stuck
+      httpSpy.get.mockReturnValue(of('ok'));
+
+      eventsSubject.next({ type: EventTypes.SilentRenewFailed });
+      eventsSubject.next({ type: EventTypes.SilentRenewFailed });
+      eventsSubject.next({ type: EventTypes.SilentRenewFailed });
+
+      const value = service.authSubject.getValue();
+      expect(value.getErrorMessage()).toBe('auth.session_expired');
+    });
+  });
+
+  describe('clearError', () => {
+    it('should clear the error message', () => {
+      // Set an error
+      const info = service.authSubject.getValue();
+      info.setError('auth.idp_unreachable');
+      service.authSubject.next(info);
+      expect(service.authSubject.getValue().getErrorMessage()).toBe('auth.idp_unreachable');
+
+      service.clearError();
+      expect(service.authSubject.getValue().getErrorMessage()).toBeUndefined();
+    });
+
+    it('should preserve authentication state when clearing error', () => {
+      // Scenario: an error was set (which clears isAuthorized), then dismissed.
+      // After dismissing, the state should be clean unauthorized (not re-authorized,
+      // but also not carrying stale error).
+      const info = UserAuthInfo.createWithError('auth.idp_unreachable');
+      service.authSubject.next(info);
+
+      const before = service.authSubject.getValue();
+      expect(before.isAuthorized).toBe(false);
+      expect(before.getErrorMessage()).toBe('auth.idp_unreachable');
+
+      service.clearError();
+
+      const after = service.authSubject.getValue();
+      expect(after.isAuthorized).toBe(false);
+      expect(after.getErrorMessage()).toBeUndefined();
+      expect(after.getUserId()).toBeUndefined();
+      expect(after.getUserName()).toBeUndefined();
+    });
+
+    it('should preserve auth fields when clearing error on an authorized instance', () => {
+      // Edge case: if somehow an authorized UserAuthInfo has an error
+      // (shouldn't happen with current setError, but guard against future changes)
+      const info = UserAuthInfo.createAuthenticated({
+        userId: 'user-123',
+        userName: 'Test User',
+        accessToken: 'test-token',
       });
+      // Manually set error WITHOUT clearing auth (bypassing setError)
+      (info as any)._errorMessage = 'some.warning';
+      service.authSubject.next(info);
 
-      tick();
-      service.logon();
-      tick();
-      flush();
-      tick();
+      const before = service.authSubject.getValue();
+      expect(before.isAuthorized).toBe(true);
+      expect(before.getUserId()).toBe('user-123');
+      expect(before.getErrorMessage()).toBe('some.warning');
 
-      expect(service.isAuthenticated).toBeTruthy();
-      expect(service.accessToken).toBeTruthy();
-      expect(service.currentUserId).toBeTruthy();
-      expect(service.currentUserName).toBeTruthy();
-      expect(service.userDetail).toBeFalsy();
+      service.clearError();
 
-      tick(); // complete the get user detail call.
-
-      const callurl = `${environment.apiurlRoot}/InvitedUsers`;
-      // Service should have made one request to GET data from expected URL
-      const req: SafeAny = httpTestingController.expectOne((requrl: SafeAny) => {
-        return requrl.method === 'GET' && requrl.url === callurl;
-      });
-
-      expect(req.request.params.get('$expand')).toEqual('AwardUsers');
-
-      // Respond with the mock data
-      req.flush({
-        value: [
-          {
-            UserID: 'aaa',
-            UserName: 'bbb',
-            DisplayAs: 'ccc',
-          },
-        ],
-      });
-
-      expect(service.userDetail).toBeTruthy();
-      expect(service.userDetail?.userID).toEqual('aaa');
-      expect(service.userDetail?.userName).toEqual('bbb');
-      expect(service.userDetail?.displayAs).toEqual('ccc');
-
-      discardPeriodicTasks();
-    }));
+      const after = service.authSubject.getValue();
+      expect(after.isAuthorized).toBe(true);
+      expect(after.getUserId()).toBe('user-123');
+      expect(after.getUserName()).toBe('Test User');
+      expect(after.getAccessToken()).toBe('test-token');
+      expect(after.getErrorMessage()).toBeUndefined();
+    });
   });
 });

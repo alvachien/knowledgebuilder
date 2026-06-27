@@ -1,39 +1,32 @@
-.example-container {
+@use '../styles/constants';
+
+app-root {
   display: flex;
   flex-direction: column;
-  position: absolute;
-  top: 0;
-  bottom: 0;
-  left: 0;
-  right: 0;
-}
-  
-.mat-sidenav {
-  min-width: 200px;
+  height: 100vh;
 }
 
-.example-is-mobile .example-toolbar {
+app-navbar {
   position: fixed;
-  /* Make sure the toolbar will stay on top of the content as it scrolls past. */
+  top: 0;
+  left: 0;
+  right: 0;
   z-index: 2;
 }
 
-h1.example-app-name {
-  margin-left: 8px;
-}
-
-h1.khb-app-title {
-  margin-top: 16px;
-}
-  
-.example-sidenav-container {
-  /* When the sidenav is not fixed, stretch the sidenav container to fill the available space. This
-    causes `<mat-sidenav-content>` to act as our scrolling element for desktop layouts. */
+app-root > app-component-sidenav {
   flex: 1;
 }
-  
-.example-is-mobile .example-sidenav-container {
-  /* When the sidenav is fixed, don't constrain the height of the sidenav container. This allows the
-    `<body>` to be our scrolling element for mobile layouts. */
-  flex: 1 0 auto;
+
+app-root > router-outlet + .app-main-content,
+app-root > router-outlet + app-component-sidenav {
+  margin-top: 56px;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+app-root > router-outlet + .app-main-content {
+  margin-top: 56px;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
 }

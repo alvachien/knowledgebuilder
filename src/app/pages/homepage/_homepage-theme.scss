@@ -1,0 +1,200 @@
+@use '@angular/material' as mat;
+@use 'sass:color';
+
+@mixin theme($theme) {
+  app-homepage {
+    // Theme color variables
+    $primary: mat.get-theme-color($theme, primary);
+    $primary-container: mat.get-theme-color($theme, primary-container);
+    $on-primary: mat.get-theme-color($theme, on-primary);
+    $surface: mat.get-theme-color($theme, surface);
+    $on-surface: mat.get-theme-color($theme, on-surface);
+    $on-surface-variant: mat.get-theme-color($theme, on-surface-variant);
+    $surface-container: mat.get-theme-color($theme, surface-container);
+    $surface-container-low: mat.get-theme-color($theme, surface-container-low);
+    $outline-variant: mat.get-theme-color($theme, outline-variant);
+    $secondary: mat.get-theme-color($theme, secondary);
+    $tertiary: mat.get-theme-color($theme, tertiary);
+    $error: mat.get-theme-color($theme, error);
+    $primary-fixed-dim: mat.get-theme-color($theme, primary-fixed-dim);
+    $tertiary-container: mat.get-theme-color($theme, tertiary-container);
+
+    // Modern Hero Section
+    .modern-hero-section {
+      background: linear-gradient(135deg, $surface 0%, $surface-container 100%);
+      color: $on-surface;
+    }
+
+    .hero-badge {
+      background: linear-gradient(135deg, $primary 0%, $primary-fixed-dim 100%);
+      color: $on-primary;
+      border: 1px solid $outline-variant;
+    }
+
+    .hero-title {
+      color: $on-surface;
+    }
+
+    .hero-description {
+      color: $on-surface-variant;
+    }
+
+    .hero-stats {
+      .stat-item {
+        .stat-number {
+          color: $primary;
+        }
+
+        .stat-label {
+          color: $on-surface-variant;
+        }
+      }
+
+      .stat-divider {
+        background: $outline-variant;
+      }
+    }
+
+    .hero-visual {
+      .feature-card {
+        background: $surface-container-low;
+        border: 1px solid $outline-variant;
+
+        &:hover {
+          border-color: $primary;
+          background: $surface-container;
+        }
+
+        .feature-icon {
+          background: rgba($primary, 0.1);
+          color: $primary;
+        }
+
+        .feature-content {
+          h3 {
+            color: $on-surface;
+          }
+
+          p {
+            color: $on-surface-variant;
+          }
+        }
+      }
+
+      // Feature card specific colors
+      .vocabulary-card .feature-icon {
+        background: rgba($primary, 0.15);
+        color: $primary;
+      }
+
+      .sentence-card .feature-icon {
+        background: rgba($tertiary, 0.15);
+        color: $tertiary;
+      }
+
+      .listening-card .feature-icon {
+        background: rgba($secondary, 0.15);
+        color: $secondary;
+      }
+
+      .chinese-card .feature-icon {
+        background: rgba($error, 0.15);
+        color: $error;
+      }
+
+      .formula-card .feature-icon {
+        background: rgba($primary-fixed-dim, 0.15);
+        color: $primary-fixed-dim;
+      }
+
+      .knowledge-card .feature-icon {
+        background: rgba($tertiary-container, 0.15);
+        color: $tertiary-container;
+      }
+    }
+
+    // Features Section
+    .features-section {
+      background: $surface-container-low;
+    }
+
+    .section-header {
+      h2 {
+        color: $on-surface;
+      }
+
+      .section-subtitle {
+        color: $on-surface-variant;
+      }
+    }
+
+    .feature-highlight {
+      background: $surface;
+      border: 1px solid $outline-variant;
+
+      &:hover {
+        border-color: $primary;
+        background: $surface-container;
+      }
+
+      .highlight-icon {
+        background: linear-gradient(135deg, $primary 0%, $primary-fixed-dim 100%);
+        color: $on-primary;
+      }
+
+      .highlight-content {
+        h3 {
+          color: $on-surface;
+        }
+
+        p {
+          color: $on-surface-variant;
+        }
+
+        .highlight-note {
+          color: $on-surface-variant;
+          border-top: 1px solid $outline-variant;
+        }
+      }
+    }
+
+    // CTA Section
+    .cta-section {
+      background: linear-gradient(135deg, $primary 0%, $primary-fixed-dim 100%);
+      color: $on-primary;
+    }
+
+    .cta-content {
+      h2 {
+        color: $on-primary;
+      }
+
+      p {
+        color: rgba($on-primary, 0.9);
+      }
+    }
+
+    .cta-actions {
+      .cta-button {
+        &.primary {
+          background: $on-primary;
+          color: $primary;
+
+          &:hover {
+            background: rgba($on-primary, 0.9);
+          }
+        }
+
+        &.secondary {
+          background: transparent;
+          color: $on-primary;
+          border: 2px solid $on-primary;
+
+          &:hover {
+            background: rgba($on-primary, 0.1);
+          }
+        }
+      }
+    }
+  }
+}

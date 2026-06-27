@@ -1,13 +1,14 @@
 export const environment = {
+  homeurl: 'https://www.alvachien.com/learning',
   production: true,
-  version: '0.3.280',
-  buildDate: '2023-12-31',
-  mockdata: false,
-  basehref: '/math/',
-
+  releasedate: '2026-06-26',
+  version: '1.8.399',
+  apiUrl: 'https://www.alvachien.com/learningutil',
+  pageTitle: 'Knowledge Builder',
+  loginRequired: true,
   idServerUrl: 'https://www.alvachien.com/idserver',
-  homePageUrl: 'https://www.alvachien.com',
-  AppHost: 'https://www.alvachien.com/math',
-
-  apiurlRoot: 'https://www.alvachien.com/quizapi',
+  appHost: 'https://www.alvachien.com/learning',
+  appLogoutCallbackUrl: 'https://www.alvachien.com/learning',
+  oidcClientId: 'knowledgebuilder.js',
+  oidcScope: 'openid profile email offline_access api.knowledgebuilder',
 };

@@ -1,0 +1,51 @@
+:host,
+.formula-page {
+  // Ensures that the footer is pushed to the bottom if the page is too short.
+  display: flex;
+  flex-direction: column;
+  flex-grow: 1;
+}
+
+.formula-page-content {
+  display: flex;
+  flex-wrap: wrap;
+  align-content: center;
+  justify-content: center;
+}
+
+.toolbar-spacer {
+  flex: 1 1 auto;
+}
+
+.control-full-width {
+  width: 100%;
+}
+
+.page-toolbar-item {
+  margin-top: 4px;
+  padding-top: 4px;
+}
+
+.example-button-container {
+  display: flex;
+  justify-content: center;
+}
+
+.printer {
+  display: block;
+  //position: absolute;
+  padding: 10px;
+  width: 886px;
+  margin-left: 50%;
+  transform: translateX(-50%);  
+}
+
+.printtitle {
+  font-size: 40px;
+  font-weight: bold;
+}
+
+.printsubtitle {
+  font-size: 32px;
+  font-weight: bold;
+}

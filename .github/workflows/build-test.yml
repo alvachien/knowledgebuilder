@@ -3,22 +3,21 @@ name: build and test
 on:
   push:
   pull_request:
-    branches: 
-      - master
+    branches:
+      - main
 
 jobs:
   build:
-    # Machine environment:
-    # We specify the Node.js version manually below, and use versioned Chrome from Puppeteer.
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
-      - name: Use Node.js 16
-        uses: actions/setup-node@v1
+      - uses: actions/checkout@v4
+      - name: Use Node.js 22
+        uses: actions/setup-node@v4
         with:
-          node-version: 16
+          node-version: 22
+          cache: npm
       - name: Install dependencies
-        run: npm install
+        run: npm ci
       - name: Build
         run: npm run build
       - name: Test

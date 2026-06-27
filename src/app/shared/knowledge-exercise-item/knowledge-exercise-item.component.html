@@ -1,0 +1,426 @@
+<div #exercise_item_container>
+@if(printMode()) {
+  <div>
+    @switch (question?.itemType) {
+      @case ('FillInTheBlank') {
+        <div class="child-container" [class.sub-child-container]="isSubItem">
+          @for(parg of paragraphes; track $index) {
+            <p class="child-container">
+              @if($index === 0) {
+                <span>
+                  @if(isSubItem) {
+                    <b>({{questionOrder}}). </b>
+                  } @else {
+                    <b>{{questionOrder}}. </b>
+                  }
+                  @if(isLabelOfQuestionTypeHidden()) {
+                    <b>【{{questionTypeName}}】</b>
+                  }
+                  <small>({{questionid}})</small>
+                </span>
+              }
+              @for(part of parg.parts; track $index) {
+                @if(part.contentType === 'label') {
+                  <span>{{part.label}}</span>
+                } @else if(part.contentType === 'input') {
+                  <input class="print-input" type="text" [style.width]="part.inputlength ? part.inputlength + 'ch' : 'auto'" />
+                }
+              }
+            </p>
+          }
+        </div>
+      }
+      @case ('SingleChoice') {
+        <div class="child-container" [class.sub-child-container]="isSubItem">
+          <mat-label>
+            @if(isSubItem) {
+              <b>({{questionOrder}}). </b>
+            } @else {
+              <b>{{questionOrder}}. </b>
+            }
+            @if(isLabelOfQuestionTypeHidden()) {
+              <b>【{{questionTypeName}}】</b>
+            }
+            <small>({{questionid}})</small><span>{{questionString}}</span><span><input class="print-input" type="text" style="width: 6ch" /></span>
+          </mat-label>
+          <div>
+            @for (opt of options; track opt) {
+              <span>{{opt.key}}. {{ opt.value }};  </span>
+            }
+          </div>
+        </div>
+      }
+      @case ('MultipleChoice') {
+        <div class="child-container" [class.sub-child-container]="isSubItem">
+          <mat-label>
+            @if(isSubItem) {
+              <b>({{questionOrder}}). </b>
+            } @else {
+              <b>{{questionOrder}}. </b>
+            }
+            @if(isLabelOfQuestionTypeHidden()) {
+              <b>【{{questionTypeName}}】</b>
+            }
+            <span>{{questionString}}</span><span><input class="print-input" type="text" style="width: 12ch" /></span>
+          </mat-label>
+          <div>
+            @for (opt of options; track opt) {
+              <span>({{opt.key}}). {{ opt.value }};  </span>
+            }
+          </div>
+        </div>
+      }
+      @case ('ShortAnswer') {
+        <div class="child-container" [class.sub-child-container]="isSubItem">
+          <mat-label>
+            @if(isSubItem) {
+              <b>({{questionOrder}}). </b>
+            } @else {
+              <b>{{questionOrder}}. </b>
+            }
+            @if(isLabelOfQuestionTypeHidden()) {
+              <b>【{{questionTypeName}}】</b>
+            }
+            <span>{{questionString}}</span></mat-label>
+          <div>
+            <textarea [rows]="rowsOfAnswers" class="print-textarea"></textarea>
+          </div>
+        </div>
+      }
+      @case ('Dictation') {
+        <div class="child-container">
+          <mat-label><b>{{questionOrder}}. </b>
+            @if(isLabelOfQuestionTypeHidden()) {
+              <b>【{{questionTypeName}}, {{dictationLevelName}}, {{ 'knowledge_exercise.total_blanks' | transloco: { count: dictationCountOfInputs } }}】</b>
+            } 
+            <span>{{questionString}}</span>
+          </mat-label>
+            @for(parg of paragraphes; track $index) {
+              <p class="child-container">
+                @for(part of parg.parts; track $index) {
+                  @if(part.contentType === 'label') {
+                    <span>{{part.label}}</span><span>{{part.postfix}}</span>
+                  } @else if(part.contentType === 'input') {
+                    <input class="print-input" type="text" [style.width]="part.inputlength ? part.inputlength + 'ch' : 'auto'" /><span>{{part.postfix}}</span>
+                  }
+                }
+              </p>
+    				}
+        </div>
+      }
+      @case ('ReadingComprehension') {
+        <div class="child-container">
+          <mat-label><b>{{questionOrder}}. </b></mat-label>
+          @for(qestionLine of questionLines; track $index) {
+            @if($index === 0) {
+              <span>
+                @if(isLabelOfQuestionTypeHidden()) {
+                  <b>【{{questionTypeName}}】</b>
+                }
+                <small>({{questionid}})</small>
+                {{qestionLine}}
+              </span>
+            } @else {
+              <p>{{qestionLine}}</p>
+            }
+          }
+        </div>
+        <div class="child-container">
+          @for (subitem of question?.items!; track subitem.id) {
+            <section class="form-row">
+              <app-knowledge-exercise-item [question]="subitem" [form]="form()" [hideLabels]="hideLabels" [isSubItem]="true" [printMode]="printMode()" />
+            </section>
+          }
+        </div>
+      }
+      @case ('ListeningComprehension') {
+        <div class="child-container">
+          <mat-label><b>{{questionOrder}}. </b></mat-label>
+          @for(qestionLine of questionLines; track $index) {
+            @if($index === 0) {
+              <span>
+                @if(isLabelOfQuestionTypeHidden()) {
+                  <b>【{{questionTypeName}}】</b>
+                }
+                <small>({{questionid}})</small>
+                {{qestionLine}}
+              </span>
+            } @else {
+              <p>{{qestionLine}}</p>
+            }
+          }
+        </div>
+        <div class="child-container">
+          @for (subitem of question?.items!; track subitem.id) {
+            <section class="form-row">
+              <app-knowledge-exercise-item [question]="subitem" [form]="form()" [hideLabels]="hideLabels" [isSubItem]="true" [printMode]="printMode()" />
+            </section>
+          }
+        </div>
+      }
+      @case ('Cloze') {
+        <div class="child-container">
+          <mat-label><b>{{questionOrder}}. </b></mat-label>
+          @for(qestionLine of questionLines; track $index) {
+            @if($index === 0) {
+              <span>
+                @if(isLabelOfQuestionTypeHidden()) {
+                  <b>【{{questionTypeName}}】</b>
+                }
+                <small>({{questionid}})</small>
+                {{qestionLine}}
+              </span>
+            } @else {
+              <p>{{qestionLine}}</p>
+            }
+          }
+        </div>
+        <div class="child-container">
+          @for (subitem of question?.items!; track subitem.id) {
+            <section class="form-row">
+              <app-knowledge-exercise-item [question]="subitem" [form]="form()" [hideLabels]="hideLabels" [isSubItem]="true" [printMode]="printMode()" />
+            </section>
+          }
+        </div>
+      }
+      @case ('TrueFalse') {
+        <div class="child-container" [class.sub-child-container]="isSubItem">
+          <mat-label>
+            @if(isSubItem) {
+              <b>({{questionOrder}}). </b>
+            } @else {
+              <b>{{questionOrder}}. </b>
+            }
+            @if(isLabelOfQuestionTypeHidden()) {
+              <b>【{{questionTypeName}}】</b>
+            }
+            <span>(____)</span>{{questionString}}
+          </mat-label>
+        </div>
+      }
+      @case ('Essay') {
+        <div class="child-container">
+          <mat-label><b>{{questionOrder}}. </b>
+            @if(isLabelOfQuestionTypeHidden()) {
+              <b>【{{questionTypeName}}】</b>
+            }
+            <span>{{questionString}}</span></mat-label>
+          <div>
+            <textarea [rows]="rowsOfAnswers" class="print-textarea"></textarea>
+          </div>
+        </div>
+      }
+    }
+  </div>
+}
+@else if(form())  {
+  <div [formGroup]="form()!">
+    @switch (question?.itemType) {
+      @case ('FillInTheBlank') {
+        <div class="child-container" [class.sub-child-container]="isSubItem">
+          @for(parg of paragraphes; track $index) {
+            <p class="child-container">
+              @if($index === 0) {
+                <span>
+                  @if(isSubItem) {
+                    <b>({{questionOrder}}). </b>
+                  } @else {
+                    <b>{{questionOrder}}. </b>
+                  }
+                  @if(isLabelOfQuestionTypeHidden()) {
+                    <b>【{{questionTypeName}}】</b>
+                  }
+                </span>
+              }
+              @for(part of parg.parts; track $index) {
+                @if(part.contentType === 'label') {
+                  <span>{{part.label}}</span>
+                } @else if(part.contentType === 'input') {
+                  <input mat-input type="text" [formControlName]="part.key!" [id]="part.key!" [style.width]="part.inputlength ? part.inputlength + 'ch' : 'auto'" />
+                }
+              }
+            </p>
+          }
+        </div>
+      }
+      @case('SingleChoice') {
+        <div class="child-container" [class.sub-child-container]="isSubItem">
+          <label>
+            @if(isSubItem) {
+              <b>({{questionOrder}}). </b>
+            } @else {
+              <b>{{questionOrder}}. </b>
+            }
+            @if(isLabelOfQuestionTypeHidden()) {
+              <b>【{{questionTypeName}}】</b>
+            } 
+            {{questionString}}</label>
+          <mat-radio-group [formControlName]="questionid">
+            @for (opt of options; track opt) {
+              <mat-radio-button [value]="opt.key">{{ opt.value }}</mat-radio-button>
+            }
+          </mat-radio-group>
+        </div>
+      }
+      @case('MultipleChoice') {
+        <div class="child-container" [class.sub-child-container]="isSubItem">
+          <label>
+            @if(isSubItem) {
+              <b>({{questionOrder}}). </b>
+            } @else {
+              <b>{{questionOrder}}. </b>
+            }
+            @if(isLabelOfQuestionTypeHidden()) {
+              <b>【{{questionTypeName}}】</b>
+            }
+            {{questionString}}</label>
+          @for (opt of options; track opt) {
+            <mat-checkbox [formControlName]="getFormControlName(opt.key)">{{opt.key}}. {{ opt.value }}</mat-checkbox>
+          }
+        </div>
+      }
+      @case ('Dictation') {
+        <mat-label><b>{{questionOrder}}. </b> 
+            @if(isLabelOfQuestionTypeHidden()) {
+              <b>【{{questionTypeName}}, {{dictationLevelName}}, {{ 'knowledge_exercise.total_blanks' | transloco: { count: dictationCountOfInputs } }}】</b>
+            }
+            <span>{{questionString}}</span></mat-label>
+        <div class="child-container">
+          @for(parg of paragraphes; track $index) {
+            <p class="child-container">
+              @for(part of parg.parts; track $index) {
+                @if(part.contentType === 'label') {
+                  <span>{{part.label}}</span><span>{{part.postfix}}</span>
+                } @else if(part.contentType === 'input') {
+                  <input mat-input type="text" [formControlName]="part.key!" [id]="part.key!" [style.width]="part.inputlength ? part.inputlength + 'ch' : 'auto'" /><span>{{part.postfix}}</span>
+                }
+              }
+            </p>
+          }
+        </div>
+      }
+      @case ('ShortAnswer') {
+        <div class="child-container" [class.sub-child-container]="isSubItem">
+          <mat-label>
+            @if(isSubItem) {
+              <b>({{questionOrder}}). </b>
+            } @else {
+              <b>{{questionOrder}}. </b>
+            }
+            @if(isLabelOfQuestionTypeHidden()) {
+              <b>【{{questionTypeName}}】</b>
+            }
+            <span>{{questionString}}</span></mat-label>
+          <div>
+            <textarea mat-input [formControlName]="questionid" [rows]="rowsOfAnswers" class="child-container"></textarea>
+          </div>
+        </div>
+      }
+      @case ('ReadingComprehension') {
+        <div class="child-container">
+          <mat-label><b>{{questionOrder}}. </b></mat-label>
+          @for(qestionLine of questionLines; track $index) {
+            @if($index === 0) {
+              <span>
+                @if(isLabelOfQuestionTypeHidden()) {
+                  <b>【{{questionTypeName}}】</b>
+                }
+                <small>({{questionid}})</small>
+                {{qestionLine}}
+              </span>
+            } @else {
+              <p>{{qestionLine}}</p>
+            }
+          }
+        </div>
+        <div class="child-container">
+          @for (subitem of question?.items!; track subitem.id) {
+            <section class="form-row">
+              <app-knowledge-exercise-item [question]="subitem" [form]="form()" [hideLabels]="hideLabels" [isSubItem]="true" [printMode]="printMode()" />
+            </section>
+          }
+        </div>
+      }
+      @case ('ListeningComprehension') {
+        <div class="child-container">
+          <mat-label><b>{{questionOrder}}. </b></mat-label>
+          @for(qestionLine of questionLines; track $index) {
+            @if($index === 0) {
+              <span>
+                @if(isLabelOfQuestionTypeHidden()) {
+                  <b>【{{questionTypeName}}】</b>
+                }
+                <small>({{questionid}})</small>
+                {{qestionLine}}
+              </span>
+            } @else {
+              <p>{{qestionLine}}</p>
+            }
+          }
+        </div>
+        <div class="child-container">
+          @for (subitem of question?.items!; track subitem.id) {
+            <section class="form-row">
+              <app-knowledge-exercise-item [question]="subitem" [form]="form()" [hideLabels]="hideLabels" [isSubItem]="true" [printMode]="printMode()" />
+            </section>
+          }
+        </div>
+      }
+      @case ('Cloze') {
+        <div class="child-container">
+          <mat-label><b>{{questionOrder}}. </b></mat-label>
+          @for(qestionLine of questionLines; track $index) {
+            @if($index === 0) {
+              <span>
+                @if(isLabelOfQuestionTypeHidden()) {
+                  <b>【{{questionTypeName}}】</b>
+                }
+                <small>({{questionid}})</small>
+                {{qestionLine}}
+              </span>
+            } @else {
+              <p>{{qestionLine}}</p>
+            }
+          }
+        </div>
+        <div class="child-container">
+          @for (subitem of question?.items!; track subitem.id) {
+            <section class="form-row">
+              <app-knowledge-exercise-item [question]="subitem" [form]="form()" [hideLabels]="hideLabels" [isSubItem]="true" [printMode]="printMode()" />
+            </section>
+          }
+        </div>
+      }
+      @case ('TrueFalse') {
+        <div class="child-container" [class.sub-child-container]="isSubItem">
+          <mat-label>
+            @if(isSubItem) {
+              <b>({{questionOrder}}). </b>
+            } @else {
+              <b>{{questionOrder}}. </b>
+            }
+            @if(isLabelOfQuestionTypeHidden()) {
+              <b>【{{questionTypeName}}】</b>
+            }
+            <mat-checkbox [formControlName]="questionid">{{questionString}}</mat-checkbox></mat-label>
+        </div>
+      }
+      @case ('Essay') {
+        <div class="child-container">
+          <mat-label><b>{{questionOrder}}. </b>
+            @if(isLabelOfQuestionTypeHidden()) {
+              <b>【{{questionTypeName}}】</b>
+            }
+            <span>{{questionString}}</span></mat-label>
+          <div>
+            <textarea mat-input [formControlName]="questionid" [rows]="rowsOfAnswers" class="child-container"></textarea>
+          </div>
+        </div>
+      }
+    }
+    <!-- @if (!isValid) {
+      <div class="errorMessage">{{ question().label }} is required</div>
+    } -->
+  </div>
+}
+</div>

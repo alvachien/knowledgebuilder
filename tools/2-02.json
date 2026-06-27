@@ -1,0 +1,32 @@
+[
+    {
+		"id": "2-1-1",
+		"startTime": 8000,
+		"endTime": 172000
+	},
+    {
+		"id": "2-1-2",
+		"startTime": 177000,
+		"endTime": 318000
+	},
+    {
+		"id": "2-2-1",
+		"startTime": 325000,
+		"endTime": 512000
+	},
+    {
+		"id": "2-2-2",
+		"startTime": 526000,
+		"endTime": 725000
+	},
+    {
+		"id": "2-3-1",
+		"startTime": 731000,
+		"endTime": 815000
+	},
+    {
+		"id": "2-3-2",
+		"startTime": 819500,
+		"endTime": 1045100
+	}
+]

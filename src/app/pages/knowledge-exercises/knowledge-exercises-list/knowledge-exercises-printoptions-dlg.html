@@ -1,0 +1,37 @@
+<div *transloco="let t">
+  <h2 mat-dialog-title>{{ t('knowledgeExercises.optionsOfKnowledgeExercises') }}</h2>
+  <mat-dialog-content class="control-full-width">
+    <mat-form-field class="control-full-width">
+      <mat-label>{{ t('knowledgeExercises.titleOption') }}</mat-label>
+      <input matInput type="text" [(ngModel)]="formTitle" name="formTitle">
+    </mat-form-field>
+
+    <div class="control-full-width">
+      <mat-checkbox [(ngModel)]="shuffleOptionsInSelection" name="shuffleOptionsInSelection"> {{ t('knowledgeExercises.shuffleOptionsInSelection') }} </mat-checkbox>
+    </div>
+    <div class="control-full-width">
+      <mat-checkbox [(ngModel)]="printEntryDate" name="printEntryDate"> {{ t('knowledgeExercises.printEntryDate') }} </mat-checkbox>
+    </div>
+    <div class="control-full-width">
+      <mat-checkbox [(ngModel)]="printScore" name="printScore"> {{ t('knowledgeExercises.printScore') }} </mat-checkbox>
+    </div>
+    <div class="control-full-width">
+      <mat-checkbox [(ngModel)]="printAnswer" name="printAnswer"> {{ t('knowledgeExercises.printAnswer') }} </mat-checkbox>
+    </div>
+    <div class="control-full-width">
+      <mat-checkbox [(ngModel)]="printHintOfAnswer" name="printHintOfAnswer"> {{ t('knowledgeExercises.printHintOfAnswer') }} </mat-checkbox>
+    </div>
+    <mat-form-field class="control-full-width">
+      <mat-label>{{ t('knowledgeExercises.hideQuestionTypeLabel') }}</mat-label>
+      <mat-select [(value)]="hideLabelOfQuestionType" multiple>
+        @for (typeVal of allQuestionBankTypes.keys(); track $index ) {
+          <mat-option [value]="typeVal">{{allQuestionBankTypes.get(typeVal)}}</mat-option>
+        }
+      </mat-select>
+    </mat-form-field>
+  </mat-dialog-content>
+  <mat-dialog-actions>
+    <button mat-button (click)="onNoClick()">{{ t('no') }}</button>
+    <button mat-button (click)="onYesClick()" cdkFocusInitial>{{ t('ok') }}</button>
+  </mat-dialog-actions>
+</div>

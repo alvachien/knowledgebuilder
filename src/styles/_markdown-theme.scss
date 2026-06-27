@@ -1,0 +1,56 @@
+@use '@angular/material' as mat;
+
+// Mixin to apply theme colors for docs generated from markdown files in the material2 repo.
+@mixin theme($theme) {
+  .app-markdown {
+    a:not(.mat-mdc-button-base) {
+      color: mat.get-theme-color($theme, primary);
+    }
+
+    pre {
+      border: solid 1px mat.get-theme-color($theme, outline-variant);
+      border-radius: 12px;
+
+      code {
+        background: transparent;
+      }
+    }
+
+    h3 .material-icons,
+    h4 .material-icons {
+      color: mat.get-theme-color($theme, on-surface);
+    }
+
+    code {
+      background: rgba(mat.get-theme-color($theme, primary-container), 0.25);
+    }
+  }
+
+  // Dark theme specific overrides for markdown content
+  .dark-theme .app-markdown {
+    color: mat.get-theme-color($theme, on-surface);
+
+    // Specific adjustments for dark theme readability
+    p,
+    li,
+    div,
+    span,
+    h1,
+    h2,
+    h3,
+    h4,
+    h5,
+    h6 {
+      color: mat.get-theme-color($theme, on-surface);
+    }
+
+    blockquote {
+      border-left: 4px solid mat.get-theme-color($theme, primary);
+      background-color: rgba(mat.get-theme-color($theme, primary), 0.1);
+    }
+
+    hr {
+      border-color: mat.get-theme-color($theme, outline-variant);
+    }
+  }
+}

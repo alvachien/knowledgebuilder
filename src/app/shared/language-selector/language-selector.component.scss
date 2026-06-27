@@ -1,0 +1,26 @@
+:host {
+  display: flex;
+  align-items: center;
+}
+
+button[mat-icon-button] {
+  margin: 0 4px;
+}
+
+.mat-mdc-menu-panel {
+  min-width: 160px;
+}
+
+button.app-language-selector-trigger {
+  color: inherit;
+}
+
+.app-language-selector-menu {
+  .mat-mdc-menu-item {
+    .app-language-icon {
+      margin-right: 0;
+      margin-left: 24px;
+      order: 1;
+    }
+  }
+}

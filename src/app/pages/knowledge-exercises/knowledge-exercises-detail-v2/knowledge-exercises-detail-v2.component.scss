@@ -1,0 +1,66 @@
+:host,
+.knowledge-exercises-detail-v2-page {
+  // Ensures that the footer is pushed to the bottom if the page is too short.
+  display: flex;
+  flex-direction: column;
+  align-items: center; /* 水平居中 */
+  height: 100vh; /* 确保容器占据整个视口高度 */
+}
+
+.knowledge-exercises-detail-v2-page-content {
+  display: flex;
+  flex-wrap: wrap;
+  align-content: center;
+  justify-content: center;
+}
+
+.toolbar-spacer {
+  flex: 1 1 auto;
+}
+
+.toolbar-item {
+  margin: 4px;
+}
+
+.print-container {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-around;
+  padding: 16px;
+  width: 100%;
+  max-width: 1536px;
+}
+
+/* print.css */
+@media print {
+  @page {
+    size: A4;
+    margin: 1cm;
+  }
+  
+  .page-break {
+    page-break-after: always;
+  }
+  
+  .no-break {
+    page-break-inside: avoid;
+  }
+  
+  h1, h2, h3 {
+    page-break-after: avoid;
+  }
+  
+  pre, blockquote {
+    page-break-inside: avoid;
+  }
+  
+  table {
+    page-break-inside: auto;
+    border: 1px solid #000;
+  }
+  
+  tr {
+    page-break-inside: avoid;
+    page-break-after: auto;
+  }
+}

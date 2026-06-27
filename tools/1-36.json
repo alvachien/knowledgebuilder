@@ -1,0 +1,38 @@
+[
+    {
+        "id": "36-1-1",
+        "startTime": 11000,
+        "endTime": 125000
+    },
+    {
+        "id": "36-1-2",
+        "startTime": 130000,
+        "endTime": 262000
+    },
+    {
+        "id": "36-2-1",
+        "startTime": 270000,
+        "endTime": 345000
+    },
+    {
+        "id": "36-2-2",
+        "startTime": 352000,
+        "endTime": 555000
+    },
+    {
+        "id": "36-2-3",
+        "startTime": 562000,
+        "endTime": 798000
+    },
+    {
+        "id": "36-3-1",
+        "startTime": 818000,
+        "endTime": 956000
+    },
+    {
+        "id": "36-3-2",
+        "startTime": 962000,
+        "endTime": 1184700
+    }
+
+]
