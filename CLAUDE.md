@@ -17,9 +17,9 @@ ng build --watch --configuration development  # Watch mode
 ng test                                  # Run all unit tests (Vitest + jsdom)
 ng test --watch                          # Vitest watch mode
 ng test --coverage                       # Run tests with coverage report
-ng test --include "src/app/services/storage.service.spec.ts"  # Single test file
+ng test --include "src/app/services/audio-service.service.spec.ts"  # Single test file
 ng test --exclude "**/*.extended.spec.ts"   # Exclude files by glob
-ng test --filter "StorageService"        # Filter tests by name regex
+ng test --filter "LearningContentService"   # Filter tests by name regex
 ng lint                                  # Lint (ESLint via @angular-eslint)
 ng generate component component-name     # Generate component (uses SCSS)
 ng generate service service-name         # Generate service
@@ -41,7 +41,9 @@ src/
   environments/       # environment.ts (dev) and environment.prod.ts
   test-setup.ts       # Vitest setup: test env init, polyfills, global stubs
 public/
-  data/               # Static JSON exercise data served at /data/
+  font/               # Font assets
+  sounds/             # Sound-effect audio clips
+  favicon.png / favicon.svg
 tools/                # Validation scripts, schema, converters (Python, JS, PowerShell)
 ```
 
@@ -59,7 +61,7 @@ All routes are lazy-loaded via `loadComponent` / `loadChildren`:
 
 ### Key Services
 
-- **StorageService** — Central data loading service with HTTP response caching via Maps. Loads JSON exercise data from `public/data/`.
+- **LearningContentService** — Central data loading service. Fetches the file list for every category (Vocabulary, Sentences, Listening, Chinese, Formula, Knowledge Bank) from the `api/LearningContents` endpoint and loads each file's content via the authenticated `api/Storage` controller. HTTP responses are cached per category/fileUrl. `LearningContent` records also carry `version`, `includeLatex`, and `translationDisabled` metadata, so no separate index-file load is needed.
 - **AudioService** — Audio playback via Howler.js. Uses DI tokens for testability: `HOWLER_PROVIDER` (global Howler), `HOWL_FACTORY` (Howl instance factory).
 - **KaTeXService** — Math formula rendering.
 - **MarkedService** — Markdown parsing.
@@ -78,19 +80,225 @@ All routes are lazy-loaded via `loadComponent` / `loadChildren`:
 
 ### Data Models
 
+`src/app/interfaces/` defines the data model. 
+
+Each content category maps to a concrete data model loaded by `LearningContentService` (see [Content Data](#content-data) for the full category → method → storage-subfolder table). `LearningContent` is the common file-list record the API returns for every category; the per-category content models are:
+
+| Cat ID | Category | Content data model | Interface file |
+|---|---|---|---|
+| 1 | Vocabulary | `LearnEnglishWordFileItem` | `learnenglish.ts` |
+| 2 | Sentences | `LearnEnglishSentFileItem` (`TranslateQueue extends` it) | `learnenglish.ts` / `translate-data.ts` |
+| 3 | Listening | `EnglishListeningLesson` → `EnglishListeningSection` → `EnglishListeningExercise` → `EnglishListeningExerciseItem` | `english-listening.ts` |
+| 4 | Chinese | `LearnChineseFileItem` | `learnchinese.ts` |
+| 5 | Formula | `FormulaReciteContent` | `formula-recite-queue.ts` |
+| 6 | Knowledge Bank | `KnowledgeExerciseFileContent` → `QuestionBankItemBase` via `convertToQuestionBankItem()` | `questionbank-base.ts` |
+
+
 - **QuestionBank** (`interfaces/questionbank.ts`) — Enums for question types (`QuestionBankTypeEnum`), content formats, option keys, and item levels.
 - **QuestionBankItemBase** (`interfaces/questionbank-base.ts`) — Abstract base class for all question types. Concrete implementations: `QuestionBankItemSingleChoice`, `QuestionBankItemMultipleChoice`, `QuestionBankItemFillInTheBlank`, `QuestionBankItemDictation`, `QuestionBankItemShortAnswer`, `QuestionBankItemEssay`, `QuestionBankItemReadingComprehension`, `QuestionBankItemListeningComprehension`, `QuestionBankItemCloze`, `QuestionBankItemTrueFalse`.
 - **convertToQuestionBankItem()** — Converts `QuestionBankItemCombinedInterface` (raw JSON) to concrete `QuestionBankItemBase` instances.
-- **KnowledgeExerciseFile** (`interfaces/questionbank-base.ts`) — File metadata for knowledge exercises. Has `id?: number` (populated from API's `LearningContent.id`), `name`, `file`, `version`, `includeLatex`. The component merges data from the API (`id`, `name`, `file`) with `StorageService.getKnowledgeExerciseFile()` metadata (`includeLatex`).
+
+The diagram shows the core `QuestionBankItemBase` hierarchy, the raw-JSON `QuestionBankItemCombinedInterface` that `convertToQuestionBankItem()` turns into concrete items, the content-record types loaded by `LearningContentService`, and the option/queue interfaces.
+
+```mermaid
+classDiagram
+  direction LR
+
+  class QuestionBankItemBase~T~ {
+    <<abstract>>
+    +id: string
+    +order: number
+    +itemType: QuestionBankTypeEnum
+    +answer: T
+    +answers: T[]
+    +hintofanswer: T
+    +tags: string[]
+  }
+  class QuestionBankItemSingleChoice
+  class QuestionBankItemMultipleChoice
+  class QuestionBankItemTrueFalse
+  class QuestionBankItemFillInTheBlank
+  class QuestionBankItemDictation
+  class QuestionBankItemShortAnswer
+  class QuestionBankItemEssay
+  class QuestionBankItemReadingComprehension
+  class QuestionBankItemListeningComprehension
+  class QuestionBankItemCloze
+  QuestionBankItemBase <|-- QuestionBankItemSingleChoice
+  QuestionBankItemBase <|-- QuestionBankItemMultipleChoice
+  QuestionBankItemBase <|-- QuestionBankItemTrueFalse
+  QuestionBankItemBase <|-- QuestionBankItemFillInTheBlank
+  QuestionBankItemBase <|-- QuestionBankItemDictation
+  QuestionBankItemBase <|-- QuestionBankItemShortAnswer
+  QuestionBankItemBase <|-- QuestionBankItemEssay
+  QuestionBankItemBase <|-- QuestionBankItemReadingComprehension
+  QuestionBankItemBase <|-- QuestionBankItemListeningComprehension
+  QuestionBankItemBase <|-- QuestionBankItemCloze
+  QuestionBankItemReadingComprehension "1" o--> "*" QuestionBankItemBase : items
+  QuestionBankItemListeningComprehension "1" o--> "*" QuestionBankItemBase : items
+  QuestionBankItemCloze "1" o--> "*" QuestionBankItemBase : items
+
+  class QuestionBankItemCombinedInterface {
+    +id: string
+    +itemType: QuestionBankTypeEnum
+    +question: string
+    +options: QuestionBankItemOption
+    +items: QuestionBankItemCombinedInterface[]
+  }
+  class KnowledgeExerciseFileContent {
+    +itemTypeString: string
+    +hasAnswer: boolean
+  }
+  QuestionBankItemCombinedInterface <|-- KnowledgeExerciseFileContent
+  QuestionBankItemCombinedInterface ..> QuestionBankItemBase : convertToQuestionBankItem()
+```
+
+
+#### Listening
+
+```mermaid
+classDiagram
+  direction LR
+  class EnglishListeningLesson {
+    +title: string
+    +audioFile: string
+  }
+  class EnglishListeningSection {
+    +title: string
+    +vocabulary: string[]
+  }
+  class EnglishListeningExercise {
+    +title: string
+    +scripts: string[]
+  }
+  EnglishListeningLesson "1" *--> "*" EnglishListeningSection : sections
+  EnglishListeningSection "1" *--> "*" EnglishListeningExercise : exercises
+  EnglishListeningExercise "1" o--> "1" EnglishListeningExerciseItem : item
+
+  class EnglishListeningExerciseItem {
+    +exerciseType: 'listening'
+  }
+  QuestionBankItemCombinedInterface <|-- EnglishListeningExerciseItem
+  QuestionBankItemCombinedInterface ..> QuestionBankItemBase : convertToQuestionBankItem()
+```
+
+#### Mapping with API Structure
+
+```mermaid
+classDiagram
+  direction LR
+
+  class LearningContent {
+    +id: number
+    +categoryId: number
+    +nameChinese: string
+    +nameEnglish: string
+    +fileUrl: string
+    +version: number
+    +includeLatex: boolean
+    +translationDisabled: boolean
+  }
+  class LearnEnglishWordFileItem {
+    +id: number
+    +enword: string
+    +cnword: string
+  }
+  class LearnEnglishSentFileItem {
+    +id: string
+    +ensent: string
+    +cnsent: string
+    +enwords: string[]
+  }
+  class LearnChineseFileItem {
+    +id: number
+    +subject: string
+    +author: string
+    +content: string
+  }
+  class FormulaReciteContent {
+    +name: string
+    +value: string
+    +math: boolean
+    +source: string
+  }
+  class TranslateQueue {
+    +completed: boolean
+    +inputted: string
+  }
+  LearnEnglishSentFileItem <|-- TranslateQueue
+
+  class StudyQueueItem {
+    +enword: string
+    +cnword: string
+    +rating: number
+    +itemId: number
+  }
+
+  class UserLearningRating {
+    +contentId: number
+    +itemId: number
+    +rating: number
+  }
+  class UserAuthInfo {
+    +id: string
+    +name: string
+  }
+  LearningContent "1" --> "*" UserLearningRating : ratings
+```
+
+#### Vocabulary Options
+
+```mermaid
+classDiagram
+  direction LR
+  class VocabularyOptionCore {
+    +excludePart: VocabularyExcludedPartEnum
+    +countOfItems: number
+  }
+  class VocabularyPrintOption
+  class VocabularyTypingOption
+  class VocabularyStudyOption
+  VocabularyOptionCore <|-- VocabularyPrintOption
+  VocabularyOptionCore <|-- VocabularyTypingOption
+  VocabularyOptionCore <|-- VocabularyStudyOption
+```
+
+#### Chinese Options
+
+```mermaid
+classDiagram
+  direction LR
+  class ChineseRecitetOptionAbstract {
+    +selectedLevel: QuestionBankItemLevelEnum
+    +countOfItems: number
+  }
+  class ChineseRecitePrintOption
+  class ChineseReciteOption
+  ChineseRecitetOptionAbstract <|-- ChineseRecitePrintOption
+  ChineseRecitetOptionAbstract <|-- ChineseReciteOption
+```
+
+Enums (`QuestionBankTypeEnum`, `QuestionBankContentFormatEnum`, `QuestionBankItemLevelEnum`, `SelectionModeEnum`, `RatingOperatorEnum`, `PrintExecDateEnum`, `ChineseReciteStatusEnum`, `EnglishListeningStatusEnum`, `TranslateDirectionEnum`, `VocabularyExcludedPartEnum`, `FormulaReciteAIModeEnum`, `TranslationAIModeEnum`, etc.) and the status/queue interfaces (`VocabularyTypingQueue`, `VocabularyTypingQueueResult`, `VocabularyWordLetter`, `TranslateExerciseUIStatus`, `ChineseReciteStatus`, `EnglishListeningUIStatus`) are omitted from the diagram for readability.
 
 ### Content Data
 
-Static JSON data lives in `public/data/`:
-- `knowledge-exercises/` — Schema-validated exercise files (validated by `tools/validate-schema.js` against `tools/exercise-schema.json`)
-- `englishlistening/` — Listening exercise audio and data
-- `learnchinese/` — Chinese learning content
-- `learnenglish/` — English learning content (sentences, vocabulary)
-- `formula/` — Formula recitation data
+All exercise content is served by the `aclearningutil` backend (see the parent `CLAUDE.md`). The frontend never reads local JSON files — every category goes through `LearningContentService`:
+
+- **File lists** — `GET /api/LearningContents?categoryId=N` returns `LearningContent[]` (one row per content file), carrying `id`, `nameChinese`, `nameEnglish`, `fileUrl`, plus the metadata flags `version`, `includeLatex`, `translationDisabled`.
+- **File content** — `GET /api/Storage/<subfolder>/<file>` returns the raw JSON for a given `fileUrl`, served by the authenticated `StorageController`.
+
+Category → `LearningContentService` method → backend `Storage/` subfolder:
+
+| ID | Category | File-list method | Content method | Storage subfolder |
+|---|---|---|---|---|
+| 1 | Vocabulary | `getVocabularyContents()` | `getVocabularyWordContent()` | `learnenglish` |
+| 2 | Sentences | `getSentenceContents()` | `getSentenceFileContent()` | `learnenglish` |
+| 3 | Listening | `getListeningContents()` | `getListeningFileContent()` | `englishlistening` |
+| 4 | Chinese | `getChineseContents()` | `getChineseFileContent()` | `learnchinese` |
+| 5 | Formula | `getFormulaContents()` | `getFormulaFileContent()` | `formula` |
+| 6 | Knowledge Bank | `getKnowledgeBankContents()` | `getKnowledgeExerciseContent()` | `knowledge-exercises` |
+
+The `Storage/` index files (`data.json` / `formula.json`) and content JSON live in the backend. Knowledge-exercise files are still schema-validated by `tools/validate-schema.js` against `tools/exercise-schema.json`.
 
 ### Styling
 
@@ -180,16 +388,16 @@ Did you run and wait for 'resolveComponentResources()'?
 - Target ES2022, experimental decorators enabled
 
 ### Naming
-- PascalCase for classes/interfaces/enums (`QuestionBankTypeEnum`, `StorageService`)
+- PascalCase for classes/interfaces/enums (`QuestionBankTypeEnum`, `LearningContentService`)
 - camelCase for variables (`mobileQuery`, `daysleft1`)
-- kebab-case for files (`homepage.ts`, `storage.service.ts`)
+- kebab-case for files (`homepage.ts`, `learning-content.service.ts`)
 - UPPER_SNAKE_CASE for constants (`VALID_OPTION_KEYS`, `HOWLER_PROVIDER`)
 - Private members with underscore prefix (`_mobileQueryListener`, `_queryParamSubscription`)
 
 ### Imports
 - Group: Angular core → Angular modules → third-party → project imports
 - Alphabetical within groups
-- Barrel file imports: `import { LearnChineseDataFile } from '../interfaces'`
+- Barrel file imports: `import { LearnChineseFileItem } from '../interfaces'`
 
 ### Type Safety
 - Always define explicit types for function parameters and return values
@@ -201,10 +409,6 @@ Did you run and wait for 'resolveComponentResources()'?
 - `throwError(() => new Error(...))` for RxJS error cases
 - Optional chaining (`?.`) and nullish coalescing (`??`) for null safety
 - Handle HTTP errors gracefully with proper error messages
-
-## Documentation
-
-- `docs/knowledge-exercises-sequence.md` — Mermaid sequence diagrams for the Knowledge Exercises feature (initialization, file selection, rating, preview flows). Includes the original buggy approach for historical reference.
 
 ## Tools
 

@@ -1350,15 +1350,6 @@ export function convertToQuestionBankItem(
   return baseItem;
 }
 
-export interface KnowledgeExerciseFile {
-  id?: number;
-  name: string;
-  file: string;
-  createdate?: Date;
-  version?: number;
-  includeLatex?: boolean;
-}
-
 // Interface used for knowledge exercise list page
 //   In that page, no need to convert the content to real exercise, but it need following UI fields
 //		1. Display string of item type

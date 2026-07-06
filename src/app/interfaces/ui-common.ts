@@ -14,8 +14,20 @@ export enum SelectionModeEnum {
   'ByID' = 0,
   'FreeSelection' = 1,
   'ByCount' = 2,
+  'ByRating' = 3,
 }
 export type SelectionModeEnumKeys = keyof typeof SelectionModeEnum;
+
+export enum RatingOperatorEnum {
+  'Equals' = 0,
+  'GreaterThan' = 1,
+  'LessThan' = 2,
+  'HasAny' = 3,
+  'HasNone' = 4,
+  'LargerOrEquals' = 5,
+  'LessOrEquals' = 6,
+}
+export type RatingOperatorEnumKeys = keyof typeof RatingOperatorEnum;
 
 export const getSelectionModeName = (itemType: SelectionModeEnum): string => {
   switch (itemType) {
@@ -25,6 +37,8 @@ export const getSelectionModeName = (itemType: SelectionModeEnum): string => {
       return 'Free Selection';
     case SelectionModeEnum.ByCount:
       return 'By Count';
+    case SelectionModeEnum.ByRating:
+      return 'By Rating';
     default:
       return 'Unknown';
   }
@@ -35,7 +49,29 @@ export const getSelectionModeNames = (): Map<SelectionModeEnum, string> => {
   map.set(SelectionModeEnum.ByID, getSelectionModeName(SelectionModeEnum.ByID));
   map.set(SelectionModeEnum.FreeSelection, getSelectionModeName(SelectionModeEnum.FreeSelection));
   map.set(SelectionModeEnum.ByCount, getSelectionModeName(SelectionModeEnum.ByCount));
+  map.set(SelectionModeEnum.ByRating, getSelectionModeName(SelectionModeEnum.ByRating));
   return map;
+};
+
+export const getRatingOperatorName = (operator: RatingOperatorEnum): string => {
+  switch (operator) {
+    case RatingOperatorEnum.Equals:
+      return 'Equals';
+    case RatingOperatorEnum.GreaterThan:
+      return 'Greater Than';
+    case RatingOperatorEnum.LessThan:
+      return 'Less Than';
+    case RatingOperatorEnum.HasAny:
+      return 'Has Any';
+    case RatingOperatorEnum.HasNone:
+      return 'Has None';
+    case RatingOperatorEnum.LargerOrEquals:
+      return 'Larger or Equals';
+    case RatingOperatorEnum.LessOrEquals:
+      return 'Less or Equals';
+    default:
+      return 'Unknown';
+  }
 };
 
 // Detect if a string contains Chinese characters

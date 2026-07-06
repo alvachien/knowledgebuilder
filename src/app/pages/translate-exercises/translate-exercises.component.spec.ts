@@ -20,7 +20,6 @@ import {
 } from '../../interfaces';
 import type { LearningContent, LearnEnglishSentFileItem } from '../../interfaces';
 import {
-  StorageService,
   LearningContentService,
   UtilService,
   AudioService,
@@ -51,7 +50,6 @@ const mockFileContent: LearnEnglishSentFileItem[] = [
 describe('TranslateExercisesComponent', () => {
   let component: TranslateExercisesComponent;
   let fixture: ComponentFixture<TranslateExercisesComponent>;
-  let mockStorageService: any;
   let mockLearningContentService: any;
   let mockAudioService: any;
   let mockAIService: any;
@@ -62,10 +60,6 @@ describe('TranslateExercisesComponent', () => {
   let mockPageTitle: AppPageTitle;
 
   beforeEach(async () => {
-    mockStorageService = {
-      getLearnEnglishSentDataFile: vi.fn(),
-      getLearnEnglishSentFileContent: vi.fn(),
-    };
     mockLearningContentService = {
       getSentenceContents: vi.fn(),
       getSentenceFileContent: vi.fn(),
@@ -105,7 +99,6 @@ describe('TranslateExercisesComponent', () => {
     await TestBed.configureTestingModule({
       imports: [TranslateExercisesComponent, NoopAnimationsModule],
       providers: [
-        { provide: StorageService, useValue: mockStorageService },
         { provide: LearningContentService, useValue: mockLearningContentService },
         { provide: AudioService, useValue: mockAudioService },
         { provide: AIService, useValue: mockAIService },
@@ -141,6 +134,21 @@ describe('TranslateExercisesComponent', () => {
       fixture.detectChanges();
       expect(mockLearningContentService.getSentenceContents).toHaveBeenCalled();
       expect(component.allFiles).toEqual(mockDataFiles);
+    });
+
+    it('should mark the OnPush view for check after the file list arrives (no click needed)', () => {
+      // Regression: the file list lands in an async subscribe callback (not a
+      // template event, not an async pipe). With ChangeDetectionStrategy.OnPush
+      // the view is not marked dirty automatically, so the files dropdown stayed
+      // empty until a later DOM event triggered detection. The component must
+      // call markForCheck() once the list is ready.
+      const markForCheckSpy = vi.spyOn(component['cdr'], 'markForCheck');
+      markForCheckSpy.mockClear();
+
+      fixture.detectChanges(); // runs ngOnInit → synchronous of() emit → next
+
+      expect(component.allFiles).toEqual(mockDataFiles);
+      expect(markForCheckSpy).toHaveBeenCalled();
     });
 
     it('should handle error when loading data files fails', () => {
@@ -193,6 +201,20 @@ describe('TranslateExercisesComponent', () => {
       component.onFileSelectionChanged({ value: mockDataFiles[0] } as any);
 
       expect(console.error).toHaveBeenCalled();
+    });
+
+    it('should clear any existing selection when switching files', () => {
+      // Regression (shared across exercise pages): the SelectionModel retains
+      // references to the previous file's rows; switching files must clear it.
+      mockLearningContentService.getSentenceFileContent.mockReturnValue(of(mockFileContent));
+      component.dataSource.data = mockFileContent.slice();
+      component.selection.select(mockFileContent[0], mockFileContent[1]);
+      expect(component.selection.selected.length).toBe(2);
+
+      component.onFileSelectionChanged({ value: mockDataFiles[0] } as any);
+
+      expect(component.selection.selected.length).toBe(0);
+      expect(component.selection.isEmpty()).toBe(true);
     });
   });
 
@@ -326,6 +348,27 @@ describe('TranslateExercisesComponent', () => {
       component.onStartWithOptions();
 
       expect(component.onStart).not.toHaveBeenCalled();
+    });
+
+    it('should mark the OnPush view for check when the start dialog confirms (no click needed)', () => {
+      // Regression: the exercise view switch (currentStatus.status = InProgress)
+      // happens in the async afterClosed callback. With ChangeDetectionStrategy.OnPush
+      // the view would not switch to the exercise screen without markForCheck.
+      const mockResult = {
+        direction: TranslateDirectionEnum.ChineseToEnglish,
+        allowEmptyAnswer: true,
+        countOfItems: 10,
+      };
+      const mockDialogRef = { afterClosed: vi.fn().mockReturnValue(of(mockResult)) };
+      mockDialog.open.mockReturnValue(mockDialogRef);
+      component.dataSource.data = mockFileContent.slice();
+      vi.spyOn(component, 'onStart');
+      const markForCheckSpy = vi.spyOn(component['cdr'], 'markForCheck');
+      markForCheckSpy.mockClear();
+
+      component.onStartWithOptions();
+
+      expect(markForCheckSpy).toHaveBeenCalled();
     });
   });
 

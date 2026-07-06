@@ -20,7 +20,7 @@ import { NoopAnimationsModule } from '@angular/platform-browser/animations';
 import { Router } from '@angular/router';
 import { RouterTestingModule } from '@angular/router/testing';
 import { TranslocoModule, TranslocoService, TRANSLOCO_TRANSPILER } from '@jsverse/transloco';
-import { of } from 'rxjs';
+import { of, BehaviorSubject } from 'rxjs';
 import { vi } from 'vitest';
 
 import { UserAuthInfo } from '../../interfaces';
@@ -36,6 +36,7 @@ describe('NavbarComponent', () => {
   let mockUserCodeService: { getUserCode: ReturnType<typeof vi.fn>; setUserCode: ReturnType<typeof vi.fn> };
   let mockNavigationFocusService: { getSkipLinkHref: ReturnType<typeof vi.fn> };
   let mockMediaMatches: { current: boolean };
+  let authContentSubject: BehaviorSubject<UserAuthInfo>;
 
   beforeEach(async () => {
     mockDialog = { open: vi.fn() };
@@ -56,6 +57,8 @@ describe('NavbarComponent', () => {
 
     mockNavigationFocusService.getSkipLinkHref.mockReturnValue('/test-link');
 
+    authContentSubject = new BehaviorSubject(new UserAuthInfo());
+
     await TestBed.configureTestingModule({
       imports: [
         NavbarComponent,
@@ -74,7 +77,7 @@ describe('NavbarComponent', () => {
         {
           provide: AuthService,
           useValue: {
-            authContent: of(new UserAuthInfo()),
+            authContent: authContentSubject.asObservable(),
             doLogin: vi.fn(),
             doLogout: vi.fn(),
             clearError: vi.fn(),
@@ -121,6 +124,34 @@ describe('NavbarComponent', () => {
 
     it('should initialize skipLinkHidden to true', () => {
       expect(component.skipLinkHidden).toBe(true);
+    });
+  });
+
+  describe('OnPush change detection', () => {
+    it('should mark the view for check after the skipLinkHref timeout fires', async () => {
+      // Regression: skipLinkHref is set inside a setTimeout(100). With
+      // ChangeDetectionStrategy.OnPush the bound href would not reach the
+      // template without markForCheck.
+      const markForCheckSpy = vi.spyOn(component['cdr'], 'markForCheck');
+      markForCheckSpy.mockClear();
+
+      fixture.detectChanges();
+      await new Promise(resolve => setTimeout(resolve, 150));
+
+      expect(component.skipLinkHref).toBe('/test-link');
+      expect(markForCheckSpy).toHaveBeenCalled();
+    });
+
+    it('should mark the view for check when auth state arrives (no click needed)', () => {
+      // Regression: auth state lands in an async subscribe callback. With
+      // ChangeDetectionStrategy.OnPush the login button / user name / error
+      // banner would stay stale until a later DOM event.
+      const markForCheckSpy = vi.spyOn(component['cdr'], 'markForCheck');
+      markForCheckSpy.mockClear();
+
+      authContentSubject.next(new UserAuthInfo());
+
+      expect(markForCheckSpy).toHaveBeenCalled();
     });
   });
 

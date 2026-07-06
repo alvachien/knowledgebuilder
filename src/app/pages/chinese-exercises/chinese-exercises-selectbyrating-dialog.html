@@ -1,0 +1,25 @@
+<div *transloco="let t">
+  <h2 mat-dialog-title>{{ t('chineseExercises.selectByRating') }}</h2>
+  <mat-dialog-content class="control-full-width">
+    <mat-form-field class="control-full-width">
+      <mat-label>{{ t('chineseExercises.ratingOperator') }}</mat-label>
+      <mat-select [(ngModel)]="ratingOperator">
+        @for (op of ratingOperators; track op.value) {
+          <mat-option [value]="op.value">{{ t('chineseExercises.' + op.label) }}</mat-option>
+        }
+      </mat-select>
+    </mat-form-field>
+    <mat-form-field class="control-full-width">
+      <mat-label>{{ t('chineseExercises.ratingValue') }}</mat-label>
+      <mat-select [(ngModel)]="ratingValue" [disabled]="isValueDisabled">
+        @for (val of ratingValues; track val) {
+          <mat-option [value]="val">{{ val }}</mat-option>
+        }
+      </mat-select>
+    </mat-form-field>
+  </mat-dialog-content>
+  <mat-dialog-actions>
+    <button mat-button (click)="onNoClick()">{{ t('no') }}</button>
+    <button mat-button (click)="onYesClick()">{{ t('ok') }}</button>
+  </mat-dialog-actions>
+</div>

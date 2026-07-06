@@ -1,5 +1,5 @@
 import { LiveAnnouncer } from '@angular/cdk/a11y';
-import { ChangeDetectionStrategy, Component, inject, ViewEncapsulation } from '@angular/core';
+import { ChangeDetectionStrategy, ChangeDetectorRef, Component, inject, ViewEncapsulation } from '@angular/core';
 import type { OnDestroy, OnInit } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
@@ -61,6 +61,7 @@ export class ThemePickerComponent implements OnInit, OnDestroy {
   private _themeStorage = inject(ThemeStorage);
   private _activatedRoute = inject(ActivatedRoute);
   private liveAnnouncer = inject(LiveAnnouncer);
+  private readonly cdr = inject(ChangeDetectorRef);
 
   constructor() {
     const themeName = this._themeStorage.getStoredThemeName();
@@ -95,6 +96,10 @@ export class ThemePickerComponent implements OnInit, OnDestroy {
       this.themes.find(currentTheme => currentTheme.isDefault)!;
 
     this.currentTheme = theme;
+    // OnPush: selectTheme is also reached from the queryParamMap subscribe
+    // callback (async), where the view is not marked dirty automatically —
+    // without this the "selected" radio indicator in the menu stays stale.
+    this.cdr.markForCheck();
 
     if (theme.isDefault) {
       this.styleManager.removeStyle('theme');

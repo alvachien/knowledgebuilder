@@ -174,6 +174,21 @@ describe('EnglishListeningComponent', () => {
       expect(component.allFiles).toEqual(mockFiles);
     });
 
+    it('should mark the OnPush view for check after the file list arrives (no click needed)', () => {
+      // Regression: the file list lands in an async subscribe callback (not a
+      // template event, not an async pipe). With ChangeDetectionStrategy.OnPush
+      // the view is not marked dirty automatically, so the files dropdown stayed
+      // empty until a later DOM event triggered detection. The component must
+      // call markForCheck() once the list is ready.
+      const markForCheckSpy = vi.spyOn(component['cdr'], 'markForCheck');
+      markForCheckSpy.mockClear();
+
+      fixture.detectChanges(); // runs ngOnInit → synchronous of() emit → next
+
+      expect(component.allFiles).toEqual(mockFiles);
+      expect(markForCheckSpy).toHaveBeenCalled();
+    });
+
     it('should handle error when loading files fails', () => {
       learningContentService.getListeningContents.mockReturnValue(
         throwError(() => new Error('Load failed'))

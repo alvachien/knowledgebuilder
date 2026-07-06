@@ -2,6 +2,7 @@ import { SelectionModel } from '@angular/cdk/collections';
 import type { OnInit } from '@angular/core';
 import {
   ChangeDetectionStrategy,
+  ChangeDetectorRef,
   Component,
   DestroyRef,
   Inject,
@@ -43,10 +44,10 @@ import { TranslocoModule, TranslocoService } from '@jsverse/transloco';
 import { zhCN } from 'date-fns/locale';
 
 import type {
-  KnowledgeExerciseFile,
   KnowledgeExerciseFileContent,
   KnowledgeExercisePrintOption,
   KnowledgeExerciseSelectOption,
+  LearningContent,
   QuestionBankItemBase,
   QuestionBankTypeKeys,
 } from '../../../interfaces';
@@ -59,8 +60,6 @@ import {
   convertQuestionBankItemToMarkdown,
   QuestionBankTypeEnum,
 } from '../../../interfaces';
-import { of } from 'rxjs';
-import { catchError, map, switchMap } from 'rxjs/operators';
 
 interface FilterResult {
   item: KnowledgeExerciseFileContent;
@@ -72,7 +71,7 @@ enum ContentToDisplayEnum {
   Detail = 2,
   ExtraInfo = 3,
 }
-import { StorageService, UIService, LearningContentService, LearningRatingService } from '../../../services';
+import { UIService, LearningContentService, LearningRatingService } from '../../../services';
 import { FooterComponent } from '../../../shared/footer/footer';
 import { MarkdownContentComponent } from '../../../shared/markdown-content';
 import { fisherYatesShuffle } from '../../../shared/utils/shuffle';
@@ -115,8 +114,8 @@ export class KnowledgeExercisesListComponent implements OnInit {
   // Title
   pageTitle: AppPageTitle = inject(AppPageTitle);
   // Selected file
-  selectedFile?: KnowledgeExerciseFile;
-  allFiles?: KnowledgeExerciseFile[];
+  selectedFile?: LearningContent;
+  allFiles?: LearningContent[];
   isLoadingContents = true;
   // Current content ID for rating
   private currentContentId?: number;
@@ -145,13 +144,13 @@ export class KnowledgeExercisesListComponent implements OnInit {
   ];
   // Navigation
   readonly router = inject(Router);
-  readonly storage = inject(StorageService);
   readonly learningContentService = inject(LearningContentService);
   readonly uiService = inject(UIService);
   private readonly ratingService = inject(LearningRatingService);
   // Dialog
   readonly dialog = inject(MatDialog);
   private readonly destroyRef = inject(DestroyRef);
+  private readonly cdr = inject(ChangeDetectorRef);
   // Map to store ratings by item ID
   private contentRatingMap = new Map<number, number>();
   printSetting: KnowledgeExercisePrintOption = {
@@ -201,42 +200,25 @@ export class KnowledgeExercisesListComponent implements OnInit {
   ngOnInit(): void {
     // Set the page title
     this.pageTitle.title = 'Exercises';
-    // Fetch knowledge bank contents from API and merge with metadata from data.json
+    // Fetch knowledge bank contents from the API. The includeLatex flag is carried on
+    // each LearningContent record, so no separate metadata index load is needed.
     this.learningContentService
       .getKnowledgeBankContents()
-      .pipe(
-        switchMap(contents =>
-          this.storage.getKnowledgeExerciseFile().pipe(
-            map(metaFiles => ({ contents, metaFiles })),
-            catchError(err => {
-              console.error('Failed to load knowledge metadata', err);
-              // Fallback: emit empty metadata array so the outer stream still succeeds
-              return of({ contents, metaFiles: [] as KnowledgeExerciseFile[] });
-            }),
-          ),
-        ),
-        takeUntilDestroyed(this.destroyRef),
-      )
+      .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
-        next: ({ contents, metaFiles }) => {
-          const latexMap = new Map<string, boolean>();
-          for (const mf of metaFiles) {
-            if (mf.includeLatex) latexMap.set(mf.file, true);
-          }
-          this.allFiles = contents.map(c => {
-            const fileName = c.fileUrl.substring(c.fileUrl.lastIndexOf('/') + 1);
-            return {
-              id: c.id,
-              name: c.nameChinese,
-              file: c.fileUrl,
-              includeLatex: latexMap.get(fileName),
-            };
-          });
+        next: contents => {
+          this.allFiles = contents;
           this.isLoadingContents = false;
+          // OnPush: the file list arrives in an async subscribe callback, so
+          // the view is not marked dirty automatically — without this the
+          // files dropdown stays empty until a later DOM event triggers
+          // detection.
+          this.cdr.markForCheck();
         },
         error: err => {
           console.error(err);
           this.isLoadingContents = false;
+          this.cdr.markForCheck();
         },
       });
   }
@@ -251,18 +233,18 @@ export class KnowledgeExercisesListComponent implements OnInit {
       return;
     }
 
-    const selectedContent = event.value as KnowledgeExerciseFile;
+    const selectedContent = event.value as LearningContent;
     this.currentContentId = selectedContent.id;
 
     // Compute the base URL for resolving relative image paths within this JSON file
-    this.currentImageBaseUrl = this.learningContentService.getStorageFileBaseUrl(selectedContent.file);
+    this.currentImageBaseUrl = this.learningContentService.getStorageFileBaseUrl(selectedContent.fileUrl);
 
     this.dataSource.data = [];
     this.selection.clear();
     this.contentRatingMap.clear();
 
     this.learningContentService
-      .getKnowledgeExerciseContent(selectedContent.file)
+      .getKnowledgeExerciseContent(selectedContent.fileUrl)
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
       next: df => {
@@ -283,6 +265,10 @@ export class KnowledgeExercisesListComponent implements OnInit {
                       this.contentRatingMap.set(r.itemId, r.rating);
                     }
                   }
+                  // OnPush: ratings arrive async; the mat-table only re-renders
+                  // rows when dataSource emits, so without markForCheck the
+                  // rating column stays at 0 until the next interaction.
+                  this.cdr.markForCheck();
                 },
                 error: err => console.error('Failed to load ratings', err),
               });
@@ -318,10 +304,12 @@ export class KnowledgeExercisesListComponent implements OnInit {
       .subscribe({
         next: saved => {
           this.contentRatingMap.set(numId, saved.rating);
+          this.cdr.markForCheck();
         },
         error: err => {
           console.error('Failed to save rating', err);
           this.contentRatingMap.delete(numId);
+          this.cdr.markForCheck();
         },
       });
   }
@@ -516,7 +504,7 @@ export class KnowledgeExercisesListComponent implements OnInit {
     // Show the dailog
     const dialogRef = this.dialog.open(KnowledgeExercisesPrintOptionsDialogComponent, {
       data: {
-        defaultTitle: this.selectedFile?.name || '',
+        defaultTitle: this.selectedFile?.nameChinese || '',
       },
       width: '600px',
       height: '500px',

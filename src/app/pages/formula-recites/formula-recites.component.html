@@ -10,8 +10,8 @@
           <mat-label>{{ t('formulaRecites.files') }}</mat-label>
           <mat-select matNativeControl [(value)]="selectedFile" (selectionChange)="onFileSelectionChanged($event)">
             <mat-option value="">{{ t('formulaRecites.none') }}</mat-option>
-            @for (file of allFiles; track file.name ) {
-              <mat-option [value]="file">{{file.name}}</mat-option>
+            @for (file of allFiles; track file.id ) {
+              <mat-option [value]="file">{{file.nameChinese}}</mat-option>
             }
           </mat-select>
         </mat-form-field>
@@ -104,7 +104,7 @@
 
     <div id="print" class="container printer">
       @if(printqueues.length > 0) {
-        <div class="printtitle">{{selectedFile?.name + (printSetting.subtitle ?? '')}}</div>
+        <div class="printtitle">{{selectedFile?.nameChinese + (printSetting.subtitle ?? '')}}</div>
         <div class="printsubtitle">{{currentDateString}}</div>
         @if(printSetting.printEntryDate) {
           <div>{{getEntryDateString()}}</div>

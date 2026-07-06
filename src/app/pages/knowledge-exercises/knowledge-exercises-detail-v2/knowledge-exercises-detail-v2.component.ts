@@ -1,5 +1,5 @@
 import type { AfterViewInit, OnInit } from '@angular/core';
-import { ChangeDetectionStrategy, Component, inject, model } from '@angular/core';
+import { ChangeDetectionStrategy, ChangeDetectorRef, Component, inject, model } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
@@ -12,7 +12,7 @@ import {
   convertQuestionBankItemToMarkdown,
   convertQuestionBankItemAnswerToMarkdown,
 } from '../../../interfaces';
-import { StorageService, UIService } from '../../../services';
+import { UIService } from '../../../services';
 import { MarkdownContentComponent } from '../../../shared/markdown-content';
 
 @Component({
@@ -37,8 +37,8 @@ export class KnowledgeExercisesDetailV2Component implements OnInit, AfterViewIni
   questions: QuestionBankItemBase<string>[] = [];
   printSetting?: KnowledgeExercisePrintOption;
   isPrintMode = model(false);
-  readonly storageService = inject(StorageService);
   readonly uiService = inject(UIService);
+  private readonly cdr = inject(ChangeDetectorRef);
   markdownStr = '';
   markdownAdditionStr = '';
   includeLatex = false;
@@ -83,6 +83,14 @@ export class KnowledgeExercisesDetailV2Component implements OnInit, AfterViewIni
             (idx === this.questions.length - 1 ? '' : '&emsp;');
         });
       }
+
+      // The markdown strings are built asynchronously (deferred past the
+      // initial change-detection cycle to avoid ExpressionChanged... errors).
+      // This component is OnPush, so without explicitly marking for check the
+      // view would not re-render to push the new strings into
+      // <app-markdown-content> — the page would stay blank until some later
+      // DOM event (e.g. clicking Print) happened to trigger detection.
+      this.cdr.markForCheck();
     }, 0);
   }
 }

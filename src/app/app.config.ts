@@ -26,7 +26,7 @@ export const appConfig: ApplicationConfig = {
         responseType: 'code',
         silentRenew: true,
         useRefreshToken: true,
-        logLevel: environment.production ? LogLevel.Warn : LogLevel.Debug,
+        logLevel: LogLevel.Warn,
       },
     }),
   ],

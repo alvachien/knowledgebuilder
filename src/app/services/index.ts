@@ -5,7 +5,6 @@ export * from './auth.interceptor';
 export * from './auth.service';
 export * from './howl-factory';
 export * from './howler.token';
-export * from './storage.service';
 export * from './user-code.service';
 export * from './util.service';
 export * from './ai.service';

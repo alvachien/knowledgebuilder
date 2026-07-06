@@ -4,13 +4,6 @@
 import { QuestionBankItemLevelEnum, QuestionBankTypeEnum } from "./questionbank";
 import type { KnowledgeExerciseFileContent } from "./questionbank-base";
 
-export interface LearnChineseDataFile {
-  name: string;
-  version?: number;
-  file: string;
-  translationDisabled?: boolean;
-}
-
 export enum ChineseExerciseTypeEnum {
   ClassicalChinese = "Classical Chinese", // Classical Chinese，古文
   Composition = "Composition",       // Composition，写作

@@ -172,7 +172,18 @@
     "author": "作者",
     "content": "内容",
     "source": "来源",
-    "defaultFormTitle": "中文练习"
+    "defaultFormTitle": "中文练习",
+    "select": "选择",
+    "selectByRating": "按评分",
+    "ratingOperator": "运算符",
+    "ratingValue": "评分值",
+    "operatorEquals": "等于",
+    "operatorGreaterThan": "大于",
+    "operatorLessThan": "小于",
+    "operatorLargerOrEquals": "大于等于",
+    "operatorLessOrEquals": "小于等于",
+    "operatorHasAny": "有评分",
+    "operatorHasNone": "无评分"
   },
   "formulaRecites": {
     "title": "公式",
@@ -248,7 +259,20 @@
     "countOfSelection": "选择数量",
     "countOfOffset": "起始位置",
     "id": "编号",
-    "rating": "评分"
+    "rating": "评分",
+    "selectByCount": "按数量",
+    "selectByWord": "按单词",
+    "selectFree": "随机选择",
+    "selectByRating": "按评分",
+    "ratingOperator": "运算符",
+    "ratingValue": "评分值",
+    "operatorEquals": "等于",
+    "operatorGreaterThan": "大于",
+    "operatorLessThan": "小于",
+    "operatorLargerOrEquals": "大于等于",
+    "operatorLessOrEquals": "小于等于",
+    "operatorHasAny": "有评分",
+    "operatorHasNone": "无评分"
   },
   "translateExercises": {
     "title": "句子",

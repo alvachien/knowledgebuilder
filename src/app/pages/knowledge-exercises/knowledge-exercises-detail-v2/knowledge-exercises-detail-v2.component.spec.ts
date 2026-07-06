@@ -1,5 +1,6 @@
 import type { ComponentFixture } from '@angular/core/testing';
 import { TestBed } from '@angular/core/testing';
+import { By } from '@angular/platform-browser';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
@@ -9,7 +10,7 @@ import { vi } from 'vitest';
 
 import type { KnowledgeExercisePrintOption } from '../../../interfaces';
 import { QuestionBankItemSingleChoice, QuestionBankItemFillInTheBlank } from '../../../interfaces';
-import { StorageService, UIService } from '../../../services';
+import { UIService } from '../../../services';
 import { MarkdownContentComponent } from '../../../shared/markdown-content';
 
 import { KnowledgeExercisesDetailV2Component } from './knowledge-exercises-detail-v2.component';
@@ -46,7 +47,6 @@ describe('KnowledgeExercisesDetailV2Component', () => {
 
   beforeEach(async () => {
     const uiSpy = { someMethod: vi.fn() };
-    const storageSpy = { someMethod: vi.fn() };
 
     await TestBed.configureTestingModule({
       imports: [
@@ -60,12 +60,10 @@ describe('KnowledgeExercisesDetailV2Component', () => {
       ],
       providers: [
         { provide: UIService, useValue: uiSpy },
-        { provide: StorageService, useValue: storageSpy },
       ],
     }).compileComponents();
 
     mockUIService = TestBed.inject(UIService) as any;
-    TestBed.inject(StorageService);
 
     fixture = TestBed.createComponent(KnowledgeExercisesDetailV2Component);
     component = fixture.componentInstance;
@@ -256,6 +254,44 @@ describe('KnowledgeExercisesDetailV2Component', () => {
       expect(component.questions.length).toBe(2);
       expect(component.markdownStr).toContain('Test Exercise');
     });
+
+    it('should mark the OnPush view for check after building markdown (no Print click needed)', () => {
+      // Regression: the markdown is built inside a deferred setTimeout. With
+      // ChangeDetectionStrategy.OnPush, the view would not re-render to push
+      // the new strings into <app-markdown-content> until a DOM event (e.g.
+      // clicking Print) triggered detection — leaving the page blank on
+      // arrival. The component must call markForCheck() once the strings are
+      // ready.
+      Object.defineProperty(mockUIService, 'ExerciseItems', {
+        value: [mockQuestion],
+        enumerable: true,
+      });
+      Object.defineProperty(mockUIService, 'ExercisePrintSetting', {
+        value: mockPrintSetting,
+        enumerable: true,
+      });
+      Object.defineProperty(mockUIService, 'IncludeLatex', {
+        value: false,
+        enumerable: true,
+      });
+
+      component.ngOnInit();
+      fixture.detectChanges();
+
+      const markForCheckSpy = vi.spyOn(component['cdr'], 'markForCheck');
+      markForCheckSpy.mockClear();
+
+      component.ngAfterViewInit();
+      // Before the deferred callback runs, markForCheck has not been driven by
+      // the markdown-build (the bare setTimeout pre-fix variant never called it).
+      expect(markForCheckSpy).not.toHaveBeenCalled();
+
+      vi.advanceTimersByTime(1);
+
+      // After the deferred markdown-build, the OnPush view must be marked dirty
+      // so the new strings reach <app-markdown-content> without a user event.
+      expect(markForCheckSpy).toHaveBeenCalled();
+    });
   });
 
   describe('template rendering', () => {
@@ -279,6 +315,43 @@ describe('KnowledgeExercisesDetailV2Component', () => {
       const compiled = fixture.nativeElement;
       const toolbarTitle = compiled.querySelector('h5');
       expect(toolbarTitle.textContent).toContain('Knowledge Bank - Exericse Detail, Version 2');
+    });
+
+    it('should push the built markdown into <app-markdown-content> on init (no Print click)', () => {
+      // Regression for the blank-until-Print-click bug: after navigation the
+      // page must render its content immediately. We drive the full lifecycle
+      // (ngOnInit -> ngAfterViewInit -> timer -> detectChanges) and confirm the
+      // markdown string actually reaches the child MarkdownContentComponent.
+      vi.useFakeTimers();
+      try {
+        Object.defineProperty(mockUIService, 'ExerciseItems', {
+        value: [mockQuestion],
+        enumerable: true,
+      });
+      Object.defineProperty(mockUIService, 'ExercisePrintSetting', {
+        value: { ...mockPrintSetting, printAnswer: false },
+        enumerable: true,
+      });
+      Object.defineProperty(mockUIService, 'IncludeLatex', {
+        value: false,
+        enumerable: true,
+      });
+
+      component.ngOnInit();
+      fixture.detectChanges();
+      component.ngAfterViewInit();
+      vi.advanceTimersByTime(1);
+      fixture.detectChanges();
+
+      const markdownEl = fixture.nativeElement.querySelector('app-markdown-content');
+      expect(markdownEl).toBeTruthy();
+      const markdownDebug = fixture.debugElement.query(By.css('app-markdown-content'));
+      const markdownCmp = markdownDebug.componentInstance as { markdown: string };
+      expect(markdownCmp.markdown).toBe(component.markdownStr);
+      expect(markdownCmp.markdown).toContain('Test Exercise');
+      } finally {
+        vi.useRealTimers();
+      }
     });
   });
 });

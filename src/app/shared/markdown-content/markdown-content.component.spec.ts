@@ -413,4 +413,46 @@ describe('MarkdownContentComponent', () => {
       );
     });
   });
+
+  describe('OnPush change detection', () => {
+    it('should mark the view for check after the async math render path (no click needed)', async () => {
+      // Regression: renderMarkdown is async — when math is enabled it awaits
+      // loadKatex() (a dynamic import), so renderedContent is assigned after the
+      // change-detection cycle that ran ngOnChanges. With OnPush the view would
+      // not re-render without markForCheck, leaving the markdown area blank.
+      const markForCheckSpy = vi.spyOn(component['cdr'], 'markForCheck');
+      markForCheckSpy.mockClear();
+
+      component.markdown = 'Inline math: $x = y$';
+      component.enableMath = true;
+      await component['renderMarkdown']();
+
+      expect(component.renderedContent).toBeTruthy();
+      expect(markForCheckSpy).toHaveBeenCalled();
+    });
+
+    it('should mark the view for check on the empty-markdown early return', async () => {
+      const markForCheckSpy = vi.spyOn(component['cdr'], 'markForCheck');
+      markForCheckSpy.mockClear();
+
+      component.markdown = '';
+      await component['renderMarkdown']();
+
+      expect(component.renderedContent).toBe('');
+      expect(markForCheckSpy).toHaveBeenCalled();
+    });
+
+    it('should mark the view for check on a render error', async () => {
+      vi.spyOn(console, 'error').mockImplementation(() => {});
+      const markedService = (component as any).markedService;
+      vi.spyOn(markedService, 'parse').mockImplementation(() => { throw new Error('Parse error'); });
+      const markForCheckSpy = vi.spyOn(component['cdr'], 'markForCheck');
+      markForCheckSpy.mockClear();
+
+      component.markdown = '# Test';
+      await component['renderMarkdown']();
+
+      expect(markForCheckSpy).toHaveBeenCalled();
+    });
+  });
 });

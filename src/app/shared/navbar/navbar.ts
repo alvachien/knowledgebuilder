@@ -81,7 +81,13 @@ export class NavbarComponent implements OnDestroy {
 
   constructor() {
     this.homeUrl = environment.homeurl;
-    setTimeout(() => (this.skipLinkHref = this.navigationFocusService.getSkipLinkHref()), 100);
+    setTimeout(() => {
+      this.skipLinkHref = this.navigationFocusService.getSkipLinkHref();
+      // OnPush: this runs deferred past the initial change-detection cycle, so
+      // the bound skip-link href would not reach the template without marking
+      // the view dirty.
+      this.cdr.markForCheck();
+    }, 100);
 
     this.mobileQuery = this.media.matchMedia(NavbarComponent.SMALL_SCREEN_QUERY);
     this.isSmallScreen = this.mobileQuery.matches;
@@ -106,6 +112,10 @@ export class NavbarComponent implements OnDestroy {
             panelClass: ['auth-error-snackbar'],
           });
         }
+        // OnPush: auth state arrives in an async subscribe callback, so the view
+        // is not marked dirty automatically — without this the login button,
+        // user name, and error banner stay stale until a later DOM event.
+        this.cdr.markForCheck();
       }),
     );
   }

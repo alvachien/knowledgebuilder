@@ -6,7 +6,7 @@ import { map, tap } from 'rxjs/operators';
 import { environment } from '../../environments/environment';
 
 import type { LearningContent } from '../interfaces';
-import type { LearnEnglishWordFileItem, LearnEnglishSentFileItem, LearnChineseFileItem, EnglishListeningLesson, QuestionBankItemCombinedInterface, KnowledgeExerciseFileContent } from '../interfaces';
+import type { LearnEnglishWordFileItem, LearnEnglishSentFileItem, LearnChineseFileItem, EnglishListeningLesson, QuestionBankItemCombinedInterface, KnowledgeExerciseFileContent, FormulaReciteContent } from '../interfaces';
 import { getQuestionBankTypeDescription, doesQuestionBankItemHasAnswer } from '../interfaces';
 
 @Injectable({
@@ -23,6 +23,7 @@ export class LearningContentService {
   private cachedKnowledgeContent = new Map<string, KnowledgeExerciseFileContent[]>();
   private cachedChineseContent = new Map<string, LearnChineseFileItem[]>();
   private cachedListeningContent = new Map<string, EnglishListeningLesson[]>();
+  private cachedFormulaContent = new Map<string, FormulaReciteContent[]>();
 
   /**
    * Convert a fileUrl (e.g., "storage/learnenglish/cet4.json") to the authenticated API endpoint URL.
@@ -172,6 +173,27 @@ export class LearningContentService {
     const url = this.getStorageFileUrl(fileUrl);
     return this.http.get<EnglishListeningLesson[]>(url).pipe(
       tap(items => this.cachedListeningContent.set(fileUrl, items ?? []))
+    );
+  }
+
+  /** Fetch formula file list (category=5) from the API. */
+  getFormulaContents(): Observable<LearningContent[]> {
+    return this.getContentsByCategory(5);
+  }
+
+  /**
+   * Fetch formula recite items from the content's fileUrl.
+   * The fileUrl is a relative path (e.g. "storage/formula/highschoolmath.json")
+   * fetched via the authenticated StorageController API.
+   */
+  getFormulaFileContent(fileUrl: string): Observable<FormulaReciteContent[]> {
+    if (this.cachedFormulaContent.has(fileUrl)) {
+      return of(this.cachedFormulaContent.get(fileUrl)!);
+    }
+
+    const url = this.getStorageFileUrl(fileUrl);
+    return this.http.get<FormulaReciteContent[]>(url).pipe(
+      tap(items => this.cachedFormulaContent.set(fileUrl, items ?? []))
     );
   }
 
