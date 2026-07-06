@@ -2,7 +2,6 @@ import { vi } from 'vitest';
 import { SelectionModel } from '@angular/cdk/collections';
 import type { ComponentFixture } from '@angular/core/testing';
 import { TestBed } from '@angular/core/testing';
-import { HttpClient } from '@angular/common/http';
 import { MatDialog, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { Title } from '@angular/platform-browser';
 import { Router } from '@angular/router';
@@ -10,10 +9,9 @@ import { TranslocoTestingModule } from '@jsverse/transloco';
 import { of, throwError } from 'rxjs';
 
 import type { LearnChineseFileItem, LearningContent } from '../../interfaces';
-import { QuestionBankItemLevelEnum } from '../../interfaces';
+import { QuestionBankItemLevelEnum, RatingOperatorEnum } from '../../interfaces';
 import { LearningContentService } from '../../services/learning-content.service';
 import { LearningRatingService } from '../../services/learning-rating.service';
-import { StorageService } from '../../services/storage.service';
 import { UIService } from '../../services/ui.service';
 import { AppPageTitle } from '../page-title/page-title';
 
@@ -21,12 +19,12 @@ import {
   ChineseExercisesComponent,
   ChineseExercisesOptionsDialogComponent,
   ChineseExercisesPrintOptionsDialogComponent,
+  ChineseSelectByRatingDialogComponent,
 } from './chinese-exercises.component';
 
 describe('ChineseExercisesComponent', () => {
   let component: ChineseExercisesComponent;
   let fixture: ComponentFixture<ChineseExercisesComponent>;
-  let storageServiceSpy: any;
   let contentServiceSpy: any;
   let ratingServiceSpy: any;
   let dialogSpy: any;
@@ -34,8 +32,8 @@ describe('ChineseExercisesComponent', () => {
   let routerSpy: any;
 
   const mockLearningContents: LearningContent[] = [
-    { id: 1, categoryId: 4, nameChinese: '测试文件1', nameEnglish: 'Test File 1', fileUrl: 'storage/learnchinese/test1.json' },
-    { id: 2, categoryId: 4, nameChinese: '测试文件2', nameEnglish: 'Test File 2', fileUrl: 'storage/learnchinese/test2.json' },
+    { id: 1, categoryId: 4, nameChinese: '测试文件1', nameEnglish: 'Test File 1', fileUrl: 'storage/learnchinese/test1.json', version: 1 },
+    { id: 2, categoryId: 4, nameChinese: '测试文件2', nameEnglish: 'Test File 2', fileUrl: 'storage/learnchinese/test2.json', version: 2 },
   ];
 
   const mockLearnChineseFileItem: LearnChineseFileItem[] = [
@@ -52,11 +50,6 @@ describe('ChineseExercisesComponent', () => {
   ];
 
   beforeEach(async () => {
-    const storageSpy = {
-      getLearnChineseDataFile: vi.fn(),
-      getLearnChineseFileContent: vi.fn(),
-    };
-
     const contentSpy = {
       getChineseContents: vi.fn(),
       getChineseFileContent: vi.fn(),
@@ -74,9 +67,6 @@ describe('ChineseExercisesComponent', () => {
 
     // Mock Title service
     const titleSpy = { setTitle: vi.fn() };
-
-    // Mock HttpClient
-    const httpSpy = { get: vi.fn().mockReturnValue(of([])) };
 
     // Create a minimal mock class that doesn't have dependencies
     class MockAppPageTitle {
@@ -106,18 +96,15 @@ describe('ChineseExercisesComponent', () => {
       ],
       providers: [
         { provide: AppPageTitle, useClass: MockAppPageTitle },
-        { provide: StorageService, useValue: storageSpy },
         { provide: LearningContentService, useValue: contentSpy },
         { provide: LearningRatingService, useValue: ratingSpy },
         { provide: MatDialog, useValue: matDialogSpy },
         { provide: UIService, useValue: uiSpy },
         { provide: Router, useValue: routeSpy },
         { provide: Title, useValue: titleSpy },
-        { provide: HttpClient, useValue: httpSpy },
       ],
     }).compileComponents();
 
-    storageServiceSpy = TestBed.inject(StorageService) as any;
     contentServiceSpy = TestBed.inject(LearningContentService) as any;
     ratingServiceSpy = TestBed.inject(LearningRatingService) as any;
     dialogSpy = TestBed.inject(MatDialog) as any;
@@ -148,6 +135,22 @@ describe('ChineseExercisesComponent', () => {
 
       expect(contentServiceSpy.getChineseContents).toHaveBeenCalled();
       expect(component.allFiles).toEqual(mockLearningContents);
+    });
+
+    it('should mark the OnPush view for check after the file list arrives (no click needed)', () => {
+      // Regression: the file list lands in an async subscribe callback (not a
+      // template event, not an async pipe). With ChangeDetectionStrategy.OnPush
+      // the view is not marked dirty automatically, so the files dropdown stayed
+      // empty until a later DOM event triggered detection. The component must
+      // call markForCheck() once the list is ready.
+      contentServiceSpy.getChineseContents.mockReturnValue(of(mockLearningContents));
+      const markForCheckSpy = vi.spyOn(component['cdr'], 'markForCheck');
+      markForCheckSpy.mockClear();
+
+      component.ngOnInit();
+
+      expect(component.allFiles).toEqual(mockLearningContents);
+      expect(markForCheckSpy).toHaveBeenCalled();
     });
 
     it('should handle error when loading learn chinese data files', () => {
@@ -223,7 +226,6 @@ describe('ChineseExercisesComponent', () => {
   describe('Display content methods', () => {
     it('should return display content without @ character for version 2 file', () => {
       component.selectedFile = mockLearningContents[1];
-      (component as any).fileMetadataMap.set('storage/learnchinese/test2.json', { version: 2 });
       const item = {
         subject: 'Test',
         contentlength: 1,
@@ -237,7 +239,6 @@ describe('ChineseExercisesComponent', () => {
 
     it('should return display content without modification for version 1 file', () => {
       component.selectedFile = mockLearningContents[0];
-      (component as any).fileMetadataMap.set('storage/learnchinese/test1.json', { version: 1 });
       const item = {
         subject: 'Test',
         content: 'Hello@World',
@@ -250,7 +251,6 @@ describe('ChineseExercisesComponent', () => {
 
     it('should return content property if contentlength is not defined', () => {
       component.selectedFile = mockLearningContents[0];
-      (component as any).fileMetadataMap.set('storage/learnchinese/test1.json', { version: 1 });
       const item = {
         subject: 'Test',
         content: 'Direct Content',
@@ -532,6 +532,146 @@ describe('ChineseExercisesComponent', () => {
       expect(printSetting?.formTitle).toContain('Chinese Exercises');
     });
   });
+
+  describe('onSelectByRating', () => {
+    beforeEach(() => {
+      component.dataSource.data = [
+        { id: 1, subject: 'Subject 1', author: 'Author 1', content: 'Content 1' },
+        { id: 2, subject: 'Subject 2', author: 'Author 2', content: 'Content 2' },
+        { id: 3, subject: 'Subject 3', author: 'Author 3', content: 'Content 3' },
+      ] as LearnChineseFileItem[];
+      // Set up ratings: id1=5, id2=3, id3=0 (unrated)
+      (component as any).contentRatingMap.set(1, 5);
+      (component as any).contentRatingMap.set(2, 3);
+      (component as any).contentRatingMap.set(3, 0);
+    });
+
+    it('should select items with rating equals 5', () => {
+      const mockDialogRef = {
+        afterClosed: () => of({ ratingOperator: RatingOperatorEnum.Equals, ratingValue: 5 }),
+      } as MatDialogRef<any>;
+      dialogSpy.open.mockReturnValue(mockDialogRef);
+
+      component.onSelectByRating();
+
+      expect(component.selection.selected.length).toBe(1);
+      expect(component.selection.selected[0].id).toBe(1);
+    });
+
+    it('should select items with rating greater than 3', () => {
+      const mockDialogRef = {
+        afterClosed: () => of({ ratingOperator: RatingOperatorEnum.GreaterThan, ratingValue: 3 }),
+      } as MatDialogRef<any>;
+      dialogSpy.open.mockReturnValue(mockDialogRef);
+
+      component.onSelectByRating();
+
+      expect(component.selection.selected.length).toBe(1);
+      expect(component.selection.selected[0].id).toBe(1);
+    });
+
+    it('should select items with any rating', () => {
+      const mockDialogRef = {
+        afterClosed: () => of({ ratingOperator: RatingOperatorEnum.HasAny }),
+      } as MatDialogRef<any>;
+      dialogSpy.open.mockReturnValue(mockDialogRef);
+
+      component.onSelectByRating();
+
+      expect(component.selection.selected.length).toBe(2);
+    });
+
+    it('should select items with no rating', () => {
+      const mockDialogRef = {
+        afterClosed: () => of({ ratingOperator: RatingOperatorEnum.HasNone }),
+      } as MatDialogRef<any>;
+      dialogSpy.open.mockReturnValue(mockDialogRef);
+
+      component.onSelectByRating();
+
+      expect(component.selection.selected.length).toBe(1);
+      expect(component.selection.selected[0].id).toBe(3);
+    });
+
+    it('should select rated items below the value, excluding unrated (0)', () => {
+      // ratings: id1=5, id2=3, id3=0. LessThan 4 → only id2 (rating 3);
+      // id3 (unrated, 0) is deliberately excluded (covered by HasNone).
+      const mockDialogRef = {
+        afterClosed: () => of({ ratingOperator: RatingOperatorEnum.LessThan, ratingValue: 4 }),
+      } as MatDialogRef<any>;
+      dialogSpy.open.mockReturnValue(mockDialogRef);
+
+      component.onSelectByRating();
+
+      expect(component.selection.selected.length).toBe(1);
+      expect(component.selection.selected[0].id).toBe(2);
+    });
+
+    it('should select nothing when no rated item is below the value', () => {
+      // ratings: id1=5, id2=3, id3=0. LessThan 2 → no rated item qualifies.
+      const mockDialogRef = {
+        afterClosed: () => of({ ratingOperator: RatingOperatorEnum.LessThan, ratingValue: 2 }),
+      } as MatDialogRef<any>;
+      dialogSpy.open.mockReturnValue(mockDialogRef);
+
+      component.onSelectByRating();
+
+      expect(component.selection.selected.length).toBe(0);
+    });
+
+    it('should select items with rating larger or equals 3', () => {
+      // ratings: id1=5, id2=3, id3=0. LargerOrEquals 3 → id1, id2.
+      const mockDialogRef = {
+        afterClosed: () => of({ ratingOperator: RatingOperatorEnum.LargerOrEquals, ratingValue: 3 }),
+      } as MatDialogRef<any>;
+      dialogSpy.open.mockReturnValue(mockDialogRef);
+
+      component.onSelectByRating();
+
+      expect(component.selection.selected.length).toBe(2);
+      expect(component.selection.selected.some(i => i.id === 1)).toBe(true);
+      expect(component.selection.selected.some(i => i.id === 2)).toBe(true);
+    });
+
+    it('should select items with rating less or equals 3, excluding unrated', () => {
+      // ratings: id1=5, id2=3, id3=0. LessOrEquals 3 → only id2 (rating 3);
+      // id3 (unrated, 0) is deliberately excluded (covered by HasNone).
+      const mockDialogRef = {
+        afterClosed: () => of({ ratingOperator: RatingOperatorEnum.LessOrEquals, ratingValue: 3 }),
+      } as MatDialogRef<any>;
+      dialogSpy.open.mockReturnValue(mockDialogRef);
+
+      component.onSelectByRating();
+
+      expect(component.selection.selected.length).toBe(1);
+      expect(component.selection.selected[0].id).toBe(2);
+    });
+
+    it('should select nothing for less or equals when no rated item is at or below the value', () => {
+      // ratings: id1=5, id2=3, id3=0. LessOrEquals 2 → no rated item qualifies;
+      // id3 (unrated, 0) is excluded, confirming it does not collapse into HasNone.
+      const mockDialogRef = {
+        afterClosed: () => of({ ratingOperator: RatingOperatorEnum.LessOrEquals, ratingValue: 2 }),
+      } as MatDialogRef<any>;
+      dialogSpy.open.mockReturnValue(mockDialogRef);
+
+      component.onSelectByRating();
+
+      expect(component.selection.selected.length).toBe(0);
+    });
+
+    it('should preserve the existing selection when the dialog is cancelled', () => {
+      component.selection.select(component.dataSource.data[0]);
+      const initialCount = component.selection.selected.length;
+
+      const mockDialogRef = { afterClosed: () => of(undefined) } as MatDialogRef<any>;
+      dialogSpy.open.mockReturnValue(mockDialogRef);
+
+      component.onSelectByRating();
+
+      expect(component.selection.selected.length).toBe(initialCount);
+    });
+  });
 });
 
 describe('ChineseExercisesOptionsDialogComponent', () => {
@@ -743,5 +883,75 @@ describe('ChineseExercisesPrintOptionsDialogComponent', () => {
   it('should expose getQuestionBankLevelName function', () => {
     expect(component.getQuestionBankLevelName).toBeDefined();
     expect(typeof component.getQuestionBankLevelName).toBe('function');
+  });
+});
+
+describe('ChineseSelectByRatingDialogComponent', () => {
+  let component: ChineseSelectByRatingDialogComponent;
+  let fixture: ComponentFixture<ChineseSelectByRatingDialogComponent>;
+  let dialogRefSpy: any;
+
+  beforeEach(async () => {
+    const matDialogRefSpy = { close: vi.fn() };
+
+    await TestBed.configureTestingModule({
+      imports: [
+        ChineseSelectByRatingDialogComponent,
+        TranslocoTestingModule.forRoot({
+          langs: { en: {}, 'zh-CN': {} },
+          translocoConfig: {
+            availableLangs: ['en', 'zh-CN'],
+            defaultLang: 'en',
+          },
+          preloadLangs: true,
+        }),
+      ],
+      providers: [
+        { provide: MatDialogRef, useValue: matDialogRefSpy },
+        { provide: MAT_DIALOG_DATA, useValue: {} },
+      ],
+    }).compileComponents();
+
+    dialogRefSpy = TestBed.inject(MatDialogRef) as any;
+    fixture = TestBed.createComponent(ChineseSelectByRatingDialogComponent);
+    component = fixture.componentInstance;
+    fixture.detectChanges();
+  });
+
+  it('should create', () => {
+    expect(component).toBeTruthy();
+  });
+
+  it('should close with ratingOperator and ratingValue on confirm', () => {
+    component.ratingOperator.set(RatingOperatorEnum.GreaterThan);
+    component.ratingValue.set(3);
+    component.onYesClick();
+
+    expect(dialogRefSpy.close).toHaveBeenCalledWith({
+      ratingOperator: RatingOperatorEnum.GreaterThan,
+      ratingValue: 3,
+    });
+  });
+
+  it('isValueDisabled should return true when HasAny operator is selected', () => {
+    component.ratingOperator.set(RatingOperatorEnum.HasAny);
+    expect(component.isValueDisabled).toBe(true);
+  });
+
+  it('isValueDisabled should return true when HasNone operator is selected', () => {
+    component.ratingOperator.set(RatingOperatorEnum.HasNone);
+    expect(component.isValueDisabled).toBe(true);
+  });
+
+  it('isValueDisabled should return false when Equals operator is selected', () => {
+    component.ratingOperator.set(RatingOperatorEnum.Equals);
+    expect(component.isValueDisabled).toBe(false);
+  });
+
+  it('ratingOperators should include Larger or Equals and Less or Equals', () => {
+    const values = component.ratingOperators.map(op => op.value);
+    expect(values).toContain(RatingOperatorEnum.LargerOrEquals);
+    expect(values).toContain(RatingOperatorEnum.LessOrEquals);
+    expect(component.ratingOperators.length).toBe(7);
   });
 });

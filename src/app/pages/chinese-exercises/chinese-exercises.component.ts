@@ -8,10 +8,10 @@ import {
   model,
   ViewChild,
   ChangeDetectionStrategy,
+  ChangeDetectorRef,
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
-import { HttpClient } from '@angular/common/http';
 import { MatButtonModule } from '@angular/material/button';
 import { MatButtonToggleModule } from '@angular/material/button-toggle';
 import type { MatButtonToggleChange } from '@angular/material/button-toggle';
@@ -30,6 +30,7 @@ import { MatDividerModule } from '@angular/material/divider';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
+import { MatMenuModule } from '@angular/material/menu';
 import { MatPaginator, MatPaginatorModule } from '@angular/material/paginator';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
@@ -53,7 +54,6 @@ import type {
   KnowledgeExerciseFileContent,
   KnowledgeExercisePrintOption,
   LearningContent,
-  UserLearningRating,
 } from '../../interfaces';
 import {
   ChineseReciteStatusEnum,
@@ -65,8 +65,9 @@ import {
   QuestionBankTypeEnum,
   getAllQuestionBankLevelEnumValues,
   convertChineseReciteItemToKnowledge,
+  RatingOperatorEnum,
 } from '../../interfaces';
-import { LearningContentService, LearningRatingService, StorageService, UIService } from '../../services';
+import { LearningContentService, LearningRatingService, UIService } from '../../services';
 import { FooterComponent } from '../../shared/footer/footer';
 import { fisherYatesShuffle } from '../../shared/utils/shuffle';
 import { AppPageTitle } from '../page-title/page-title';
@@ -92,6 +93,7 @@ import { AppPageTitle } from '../page-title/page-title';
     MatButtonToggleModule,
     MatProgressSpinnerModule,
     MatTooltipModule,
+    MatMenuModule,
     TranslocoModule,
   ],
   templateUrl: './chinese-exercises.component.html',
@@ -137,11 +139,8 @@ export class ChineseExercisesComponent implements OnInit {
   readonly router = inject(Router);
   private readonly contentService = inject(LearningContentService);
   private readonly ratingService = inject(LearningRatingService);
-  private readonly http = inject(HttpClient);
   // Maps selected file to backend ContentId
   studyContentId = 0;
-  // Supplementary metadata from data.json index (version, translationDisabled)
-  private fileMetadataMap = new Map<string, { version?: number; translationDisabled?: boolean }>();
   setting: ChineseReciteOption = {
     selectedLevel: QuestionBankItemLevelEnum.Full,
     allowEmptyAnswer: false,
@@ -189,21 +188,15 @@ export class ChineseExercisesComponent implements OnInit {
   }
 
   getDisplayContentText(cont: LearnChineseFileItem): string {
-    const meta = this.selectedFile ? this.fileMetadataMap.get(this.selectedFile.fileUrl) : undefined;
-    if (meta?.version === 2) {
+    if (this.selectedFile?.version === 2) {
       return getChineseReciteItemDisplayContent(cont).replaceAll('@', '');
     }
 
     return getChineseReciteItemDisplayContent(cont);
   }
 
-  private getFileMetadata(): { version?: number; translationDisabled?: boolean } {
-    if (!this.selectedFile) return {};
-    return this.fileMetadataMap.get(this.selectedFile.fileUrl) ?? {};
-  }
-
-  private readonly storage = inject(StorageService);
   private readonly destroyRef = inject(DestroyRef);
+  private readonly cdr = inject(ChangeDetectorRef);
 
   constructor() {
     this.dataSource.sortingDataAccessor = (
@@ -236,32 +229,23 @@ export class ChineseExercisesComponent implements OnInit {
       next: contents => {
         this.allFiles = contents;
         this.isLoadingContents = false;
+        // OnPush: the file list arrives in an async subscribe callback, so the
+        // view is not marked dirty automatically — without this the files
+        // dropdown stays empty until a later DOM event triggers detection.
+        this.cdr.markForCheck();
       },
       error: err => {
         console.error(err);
         this.isLoadingContents = false;
+        this.cdr.markForCheck();
       },
     });
-
-    // Load supplementary metadata (version, translationDisabled) from data.json index
-    const dataJsonUrl = this.contentService.getStorageFileUrl('storage/learnchinese/data.json');
-    this.http.get<{ name: string; file: string; version?: number; translationDisabled?: boolean }[]>(dataJsonUrl)
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe({
-        next: (entries) => {
-          for (const entry of entries) {
-            const fileUrl = `storage/learnchinese/${entry.file}`;
-            this.fileMetadataMap.set(fileUrl, {
-              version: entry.version,
-              translationDisabled: entry.translationDisabled,
-            });
-          }
-        },
-        error: err => console.error('Failed to load Chinese metadata', err),
-      });
   }
 
   onFileSelectionChanged(event: MatSelectChange) {
+    // Drop selection carried over from the previously loaded file.
+    this.selection.clear();
+
     if (!event.value) {
       this.dataSource.data = [];
       this.studyContentId = 0;
@@ -301,6 +285,10 @@ export class ChineseExercisesComponent implements OnInit {
                 this.contentRatingMap.set(r.itemId, r.rating);
               }
             }
+            // OnPush: ratings arrive async; the mat-table only re-renders rows
+            // when dataSource emits, so without markForCheck the rating column
+            // stays at 0 until the next interaction.
+            this.cdr.markForCheck();
           },
           error: err => console.error('Failed to load ratings', err),
         });
@@ -325,6 +313,7 @@ export class ChineseExercisesComponent implements OnInit {
       .subscribe({
         next: (saved) => {
           this.contentRatingMap.set(item.id!, saved.rating);
+          this.cdr.markForCheck();
         },
         error: err => console.error('Failed to save rating', err),
       });
@@ -336,7 +325,6 @@ export class ChineseExercisesComponent implements OnInit {
   }
 
   onStartWithOptions() {
-    const meta = this.getFileMetadata();
     const dialogRef = this.dialog.open(ChineseExercisesOptionsDialogComponent, {
       data: {
         reciteContentCount:
@@ -344,7 +332,7 @@ export class ChineseExercisesComponent implements OnInit {
             ? this.selection.selected.length
             : this.dataSource.data.length,
         disableCount: this.selection.selected.length > 0 ? true : false,
-        translationDisabled: meta.translationDisabled,
+        translationDisabled: this.selectedFile?.translationDisabled,
       },
       width: '500px',
       height: '360px',
@@ -369,7 +357,6 @@ export class ChineseExercisesComponent implements OnInit {
   onStart() {}
 
   onPrintWithOptions() {
-    const meta = this.getFileMetadata();
     const dialogRef = this.dialog.open(ChineseExercisesPrintOptionsDialogComponent, {
       data: {
         reciteContentCount:
@@ -377,7 +364,7 @@ export class ChineseExercisesComponent implements OnInit {
             ? this.selection.selected.length
             : this.dataSource.data.length,
         disableCount: this.selection.selected.length > 0 ? true : false,
-        translationDisabled: meta.translationDisabled,
+        translationDisabled: this.selectedFile?.translationDisabled,
       },
       width: '600px',
       height: '500px',
@@ -403,21 +390,20 @@ export class ChineseExercisesComponent implements OnInit {
   }
 
   onPrint() {
-    const meta = this.getFileMetadata();
     // Check whether there are selections
     const numSelected = this.selection.selected.length > 0 ? this.selection.selected.length : 0;
     let printqueues: KnowledgeExerciseFileContent[] = [];
     if (numSelected > 0) {
       printqueues = convertChineseReciteItemToKnowledge(
         this.selection.selected,
-        meta.version,
+        this.selectedFile?.version,
         this.printSetting.selectedLevel
       );
       printqueues = fisherYatesShuffle(printqueues);
     } else {
       printqueues = convertChineseReciteItemToKnowledge(
         this.dataSource.data,
-        meta.version,
+        this.selectedFile?.version,
         this.printSetting.selectedLevel
       );
 
@@ -446,6 +432,65 @@ export class ChineseExercisesComponent implements OnInit {
     execPrintSetting.formTitle = `${execPrintSetting.formTitle} (${getQuestionBankLevelName(this.printSetting.selectedLevel)})`;
     this.uiService.setSelectedExerciseItem(printqueues, execPrintSetting);
     void this.router.navigate(['/knowledge/displayv2']);
+  }
+
+  onSelectByRating() {
+    const dialogRef = this.dialog.open(ChineseSelectByRatingDialogComponent, {
+      data: {},
+      width: '400px',
+      enterAnimationDuration: 800,
+      exitAnimationDuration: 500,
+    });
+
+    dialogRef
+      .afterClosed()
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(result => {
+        if (result !== undefined) {
+          this.selection.clear();
+          const operator = result.ratingOperator as RatingOperatorEnum;
+          const value = result.ratingValue as number;
+
+          this.dataSource.data.forEach(item => {
+            const rating = this.getRating(item.id);
+            let matches = false;
+
+            switch (operator) {
+              case RatingOperatorEnum.Equals:
+                matches = rating === value;
+                break;
+              case RatingOperatorEnum.GreaterThan:
+                matches = rating > value;
+                break;
+              case RatingOperatorEnum.LargerOrEquals:
+                matches = rating >= value;
+                break;
+              case RatingOperatorEnum.LessThan:
+                // "Less than" intentionally excludes unrated (0) items: a rating
+                // of 0 means "not yet assessed", which is covered by HasNone.
+                // This keeps LessThan 1 from collapsing into HasNone.
+                matches = rating > 0 && rating < value;
+                break;
+              case RatingOperatorEnum.LessOrEquals:
+                // Same unrated-exclusion rationale as LessThan: an unrated (0)
+                // item is "not yet assessed", not "rated at or below the value".
+                matches = rating > 0 && rating <= value;
+                break;
+              case RatingOperatorEnum.HasAny:
+                matches = rating > 0;
+                break;
+              case RatingOperatorEnum.HasNone:
+                matches = rating === 0;
+                break;
+            }
+
+            if (matches) {
+              this.selection.select(item);
+            }
+          });
+          this.cdr.markForCheck();
+        }
+      });
   }
 }
 
@@ -555,5 +600,59 @@ export class ChineseExercisesPrintOptionsDialogComponent {
     };
 
     this.dialogRef.close(closedata);
+  }
+}
+
+@Component({
+  selector: 'app-chinese-selectbyrating-dlg',
+  templateUrl: 'chinese-exercises-selectbyrating-dialog.html',
+  imports: [
+    MatFormFieldModule,
+    FormsModule,
+    MatInputModule,
+    MatButtonModule,
+    MatDialogTitle,
+    MatDialogContent,
+    MatDialogActions,
+    MatSelectModule,
+    TranslocoModule,
+  ],
+  changeDetection: ChangeDetectionStrategy.OnPush,
+})
+export class ChineseSelectByRatingDialogComponent {
+  readonly dialogRef = inject(MatDialogRef<ChineseSelectByRatingDialogComponent>);
+  readonly ratingOperator = model(RatingOperatorEnum.Equals);
+  readonly ratingValue = model(3);
+
+  get ratingOperators(): { value: RatingOperatorEnum; label: string }[] {
+    return [
+      { value: RatingOperatorEnum.Equals, label: 'operatorEquals' },
+      { value: RatingOperatorEnum.GreaterThan, label: 'operatorGreaterThan' },
+      { value: RatingOperatorEnum.LargerOrEquals, label: 'operatorLargerOrEquals' },
+      { value: RatingOperatorEnum.LessThan, label: 'operatorLessThan' },
+      { value: RatingOperatorEnum.LessOrEquals, label: 'operatorLessOrEquals' },
+      { value: RatingOperatorEnum.HasAny, label: 'operatorHasAny' },
+      { value: RatingOperatorEnum.HasNone, label: 'operatorHasNone' },
+    ];
+  }
+
+  get ratingValues(): number[] {
+    return [1, 2, 3, 4, 5];
+  }
+
+  get isValueDisabled(): boolean {
+    return this.ratingOperator() === RatingOperatorEnum.HasAny ||
+           this.ratingOperator() === RatingOperatorEnum.HasNone;
+  }
+
+  onNoClick(): void {
+    this.dialogRef.close();
+  }
+
+  onYesClick(): void {
+    this.dialogRef.close({
+      ratingOperator: this.ratingOperator(),
+      ratingValue: this.ratingValue(),
+    });
   }
 }

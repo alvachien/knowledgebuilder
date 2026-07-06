@@ -23,10 +23,10 @@ import {
 } from '@jsverse/transloco';
 import { of, throwError } from 'rxjs';
 
-import type { FormulaReciteDataFile, FormulaReciteContent } from '../../interfaces';
-import { FormulaReciteAIModeEnum, FormulaReciteFileTypeEnum } from '../../interfaces';
+import type { FormulaReciteContent, LearningContent } from '../../interfaces';
+import { FormulaReciteAIModeEnum } from '../../interfaces';
 import { AIService } from '../../services/ai.service';
-import { StorageService } from '../../services/storage.service';
+import { LearningContentService } from '../../services/learning-content.service';
 import { UIService } from '../../services/ui.service';
 import { UserCodeService } from '../../services/user-code.service';
 import { UtilService } from '../../services/util.service';
@@ -95,22 +95,26 @@ class MockAppPageTitle {
 describe('FormulaRecitesComponent', () => {
   let component: FormulaRecitesComponent;
   let fixture: ComponentFixture<FormulaRecitesComponent>;
-  let mockStorageService: any;
+  let mockLearningContentService: any;
   let mockUtilService: any;
   let mockMatDialog: any;
 
-  const mockFormulaDataFile: FormulaReciteDataFile[] = [
+  const mockFormulaContents: LearningContent[] = [
     {
-      name: 'test-formula-1',
-      file: 'test1.json',
+      id: 1,
+      categoryId: 5,
+      nameChinese: 'test-formula-1',
+      nameEnglish: 'test-formula-1',
+      fileUrl: 'storage/formula/test1.json',
       version: 2,
-      contenttype: FormulaReciteFileTypeEnum.Math,
     },
     {
-      name: 'test-formula-2',
-      file: 'test2.json',
+      id: 2,
+      categoryId: 5,
+      nameChinese: 'test-formula-2',
+      nameEnglish: 'test-formula-2',
+      fileUrl: 'storage/formula/test2.json',
       version: 1,
-      contenttype: FormulaReciteFileTypeEnum.Physics,
     },
   ];
 
@@ -121,8 +125,8 @@ describe('FormulaRecitesComponent', () => {
   ];
 
   beforeEach(async () => {
-    const storageSpy = {
-      getFormulaDataFile: vi.fn(),
+    const learningContentSpy = {
+      getFormulaContents: vi.fn(),
       getFormulaFileContent: vi.fn(),
     };
     const utilSpy = {
@@ -152,7 +156,7 @@ describe('FormulaRecitesComponent', () => {
         MathItemComponent,
       ],
       providers: [
-        { provide: StorageService, useValue: storageSpy },
+        { provide: LearningContentService, useValue: learningContentSpy },
         { provide: UtilService, useValue: utilSpy },
         { provide: UIService, useValue: uiSpy },
         { provide: UserCodeService, useValue: userCodeSpy },
@@ -189,7 +193,7 @@ describe('FormulaRecitesComponent', () => {
       },
     });
 
-    mockStorageService = TestBed.inject(StorageService) as any;
+    mockLearningContentService = TestBed.inject(LearningContentService) as any;
     mockUtilService = TestBed.inject(UtilService) as any;
     TestBed.inject(UIService) as any;
     TestBed.inject(UserCodeService) as any;
@@ -206,21 +210,37 @@ describe('FormulaRecitesComponent', () => {
 
   describe('ngOnInit', () => {
     it('should initialize component and load formula data files', () => {
-      mockStorageService.getFormulaDataFile.mockReturnValue(of(mockFormulaDataFile));
+      mockLearningContentService.getFormulaContents.mockReturnValue(of(mockFormulaContents));
 
       component.ngOnInit();
 
-      expect(mockStorageService.getFormulaDataFile).toHaveBeenCalled();
-      expect(component.allFiles).toEqual(mockFormulaDataFile);
+      expect(mockLearningContentService.getFormulaContents).toHaveBeenCalled();
+      expect(component.allFiles).toEqual(mockFormulaContents);
+    });
+
+    it('should mark the OnPush view for check after the file list arrives (no click needed)', () => {
+      // Regression: the file list lands in an async subscribe callback (not a
+      // template event, not an async pipe). With ChangeDetectionStrategy.OnPush
+      // the view is not marked dirty automatically, so the files dropdown stayed
+      // empty until a later DOM event triggered detection. The component must
+      // call markForCheck() once the list is ready.
+      mockLearningContentService.getFormulaContents.mockReturnValue(of(mockFormulaContents));
+      const markForCheckSpy = vi.spyOn(component['cd'], 'markForCheck');
+      markForCheckSpy.mockClear();
+
+      component.ngOnInit();
+
+      expect(component.allFiles).toEqual(mockFormulaContents);
+      expect(markForCheckSpy).toHaveBeenCalled();
     });
 
     it('should handle error when loading formula data files', () => {
       vi.spyOn(console, 'error');
-      mockStorageService.getFormulaDataFile.mockReturnValue(throwError(() => new Error('Error')));
+      mockLearningContentService.getFormulaContents.mockReturnValue(throwError(() => new Error('Error')));
 
       component.ngOnInit();
 
-      expect(mockStorageService.getFormulaDataFile).toHaveBeenCalled();
+      expect(mockLearningContentService.getFormulaContents).toHaveBeenCalled();
       expect(console.error).toHaveBeenCalledWith(expect.any(Error));
     });
   });
@@ -238,25 +258,25 @@ describe('FormulaRecitesComponent', () => {
 
   describe('onFileSelectionChanged', () => {
     it('should load formula content for selected file', () => {
-      mockStorageService.getFormulaFileContent.mockReturnValue(of(mockFormulaContent));
-      const event = { value: { name: 'test-formula-1' } } as any;
+      mockLearningContentService.getFormulaFileContent.mockReturnValue(of(mockFormulaContent));
+      const event = { value: mockFormulaContents[0] } as any;
 
       component.onFileSelectionChanged(event);
 
-      expect(mockStorageService.getFormulaFileContent).toHaveBeenCalledWith('test-formula-1');
+      expect(mockLearningContentService.getFormulaFileContent).toHaveBeenCalledWith('storage/formula/test1.json');
       expect(component.dataSource.data).toEqual(mockFormulaContent);
     });
 
     it('should handle error when loading formula content', () => {
       vi.spyOn(console, 'error');
-      mockStorageService.getFormulaFileContent.mockReturnValue(
+      mockLearningContentService.getFormulaFileContent.mockReturnValue(
         throwError(() => new Error('Error'))
       );
-      const event = { value: { name: 'test-formula-1' } } as any;
+      const event = { value: mockFormulaContents[0] } as any;
 
       component.onFileSelectionChanged(event);
 
-      expect(mockStorageService.getFormulaFileContent).toHaveBeenCalledWith('test-formula-1');
+      expect(mockLearningContentService.getFormulaFileContent).toHaveBeenCalledWith('storage/formula/test1.json');
       expect(console.error).toHaveBeenCalledWith(expect.any(Error));
     });
   });
@@ -296,21 +316,21 @@ describe('FormulaRecitesComponent', () => {
 
   describe('display methods', () => {
     it('should return display content text correctly for version 2', () => {
-      component.selectedFile = { name: 'test', file: 'test', version: 2 };
+      component.selectedFile = { id: 1, categoryId: 5, nameChinese: 'test', nameEnglish: 'test', fileUrl: 'storage/formula/test.json', version: 2 };
       const result = component.getDisplayContentText('content@to@remove');
 
       expect(result).toBe('contenttoremove');
     });
 
     it('should return display content text correctly for version 1', () => {
-      component.selectedFile = { name: 'test', file: 'test', version: 1 };
+      component.selectedFile = { id: 1, categoryId: 5, nameChinese: 'test', nameEnglish: 'test', fileUrl: 'storage/formula/test.json', version: 1 };
       const result = component.getDisplayContentText('content@to@keep');
 
       expect(result).toBe('content@to@keep');
     });
 
     it('should return display content text in test mode correctly for version 2', () => {
-      component.selectedFile = { name: 'test', file: 'test', version: 2 };
+      component.selectedFile = { id: 1, categoryId: 5, nameChinese: 'test', nameEnglish: 'test', fileUrl: 'storage/formula/test.json', version: 2 };
       const result = component.getDisplayContentTextInTest('part1@part2@part3');
 
       // 'part2' has 5 characters, so it's replaced with '__'.repeat(5) = 10 underscores
@@ -318,7 +338,7 @@ describe('FormulaRecitesComponent', () => {
     });
 
     it('should return display content text in test mode correctly for version 1', () => {
-      component.selectedFile = { name: 'test', file: 'test', version: 1 };
+      component.selectedFile = { id: 1, categoryId: 5, nameChinese: 'test', nameEnglish: 'test', fileUrl: 'storage/formula/test.json', version: 1 };
       const result = component.getDisplayContentTextInTest('content');
 
       expect(result).toBe('_'.repeat('content'.length));
@@ -347,7 +367,7 @@ describe('FormulaRecitesComponent', () => {
     it('should open print options dialog', () => {
       const mockDialogRef = { afterClosed: vi.fn().mockReturnValue(of({ countOfItems: 10 })) };
       mockMatDialog.open.mockReturnValue(mockDialogRef);
-      component.selectedFile = { name: 'test', file: 'test' };
+      component.selectedFile = { id: 1, categoryId: 5, nameChinese: 'test', nameEnglish: 'test', fileUrl: 'storage/formula/test.json' };
       component.dataSource.data = mockFormulaContent;
 
       component.onPrintWithOptions();

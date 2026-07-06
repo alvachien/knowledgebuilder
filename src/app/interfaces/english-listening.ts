@@ -28,9 +28,3 @@ export interface EnglishListeningLesson {
   sections: EnglishListeningSection[];
   supplementary?: string[];
 }
-
-// English Listening File, consists of multiple lessons
-export interface EnglishListeningFile {
-  book: string;
-  file: string;
-}

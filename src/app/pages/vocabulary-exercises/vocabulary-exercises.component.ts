@@ -2,6 +2,7 @@ import { SelectionModel } from '@angular/cdk/collections';
 import type { OnInit } from '@angular/core';
 import {
   ChangeDetectionStrategy,
+  ChangeDetectorRef,
   Component,
   DestroyRef,
   HostListener,
@@ -39,6 +40,7 @@ import { MatSort, MatSortModule } from '@angular/material/sort';
 import { MatTableDataSource, MatTableModule } from '@angular/material/table';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatTooltipModule } from '@angular/material/tooltip';
+import { MatMenuModule } from '@angular/material/menu';
 import { MatDateFnsModule, provideDateFnsAdapter } from '@angular/material-date-fns-adapter';
 import { Router } from '@angular/router';
 import { TranslocoModule } from '@jsverse/transloco';
@@ -56,7 +58,6 @@ import type {
   VocabularyWordLetter,
   KnowledgeExerciseFileContent,
   KnowledgeExercisePrintOption,
-  VocabularySelectOption,
   UserLearningRating,
 } from '../../interfaces';
 import {
@@ -64,10 +65,9 @@ import {
   VocabularyExcludedPartEnum,
   getAllPrintExecDateString,
   QuestionBankTypeEnum,
-  SelectionModeEnum,
-  getSelectionModeNames,
+  RatingOperatorEnum,
 } from '../../interfaces';
-import { AudioService, LearningContentService, LearningRatingService, StorageService, UIService, UtilService } from '../../services';
+import { AudioService, LearningContentService, LearningRatingService, UIService, UtilService } from '../../services';
 import { FooterComponent } from '../../shared/footer/footer';
 import { fisherYatesShuffle } from '../../shared/utils/shuffle';
 import { AppPageTitle } from '../page-title/page-title';
@@ -93,6 +93,7 @@ import { AppPageTitle } from '../page-title/page-title';
     MatInputModule,
     MatButtonToggleModule,
     MatTooltipModule,
+    MatMenuModule,
     FooterComponent,
     TranslocoModule,
   ],
@@ -125,7 +126,6 @@ export class VocabularyExercisesComponent implements OnInit {
   pageTitle: AppPageTitle = inject(AppPageTitle);
   // Service
   private readonly audiosrv = inject(AudioService);
-  protected readonly storage = inject(StorageService);
   private readonly contentService = inject(LearningContentService);
   readonly dialog = inject(MatDialog);
   // Navigation
@@ -133,6 +133,7 @@ export class VocabularyExercisesComponent implements OnInit {
   readonly uiService = inject(UIService);
   private readonly ratingService = inject(LearningRatingService);
   private readonly destroyRef = inject(DestroyRef);
+  private readonly cdr = inject(ChangeDetectorRef);
   // Maps selected file index to backend ContentId
   studyContentId = 0;
   private studyRatingMap = new Map<number, UserLearningRating>();
@@ -201,6 +202,14 @@ export class VocabularyExercisesComponent implements OnInit {
     return this.wordQueueCount === 0 ? 100 : (this._queueidx * 100) / this.wordQueueCount;
   }
 
+  get isStudyPreviousDisabled(): boolean {
+    return this.currentStudyCursor <= 0;
+  }
+
+  get isStudyNextDisabled(): boolean {
+    return this.currentStudyCursor >= this.studyQueues.length - 1;
+  }
+
   constructor() {
     // Constructor
     this.dataSource.sortingDataAccessor = (
@@ -230,10 +239,16 @@ export class VocabularyExercisesComponent implements OnInit {
       next: contents => {
         this.allFiles = contents;
         this.isLoadingContents = false;
+        // OnPush: the file list arrives in an async subscribe callback (not a
+        // template event, not an async pipe), so the view is not marked dirty
+        // automatically. Without this, the files dropdown stays empty until a
+        // later DOM event happens to trigger change detection.
+        this.cdr.markForCheck();
       },
       error: err => {
         console.error(err);
         this.isLoadingContents = false;
+        this.cdr.markForCheck();
       },
     });
   }
@@ -261,12 +276,19 @@ export class VocabularyExercisesComponent implements OnInit {
       .subscribe({
         next: (saved) => {
           this.contentRatingMap.set(item.id!, saved.rating);
+          this.cdr.markForCheck();
         },
         error: err => console.error('Failed to save rating', err),
       });
   }
 
   onFileSelectionChanged(event: MatSelectChange) {
+    // Drop any selection carried over from the previously loaded file — the
+    // SelectionModel holds references to the old file's row objects, which are
+    // no longer relevant and would otherwise keep the study/print buttons
+    // acting on stale rows.
+    this.selection.clear();
+
     if (!event.value) {
       this.dataSource.data = [];
       this.studyContentId = 0;
@@ -307,6 +329,10 @@ export class VocabularyExercisesComponent implements OnInit {
                 this.contentRatingMap.set(r.itemId, r.rating);
               }
             }
+            // OnPush: ratings arrive async; the mat-table only re-renders rows
+            // when dataSource emits, so without markForCheck the rating column
+            // stays at 0 until the next interaction.
+            this.cdr.markForCheck();
           },
           error: err => console.error('Failed to load ratings', err),
         });
@@ -356,7 +382,9 @@ export class VocabularyExercisesComponent implements OnInit {
               return;
             }
             arwords.push({ enword: obj['enword'], cnword: obj['cnword'] });
-            if (arwords.length >= MAX_ITEMS) break;
+            if (arwords.length >= MAX_ITEMS) {
+              break;
+            }
           }
 
           if (arwords.length === 0) {
@@ -442,6 +470,7 @@ export class VocabularyExercisesComponent implements OnInit {
         this.studySetting.countOfItems = result.countOfItems;
 
         this.onStudyCore();
+        this.cdr.markForCheck();
       }
     });
   }
@@ -500,8 +529,25 @@ export class VocabularyExercisesComponent implements OnInit {
       rating: 0,
       itemId: val.id,
     }));
+
+    // Nothing to study (e.g. a filter excluded every word) — bail out before
+    // touching index 0, which would otherwise throw on studyQueues[0].enword
+    // and produce an Infinity progress value.
+    if (this.studyQueues.length === 0) {
+      this.isStudying = false;
+      this.currentStudyCursor = 0;
+      this.currentStudyProgress = 0;
+      return;
+    }
+
     this.currentStudyCursor = 0;
+    this.currentStudyProgress = Math.round((1 / this.studyQueues.length) * 100);
     this.isStudying = true;
+
+    // Speak the first word
+    if (!this.studySetting.disableVoice) {
+      this.speakWord(this.studyQueues[0].enword);
+    }
 
     // Load existing ratings for this content
     this.studyRatingMap.clear();
@@ -532,8 +578,12 @@ export class VocabularyExercisesComponent implements OnInit {
     if (this.currentStudyCursor > 0) {
       this.currentStudyCursor--;
       this.currentStudyProgress = Math.round(
-        (this.currentStudyCursor / this.studyQueues.length) * 100
+        ((this.currentStudyCursor + 1) / this.studyQueues.length) * 100
       );
+      this.cdr.markForCheck();
+      if (!this.studySetting.disableVoice) {
+        this.speakWord(this.studyQueues[this.currentStudyCursor].enword);
+      }
     }
   }
 
@@ -541,19 +591,34 @@ export class VocabularyExercisesComponent implements OnInit {
     if (this.currentStudyCursor < this.studyQueues.length - 1) {
       this.currentStudyCursor++;
       this.currentStudyProgress = Math.round(
-        (this.currentStudyCursor / this.studyQueues.length) * 100
+        ((this.currentStudyCursor + 1) / this.studyQueues.length) * 100
       );
+      this.cdr.markForCheck();
+      if (!this.studySetting.disableVoice) {
+        this.speakWord(this.studyQueues[this.currentStudyCursor].enword);
+      }
     } else {
       // Save it to the storage db
     }
   }
 
   onQuitStudy() {
+    // Sync ratings captured during study back into the list view's source of
+    // truth (contentRatingMap) so the rating column reflects any changes once
+    // the list is shown again. studyQueues holds the latest user-selected
+    // rating, which covers in-flight upsert requests too.
+    for (const sq of this.studyQueues) {
+      if (sq.itemId !== undefined && sq.rating >= 1) {
+        this.contentRatingMap.set(sq.itemId, sq.rating);
+      }
+    }
+
     this.isStudying = false;
     this.studyQueues = [];
     this.currentStudyCursor = 0;
     this.currentStudyProgress = 0;
     this.studyRatingMap.clear();
+    this.cdr.markForCheck();
   }
 
   onRatingChanged(item: StudyQueueItem) {
@@ -608,6 +673,24 @@ export class VocabularyExercisesComponent implements OnInit {
         event.preventDefault();
         return;
       }
+      if (event.key === 'ArrowUp') {
+        const currentItem = this.studyQueues[this.currentStudyCursor];
+        if (currentItem.rating < 5) {
+          currentItem.rating++;
+          this.onRatingChanged(currentItem);
+        }
+        event.preventDefault();
+        return;
+      }
+      if (event.key === 'ArrowDown') {
+        const currentItem = this.studyQueues[this.currentStudyCursor];
+        if (currentItem.rating > 1) {
+          currentItem.rating--;
+          this.onRatingChanged(currentItem);
+        }
+        event.preventDefault();
+        return;
+      }
       const ratingKey = parseInt(event.key, 10);
       if (ratingKey >= 1 && ratingKey <= 5) {
         const currentItem = this.studyQueues[this.currentStudyCursor];
@@ -645,14 +728,56 @@ export class VocabularyExercisesComponent implements OnInit {
     }
   }
 
+  // Cached speech-synthesis voices. The platform populates getVoices()
+  // asynchronously (after the first speak() call, via the `voiceschanged`
+  // event), so the very first utterance would otherwise fall back to the
+  // default voice despite the explicit US-English selection below. We seed the
+  // cache on demand and refresh it when the platform announces voices are
+  // ready.
+  private cachedVoices: SpeechSynthesisVoice[] = [];
+  private voicesListenerAttached = false;
+
+  private ensureVoiceCache(): void {
+    if (typeof window === 'undefined' || !window.speechSynthesis) {
+      return;
+    }
+
+    if (this.cachedVoices.length === 0) {
+      this.cachedVoices = window.speechSynthesis.getVoices();
+    }
+
+    if (!this.voicesListenerAttached) {
+      this.voicesListenerAttached = true;
+      window.speechSynthesis.onvoiceschanged = () => {
+        this.cachedVoices = window.speechSynthesis?.getVoices() ?? [];
+      };
+    }
+  }
+
   private speakWord(word: string): void {
     if (typeof window === 'undefined' || !window.speechSynthesis) {
       return;
     }
+
     window.speechSynthesis.cancel();
+
     const utterance = new SpeechSynthesisUtterance(word);
     utterance.lang = 'en-US';
     utterance.rate = 0.9;
+
+    // Explicit US English voice selection (uses the async-populated cache so
+    // it applies even on the first utterance of a session).
+    this.ensureVoiceCache();
+    const usVoice = this.cachedVoices.find(v => v.lang === 'en-US');
+    if (usVoice) {
+      utterance.voice = usVoice;
+    }
+
+    utterance.onerror = (e) => {
+      if (e.error !== 'interrupted' && e.error !== 'canceled') {
+        console.warn('speechSynthesis error:', e.error);
+      }
+    };
     window.speechSynthesis.speak(utterance);
   }
 
@@ -732,6 +857,10 @@ export class VocabularyExercisesComponent implements OnInit {
         this.typeSetting.countOfItems = result.countOfItems;
 
         this.onTypingStart();
+        // OnPush: the typing view switch (isTypingInProgress) happens in this
+        // async afterClosed callback — without markForCheck the view would not
+        // switch to the typing screen until a later DOM event.
+        this.cdr.markForCheck();
       }
     });
   }
@@ -910,11 +1039,89 @@ export class VocabularyExercisesComponent implements OnInit {
     return sorted;
   }
 
-  onSelect() {
-    const dialogRef = this.dialog.open(VocabularyExercisesSelectOptionsDialogComponent, {
+  onSelectByCount() {
+    const dialogRef = this.dialog.open(VocabularySelectByCountDialogComponent, {
       data: {},
-      width: '600px',
-      height: '560px',
+      width: '400px',
+      enterAnimationDuration: 800,
+      exitAnimationDuration: 500,
+    });
+
+    dialogRef
+      .afterClosed()
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(result => {
+      if (result !== undefined && result.countOfItems > 0) {
+        this.selection.clear();
+        const sortedData = this.getSortedData();
+        const offset = result.countOfOffset ?? 0;
+        sortedData.forEach((item: LearnEnglishWordFileItem, index: number) => {
+          if (index >= offset && index < offset + result.countOfItems) {
+            this.selection.select(item);
+          }
+        });
+        this.cdr.markForCheck();
+      }
+    });
+  }
+
+  onSelectByWord() {
+    const dialogRef = this.dialog.open(VocabularySelectByWordDialogComponent, {
+      data: {},
+      width: '500px',
+      enterAnimationDuration: 800,
+      exitAnimationDuration: 500,
+    });
+
+    dialogRef
+      .afterClosed()
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(result => {
+      if (result !== undefined && result.words) {
+        const arwords = result.words.split(',');
+        if (arwords.length > 0) {
+          this.selection.clear();
+          this.dataSource.data.forEach(item => {
+            const selidx = arwords.findIndex((element: string) => element.trim() === item.enword);
+            if (selidx !== -1) {
+              this.selection.select(item);
+            }
+          });
+        }
+        this.cdr.markForCheck();
+      }
+    });
+  }
+
+  onSelectFreeSelection() {
+    const dialogRef = this.dialog.open(VocabularySelectFreeDialogComponent, {
+      data: {},
+      width: '400px',
+      enterAnimationDuration: 800,
+      exitAnimationDuration: 500,
+    });
+
+    dialogRef
+      .afterClosed()
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(result => {
+      if (result !== undefined && result.countOfItems > 0) {
+        this.selection.clear();
+        const shuffled = fisherYatesShuffle(this.dataSource.data);
+        shuffled.forEach((item, index) => {
+          if (index < result.countOfItems) {
+            this.selection.select(item);
+          }
+        });
+        this.cdr.markForCheck();
+      }
+    });
+  }
+
+  onSelectByRating() {
+    const dialogRef = this.dialog.open(VocabularySelectByRatingDialogComponent, {
+      data: {},
+      width: '400px',
       enterAnimationDuration: 800,
       exitAnimationDuration: 500,
     });
@@ -924,48 +1131,48 @@ export class VocabularyExercisesComponent implements OnInit {
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe(result => {
       if (result !== undefined) {
-        if (result.selectedSelectMode === SelectionModeEnum.ByID && result.importIDs) {
-          // Split by the ','
-          const arwords = result.importIDs.split(',');
-          if (arwords.length > 0) {
-            this.selection.clear();
+        this.selection.clear();
+        const operator = result.ratingOperator as RatingOperatorEnum;
+        const value = result.ratingValue as number;
 
-            this.dataSource.data.forEach(item => {
-              const selidx = arwords.findIndex((element: string) => element.trim() === item.enword);
-              if (selidx !== -1) {
-                this.selection.select(item);
-              }
-            });
+        this.dataSource.data.forEach(item => {
+          const rating = this.getRating(item.id);
+          let matches = false;
+
+          switch (operator) {
+            case RatingOperatorEnum.Equals:
+              matches = rating === value;
+              break;
+            case RatingOperatorEnum.GreaterThan:
+              matches = rating > value;
+              break;
+            case RatingOperatorEnum.LargerOrEquals:
+              matches = rating >= value;
+              break;
+            case RatingOperatorEnum.LessThan:
+              // "Less than" intentionally excludes unrated (0) words: a rating
+              // of 0 means "not yet assessed", which is covered by HasNone.
+              // This keeps LessThan 1 from collapsing into HasNone.
+              matches = rating > 0 && rating < value;
+              break;
+            case RatingOperatorEnum.LessOrEquals:
+              // Same unrated-exclusion rationale as LessThan: an unrated (0)
+              // word is "not yet assessed", not "rated at or below the value".
+              matches = rating > 0 && rating <= value;
+              break;
+            case RatingOperatorEnum.HasAny:
+              matches = rating > 0;
+              break;
+            case RatingOperatorEnum.HasNone:
+              matches = rating === 0;
+              break;
           }
-        } else if (
-          result.selectedSelectMode === SelectionModeEnum.ByCount &&
-          result.countOfItems > 0
-        ) {
-          // By count — respect current sort order
-          this.selection.clear();
 
-          const sortedData = this.getSortedData();
-          const offset = result.countOfOffset ?? 0;
-          sortedData.forEach((item: LearnEnglishWordFileItem, index: number) => {
-            if (index >= offset && index < offset + result.countOfItems) {
-              this.selection.select(item);
-            }
-          });
-        } else if (
-          result.selectedSelectMode === SelectionModeEnum.FreeSelection &&
-          result.countOfItems > 0
-        ) {
-          // Random select — work on a copy to avoid mutating dataSource.data
-          this.selection.clear();
-
-          const shuffled = fisherYatesShuffle(this.dataSource.data);
-
-          shuffled.forEach((item, index) => {
-            if (index < result.countOfItems) {
-              this.selection.select(item);
-            }
-          });
-        }
+          if (matches) {
+            this.selection.select(item);
+          }
+        });
+        this.cdr.markForCheck();
       }
     });
   }
@@ -1144,77 +1351,159 @@ export class VocabularyExercisesPrintOptionsDialogComponent {
 }
 
 @Component({
-  selector: 'app-vocabulary-exercises-selectoptions-dlg',
-  templateUrl: 'vocabulary-exercises-selectoptions-dialog.html',
+  selector: 'app-vocabulary-selectbycount-dlg',
+  templateUrl: 'vocabulary-exercises-selectbycount-dialog.html',
   imports: [
     MatFormFieldModule,
     FormsModule,
     MatInputModule,
-    MatCheckboxModule,
     MatButtonModule,
     MatDialogTitle,
     MatDialogContent,
     MatDialogActions,
-    MatSelectModule,
-    MatDatepickerModule,
-    MatDateFnsModule,
-    MatRadioModule,
     TranslocoModule,
-  ],
-  providers: [
-    provideDateFnsAdapter(),
-    { provide: MAT_DATE_FORMATS, useValue: MY_DATE_FORMATS },
-    { provide: MAT_DATE_LOCALE, useValue: zhCN },
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class VocabularyExercisesSelectOptionsDialogComponent {
-  readonly dialogRef = inject(MatDialogRef<VocabularyExercisesSelectOptionsDialogComponent>);
-  readonly util = inject(UtilService);
-
-  readonly importWords = model('');
-  readonly selectedSelectMode = model(SelectionModeEnum.FreeSelection);
+export class VocabularySelectByCountDialogComponent {
+  readonly dialogRef = inject(MatDialogRef<VocabularySelectByCountDialogComponent>);
   readonly countOfItems = model(20);
   readonly countOfOffset = model(0);
-
-  constructor() {}
-  allSelectModes = getSelectionModeNames();
-  get isSelectByID(): boolean {
-    return this.selectedSelectMode() === SelectionModeEnum.ByID;
-  }
-  get isSelectByFreeSelection(): boolean {
-    return this.selectedSelectMode() === SelectionModeEnum.FreeSelection;
-  }
-  get isSelectByCount(): boolean {
-    return this.selectedSelectMode() === SelectionModeEnum.ByCount;
-  }
 
   onNoClick(): void {
     this.dialogRef.close();
   }
 
   get isFormInvalid(): boolean {
-    if (this.selectedSelectMode() === SelectionModeEnum.ByID) {
-      return this.importWords().trim().length <= 0;
-    }
-
-    if (this.selectedSelectMode() === SelectionModeEnum.ByCount) {
-      return this.countOfItems() <= 0 || (this.countOfOffset() ?? 0) < 0;
-    }
-
-    return (
-      this.selectedSelectMode() === SelectionModeEnum.FreeSelection && this.countOfItems() <= 0
-    );
+    return this.countOfItems() <= 0 || (this.countOfOffset() ?? 0) < 0;
   }
 
   onYesClick(): void {
-    const closedata: VocabularySelectOption = {
-      selectedSelectMode: this.selectedSelectMode(),
+    this.dialogRef.close({
       countOfItems: this.countOfItems(),
       countOfOffset: this.countOfOffset(),
-      importIDs: this.importWords(),
-    };
+    });
+  }
+}
 
-    this.dialogRef.close(closedata);
+@Component({
+  selector: 'app-vocabulary-selectbyword-dlg',
+  templateUrl: 'vocabulary-exercises-selectbyword-dialog.html',
+  imports: [
+    MatFormFieldModule,
+    FormsModule,
+    MatInputModule,
+    MatButtonModule,
+    MatDialogTitle,
+    MatDialogContent,
+    MatDialogActions,
+    TranslocoModule,
+  ],
+  changeDetection: ChangeDetectionStrategy.OnPush,
+})
+export class VocabularySelectByWordDialogComponent {
+  readonly dialogRef = inject(MatDialogRef<VocabularySelectByWordDialogComponent>);
+  readonly importWords = model('');
+
+  onNoClick(): void {
+    this.dialogRef.close();
+  }
+
+  get isFormInvalid(): boolean {
+    return this.importWords().trim().length <= 0;
+  }
+
+  onYesClick(): void {
+    this.dialogRef.close({
+      words: this.importWords(),
+    });
+  }
+}
+
+@Component({
+  selector: 'app-vocabulary-selectfree-dlg',
+  templateUrl: 'vocabulary-exercises-selectfree-dialog.html',
+  imports: [
+    MatFormFieldModule,
+    FormsModule,
+    MatInputModule,
+    MatButtonModule,
+    MatDialogTitle,
+    MatDialogContent,
+    MatDialogActions,
+    TranslocoModule,
+  ],
+  changeDetection: ChangeDetectionStrategy.OnPush,
+})
+export class VocabularySelectFreeDialogComponent {
+  readonly dialogRef = inject(MatDialogRef<VocabularySelectFreeDialogComponent>);
+  readonly countOfItems = model(20);
+
+  onNoClick(): void {
+    this.dialogRef.close();
+  }
+
+  get isFormInvalid(): boolean {
+    return this.countOfItems() <= 0;
+  }
+
+  onYesClick(): void {
+    this.dialogRef.close({
+      countOfItems: this.countOfItems(),
+    });
+  }
+}
+
+@Component({
+  selector: 'app-vocabulary-selectbyrating-dlg',
+  templateUrl: 'vocabulary-exercises-selectbyrating-dialog.html',
+  imports: [
+    MatFormFieldModule,
+    FormsModule,
+    MatInputModule,
+    MatButtonModule,
+    MatDialogTitle,
+    MatDialogContent,
+    MatDialogActions,
+    MatSelectModule,
+    TranslocoModule,
+  ],
+  changeDetection: ChangeDetectionStrategy.OnPush,
+})
+export class VocabularySelectByRatingDialogComponent {
+  readonly dialogRef = inject(MatDialogRef<VocabularySelectByRatingDialogComponent>);
+  readonly ratingOperator = model(RatingOperatorEnum.Equals);
+  readonly ratingValue = model(3);
+
+  get ratingOperators(): { value: RatingOperatorEnum; label: string }[] {
+    return [
+      { value: RatingOperatorEnum.Equals, label: 'operatorEquals' },
+      { value: RatingOperatorEnum.GreaterThan, label: 'operatorGreaterThan' },
+      { value: RatingOperatorEnum.LargerOrEquals, label: 'operatorLargerOrEquals' },
+      { value: RatingOperatorEnum.LessThan, label: 'operatorLessThan' },
+      { value: RatingOperatorEnum.LessOrEquals, label: 'operatorLessOrEquals' },
+      { value: RatingOperatorEnum.HasAny, label: 'operatorHasAny' },
+      { value: RatingOperatorEnum.HasNone, label: 'operatorHasNone' },
+    ];
+  }
+
+  get ratingValues(): number[] {
+    return [1, 2, 3, 4, 5];
+  }
+
+  get isValueDisabled(): boolean {
+    return this.ratingOperator() === RatingOperatorEnum.HasAny ||
+           this.ratingOperator() === RatingOperatorEnum.HasNone;
+  }
+
+  onNoClick(): void {
+    this.dialogRef.close();
+  }
+
+  onYesClick(): void {
+    this.dialogRef.close({
+      ratingOperator: this.ratingOperator(),
+      ratingValue: this.ratingValue(),
+    });
   }
 }

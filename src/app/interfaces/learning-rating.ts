@@ -13,6 +13,9 @@ export interface LearningContent {
   nameChinese: string;
   nameEnglish: string;
   fileUrl: string;
+  version?: number;
+  includeLatex?: boolean;
+  translationDisabled?: boolean;
   createdAt?: string;
   updatedAt?: string;
 }

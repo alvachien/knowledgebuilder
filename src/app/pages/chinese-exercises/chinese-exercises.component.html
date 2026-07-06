@@ -27,6 +27,16 @@
           <span class="toolbar-item-count"><small>{{ t('chineseExercises.items') }}: {{reciteContentCount}}</small></span>
           <section style="padding-left: 8px;">
             <div class="example-button-container">
+              <button mat-fab [matMenuTriggerFor]="selectMenu" [matTooltip]="t('chineseExercises.select')" [disabled]="!selectedFile">
+                <mat-icon>query_builder</mat-icon>
+              </button>
+            </div>
+          </section>
+          <mat-menu #selectMenu="matMenu">
+            <button mat-menu-item (click)="onSelectByRating()">{{ t('chineseExercises.selectByRating') }}</button>
+          </mat-menu>
+          <section style="padding-left: 8px;">
+            <div class="example-button-container">
               <button mat-fab (click)="onPrintWithOptions()" [disabled]="!selectedFile">
                 <mat-icon>print</mat-icon>
               </button>

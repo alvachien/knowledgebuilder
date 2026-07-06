@@ -196,4 +196,21 @@ describe('ThemePickerComponent', () => {
 
     expect(component.currentTheme?.name).toBe('rose-red');
   });
+
+  it('should mark the OnPush view for check when a theme arrives via query param (no click needed)', () => {
+    // Regression: queryParamMap emits in an async subscribe callback. With
+    // ChangeDetectionStrategy.OnPush the view is not marked dirty automatically,
+    // so the theme menu's "selected" radio indicator stayed stale until a later
+    // DOM event. selectTheme must call markForCheck().
+    component.ngOnInit();
+    const markForCheckSpy = vi.spyOn(component['cdr'], 'markForCheck');
+    markForCheckSpy.mockClear();
+
+    queryParamMapSubject.next({
+      get: (key: string) => (key === 'theme' ? 'forest-green' : null),
+    });
+
+    expect(component.currentTheme?.name).toBe('forest-green');
+    expect(markForCheckSpy).toHaveBeenCalled();
+  });
 });

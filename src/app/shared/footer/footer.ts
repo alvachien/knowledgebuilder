@@ -1,4 +1,5 @@
 import { Component } from '@angular/core';
+import { TranslocoModule } from '@jsverse/transloco';
 
 import { environment } from '../../../environments/environment';
 import { AppLogoComponent } from '../logo/logo';
@@ -7,7 +8,7 @@ import { AppLogoComponent } from '../logo/logo';
   selector: 'app-footer',
   templateUrl: './footer.html',
   styleUrls: ['./footer.scss'],
-  imports: [AppLogoComponent],
+  imports: [AppLogoComponent, TranslocoModule],
 })
 export class FooterComponent {
   year = new Date().getFullYear();

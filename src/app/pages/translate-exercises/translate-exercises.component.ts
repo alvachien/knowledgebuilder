@@ -1,6 +1,6 @@
 import { SelectionModel } from '@angular/cdk/collections';
 import type { OnInit } from '@angular/core';
-import { Component, ChangeDetectionStrategy, DestroyRef, inject, Inject, model, ViewChild } from '@angular/core';
+import { Component, ChangeDetectionStrategy, ChangeDetectorRef, DestroyRef, inject, Inject, model, ViewChild } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
@@ -45,7 +45,6 @@ import type {
   TranslateExerciseOption,
   KnowledgeExerciseFileContent,
   KnowledgeExercisePrintOption,
-  UserLearningRating,
 } from '../../interfaces';
 import {
   TranslateExerciseStatusEnum,
@@ -56,7 +55,6 @@ import {
   QuestionBankTypeEnum,
 } from '../../interfaces';
 import {
-  StorageService,
   LearningContentService,
   LearningRatingService,
   UtilService,
@@ -208,11 +206,11 @@ export class TranslateExercisesComponent implements OnInit {
   get currentProgress(): number {
     return this.reciteQueuesCount === 0 ? 100 : (this.queueidx * 100) / this.reciteQueuesCount;
   }
-  private storage = inject(StorageService);
   private readonly contentService = inject(LearningContentService);
   private readonly ratingService = inject(LearningRatingService);
   readonly transloco = inject(TranslocoService);
   private readonly destroyRef = inject(DestroyRef);
+  private readonly cdr = inject(ChangeDetectorRef);
 
   get isEnglishToChineseDirection(): boolean {
     return this.setting.direction === TranslateDirectionEnum.EnglishToChinese;
@@ -256,10 +254,15 @@ export class TranslateExercisesComponent implements OnInit {
       next: contents => {
         this.allFiles = contents;
         this.isLoadingContents = false;
+        // OnPush: the file list arrives in an async subscribe callback, so the
+        // view is not marked dirty automatically — without this the files
+        // dropdown stays empty until a later DOM event triggers detection.
+        this.cdr.markForCheck();
       },
       error: err => {
         console.error(err);
         this.isLoadingContents = false;
+        this.cdr.markForCheck();
       },
     });
   }
@@ -283,6 +286,9 @@ export class TranslateExercisesComponent implements OnInit {
     return enwords.join(', ');
   }
   onFileSelectionChanged(event: MatSelectChange) {
+    // Drop selection carried over from the previously loaded file.
+    this.selection.clear();
+
     if (!event.value) {
       this.dataSource.data = [];
       this.studyContentId = 0;
@@ -323,6 +329,10 @@ export class TranslateExercisesComponent implements OnInit {
                 this.contentRatingMap.set(r.itemId, r.rating);
               }
             }
+            // OnPush: ratings arrive async; the mat-table only re-renders rows
+            // when dataSource emits, so without markForCheck the rating column
+            // stays at 0 until the next interaction.
+            this.cdr.markForCheck();
           },
           error: err => console.error('Failed to load ratings', err),
         });
@@ -352,6 +362,7 @@ export class TranslateExercisesComponent implements OnInit {
       .subscribe({
         next: (saved) => {
           this.contentRatingMap.set(numId, saved.rating);
+          this.cdr.markForCheck();
         },
         error: err => console.error('Failed to save rating', err),
       });
@@ -462,6 +473,10 @@ export class TranslateExercisesComponent implements OnInit {
         this.setting.countOfItems = result.countOfItems;
 
         this.onStart();
+        // OnPush: the exercise view switch (currentStatus.status = InProgress)
+        // happens in this async afterClosed callback — without markForCheck the
+        // view would not switch to the exercise screen until a later DOM event.
+        this.cdr.markForCheck();
       }
     });
   }

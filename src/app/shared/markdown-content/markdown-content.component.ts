@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, DestroyRef, inject, Input, type OnChanges, type SimpleChanges } from '@angular/core';
+import { ChangeDetectionStrategy, ChangeDetectorRef, Component, DestroyRef, inject, Input, type OnChanges, type SimpleChanges } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import type { SafeHtml } from '@angular/platform-browser';
 import { DomSanitizer } from '@angular/platform-browser';
@@ -38,6 +38,7 @@ export class MarkdownContentComponent implements OnChanges {
   private readonly markedService = inject(MarkedService);
   private readonly http = inject(HttpClient);
   private readonly destroyRef = inject(DestroyRef);
+  private readonly cdr = inject(ChangeDetectorRef);
 
   // Active blob URLs created for images — revoked on destroy or re-render to avoid leaks.
   private activeBlobUrls: string[] = [];
@@ -145,6 +146,7 @@ export class MarkdownContentComponent implements OnChanges {
   private async renderMarkdown(): Promise<void> {
     if (!this.markdown) {
       this.renderedContent = '';
+      this.cdr.markForCheck();
       return;
     }
 
@@ -199,6 +201,13 @@ export class MarkdownContentComponent implements OnChanges {
         '<p style="color: red;">Error rendering Markdown content.</p>'
       );
     }
+
+    // OnPush: this method is async — when math is enabled (await loadKatex) or
+    // authenticated images are resolved (await HttpClient), renderedContent is
+    // assigned after the change-detection cycle that ran ngOnChanges. Without
+    // marking the view dirty, the rendered HTML stays blank until a later DOM
+    // event triggers detection.
+    this.cdr.markForCheck();
   }
 
   /**

@@ -29,10 +29,9 @@ import {
 import { of, throwError } from 'rxjs';
 import { vi } from 'vitest';
 
-import type { KnowledgeExerciseFile, KnowledgeExerciseFileContent, LearningContent } from '../../../interfaces';
+import type { KnowledgeExerciseFileContent, LearningContent } from '../../../interfaces';
 import { QuestionBankTypeEnum } from '../../../interfaces';
 import { LearningContentService } from '../../../services/learning-content.service';
-import { StorageService } from '../../../services/storage.service';
 import { UIService } from '../../../services/ui.service';
 import { FooterComponent } from '../../../shared/footer/footer';
 import { MarkdownContentComponent } from '../../../shared/markdown-content';
@@ -85,19 +84,7 @@ describe('KnowledgeExercisesListComponent', () => {
 
   const mockLearningContents: LearningContent[] = [
     { id: 1, categoryId: 6, nameChinese: 'test-file-1', nameEnglish: 'test-file-1', fileUrl: 'storage/knowledge-exercises/file1.json', createdAt: '2024-01-01', updatedAt: '2024-01-01' },
-    { id: 2, categoryId: 6, nameChinese: 'test-file-2', nameEnglish: 'test-file-2', fileUrl: 'storage/knowledge-exercises/file2.json', createdAt: '2024-01-01', updatedAt: '2024-01-01' },
-  ];
-
-  // Metadata from data.json (loaded via StorageService)
-  const mockMetaFiles: KnowledgeExerciseFile[] = [
-    { name: 'test-file-1', file: 'file1.json' },
-    { name: 'test-file-2', file: 'file2.json', includeLatex: true },
-  ];
-
-  // Expected merged result after ngOnInit combines API + metadata
-  const expectedAllFiles: KnowledgeExerciseFile[] = [
-    { id: 1, name: 'test-file-1', file: 'storage/knowledge-exercises/file1.json', includeLatex: undefined },
-    { id: 2, name: 'test-file-2', file: 'storage/knowledge-exercises/file2.json', includeLatex: true },
+    { id: 2, categoryId: 6, nameChinese: 'test-file-2', nameEnglish: 'test-file-2', fileUrl: 'storage/knowledge-exercises/file2.json', includeLatex: true, createdAt: '2024-01-01', updatedAt: '2024-01-01' },
   ];
 
   const mockKnowledgeContent: KnowledgeExerciseFileContent[] = [
@@ -116,10 +103,6 @@ describe('KnowledgeExercisesListComponent', () => {
   ];
 
   beforeEach(async () => {
-    const storageSpy = {
-      getKnowledgeExerciseFile: vi.fn().mockReturnValue(of(mockMetaFiles)),
-      getKnowledgeExerciseFileContent: vi.fn(),
-    };
     const learningContentSpy = {
       getKnowledgeBankContents: vi.fn(),
       getKnowledgeExerciseContent: vi.fn(),
@@ -152,7 +135,6 @@ describe('KnowledgeExercisesListComponent', () => {
         TranslocoModule,
       ],
       providers: [
-        { provide: StorageService, useValue: storageSpy },
         { provide: LearningContentService, useValue: learningContentSpy },
         { provide: UIService, useValue: uiSpy },
         { provide: Router, useValue: routerSpy },
@@ -183,7 +165,23 @@ describe('KnowledgeExercisesListComponent', () => {
       component.ngOnInit();
 
       expect(mockLearningContentService.getKnowledgeBankContents).toHaveBeenCalled();
-      expect(component.allFiles).toEqual(expectedAllFiles);
+      expect(component.allFiles).toEqual(mockLearningContents);
+    });
+
+    it('should mark the OnPush view for check after the file list arrives (no click needed)', () => {
+      // Regression: the file list lands in an async subscribe callback (not a
+      // template event, not an async pipe). With ChangeDetectionStrategy.OnPush
+      // the view is not marked dirty automatically, so the files dropdown stayed
+      // empty until a later DOM event triggered detection. The component must
+      // call markForCheck() once the list is ready.
+      mockLearningContentService.getKnowledgeBankContents.mockReturnValue(of(mockLearningContents));
+      const markForCheckSpy = vi.spyOn(component['cdr'], 'markForCheck');
+      markForCheckSpy.mockClear();
+
+      component.ngOnInit();
+
+      expect(component.allFiles).toEqual(mockLearningContents);
+      expect(markForCheckSpy).toHaveBeenCalled();
     });
 
     it('should handle error when loading knowledge exercise files', () => {
@@ -208,7 +206,7 @@ describe('KnowledgeExercisesListComponent', () => {
 
     it('should load knowledge content for selected file', () => {
       mockLearningContentService.getKnowledgeExerciseContent.mockReturnValue(of(mockKnowledgeContent));
-      const event = { value: expectedAllFiles[0] } as any;
+      const event = { value: mockLearningContents[0] } as any;
 
       component.onFileSelectionChanged(event);
 
@@ -231,7 +229,7 @@ describe('KnowledgeExercisesListComponent', () => {
       mockLearningContentService.getKnowledgeExerciseContent.mockReturnValue(
         throwError(() => new Error('Error'))
       );
-      const event = { value: expectedAllFiles[0] } as any;
+      const event = { value: mockLearningContents[0] } as any;
 
       component.onFileSelectionChanged(event);
 
@@ -454,7 +452,7 @@ describe('KnowledgeExercisesListComponent', () => {
     beforeEach(() => {
       component.dataSource.data = mockKnowledgeContent;
       component.selection.select(mockKnowledgeContent[0]);
-      component.selectedFile = expectedAllFiles[0];
+      component.selectedFile = mockLearningContents[0];
     });
 
     it('should open print options dialog with correct data', () => {
@@ -822,7 +820,7 @@ describe('KnowledgeExercisesListComponent', () => {
 
     beforeEach(() => {
       component.dataSource.data = [mockKnowledgeContent[0], mockItemWithSubItems];
-      component.selectedFile = expectedAllFiles[0];
+      component.selectedFile = mockLearningContents[0];
       component.printSetting = {
         formTitle: 'Test',
         printEntryDate: false,
@@ -883,8 +881,8 @@ describe('KnowledgeExercisesListComponent', () => {
     });
 
     it('should use includeLatex flag from file metadata', () => {
-      // expectedAllFiles[1] has includeLatex: true (from mockMetaFiles)
-      component.selectedFile = expectedAllFiles[1];
+      // mockLearningContents[1] has includeLatex: true (from mockMetaFiles)
+      component.selectedFile = mockLearningContents[1];
       component.selection.select(mockKnowledgeContent[0]);
 
       component['onPreviewCore']();

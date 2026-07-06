@@ -192,11 +192,6 @@ The API URL is configured in `src/environments/environment*.ts` via `apiUrl`.
 The `gh-pages` branch currently serves V1.
 
 
-## Documentation
-
-- [Knowledge Exercises Sequence Diagrams](docs/knowledge-exercises-sequence.md) — Mermaid sequence diagrams for the Knowledge Bank feature: initialization (API + metadata merge), file selection, rating changes, and preview flow.
-
-
 ## Responsive Layout
 
 The app adapts to different screen sizes with a three-tier layout (minimum width: 360px — supports most mobile phones in portrait):

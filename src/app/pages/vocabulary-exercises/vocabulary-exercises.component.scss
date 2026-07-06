@@ -34,6 +34,15 @@
     width: 100%;
 }
 
+.vocabulary-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    padding: 24px;
+}
+
 .vocabulary-typing-input-container {
     font-family: "Consolas";
     font-size: 72px;
@@ -55,9 +64,17 @@
 .vocabulary-typing-explain {
     font-size: 36px;
     display: flex;
-    justify-content: space-around;
-    height: 200px;
+    justify-content: center;
     align-items: center;
+    text-align: center;
+    min-height: 50px;
+    margin-bottom: 16px;
+    width: 100%;
+}
+
+.vocabulary-rating-container {
+    display: flex;
+    justify-content: center;
 }
 
 .toolbar-fab-button {

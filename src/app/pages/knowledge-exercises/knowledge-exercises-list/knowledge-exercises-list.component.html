@@ -19,7 +19,7 @@
             }
             <mat-option value="">{{ t('knowledgeExercises.none') }}</mat-option>
             @for (file of allFiles; track file.id ) {
-            <mat-option [value]="file">{{file.name}}</mat-option>
+            <mat-option [value]="file">{{file.nameChinese}}</mat-option>
             }
           </mat-select>
         </mat-form-field>

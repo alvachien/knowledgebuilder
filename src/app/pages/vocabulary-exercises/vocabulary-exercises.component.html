@@ -9,10 +9,10 @@
             </div>
           </section>
           <span class="toolbar-spacer"></span>
-          <button mat-fab class="toolbar-fab-button" [matTooltip]="t('vocabularyExercises.previous')" (click)="onStudyPreviousWord()">
+          <button mat-fab class="toolbar-fab-button" [matTooltip]="t('vocabularyExercises.previous')" (click)="onStudyPreviousWord()" [disabled]="isStudyPreviousDisabled">
             <mat-icon>arrow_left</mat-icon>
           </button>
-          <button mat-fab class="toolbar-fab-button" [matTooltip]="t('vocabularyExercises.next')" (click)="onStudyNextWord()">
+          <button mat-fab class="toolbar-fab-button" [matTooltip]="t('vocabularyExercises.next')" (click)="onStudyNextWord()" [disabled]="isStudyNextDisabled">
             <mat-icon>arrow_right</mat-icon>
           </button>
           <button mat-fab class="toolbar-fab-button" [matTooltip]="t('vocabularyExercises.quit')" (click)="onQuitStudy()">
@@ -21,11 +21,6 @@
         </mat-toolbar-row>
       </mat-toolbar>
       <div class="vocabulary-container">
-        @if(!studySetting.disableVoice && studyQueues[currentStudyCursor].audiofile) {
-          <audio autoplay [src]="studyQueues[currentStudyCursor].audiofile">
-          </audio>
-        }
-
         <div class="vocabulary-typing-explain">
           {{studyQueues[currentStudyCursor].enword}}
         </div>
@@ -36,7 +31,7 @@
           }
         </div>
 
-        <div>
+        <div class="vocabulary-rating-container">
           <mat-button-toggle-group [(ngModel)]="studyQueues[currentStudyCursor].rating" aria-label="Rating" (change)="onRatingChanged(studyQueues[currentStudyCursor])">
             <mat-button-toggle [value]="1">1</mat-button-toggle>
             <mat-button-toggle [value]="2">2</mat-button-toggle>
@@ -137,9 +132,15 @@
           <section>
             <span class="toolbar-item-count"><small>{{ t('vocabularyExercises.items') }}: {{wordQueueCount}}</small></span>
           </section>
-          <button mat-fab class="toolbar-fab-button" [matTooltip]="t('vocabularyExercises.select')" (click)="onSelect()" [disabled]="!selectedFile">
+          <button mat-fab class="toolbar-fab-button" [matMenuTriggerFor]="selectMenu" [matTooltip]="t('vocabularyExercises.select')" [disabled]="!selectedFile">
             <mat-icon>query_builder</mat-icon>
           </button>
+          <mat-menu #selectMenu="matMenu">
+            <button mat-menu-item (click)="onSelectByCount()">{{ t('vocabularyExercises.selectByCount') }}</button>
+            <button mat-menu-item (click)="onSelectByWord()">{{ t('vocabularyExercises.selectByWord') }}</button>
+            <button mat-menu-item (click)="onSelectFreeSelection()">{{ t('vocabularyExercises.selectFree') }}</button>
+            <button mat-menu-item (click)="onSelectByRating()">{{ t('vocabularyExercises.selectByRating') }}</button>
+          </mat-menu>
           <button mat-fab class="toolbar-fab-button" [matTooltip]="t('vocabularyExercises.study')" (click)="onStudyWithOptions()" [disabled]="!selectedFile">
             <mat-icon>slideshow</mat-icon>
           </button>

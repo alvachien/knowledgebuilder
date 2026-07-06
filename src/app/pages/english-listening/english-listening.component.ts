@@ -2,6 +2,7 @@ import { AsyncPipe } from '@angular/common';
 import type { OnInit, WritableSignal } from '@angular/core';
 import {
   ChangeDetectionStrategy,
+  ChangeDetectorRef,
   Component,
   DestroyRef,
   Inject,
@@ -45,7 +46,6 @@ import {
 } from '../../interfaces';
 import type {
   EnglishListeningUIStatus,
-  EnglishListeningFile,
   EnglishListeningLesson,
   EnglishListeningSection,
   EnglishListeningUIInputContent,
@@ -54,7 +54,7 @@ import type {
   QuestionBankItemBase,
   QuestionBankTypeKeys,
 } from '../../interfaces';
-import { AudioService, StorageService, LearningContentService } from '../../services';
+import { AudioService, LearningContentService } from '../../services';
 import { FooterComponent } from '../../shared/footer/footer';
 import { MarkdownContentComponent } from '../../shared/markdown-content';
 import { environment } from '../../../environments/environment';
@@ -151,9 +151,9 @@ export class EnglishListeningComponent implements OnInit {
   exerciseContent: EnglishListeningUIInputContent[] = [];
   // Dialog
   private readonly dialog = inject(MatDialog);
-  private readonly storage = inject(StorageService);
   private readonly learningContent = inject(LearningContentService);
   private readonly destroyRef = inject(DestroyRef);
+  private readonly cdr = inject(ChangeDetectorRef);
   // Audio
   private readonly audiosrv = inject(AudioService);
   state$ = this.audiosrv.state$;
@@ -206,6 +206,10 @@ export class EnglishListeningComponent implements OnInit {
       .subscribe({
       next: df => {
         this.allFiles = df;
+        // OnPush: the file list arrives in an async subscribe callback, so the
+        // view is not marked dirty automatically — without this the files
+        // dropdown stays empty until a later DOM event triggers detection.
+        this.cdr.markForCheck();
       },
       error: err => {
         console.error(err);

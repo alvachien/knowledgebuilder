@@ -46,10 +46,10 @@ import { zhCN } from 'date-fns/locale';
 
 import type {
   FormulaReciteContent,
-  FormulaReciteDataFile,
   FormulaRecitePrintOption,
   KnowledgeExerciseFileContent,
   KnowledgeExercisePrintOption,
+  LearningContent,
 } from '../../interfaces';
 import {
   FormulaReciteAIModeEnum,
@@ -57,7 +57,7 @@ import {
   MY_DATE_FORMATS,
   QuestionBankTypeEnum,
 } from '../../interfaces';
-import { AIService, StorageService, UIService, UserCodeService, UtilService } from '../../services';
+import { AIService, LearningContentService, UIService, UserCodeService, UtilService } from '../../services';
 import { FooterComponent } from '../../shared/footer/footer';
 import { MathItemComponent } from '../../shared/mathitem';
 import { fisherYatesShuffle } from '../../shared/utils/shuffle';
@@ -90,8 +90,8 @@ import { AppPageTitle } from '../page-title/page-title';
   },
 })
 export class FormulaRecitesComponent implements OnInit {
-  allFiles: FormulaReciteDataFile[] = [];
-  selectedFile?: FormulaReciteDataFile;
+  allFiles: LearningContent[] = [];
+  selectedFile?: LearningContent;
   recitequeues: FormulaReciteContent[] = [];
   queueidx: number = -1; // Current Queue
   // Table of content
@@ -179,7 +179,7 @@ export class FormulaRecitesComponent implements OnInit {
     return this.sanitizer.sanitize(SecurityContext.HTML, raw) ?? '';
   }
 
-  private readonly storage = inject(StorageService);
+  private readonly contentService = inject(LearningContentService);
   private readonly util = inject(UtilService);
   private readonly uiService = inject(UIService);
   public readonly usercode = inject(UserCodeService);
@@ -202,12 +202,16 @@ export class FormulaRecitesComponent implements OnInit {
   ngOnInit(): void {
     this.pageTitle.title = 'Formula';
 
-    this.storage
-      .getFormulaDataFile()
+    this.contentService
+      .getFormulaContents()
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: df => {
           this.allFiles = df;
+          // OnPush: the file list arrives in an async subscribe callback, so the
+          // view is not marked dirty automatically — without this the files
+          // dropdown stays empty until a later DOM event triggers detection.
+          this.cd.markForCheck();
         },
         error: err => {
           console.error(err);
@@ -221,13 +225,17 @@ export class FormulaRecitesComponent implements OnInit {
   }
 
   onFileSelectionChanged(event: MatSelectChange) {
+    // Drop selection carried over from the previously loaded file.
+    this.selection.clear();
+
     if (!event.value) {
       this.dataSource.data = [];
       return;
     }
     // Read the file.
-    this.storage
-      .getFormulaFileContent(event.value.name)
+    const selectedContent = event.value as LearningContent;
+    this.contentService
+      .getFormulaFileContent(selectedContent.fileUrl)
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
       next: df => {
@@ -254,7 +262,7 @@ export class FormulaRecitesComponent implements OnInit {
     const contstr = this.getDisplayContentText(item.value);
     this.dialog.open(FormulaRecitesLLMDialogComponent, {
       data: {
-        formattype: this.selectedFile?.contenttype ?? '',
+        formattype: '',
         name: item.name,
         content: contstr,
       },
@@ -307,7 +315,7 @@ export class FormulaRecitesComponent implements OnInit {
       });
     });
     const execPrintSetting: KnowledgeExercisePrintOption = {
-      formTitle: `${this.selectedFile?.name ?? ''}, ${this.printSetting.subtitle ?? ''}`,
+      formTitle: `${this.selectedFile?.nameChinese ?? ''}, ${this.printSetting.subtitle ?? ''}`,
       printEntryDate: true,
       printScore: true,
       printAnswer: true,
@@ -322,7 +330,7 @@ export class FormulaRecitesComponent implements OnInit {
   onPrintWithOptions() {
     const dialogRef = this.dialog.open(FormulaRecitesPrintOptionsDialogComponent, {
       data: {
-        filename: this.selectedFile?.name ?? '',
+        filename: this.selectedFile?.nameChinese ?? '',
         reciteContentCount:
           this.selection.selected.length > 0
             ? this.selection.selected.length

@@ -1,4 +1,4 @@
-import type { SelectionModeEnum } from "./ui-common";
+import type { SelectionModeEnum, RatingOperatorEnum } from "./ui-common";
 
 // Letter in word
 export interface VocabularyWordLetter {
@@ -27,6 +27,8 @@ export interface VocabularySelectOption {
   countOfItems?: number;
   countOfOffset?: number;
   filterOnTag?: string;
+  ratingOperator?: RatingOperatorEnum;
+  ratingValue?: number;
 }
 
 // Printing vocabulary options

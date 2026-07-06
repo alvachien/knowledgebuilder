@@ -172,7 +172,18 @@
     "author": "Author",
     "content": "Content",
     "source": "Source",
-    "defaultFormTitle": "Chinese Exercises"
+    "defaultFormTitle": "Chinese Exercises",
+    "select": "Select",
+    "selectByRating": "By Rating",
+    "ratingOperator": "Operator",
+    "ratingValue": "Rating Value",
+    "operatorEquals": "Equals",
+    "operatorGreaterThan": "Greater Than",
+    "operatorLessThan": "Less Than",
+    "operatorLargerOrEquals": "Larger or Equals",
+    "operatorLessOrEquals": "Less or Equals",
+    "operatorHasAny": "Has Any Rating",
+    "operatorHasNone": "Has No Rating"
   },
   "formulaRecites": {
     "title": "Formula",
@@ -323,7 +334,20 @@
     "countOfSelection": "Count of Selection",
     "countOfOffset": "Offset",
     "id": "ID",
-    "rating": "Rating"
+    "rating": "Rating",
+    "selectByCount": "By Count",
+    "selectByWord": "By Word",
+    "selectFree": "Free Selection",
+    "selectByRating": "By Rating",
+    "ratingOperator": "Operator",
+    "ratingValue": "Rating Value",
+    "operatorEquals": "Equals",
+    "operatorGreaterThan": "Greater Than",
+    "operatorLessThan": "Less Than",
+    "operatorLargerOrEquals": "Larger or Equals",
+    "operatorLessOrEquals": "Less or Equals",
+    "operatorHasAny": "Has Any Rating",
+    "operatorHasNone": "Has No Rating"
   },
   "translateExercises": {
     "title": "Sentences",
