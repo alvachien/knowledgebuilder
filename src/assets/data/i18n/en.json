@@ -174,16 +174,7 @@
     "source": "Source",
     "defaultFormTitle": "Chinese Exercises",
     "select": "Select",
-    "selectByRating": "By Rating",
-    "ratingOperator": "Operator",
-    "ratingValue": "Rating Value",
-    "operatorEquals": "Equals",
-    "operatorGreaterThan": "Greater Than",
-    "operatorLessThan": "Less Than",
-    "operatorLargerOrEquals": "Larger or Equals",
-    "operatorLessOrEquals": "Less or Equals",
-    "operatorHasAny": "Has Any Rating",
-    "operatorHasNone": "Has No Rating"
+    "selectByRating": "By Rating"
   },
   "formulaRecites": {
     "title": "Formula",
@@ -291,7 +282,12 @@
     "countOfSelection": "Count of Selection",
     "filterOnTags": "Filter on Tags",
     "extraInfoTitle": "Extra Info",
-    "rating": "Rating"
+    "rating": "Rating",
+    "selectByCount": "By Count",
+    "selectByID": "By ID",
+    "selectFree": "Free Selection",
+    "selectByRating": "By Rating",
+    "countOfOffset": "Offset"
   },
   "vocabularyExercises": {
     "title": "Vocabulary",
@@ -338,16 +334,7 @@
     "selectByCount": "By Count",
     "selectByWord": "By Word",
     "selectFree": "Free Selection",
-    "selectByRating": "By Rating",
-    "ratingOperator": "Operator",
-    "ratingValue": "Rating Value",
-    "operatorEquals": "Equals",
-    "operatorGreaterThan": "Greater Than",
-    "operatorLessThan": "Less Than",
-    "operatorLargerOrEquals": "Larger or Equals",
-    "operatorLessOrEquals": "Less or Equals",
-    "operatorHasAny": "Has Any Rating",
-    "operatorHasNone": "Has No Rating"
+    "selectByRating": "By Rating"
   },
   "translateExercises": {
     "title": "Sentences",
@@ -385,7 +372,20 @@
     "timeCost": "Time cost (in seconds)",
     "inputted": "Inputted",
     "extraInfoTitle": "Extra Info",
-    "explanation": "Explanation"
+    "explanation": "Explanation",
+    "select": "Select",
+    "selectByRating": "By Rating"
+  },
+  "selection": {
+    "ratingOperator": "Operator",
+    "ratingValue": "Rating Value",
+    "operatorEquals": "Equals",
+    "operatorGreaterThan": "Greater Than",
+    "operatorLessThan": "Less Than",
+    "operatorLargerOrEquals": "Larger or Equals",
+    "operatorLessOrEquals": "Less or Equals",
+    "operatorHasAny": "Has Any Rating",
+    "operatorHasNone": "Has No Rating"
   },
   "auth": {
     "login": "Login",

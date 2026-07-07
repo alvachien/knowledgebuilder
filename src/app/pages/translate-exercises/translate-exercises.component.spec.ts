@@ -14,6 +14,7 @@ import {
 import { of, throwError } from 'rxjs';
 
 import {
+  RatingOperatorEnum,
   TranslateDirectionEnum,
   TranslateExerciseStatusEnum,
   TranslationAIModeEnum,
@@ -34,6 +35,7 @@ import {
   TranslateExercisesOptionsDialogComponent,
   TranslateExercisesPrintOptionsDialogComponent,
   TranslateExercisesLLMDialogComponent,
+  TranslateSelectByRatingDialogComponent,
 } from './translate-exercises.component';
 
 const mockDataFiles: LearningContent[] = [
@@ -581,6 +583,179 @@ describe('TranslateExercisesComponent', () => {
       expect(component.getDirectionName(TranslateDirectionEnum.EnglishToChinese)).toBe('英译中');
     });
   });
+
+  describe('onSelectByRating', () => {
+    beforeEach(() => {
+      component.dataSource.data = [
+        { ensent: 's1', cnsent: 'c1', enwords: [], id: '1' },
+        { ensent: 's2', cnsent: 'c2', enwords: [], id: '2' },
+        { ensent: 's3', cnsent: 'c3', enwords: [], id: '3' },
+      ] as LearnEnglishSentFileItem[];
+      // Set up ratings: id1=5, id2=3, id3=0 (unrated). getRating() parses the
+      // string id to a number, so the map is keyed by numeric id.
+      (component as any).contentRatingMap.set(1, 5);
+      (component as any).contentRatingMap.set(2, 3);
+      (component as any).contentRatingMap.set(3, 0);
+    });
+
+    it('should select items with rating equals 5', () => {
+      const mockDialogRef = {
+        afterClosed: vi.fn().mockReturnValue(of({ ratingOperator: RatingOperatorEnum.Equals, ratingValue: 5 })),
+      };
+      mockDialog.open.mockReturnValue(mockDialogRef);
+
+      component.onSelectByRating();
+
+      expect(component.selection.selected.length).toBe(1);
+      expect(component.selection.selected[0].id).toBe('1');
+    });
+
+    it('should select items with rating greater than 3', () => {
+      const mockDialogRef = {
+        afterClosed: vi.fn().mockReturnValue(of({ ratingOperator: RatingOperatorEnum.GreaterThan, ratingValue: 3 })),
+      };
+      mockDialog.open.mockReturnValue(mockDialogRef);
+
+      component.onSelectByRating();
+
+      expect(component.selection.selected.length).toBe(1);
+      expect(component.selection.selected[0].id).toBe('1');
+    });
+
+    it('should select items with any rating', () => {
+      const mockDialogRef = {
+        afterClosed: vi.fn().mockReturnValue(of({ ratingOperator: RatingOperatorEnum.HasAny })),
+      };
+      mockDialog.open.mockReturnValue(mockDialogRef);
+
+      component.onSelectByRating();
+
+      expect(component.selection.selected.length).toBe(2);
+    });
+
+    it('should select items with no rating', () => {
+      const mockDialogRef = {
+        afterClosed: vi.fn().mockReturnValue(of({ ratingOperator: RatingOperatorEnum.HasNone })),
+      };
+      mockDialog.open.mockReturnValue(mockDialogRef);
+
+      component.onSelectByRating();
+
+      expect(component.selection.selected.length).toBe(1);
+      expect(component.selection.selected[0].id).toBe('3');
+    });
+
+    it('should select rated items below the value, excluding unrated (0)', () => {
+      // ratings: id1=5, id2=3, id3=0. LessThan 4 → only id2 (rating 3);
+      // id3 (unrated, 0) is deliberately excluded (covered by HasNone).
+      const mockDialogRef = {
+        afterClosed: vi.fn().mockReturnValue(of({ ratingOperator: RatingOperatorEnum.LessThan, ratingValue: 4 })),
+      };
+      mockDialog.open.mockReturnValue(mockDialogRef);
+
+      component.onSelectByRating();
+
+      expect(component.selection.selected.length).toBe(1);
+      expect(component.selection.selected[0].id).toBe('2');
+    });
+
+    it('should select nothing when no rated item is below the value', () => {
+      // ratings: id1=5, id2=3, id3=0. LessThan 2 → no rated item qualifies.
+      const mockDialogRef = {
+        afterClosed: vi.fn().mockReturnValue(of({ ratingOperator: RatingOperatorEnum.LessThan, ratingValue: 2 })),
+      };
+      mockDialog.open.mockReturnValue(mockDialogRef);
+
+      component.onSelectByRating();
+
+      expect(component.selection.selected.length).toBe(0);
+    });
+
+    it('should select items with rating larger or equals 3', () => {
+      // ratings: id1=5, id2=3, id3=0. LargerOrEquals 3 → id1, id2.
+      const mockDialogRef = {
+        afterClosed: vi.fn().mockReturnValue(of({ ratingOperator: RatingOperatorEnum.LargerOrEquals, ratingValue: 3 })),
+      };
+      mockDialog.open.mockReturnValue(mockDialogRef);
+
+      component.onSelectByRating();
+
+      expect(component.selection.selected.length).toBe(2);
+      expect(component.selection.selected.some(i => i.id === '1')).toBe(true);
+      expect(component.selection.selected.some(i => i.id === '2')).toBe(true);
+    });
+
+    it('should select items with rating less or equals 3, excluding unrated', () => {
+      // ratings: id1=5, id2=3, id3=0. LessOrEquals 3 → only id2 (rating 3);
+      // id3 (unrated, 0) is deliberately excluded (covered by HasNone).
+      const mockDialogRef = {
+        afterClosed: vi.fn().mockReturnValue(of({ ratingOperator: RatingOperatorEnum.LessOrEquals, ratingValue: 3 })),
+      };
+      mockDialog.open.mockReturnValue(mockDialogRef);
+
+      component.onSelectByRating();
+
+      expect(component.selection.selected.length).toBe(1);
+      expect(component.selection.selected[0].id).toBe('2');
+    });
+
+    it('should select nothing for less or equals when no rated item is at or below the value', () => {
+      // ratings: id1=5, id2=3, id3=0. LessOrEquals 2 → no rated item qualifies;
+      // id3 (unrated, 0) is excluded, confirming it does not collapse into HasNone.
+      const mockDialogRef = {
+        afterClosed: vi.fn().mockReturnValue(of({ ratingOperator: RatingOperatorEnum.LessOrEquals, ratingValue: 2 })),
+      };
+      mockDialog.open.mockReturnValue(mockDialogRef);
+
+      component.onSelectByRating();
+
+      expect(component.selection.selected.length).toBe(0);
+    });
+
+    it('should clear the previous selection before applying the new rating match', () => {
+      component.selection.select(component.dataSource.data[0]);
+      expect(component.selection.selected.length).toBe(1);
+
+      const mockDialogRef = {
+        afterClosed: vi.fn().mockReturnValue(of({ ratingOperator: RatingOperatorEnum.HasNone })),
+      };
+      mockDialog.open.mockReturnValue(mockDialogRef);
+
+      component.onSelectByRating();
+
+      // HasNone matches only id3; the previously selected id1 is dropped.
+      expect(component.selection.selected.length).toBe(1);
+      expect(component.selection.selected[0].id).toBe('3');
+    });
+
+    it('should preserve the existing selection when the dialog is cancelled', () => {
+      component.selection.select(component.dataSource.data[0]);
+      const initialCount = component.selection.selected.length;
+
+      const mockDialogRef = { afterClosed: vi.fn().mockReturnValue(of(undefined)) };
+      mockDialog.open.mockReturnValue(mockDialogRef);
+
+      component.onSelectByRating();
+
+      expect(component.selection.selected.length).toBe(initialCount);
+    });
+
+    it('should mark the OnPush view for check after applying the rating selection (no click needed)', () => {
+      // Regression: the rating-based selection is applied in the async
+      // afterClosed callback. With ChangeDetectionStrategy.OnPush the
+      // checkboxes would not reflect the new selection without markForCheck.
+      const markForCheckSpy = vi.spyOn(component['cdr'], 'markForCheck');
+      markForCheckSpy.mockClear();
+      const mockDialogRef = {
+        afterClosed: vi.fn().mockReturnValue(of({ ratingOperator: RatingOperatorEnum.HasAny })),
+      };
+      mockDialog.open.mockReturnValue(mockDialogRef);
+
+      component.onSelectByRating();
+
+      expect(markForCheckSpy).toHaveBeenCalled();
+    });
+  });
 });
 
 describe('TranslateExercisesOptionsDialogComponent', () => {
@@ -885,5 +1060,97 @@ describe('TranslateExercisesLLMDialogComponent', () => {
   it('getAIModeName should return correct names', () => {
     expect(component.getAIModeName(TranslationAIModeEnum.Explain)).toBe('讲解');
     expect(component.getAIModeName(TranslationAIModeEnum.Correct)).toBe('纠正');
+  });
+});
+
+describe('TranslateSelectByRatingDialogComponent', () => {
+  let component: TranslateSelectByRatingDialogComponent;
+  let fixture: ComponentFixture<TranslateSelectByRatingDialogComponent>;
+  let mockDialogRef: any;
+
+  beforeEach(async () => {
+    mockDialogRef = { close: vi.fn() };
+
+    const mockTranslocoService = {
+      setActiveLang: vi.fn(),
+      getActiveLang: vi.fn(),
+      selectTranslate: vi.fn().mockReturnValue(of('')),
+      _loadDependencies: vi.fn().mockReturnValue(of(null)),
+      translate: vi.fn((key: string) => key),
+      activeLang: 'en',
+      config: {
+        reRenderOnLangChange: true,
+        prodMode: false,
+      },
+      langChanges$: of('en'),
+      events$: of(),
+    };
+
+    await TestBed.configureTestingModule({
+      imports: [TranslateSelectByRatingDialogComponent, NoopAnimationsModule],
+      providers: [
+        { provide: MatDialogRef, useValue: mockDialogRef },
+        { provide: TranslocoService, useValue: mockTranslocoService },
+        { provide: TRANSLOCO_TRANSPILER, useValue: {} },
+        { provide: TRANSLOCO_MISSING_HANDLER, useValue: {} },
+        { provide: TRANSLOCO_INTERCEPTOR, useValue: {} },
+      ],
+    }).compileComponents();
+
+    fixture = TestBed.createComponent(TranslateSelectByRatingDialogComponent);
+    component = fixture.componentInstance;
+    fixture.detectChanges();
+  });
+
+  it('should create', () => {
+    expect(component).toBeTruthy();
+  });
+
+  it('should initialize with default operator and value', () => {
+    expect(component.ratingOperator()).toBe(RatingOperatorEnum.Equals);
+    expect(component.ratingValue()).toBe(3);
+  });
+
+  it('should close dialog without data on cancel', () => {
+    component.onNoClick();
+    expect(mockDialogRef.close).toHaveBeenCalledWith();
+  });
+
+  it('should close with ratingOperator and ratingValue on confirm', () => {
+    component.ratingOperator.set(RatingOperatorEnum.GreaterThan);
+    component.ratingValue.set(3);
+    component.onYesClick();
+
+    expect(mockDialogRef.close).toHaveBeenCalledWith({
+      ratingOperator: RatingOperatorEnum.GreaterThan,
+      ratingValue: 3,
+    });
+  });
+
+  it('isValueDisabled should return true when HasAny operator is selected', () => {
+    component.ratingOperator.set(RatingOperatorEnum.HasAny);
+    expect(component.isValueDisabled).toBe(true);
+  });
+
+  it('isValueDisabled should return true when HasNone operator is selected', () => {
+    component.ratingOperator.set(RatingOperatorEnum.HasNone);
+    expect(component.isValueDisabled).toBe(true);
+  });
+
+  it('isValueDisabled should return false when Equals operator is selected', () => {
+    component.ratingOperator.set(RatingOperatorEnum.Equals);
+    expect(component.isValueDisabled).toBe(false);
+  });
+
+  it('ratingOperators should include all seven operators', () => {
+    const values = component.ratingOperators.map(op => op.value);
+    expect(values).toContain(RatingOperatorEnum.Equals);
+    expect(values).toContain(RatingOperatorEnum.GreaterThan);
+    expect(values).toContain(RatingOperatorEnum.LargerOrEquals);
+    expect(values).toContain(RatingOperatorEnum.LessThan);
+    expect(values).toContain(RatingOperatorEnum.LessOrEquals);
+    expect(values).toContain(RatingOperatorEnum.HasAny);
+    expect(values).toContain(RatingOperatorEnum.HasNone);
+    expect(component.ratingOperators.length).toBe(7);
   });
 });
