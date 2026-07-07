@@ -29,6 +29,7 @@ import { MatDividerModule } from '@angular/material/divider';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
+import { MatMenuModule } from '@angular/material/menu';
 import { MatPaginator, MatPaginatorModule } from '@angular/material/paginator';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatRadioModule } from '@angular/material/radio';
@@ -46,7 +47,6 @@ import { zhCN } from 'date-fns/locale';
 import type {
   KnowledgeExerciseFileContent,
   KnowledgeExercisePrintOption,
-  KnowledgeExerciseSelectOption,
   LearningContent,
   QuestionBankItemBase,
   QuestionBankTypeKeys,
@@ -54,11 +54,10 @@ import type {
 import {
   getAllQuestionBankTypes,
   MY_DATE_FORMATS,
-  SelectionModeEnum,
-  getSelectionModeNames,
   convertToQuestionBankItem,
   convertQuestionBankItemToMarkdown,
   QuestionBankTypeEnum,
+  RatingOperatorEnum,
 } from '../../../interfaces';
 
 interface FilterResult {
@@ -90,6 +89,7 @@ import { AppPageTitle } from '../../page-title/page-title';
     MatButtonToggleModule,
     MatIconModule,
     MatInputModule,
+    MatMenuModule,
     MatPaginatorModule,
     MatTableModule,
     MatCheckboxModule,
@@ -530,11 +530,108 @@ export class KnowledgeExercisesListComponent implements OnInit {
     });
   }
 
-  onSelect() {
-    const dialogRef = this.dialog.open(KnowledgeExercisesSelectOptionsDialogComponent, {
+  onSelectByCount() {
+    const dialogRef = this.dialog.open(KnowledgeSelectByCountDialogComponent, {
       data: {},
-      width: '600px',
-      height: '560px',
+      width: '400px',
+      enterAnimationDuration: 800,
+      exitAnimationDuration: 500,
+    });
+
+    dialogRef
+      .afterClosed()
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(result => {
+      if (result !== undefined && result.countOfItems > 0) {
+        this.selection.clear();
+        const offset = result.countOfOffset ?? 0;
+        this.dataSource.data.forEach((item, index) => {
+          if (index >= offset && index < offset + result.countOfItems) {
+            this.selection.select(item);
+          }
+        });
+        // OnPush: the count-based selection is applied in the async
+        // afterClosed callback — without markForCheck the checkboxes would
+        // not reflect the new selection until a later DOM event.
+        this.cdr.markForCheck();
+      }
+    });
+  }
+
+  onSelectByID() {
+    const dialogRef = this.dialog.open(KnowledgeSelectByIDDialogComponent, {
+      data: {},
+      width: '500px',
+      enterAnimationDuration: 800,
+      exitAnimationDuration: 500,
+    });
+
+    dialogRef
+      .afterClosed()
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(result => {
+      if (result !== undefined && result.importIDs) {
+        // Split by the ','
+        const arids = result.importIDs.split(',');
+        if (arids.length > 0) {
+          this.selection.clear();
+          this.dataSource.data.forEach(item => {
+            const selidx = arids.findIndex((idstr: string) => idstr.trim() === item.id);
+            if (selidx !== -1) {
+              this.selection.select(item);
+            }
+          });
+          this.cdr.markForCheck();
+        }
+      }
+    });
+  }
+
+  onSelectFreeSelection() {
+    const dialogRef = this.dialog.open(KnowledgeSelectFreeDialogComponent, {
+      data: {},
+      width: '400px',
+      enterAnimationDuration: 800,
+      exitAnimationDuration: 500,
+    });
+
+    dialogRef
+      .afterClosed()
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(result => {
+      if (result !== undefined && result.countOfItems > 0) {
+        // Random select
+        this.selection.clear();
+
+        let narr: KnowledgeExerciseFileContent[] = [];
+        if (result.filterOnTag) {
+          // Filter by tag
+          narr = this.dataSource.data.filter(
+            item =>
+              item.tags &&
+              item.tags.some(
+                tag => tag.toLowerCase().indexOf(result.filterOnTag.toLowerCase()) !== -1
+              )
+          );
+          narr = fisherYatesShuffle(narr);
+        } else {
+          narr = fisherYatesShuffle(this.dataSource.data);
+        }
+
+        narr.forEach((item, index) => {
+          if (index < result.countOfItems) {
+            this.selection.select(item);
+          }
+        });
+        this.cdr.markForCheck();
+      }
+    });
+  }
+
+  onSelectByRating() {
+    const dialogRef = this.dialog.open(KnowledgeSelectByRatingDialogComponent, {
+      data: {},
+      width: '400px',
       enterAnimationDuration: 800,
       exitAnimationDuration: 500,
     });
@@ -544,47 +641,48 @@ export class KnowledgeExercisesListComponent implements OnInit {
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe(result => {
       if (result !== undefined) {
-        if (result.selectedSelectMode === SelectionModeEnum.ByID && result.importIDs) {
-          // Split by the ','
-          const arids = result.importIDs.split(',');
-          if (arids.length > 0) {
-            this.selection.clear();
+        this.selection.clear();
+        const operator = result.ratingOperator as RatingOperatorEnum;
+        const value = result.ratingValue as number;
 
-            this.dataSource.data.forEach(item => {
-              const selidx = arids.findIndex((idstr: string) => idstr.trim() === item.id);
-              if (selidx !== -1) {
-                this.selection.select(item);
-              }
-            });
+        this.dataSource.data.forEach(item => {
+          const rating = this.getRating(item.id);
+          let matches = false;
+
+          switch (operator) {
+            case RatingOperatorEnum.Equals:
+              matches = rating === value;
+              break;
+            case RatingOperatorEnum.GreaterThan:
+              matches = rating > value;
+              break;
+            case RatingOperatorEnum.LargerOrEquals:
+              matches = rating >= value;
+              break;
+            case RatingOperatorEnum.LessThan:
+              // "Less than" intentionally excludes unrated (0) items: a rating
+              // of 0 means "not yet assessed", which is covered by HasNone.
+              // This keeps LessThan 1 from collapsing into HasNone.
+              matches = rating > 0 && rating < value;
+              break;
+            case RatingOperatorEnum.LessOrEquals:
+              // Same unrated-exclusion rationale as LessThan: an unrated (0)
+              // item is "not yet assessed", not "rated at or below the value".
+              matches = rating > 0 && rating <= value;
+              break;
+            case RatingOperatorEnum.HasAny:
+              matches = rating > 0;
+              break;
+            case RatingOperatorEnum.HasNone:
+              matches = rating === 0;
+              break;
           }
-        } else if (
-          result.selectedSelectMode === SelectionModeEnum.FreeSelection &&
-          result.countOfItems > 0
-        ) {
-          // Random select
-          this.selection.clear();
 
-          let narr = [];
-          if (result.filterOnTag) {
-            // Filter by tag
-            narr = this.dataSource.data.filter(
-              item =>
-                item.tags &&
-                item.tags.some(
-                  tag => tag.toLowerCase().indexOf(result.filterOnTag.toLowerCase()) !== -1
-                )
-            );
-            narr = fisherYatesShuffle(narr);
-          } else {
-            narr = fisherYatesShuffle(this.dataSource.data);
+          if (matches) {
+            this.selection.select(item);
           }
-
-          narr.forEach((item, index) => {
-            if (index < result.countOfItems) {
-              this.selection.select(item);
-            }
-          });
-        }
+        });
+        this.cdr.markForCheck();
       }
     });
   }
@@ -690,68 +788,161 @@ export class KnowledgeExercisesPrintOptionsDialogComponent {
 }
 
 @Component({
-  selector: 'app-knowledge-exercises-selectoptions-dlg',
-  templateUrl: 'knowledge-exercises-selectoptions-dlg.html',
+  selector: 'app-knowledge-selectbycount-dlg',
+  templateUrl: 'knowledge-exercises-selectbycount-dialog.html',
   imports: [
     MatFormFieldModule,
     FormsModule,
     MatInputModule,
-    MatCheckboxModule,
     MatButtonModule,
     MatDialogTitle,
     MatDialogContent,
     MatDialogActions,
-    MatSelectModule,
-    MatDatepickerModule,
-    MatDateFnsModule,
-    MatRadioModule,
     TranslocoModule,
-  ],
-  providers: [
-    provideDateFnsAdapter(),
-    { provide: MAT_DATE_FORMATS, useValue: MY_DATE_FORMATS },
-    { provide: MAT_DATE_LOCALE, useValue: zhCN },
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class KnowledgeExercisesSelectOptionsDialogComponent {
-  readonly dialogRef = inject(MatDialogRef<KnowledgeExercisesSelectOptionsDialogComponent>);
-
-  readonly importIDs = model('');
-  readonly selectedSelectMode = model(SelectionModeEnum.ByID);
-  readonly countOfItems = model(0);
-  readonly filterOnTag = model('');
-  allSelectModes = getSelectionModeNames();
-  get isSelectByID(): boolean {
-    return this.selectedSelectMode() === SelectionModeEnum.ByID;
-  }
-  get isSelectByFreeSelection(): boolean {
-    return this.selectedSelectMode() === SelectionModeEnum.FreeSelection;
-  }
-
-  constructor() {}
+export class KnowledgeSelectByCountDialogComponent {
+  readonly dialogRef = inject(MatDialogRef<KnowledgeSelectByCountDialogComponent>);
+  readonly countOfItems = model(20);
+  readonly countOfOffset = model(0);
 
   onNoClick(): void {
     this.dialogRef.close();
   }
 
   get isFormInvalid(): boolean {
-    if (this.selectedSelectMode() === SelectionModeEnum.ByID) {
-      return this.importIDs().trim() === '';
-    } else if (this.selectedSelectMode() === SelectionModeEnum.FreeSelection) {
-      return this.countOfItems() <= 0;
-    }
-    return true;
+    return this.countOfItems() <= 0 || (this.countOfOffset() ?? 0) < 0;
   }
 
   onYesClick(): void {
-    const closedata: KnowledgeExerciseSelectOption = {
-      selectedSelectMode: this.selectedSelectMode(),
+    this.dialogRef.close({
+      countOfItems: this.countOfItems(),
+      countOfOffset: this.countOfOffset(),
+    });
+  }
+}
+
+@Component({
+  selector: 'app-knowledge-selectbyid-dlg',
+  templateUrl: 'knowledge-exercises-selectbyid-dialog.html',
+  imports: [
+    MatFormFieldModule,
+    FormsModule,
+    MatInputModule,
+    MatButtonModule,
+    MatDialogTitle,
+    MatDialogContent,
+    MatDialogActions,
+    TranslocoModule,
+  ],
+  changeDetection: ChangeDetectionStrategy.OnPush,
+})
+export class KnowledgeSelectByIDDialogComponent {
+  readonly dialogRef = inject(MatDialogRef<KnowledgeSelectByIDDialogComponent>);
+  readonly importIDs = model('');
+
+  onNoClick(): void {
+    this.dialogRef.close();
+  }
+
+  get isFormInvalid(): boolean {
+    return this.importIDs().trim().length <= 0;
+  }
+
+  onYesClick(): void {
+    this.dialogRef.close({
       importIDs: this.importIDs(),
+    });
+  }
+}
+
+@Component({
+  selector: 'app-knowledge-selectfree-dlg',
+  templateUrl: 'knowledge-exercises-selectfree-dialog.html',
+  imports: [
+    MatFormFieldModule,
+    FormsModule,
+    MatInputModule,
+    MatButtonModule,
+    MatDialogTitle,
+    MatDialogContent,
+    MatDialogActions,
+    TranslocoModule,
+  ],
+  changeDetection: ChangeDetectionStrategy.OnPush,
+})
+export class KnowledgeSelectFreeDialogComponent {
+  readonly dialogRef = inject(MatDialogRef<KnowledgeSelectFreeDialogComponent>);
+  readonly countOfItems = model(20);
+  readonly filterOnTag = model('');
+
+  onNoClick(): void {
+    this.dialogRef.close();
+  }
+
+  get isFormInvalid(): boolean {
+    return this.countOfItems() <= 0;
+  }
+
+  onYesClick(): void {
+    this.dialogRef.close({
       countOfItems: this.countOfItems(),
       filterOnTag: this.filterOnTag(),
-    };
+    });
+  }
+}
 
-    this.dialogRef.close(closedata);
+@Component({
+  selector: 'app-knowledge-selectbyrating-dlg',
+  templateUrl: 'knowledge-exercises-selectbyrating-dialog.html',
+  imports: [
+    MatFormFieldModule,
+    FormsModule,
+    MatInputModule,
+    MatButtonModule,
+    MatDialogTitle,
+    MatDialogContent,
+    MatDialogActions,
+    MatSelectModule,
+    TranslocoModule,
+  ],
+  changeDetection: ChangeDetectionStrategy.OnPush,
+})
+export class KnowledgeSelectByRatingDialogComponent {
+  readonly dialogRef = inject(MatDialogRef<KnowledgeSelectByRatingDialogComponent>);
+  readonly ratingOperator = model(RatingOperatorEnum.Equals);
+  readonly ratingValue = model(3);
+
+  get ratingOperators(): { value: RatingOperatorEnum; label: string }[] {
+    return [
+      { value: RatingOperatorEnum.Equals, label: 'operatorEquals' },
+      { value: RatingOperatorEnum.GreaterThan, label: 'operatorGreaterThan' },
+      { value: RatingOperatorEnum.LargerOrEquals, label: 'operatorLargerOrEquals' },
+      { value: RatingOperatorEnum.LessThan, label: 'operatorLessThan' },
+      { value: RatingOperatorEnum.LessOrEquals, label: 'operatorLessOrEquals' },
+      { value: RatingOperatorEnum.HasAny, label: 'operatorHasAny' },
+      { value: RatingOperatorEnum.HasNone, label: 'operatorHasNone' },
+    ];
+  }
+
+  get ratingValues(): number[] {
+    return [1, 2, 3, 4, 5];
+  }
+
+  get isValueDisabled(): boolean {
+    return this.ratingOperator() === RatingOperatorEnum.HasAny ||
+           this.ratingOperator() === RatingOperatorEnum.HasNone;
+  }
+
+  onNoClick(): void {
+    this.dialogRef.close();
+  }
+
+  onYesClick(): void {
+    this.dialogRef.close({
+      ratingOperator: this.ratingOperator(),
+      ratingValue: this.ratingValue(),
+    });
   }
 }

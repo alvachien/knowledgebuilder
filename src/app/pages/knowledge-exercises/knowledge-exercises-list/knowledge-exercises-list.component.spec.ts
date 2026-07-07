@@ -30,7 +30,7 @@ import { of, throwError } from 'rxjs';
 import { vi } from 'vitest';
 
 import type { KnowledgeExerciseFileContent, LearningContent } from '../../../interfaces';
-import { QuestionBankTypeEnum } from '../../../interfaces';
+import { QuestionBankTypeEnum, RatingOperatorEnum } from '../../../interfaces';
 import { LearningContentService } from '../../../services/learning-content.service';
 import { UIService } from '../../../services/ui.service';
 import { FooterComponent } from '../../../shared/footer/footer';
@@ -40,7 +40,10 @@ import { AppPageTitle } from '../../page-title/page-title';
 import {
   KnowledgeExercisesListComponent,
   KnowledgeExercisesPrintOptionsDialogComponent,
-  KnowledgeExercisesSelectOptionsDialogComponent,
+  KnowledgeSelectByCountDialogComponent,
+  KnowledgeSelectByIDDialogComponent,
+  KnowledgeSelectFreeDialogComponent,
+  KnowledgeSelectByRatingDialogComponent,
 } from './knowledge-exercises-list.component';
 
 // Stub class for the AppPageTitle service
@@ -538,7 +541,7 @@ describe('KnowledgeExercisesListComponent', () => {
     });
   });
 
-  describe('onSelect and selection modes', () => {
+  describe('selection menu methods', () => {
     const mockContentWithIDs: KnowledgeExerciseFileContent[] = [
       {
         id: '10',
@@ -567,232 +570,424 @@ describe('KnowledgeExercisesListComponent', () => {
       component.dataSource.data = mockContentWithIDs;
     });
 
-    it('should open select options dialog', () => {
-      const mockDialogRef = {
-        afterClosed: () => of(undefined),
-      };
-      vi.spyOn(component.dialog, 'open').mockReturnValue(mockDialogRef as any);
+    describe('onSelectByCount', () => {
+      it('should open the By Count dialog', () => {
+        const mockDialogRef = { afterClosed: () => of(undefined) };
+        vi.spyOn(component.dialog, 'open').mockReturnValue(mockDialogRef as any);
 
-      component.onSelect();
+        component.onSelectByCount();
 
-      expect(component.dialog.open).toHaveBeenCalledWith(
-        KnowledgeExercisesSelectOptionsDialogComponent,
-        expect.objectContaining({
-          data: {},
-          width: '600px',
-          height: '560px',
-        })
-      );
-    });
+        expect(component.dialog.open).toHaveBeenCalledWith(
+          KnowledgeSelectByCountDialogComponent,
+          expect.objectContaining({ data: {}, width: '400px' })
+        );
+      });
 
-    // ByID mode tests
-    it('should select items by comma-separated IDs in ByID mode', () => {
-      const mockResult = {
-        selectedSelectMode: 0, // ByID
-        importIDs: '10,20',
-        countOfItems: 0,
-        filterOnTag: '',
-      };
-      const mockDialogRef = {
-        afterClosed: () => of(mockResult),
-      };
-      vi.spyOn(component.dialog, 'open').mockReturnValue(mockDialogRef as any);
+      it('should select the requested count from the start by default', () => {
+        const mockDialogRef = {
+          afterClosed: () => of({ countOfItems: 2, countOfOffset: 0 }),
+        };
+        vi.spyOn(component.dialog, 'open').mockReturnValue(mockDialogRef as any);
 
-      component.onSelect();
+        component.onSelectByCount();
 
-      expect(component.selection.selected.length).toBe(2);
-      const selectedIds = component.selection.selected.map(item => item.id);
-      expect(selectedIds).toContain('10');
-      expect(selectedIds).toContain('20');
-    });
+        expect(component.selection.selected.length).toBe(2);
+        expect(component.selection.selected[0].id).toBe('10');
+        expect(component.selection.selected[1].id).toBe('20');
+      });
 
-    it('should trim whitespace from IDs in ByID mode', () => {
-      const mockResult = {
-        selectedSelectMode: 0, // ByID
-        importIDs: ' 10 , 30 ',
-        countOfItems: 0,
-        filterOnTag: '',
-      };
-      const mockDialogRef = {
-        afterClosed: () => of(mockResult),
-      };
-      vi.spyOn(component.dialog, 'open').mockReturnValue(mockDialogRef as any);
+      it('should respect the offset', () => {
+        const mockDialogRef = {
+          afterClosed: () => of({ countOfItems: 1, countOfOffset: 1 }),
+        };
+        vi.spyOn(component.dialog, 'open').mockReturnValue(mockDialogRef as any);
 
-      component.onSelect();
+        component.onSelectByCount();
 
-      expect(component.selection.selected.length).toBe(2);
-      const selectedIds = component.selection.selected.map(item => item.id);
-      expect(selectedIds).toContain('10');
-      expect(selectedIds).toContain('30');
-    });
+        expect(component.selection.selected.length).toBe(1);
+        expect(component.selection.selected[0].id).toBe('20');
+      });
 
-    it('should handle invalid IDs gracefully', () => {
-      const mockResult = {
-        selectedSelectMode: 0, // ByID
-        importIDs: '999,888',
-        countOfItems: 0,
-        filterOnTag: '',
-      };
-      const mockDialogRef = {
-        afterClosed: () => of(mockResult),
-      };
-      vi.spyOn(component.dialog, 'open').mockReturnValue(mockDialogRef as any);
+      it('should clear the previous selection before applying the new count', () => {
+        component.selection.select(mockContentWithIDs[0]);
+        const mockDialogRef = {
+          afterClosed: () => of({ countOfItems: 1, countOfOffset: 2 }),
+        };
+        vi.spyOn(component.dialog, 'open').mockReturnValue(mockDialogRef as any);
 
-      component.onSelect();
+        component.onSelectByCount();
 
-      expect(component.selection.selected.length).toBe(0);
-    });
+        expect(component.selection.selected.length).toBe(1);
+        expect(component.selection.selected[0].id).toBe('30');
+      });
 
-    it('should clear previous selection before selecting by ID', () => {
-      component.selection.select(mockContentWithIDs[0], mockContentWithIDs[1]);
-      expect(component.selection.selected.length).toBe(2);
+      it('should mark the OnPush view for check after applying the count selection', () => {
+        const markForCheckSpy = vi.spyOn(component['cdr'], 'markForCheck');
+        markForCheckSpy.mockClear();
+        const mockDialogRef = {
+          afterClosed: () => of({ countOfItems: 1, countOfOffset: 0 }),
+        };
+        vi.spyOn(component.dialog, 'open').mockReturnValue(mockDialogRef as any);
 
-      const mockResult = {
-        selectedSelectMode: 0, // ByID
-        importIDs: '30',
-        countOfItems: 0,
-        filterOnTag: '',
-      };
-      const mockDialogRef = {
-        afterClosed: () => of(mockResult),
-      };
-      vi.spyOn(component.dialog, 'open').mockReturnValue(mockDialogRef as any);
+        component.onSelectByCount();
 
-      component.onSelect();
+        expect(markForCheckSpy).toHaveBeenCalled();
+      });
 
-      expect(component.selection.selected.length).toBe(1);
-      expect(component.selection.selected[0].id).toBe('30');
-    });
+      it('should not change selection when the dialog is cancelled', () => {
+        component.selection.select(mockContentWithIDs[0]);
+        const before = component.selection.selected.length;
+        const mockDialogRef = { afterClosed: () => of(undefined) };
+        vi.spyOn(component.dialog, 'open').mockReturnValue(mockDialogRef as any);
 
-    // FreeSelection mode tests
-    it('should randomly select specified count of items in FreeSelection mode', () => {
-      const mockResult = {
-        selectedSelectMode: 1, // FreeSelection
-        importIDs: '',
-        countOfItems: 2,
-        filterOnTag: '',
-      };
-      const mockDialogRef = {
-        afterClosed: () => of(mockResult),
-      };
-      vi.spyOn(component.dialog, 'open').mockReturnValue(mockDialogRef as any);
+        component.onSelectByCount();
 
-      component.onSelect();
-
-      expect(component.selection.selected.length).toBe(2);
-    });
-
-    it('should filter by tag before random selection when tag specified', () => {
-      const mockResult = {
-        selectedSelectMode: 1, // FreeSelection
-        importIDs: '',
-        countOfItems: 1,
-        filterOnTag: 'math',
-      };
-      const mockDialogRef = {
-        afterClosed: () => of(mockResult),
-      };
-      vi.spyOn(component.dialog, 'open').mockReturnValue(mockDialogRef as any);
-
-      component.onSelect();
-
-      expect(component.selection.selected.length).toBe(1);
-      // Should only select items with 'math' tag
-      const selectedTags = component.selection.selected[0].tags || [];
-      const hasMathTag = selectedTags.some(tag => tag.toLowerCase().includes('math'));
-      expect(hasMathTag).toBe(true);
-    });
-
-    it('should handle tag filter case-insensitively', () => {
-      const mockResult = {
-        selectedSelectMode: 1, // FreeSelection
-        importIDs: '',
-        countOfItems: 2,
-        filterOnTag: 'MATH',
-      };
-      const mockDialogRef = {
-        afterClosed: () => of(mockResult),
-      };
-      vi.spyOn(component.dialog, 'open').mockReturnValue(mockDialogRef as any);
-
-      component.onSelect();
-
-      // Should find both 'math' and 'MATH' tags
-      expect(component.selection.selected.length).toBe(2);
-      component.selection.selected.forEach(item => {
-        const tags = item.tags || [];
-        const hasMathTag = tags.some(tag => tag.toLowerCase().includes('math'));
-        expect(hasMathTag).toBe(true);
+        expect(component.selection.selected.length).toBe(before);
       });
     });
 
-    it('should not exceed available items when selecting randomly', () => {
-      const mockResult = {
-        selectedSelectMode: 1, // FreeSelection
-        importIDs: '',
-        countOfItems: 100, // Request more than available
-        filterOnTag: '',
-      };
-      const mockDialogRef = {
-        afterClosed: () => of(mockResult),
-      };
-      vi.spyOn(component.dialog, 'open').mockReturnValue(mockDialogRef as any);
+    describe('onSelectByID', () => {
+      it('should open the By ID dialog', () => {
+        const mockDialogRef = { afterClosed: () => of(undefined) };
+        vi.spyOn(component.dialog, 'open').mockReturnValue(mockDialogRef as any);
 
-      component.onSelect();
+        component.onSelectByID();
 
-      expect(component.selection.selected.length).toBe(3); // Only 3 items available
+        expect(component.dialog.open).toHaveBeenCalledWith(
+          KnowledgeSelectByIDDialogComponent,
+          expect.objectContaining({ data: {}, width: '500px' })
+        );
+      });
+
+      it('should select items by comma-separated IDs', () => {
+        const mockDialogRef = { afterClosed: () => of({ importIDs: '10,20' }) };
+        vi.spyOn(component.dialog, 'open').mockReturnValue(mockDialogRef as any);
+
+        component.onSelectByID();
+
+        expect(component.selection.selected.length).toBe(2);
+        const ids = component.selection.selected.map(i => i.id);
+        expect(ids).toContain('10');
+        expect(ids).toContain('20');
+      });
+
+      it('should trim whitespace around IDs', () => {
+        const mockDialogRef = { afterClosed: () => of({ importIDs: ' 10 , 30 ' }) };
+        vi.spyOn(component.dialog, 'open').mockReturnValue(mockDialogRef as any);
+
+        component.onSelectByID();
+
+        expect(component.selection.selected.length).toBe(2);
+        const ids = component.selection.selected.map(i => i.id);
+        expect(ids).toContain('10');
+        expect(ids).toContain('30');
+      });
+
+      it('should handle non-matching IDs gracefully', () => {
+        const mockDialogRef = { afterClosed: () => of({ importIDs: '999,888' }) };
+        vi.spyOn(component.dialog, 'open').mockReturnValue(mockDialogRef as any);
+
+        component.onSelectByID();
+
+        expect(component.selection.selected.length).toBe(0);
+      });
+
+      it('should clear the previous selection before selecting by ID', () => {
+        component.selection.select(mockContentWithIDs[0], mockContentWithIDs[1]);
+        const mockDialogRef = { afterClosed: () => of({ importIDs: '30' }) };
+        vi.spyOn(component.dialog, 'open').mockReturnValue(mockDialogRef as any);
+
+        component.onSelectByID();
+
+        expect(component.selection.selected.length).toBe(1);
+        expect(component.selection.selected[0].id).toBe('30');
+      });
+
+      it('should mark the OnPush view for check after applying the ID selection', () => {
+        const markForCheckSpy = vi.spyOn(component['cdr'], 'markForCheck');
+        markForCheckSpy.mockClear();
+        const mockDialogRef = { afterClosed: () => of({ importIDs: '10' }) };
+        vi.spyOn(component.dialog, 'open').mockReturnValue(mockDialogRef as any);
+
+        component.onSelectByID();
+
+        expect(markForCheckSpy).toHaveBeenCalled();
+      });
+
+      it('should not change selection when the dialog is cancelled', () => {
+        component.selection.select(mockContentWithIDs[0]);
+        const before = component.selection.selected.length;
+        const mockDialogRef = { afterClosed: () => of(undefined) };
+        vi.spyOn(component.dialog, 'open').mockReturnValue(mockDialogRef as any);
+
+        component.onSelectByID();
+
+        expect(component.selection.selected.length).toBe(before);
+      });
     });
 
-    it('should handle empty result after tag filtering', () => {
-      const mockResult = {
-        selectedSelectMode: 1, // FreeSelection
-        importIDs: '',
-        countOfItems: 5,
-        filterOnTag: 'nonexistent',
-      };
-      const mockDialogRef = {
-        afterClosed: () => of(mockResult),
-      };
-      vi.spyOn(component.dialog, 'open').mockReturnValue(mockDialogRef as any);
+    describe('onSelectFreeSelection', () => {
+      it('should open the Free Selection dialog', () => {
+        const mockDialogRef = { afterClosed: () => of(undefined) };
+        vi.spyOn(component.dialog, 'open').mockReturnValue(mockDialogRef as any);
 
-      component.onSelect();
+        component.onSelectFreeSelection();
 
-      expect(component.selection.selected.length).toBe(0);
+        expect(component.dialog.open).toHaveBeenCalledWith(
+          KnowledgeSelectFreeDialogComponent,
+          expect.objectContaining({ data: {}, width: '400px' })
+        );
+      });
+
+      it('should randomly select the requested count of items', () => {
+        const mockDialogRef = { afterClosed: () => of({ countOfItems: 2, filterOnTag: '' }) };
+        vi.spyOn(component.dialog, 'open').mockReturnValue(mockDialogRef as any);
+
+        component.onSelectFreeSelection();
+
+        expect(component.selection.selected.length).toBe(2);
+      });
+
+      it('should filter by tag before random selection when a tag is specified', () => {
+        const mockDialogRef = { afterClosed: () => of({ countOfItems: 1, filterOnTag: 'math' }) };
+        vi.spyOn(component.dialog, 'open').mockReturnValue(mockDialogRef as any);
+
+        component.onSelectFreeSelection();
+
+        expect(component.selection.selected.length).toBe(1);
+        const tags = component.selection.selected[0].tags || [];
+        expect(tags.some(tag => tag.toLowerCase().includes('math'))).toBe(true);
+      });
+
+      it('should handle the tag filter case-insensitively', () => {
+        const mockDialogRef = { afterClosed: () => of({ countOfItems: 2, filterOnTag: 'MATH' }) };
+        vi.spyOn(component.dialog, 'open').mockReturnValue(mockDialogRef as any);
+
+        component.onSelectFreeSelection();
+
+        expect(component.selection.selected.length).toBe(2);
+        component.selection.selected.forEach(item => {
+          const tags = item.tags || [];
+          expect(tags.some(tag => tag.toLowerCase().includes('math'))).toBe(true);
+        });
+      });
+
+      it('should not exceed available items when requesting more than present', () => {
+        const mockDialogRef = { afterClosed: () => of({ countOfItems: 100, filterOnTag: '' }) };
+        vi.spyOn(component.dialog, 'open').mockReturnValue(mockDialogRef as any);
+
+        component.onSelectFreeSelection();
+
+        expect(component.selection.selected.length).toBe(3);
+      });
+
+      it('should select nothing when the tag filter matches no items', () => {
+        const mockDialogRef = { afterClosed: () => of({ countOfItems: 5, filterOnTag: 'nonexistent' }) };
+        vi.spyOn(component.dialog, 'open').mockReturnValue(mockDialogRef as any);
+
+        component.onSelectFreeSelection();
+
+        expect(component.selection.selected.length).toBe(0);
+      });
+
+      it('should clear the previous selection before free selection', () => {
+        component.selection.select(mockContentWithIDs[0]);
+        const mockDialogRef = { afterClosed: () => of({ countOfItems: 2, filterOnTag: '' }) };
+        vi.spyOn(component.dialog, 'open').mockReturnValue(mockDialogRef as any);
+
+        component.onSelectFreeSelection();
+
+        expect(component.selection.selected.length).toBe(2);
+      });
+
+      it('should mark the OnPush view for check after applying the free selection', () => {
+        const markForCheckSpy = vi.spyOn(component['cdr'], 'markForCheck');
+        markForCheckSpy.mockClear();
+        const mockDialogRef = { afterClosed: () => of({ countOfItems: 2, filterOnTag: '' }) };
+        vi.spyOn(component.dialog, 'open').mockReturnValue(mockDialogRef as any);
+
+        component.onSelectFreeSelection();
+
+        expect(markForCheckSpy).toHaveBeenCalled();
+      });
+
+      it('should not change selection when the dialog is cancelled', () => {
+        component.selection.select(mockContentWithIDs[0]);
+        const before = component.selection.selected.length;
+        const mockDialogRef = { afterClosed: () => of(undefined) };
+        vi.spyOn(component.dialog, 'open').mockReturnValue(mockDialogRef as any);
+
+        component.onSelectFreeSelection();
+
+        expect(component.selection.selected.length).toBe(before);
+      });
     });
 
-    it('should clear previous selection before free selection', () => {
-      component.selection.select(mockContentWithIDs[0]);
-      expect(component.selection.selected.length).toBe(1);
+    describe('onSelectByRating', () => {
+      beforeEach(() => {
+        // ratings: id10=5, id20=3, id30=0 (unrated). getRating() parses the
+        // string id to a number, so the map is keyed by numeric id.
+        (component as any).contentRatingMap.set(10, 5);
+        (component as any).contentRatingMap.set(20, 3);
+        (component as any).contentRatingMap.set(30, 0);
+      });
 
-      const mockResult = {
-        selectedSelectMode: 1, // FreeSelection
-        importIDs: '',
-        countOfItems: 2,
-        filterOnTag: '',
-      };
-      const mockDialogRef = {
-        afterClosed: () => of(mockResult),
-      };
-      vi.spyOn(component.dialog, 'open').mockReturnValue(mockDialogRef as any);
+      it('should open the By Rating dialog', () => {
+        const mockDialogRef = { afterClosed: () => of(undefined) };
+        vi.spyOn(component.dialog, 'open').mockReturnValue(mockDialogRef as any);
 
-      component.onSelect();
+        component.onSelectByRating();
 
-      expect(component.selection.selected.length).toBe(2);
-    });
+        expect(component.dialog.open).toHaveBeenCalledWith(
+          KnowledgeSelectByRatingDialogComponent,
+          expect.objectContaining({ data: {}, width: '400px' })
+        );
+      });
 
-    // Dialog cancellation
-    it('should not change selection when dialog is cancelled', () => {
-      component.selection.select(mockContentWithIDs[0]);
-      const originalSelectionCount = component.selection.selected.length;
+      it('should select items with rating equals 5', () => {
+        const mockDialogRef = {
+          afterClosed: () => of({ ratingOperator: RatingOperatorEnum.Equals, ratingValue: 5 }),
+        };
+        vi.spyOn(component.dialog, 'open').mockReturnValue(mockDialogRef as any);
 
-      const mockDialogRef = {
-        afterClosed: () => of(undefined),
-      };
-      vi.spyOn(component.dialog, 'open').mockReturnValue(mockDialogRef as any);
+        component.onSelectByRating();
 
-      component.onSelect();
+        expect(component.selection.selected.length).toBe(1);
+        expect(component.selection.selected[0].id).toBe('10');
+      });
 
-      expect(component.selection.selected.length).toBe(originalSelectionCount);
+      it('should select items with rating greater than 3', () => {
+        const mockDialogRef = {
+          afterClosed: () => of({ ratingOperator: RatingOperatorEnum.GreaterThan, ratingValue: 3 }),
+        };
+        vi.spyOn(component.dialog, 'open').mockReturnValue(mockDialogRef as any);
+
+        component.onSelectByRating();
+
+        expect(component.selection.selected.length).toBe(1);
+        expect(component.selection.selected[0].id).toBe('10');
+      });
+
+      it('should select items with rating larger or equals 3', () => {
+        const mockDialogRef = {
+          afterClosed: () => of({ ratingOperator: RatingOperatorEnum.LargerOrEquals, ratingValue: 3 }),
+        };
+        vi.spyOn(component.dialog, 'open').mockReturnValue(mockDialogRef as any);
+
+        component.onSelectByRating();
+
+        expect(component.selection.selected.length).toBe(2);
+        expect(component.selection.selected.some(i => i.id === '10')).toBe(true);
+        expect(component.selection.selected.some(i => i.id === '20')).toBe(true);
+      });
+
+      it('should select rated items below the value, excluding unrated (0)', () => {
+        // ratings: id10=5, id20=3, id30=0. LessThan 4 → only id20 (rating 3);
+        // id30 (unrated, 0) is deliberately excluded (covered by HasNone).
+        const mockDialogRef = {
+          afterClosed: () => of({ ratingOperator: RatingOperatorEnum.LessThan, ratingValue: 4 }),
+        };
+        vi.spyOn(component.dialog, 'open').mockReturnValue(mockDialogRef as any);
+
+        component.onSelectByRating();
+
+        expect(component.selection.selected.length).toBe(1);
+        expect(component.selection.selected[0].id).toBe('20');
+      });
+
+      it('should select nothing when no rated item is below the value', () => {
+        const mockDialogRef = {
+          afterClosed: () => of({ ratingOperator: RatingOperatorEnum.LessThan, ratingValue: 2 }),
+        };
+        vi.spyOn(component.dialog, 'open').mockReturnValue(mockDialogRef as any);
+
+        component.onSelectByRating();
+
+        expect(component.selection.selected.length).toBe(0);
+      });
+
+      it('should select items with rating less or equals 3, excluding unrated', () => {
+        const mockDialogRef = {
+          afterClosed: () => of({ ratingOperator: RatingOperatorEnum.LessOrEquals, ratingValue: 3 }),
+        };
+        vi.spyOn(component.dialog, 'open').mockReturnValue(mockDialogRef as any);
+
+        component.onSelectByRating();
+
+        expect(component.selection.selected.length).toBe(1);
+        expect(component.selection.selected[0].id).toBe('20');
+      });
+
+      it('should select nothing for less or equals when no rated item is at or below the value', () => {
+        const mockDialogRef = {
+          afterClosed: () => of({ ratingOperator: RatingOperatorEnum.LessOrEquals, ratingValue: 2 }),
+        };
+        vi.spyOn(component.dialog, 'open').mockReturnValue(mockDialogRef as any);
+
+        component.onSelectByRating();
+
+        expect(component.selection.selected.length).toBe(0);
+      });
+
+      it('should select items with any rating', () => {
+        const mockDialogRef = {
+          afterClosed: () => of({ ratingOperator: RatingOperatorEnum.HasAny }),
+        };
+        vi.spyOn(component.dialog, 'open').mockReturnValue(mockDialogRef as any);
+
+        component.onSelectByRating();
+
+        expect(component.selection.selected.length).toBe(2);
+      });
+
+      it('should select items with no rating', () => {
+        const mockDialogRef = {
+          afterClosed: () => of({ ratingOperator: RatingOperatorEnum.HasNone }),
+        };
+        vi.spyOn(component.dialog, 'open').mockReturnValue(mockDialogRef as any);
+
+        component.onSelectByRating();
+
+        expect(component.selection.selected.length).toBe(1);
+        expect(component.selection.selected[0].id).toBe('30');
+      });
+
+      it('should clear the previous selection before applying the rating match', () => {
+        component.selection.select(mockContentWithIDs[0]);
+        const mockDialogRef = {
+          afterClosed: () => of({ ratingOperator: RatingOperatorEnum.HasNone }),
+        };
+        vi.spyOn(component.dialog, 'open').mockReturnValue(mockDialogRef as any);
+
+        component.onSelectByRating();
+
+        expect(component.selection.selected.length).toBe(1);
+        expect(component.selection.selected[0].id).toBe('30');
+      });
+
+      it('should not change selection when the dialog is cancelled', () => {
+        component.selection.select(mockContentWithIDs[0]);
+        const before = component.selection.selected.length;
+        const mockDialogRef = { afterClosed: () => of(undefined) };
+        vi.spyOn(component.dialog, 'open').mockReturnValue(mockDialogRef as any);
+
+        component.onSelectByRating();
+
+        expect(component.selection.selected.length).toBe(before);
+      });
+
+      it('should mark the OnPush view for check after applying the rating selection', () => {
+        const markForCheckSpy = vi.spyOn(component['cdr'], 'markForCheck');
+        markForCheckSpy.mockClear();
+        const mockDialogRef = {
+          afterClosed: () => of({ ratingOperator: RatingOperatorEnum.HasAny }),
+        };
+        vi.spyOn(component.dialog, 'open').mockReturnValue(mockDialogRef as any);
+
+        component.onSelectByRating();
+
+        expect(markForCheckSpy).toHaveBeenCalled();
+      });
     });
   });
 
@@ -1035,29 +1230,17 @@ describe('KnowledgeExercisesPrintOptionsDialogComponent', () => {
   });
 });
 
-describe('KnowledgeExercisesSelectOptionsDialogComponent', () => {
-  let component: KnowledgeExercisesSelectOptionsDialogComponent;
-  let fixture: ComponentFixture<KnowledgeExercisesSelectOptionsDialogComponent>;
+describe('KnowledgeSelectByCountDialogComponent', () => {
+  let component: KnowledgeSelectByCountDialogComponent;
+  let fixture: ComponentFixture<KnowledgeSelectByCountDialogComponent>;
   let mockDialogRef: any;
 
   beforeEach(async () => {
     const dialogRefSpy = { close: vi.fn() };
 
     await TestBed.configureTestingModule({
-      imports: [
-        MatFormFieldModule,
-        MatInputModule,
-        MatCheckboxModule,
-        MatButtonModule,
-        MatDialogModule,
-        MatSelectModule,
-        MatDatepickerModule,
-        MatDateFnsModule,
-        MatRadioModule,
-        TranslocoModule,
-      ],
+      imports: [TranslocoModule],
       providers: [
-        { provide: MAT_DIALOG_DATA, useValue: {} },
         { provide: MatDialogRef, useValue: dialogRefSpy },
         { provide: TranslocoService, useValue: createMockTranslocoService() },
         { provide: TRANSLOCO_TRANSPILER, useValue: {} },
@@ -1065,7 +1248,7 @@ describe('KnowledgeExercisesSelectOptionsDialogComponent', () => {
       ],
     }).compileComponents();
 
-    fixture = TestBed.createComponent(KnowledgeExercisesSelectOptionsDialogComponent);
+    fixture = TestBed.createComponent(KnowledgeSelectByCountDialogComponent);
     component = fixture.componentInstance;
     mockDialogRef = TestBed.inject(MatDialogRef) as any;
   });
@@ -1074,99 +1257,235 @@ describe('KnowledgeExercisesSelectOptionsDialogComponent', () => {
     expect(component).toBeTruthy();
   });
 
-  it('should return correct form validation status', () => {
-    // Test for ByID mode with empty IDs
-    component.selectedSelectMode.set(0); // ByID
-    component.importIDs.set('');
-
-    expect(component.isFormInvalid).toBe(true);
-
-    // Test for ByID mode with non-empty IDs
-    component.importIDs.set('1,2,3');
-
-    expect(component.isFormInvalid).toBe(false);
-
-    // Test for FreeSelection mode with count <= 0
-    component.selectedSelectMode.set(1); // FreeSelection
-    component.countOfItems.set(0);
-
-    expect(component.isFormInvalid).toBe(true);
-
-    // Test for FreeSelection mode with count > 0
-    component.countOfItems.set(5);
-
-    expect(component.isFormInvalid).toBe(false);
+  it('should initialize with default count and offset', () => {
+    expect(component.countOfItems()).toBe(20);
+    expect(component.countOfOffset()).toBe(0);
   });
 
-  it('should close dialog without data when onNoClick called', () => {
+  it('should close dialog without data on cancel', () => {
     component.onNoClick();
-
     expect(mockDialogRef.close).toHaveBeenCalledWith();
   });
 
-  it('should return true for isSelectByID when ByID mode selected', () => {
-    component.selectedSelectMode.set(0); // ByID
-
-    expect(component.isSelectByID).toBe(true);
-  });
-
-  it('should return false for isSelectByID when FreeSelection mode selected', () => {
-    component.selectedSelectMode.set(1); // FreeSelection
-
-    expect(component.isSelectByID).toBe(false);
-  });
-
-  it('should return true for isSelectByFreeSelection when FreeSelection mode selected', () => {
-    component.selectedSelectMode.set(1); // FreeSelection
-
-    expect(component.isSelectByFreeSelection).toBe(true);
-  });
-
-  it('should return false for isSelectByFreeSelection when ByID mode selected', () => {
-    component.selectedSelectMode.set(0); // ByID
-
-    expect(component.isSelectByFreeSelection).toBe(false);
-  });
-
-  it('should close with selection options when valid', () => {
-    component.selectedSelectMode.set(0); // ByID
-    component.importIDs.set('1,2,3');
-    component.countOfItems.set(5);
-    component.filterOnTag.set('math');
-
+  it('should close with count and offset on confirm', () => {
+    component.countOfItems.set(15);
+    component.countOfOffset.set(5);
     component.onYesClick();
 
     expect(mockDialogRef.close).toHaveBeenCalledWith({
-      selectedSelectMode: 0,
+      countOfItems: 15,
+      countOfOffset: 5,
+    });
+  });
+
+  it('isFormInvalid should be true when count is non-positive', () => {
+    component.countOfItems.set(0);
+    expect(component.isFormInvalid).toBe(true);
+  });
+
+  it('isFormInvalid should be false when count is positive and offset is non-negative', () => {
+    component.countOfItems.set(10);
+    component.countOfOffset.set(0);
+    expect(component.isFormInvalid).toBe(false);
+  });
+
+  it('isFormInvalid should be true when offset is negative', () => {
+    component.countOfItems.set(10);
+    component.countOfOffset.set(-1);
+    expect(component.isFormInvalid).toBe(true);
+  });
+});
+
+describe('KnowledgeSelectByIDDialogComponent', () => {
+  let component: KnowledgeSelectByIDDialogComponent;
+  let fixture: ComponentFixture<KnowledgeSelectByIDDialogComponent>;
+  let mockDialogRef: any;
+
+  beforeEach(async () => {
+    const dialogRefSpy = { close: vi.fn() };
+
+    await TestBed.configureTestingModule({
+      imports: [TranslocoModule],
+      providers: [
+        { provide: MatDialogRef, useValue: dialogRefSpy },
+        { provide: TranslocoService, useValue: createMockTranslocoService() },
+        { provide: TRANSLOCO_TRANSPILER, useValue: {} },
+        { provide: TRANSLOCO_MISSING_HANDLER, useValue: {} },
+      ],
+    }).compileComponents();
+
+    fixture = TestBed.createComponent(KnowledgeSelectByIDDialogComponent);
+    component = fixture.componentInstance;
+    mockDialogRef = TestBed.inject(MatDialogRef) as any;
+  });
+
+  it('should create', () => {
+    expect(component).toBeTruthy();
+  });
+
+  it('should initialize with empty importIDs', () => {
+    expect(component.importIDs()).toBe('');
+  });
+
+  it('should close dialog without data on cancel', () => {
+    component.onNoClick();
+    expect(mockDialogRef.close).toHaveBeenCalledWith();
+  });
+
+  it('should close with importIDs on confirm', () => {
+    component.importIDs.set('1,2,3');
+    component.onYesClick();
+
+    expect(mockDialogRef.close).toHaveBeenCalledWith({
       importIDs: '1,2,3',
-      countOfItems: 5,
+    });
+  });
+
+  it('isFormInvalid should be true when importIDs is empty or whitespace', () => {
+    component.importIDs.set('');
+    expect(component.isFormInvalid).toBe(true);
+
+    component.importIDs.set('   ');
+    expect(component.isFormInvalid).toBe(true);
+  });
+
+  it('isFormInvalid should be false when importIDs has content', () => {
+    component.importIDs.set('1,2,3');
+    expect(component.isFormInvalid).toBe(false);
+  });
+});
+
+describe('KnowledgeSelectFreeDialogComponent', () => {
+  let component: KnowledgeSelectFreeDialogComponent;
+  let fixture: ComponentFixture<KnowledgeSelectFreeDialogComponent>;
+  let mockDialogRef: any;
+
+  beforeEach(async () => {
+    const dialogRefSpy = { close: vi.fn() };
+
+    await TestBed.configureTestingModule({
+      imports: [TranslocoModule],
+      providers: [
+        { provide: MatDialogRef, useValue: dialogRefSpy },
+        { provide: TranslocoService, useValue: createMockTranslocoService() },
+        { provide: TRANSLOCO_TRANSPILER, useValue: {} },
+        { provide: TRANSLOCO_MISSING_HANDLER, useValue: {} },
+      ],
+    }).compileComponents();
+
+    fixture = TestBed.createComponent(KnowledgeSelectFreeDialogComponent);
+    component = fixture.componentInstance;
+    mockDialogRef = TestBed.inject(MatDialogRef) as any;
+  });
+
+  it('should create', () => {
+    expect(component).toBeTruthy();
+  });
+
+  it('should initialize with default count and empty tag', () => {
+    expect(component.countOfItems()).toBe(20);
+    expect(component.filterOnTag()).toBe('');
+  });
+
+  it('should close dialog without data on cancel', () => {
+    component.onNoClick();
+    expect(mockDialogRef.close).toHaveBeenCalledWith();
+  });
+
+  it('should close with count and tag on confirm', () => {
+    component.countOfItems.set(15);
+    component.filterOnTag.set('math');
+    component.onYesClick();
+
+    expect(mockDialogRef.close).toHaveBeenCalledWith({
+      countOfItems: 15,
       filterOnTag: 'math',
     });
   });
 
-  it('should include all form fields in close data', () => {
-    component.selectedSelectMode.set(1); // FreeSelection
-    component.importIDs.set('');
-    component.countOfItems.set(10);
-    component.filterOnTag.set('science');
+  it('isFormInvalid should be true when count is non-positive', () => {
+    component.countOfItems.set(0);
+    expect(component.isFormInvalid).toBe(true);
+  });
 
+  it('isFormInvalid should be false when count is positive', () => {
+    component.countOfItems.set(5);
+    expect(component.isFormInvalid).toBe(false);
+  });
+});
+
+describe('KnowledgeSelectByRatingDialogComponent', () => {
+  let component: KnowledgeSelectByRatingDialogComponent;
+  let fixture: ComponentFixture<KnowledgeSelectByRatingDialogComponent>;
+  let mockDialogRef: any;
+
+  beforeEach(async () => {
+    const dialogRefSpy = { close: vi.fn() };
+
+    await TestBed.configureTestingModule({
+      imports: [TranslocoModule],
+      providers: [
+        { provide: MatDialogRef, useValue: dialogRefSpy },
+        { provide: TranslocoService, useValue: createMockTranslocoService() },
+        { provide: TRANSLOCO_TRANSPILER, useValue: {} },
+        { provide: TRANSLOCO_MISSING_HANDLER, useValue: {} },
+      ],
+    }).compileComponents();
+
+    fixture = TestBed.createComponent(KnowledgeSelectByRatingDialogComponent);
+    component = fixture.componentInstance;
+    mockDialogRef = TestBed.inject(MatDialogRef) as any;
+  });
+
+  it('should create', () => {
+    expect(component).toBeTruthy();
+  });
+
+  it('should initialize with default operator and value', () => {
+    expect(component.ratingOperator()).toBe(RatingOperatorEnum.Equals);
+    expect(component.ratingValue()).toBe(3);
+  });
+
+  it('should close dialog without data on cancel', () => {
+    component.onNoClick();
+    expect(mockDialogRef.close).toHaveBeenCalledWith();
+  });
+
+  it('should close with operator and value on confirm', () => {
+    component.ratingOperator.set(RatingOperatorEnum.GreaterThan);
+    component.ratingValue.set(3);
     component.onYesClick();
 
     expect(mockDialogRef.close).toHaveBeenCalledWith({
-      selectedSelectMode: 1,
-      importIDs: '',
-      countOfItems: 10,
-      filterOnTag: 'science',
+      ratingOperator: RatingOperatorEnum.GreaterThan,
+      ratingValue: 3,
     });
   });
 
-  it('should handle whitespace in importIDs', () => {
-    component.selectedSelectMode.set(0); // ByID
-    component.importIDs.set('  1 , 2 , 3  ');
+  it('isValueDisabled should return true when HasAny operator is selected', () => {
+    component.ratingOperator.set(RatingOperatorEnum.HasAny);
+    expect(component.isValueDisabled).toBe(true);
+  });
 
-    component.onYesClick();
+  it('isValueDisabled should return true when HasNone operator is selected', () => {
+    component.ratingOperator.set(RatingOperatorEnum.HasNone);
+    expect(component.isValueDisabled).toBe(true);
+  });
 
-    const closeArg = mockDialogRef.close.mock.lastCall?.[0];
-    expect(closeArg.importIDs).toBe('  1 , 2 , 3  ');
+  it('isValueDisabled should return false when Equals operator is selected', () => {
+    component.ratingOperator.set(RatingOperatorEnum.Equals);
+    expect(component.isValueDisabled).toBe(false);
+  });
+
+  it('ratingOperators should include all seven operators', () => {
+    const values = component.ratingOperators.map(op => op.value);
+    expect(values).toContain(RatingOperatorEnum.Equals);
+    expect(values).toContain(RatingOperatorEnum.GreaterThan);
+    expect(values).toContain(RatingOperatorEnum.LargerOrEquals);
+    expect(values).toContain(RatingOperatorEnum.LessThan);
+    expect(values).toContain(RatingOperatorEnum.LessOrEquals);
+    expect(values).toContain(RatingOperatorEnum.HasAny);
+    expect(values).toContain(RatingOperatorEnum.HasNone);
+    expect(component.ratingOperators.length).toBe(7);
   });
 });

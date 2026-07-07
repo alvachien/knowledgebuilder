@@ -24,6 +24,16 @@
             </mat-select>
           </mat-form-field>
           <span class="toolbar-item-count" matSuffix><small>{{ t('translateExercises.items') }}: {{reciteQueuesCount}}</small></span>
+          <section style="padding-left: 8px;">
+            <div class="example-button-container">
+              <button mat-fab [matMenuTriggerFor]="selectMenu" [matTooltip]="t('translateExercises.select')" [disabled]="!selectedFile">
+                <mat-icon>query_builder</mat-icon>
+              </button>
+            </div>
+          </section>
+          <mat-menu #selectMenu="matMenu">
+            <button mat-menu-item (click)="onSelectByRating()">{{ t('translateExercises.selectByRating') }}</button>
+          </mat-menu>
           <section>
             <div class="example-button-container">
               <button mat-fab (click)="onPrintWithOptions()" [disabled]="!selectedFile">

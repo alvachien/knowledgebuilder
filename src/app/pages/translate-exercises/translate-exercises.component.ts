@@ -21,6 +21,7 @@ import { MatDividerModule } from '@angular/material/divider';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
+import { MatMenuModule } from '@angular/material/menu';
 import { MatPaginator, MatPaginatorModule } from '@angular/material/paginator';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
@@ -31,6 +32,7 @@ import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatSort, MatSortModule } from '@angular/material/sort';
 import { MatTableDataSource, MatTableModule } from '@angular/material/table';
 import { MatToolbarModule } from '@angular/material/toolbar';
+import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatDateFnsModule, provideDateFnsAdapter } from '@angular/material-date-fns-adapter';
 import { Router } from '@angular/router';
 import { TranslocoModule, TranslocoService } from '@jsverse/transloco';
@@ -53,6 +55,7 @@ import {
   MY_DATE_FORMATS,
   getAllPrintExecDateString,
   QuestionBankTypeEnum,
+  RatingOperatorEnum,
 } from '../../interfaces';
 import {
   LearningContentService,
@@ -91,6 +94,8 @@ import { AppPageTitle } from '../page-title/page-title';
     MatSnackBarModule,
     MatSortModule,
     MatButtonToggleModule,
+    MatMenuModule,
+    MatTooltipModule,
     TranslocoModule,
   ],
   templateUrl: './translate-exercises.component.html',
@@ -568,6 +573,68 @@ export class TranslateExercisesComponent implements OnInit {
     });
   }
 
+  onSelectByRating() {
+    const dialogRef = this.dialog.open(TranslateSelectByRatingDialogComponent, {
+      data: {},
+      width: '400px',
+      enterAnimationDuration: 800,
+      exitAnimationDuration: 500,
+    });
+
+    dialogRef
+      .afterClosed()
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(result => {
+        if (result !== undefined) {
+          this.selection.clear();
+          const operator = result.ratingOperator as RatingOperatorEnum;
+          const value = result.ratingValue as number;
+
+          this.dataSource.data.forEach(item => {
+            const rating = this.getRating(item.id);
+            let matches = false;
+
+            switch (operator) {
+              case RatingOperatorEnum.Equals:
+                matches = rating === value;
+                break;
+              case RatingOperatorEnum.GreaterThan:
+                matches = rating > value;
+                break;
+              case RatingOperatorEnum.LargerOrEquals:
+                matches = rating >= value;
+                break;
+              case RatingOperatorEnum.LessThan:
+                // "Less than" intentionally excludes unrated (0) items: a rating
+                // of 0 means "not yet assessed", which is covered by HasNone.
+                // This keeps LessThan 1 from collapsing into HasNone.
+                matches = rating > 0 && rating < value;
+                break;
+              case RatingOperatorEnum.LessOrEquals:
+                // Same unrated-exclusion rationale as LessThan: an unrated (0)
+                // item is "not yet assessed", not "rated at or below the value".
+                matches = rating > 0 && rating <= value;
+                break;
+              case RatingOperatorEnum.HasAny:
+                matches = rating > 0;
+                break;
+              case RatingOperatorEnum.HasNone:
+                matches = rating === 0;
+                break;
+            }
+
+            if (matches) {
+              this.selection.select(item);
+            }
+          });
+          // OnPush: the rating-based selection is applied in the async
+          // afterClosed callback — without markForCheck the checkboxes would
+          // not reflect the new selection until a later DOM event.
+          this.cdr.markForCheck();
+        }
+      });
+  }
+
   onSubmitToNext() {
     this.dataSourceResult.push({
       ensent: this.recitequeues[this.queueidx].ensent,
@@ -814,5 +881,59 @@ export class TranslateExercisesLLMDialogComponent {
           },
         });
     }
+  }
+}
+
+@Component({
+  selector: 'app-translate-selectbyrating-dlg',
+  templateUrl: 'translate-exercises-selectbyrating-dialog.html',
+  imports: [
+    MatFormFieldModule,
+    FormsModule,
+    MatInputModule,
+    MatButtonModule,
+    MatDialogTitle,
+    MatDialogContent,
+    MatDialogActions,
+    MatSelectModule,
+    TranslocoModule,
+  ],
+  changeDetection: ChangeDetectionStrategy.OnPush,
+})
+export class TranslateSelectByRatingDialogComponent {
+  readonly dialogRef = inject(MatDialogRef<TranslateSelectByRatingDialogComponent>);
+  readonly ratingOperator = model(RatingOperatorEnum.Equals);
+  readonly ratingValue = model(3);
+
+  get ratingOperators(): { value: RatingOperatorEnum; label: string }[] {
+    return [
+      { value: RatingOperatorEnum.Equals, label: 'operatorEquals' },
+      { value: RatingOperatorEnum.GreaterThan, label: 'operatorGreaterThan' },
+      { value: RatingOperatorEnum.LargerOrEquals, label: 'operatorLargerOrEquals' },
+      { value: RatingOperatorEnum.LessThan, label: 'operatorLessThan' },
+      { value: RatingOperatorEnum.LessOrEquals, label: 'operatorLessOrEquals' },
+      { value: RatingOperatorEnum.HasAny, label: 'operatorHasAny' },
+      { value: RatingOperatorEnum.HasNone, label: 'operatorHasNone' },
+    ];
+  }
+
+  get ratingValues(): number[] {
+    return [1, 2, 3, 4, 5];
+  }
+
+  get isValueDisabled(): boolean {
+    return this.ratingOperator() === RatingOperatorEnum.HasAny ||
+           this.ratingOperator() === RatingOperatorEnum.HasNone;
+  }
+
+  onNoClick(): void {
+    this.dialogRef.close();
+  }
+
+  onYesClick(): void {
+    this.dialogRef.close({
+      ratingOperator: this.ratingOperator(),
+      ratingValue: this.ratingValue(),
+    });
   }
 }

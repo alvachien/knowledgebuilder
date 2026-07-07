@@ -26,12 +26,18 @@
         <span class="toolbar-item-count" matSuffix><small>{{ t('knowledgeExercises.items') }}: {{itemCount}}</small></span>
         <section style="padding-left: 8px;">
           <div class="example-button-container">
-            <button mat-fab [matTooltip]="t('knowledgeExercises.select')" (click)="onSelect()"
+            <button mat-fab [matMenuTriggerFor]="selectMenu" [matTooltip]="t('knowledgeExercises.select')"
               [disabled]="!selectedFile">
               <mat-icon>query_builder</mat-icon>
             </button>
           </div>
         </section>
+        <mat-menu #selectMenu="matMenu">
+          <button mat-menu-item (click)="onSelectByCount()">{{ t('knowledgeExercises.selectByCount') }}</button>
+          <button mat-menu-item (click)="onSelectByID()">{{ t('knowledgeExercises.selectByID') }}</button>
+          <button mat-menu-item (click)="onSelectFreeSelection()">{{ t('knowledgeExercises.selectFree') }}</button>
+          <button mat-menu-item (click)="onSelectByRating()">{{ t('knowledgeExercises.selectByRating') }}</button>
+        </mat-menu>
         <section style="padding-left: 8px;">
           <div class="example-button-container">
             <button mat-fab [matTooltip]="t('knowledgeExercises.print')" (click)="onPreview()"

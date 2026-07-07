@@ -174,16 +174,7 @@
     "source": "来源",
     "defaultFormTitle": "中文练习",
     "select": "选择",
-    "selectByRating": "按评分",
-    "ratingOperator": "运算符",
-    "ratingValue": "评分值",
-    "operatorEquals": "等于",
-    "operatorGreaterThan": "大于",
-    "operatorLessThan": "小于",
-    "operatorLargerOrEquals": "大于等于",
-    "operatorLessOrEquals": "小于等于",
-    "operatorHasAny": "有评分",
-    "operatorHasNone": "无评分"
+    "selectByRating": "按评分"
   },
   "formulaRecites": {
     "title": "公式",
@@ -263,16 +254,7 @@
     "selectByCount": "按数量",
     "selectByWord": "按单词",
     "selectFree": "随机选择",
-    "selectByRating": "按评分",
-    "ratingOperator": "运算符",
-    "ratingValue": "评分值",
-    "operatorEquals": "等于",
-    "operatorGreaterThan": "大于",
-    "operatorLessThan": "小于",
-    "operatorLargerOrEquals": "大于等于",
-    "operatorLessOrEquals": "小于等于",
-    "operatorHasAny": "有评分",
-    "operatorHasNone": "无评分"
+    "selectByRating": "按评分"
   },
   "translateExercises": {
     "title": "句子",
@@ -310,7 +292,9 @@
     "timeCost": "耗时（秒）",
     "inputted": "已输入",
     "extraInfoTitle": "额外信息",
-    "explanation": "讲解"
+    "explanation": "讲解",
+    "select": "选择",
+    "selectByRating": "按评分"
   },
   "englishListening": {
     "pageTitle": "听力",
@@ -385,7 +369,23 @@
     "countOfSelection": "选择数量",
     "filterOnTags": "按标签筛选",
     "extraInfoTitle": "额外信息",
-    "rating": "评分"
+    "rating": "评分",
+    "selectByCount": "按数量",
+    "selectByID": "按编号",
+    "selectFree": "随机选择",
+    "selectByRating": "按评分",
+    "countOfOffset": "起始位置"
+  },
+  "selection": {
+    "ratingOperator": "运算符",
+    "ratingValue": "评分值",
+    "operatorEquals": "等于",
+    "operatorGreaterThan": "大于",
+    "operatorLessThan": "小于",
+    "operatorLargerOrEquals": "大于等于",
+    "operatorLessOrEquals": "小于等于",
+    "operatorHasAny": "有评分",
+    "operatorHasNone": "无评分"
   },
   "auth": {
     "login": "登录",
