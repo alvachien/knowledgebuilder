@@ -81,13 +81,21 @@ export const hasChinese = (str: string): boolean => {
 
 // Replace At Symbols within a string
 // Normal it used for printing mode.
-export const replaceAtSymbols = (str: string, replaceStr = ' ', lengthFactor = 1): string => {
+export const replaceAtSymbols = (
+  str: string,
+  replaceStr = ' ',
+  lengthFactor = 1,
+  fixedLength?: number
+): string => {
   const hasChineseInContent = hasChinese(str);
   return str.replace(/@([^@]*)@/g, (match, content) => {
     // Calculate the length based on content (without @ symbols) for better proportionality
     // The underline should match the length of the missing content, not including delimiters
     const contentLength = hasChineseInContent ? content.length * 4 : content.length * 2;
-    const totalLength = Math.max(1, Math.round(contentLength * lengthFactor));
+    // When fixedLength is set, the blank width is uniform and does NOT reflect the
+    // answer content's length (used by vocabulary prints so the blank hides the word length).
+    const totalLength =
+      fixedLength && fixedLength > 0 ? fixedLength : Math.max(1, Math.round(contentLength * lengthFactor));
 
     // For HTML underline replacement, we need to handle line breaks
     if (replaceStr === '<u>&nbsp;</u>') {

@@ -1010,6 +1010,7 @@ export class VocabularyExercisesComponent implements OnInit {
       printHintOfAnswer: false,
       printID: false,
       hideLabelOfQuestionType: [QuestionBankTypeEnum.FillInTheBlank],
+      uniformBlankLength: true,
     };
     this.uiService.setSelectedExerciseItem(items, execPrintSetting);
     void this.router.navigate(['/knowledge/displayv2']);

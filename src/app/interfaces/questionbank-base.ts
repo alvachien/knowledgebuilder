@@ -1369,6 +1369,9 @@ export interface KnowledgeExercisePrintOption {
   printID: boolean;
   hideLabelOfQuestionType: QuestionBankTypeKeys[];
   shuffleOptionsInSelection?: boolean;
+  // When true, FillInTheBlank blanks render at a fixed uniform width that does not
+  // reflect the answer content's length (vocabulary prints).
+  uniformBlankLength?: boolean;
 }
 
 export interface KnowledgeExerciseSelectOption {
@@ -1448,7 +1451,8 @@ export const shuffleQuestionBankItemOption = (
 export const convertQuestionBankItemToMarkdown = (
   item: QuestionBankItemBase<string>,
   hideLabelOfQuestionType?: QuestionBankTypeKeys[],
-  printID = false
+  printID = false,
+  uniformBlankLength = false
 ): string => {
   let rst = '';
 
@@ -1466,7 +1470,8 @@ export const convertQuestionBankItemToMarkdown = (
         item as QuestionBankItemFillInTheBlank,
         undefined,
         hideLabelOfQuestionType,
-        printID
+        printID,
+        uniformBlankLength
       );
       break;
     case QuestionBankTypeEnum.MultipleChoice:
@@ -1611,13 +1616,18 @@ export const convertSingleChoiceToMarkdown = (
   return rst + '\n';
 };
 
+// Fixed width (in &nbsp; cells) used for FillInTheBlank blanks when the print option
+// requests a uniform blank that does not reveal the answer's length (vocabulary prints).
+const UNIFORM_BLANK_LENGTH = 10;
+
 export const convertFillInTheBlankToMarkdown = (
   item: QuestionBankItemFillInTheBlank,
   parentOrder?: number,
   hideLabelOfQuestionType?: QuestionBankTypeKeys[],
-  printID = false
+  printID = false,
+  uniformBlankLength = false
 ): string => {
-  return `${parentOrder ? '&emsp;' : ''} **${parentOrder ? parentOrder + '.' + item.order : item.order}.** ${hideLabelOfQuestionType?.includes(item.itemType as QuestionBankTypeKeys) ? '' : '【' + item.getItemTypeDescription() + '】'}${printID ? '(*' + item.id + '*) ' : ' '}${replaceAtSymbols(item.question.replaceAll('_', '\\_'), '<u>&nbsp;</u>')}`;
+  return `${parentOrder ? '&emsp;' : ''} **${parentOrder ? parentOrder + '.' + item.order : item.order}.** ${hideLabelOfQuestionType?.includes(item.itemType as QuestionBankTypeKeys) ? '' : '【' + item.getItemTypeDescription() + '】'}${printID ? '(*' + item.id + '*) ' : ' '}${replaceAtSymbols(item.question.replaceAll('_', '\\_'), '<u>&nbsp;</u>', 1, uniformBlankLength ? UNIFORM_BLANK_LENGTH : undefined)}`;
 };
 
 export const convertMultipleChoiceToMarkdown = (

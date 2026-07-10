@@ -2589,6 +2589,70 @@ describe('Markdown Conversion - parentOrder parameter', () => {
     expect(markdown).toContain('10.1'); // Should combine parent and child order
   });
 
+  it('should render a uniform fixed-width blank when uniformBlankLength is true', () => {
+    const shortItem = new QuestionBankItemFillInTheBlank({
+      id: 'short-id',
+      order: 1,
+      question: 'Fill @hi@',
+      answers: ['hi'],
+    });
+    const longItem = new QuestionBankItemFillInTheBlank({
+      id: 'long-id',
+      order: 2,
+      question: 'Fill @a-much-longer-answer@',
+      answers: ['a-much-longer-answer'],
+    });
+    const shortMd = convertFillInTheBlankToMarkdown(shortItem, undefined, undefined, false, true);
+    const longMd = convertFillInTheBlankToMarkdown(longItem, undefined, undefined, false, true);
+    const shortCount = (shortMd.match(/&nbsp;/g) || []).length;
+    const longCount = (longMd.match(/&nbsp;/g) || []).length;
+    // Uniform width: both blanks have the same number of cells regardless of answer length.
+    expect(shortCount).toBe(longCount);
+    expect(shortCount).toBe(10);
+  });
+
+  it('should reflect answer length when uniformBlankLength is false (default)', () => {
+    const shortItem = new QuestionBankItemFillInTheBlank({
+      id: 'short-id',
+      order: 1,
+      question: 'Fill @hi@',
+      answers: ['hi'],
+    });
+    const longItem = new QuestionBankItemFillInTheBlank({
+      id: 'long-id',
+      order: 2,
+      question: 'Fill @a-much-longer-answer@',
+      answers: ['a-much-longer-answer'],
+    });
+    const shortMd = convertFillInTheBlankToMarkdown(shortItem);
+    const longMd = convertFillInTheBlankToMarkdown(longItem);
+    const shortCount = (shortMd.match(/&nbsp;/g) || []).length;
+    const longCount = (longMd.match(/&nbsp;/g) || []).length;
+    // Proportional width: longer answer produces more blank cells.
+    expect(longCount).toBeGreaterThan(shortCount);
+    expect(shortCount).toBe(4); // 'hi' -> 2 chars * 2
+  });
+
+  it('should thread uniformBlankLength through convertQuestionBankItemToMarkdown', () => {
+    const shortItem = new QuestionBankItemFillInTheBlank({
+      id: 'short-id',
+      order: 1,
+      question: 'Fill @hi@',
+      answers: ['hi'],
+    });
+    const longItem = new QuestionBankItemFillInTheBlank({
+      id: 'long-id',
+      order: 2,
+      question: 'Fill @a-much-longer-answer@',
+      answers: ['a-much-longer-answer'],
+    });
+    const shortMd = convertQuestionBankItemToMarkdown(shortItem, undefined, false, true);
+    const longMd = convertQuestionBankItemToMarkdown(longItem, undefined, false, true);
+    expect((shortMd.match(/&nbsp;/g) || []).length).toBe(
+      (longMd.match(/&nbsp;/g) || []).length
+    );
+  });
+
   it('should use parentOrder in ShortAnswer markdown', () => {
     const item = new QuestionBankItemShortAnswer({
       id: 'test-id',

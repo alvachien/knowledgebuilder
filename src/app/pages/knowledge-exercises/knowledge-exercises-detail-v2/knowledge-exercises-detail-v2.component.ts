@@ -67,7 +67,8 @@ export class KnowledgeExercisesDetailV2Component implements OnInit, AfterViewIni
           convertQuestionBankItemToMarkdown(
             item,
             this.printSetting?.hideLabelOfQuestionType,
-            this.printSetting?.printID
+            this.printSetting?.printID,
+            this.printSetting?.uniformBlankLength
           ) + '\n';
         //(idx === this.questions.length - 1 ? '' : '\n');
       });
