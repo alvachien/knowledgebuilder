@@ -37,6 +37,10 @@ export interface VocabularyPrintOption extends VocabularyOptionCore {
   printEntryDate?: boolean;
   printExecDate?: boolean;
   printFirstLetter?: boolean;
+  // When true, FillInTheBlank blanks render at a fixed uniform width (hides word length).
+  uniformBlankLength?: boolean;
+  // Width (in &nbsp; cells) of the uniform blank; floored to 10 by the converter.
+  uniformBlankLengthSize?: number;
 }
 
 // Typing vocabulary options

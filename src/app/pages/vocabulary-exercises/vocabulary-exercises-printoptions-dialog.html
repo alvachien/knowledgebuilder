@@ -16,6 +16,15 @@
     <div class="control-full-width">
       <mat-checkbox [(ngModel)]="printFirstLetter"> {{ t('vocabularyExercises.printFirstLetter') }} </mat-checkbox>
     </div>
+    <div class="control-full-width">
+      <mat-checkbox [(ngModel)]="uniformBlankLength"> {{ t('vocabularyExercises.uniformBlankLength') }} </mat-checkbox>
+    </div>
+    @if(uniformBlankLength()) {
+      <mat-form-field class="control-full-width">
+        <mat-label>{{ t('vocabularyExercises.uniformBlankLengthSize') }}</mat-label>
+        <input matInput type="number" min="10" [(ngModel)]="uniformBlankLengthSize">
+      </mat-form-field>
+    }
     <mat-form-field class="control-full-width">
       <mat-label>{{ t('vocabularyExercises.leadingCharacter') }}</mat-label>
       <mat-select [(ngModel)]="wordLeadingCharacter" multiple [disabled]="data.withSelection">

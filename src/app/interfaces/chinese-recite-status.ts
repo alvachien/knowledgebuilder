@@ -26,6 +26,9 @@ export interface ChineseRecitePrintOption extends ChineseRecitetOptionAbstract {
   respectRetentionCurve?: boolean;
   printExecDate?: boolean;
   execDate?: Date;
+  // When true, the answer key renders each item's answer on its own line
+  // (line break between items instead of an inline em-space). Default off.
+  answerLineBreakPerItem?: boolean;
 }
 
 export interface ChineseReciteOption extends ChineseRecitetOptionAbstract {

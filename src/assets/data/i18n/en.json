@@ -174,7 +174,14 @@
     "source": "Source",
     "defaultFormTitle": "Chinese Exercises",
     "select": "Select",
-    "selectByRating": "By Rating"
+    "selectByRating": "By Rating",
+    "optionsOfReciting": "Options of Chinese Reciting",
+    "level": "Level",
+    "count": "Count",
+    "printEntryDate": "Print Entry Date",
+    "answerLineBreak": "One Answer per Line",
+    "execDateOption": "Exec. Date Option",
+    "execDate": "Exec. Date"
   },
   "formulaRecites": {
     "title": "Formula",
@@ -324,6 +331,8 @@
     "subTitle": "Sub Title",
     "printEntryDate": "Print Entry Date",
     "printFirstLetter": "Print First Letter",
+    "uniformBlankLength": "Uniform Blank Length",
+    "uniformBlankLengthSize": "Blank Length",
     "optionsOfSelection": "Options of Selection",
     "mode": "Mode",
     "wordsSplitter": "Words (splitter: ,)",

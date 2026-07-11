@@ -173,6 +173,53 @@ describe('KnowledgeExercisesDetailV2Component', () => {
       expect(component.markdownAdditionStr).toContain('Test Exercise');
     });
 
+    it('should join answer items with a line break when answerLineBreakPerItem is true', () => {
+      Object.defineProperty(mockUIService, 'ExerciseItems', {
+        value: [mockQuestion, mockFillInTheBlankQuestion],
+        enumerable: true,
+      });
+      Object.defineProperty(mockUIService, 'ExercisePrintSetting', {
+        value: { ...mockPrintSetting, printAnswer: true, answerLineBreakPerItem: true },
+        enumerable: true,
+      });
+      Object.defineProperty(mockUIService, 'IncludeLatex', {
+        value: false,
+        enumerable: true,
+      });
+
+      component.ngOnInit();
+      fixture.detectChanges();
+      component.ngAfterViewInit();
+      vi.advanceTimersByTime(1);
+
+      // Each item's answer starts on its own line; no inline em-space joiner.
+      expect(component.markdownAdditionStr).toContain('\n*2*');
+      expect(component.markdownAdditionStr).not.toContain('&emsp;');
+    });
+
+    it('should join answer items inline with em-space when answerLineBreakPerItem is off', () => {
+      Object.defineProperty(mockUIService, 'ExerciseItems', {
+        value: [mockQuestion, mockFillInTheBlankQuestion],
+        enumerable: true,
+      });
+      Object.defineProperty(mockUIService, 'ExercisePrintSetting', {
+        value: { ...mockPrintSetting, printAnswer: true, answerLineBreakPerItem: false },
+        enumerable: true,
+      });
+      Object.defineProperty(mockUIService, 'IncludeLatex', {
+        value: false,
+        enumerable: true,
+      });
+
+      component.ngOnInit();
+      fixture.detectChanges();
+      component.ngAfterViewInit();
+      vi.advanceTimersByTime(1);
+
+      // Legacy behavior: items run together with an inline em-space joiner.
+      expect(component.markdownAdditionStr).toContain('&emsp;*2*');
+    });
+
     it('should format markdown string with printScore when enabled', () => {
       const printSettingWithScore = { ...mockPrintSetting, printScore: true, printAnswer: false };
 

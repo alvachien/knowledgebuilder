@@ -66,6 +66,7 @@ import {
   getAllPrintExecDateString,
   QuestionBankTypeEnum,
   RatingOperatorEnum,
+  DEFAULT_UNIFORM_BLANK_LENGTH,
 } from '../../interfaces';
 import { AudioService, LearningContentService, LearningRatingService, UIService, UtilService } from '../../services';
 import { FooterComponent } from '../../shared/footer/footer';
@@ -167,6 +168,7 @@ export class VocabularyExercisesComponent implements OnInit {
   printSetting: VocabularyPrintOption = {
     countOfItems: 20,
     printEntryDate: true,
+    uniformBlankLength: true,
   };
 
   get wordQueueCount(): number {
@@ -922,7 +924,7 @@ export class VocabularyExercisesComponent implements OnInit {
         title: this.selectedFile?.nameEnglish,
       },
       width: '600px',
-      height: '530px',
+      height: '660px',
       enterAnimationDuration: 800,
       exitAnimationDuration: 500,
     });
@@ -951,6 +953,8 @@ export class VocabularyExercisesComponent implements OnInit {
           this.printSetting.wordLeadingCharacter = undefined;
         }
         this.printSetting.printFirstLetter = result.printFirstLetter;
+        this.printSetting.uniformBlankLength = result.uniformBlankLength;
+        this.printSetting.uniformBlankLengthSize = result.uniformBlankLengthSize;
 
         this.onNewPrintCore();
       }
@@ -1010,6 +1014,8 @@ export class VocabularyExercisesComponent implements OnInit {
       printHintOfAnswer: false,
       printID: false,
       hideLabelOfQuestionType: [QuestionBankTypeEnum.FillInTheBlank],
+      uniformBlankLength: this.printSetting.uniformBlankLength,
+      uniformBlankLengthSize: this.printSetting.uniformBlankLengthSize,
     };
     this.uiService.setSelectedExerciseItem(items, execPrintSetting);
     void this.router.navigate(['/knowledge/displayv2']);
@@ -1322,6 +1328,10 @@ export class VocabularyExercisesPrintOptionsDialogComponent {
   readonly wordLeadingCharacter = model([] as string[]);
   readonly subTitle = model(this.data.title ?? '');
   readonly printFirstLetter = model(false); // Default shall be false
+  // Uniform blank: hides the answer's length. Default ON (preserves legacy behavior).
+  readonly uniformBlankLength = model(true);
+  // Width in &nbsp; cells (default 30, floored to MIN_UNIFORM_BLANK_LENGTH = 10 by the converter).
+  readonly uniformBlankLengthSize = model(DEFAULT_UNIFORM_BLANK_LENGTH);
 
   readonly allCharacters = this.util.getAllCharacters();
   readonly allExcludeParts = this.util.getAllTypingExcludeParts();
@@ -1344,6 +1354,8 @@ export class VocabularyExercisesPrintOptionsDialogComponent {
       printEntryDate: this.printEntryDate(),
       wordLeadingCharacter: this.wordLeadingCharacter(),
       printFirstLetter: this.printFirstLetter(),
+      uniformBlankLength: this.uniformBlankLength(),
+      uniformBlankLengthSize: this.uniformBlankLengthSize(),
     };
 
     this.dialogRef.close(closedata);

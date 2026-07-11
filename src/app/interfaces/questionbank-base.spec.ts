@@ -2589,6 +2589,114 @@ describe('Markdown Conversion - parentOrder parameter', () => {
     expect(markdown).toContain('10.1'); // Should combine parent and child order
   });
 
+  it('should render a uniform fixed-width blank when uniformBlankLength is true', () => {
+    const shortItem = new QuestionBankItemFillInTheBlank({
+      id: 'short-id',
+      order: 1,
+      question: 'Fill @hi@',
+      answers: ['hi'],
+    });
+    const longItem = new QuestionBankItemFillInTheBlank({
+      id: 'long-id',
+      order: 2,
+      question: 'Fill @a-much-longer-answer@',
+      answers: ['a-much-longer-answer'],
+    });
+    const shortMd = convertFillInTheBlankToMarkdown(shortItem, undefined, undefined, false, true);
+    const longMd = convertFillInTheBlankToMarkdown(longItem, undefined, undefined, false, true);
+    const shortCount = (shortMd.match(/&nbsp;/g) || []).length;
+    const longCount = (longMd.match(/&nbsp;/g) || []).length;
+    // Uniform width: both blanks have the same number of cells regardless of answer length.
+    expect(shortCount).toBe(longCount);
+    expect(shortCount).toBe(30);
+  });
+
+  it('should reflect answer length when uniformBlankLength is false (default)', () => {
+    const shortItem = new QuestionBankItemFillInTheBlank({
+      id: 'short-id',
+      order: 1,
+      question: 'Fill @hi@',
+      answers: ['hi'],
+    });
+    const longItem = new QuestionBankItemFillInTheBlank({
+      id: 'long-id',
+      order: 2,
+      question: 'Fill @a-much-longer-answer@',
+      answers: ['a-much-longer-answer'],
+    });
+    const shortMd = convertFillInTheBlankToMarkdown(shortItem);
+    const longMd = convertFillInTheBlankToMarkdown(longItem);
+    const shortCount = (shortMd.match(/&nbsp;/g) || []).length;
+    const longCount = (longMd.match(/&nbsp;/g) || []).length;
+    // Proportional width: longer answer produces more blank cells.
+    expect(longCount).toBeGreaterThan(shortCount);
+    expect(shortCount).toBe(4); // 'hi' -> 2 chars * 2
+  });
+
+  it('should thread uniformBlankLength through convertQuestionBankItemToMarkdown', () => {
+    const shortItem = new QuestionBankItemFillInTheBlank({
+      id: 'short-id',
+      order: 1,
+      question: 'Fill @hi@',
+      answers: ['hi'],
+    });
+    const longItem = new QuestionBankItemFillInTheBlank({
+      id: 'long-id',
+      order: 2,
+      question: 'Fill @a-much-longer-answer@',
+      answers: ['a-much-longer-answer'],
+    });
+    const shortMd = convertQuestionBankItemToMarkdown(shortItem, undefined, false, true);
+    const longMd = convertQuestionBankItemToMarkdown(longItem, undefined, false, true);
+    expect((shortMd.match(/&nbsp;/g) || []).length).toBe(
+      (longMd.match(/&nbsp;/g) || []).length
+    );
+  });
+
+  it('should honor a custom uniformBlankLengthSize when uniformBlankLength is true', () => {
+    const item = new QuestionBankItemFillInTheBlank({
+      id: 'wid-id',
+      order: 1,
+      question: 'Fill @longword@',
+      answers: ['longword'],
+    });
+    const md = convertFillInTheBlankToMarkdown(item, undefined, undefined, false, true, 25);
+    expect((md.match(/&nbsp;/g) || []).length).toBe(25);
+  });
+
+  it('should floor a sub-minimum uniformBlankLengthSize at 10', () => {
+    const item = new QuestionBankItemFillInTheBlank({
+      id: 'small-id',
+      order: 1,
+      question: 'Fill @hi@',
+      answers: ['hi'],
+    });
+    const md = convertFillInTheBlankToMarkdown(item, undefined, undefined, false, true, 5);
+    expect((md.match(/&nbsp;/g) || []).length).toBe(10);
+  });
+
+  it('should default the uniform size to 30 when the toggle is on but size is unset', () => {
+    const item = new QuestionBankItemFillInTheBlank({
+      id: 'def-id',
+      order: 1,
+      question: 'Fill @hi@',
+      answers: ['hi'],
+    });
+    const md = convertFillInTheBlankToMarkdown(item, undefined, undefined, false, true);
+    expect((md.match(/&nbsp;/g) || []).length).toBe(30);
+  });
+
+  it('should thread uniformBlankLengthSize through convertQuestionBankItemToMarkdown', () => {
+    const item = new QuestionBankItemFillInTheBlank({
+      id: 'thread-id',
+      order: 1,
+      question: 'Fill @longword@',
+      answers: ['longword'],
+    });
+    const md = convertQuestionBankItemToMarkdown(item, undefined, false, true, 20);
+    expect((md.match(/&nbsp;/g) || []).length).toBe(20);
+  });
+
   it('should use parentOrder in ShortAnswer markdown', () => {
     const item = new QuestionBankItemShortAnswer({
       id: 'test-id',

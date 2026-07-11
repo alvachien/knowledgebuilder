@@ -67,20 +67,26 @@ export class KnowledgeExercisesDetailV2Component implements OnInit, AfterViewIni
           convertQuestionBankItemToMarkdown(
             item,
             this.printSetting?.hideLabelOfQuestionType,
-            this.printSetting?.printID
+            this.printSetting?.printID,
+            this.printSetting?.uniformBlankLength,
+            this.printSetting?.uniformBlankLengthSize
           ) + '\n';
         //(idx === this.questions.length - 1 ? '' : '\n');
       });
 
       if (this.printSetting?.printAnswer) {
         this.markdownAdditionStr = `### **${this.printSetting?.formTitle}**, (${this.printID})\n`;
+        // When the answer line-break option is on, put each item's answer on its
+        // own line (\n renders as <br> because Marked runs with breaks: true);
+        // otherwise keep the legacy inline em-space joiner.
+        const answerItemSeparator = this.printSetting?.answerLineBreakPerItem ? '\n' : '&emsp;';
         this.questions.forEach((item, idx) => {
           this.markdownAdditionStr +=
             convertQuestionBankItemAnswerToMarkdown(item) +
             (this.printSetting?.printHintOfAnswer && item.hintofanswer
               ? `; &emsp;${item.hintofanswer}; `
               : '') +
-            (idx === this.questions.length - 1 ? '' : '&emsp;');
+            (idx === this.questions.length - 1 ? '' : answerItemSeparator);
         });
       }
 

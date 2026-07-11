@@ -1,42 +1,48 @@
-<h2 mat-dialog-title>Options of Chinese Reciting</h2>
-<mat-dialog-content class="control-full-width">
-  <mat-form-field class="control-full-width">
-    <mat-label>Level</mat-label>
+<div *transloco="let t">
+  <h2 mat-dialog-title>{{ t('chineseExercises.optionsOfReciting') }}</h2>
+  <mat-dialog-content class="control-full-width">
+    <mat-form-field class="control-full-width">
+      <mat-label>{{ t('chineseExercises.level') }}</mat-label>
       <mat-select [(ngModel)]="selectedLevel" name="recitLevel">
         @for (lvl of allLevels; track $index) {
           <mat-option [value]="lvl">{{getQuestionBankLevelName(lvl)}}</mat-option>
         }
-    </mat-select>
-  </mat-form-field>
+      </mat-select>
+    </mat-form-field>
 
-  <mat-form-field class="control-full-width">
-    <mat-label>Count</mat-label>
-    <input matInput type="number" [(ngModel)]="countOfItems" name="recitCount" [disabled]="data.disableCount">
-    <span matSuffix>{{data.reciteContentCount}}</span>
-  </mat-form-field>
+    <mat-form-field class="control-full-width">
+      <mat-label>{{ t('chineseExercises.count') }}</mat-label>
+      <input matInput type="number" [(ngModel)]="countOfItems" name="reciteCount" [disabled]="data.disableCount">
+      <span matSuffix>{{data.reciteContentCount}}</span>
+    </mat-form-field>
 
-  <div class="control-full-width">
-    <mat-checkbox [(ngModel)]="printEntryDate" name="reciteEntryDate"> Print Entry Date </mat-checkbox>
-  </div>
+    <div class="control-full-width">
+      <mat-checkbox [(ngModel)]="printEntryDate" name="reciteEntryDate"> {{ t('chineseExercises.printEntryDate') }} </mat-checkbox>
+    </div>
 
-  <div class="control-full-width">
-    <mat-label>Exec. Date Option</mat-label>
-    <mat-radio-group aria-label="Select an option" class="control-full-width" name="reciteExecDateOption" [(ngModel)]="selectedExecDateModel">
-      @for (ped of allPrintExecDates; track $index) {
-        <mat-radio-button [value]="ped.value">{{ped.label}}</mat-radio-button>
-      }
-    </mat-radio-group>
-  </div>
+    <div class="control-full-width">
+      <mat-checkbox [(ngModel)]="answerLineBreak" name="reciteAnswerLineBreak"> {{ t('chineseExercises.answerLineBreak') }} </mat-checkbox>
+    </div>
 
-  <mat-form-field class="control-full-width">
-    <mat-label>Exec. Date</mat-label>
-    <input matInput [(ngModel)]="execDate" name="reciteExecDate" [matDatepicker]="picker" [disabled]="selectedExecDateModel() !== 2">
-    <mat-datepicker-toggle matIconSuffix [for]="picker"></mat-datepicker-toggle>
-    <mat-datepicker #picker></mat-datepicker>
-  </mat-form-field>
+    <div class="control-full-width">
+      <mat-label>{{ t('chineseExercises.execDateOption') }}</mat-label>
+      <mat-radio-group aria-label="Select an option" class="control-full-width" name="reciteExecDateOption" [(ngModel)]="selectedExecDateModel">
+        @for (ped of allPrintExecDates; track $index) {
+          <mat-radio-button [value]="ped.value">{{ped.label}}</mat-radio-button>
+        }
+      </mat-radio-group>
+    </div>
 
-</mat-dialog-content>
-<mat-dialog-actions>
-  <button mat-button (click)="onNoClick()">No Thanks</button>
-  <button mat-button (click)="onYesClick()" cdkFocusInitial>OK</button>
-</mat-dialog-actions>
+    <mat-form-field class="control-full-width">
+      <mat-label>{{ t('chineseExercises.execDate') }}</mat-label>
+      <input matInput [(ngModel)]="execDate" name="reciteExecDate" [matDatepicker]="picker" [disabled]="selectedExecDateModel() !== 2">
+      <mat-datepicker-toggle matIconSuffix [for]="picker"></mat-datepicker-toggle>
+      <mat-datepicker #picker></mat-datepicker>
+    </mat-form-field>
+
+  </mat-dialog-content>
+  <mat-dialog-actions>
+    <button mat-button (click)="onNoClick()">{{ t('no') }}</button>
+    <button mat-button (click)="onYesClick()" cdkFocusInitial>{{ t('ok') }}</button>
+  </mat-dialog-actions>
+</div>
