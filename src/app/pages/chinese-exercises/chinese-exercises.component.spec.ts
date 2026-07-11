@@ -406,7 +406,7 @@ describe('ChineseExercisesComponent', () => {
             translationDisabled: undefined,
           },
           width: '600px',
-          height: '500px',
+          height: '560px',
         })
       );
     });
@@ -416,6 +416,7 @@ describe('ChineseExercisesComponent', () => {
         selectedLevel: QuestionBankItemLevelEnum.Hard,
         countOfItems: 15,
         printEntryDate: true,
+        answerLineBreakPerItem: true,
         respectRetentionCurve: false,
         printExecDate: true,
         execDate: new Date(),
@@ -431,6 +432,7 @@ describe('ChineseExercisesComponent', () => {
       expect(component.printSetting.selectedLevel).toBe(QuestionBankItemLevelEnum.Hard);
       expect(component.printSetting.countOfItems).toBe(15);
       expect(component.printSetting.printEntryDate).toBe(true);
+      expect(component.printSetting.answerLineBreakPerItem).toBe(true);
       expect(component.printSetting.respectRetentionCurve).toBe(false);
       expect(component.onPrint).toHaveBeenCalled();
     });
@@ -530,6 +532,28 @@ describe('ChineseExercisesComponent', () => {
       const printSetting = callArgs?.[1];
 
       expect(printSetting?.formTitle).toContain('Chinese Exercises');
+    });
+
+    it('should forward answerLineBreakPerItem onto the exec print setting', () => {
+      component.printSetting.answerLineBreakPerItem = true;
+
+      component.onPrint();
+
+      const callArgs = uiServiceSpy.setSelectedExerciseItem.mock.lastCall;
+      const printSetting = callArgs?.[1];
+
+      expect(printSetting?.answerLineBreakPerItem).toBe(true);
+    });
+
+    it('should default answerLineBreakPerItem to false when unset', () => {
+      component.printSetting.answerLineBreakPerItem = undefined;
+
+      component.onPrint();
+
+      const callArgs = uiServiceSpy.setSelectedExerciseItem.mock.lastCall;
+      const printSetting = callArgs?.[1];
+
+      expect(printSetting?.answerLineBreakPerItem).toBe(false);
     });
   });
 
@@ -771,7 +795,17 @@ describe('ChineseExercisesPrintOptionsDialogComponent', () => {
     const matDialogRefSpy = { close: vi.fn() };
 
     await TestBed.configureTestingModule({
-      imports: [ChineseExercisesPrintOptionsDialogComponent],
+      imports: [
+        ChineseExercisesPrintOptionsDialogComponent,
+        TranslocoTestingModule.forRoot({
+          langs: { en: {}, 'zh-CN': {} },
+          translocoConfig: {
+            availableLangs: ['en', 'zh-CN'],
+            defaultLang: 'en',
+          },
+          preloadLangs: true,
+        }),
+      ],
       providers: [
         { provide: MatDialogRef, useValue: matDialogRefSpy },
         {
@@ -803,7 +837,17 @@ describe('ChineseExercisesPrintOptionsDialogComponent', () => {
     const matDialogRefSpy = { close: vi.fn() };
 
     void TestBed.configureTestingModule({
-      imports: [ChineseExercisesPrintOptionsDialogComponent],
+      imports: [
+        ChineseExercisesPrintOptionsDialogComponent,
+        TranslocoTestingModule.forRoot({
+          langs: { en: {}, 'zh-CN': {} },
+          translocoConfig: {
+            availableLangs: ['en', 'zh-CN'],
+            defaultLang: 'en',
+          },
+          preloadLangs: true,
+        }),
+      ],
       providers: [
         { provide: MatDialogRef, useValue: matDialogRefSpy },
         {
@@ -837,6 +881,7 @@ describe('ChineseExercisesPrintOptionsDialogComponent', () => {
       selectedLevel: QuestionBankItemLevelEnum.Easy,
       countOfItems: 25,
       printEntryDate: false,
+      answerLineBreakPerItem: true,
       respectRetentionCurve: false,
       printExecDate: false,
       execDate: undefined,

@@ -104,20 +104,23 @@ Does the `_____` blank reflect the length of the English word (4 in this case)?
 
 ### How it works (current)
 
-The vocabulary print option carries a `uniformBlankLength: true` flag (`KnowledgeExercisePrintOption`, `src/app/interfaces/questionbank-base.ts`). Only vocabulary sets it; every other FillInTheBlank source leaves it unset and keeps the legacy proportional blank.
+The vocabulary print option carries a `uniformBlankLength` toggle plus an optional `uniformBlankLengthSize` (`KnowledgeExercisePrintOption`, `src/app/interfaces/questionbank-base.ts`). The vocabulary print-options dialog collects both; every other FillInTheBlank source leaves them unset and keeps the legacy proportional blank.
 
 Signal path:
 
-1. `onNewPrintCore` sets `uniformBlankLength: true` on the `KnowledgeExercisePrintOption` (`src/app/pages/vocabulary-exercises/vocabulary-exercises.component.ts`, `onNewPrintCore`).
-2. `displayv2` forwards it as the 4th argument to `convertQuestionBankItemToMarkdown(item, hideLabelOfQuestionType, printID, uniformBlankLength)` (`knowledge-exercises-detail-v2.component.ts`, `ngAfterViewInit`).
-3. `convertFillInTheBlankToMarkdown` passes `UNIFORM_BLANK_LENGTH` (10) as `replaceAtSymbols`'s 4th argument `fixedLength` when the flag is set:
+1. The print-options dialog (`VocabularyExercisesPrintOptionsDialogComponent`) collects `uniformBlankLength` (toggle, default ON) and `uniformBlankLengthSize` (width in `&nbsp;` cells, default 30, min 10). `onNewPrintCore` threads them from `this.printSetting` onto the `KnowledgeExercisePrintOption` (`src/app/pages/vocabulary-exercises/vocabulary-exercises.component.ts`, `onNewPrintCore`).
+2. `displayv2` forwards them as the 4th/5th arguments to `convertQuestionBankItemToMarkdown(item, hideLabelOfQuestionType, printID, uniformBlankLength, uniformBlankLengthSize)` (`knowledge-exercises-detail-v2.component.ts`, `ngAfterViewInit`).
+3. `convertFillInTheBlankToMarkdown` floors the size at `MIN_UNIFORM_BLANK_LENGTH` (10) and passes the effective length as `replaceAtSymbols`'s 4th argument `fixedLength` when the toggle is on:
 
 ```ts
+const effectiveBlankLength = uniformBlankLength
+  ? Math.max(MIN_UNIFORM_BLANK_LENGTH, uniformBlankLengthSize ?? DEFAULT_UNIFORM_BLANK_LENGTH)
+  : undefined;
 replaceAtSymbols(
   item.question.replaceAll('_', '\\_'),
   '<u>&nbsp;</u>',
   1,
-  uniformBlankLength ? UNIFORM_BLANK_LENGTH : undefined
+  effectiveBlankLength
 );
 ```
 
@@ -130,7 +133,7 @@ const totalLength =
     : Math.max(1, Math.round(contentLength * lengthFactor));
 ```
 
-`UNIFORM_BLANK_LENGTH = 10` keeps the blank in the simple render path (`totalLength <= breakInterval`, `breakInterval = 10`), so the output is a clean `<u>` + 10 × `&nbsp;` + `</u>` with no zero-width-break seam. The constant lives in `src/app/interfaces/questionbank-base.ts` near `convertFillInTheBlankToMarkdown` and is tunable - bump it if the line feels too short or long.
+`MIN_UNIFORM_BLANK_LENGTH = 10` is the floor for the user-configurable `uniformBlankLengthSize`; `DEFAULT_UNIFORM_BLANK_LENGTH = 30` is the default used when the size is unset (and the value the dialog opens at). At the default 30 the blank exceeds `breakInterval` (`breakInterval = 10`), so the output is split with zero-width-break seams every 10 cells rather than rendered as a single underline; sizes at or below 10 stay in the simple render path as one clean `<u>` + N × `&nbsp;` + `</u>`. Both constants live in `src/app/interfaces/questionbank-base.ts` near `convertFillInTheBlankToMarkdown`; the dialog reuses `DEFAULT_UNIFORM_BLANK_LENGTH` as its default and `MIN_UNIFORM_BLANK_LENGTH` as its floor, so each is single-sourced.
 
 ### Historical: the legacy proportional path (Knowledge Bank, unchanged)
 
@@ -169,5 +172,5 @@ No existing test pinned the factor before this change. The new `uniformBlankLeng
 ### Notes
 
 - `printFirstLetter` does not affect blank length. With it enabled the question becomes `n. 测试 t @test@`; the only `@…@` region is still `test`, so the blank is unchanged.
-- Blanks longer than 10 cells are split with a zero-width-space break opportunity (`</u>&#8203;<u>`) every 10 cells to allow line wrapping. The uniform vocabulary blank (10 cells) sits exactly at this threshold, so it is a single unbroken underline.
+- Blanks longer than 10 cells are split with a zero-width-space break opportunity (`</u>&#8203;<u>`) every 10 cells to allow line wrapping. At the default `uniformBlankLengthSize` of 30 the uniform vocabulary blank exceeds this threshold, so it renders as three seam-separated 10-cell segments that still form one visual blank and wrap on overflow; lowering the size to 10 (the floor) yields a single unbroken underline.
 - The same `replaceAtSymbols` helper is used by `src/app/shared/mathitem/mathitem.ts:35`; the new `fixedLength` argument defaults to unset, so that call site is unaffected.

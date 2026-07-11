@@ -1424,6 +1424,8 @@ describe('VocabularyExercisesComponent', () => {
             subTitle: 'Test Title',
             wordLeadingCharacter: ['a'],
             printFirstLetter: true,
+            uniformBlankLength: false,
+            uniformBlankLengthSize: 30,
           }),
       };
       mockDialog.open.mockReturnValue(mockDialogRef as any);
@@ -1433,6 +1435,8 @@ describe('VocabularyExercisesComponent', () => {
 
       expect(component.printSetting.countOfItems).toBe(10);
       expect(component.printSetting.subTitle).toBe('Test Title');
+      expect(component.printSetting.uniformBlankLength).toBe(false);
+      expect(component.printSetting.uniformBlankLengthSize).toBe(30);
       expect(component['onNewPrintCore']).toHaveBeenCalled();
     });
 
@@ -1521,6 +1525,38 @@ describe('VocabularyExercisesComponent', () => {
 
       const args = mockUIService.setSelectedExerciseItem.mock.lastCall;
       expect(args?.[0][0].question).not.toContain('h @');
+    });
+
+    it('should thread uniformBlankLength off into the exec print setting', () => {
+      component.printSetting.subTitle = 'Test';
+      component.printSetting.uniformBlankLength = false;
+
+      component['onNewPrintCore']();
+
+      const execPrintSetting = mockUIService.setSelectedExerciseItem.mock.lastCall?.[1];
+      expect(execPrintSetting.uniformBlankLength).toBe(false);
+    });
+
+    it('should thread a custom uniformBlankLengthSize into the exec print setting', () => {
+      component.printSetting.subTitle = 'Test';
+      component.printSetting.uniformBlankLength = true;
+      component.printSetting.uniformBlankLengthSize = 25;
+
+      component['onNewPrintCore']();
+
+      const execPrintSetting = mockUIService.setSelectedExerciseItem.mock.lastCall?.[1];
+      expect(execPrintSetting.uniformBlankLength).toBe(true);
+      expect(execPrintSetting.uniformBlankLengthSize).toBe(25);
+    });
+
+    it('should default uniformBlankLength to true (legacy behavior) from the initializer', () => {
+      component.printSetting.subTitle = 'Test';
+      // uniformBlankLength left at its initializer default (true).
+
+      component['onNewPrintCore']();
+
+      const execPrintSetting = mockUIService.setSelectedExerciseItem.mock.lastCall?.[1];
+      expect(execPrintSetting.uniformBlankLength).toBe(true);
     });
   });
 
@@ -2006,6 +2042,34 @@ describe('VocabularyExercisesPrintOptionsDialogComponent', () => {
         countOfItems: 25,
         printEntryDate: false,
         printFirstLetter: true,
+        uniformBlankLength: true,
+        uniformBlankLengthSize: 30,
+      })
+    );
+  });
+
+  it('should close dialog with a custom uniform blank length on confirm', () => {
+    component.uniformBlankLength.set(true);
+    component.uniformBlankLengthSize.set(30);
+
+    component.onYesClick();
+
+    expect(mockDialogRef.close).toHaveBeenCalledWith(
+      expect.objectContaining({
+        uniformBlankLength: true,
+        uniformBlankLengthSize: 30,
+      })
+    );
+  });
+
+  it('should close dialog with uniform blank disabled when toggled off', () => {
+    component.uniformBlankLength.set(false);
+
+    component.onYesClick();
+
+    expect(mockDialogRef.close).toHaveBeenCalledWith(
+      expect.objectContaining({
+        uniformBlankLength: false,
       })
     );
   });

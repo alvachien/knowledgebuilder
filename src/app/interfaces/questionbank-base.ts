@@ -1372,6 +1372,14 @@ export interface KnowledgeExercisePrintOption {
   // When true, FillInTheBlank blanks render at a fixed uniform width that does not
   // reflect the answer content's length (vocabulary prints).
   uniformBlankLength?: boolean;
+  // Width (in &nbsp; cells) of the uniform blank when `uniformBlankLength` is true.
+  // Defaults to `DEFAULT_UNIFORM_BLANK_LENGTH` (30) and floored to `MIN_UNIFORM_BLANK_LENGTH` (10)
+  // by the converter; raise it for long words.
+  uniformBlankLengthSize?: number;
+  // When true, the answer key renders each item's answer on its own line
+  // (line break between items instead of an inline em-space). Used by Chinese
+  // recite prints so multi-item answer keys are not run together on one line.
+  answerLineBreakPerItem?: boolean;
 }
 
 export interface KnowledgeExerciseSelectOption {
@@ -1452,7 +1460,8 @@ export const convertQuestionBankItemToMarkdown = (
   item: QuestionBankItemBase<string>,
   hideLabelOfQuestionType?: QuestionBankTypeKeys[],
   printID = false,
-  uniformBlankLength = false
+  uniformBlankLength = false,
+  uniformBlankLengthSize?: number
 ): string => {
   let rst = '';
 
@@ -1471,7 +1480,8 @@ export const convertQuestionBankItemToMarkdown = (
         undefined,
         hideLabelOfQuestionType,
         printID,
-        uniformBlankLength
+        uniformBlankLength,
+        uniformBlankLengthSize
       );
       break;
     case QuestionBankTypeEnum.MultipleChoice:
@@ -1616,18 +1626,28 @@ export const convertSingleChoiceToMarkdown = (
   return rst + '\n';
 };
 
-// Fixed width (in &nbsp; cells) used for FillInTheBlank blanks when the print option
+// Minimum width (in &nbsp; cells) for the user-configurable `uniformBlankLengthSize`.
+// The converter floors any smaller value at this number so blanks never get too short.
+export const MIN_UNIFORM_BLANK_LENGTH = 10;
+
+// Default width (in &nbsp; cells) used for FillInTheBlank blanks when the print option
 // requests a uniform blank that does not reveal the answer's length (vocabulary prints).
-const UNIFORM_BLANK_LENGTH = 10;
+// Used when `uniformBlankLengthSize` is unset; the dialog also opens at this value.
+export const DEFAULT_UNIFORM_BLANK_LENGTH = 30;
 
 export const convertFillInTheBlankToMarkdown = (
   item: QuestionBankItemFillInTheBlank,
   parentOrder?: number,
   hideLabelOfQuestionType?: QuestionBankTypeKeys[],
   printID = false,
-  uniformBlankLength = false
+  uniformBlankLength = false,
+  uniformBlankLengthSize?: number
 ): string => {
-  return `${parentOrder ? '&emsp;' : ''} **${parentOrder ? parentOrder + '.' + item.order : item.order}.** ${hideLabelOfQuestionType?.includes(item.itemType as QuestionBankTypeKeys) ? '' : '【' + item.getItemTypeDescription() + '】'}${printID ? '(*' + item.id + '*) ' : ' '}${replaceAtSymbols(item.question.replaceAll('_', '\\_'), '<u>&nbsp;</u>', 1, uniformBlankLength ? UNIFORM_BLANK_LENGTH : undefined)}`;
+  // Floor the user-supplied size at the minimum; unset falls back to the default.
+  const effectiveBlankLength = uniformBlankLength
+    ? Math.max(MIN_UNIFORM_BLANK_LENGTH, uniformBlankLengthSize ?? DEFAULT_UNIFORM_BLANK_LENGTH)
+    : undefined;
+  return `${parentOrder ? '&emsp;' : ''} **${parentOrder ? parentOrder + '.' + item.order : item.order}.** ${hideLabelOfQuestionType?.includes(item.itemType as QuestionBankTypeKeys) ? '' : '【' + item.getItemTypeDescription() + '】'}${printID ? '(*' + item.id + '*) ' : ' '}${replaceAtSymbols(item.question.replaceAll('_', '\\_'), '<u>&nbsp;</u>', 1, effectiveBlankLength)}`;
 };
 
 export const convertMultipleChoiceToMarkdown = (

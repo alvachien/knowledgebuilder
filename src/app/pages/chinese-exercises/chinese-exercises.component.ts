@@ -367,7 +367,7 @@ export class ChineseExercisesComponent implements OnInit {
         translationDisabled: this.selectedFile?.translationDisabled,
       },
       width: '600px',
-      height: '500px',
+      height: '560px',
       enterAnimationDuration: 800,
       exitAnimationDuration: 500,
     });
@@ -380,6 +380,7 @@ export class ChineseExercisesComponent implements OnInit {
         this.printSetting.selectedLevel = result.selectedLevel;
         this.printSetting.countOfItems = result.countOfItems;
         this.printSetting.printEntryDate = result.printEntryDate;
+        this.printSetting.answerLineBreakPerItem = result.answerLineBreakPerItem;
         this.printSetting.respectRetentionCurve = result.respectRetentionCurve;
         this.printSetting.printExecDate = result.printExecDate;
         this.printSetting.execDate = result.execDate;
@@ -428,6 +429,7 @@ export class ChineseExercisesComponent implements OnInit {
       printID: false,
       printHintOfAnswer: false,
       hideLabelOfQuestionType: [QuestionBankTypeEnum.FillInTheBlank],
+      answerLineBreakPerItem: this.printSetting.answerLineBreakPerItem ?? false,
     };
     execPrintSetting.formTitle = `${execPrintSetting.formTitle} (${getQuestionBankLevelName(this.printSetting.selectedLevel)})`;
     this.uiService.setSelectedExerciseItem(printqueues, execPrintSetting);
@@ -557,6 +559,7 @@ export class ChineseExercisesOptionsDialogComponent {
     MatRadioModule,
     MatDatepickerModule,
     MatDateFnsModule,
+    TranslocoModule,
   ],
   providers: [
     provideDateFnsAdapter(),
@@ -571,6 +574,7 @@ export class ChineseExercisesPrintOptionsDialogComponent {
   readonly selectedLevel = model(QuestionBankItemLevelEnum.Medium);
   readonly countOfItems = model(this.data.disableCount ? this.data.reciteContentCount : 20);
   readonly printEntryDate = model(true);
+  readonly answerLineBreak = model(true);
   readonly selectedExecDateModel = model<number>(0);
   readonly execDate = model(new Date());
 
@@ -594,6 +598,7 @@ export class ChineseExercisesPrintOptionsDialogComponent {
       selectedLevel: selvl,
       countOfItems: this.countOfItems(),
       printEntryDate: this.printEntryDate(),
+      answerLineBreakPerItem: this.answerLineBreak(),
       respectRetentionCurve: this.selectedExecDateModel() === 1 ? true : false,
       printExecDate: this.selectedExecDateModel() === 2 ? true : false,
       execDate: this.selectedExecDateModel() === 2 ? this.execDate() : undefined,
