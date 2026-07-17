@@ -41,6 +41,17 @@ if (typeof (globalThis as any).MutationObserver === 'undefined') {
   };
 }
 
+// URL.createObjectURL / revokeObjectURL polyfill for jsdom.
+// jsdom does not implement object URLs. MarkdownContentComponent creates blob:
+// URLs for authenticated images (fetched via HttpClient so the JWT is attached)
+// and revokes them on re-render/destroy. Real browsers provide these natively.
+const _URLCtor = (globalThis as any).URL;
+if (_URLCtor && typeof _URLCtor.createObjectURL !== 'function') {
+  let _blobCounter = 0;
+  _URLCtor.createObjectURL = () => `blob:mock-${++_blobCounter}`;
+  _URLCtor.revokeObjectURL = () => {};
+}
+
 // MediaQueryList polyfill for jsdom - jsdom does not implement window.matchMedia.
 // Angular Material's mobileQuery requires both addEventListener and the deprecated addListener.
 Object.defineProperty(window, 'matchMedia', {

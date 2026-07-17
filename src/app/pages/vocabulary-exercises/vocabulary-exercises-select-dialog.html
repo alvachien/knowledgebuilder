@@ -1,0 +1,51 @@
+<div *transloco="let t">
+  <h2 mat-dialog-title>{{ t(titleKey) }}</h2>
+  <mat-dialog-content class="control-full-width">
+    @switch (data.mode) {
+      @case (SelectionMode.ByCount) {
+        <mat-form-field class="control-full-width">
+          <mat-label>{{ t('vocabularyExercises.countOfSelection') }}</mat-label>
+          <input matInput type="number" [(ngModel)]="countOfItems" min="1" />
+        </mat-form-field>
+        <mat-form-field class="control-full-width">
+          <mat-label>{{ t('vocabularyExercises.countOfOffset') }}</mat-label>
+          <input matInput type="number" [(ngModel)]="countOfOffset" min="0" />
+        </mat-form-field>
+      }
+      @case (SelectionMode.ByID) {
+        <mat-form-field class="control-full-width">
+          <mat-label>{{ t('vocabularyExercises.wordsSplitter') }}</mat-label>
+          <textarea matInput rows="5" [(ngModel)]="importWords"></textarea>
+        </mat-form-field>
+      }
+      @case (SelectionMode.FreeSelection) {
+        <mat-form-field class="control-full-width">
+          <mat-label>{{ t('vocabularyExercises.countOfSelection') }}</mat-label>
+          <input matInput type="number" [(ngModel)]="countOfItems" min="1" />
+        </mat-form-field>
+      }
+      @case (SelectionMode.ByRating) {
+        <mat-form-field class="control-full-width">
+          <mat-label>{{ t('selection.ratingOperator') }}</mat-label>
+          <mat-select [(ngModel)]="ratingOperator">
+            @for (op of ratingOperators; track op.value) {
+              <mat-option [value]="op.value">{{ t('selection.' + op.label) }}</mat-option>
+            }
+          </mat-select>
+        </mat-form-field>
+        <mat-form-field class="control-full-width">
+          <mat-label>{{ t('selection.ratingValue') }}</mat-label>
+          <mat-select [(ngModel)]="ratingValue" [disabled]="isValueDisabled">
+            @for (val of ratingValues; track val) {
+              <mat-option [value]="val">{{ val }}</mat-option>
+            }
+          </mat-select>
+        </mat-form-field>
+      }
+    }
+  </mat-dialog-content>
+  <mat-dialog-actions>
+    <button mat-button (click)="onNoClick()">{{ t('no') }}</button>
+    <button mat-button (click)="onYesClick()" [disabled]="isFormInvalid">{{ t('ok') }}</button>
+  </mat-dialog-actions>
+</div>

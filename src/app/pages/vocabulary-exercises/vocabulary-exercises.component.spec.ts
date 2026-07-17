@@ -13,7 +13,7 @@ import {
 import { of, throwError } from 'rxjs';
 
 import type { LearningContent, LearnEnglishWordFileItem, UserLearningRating, StudyQueueItem } from '../../interfaces';
-import { VocabularyExcludedPartEnum, RatingOperatorEnum } from '../../interfaces';
+import { VocabularyExcludedPartEnum, RatingOperatorEnum, SelectionModeEnum } from '../../interfaces';
 import { AudioService, UIService, UtilService, LearningContentService, LearningRatingService } from '../../services';
 import { AppPageTitle } from '../page-title/page-title';
 
@@ -22,10 +22,7 @@ import {
   VocabularyExercisesStudyOptionsDialogComponent,
   VocabularyExercisesTypingOptionsDialogComponent,
   VocabularyExercisesPrintOptionsDialogComponent,
-  VocabularySelectByCountDialogComponent,
-  VocabularySelectByWordDialogComponent,
-  VocabularySelectFreeDialogComponent,
-  VocabularySelectByRatingDialogComponent,
+  VocabularySelectDialogComponent,
 } from './vocabulary-exercises.component';
 
 const mockDataFiles: LearningContent[] = [
@@ -850,6 +847,160 @@ describe('VocabularyExercisesComponent', () => {
     });
   });
 
+  describe('auto mode (study)', () => {
+    afterEach(() => {
+      // Ensure no interval subscription leaks into the next test, then restore
+      // real timers regardless of whether the test used fake timers.
+      component['stopAutoMode']?.();
+      vi.useRealTimers();
+    });
+
+    it('should default to autoModeSeconds=5 and isAutoMode=false', () => {
+      expect(component.autoModeSeconds).toBe(5);
+      expect(component.isAutoMode).toBe(false);
+    });
+
+    it('should not enable auto mode when the study queue is empty', () => {
+      component.studyQueues = [];
+
+      component.onEnableAutoMode();
+
+      expect(component.isAutoMode).toBe(false);
+    });
+
+    it('should not double-start when already running', () => {
+      component.studyQueues = [
+        { enword: 'a', cnword: '甲', audiofile: '', rating: 0 },
+        { enword: 'b', cnword: '乙', audiofile: '', rating: 0 },
+      ];
+
+      component.onEnableAutoMode();
+      const firstSub = component['autoModeSubscription'];
+
+      component.onEnableAutoMode();
+
+      // Second call is a no-op: the original subscription is left intact.
+      expect(component['autoModeSubscription']).toBe(firstSub);
+    });
+
+    it('should auto-advance to the next word every N seconds', () => {
+      vi.useFakeTimers();
+      component.studyQueues = [
+        { enword: 'a', cnword: '甲', audiofile: '', rating: 0 },
+        { enword: 'b', cnword: '乙', audiofile: '', rating: 0 },
+        { enword: 'c', cnword: '丙', audiofile: '', rating: 0 },
+      ];
+      component.currentStudyCursor = 0;
+      component.autoModeSeconds = 5;
+
+      component.onEnableAutoMode();
+
+      expect(component.isAutoMode).toBe(true);
+      expect(component.currentStudyCursor).toBe(0);
+
+      vi.advanceTimersByTime(5000);
+      expect(component.currentStudyCursor).toBe(1);
+
+      vi.advanceTimersByTime(5000);
+      expect(component.currentStudyCursor).toBe(2);
+    });
+
+    it('should restart from the first word regardless of the current cursor', () => {
+      vi.useFakeTimers();
+      component.studyQueues = [
+        { enword: 'a', cnword: '甲', audiofile: '', rating: 0 },
+        { enword: 'b', cnword: '乙', audiofile: '', rating: 0 },
+        { enword: 'c', cnword: '丙', audiofile: '', rating: 0 },
+        { enword: 'd', cnword: '丁', audiofile: '', rating: 0 },
+      ];
+      component.currentStudyCursor = 2; // mid-queue
+      component.autoModeSeconds = 5;
+
+      component.onEnableAutoMode();
+
+      // Always jumps to the first word, even though the cursor was mid-queue.
+      expect(component.isAutoMode).toBe(true);
+      expect(component.currentStudyCursor).toBe(0);
+      expect(component.currentStudyProgress).toBe(25); // (0 + 1) / 4 * 100
+
+      // Auto-advances from the first word through the queue.
+      vi.advanceTimersByTime(5000);
+      expect(component.currentStudyCursor).toBe(1);
+      vi.advanceTimersByTime(5000);
+      expect(component.currentStudyCursor).toBe(2);
+      vi.advanceTimersByTime(5000);
+      expect(component.currentStudyCursor).toBe(3);
+      expect(component.isAutoMode).toBe(true);
+
+      // Reaches the last word and self-stops on the next tick.
+      vi.advanceTimersByTime(5000);
+      expect(component.isAutoMode).toBe(false);
+      expect(component.currentStudyCursor).toBe(3);
+
+      // No further advances after auto mode stopped.
+      vi.advanceTimersByTime(5000);
+      expect(component.currentStudyCursor).toBe(3);
+    });
+
+    it('should fall back to 5 seconds when autoModeSeconds is invalid', () => {
+      vi.useFakeTimers();
+      component.studyQueues = [
+        { enword: 'a', cnword: '甲', audiofile: '', rating: 0 },
+        { enword: 'b', cnword: '乙', audiofile: '', rating: 0 },
+      ];
+      component.currentStudyCursor = 0;
+      component.autoModeSeconds = 0;
+
+      component.onEnableAutoMode();
+      expect(component.isAutoMode).toBe(true);
+
+      // 0 would fire immediately if used literally; the fallback to 5s means no
+      // advance until 5s elapse.
+      vi.advanceTimersByTime(1000);
+      expect(component.currentStudyCursor).toBe(0);
+
+      vi.advanceTimersByTime(4000);
+      expect(component.currentStudyCursor).toBe(1);
+    });
+
+    it('should stop the auto timer when quitting study', () => {
+      vi.useFakeTimers();
+      component.studyQueues = [
+        { enword: 'a', cnword: '甲', audiofile: '', rating: 0 },
+        { enword: 'b', cnword: '乙', audiofile: '', rating: 0 },
+      ];
+      component.currentStudyCursor = 0;
+      component.autoModeSeconds = 5;
+      component.isStudying = true;
+
+      component.onEnableAutoMode();
+      expect(component.isAutoMode).toBe(true);
+
+      component.onQuitStudy();
+
+      expect(component.isAutoMode).toBe(false);
+      // Timer cleared: advancing time must not throw or change state.
+      vi.advanceTimersByTime(10000);
+      expect(component.isAutoMode).toBe(false);
+    });
+
+    it('should ignore ArrowLeft/ArrowRight while auto mode is running', () => {
+      component.isStudying = true;
+      component.isAutoMode = true;
+      component.studyQueues = [
+        { enword: 'a', cnword: '甲', audiofile: '', rating: 0 },
+        { enword: 'b', cnword: '乙', audiofile: '', rating: 0 },
+      ];
+      component.currentStudyCursor = 0;
+
+      component.handleKeyboardEvent(new KeyboardEvent('keyup', { key: 'ArrowRight' }));
+      expect(component.currentStudyCursor).toBe(0);
+
+      component.handleKeyboardEvent(new KeyboardEvent('keyup', { key: 'ArrowLeft' }));
+      expect(component.currentStudyCursor).toBe(0);
+    });
+  });
+
   describe('speakWord', () => {
     let originalSpeechSynthesis: SpeechSynthesis | undefined;
     let originalCtor: unknown;
@@ -1560,7 +1711,7 @@ describe('VocabularyExercisesComponent', () => {
     });
   });
 
-  describe('onSelectByWord', () => {
+  describe('onSelect (By Word)', () => {
     beforeEach(() => {
       component.dataSource.data = mockWordContent.slice();
     });
@@ -1568,11 +1719,11 @@ describe('VocabularyExercisesComponent', () => {
     it('should select items whose enword matches the supplied words', () => {
       // 'hello', 'world', 'test' all exist in mockWordContent
       const mockDialogRef = {
-        afterClosed: () => of({ words: 'hello, world, test' }),
+        afterClosed: () => of({ selectedSelectMode: SelectionModeEnum.ByID, importIDs: 'hello, world, test' }),
       };
       mockDialog.open.mockReturnValue(mockDialogRef as any);
 
-      component.onSelectByWord();
+      component.onSelect(SelectionModeEnum.ByID);
 
       expect(component.selection.selected.length).toBe(3);
       expect(component.selection.selected.some(i => i.enword === 'hello')).toBe(true);
@@ -1582,22 +1733,22 @@ describe('VocabularyExercisesComponent', () => {
 
     it('should trim whitespace around each word when matching', () => {
       const mockDialogRef = {
-        afterClosed: () => of({ words: '  hello ,  world  ' }),
+        afterClosed: () => of({ selectedSelectMode: SelectionModeEnum.ByID, importIDs: '  hello ,  world  ' }),
       };
       mockDialog.open.mockReturnValue(mockDialogRef as any);
 
-      component.onSelectByWord();
+      component.onSelect(SelectionModeEnum.ByID);
 
       expect(component.selection.selected.length).toBe(2);
     });
 
     it('should select nothing when none of the words match', () => {
       const mockDialogRef = {
-        afterClosed: () => of({ words: 'nonexistent, alsoabsent' }),
+        afterClosed: () => of({ selectedSelectMode: SelectionModeEnum.ByID, importIDs: 'nonexistent, alsoabsent' }),
       };
       mockDialog.open.mockReturnValue(mockDialogRef as any);
 
-      component.onSelectByWord();
+      component.onSelect(SelectionModeEnum.ByID);
 
       expect(component.selection.selected.length).toBe(0);
     });
@@ -1607,11 +1758,11 @@ describe('VocabularyExercisesComponent', () => {
       // mockWordContent items have no ids; supplying "1,2" selects nothing
       // because no enword equals the string "1" or "2".
       const mockDialogRef = {
-        afterClosed: () => of({ words: '1,2' }),
+        afterClosed: () => of({ selectedSelectMode: SelectionModeEnum.ByID, importIDs: '1,2' }),
       };
       mockDialog.open.mockReturnValue(mockDialogRef as any);
 
-      component.onSelectByWord();
+      component.onSelect(SelectionModeEnum.ByID);
 
       expect(component.selection.selected.length).toBe(0);
     });
@@ -1620,24 +1771,24 @@ describe('VocabularyExercisesComponent', () => {
       const mockDialogRef = { afterClosed: () => of(undefined) };
       mockDialog.open.mockReturnValue(mockDialogRef as any);
 
-      component.onSelectByWord();
+      component.onSelect(SelectionModeEnum.ByID);
 
       expect(component.selection.selected.length).toBe(0);
     });
   });
 
-  describe('onSelectFreeSelection', () => {
+  describe('onSelect (Free Selection)', () => {
     beforeEach(() => {
       component.dataSource.data = mockWordContent.slice();
     });
 
     it('should randomly select items', () => {
       const mockDialogRef = {
-        afterClosed: () => of({ countOfItems: 3 }),
+        afterClosed: () => of({ selectedSelectMode: SelectionModeEnum.FreeSelection, countOfItems: 3 }),
       };
       mockDialog.open.mockReturnValue(mockDialogRef as any);
 
-      component.onSelectFreeSelection();
+      component.onSelect(SelectionModeEnum.FreeSelection);
 
       expect(component.selection.selected.length).toBe(3);
     });
@@ -1646,30 +1797,30 @@ describe('VocabularyExercisesComponent', () => {
       const mockDialogRef = { afterClosed: () => of(undefined) };
       mockDialog.open.mockReturnValue(mockDialogRef as any);
 
-      component.onSelectFreeSelection();
+      component.onSelect(SelectionModeEnum.FreeSelection);
 
       expect(component.selection.selected.length).toBe(0);
     });
   });
 
-  describe('onSelectByCount', () => {
+  describe('onSelect (By Count)', () => {
     beforeEach(() => {
       component.dataSource.data = mockWordContent.slice();
     });
 
     it('should select items by count', () => {
       const mockDialogRef = {
-        afterClosed: () => of({ countOfItems: 3, countOfOffset: 0 }),
+        afterClosed: () => of({ selectedSelectMode: SelectionModeEnum.ByCount, countOfItems: 3, countOfOffset: 0 }),
       };
       mockDialog.open.mockReturnValue(mockDialogRef as any);
 
-      component.onSelectByCount();
+      component.onSelect(SelectionModeEnum.ByCount);
 
       expect(component.selection.selected.length).toBe(3);
     });
   });
 
-  describe('onSelectByRating', () => {
+  describe('onSelect (By Rating)', () => {
     beforeEach(() => {
       component.dataSource.data = [
         { id: 1, enword: 'hello', cnword: '你好' },
@@ -1684,11 +1835,11 @@ describe('VocabularyExercisesComponent', () => {
 
     it('should select items with rating equals 5', () => {
       const mockDialogRef = {
-        afterClosed: () => of({ ratingOperator: RatingOperatorEnum.Equals, ratingValue: 5 }),
+        afterClosed: () => of({ selectedSelectMode: SelectionModeEnum.ByRating, ratingOperator: RatingOperatorEnum.Equals, ratingValue: 5 }),
       };
       mockDialog.open.mockReturnValue(mockDialogRef as any);
 
-      component.onSelectByRating();
+      component.onSelect(SelectionModeEnum.ByRating);
 
       expect(component.selection.selected.length).toBe(1);
       expect(component.selection.selected[0].id).toBe(1);
@@ -1696,11 +1847,11 @@ describe('VocabularyExercisesComponent', () => {
 
     it('should select items with rating greater than 3', () => {
       const mockDialogRef = {
-        afterClosed: () => of({ ratingOperator: RatingOperatorEnum.GreaterThan, ratingValue: 3 }),
+        afterClosed: () => of({ selectedSelectMode: SelectionModeEnum.ByRating, ratingOperator: RatingOperatorEnum.GreaterThan, ratingValue: 3 }),
       };
       mockDialog.open.mockReturnValue(mockDialogRef as any);
 
-      component.onSelectByRating();
+      component.onSelect(SelectionModeEnum.ByRating);
 
       expect(component.selection.selected.length).toBe(1);
       expect(component.selection.selected[0].id).toBe(1);
@@ -1708,22 +1859,22 @@ describe('VocabularyExercisesComponent', () => {
 
     it('should select items with any rating', () => {
       const mockDialogRef = {
-        afterClosed: () => of({ ratingOperator: RatingOperatorEnum.HasAny }),
+        afterClosed: () => of({ selectedSelectMode: SelectionModeEnum.ByRating, ratingOperator: RatingOperatorEnum.HasAny }),
       };
       mockDialog.open.mockReturnValue(mockDialogRef as any);
 
-      component.onSelectByRating();
+      component.onSelect(SelectionModeEnum.ByRating);
 
       expect(component.selection.selected.length).toBe(2);
     });
 
     it('should select items with no rating', () => {
       const mockDialogRef = {
-        afterClosed: () => of({ ratingOperator: RatingOperatorEnum.HasNone }),
+        afterClosed: () => of({ selectedSelectMode: SelectionModeEnum.ByRating, ratingOperator: RatingOperatorEnum.HasNone }),
       };
       mockDialog.open.mockReturnValue(mockDialogRef as any);
 
-      component.onSelectByRating();
+      component.onSelect(SelectionModeEnum.ByRating);
 
       expect(component.selection.selected.length).toBe(1);
       expect(component.selection.selected[0].id).toBe(3);
@@ -1733,11 +1884,11 @@ describe('VocabularyExercisesComponent', () => {
       // ratings: id1=5, id2=3, id3=0. LessThan 4 → only id2 (rating 3);
       // id3 (unrated, 0) is deliberately excluded (covered by HasNone).
       const mockDialogRef = {
-        afterClosed: () => of({ ratingOperator: RatingOperatorEnum.LessThan, ratingValue: 4 }),
+        afterClosed: () => of({ selectedSelectMode: SelectionModeEnum.ByRating, ratingOperator: RatingOperatorEnum.LessThan, ratingValue: 4 }),
       };
       mockDialog.open.mockReturnValue(mockDialogRef as any);
 
-      component.onSelectByRating();
+      component.onSelect(SelectionModeEnum.ByRating);
 
       expect(component.selection.selected.length).toBe(1);
       expect(component.selection.selected[0].id).toBe(2);
@@ -1746,11 +1897,11 @@ describe('VocabularyExercisesComponent', () => {
     it('should select nothing when no rated item is below the value', () => {
       // ratings: id1=5, id2=3, id3=0. LessThan 2 → no rated item qualifies.
       const mockDialogRef = {
-        afterClosed: () => of({ ratingOperator: RatingOperatorEnum.LessThan, ratingValue: 2 }),
+        afterClosed: () => of({ selectedSelectMode: SelectionModeEnum.ByRating, ratingOperator: RatingOperatorEnum.LessThan, ratingValue: 2 }),
       };
       mockDialog.open.mockReturnValue(mockDialogRef as any);
 
-      component.onSelectByRating();
+      component.onSelect(SelectionModeEnum.ByRating);
 
       expect(component.selection.selected.length).toBe(0);
     });
@@ -1758,11 +1909,11 @@ describe('VocabularyExercisesComponent', () => {
     it('should select items with rating larger or equals 3', () => {
       // ratings: id1=5, id2=3, id3=0. LargerOrEquals 3 → id1, id2.
       const mockDialogRef = {
-        afterClosed: () => of({ ratingOperator: RatingOperatorEnum.LargerOrEquals, ratingValue: 3 }),
+        afterClosed: () => of({ selectedSelectMode: SelectionModeEnum.ByRating, ratingOperator: RatingOperatorEnum.LargerOrEquals, ratingValue: 3 }),
       };
       mockDialog.open.mockReturnValue(mockDialogRef as any);
 
-      component.onSelectByRating();
+      component.onSelect(SelectionModeEnum.ByRating);
 
       expect(component.selection.selected.length).toBe(2);
       expect(component.selection.selected.some(i => i.id === 1)).toBe(true);
@@ -1773,11 +1924,11 @@ describe('VocabularyExercisesComponent', () => {
       // ratings: id1=5, id2=3, id3=0. LessOrEquals 3 → only id2 (rating 3);
       // id3 (unrated, 0) is deliberately excluded (covered by HasNone).
       const mockDialogRef = {
-        afterClosed: () => of({ ratingOperator: RatingOperatorEnum.LessOrEquals, ratingValue: 3 }),
+        afterClosed: () => of({ selectedSelectMode: SelectionModeEnum.ByRating, ratingOperator: RatingOperatorEnum.LessOrEquals, ratingValue: 3 }),
       };
       mockDialog.open.mockReturnValue(mockDialogRef as any);
 
-      component.onSelectByRating();
+      component.onSelect(SelectionModeEnum.ByRating);
 
       expect(component.selection.selected.length).toBe(1);
       expect(component.selection.selected[0].id).toBe(2);
@@ -1787,11 +1938,11 @@ describe('VocabularyExercisesComponent', () => {
       // ratings: id1=5, id2=3, id3=0. LessOrEquals 2 → no rated item qualifies;
       // id3 (unrated, 0) is excluded, confirming it does not collapse into HasNone.
       const mockDialogRef = {
-        afterClosed: () => of({ ratingOperator: RatingOperatorEnum.LessOrEquals, ratingValue: 2 }),
+        afterClosed: () => of({ selectedSelectMode: SelectionModeEnum.ByRating, ratingOperator: RatingOperatorEnum.LessOrEquals, ratingValue: 2 }),
       };
       mockDialog.open.mockReturnValue(mockDialogRef as any);
 
-      component.onSelectByRating();
+      component.onSelect(SelectionModeEnum.ByRating);
 
       expect(component.selection.selected.length).toBe(0);
     });
@@ -1803,9 +1954,25 @@ describe('VocabularyExercisesComponent', () => {
       const mockDialogRef = { afterClosed: () => of(undefined) };
       mockDialog.open.mockReturnValue(mockDialogRef as any);
 
-      component.onSelectByRating();
+      component.onSelect(SelectionModeEnum.ByRating);
 
       expect(component.selection.selected.length).toBe(initialCount);
+    });
+  });
+
+  describe('onClearSelection', () => {
+    beforeEach(() => {
+      component.dataSource.data = mockWordContent.slice();
+    });
+
+    it('should clear all selected items', () => {
+      component.selection.select(...component.dataSource.data.slice(0, 3));
+      expect(component.selection.selected.length).toBe(3);
+
+      component.onClearSelection();
+
+      expect(component.selection.selected.length).toBe(0);
+      expect(component.selection.isEmpty()).toBe(true);
     });
   });
 });
@@ -2075,179 +2242,134 @@ describe('VocabularyExercisesPrintOptionsDialogComponent', () => {
   });
 });
 
-describe('VocabularySelectByCountDialogComponent', () => {
-  let component: VocabularySelectByCountDialogComponent;
-  let fixture: ComponentFixture<VocabularySelectByCountDialogComponent>;
+describe('VocabularySelectDialogComponent', () => {
   let mockDialogRef: any;
 
-  beforeEach(async () => {
+  async function createComponent(mode: SelectionModeEnum): Promise<VocabularySelectDialogComponent> {
     mockDialogRef = { close: vi.fn() };
 
     await TestBed.configureTestingModule({
-      imports: [VocabularySelectByCountDialogComponent, NoopAnimationsModule, TranslocoModule],
+      imports: [VocabularySelectDialogComponent, NoopAnimationsModule, TranslocoModule],
       providers: [
         { provide: MatDialogRef, useValue: mockDialogRef },
+        { provide: MAT_DIALOG_DATA, useValue: { mode } },
         { provide: TranslocoService, useValue: createMockTranslocoService() },
         { provide: TRANSLOCO_TRANSPILER, useValue: {} },
         { provide: TRANSLOCO_MISSING_HANDLER, useValue: {} },
       ],
     }).compileComponents();
 
-    fixture = TestBed.createComponent(VocabularySelectByCountDialogComponent);
-    component = fixture.componentInstance;
+    const fixture = TestBed.createComponent(VocabularySelectDialogComponent);
     fixture.detectChanges();
-  });
+    return fixture.componentInstance;
+  }
 
-  it('should create', () => {
+  it('By Count: should create', async () => {
+    const component = await createComponent(SelectionModeEnum.ByCount);
     expect(component).toBeTruthy();
   });
 
-  it('should close with countOfItems and countOfOffset on confirm', () => {
+  it('By Count: should close with countOfItems and countOfOffset on confirm', async () => {
+    const component = await createComponent(SelectionModeEnum.ByCount);
     component.countOfItems.set(10);
     component.countOfOffset.set(5);
     component.onYesClick();
 
-    expect(mockDialogRef.close).toHaveBeenCalledWith({ countOfItems: 10, countOfOffset: 5 });
+    expect(mockDialogRef.close).toHaveBeenCalledWith({
+      selectedSelectMode: SelectionModeEnum.ByCount,
+      countOfItems: 10,
+      countOfOffset: 5,
+    });
   });
 
-  it('isFormInvalid should return true when countOfItems is 0', () => {
+  it('By Count: isFormInvalid true when countOfItems is 0', async () => {
+    const component = await createComponent(SelectionModeEnum.ByCount);
     component.countOfItems.set(0);
     expect(component.isFormInvalid).toBe(true);
   });
-});
 
-describe('VocabularySelectByWordDialogComponent', () => {
-  let component: VocabularySelectByWordDialogComponent;
-  let fixture: ComponentFixture<VocabularySelectByWordDialogComponent>;
-  let mockDialogRef: any;
-
-  beforeEach(async () => {
-    mockDialogRef = { close: vi.fn() };
-
-    await TestBed.configureTestingModule({
-      imports: [VocabularySelectByWordDialogComponent, NoopAnimationsModule, TranslocoModule],
-      providers: [
-        { provide: MatDialogRef, useValue: mockDialogRef },
-        { provide: TranslocoService, useValue: createMockTranslocoService() },
-        { provide: TRANSLOCO_TRANSPILER, useValue: {} },
-        { provide: TRANSLOCO_MISSING_HANDLER, useValue: {} },
-      ],
-    }).compileComponents();
-
-    fixture = TestBed.createComponent(VocabularySelectByWordDialogComponent);
-    component = fixture.componentInstance;
-    fixture.detectChanges();
-  });
-
-  it('should create', () => {
-    expect(component).toBeTruthy();
-  });
-
-  it('should close with words on confirm', () => {
+  it('By Word: should close with importIDs on confirm', async () => {
+    const component = await createComponent(SelectionModeEnum.ByID);
     component.importWords.set('hello, world');
     component.onYesClick();
 
-    expect(mockDialogRef.close).toHaveBeenCalledWith({ words: 'hello, world' });
+    expect(mockDialogRef.close).toHaveBeenCalledWith({
+      selectedSelectMode: SelectionModeEnum.ByID,
+      importIDs: 'hello, world',
+    });
   });
 
-  it('isFormInvalid should return true when importWords is empty', () => {
+  it('By Word: isFormInvalid true when importWords is empty', async () => {
+    const component = await createComponent(SelectionModeEnum.ByID);
     component.importWords.set('');
     expect(component.isFormInvalid).toBe(true);
   });
-});
 
-describe('VocabularySelectFreeDialogComponent', () => {
-  let component: VocabularySelectFreeDialogComponent;
-  let fixture: ComponentFixture<VocabularySelectFreeDialogComponent>;
-  let mockDialogRef: any;
-
-  beforeEach(async () => {
-    mockDialogRef = { close: vi.fn() };
-
-    await TestBed.configureTestingModule({
-      imports: [VocabularySelectFreeDialogComponent, NoopAnimationsModule, TranslocoModule],
-      providers: [
-        { provide: MatDialogRef, useValue: mockDialogRef },
-        { provide: TranslocoService, useValue: createMockTranslocoService() },
-        { provide: TRANSLOCO_TRANSPILER, useValue: {} },
-        { provide: TRANSLOCO_MISSING_HANDLER, useValue: {} },
-      ],
-    }).compileComponents();
-
-    fixture = TestBed.createComponent(VocabularySelectFreeDialogComponent);
-    component = fixture.componentInstance;
-    fixture.detectChanges();
-  });
-
-  it('should create', () => {
-    expect(component).toBeTruthy();
-  });
-
-  it('should close with countOfItems on confirm', () => {
+  it('Free Selection: should close with countOfItems on confirm', async () => {
+    const component = await createComponent(SelectionModeEnum.FreeSelection);
     component.countOfItems.set(15);
     component.onYesClick();
 
-    expect(mockDialogRef.close).toHaveBeenCalledWith({ countOfItems: 15 });
-  });
-});
-
-describe('VocabularySelectByRatingDialogComponent', () => {
-  let component: VocabularySelectByRatingDialogComponent;
-  let fixture: ComponentFixture<VocabularySelectByRatingDialogComponent>;
-  let mockDialogRef: any;
-
-  beforeEach(async () => {
-    mockDialogRef = { close: vi.fn() };
-
-    await TestBed.configureTestingModule({
-      imports: [VocabularySelectByRatingDialogComponent, NoopAnimationsModule, TranslocoModule],
-      providers: [
-        { provide: MatDialogRef, useValue: mockDialogRef },
-        { provide: TranslocoService, useValue: createMockTranslocoService() },
-        { provide: TRANSLOCO_TRANSPILER, useValue: {} },
-        { provide: TRANSLOCO_MISSING_HANDLER, useValue: {} },
-      ],
-    }).compileComponents();
-
-    fixture = TestBed.createComponent(VocabularySelectByRatingDialogComponent);
-    component = fixture.componentInstance;
-    fixture.detectChanges();
+    expect(mockDialogRef.close).toHaveBeenCalledWith({
+      selectedSelectMode: SelectionModeEnum.FreeSelection,
+      countOfItems: 15,
+    });
   });
 
-  it('should create', () => {
-    expect(component).toBeTruthy();
+  it('Free Selection: isFormInvalid true when countOfItems is 0', async () => {
+    const component = await createComponent(SelectionModeEnum.FreeSelection);
+    component.countOfItems.set(0);
+    expect(component.isFormInvalid).toBe(true);
   });
 
-  it('should close with ratingOperator and ratingValue on confirm', () => {
+  it('By Rating: should close with ratingOperator and ratingValue on confirm', async () => {
+    const component = await createComponent(SelectionModeEnum.ByRating);
     component.ratingOperator.set(RatingOperatorEnum.GreaterThan);
     component.ratingValue.set(3);
     component.onYesClick();
 
     expect(mockDialogRef.close).toHaveBeenCalledWith({
+      selectedSelectMode: SelectionModeEnum.ByRating,
       ratingOperator: RatingOperatorEnum.GreaterThan,
       ratingValue: 3,
     });
   });
 
-  it('isValueDisabled should return true when HasAny operator is selected', () => {
+  it('By Rating: isValueDisabled true when HasAny selected', async () => {
+    const component = await createComponent(SelectionModeEnum.ByRating);
     component.ratingOperator.set(RatingOperatorEnum.HasAny);
     expect(component.isValueDisabled).toBe(true);
   });
 
-  it('isValueDisabled should return true when HasNone operator is selected', () => {
+  it('By Rating: isValueDisabled true when HasNone selected', async () => {
+    const component = await createComponent(SelectionModeEnum.ByRating);
     component.ratingOperator.set(RatingOperatorEnum.HasNone);
     expect(component.isValueDisabled).toBe(true);
   });
 
-  it('isValueDisabled should return false when Equals operator is selected', () => {
+  it('By Rating: isValueDisabled false when Equals selected', async () => {
+    const component = await createComponent(SelectionModeEnum.ByRating);
     component.ratingOperator.set(RatingOperatorEnum.Equals);
     expect(component.isValueDisabled).toBe(false);
   });
 
-  it('ratingOperators should include Larger or Equals and Less or Equals', () => {
+  it('By Rating: ratingOperators includes Larger or Equals and Less or Equals (7 total)', async () => {
+    const component = await createComponent(SelectionModeEnum.ByRating);
     const values = component.ratingOperators.map(op => op.value);
     expect(values).toContain(RatingOperatorEnum.LargerOrEquals);
     expect(values).toContain(RatingOperatorEnum.LessOrEquals);
     expect(component.ratingOperators.length).toBe(7);
+  });
+
+  it('titleKey returns the correct key per mode', async () => {
+    const component = await createComponent(SelectionModeEnum.ByCount);
+    component.data.mode = SelectionModeEnum.ByCount;
+    expect(component.titleKey).toBe('vocabularyExercises.selectByCount');
+    component.data.mode = SelectionModeEnum.ByID;
+    expect(component.titleKey).toBe('vocabularyExercises.selectByWord');
+    component.data.mode = SelectionModeEnum.FreeSelection;
+    expect(component.titleKey).toBe('vocabularyExercises.selectFree');
+    component.data.mode = SelectionModeEnum.ByRating;
+    expect(component.titleKey).toBe('vocabularyExercises.selectByRating');
   });
 });

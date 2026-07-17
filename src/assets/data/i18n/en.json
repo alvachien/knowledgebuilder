@@ -181,7 +181,9 @@
     "printEntryDate": "Print Entry Date",
     "answerLineBreak": "One Answer per Line",
     "execDateOption": "Exec. Date Option",
-    "execDate": "Exec. Date"
+    "execDate": "Exec. Date",
+    "totalRecords": "Total Records",
+    "totalSelections": "Selected"
   },
   "formulaRecites": {
     "title": "Formula",
@@ -294,7 +296,9 @@
     "selectByID": "By ID",
     "selectFree": "Free Selection",
     "selectByRating": "By Rating",
-    "countOfOffset": "Offset"
+    "countOfOffset": "Offset",
+    "totalRecords": "Total Records",
+    "totalSelections": "Selected"
   },
   "vocabularyExercises": {
     "title": "Vocabulary",
@@ -316,6 +320,8 @@
     "previous": "Previous",
     "next": "Next",
     "quit": "Quit",
+    "enableAutoMode": "Enable Auto Mode",
+    "secondsPerWord": "Seconds per word",
     "hint": "Hint",
     "nextWord": "Next Word",
     "score": "Score",
@@ -343,7 +349,10 @@
     "selectByCount": "By Count",
     "selectByWord": "By Word",
     "selectFree": "Free Selection",
-    "selectByRating": "By Rating"
+    "selectByRating": "By Rating",
+    "clearSelection": "Clear Selection",
+    "totalRecords": "Total Records",
+    "totalSelections": "Selected"
   },
   "translateExercises": {
     "title": "Sentences",
@@ -383,7 +392,9 @@
     "extraInfoTitle": "Extra Info",
     "explanation": "Explanation",
     "select": "Select",
-    "selectByRating": "By Rating"
+    "selectByRating": "By Rating",
+    "totalRecords": "Total Records",
+    "totalSelections": "Selected"
   },
   "selection": {
     "ratingOperator": "Operator",

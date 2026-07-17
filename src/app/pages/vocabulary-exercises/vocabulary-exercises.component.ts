@@ -12,6 +12,7 @@ import {
   ViewChild,
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { interval, Subscription } from 'rxjs';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatButtonToggleModule } from '@angular/material/button-toggle';
@@ -41,6 +42,7 @@ import { MatTableDataSource, MatTableModule } from '@angular/material/table';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatMenuModule } from '@angular/material/menu';
+import { MatDividerModule } from '@angular/material/divider';
 import { MatDateFnsModule, provideDateFnsAdapter } from '@angular/material-date-fns-adapter';
 import { Router } from '@angular/router';
 import { TranslocoModule } from '@jsverse/transloco';
@@ -51,6 +53,7 @@ import type {
   LearningContent,
   StudyQueueItem,
   VocabularyPrintOption,
+  VocabularySelectOption,
   VocabularyStudyOption,
   VocabularyTypingOption,
   VocabularyTypingQueue,
@@ -66,6 +69,7 @@ import {
   getAllPrintExecDateString,
   QuestionBankTypeEnum,
   RatingOperatorEnum,
+  SelectionModeEnum,
   DEFAULT_UNIFORM_BLANK_LENGTH,
 } from '../../interfaces';
 import { AudioService, LearningContentService, LearningRatingService, UIService, UtilService } from '../../services';
@@ -95,6 +99,7 @@ import { AppPageTitle } from '../page-title/page-title';
     MatButtonToggleModule,
     MatTooltipModule,
     MatMenuModule,
+    MatDividerModule,
     FooterComponent,
     TranslocoModule,
   ],
@@ -114,6 +119,8 @@ export class VocabularyExercisesComponent implements OnInit {
   displayedContentColumns: string[] = ['select', 'id', 'enword', 'cnword', 'rating'];
   private contentRatingMap = new Map<number, number>();
   displayedResultColumns = ['ensent', 'cnsent', 'enword', 'inputted'];
+  /** SelectionModeEnum exposed for the template (select menu -> onSelect(mode)). */
+  readonly SelectionMode = SelectionModeEnum;
   paginator!: MatPaginator;
   @ViewChild(MatPaginator, { static: false }) set content(content: MatPaginator) {
     if (content) {
@@ -148,6 +155,12 @@ export class VocabularyExercisesComponent implements OnInit {
   studyQueues: StudyQueueItem[] = [];
   currentStudyProgress = 0;
   currentStudyCursor = 0;
+  // Auto mode (study): auto-advance to the next word every N seconds. While
+  // active, only the cancel/quit button is enabled; prev/next and the seconds
+  // input are disabled. Auto mode self-stops on reaching the last word.
+  isAutoMode = false;
+  autoModeSeconds = 5;
+  private autoModeSubscription?: Subscription;
   // Typing
   typeSetting: VocabularyTypingOption = {
     disableVoice: false,
@@ -604,7 +617,53 @@ export class VocabularyExercisesComponent implements OnInit {
     }
   }
 
+  onEnableAutoMode() {
+    // Ignore when already running or when there is nothing to study.
+    if (this.isAutoMode || this.studyQueues.length === 0) {
+      return;
+    }
+    // Always (re)start auto-play from the first word, regardless of the current
+    // cursor, so the behavior is consistent whether on the last word or
+    // mid-queue.
+    this.currentStudyCursor = 0;
+    this.currentStudyProgress = Math.round(
+      ((this.currentStudyCursor + 1) / this.studyQueues.length) * 100
+    );
+    this.cdr.markForCheck();
+    if (!this.studySetting.disableVoice) {
+      this.speakWord(this.studyQueues[this.currentStudyCursor].enword);
+    }
+    // Fall back to the default if the user cleared the input or entered 0.
+    const seconds = this.autoModeSeconds && this.autoModeSeconds > 0 ? this.autoModeSeconds : 5;
+    this.isAutoMode = true;
+    this.cdr.markForCheck();
+    this.autoModeSubscription = interval(seconds * 1000)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(() => this.autoAdvanceStudy());
+  }
+
+  private autoAdvanceStudy() {
+    if (this.currentStudyCursor < this.studyQueues.length - 1) {
+      this.onStudyNextWord();
+    } else {
+      // Reached the last word - stop auto mode so the manual controls return.
+      this.stopAutoMode();
+    }
+  }
+
+  private stopAutoMode() {
+    this.autoModeSubscription?.unsubscribe();
+    this.autoModeSubscription = undefined;
+    this.isAutoMode = false;
+    this.cdr.markForCheck();
+  }
+
   onQuitStudy() {
+    // Stop the auto-advance timer first so it cannot fire after the study
+    // queues are cleared below (which would leave onStudyNextWord operating on
+    // an empty array).
+    this.stopAutoMode();
+
     // Sync ratings captured during study back into the list view's source of
     // truth (contentRatingMap) so the rating column reflects any changes once
     // the list is shown again. studyQueues holds the latest user-selected
@@ -666,11 +725,21 @@ export class VocabularyExercisesComponent implements OnInit {
         return;
       }
       if (event.key === 'ArrowLeft') {
+        // Manual prev is disabled while auto mode is running.
+        if (this.isAutoMode) {
+          event.preventDefault();
+          return;
+        }
         this.onStudyPreviousWord();
         event.preventDefault();
         return;
       }
       if (event.key === 'ArrowRight') {
+        // Manual next is disabled while auto mode is running.
+        if (this.isAutoMode) {
+          event.preventDefault();
+          return;
+        }
         this.onStudyNextWord();
         event.preventDefault();
         return;
@@ -1045,36 +1114,30 @@ export class VocabularyExercisesComponent implements OnInit {
     return sorted;
   }
 
-  onSelectByCount() {
-    const dialogRef = this.dialog.open(VocabularySelectByCountDialogComponent, {
-      data: {},
-      width: '400px',
-      enterAnimationDuration: 800,
-      exitAnimationDuration: 500,
-    });
-
-    dialogRef
-      .afterClosed()
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe(result => {
-      if (result !== undefined && result.countOfItems > 0) {
-        this.selection.clear();
-        const sortedData = this.getSortedData();
-        const offset = result.countOfOffset ?? 0;
-        sortedData.forEach((item: LearnEnglishWordFileItem, index: number) => {
-          if (index >= offset && index < offset + result.countOfItems) {
-            this.selection.select(item);
-          }
-        });
-        this.cdr.markForCheck();
+  /**
+   * Select `count` items from `source` starting at `offset` (window [offset, offset+count)).
+   * Backs both By Count (sorted source) and Free Selection (shuffled source, offset 0) -
+   * the two modes differ only in the source array and whether offset is exposed.
+   */
+  private applyCountSelection(
+    source: LearnEnglishWordFileItem[],
+    offset: number,
+    count: number
+  ): void {
+    this.selection.clear();
+    source.forEach((item, index) => {
+      if (index >= offset && index < offset + count) {
+        this.selection.select(item);
       }
     });
+    this.cdr.markForCheck();
   }
 
-  onSelectByWord() {
-    const dialogRef = this.dialog.open(VocabularySelectByWordDialogComponent, {
-      data: {},
-      width: '500px',
+  onSelect(mode: SelectionModeEnum) {
+    const dialogRef = this.dialog.open(VocabularySelectDialogComponent, {
+      data: { mode },
+      // By Word (ByID) needs a wider dialog for the multi-line word list.
+      width: mode === SelectionModeEnum.ByID ? '500px' : '400px',
       enterAnimationDuration: 800,
       exitAnimationDuration: 500,
     });
@@ -1083,63 +1146,53 @@ export class VocabularyExercisesComponent implements OnInit {
       .afterClosed()
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe(result => {
-      if (result !== undefined && result.words) {
-        const arwords = result.words.split(',');
-        if (arwords.length > 0) {
-          this.selection.clear();
-          this.dataSource.data.forEach(item => {
-            const selidx = arwords.findIndex((element: string) => element.trim() === item.enword);
-            if (selidx !== -1) {
-              this.selection.select(item);
-            }
-          });
+        if (result !== undefined) {
+          this.applySelectionOption(result);
         }
-        this.cdr.markForCheck();
-      }
-    });
+      });
   }
 
-  onSelectFreeSelection() {
-    const dialogRef = this.dialog.open(VocabularySelectFreeDialogComponent, {
-      data: {},
-      width: '400px',
-      enterAnimationDuration: 800,
-      exitAnimationDuration: 500,
-    });
-
-    dialogRef
-      .afterClosed()
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe(result => {
-      if (result !== undefined && result.countOfItems > 0) {
-        this.selection.clear();
-        const shuffled = fisherYatesShuffle(this.dataSource.data);
-        shuffled.forEach((item, index) => {
-          if (index < result.countOfItems) {
-            this.selection.select(item);
+  /**
+   * Apply a VocabularySelectOption produced by the unified select dialog.
+   * Each mode maps to its selection strategy; By Count and Free Selection share
+   * applyCountSelection (Free is By Count on a shuffled source with offset 0).
+   */
+  private applySelectionOption(option: VocabularySelectOption): void {
+    switch (option.selectedSelectMode) {
+      case SelectionModeEnum.ByCount: {
+        const count = option.countOfItems ?? 0;
+        if (count > 0) {
+          this.applyCountSelection(this.getSortedData(), option.countOfOffset ?? 0, count);
+        }
+        break;
+      }
+      case SelectionModeEnum.FreeSelection: {
+        const count = option.countOfItems ?? 0;
+        if (count > 0) {
+          this.applyCountSelection(fisherYatesShuffle(this.dataSource.data), 0, count);
+        }
+        break;
+      }
+      case SelectionModeEnum.ByID:
+        // By Word: match enword text against the comma-separated list in importIDs.
+        if (option.importIDs) {
+          const arwords = option.importIDs.split(',');
+          if (arwords.length > 0) {
+            this.selection.clear();
+            this.dataSource.data.forEach(item => {
+              const selidx = arwords.findIndex((element: string) => element.trim() === item.enword);
+              if (selidx !== -1) {
+                this.selection.select(item);
+              }
+            });
+            this.cdr.markForCheck();
           }
-        });
-        this.cdr.markForCheck();
-      }
-    });
-  }
-
-  onSelectByRating() {
-    const dialogRef = this.dialog.open(VocabularySelectByRatingDialogComponent, {
-      data: {},
-      width: '400px',
-      enterAnimationDuration: 800,
-      exitAnimationDuration: 500,
-    });
-
-    dialogRef
-      .afterClosed()
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe(result => {
-      if (result !== undefined) {
+        }
+        break;
+      case SelectionModeEnum.ByRating: {
         this.selection.clear();
-        const operator = result.ratingOperator as RatingOperatorEnum;
-        const value = result.ratingValue as number;
+        const operator = option.ratingOperator as RatingOperatorEnum;
+        const value = option.ratingValue as number;
 
         this.dataSource.data.forEach(item => {
           const rating = this.getRating(item.id);
@@ -1179,8 +1232,14 @@ export class VocabularyExercisesComponent implements OnInit {
           }
         });
         this.cdr.markForCheck();
+        break;
       }
-    });
+    }
+  }
+
+  onClearSelection() {
+    this.selection.clear();
+    this.cdr.markForCheck();
   }
 }
 
@@ -1363,112 +1422,8 @@ export class VocabularyExercisesPrintOptionsDialogComponent {
 }
 
 @Component({
-  selector: 'app-vocabulary-selectbycount-dlg',
-  templateUrl: 'vocabulary-exercises-selectbycount-dialog.html',
-  imports: [
-    MatFormFieldModule,
-    FormsModule,
-    MatInputModule,
-    MatButtonModule,
-    MatDialogTitle,
-    MatDialogContent,
-    MatDialogActions,
-    TranslocoModule,
-  ],
-  changeDetection: ChangeDetectionStrategy.OnPush,
-})
-export class VocabularySelectByCountDialogComponent {
-  readonly dialogRef = inject(MatDialogRef<VocabularySelectByCountDialogComponent>);
-  readonly countOfItems = model(20);
-  readonly countOfOffset = model(0);
-
-  onNoClick(): void {
-    this.dialogRef.close();
-  }
-
-  get isFormInvalid(): boolean {
-    return this.countOfItems() <= 0 || (this.countOfOffset() ?? 0) < 0;
-  }
-
-  onYesClick(): void {
-    this.dialogRef.close({
-      countOfItems: this.countOfItems(),
-      countOfOffset: this.countOfOffset(),
-    });
-  }
-}
-
-@Component({
-  selector: 'app-vocabulary-selectbyword-dlg',
-  templateUrl: 'vocabulary-exercises-selectbyword-dialog.html',
-  imports: [
-    MatFormFieldModule,
-    FormsModule,
-    MatInputModule,
-    MatButtonModule,
-    MatDialogTitle,
-    MatDialogContent,
-    MatDialogActions,
-    TranslocoModule,
-  ],
-  changeDetection: ChangeDetectionStrategy.OnPush,
-})
-export class VocabularySelectByWordDialogComponent {
-  readonly dialogRef = inject(MatDialogRef<VocabularySelectByWordDialogComponent>);
-  readonly importWords = model('');
-
-  onNoClick(): void {
-    this.dialogRef.close();
-  }
-
-  get isFormInvalid(): boolean {
-    return this.importWords().trim().length <= 0;
-  }
-
-  onYesClick(): void {
-    this.dialogRef.close({
-      words: this.importWords(),
-    });
-  }
-}
-
-@Component({
-  selector: 'app-vocabulary-selectfree-dlg',
-  templateUrl: 'vocabulary-exercises-selectfree-dialog.html',
-  imports: [
-    MatFormFieldModule,
-    FormsModule,
-    MatInputModule,
-    MatButtonModule,
-    MatDialogTitle,
-    MatDialogContent,
-    MatDialogActions,
-    TranslocoModule,
-  ],
-  changeDetection: ChangeDetectionStrategy.OnPush,
-})
-export class VocabularySelectFreeDialogComponent {
-  readonly dialogRef = inject(MatDialogRef<VocabularySelectFreeDialogComponent>);
-  readonly countOfItems = model(20);
-
-  onNoClick(): void {
-    this.dialogRef.close();
-  }
-
-  get isFormInvalid(): boolean {
-    return this.countOfItems() <= 0;
-  }
-
-  onYesClick(): void {
-    this.dialogRef.close({
-      countOfItems: this.countOfItems(),
-    });
-  }
-}
-
-@Component({
-  selector: 'app-vocabulary-selectbyrating-dlg',
-  templateUrl: 'vocabulary-exercises-selectbyrating-dialog.html',
+  selector: 'app-vocabulary-select-dlg',
+  templateUrl: 'vocabulary-exercises-select-dialog.html',
   imports: [
     MatFormFieldModule,
     FormsModule,
@@ -1482,10 +1437,35 @@ export class VocabularySelectFreeDialogComponent {
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class VocabularySelectByRatingDialogComponent {
-  readonly dialogRef = inject(MatDialogRef<VocabularySelectByRatingDialogComponent>);
+export class VocabularySelectDialogComponent {
+  readonly dialogRef = inject(MatDialogRef<VocabularySelectDialogComponent>);
+  /** Exposes SelectionModeEnum to the template for @switch on data.mode. */
+  readonly SelectionMode = SelectionModeEnum;
+  readonly data = inject<{ mode: SelectionModeEnum }>(MAT_DIALOG_DATA);
+
+  // By Count / Free Selection
+  readonly countOfItems = model(20);
+  readonly countOfOffset = model(0);
+  // By Word (ByID)
+  readonly importWords = model('');
+  // By Rating
   readonly ratingOperator = model(RatingOperatorEnum.Equals);
   readonly ratingValue = model(3);
+
+  get titleKey(): string {
+    switch (this.data.mode) {
+      case SelectionModeEnum.ByID:
+        return 'vocabularyExercises.selectByWord';
+      case SelectionModeEnum.FreeSelection:
+        return 'vocabularyExercises.selectFree';
+      case SelectionModeEnum.ByCount:
+        return 'vocabularyExercises.selectByCount';
+      case SelectionModeEnum.ByRating:
+        return 'vocabularyExercises.selectByRating';
+      default:
+        return 'vocabularyExercises.selectByCount';
+    }
+  }
 
   get ratingOperators(): { value: RatingOperatorEnum; label: string }[] {
     return [
@@ -1512,10 +1492,39 @@ export class VocabularySelectByRatingDialogComponent {
     this.dialogRef.close();
   }
 
+  get isFormInvalid(): boolean {
+    switch (this.data.mode) {
+      case SelectionModeEnum.ByCount:
+        return this.countOfItems() <= 0 || (this.countOfOffset() ?? 0) < 0;
+      case SelectionModeEnum.FreeSelection:
+        return this.countOfItems() <= 0;
+      case SelectionModeEnum.ByID:
+        return this.importWords().trim().length <= 0;
+      case SelectionModeEnum.ByRating:
+        return false;
+      default:
+        return false;
+    }
+  }
+
   onYesClick(): void {
-    this.dialogRef.close({
-      ratingOperator: this.ratingOperator(),
-      ratingValue: this.ratingValue(),
-    });
+    const result: VocabularySelectOption = { selectedSelectMode: this.data.mode };
+    switch (this.data.mode) {
+      case SelectionModeEnum.ByCount:
+        result.countOfItems = this.countOfItems();
+        result.countOfOffset = this.countOfOffset();
+        break;
+      case SelectionModeEnum.FreeSelection:
+        result.countOfItems = this.countOfItems();
+        break;
+      case SelectionModeEnum.ByID:
+        result.importIDs = this.importWords();
+        break;
+      case SelectionModeEnum.ByRating:
+        result.ratingOperator = this.ratingOperator();
+        result.ratingValue = this.ratingValue();
+        break;
+    }
+    this.dialogRef.close(result);
   }
 }

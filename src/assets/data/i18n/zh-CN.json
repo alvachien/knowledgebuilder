@@ -181,7 +181,9 @@
     "printEntryDate": "打印日期",
     "answerLineBreak": "每行一个答案",
     "execDateOption": "执行日期选项",
-    "execDate": "执行日期"
+    "execDate": "执行日期",
+    "totalRecords": "记录总数",
+    "totalSelections": "已选"
   },
   "formulaRecites": {
     "title": "公式",
@@ -236,6 +238,8 @@
     "previous": "上一个",
     "next": "下一个",
     "quit": "退出",
+    "enableAutoMode": "启用自动模式",
+    "secondsPerWord": "每词秒数",
     "hint": "提示",
     "nextWord": "下一个词",
     "score": "得分",
@@ -263,7 +267,10 @@
     "selectByCount": "按数量",
     "selectByWord": "按单词",
     "selectFree": "随机选择",
-    "selectByRating": "按评分"
+    "selectByRating": "按评分",
+    "clearSelection": "清除选择",
+    "totalRecords": "记录总数",
+    "totalSelections": "已选"
   },
   "translateExercises": {
     "title": "句子",
@@ -303,7 +310,9 @@
     "extraInfoTitle": "额外信息",
     "explanation": "讲解",
     "select": "选择",
-    "selectByRating": "按评分"
+    "selectByRating": "按评分",
+    "totalRecords": "记录总数",
+    "totalSelections": "已选"
   },
   "englishListening": {
     "pageTitle": "听力",
@@ -383,7 +392,9 @@
     "selectByID": "按编号",
     "selectFree": "随机选择",
     "selectByRating": "按评分",
-    "countOfOffset": "起始位置"
+    "countOfOffset": "起始位置",
+    "totalRecords": "记录总数",
+    "totalSelections": "已选"
   },
   "selection": {
     "ratingOperator": "运算符",

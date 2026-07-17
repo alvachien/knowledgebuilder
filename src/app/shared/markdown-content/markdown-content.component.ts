@@ -9,6 +9,19 @@ import { firstValueFrom } from 'rxjs';
 import { KatexService } from '../../services/katex.service';
 import { MarkedService } from '../../services/marked.service';
 
+/**
+ * DOMPurify URI allow-list, identical to its default `IS_ALLOWED_URI` except that
+ * `blob:` is also permitted.
+ *
+ * `resolveAuthenticatedImages()` rewrites relative `<img src="./file.png">` (which
+ * cannot carry the API's Bearer JWT) into `blob:` URLs fetched via `HttpClient`.
+ * DOMPurify's default URI regexp does NOT match `blob:` and `src` is not in
+ * `URI_SAFE_ATTRIBUTES`, so sanitizing with the default config strips every blob
+ * `src` - the image then renders with no source. Allowing `blob:` here fixes that
+ * while still blocking `javascript:`, `vbscript:`, etc. (verified case-insensitive).
+ */
+const ALLOWED_URI_WITH_BLOB = /^(?:(?:(?:f|ht)tps?|blob|mailto|tel|callto|sms|cid|xmpp|matrix):|[^a-z]|[a-z+.\-]+(?:[^a-z+.\-:]|$))/i;
+
 @Component({
   selector: 'app-markdown-content',
   standalone: true,
@@ -193,7 +206,13 @@ export class MarkdownContentComponent implements OnChanges {
       // before bypassing Angular's built-in sanitization. This is necessary because
       // marked may produce HTML from user/API-supplied markdown that could contain
       // injected scripts or event handlers.
-      const sanitizedHtml = DOMPurify.sanitize(rawHtml);
+      //
+      // `ALLOWED_URI_WITH_BLOB` extends the default URI allow-list with `blob:` so the
+      // blob URLs created by `resolveAuthenticatedImages()` survive sanitization -
+      // otherwise every authenticated image's `src` is stripped and nothing renders.
+      const sanitizedHtml = DOMPurify.sanitize(rawHtml, {
+        ALLOWED_URI_REGEXP: ALLOWED_URI_WITH_BLOB,
+      });
       this.renderedContent = this.sanitizer.bypassSecurityTrustHtml(sanitizedHtml);
     } catch (parseError) {
       console.error('Error parsing markdown:', parseError);
@@ -232,8 +251,25 @@ export class MarkdownContentComponent implements OnChanges {
           return { original: match[0], replacement: match[0] };
         }
 
+        // Reduce the src to a path that resolves correctly against imageBaseUrl.
+        // Content may reference images as:
+        //   "./foo.jpg", "foo.jpg", "sub/foo.jpg" -> relative, resolves fine
+        //   "/data/knowledge-exercises/foo.jpg"  -> legacy root-absolute; new URL()
+        //       resolves it against the base's *origin* only, dropping the
+        //       /api/Storage/knowledge-exercises/ path and pointing back at the app
+        //       host (404 - ignores base_href and never reaches the API)
+        //   "data/knowledge-exercises/foo.jpg"   -> legacy; would append a bogus
+        //       "data/knowledge-exercises/" segment under the API path (404)
+        // The image actually lives in the imageBaseUrl directory, so for these
+        // legacy/absolute forms keep only the final path segment (the filename).
+        let srcToResolve = relativeSrc;
+        if (srcToResolve.startsWith('/') || /^data\//i.test(srcToResolve)) {
+          const segments = srcToResolve.split('/').filter(Boolean);
+          srcToResolve = segments[segments.length - 1] ?? srcToResolve;
+        }
+
         try {
-          const absoluteUrl = new URL(relativeSrc, this.imageBaseUrl!).href;
+          const absoluteUrl = new URL(srcToResolve, this.imageBaseUrl!).href;
           const blob = await firstValueFrom(this.http.get(absoluteUrl, { responseType: 'blob' }));
           if (!blob) {
             return { original: match[0], replacement: match[0] };
