@@ -120,7 +120,7 @@ The `Storage/` index files (`data.json` / `formula.json`) and content JSON live 
 - **Standalone components** with `imports` array (no NgModules for feature components)
 - **`inject()`** preferred over constructor injection
 - **`@Input({ required: true })`** for required inputs
-- **RxJS** for observables; `async` pipe in templates when possible; manual subscriptions must unsubscribe in `OnDestroy`
+- **RxJS** for observables; prefer `takeUntilDestroyed(this.destroyRef)` for subscription cleanup; `async` pipe in templates when possible. Older code uses manual `OnDestroy` unsubscribes.
 - **HTTP caching** in services: `Map<string, DataType[]>` + boolean loaded flags + private cached arrays
 - **Filtering**: Multi-term search by whitespace split, weighted field ranking (id=8, question=7, tags=6, options=5, answer=4), sort by ranking descending, store original data separately for empty filter restore
 - **Barrel files** (`index.ts`) in `services/` and `interfaces/` for exports

@@ -56,6 +56,7 @@
           <ng-container matColumnDef="id">
             <th mat-header-cell *matHeaderCellDef mat-sort-header sortActionDescription="Sort by ID"> {{ t('chineseExercises.id') }} </th>
             <td mat-cell *matCellDef="let element"> {{element.id}} </td>
+            <td mat-footer-cell *matFooterCellDef></td>
           </ng-container>
 
           <!-- Checkbox Column -->
@@ -72,18 +73,21 @@
                             [checked]="selection.isSelected(row)">
               </mat-checkbox>
             </td>
+            <td mat-footer-cell *matFooterCellDef></td>
           </ng-container>
 
           <!-- Subject Column -->
           <ng-container matColumnDef="subject">
             <th mat-header-cell *matHeaderCellDef mat-sort-header sortActionDescription="Sort by subject"> {{ t('chineseExercises.subject') }} </th>
             <td mat-cell *matCellDef="let element"> {{element.subject}} </td>
+            <td mat-footer-cell *matFooterCellDef></td>
           </ng-container>
 
           <!-- Author Column -->
           <ng-container matColumnDef="author">
             <th mat-header-cell *matHeaderCellDef mat-sort-header sortActionDescription="Sort by author"> {{ t('chineseExercises.author') }} </th>
             <td mat-cell *matCellDef="let element"> {{element.author}} </td>
+            <td mat-footer-cell *matFooterCellDef></td>
           </ng-container>
 
           <!-- Content Column -->
@@ -94,12 +98,14 @@
                 <textarea matNativeControl readonly [ngModel]="getDisplayContentText(element)"></textarea>
               </mat-form-field>
             </td>
+            <td mat-footer-cell *matFooterCellDef> {{ t('chineseExercises.totalRecords') }}: {{reciteContentCount}} </td>
           </ng-container>
 
           <!-- Source column -->
           <ng-container matColumnDef="source">
             <th mat-header-cell *matHeaderCellDef> {{ t('chineseExercises.source') }} </th>
             <td mat-cell *matCellDef="let element">{{element.source ?? ''}}</td>
+            <td mat-footer-cell *matFooterCellDef> {{ t('chineseExercises.totalSelections') }}: {{selection.selected.length}} </td>
           </ng-container>
 
           <!-- Rating Column -->
@@ -115,10 +121,12 @@
                 <mat-button-toggle [value]="5">5</mat-button-toggle>
               </mat-button-toggle-group>
             </td>
+            <td mat-footer-cell *matFooterCellDef></td>
           </ng-container>
 
           <tr mat-header-row *matHeaderRowDef="displayedPreviewColumns; sticky: true"></tr>
           <tr mat-row *matRowDef="let row; columns: displayedPreviewColumns;"></tr>
+          <tr mat-footer-row *matFooterRowDef="displayedPreviewColumns; sticky: true"></tr>
         </table>
         <mat-paginator [pageSizeOptions]="[20, 50, 100]"
           showFirstLastButtons

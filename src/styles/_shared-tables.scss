@@ -45,6 +45,20 @@ table[mat-table] {
     z-index: 2;
     background: white;
   }
+
+  // Sticky footer
+  tr.mat-mdc-footer-row {
+    position: sticky;
+    bottom: 0;
+    z-index: 2;
+    background: white;
+  }
+
+  // Footer cells - emphasis + top border to separate from data rows
+  td.mat-mdc-footer-cell {
+    font-weight: 500;
+    border-top: 1px solid rgba(0, 0, 0, 0.12);
+  }
 }
 
 // =============================================================================

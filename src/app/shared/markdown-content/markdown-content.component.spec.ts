@@ -1,6 +1,6 @@
 import { SimpleChange } from '@angular/core';
 import { provideHttpClient } from '@angular/common/http';
-import { provideHttpClientTesting } from '@angular/common/http/testing';
+import { provideHttpClientTesting, HttpTestingController } from '@angular/common/http/testing';
 import type { ComponentFixture } from '@angular/core/testing';
 import { TestBed } from '@angular/core/testing';
 import { vi } from 'vitest';
@@ -453,6 +453,105 @@ describe('MarkdownContentComponent', () => {
       await component['renderMarkdown']();
 
       expect(markForCheckSpy).toHaveBeenCalled();
+    });
+  });
+
+  describe('authenticated image resolution (blob URLs)', () => {
+    let httpTestingController: HttpTestingController;
+
+    beforeEach(() => {
+      httpTestingController = TestBed.inject(HttpTestingController);
+    });
+
+    afterEach(() => {
+      // Fails the test if any image fetch was made but not flushed/matched.
+      httpTestingController.verify();
+    });
+
+    it('should preserve a blob: img src through DOMPurify sanitization', async () => {
+      // Regression: resolveAuthenticatedImages() rewrites relative <img src="./file.png">
+      // into blob: URLs (fetched via HttpClient so the JWT is attached). DOMPurify's
+      // default URI allow-list strips blob: src, leaving <img> with no src and breaking
+      // every authenticated image (e.g. SingleChoice option images). The component now
+      // passes ALLOWED_URI_WITH_BLOB so the blob src survives sanitization.
+      const base = 'https://localhost:7135/api/Storage/knowledge-exercises/';
+      component.imageBaseUrl = base;
+      component.markdown = '![Option A](./2026-current-insights-gaokao-wk2-friday-2-a.png)';
+
+      const renderPromise = component['renderMarkdown']();
+
+      const req = httpTestingController.expectOne(
+        base + '2026-current-insights-gaokao-wk2-friday-2-a.png'
+      );
+      expect(req.request.responseType).toBe('blob');
+      req.flush(new Blob(['fake-png'], { type: 'image/png' }));
+
+      await renderPromise;
+
+      const html = component.renderedContent.toString();
+      expect(html).toContain('<img');
+      expect(html).toMatch(/src="blob:/);
+    });
+
+    it('should leave relative img src untouched when imageBaseUrl is not set', async () => {
+      component.imageBaseUrl = undefined;
+      component.markdown = '![Pic](./local.png)';
+
+      await component['renderMarkdown']();
+
+      const html = component.renderedContent.toString();
+      // No auth resolution occurs, and the relative src is kept (./local.png passes
+      // the URI allow-list via the [^a-z] alternative for '.').
+      expect(html).toContain('src="./local.png"');
+    });
+
+    it('should resolve a legacy root-absolute img src against imageBaseUrl', async () => {
+      // Regression: content deployed to alvachien.com references option images with
+      // root-absolute paths like "/data/knowledge-exercises/foo.jpg". new URL() with
+      // such a src resolves against the base's origin only, yielding
+      // "https://www.alvachien.com/data/knowledge-exercises/foo.jpg" (ignores
+      // base_href, never reaches the API) -> 404. The component now reduces
+      // legacy/absolute srcs to their filename and resolves against imageBaseUrl.
+      const base = 'https://localhost:7135/api/Storage/knowledge-exercises/';
+      component.imageBaseUrl = base;
+      component.markdown =
+        '![Option A](/data/knowledge-exercises/2026-current-insights-grade8-v2-wk2-a.jpg)';
+
+      const renderPromise = component['renderMarkdown']();
+
+      const req = httpTestingController.expectOne(
+        base + '2026-current-insights-grade8-v2-wk2-a.jpg'
+      );
+      expect(req.request.responseType).toBe('blob');
+      req.flush(new Blob(['fake-jpg'], { type: 'image/jpeg' }));
+
+      await renderPromise;
+
+      const html = component.renderedContent.toString();
+      expect(html).toContain('<img');
+      expect(html).toMatch(/src="blob:/);
+      // The bad legacy URL must not survive into the rendered output.
+      expect(html).not.toContain('/data/knowledge-exercises/');
+    });
+
+    it('should resolve a legacy "data/<subfolder>/" img src against imageBaseUrl', async () => {
+      const base = 'https://localhost:7135/api/Storage/knowledge-exercises/';
+      component.imageBaseUrl = base;
+      component.markdown =
+        '![Option A](data/knowledge-exercises/2026-current-insights-grade8-v2-wk2-a.jpg)';
+
+      const renderPromise = component['renderMarkdown']();
+
+      const req = httpTestingController.expectOne(
+        base + '2026-current-insights-grade8-v2-wk2-a.jpg'
+      );
+      req.flush(new Blob(['fake-jpg'], { type: 'image/jpeg' }));
+
+      await renderPromise;
+
+      const html = component.renderedContent.toString();
+      expect(html).toMatch(/src="blob:/);
+      expect(html).not.toContain('data/knowledge-exercises/');
     });
   });
 });

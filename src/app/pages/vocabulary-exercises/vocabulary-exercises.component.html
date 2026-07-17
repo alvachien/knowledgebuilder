@@ -9,10 +9,14 @@
             </div>
           </section>
           <span class="toolbar-spacer"></span>
-          <button mat-fab class="toolbar-fab-button" [matTooltip]="t('vocabularyExercises.previous')" (click)="onStudyPreviousWord()" [disabled]="isStudyPreviousDisabled">
+          <button mat-fab class="toolbar-fab-button" [matTooltip]="t('vocabularyExercises.enableAutoMode')"
+            (click)="onEnableAutoMode()" [disabled]="isAutoMode">
+            <mat-icon>play_circle_outline</mat-icon>
+          </button>
+          <button mat-fab class="toolbar-fab-button" [matTooltip]="t('vocabularyExercises.previous')" (click)="onStudyPreviousWord()" [disabled]="isAutoMode || isStudyPreviousDisabled">
             <mat-icon>arrow_left</mat-icon>
           </button>
-          <button mat-fab class="toolbar-fab-button" [matTooltip]="t('vocabularyExercises.next')" (click)="onStudyNextWord()" [disabled]="isStudyNextDisabled">
+          <button mat-fab class="toolbar-fab-button" [matTooltip]="t('vocabularyExercises.next')" (click)="onStudyNextWord()" [disabled]="isAutoMode || isStudyNextDisabled">
             <mat-icon>arrow_right</mat-icon>
           </button>
           <button mat-fab class="toolbar-fab-button" [matTooltip]="t('vocabularyExercises.quit')" (click)="onQuitStudy()">
@@ -136,10 +140,12 @@
             <mat-icon>query_builder</mat-icon>
           </button>
           <mat-menu #selectMenu="matMenu">
-            <button mat-menu-item (click)="onSelectByCount()">{{ t('vocabularyExercises.selectByCount') }}</button>
-            <button mat-menu-item (click)="onSelectByWord()">{{ t('vocabularyExercises.selectByWord') }}</button>
-            <button mat-menu-item (click)="onSelectFreeSelection()">{{ t('vocabularyExercises.selectFree') }}</button>
-            <button mat-menu-item (click)="onSelectByRating()">{{ t('vocabularyExercises.selectByRating') }}</button>
+            <button mat-menu-item (click)="onSelect(SelectionMode.ByCount)">{{ t('vocabularyExercises.selectByCount') }}</button>
+            <button mat-menu-item (click)="onSelect(SelectionMode.ByID)">{{ t('vocabularyExercises.selectByWord') }}</button>
+            <button mat-menu-item (click)="onSelect(SelectionMode.FreeSelection)">{{ t('vocabularyExercises.selectFree') }}</button>
+            <button mat-menu-item (click)="onSelect(SelectionMode.ByRating)">{{ t('vocabularyExercises.selectByRating') }}</button>
+            <mat-divider></mat-divider>
+            <button mat-menu-item (click)="onClearSelection()" [disabled]="!selection.hasValue()">{{ t('vocabularyExercises.clearSelection') }}</button>
           </mat-menu>
           <button mat-fab class="toolbar-fab-button" [matTooltip]="t('vocabularyExercises.study')" (click)="onStudyWithOptions()" [disabled]="!selectedFile">
             <mat-icon>slideshow</mat-icon>
@@ -164,6 +170,7 @@
           <ng-container matColumnDef="id">
             <th mat-header-cell *matHeaderCellDef mat-sort-header sortActionDescription="Sort by ID"> {{ t('vocabularyExercises.id') }} </th>
             <td mat-cell *matCellDef="let element"> {{element.id}} </td>
+            <td mat-footer-cell *matFooterCellDef></td>
           </ng-container>
 
           <!-- Checkbox Column -->
@@ -178,18 +185,21 @@
                 [checked]="selection.isSelected(row)">
               </mat-checkbox>
             </td>
+            <td mat-footer-cell *matFooterCellDef></td>
           </ng-container>
 
           <!-- English Word Column -->
           <ng-container matColumnDef="enword">
             <th mat-header-cell *matHeaderCellDef mat-sort-header sortActionDescription="Sort by word"> {{ t('vocabularyExercises.word') }} </th>
             <td mat-cell *matCellDef="let element"> {{element.enword}} </td>
+            <td mat-footer-cell *matFooterCellDef> {{ t('vocabularyExercises.totalRecords') }}: {{wordQueueCount}} </td>
           </ng-container>
 
           <!-- Chinese Word Column -->
           <ng-container matColumnDef="cnword">
             <th mat-header-cell *matHeaderCellDef> {{ t('vocabularyExercises.chinese') }} </th>
             <td mat-cell *matCellDef="let element"> {{element.cnword}} </td>
+            <td mat-footer-cell *matFooterCellDef> {{ t('vocabularyExercises.totalSelections') }}: {{selection.selected.length}} </td>
           </ng-container>
 
           <!-- Rating Column -->
@@ -205,10 +215,12 @@
                 <mat-button-toggle [value]="5">5</mat-button-toggle>
               </mat-button-toggle-group>
             </td>
+            <td mat-footer-cell *matFooterCellDef></td>
           </ng-container>
 
           <tr mat-header-row *matHeaderRowDef="displayedContentColumns; sticky: true"></tr>
           <tr mat-row *matRowDef="let row; columns: displayedContentColumns;"></tr>
+          <tr mat-footer-row *matFooterRowDef="displayedContentColumns; sticky: true"></tr>
         </table>
         <mat-paginator [pageSizeOptions]="[20, 50, 100, 200]" showFirstLastButtons
           aria-label="Select page of periodic elements">

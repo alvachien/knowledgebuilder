@@ -72,18 +72,21 @@
                             [checked]="selection.isSelected(row)">
               </mat-checkbox>
             </td>
+            <td mat-footer-cell *matFooterCellDef></td>
           </ng-container>
 
           <!-- ID Column -->
           <ng-container matColumnDef="id">
             <th mat-header-cell *matHeaderCellDef mat-sort-header sortActionDescription="Sort by ID"> {{ t('translateExercises.id') }} </th>
             <td mat-cell *matCellDef="let element"> {{element.id}} </td>
+            <td mat-footer-cell *matFooterCellDef></td>
           </ng-container>
 
           <!-- English Sentence Column -->
           <ng-container matColumnDef="ensent">
             <th mat-header-cell *matHeaderCellDef> {{ t('translateExercises.english') }} </th>
             <td mat-cell *matCellDef="let element"> {{element.ensent}} </td>
+            <td mat-footer-cell *matFooterCellDef> {{ t('translateExercises.totalRecords') }}: {{reciteQueuesCount}} </td>
           </ng-container>
 
           <!-- AI Column -->
@@ -99,18 +102,21 @@
                 </button>
               </div>
             </td>
+            <td mat-footer-cell *matFooterCellDef></td>
           </ng-container>
 
 <!-- English Words Column -->
           <ng-container matColumnDef="enwords">
             <th mat-header-cell *matHeaderCellDef> {{ t('translateExercises.words') }} </th>
             <td mat-cell *matCellDef="let element"> {{element.enwords?.join(', ') || ''}} </td>
+            <td mat-footer-cell *matFooterCellDef></td>
           </ng-container>
 
 <!-- Chinese Sentence Column -->
           <ng-container matColumnDef="cnsent">
             <th mat-header-cell *matHeaderCellDef> {{ t('translateExercises.chinese') }} </th>
             <td mat-cell *matCellDef="let element"> {{element.cnsent}} </td>
+            <td mat-footer-cell *matFooterCellDef> {{ t('translateExercises.totalSelections') }}: {{selection.selected.length}} </td>
           </ng-container>
 
           <!-- Explanation Column -->
@@ -121,6 +127,7 @@
                 <mat-icon>info</mat-icon>
               </button>
             </td>
+            <td mat-footer-cell *matFooterCellDef></td>
           </ng-container>
 
           <!-- Extra Info Column -->
@@ -131,6 +138,7 @@
                 <mat-icon>description</mat-icon>
               </button>
             </td>
+            <td mat-footer-cell *matFooterCellDef></td>
           </ng-container>
 
           <!-- Rating Column -->
@@ -146,10 +154,12 @@
                 <mat-button-toggle [value]="5">5</mat-button-toggle>
               </mat-button-toggle-group>
             </td>
+            <td mat-footer-cell *matFooterCellDef></td>
           </ng-container>
 
           <tr mat-header-row *matHeaderRowDef="displayedPreviewColumns; sticky: true"></tr>
           <tr mat-row *matRowDef="let row; columns: displayedPreviewColumns;"></tr>
+          <tr mat-footer-row *matFooterRowDef="displayedPreviewColumns; sticky: true"></tr>
         </table>
         <mat-paginator [pageSizeOptions]="[20, 50, 100]"
           showFirstLastButtons
