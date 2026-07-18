@@ -6,7 +6,7 @@ import { map, tap } from 'rxjs/operators';
 import { environment } from '../../environments/environment';
 
 import type { LearningContent } from '../interfaces';
-import type { LearnEnglishWordFileItem, LearnEnglishSentFileItem, LearnChineseFileItem, EnglishListeningLesson, QuestionBankItemCombinedInterface, KnowledgeExerciseFileContent, FormulaReciteContent } from '../interfaces';
+import type { LearnEnglishWordFileItem, LearnEnglishSentFileItem, LearnChineseFileItem, EnglishListeningLesson, QuestionBankItemCombinedInterface, KnowledgeExerciseFileContent, FormulaReciteContent, WordReference } from '../interfaces';
 import { getQuestionBankTypeDescription, doesQuestionBankItemHasAnswer } from '../interfaces';
 
 @Injectable({
@@ -19,6 +19,7 @@ export class LearningContentService {
 
   private cachedContentsByCategory = new Map<number, LearningContent[]>();
   private cachedWordContent = new Map<string, LearnEnglishWordFileItem[]>();
+  private cachedWordReferences = new Map<string, WordReference[]>();
   private cachedSentContent = new Map<string, LearnEnglishSentFileItem[]>();
   private cachedKnowledgeContent = new Map<string, KnowledgeExerciseFileContent[]>();
   private cachedChineseContent = new Map<string, LearnChineseFileItem[]>();
@@ -77,6 +78,31 @@ export class LearningContentService {
     return this.http.get<LearnEnglishWordFileItem[]>(url).pipe(
       map(items => (items ?? []).filter(item => item.enword && item.enword.length > 1)),
       tap(items => this.cachedWordContent.set(fileUrl, items))
+    );
+  }
+
+  /**
+   * Fetch per-word bilingual reference sentences (dictionary example sentences)
+   * for the given word. Served by the authenticated StorageController at
+   * `learnenglish/word_references/<word>.json`. Cached per word (lowercased).
+   *
+   * Errors (e.g. 404 when no reference file exists for the word, or 400 for
+   * words the backend rejects) are NOT cached - they propagate to the caller
+   * so it can show a "no reference available" state and a later retry is still
+   * possible.
+   */
+  getWordReferences(word: string): Observable<WordReference[]> {
+    const normalized = word.trim().toLowerCase();
+    if (!normalized) {
+      return of([]);
+    }
+    if (this.cachedWordReferences.has(normalized)) {
+      return of(this.cachedWordReferences.get(normalized)!);
+    }
+
+    const url = this.getStorageFileUrl(`learnenglish/word_references/${normalized}.json`);
+    return this.http.get<WordReference[]>(url).pipe(
+      tap(items => this.cachedWordReferences.set(normalized, items ?? []))
     );
   }
 

@@ -62,6 +62,7 @@ import type {
   KnowledgeExerciseFileContent,
   KnowledgeExercisePrintOption,
   UserLearningRating,
+  WordReference,
 } from '../../interfaces';
 import {
   MY_DATE_FORMATS,
@@ -161,6 +162,14 @@ export class VocabularyExercisesComponent implements OnInit {
   isAutoMode = false;
   autoModeSeconds = 5;
   private autoModeSubscription?: Subscription;
+  // Word references (study mode): bilingual example sentences for the current word.
+  wordReferences: WordReference[] = [];
+  isLoadingReferences = false;
+  showReferences = false;
+  hasReferenceError = false;
+  /** The word whose references are currently held in `wordReferences`. */
+  referenceWordLoaded = '';
+  displayedReferenceColumns: string[] = ['ent_sent', 'chn_sent', 'source'];
   // Typing
   typeSetting: VocabularyTypingOption = {
     disableVoice: false,
@@ -223,6 +232,19 @@ export class VocabularyExercisesComponent implements OnInit {
 
   get isStudyNextDisabled(): boolean {
     return this.currentStudyCursor >= this.studyQueues.length - 1;
+  }
+
+  /**
+   * Disable the references button during auto mode, or when the current word is
+   * a phrase (contains a space). Phrase words map to sanitized filenames the
+   * StorageController cannot serve, so the button offers nothing useful there.
+   */
+  get isReferencesButtonDisabled(): boolean {
+    if (this.isAutoMode) {
+      return true;
+    }
+    const currentWord = this.studyQueues[this.currentStudyCursor]?.enword ?? '';
+    return currentWord.trim().includes(' ');
   }
 
   constructor() {
@@ -558,6 +580,7 @@ export class VocabularyExercisesComponent implements OnInit {
     this.currentStudyCursor = 0;
     this.currentStudyProgress = Math.round((1 / this.studyQueues.length) * 100);
     this.isStudying = true;
+    this.resetReferencesView();
 
     // Speak the first word
     if (!this.studySetting.disableVoice) {
@@ -595,6 +618,7 @@ export class VocabularyExercisesComponent implements OnInit {
       this.currentStudyProgress = Math.round(
         ((this.currentStudyCursor + 1) / this.studyQueues.length) * 100
       );
+      this.resetReferencesView();
       this.cdr.markForCheck();
       if (!this.studySetting.disableVoice) {
         this.speakWord(this.studyQueues[this.currentStudyCursor].enword);
@@ -608,6 +632,7 @@ export class VocabularyExercisesComponent implements OnInit {
       this.currentStudyProgress = Math.round(
         ((this.currentStudyCursor + 1) / this.studyQueues.length) * 100
       );
+      this.resetReferencesView();
       this.cdr.markForCheck();
       if (!this.studySetting.disableVoice) {
         this.speakWord(this.studyQueues[this.currentStudyCursor].enword);
@@ -629,6 +654,7 @@ export class VocabularyExercisesComponent implements OnInit {
     this.currentStudyProgress = Math.round(
       ((this.currentStudyCursor + 1) / this.studyQueues.length) * 100
     );
+    this.resetReferencesView();
     this.cdr.markForCheck();
     if (!this.studySetting.disableVoice) {
       this.speakWord(this.studyQueues[this.currentStudyCursor].enword);
@@ -679,6 +705,7 @@ export class VocabularyExercisesComponent implements OnInit {
     this.currentStudyCursor = 0;
     this.currentStudyProgress = 0;
     this.studyRatingMap.clear();
+    this.resetReferencesView();
     this.cdr.markForCheck();
   }
 
@@ -696,6 +723,59 @@ export class VocabularyExercisesComponent implements OnInit {
       },
       error: err => console.error('Failed to save rating', err),
     });
+  }
+
+  onToggleReferences(): void {
+    // Toggle off if the panel is already visible.
+    if (this.showReferences) {
+      this.showReferences = false;
+      this.cdr.markForCheck();
+      return;
+    }
+
+    const currentWord = this.studyQueues[this.currentStudyCursor]?.enword ?? '';
+    if (!currentWord) {
+      return;
+    }
+
+    this.showReferences = true;
+
+    // Already loaded for this word - just reveal the panel.
+    if (this.referenceWordLoaded === currentWord && !this.hasReferenceError) {
+      this.cdr.markForCheck();
+      return;
+    }
+
+    this.isLoadingReferences = true;
+    this.hasReferenceError = false;
+    this.wordReferences = [];
+    this.cdr.markForCheck();
+
+    this.contentService
+      .getWordReferences(currentWord)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (refs: WordReference[]) => {
+          this.wordReferences = refs ?? [];
+          this.referenceWordLoaded = currentWord;
+          this.isLoadingReferences = false;
+          this.cdr.markForCheck();
+        },
+        error: (err: unknown) => {
+          console.error('Failed to load word references', err);
+          this.wordReferences = [];
+          this.hasReferenceError = true;
+          this.isLoadingReferences = false;
+          this.cdr.markForCheck();
+        },
+      });
+  }
+
+  /** Hide the references panel (called when the study cursor moves or study ends). */
+  private resetReferencesView(): void {
+    this.showReferences = false;
+    this.isLoadingReferences = false;
+    this.hasReferenceError = false;
   }
 
   // Typing

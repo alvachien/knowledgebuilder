@@ -19,6 +19,9 @@
           <button mat-fab class="toolbar-fab-button" [matTooltip]="t('vocabularyExercises.next')" (click)="onStudyNextWord()" [disabled]="isAutoMode || isStudyNextDisabled">
             <mat-icon>arrow_right</mat-icon>
           </button>
+          <button mat-fab class="toolbar-fab-button" [matTooltip]="t('vocabularyExercises.references')" (click)="onToggleReferences()" [disabled]="isReferencesButtonDisabled">
+            <mat-icon>menu_book</mat-icon>
+          </button>
           <button mat-fab class="toolbar-fab-button" [matTooltip]="t('vocabularyExercises.quit')" (click)="onQuitStudy()">
             <mat-icon>cancel_presentation</mat-icon>
           </button>
@@ -44,6 +47,35 @@
             <mat-button-toggle [value]="5">5</mat-button-toggle>
           </mat-button-toggle-group>
         </div>
+
+        @if (showReferences) {
+          <div class="vocabulary-references-container">
+            @if (isLoadingReferences) {
+              <mat-spinner diameter="24"></mat-spinner>
+            } @else if (hasReferenceError || wordReferences.length === 0) {
+              <p class="references-empty">{{ t('vocabularyExercises.noReferences') }}</p>
+            } @else {
+              <div class="references-table-wrap">
+                <table mat-table [dataSource]="wordReferences" class="mat-elevation-z2 w-full">
+                  <ng-container matColumnDef="ent_sent">
+                    <th mat-header-cell *matHeaderCellDef> {{ t('vocabularyExercises.referenceSentence') }} </th>
+                    <td mat-cell *matCellDef="let element"> {{element.ent_sent}} </td>
+                  </ng-container>
+                  <ng-container matColumnDef="chn_sent">
+                    <th mat-header-cell *matHeaderCellDef> {{ t('vocabularyExercises.referenceTranslation') }} </th>
+                    <td mat-cell *matCellDef="let element"> {{element.chn_sent}} </td>
+                  </ng-container>
+                  <ng-container matColumnDef="source">
+                    <th mat-header-cell *matHeaderCellDef> {{ t('vocabularyExercises.referenceSource') }} </th>
+                    <td mat-cell *matCellDef="let element"> {{element.source}} </td>
+                  </ng-container>
+                  <tr mat-header-row *matHeaderRowDef="displayedReferenceColumns; sticky: true"></tr>
+                  <tr mat-row *matRowDef="let row; columns: displayedReferenceColumns;"></tr>
+                </table>
+              </div>
+            }
+          </div>
+        }
       </div>
     }
     @else if (isTypingInProgress) {

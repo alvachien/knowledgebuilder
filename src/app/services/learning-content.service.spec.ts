@@ -11,6 +11,7 @@ import type {
   LearnEnglishWordFileItem,
   LearningContent,
   QuestionBankItemCombinedInterface,
+  WordReference,
 } from '../interfaces';
 import { QuestionBankTypeEnum } from '../interfaces';
 
@@ -47,6 +48,11 @@ const mockWordItems: LearnEnglishWordFileItem[] = [
   { id: 2, enword: 'ab', cnword: 'AB' }, // length 2 — kept (> 1)
   { id: 3, enword: 'a', cnword: '啊' }, // length 1 — filtered
   { id: 4, enword: '', cnword: '空' }, // empty — filtered
+];
+
+const mockWordReferences: WordReference[] = [
+  { ent_sent: 'A chill stole over her body.', chn_sent: '她突然感到浑身发冷。', source: '《牛津词典》' },
+  { ent_sent: 'Chill the fruit salad until serving time.', chn_sent: '上菜前把水果色拉冷却。', source: '柯林斯词典' },
 ];
 
 const mockSentenceItems: LearnEnglishSentFileItem[] = [
@@ -237,6 +243,57 @@ describe('LearningContentService', () => {
       service.getVocabularyWordContent(fileUrl).subscribe(items => {
         expect(items.length).toBe(2);
       });
+    });
+  });
+
+  describe('getWordReferences', () => {
+    const storageFileUrl = `${STORAGE_URL}/learnenglish/word_references/chill.json`;
+
+    it('should fetch via the Storage API and cache per word', () => {
+      service.getWordReferences('chill').subscribe(items => {
+        expect(items).toEqual(mockWordReferences);
+      });
+      httpMock.expectOne(storageFileUrl).flush(mockWordReferences);
+
+      // Second call returns from cache; no HTTP request expected.
+      service.getWordReferences('chill').subscribe(items => {
+        expect(items).toEqual(mockWordReferences);
+      });
+    });
+
+    it('should lowercase and trim the word when building the Storage URL', () => {
+      service.getWordReferences('  Chill  ').subscribe();
+      httpMock.expectOne(storageFileUrl).flush(mockWordReferences);
+    });
+
+    it('should return an empty array without an HTTP request for an empty word', () => {
+      service.getWordReferences('   ').subscribe(items => {
+        expect(items).toEqual([]);
+      });
+      // No HTTP request should have been made.
+      httpMock.verify();
+    });
+
+    it('should not cache errors so a later retry hits the API again', () => {
+      let nextCalled = false;
+      let firstError: unknown;
+      service.getWordReferences('unknown').subscribe({
+        next: () => { nextCalled = true; },
+        error: (err) => { firstError = err; },
+      });
+      httpMock
+        .expectOne(`${STORAGE_URL}/learnenglish/word_references/unknown.json`)
+        .flush('Not Found', { status: 404, statusText: 'Not Found' });
+      expect(nextCalled).toBe(false);
+      expect(firstError).toBeDefined();
+
+      // Second call is NOT cached; a new HTTP request is expected.
+      service.getWordReferences('unknown').subscribe({
+        error: () => {},
+      });
+      httpMock
+        .expectOne(`${STORAGE_URL}/learnenglish/word_references/unknown.json`)
+        .flush('Not Found', { status: 404, statusText: 'Not Found' });
     });
   });
 
