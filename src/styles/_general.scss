@@ -5,7 +5,12 @@ body {
 }
 
 body {
-  font-family: "Roboto","Helvetica Neue Light","Helvetica Neue",Helvetica,Arial,"Lucida Grande",sans-serif;
+  // CJK fonts are appended after the Latin stack so Latin text still uses
+  // Roboto/Helvetica; the browser only falls through to these for Chinese
+  // glyphs. This gives consistent CJK rendering on screen and in print -
+  // previously the print path relied on whatever OS fallback the browser
+  // happened to pick (e.g. Microsoft YaHei on Windows).
+  font-family: "Roboto","Helvetica Neue Light","Helvetica Neue",Helvetica,Arial,"Lucida Grande","Microsoft YaHei","PingFang SC","Noto Sans SC","Hiragino Sans GB",sans-serif;
   margin: 0;
 }
 

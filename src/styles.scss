@@ -34,6 +34,15 @@ $theme: mat.define-theme((
     max-width: none;
   }
 
+  // Print legibility: the screen body text is 14px (~10.5pt), which renders
+  // too small for CJK characters on paper. Use pt (physical units) and open
+  // up line-height so Chinese glyphs have room. Headings keep their px sizes.
+  .markdown-content p,
+  .markdown-content li {
+    font-size: 12pt;
+    line-height: 1.6;
+  }
+
   .markdown-content,
   .markdown-content * {
     background: transparent !important;
