@@ -696,6 +696,31 @@ describe('ChineseExercisesComponent', () => {
       expect(component.selection.selected.length).toBe(initialCount);
     });
   });
+
+  describe('onContentRatingChanged', () => {
+    it('should save the rating via upsertRating when a level is chosen', () => {
+      ratingServiceSpy.upsertRating.mockReturnValue(of({ contentId: 1, itemId: 10, rating: 3 }));
+      component.studyContentId = 1;
+      const event = { value: 3, source: { value: 3, buttonToggleGroup: { value: 3 } } } as any;
+
+      component.onContentRatingChanged({ id: 10 } as any, event);
+
+      expect(ratingServiceSpy.upsertRating).toHaveBeenCalledWith(1, 10, 3);
+    });
+
+    it('should not save and should restore the previous selection when the toggle is deselected', () => {
+      // Clicking the active toggle in a mat-button-toggle-group deselects it,
+      // emitting change with value undefined.
+      component.studyContentId = 1;
+      const group = { value: undefined as unknown };
+      const event = { value: undefined, source: { value: 3, buttonToggleGroup: group } } as any;
+
+      component.onContentRatingChanged({ id: 10 } as any, event);
+
+      expect(ratingServiceSpy.upsertRating).not.toHaveBeenCalled();
+      expect(group.value).toBe(3);
+    });
+  });
 });
 
 describe('ChineseExercisesOptionsDialogComponent', () => {

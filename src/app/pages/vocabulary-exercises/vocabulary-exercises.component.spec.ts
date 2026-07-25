@@ -1975,6 +1975,40 @@ describe('VocabularyExercisesComponent', () => {
       expect(component.selection.isEmpty()).toBe(true);
     });
   });
+
+  describe('rating deselection guards', () => {
+    it('onContentRatingChanged should not save and should restore selection on deselect', () => {
+      // Clicking the active toggle in a mat-button-toggle-group deselects it,
+      // emitting change with value undefined.
+      component.studyContentId = 1;
+      const group = { value: undefined as unknown };
+      const event = { value: undefined, source: { value: 4, buttonToggleGroup: group } } as any;
+
+      component.onContentRatingChanged({ id: 10 } as any, event);
+
+      expect(mockRatingService.upsertRating).not.toHaveBeenCalled();
+      expect(group.value).toBe(4);
+    });
+
+    it('onRatingChanged should not save and should restore model and selection on deselect', () => {
+      component.studyContentId = 1;
+      const item: StudyQueueItem = {
+        enword: 'hello',
+        cnword: '你好',
+        audiofile: '',
+        rating: undefined as unknown as number,
+        itemId: 10,
+      };
+      const group = { value: undefined as unknown };
+      const event = { value: undefined, source: { value: 4, buttonToggleGroup: group } } as any;
+
+      component.onRatingChanged(item, event);
+
+      expect(mockRatingService.upsertRating).not.toHaveBeenCalled();
+      expect(item.rating).toBe(4);
+      expect(group.value).toBe(4);
+    });
+  });
 });
 
 describe('VocabularyExercisesStudyOptionsDialogComponent', () => {

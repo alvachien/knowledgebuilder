@@ -281,7 +281,13 @@ export class VocabularyExercisesComponent implements OnInit {
   }
 
   onContentRatingChanged(item: LearnEnglishWordFileItem, event: MatButtonToggleChange) {
-    if (this.studyContentId <= 0 || item.id === undefined || event.value < 1) {
+    if (event.value === undefined || event.value === null || event.value < 1) {
+      // Clicking the active toggle deselects it (value becomes undefined).
+      // There is no "clear rating" operation, so restore the previous selection.
+      event.source.buttonToggleGroup.value = event.source.value;
+      return;
+    }
+    if (this.studyContentId <= 0 || item.id === undefined) {
       return;
     }
 
@@ -682,7 +688,17 @@ export class VocabularyExercisesComponent implements OnInit {
     this.cdr.markForCheck();
   }
 
-  onRatingChanged(item: StudyQueueItem) {
+  // `event` is undefined for keyboard-driven rating changes (arrow keys / 1-5),
+  // which set item.rating directly and cannot produce a deselection.
+  onRatingChanged(item: StudyQueueItem, event?: MatButtonToggleChange) {
+    if (event !== undefined && (event.value === undefined || event.value === null || event.value < 1)) {
+      // Clicking the active toggle deselects it (value becomes undefined); the
+      // two-way ngModel has already written that undefined into item.rating.
+      // There is no "clear rating" operation, so restore both model and view.
+      item.rating = event.source.value;
+      event.source.buttonToggleGroup.value = event.source.value;
+      return;
+    }
     if (this.studyContentId <= 0 || item.itemId === undefined || item.rating < 1) {
       return;
     }

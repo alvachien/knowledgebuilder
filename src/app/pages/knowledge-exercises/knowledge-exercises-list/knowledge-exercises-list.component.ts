@@ -290,7 +290,13 @@ export class KnowledgeExercisesListComponent implements OnInit {
   }
 
   onContentRatingChanged(item: KnowledgeExerciseFileContent, event: MatButtonToggleChange) {
-    if (this.currentContentId === undefined || item.id === undefined || event.value < 1) {
+    if (event.value === undefined || event.value === null || event.value < 1) {
+      // Clicking the active toggle deselects it (value becomes undefined).
+      // There is no "clear rating" operation, so restore the previous selection.
+      event.source.buttonToggleGroup.value = event.source.value;
+      return;
+    }
+    if (this.currentContentId === undefined || item.id === undefined) {
       return;
     }
     const numId = parseInt(item.id, 10);

@@ -36,7 +36,7 @@
         </div>
 
         <div class="vocabulary-rating-container">
-          <mat-button-toggle-group [(ngModel)]="studyQueues[currentStudyCursor].rating" aria-label="Rating" (change)="onRatingChanged(studyQueues[currentStudyCursor])">
+          <mat-button-toggle-group [(ngModel)]="studyQueues[currentStudyCursor].rating" aria-label="Rating" (change)="onRatingChanged(studyQueues[currentStudyCursor], $event)">
             <mat-button-toggle [value]="1">1</mat-button-toggle>
             <mat-button-toggle [value]="2">2</mat-button-toggle>
             <mat-button-toggle [value]="3">3</mat-button-toggle>
