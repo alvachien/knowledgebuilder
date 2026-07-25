@@ -28,6 +28,7 @@ import {
   UserCodeService,
   UIService,
 } from '../../services';
+import { LearningRatingService } from '../../services/learning-rating.service';
 import { AppPageTitle } from '../page-title/page-title';
 
 import {
@@ -754,6 +755,23 @@ describe('TranslateExercisesComponent', () => {
       component.onSelectByRating();
 
       expect(markForCheckSpy).toHaveBeenCalled();
+    });
+  });
+
+  describe('onContentRatingChanged', () => {
+    it('should not save and should restore the previous selection when the toggle is deselected', () => {
+      // Clicking the active toggle in a mat-button-toggle-group deselects it,
+      // emitting change with value undefined.
+      const ratingService = TestBed.inject(LearningRatingService);
+      const upsertSpy = vi.spyOn(ratingService, 'upsertRating');
+      component.studyContentId = 1;
+      const group = { value: undefined as unknown };
+      const event = { value: undefined, source: { value: 2, buttonToggleGroup: group } } as any;
+
+      component.onContentRatingChanged({ id: '10' } as any, event);
+
+      expect(upsertSpy).not.toHaveBeenCalled();
+      expect(group.value).toBe(2);
     });
   });
 });

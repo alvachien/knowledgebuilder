@@ -303,7 +303,13 @@ export class ChineseExercisesComponent implements OnInit {
   }
 
   onContentRatingChanged(item: LearnChineseFileItem, event: MatButtonToggleChange) {
-    if (this.studyContentId <= 0 || item.id === undefined || event.value < 1) {
+    if (event.value === undefined || event.value === null || event.value < 1) {
+      // Clicking the active toggle deselects it (value becomes undefined).
+      // There is no "clear rating" operation, so restore the previous selection.
+      event.source.buttonToggleGroup.value = event.source.value;
+      return;
+    }
+    if (this.studyContentId <= 0 || item.id === undefined) {
       return;
     }
 
