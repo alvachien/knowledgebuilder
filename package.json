@@ -37,7 +37,7 @@
     "@types/dompurify": "^3.0.5",
     "angular-auth-oidc-client": "^21.0.2",
     "date-fns": "^4.1.0",
-    "dompurify": "^3.4.11",
+    "dompurify": "^3.4.12",
     "howler": "^2.2.4",
     "katex": "^0.16.21",
     "marked": "^17.0.0",
