@@ -1,4 +1,5 @@
 import { TestBed, fakeAsync, tick } from '@angular/core/testing';
+import { of, type Observable } from 'rxjs';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { environment } from '../../environments/environment';
@@ -12,6 +13,7 @@ describe('AuthGuardService', () => {
   let authServiceMock: {
     doLogin: ReturnType<typeof vi.fn>;
     authSubject: { getValue: () => UserAuthInfo };
+    waitForAuthCheck: ReturnType<typeof vi.fn>;
   };
 
   beforeEach(() => {
@@ -20,6 +22,7 @@ describe('AuthGuardService', () => {
       authSubject: {
         getValue: () => new UserAuthInfo(),
       },
+      waitForAuthCheck: vi.fn().mockReturnValue(of(undefined)),
     };
 
     TestBed.configureTestingModule({
@@ -68,9 +71,12 @@ describe('AuthGuardService', () => {
       // Default UserAuthInfo has isAuthorized = false
       authServiceMock.authSubject.getValue = () => new UserAuthInfo();
 
-      const result = guard.canActivate({} as any, {} as any);
-      expect(result).toBe(false);
+      let emitted: boolean | undefined;
+      (guard.canActivate({} as any, {} as any) as Observable<boolean>).subscribe(r => (emitted = r));
+
+      expect(emitted).toBe(false);
       expect(authServiceMock.doLogin).toHaveBeenCalled();
+      expect(authServiceMock.waitForAuthCheck).toHaveBeenCalled();
 
       (environment as any).loginRequired = original;
     });
@@ -83,8 +89,10 @@ describe('AuthGuardService', () => {
       errorInfo.setError('auth.idp_unreachable');
       authServiceMock.authSubject.getValue = () => errorInfo;
 
-      const result = guard.canActivate({} as any, {} as any);
-      expect(result).toBe(false);
+      let emitted: boolean | undefined;
+      (guard.canActivate({} as any, {} as any) as Observable<boolean>).subscribe(r => (emitted = r));
+
+      expect(emitted).toBe(false);
       expect(authServiceMock.doLogin).not.toHaveBeenCalled();
 
       (environment as any).loginRequired = original;

@@ -41,6 +41,10 @@
     justify-content: center;
     width: 100%;
     padding: 24px;
+    // Let the browser keep vertical panning but yield horizontal gestures to the
+    // touchstart/touchend handlers, so swipes feel snappy and don't fight scroll
+    // or rubber-banding on touch devices.
+    touch-action: pan-y;
 }
 
 .vocabulary-typing-input-container {
@@ -77,15 +81,69 @@
     justify-content: center;
 }
 
+.vocabulary-dictation-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    padding: 48px 24px;
+}
+
+.vocabulary-dictation-progress {
+    width: 100%;
+    max-width: 800px;
+    // The progress bar is the page's only content during dictation, so make it
+    // prominent. Overrides Material's default 4px bar height.
+    height: 24px;
+    border-radius: 12px;
+}
+
 .toolbar-fab-button {
   margin-right: 4px;
   margin-left: 4px;
+}
+
+.auto-mode-interval-field {
+    width: 140px;
+    margin-right: 4px;
+    margin-left: 4px;
+
+    // Collapse on the narrow-screen tier (<=820px) defined in the project's
+    // responsive layout (see knowledgebuilder/CLAUDE.md "Responsive Layout").
+    // Auto mode then runs at the last-selected interval; the picker returns
+    // once the screen widens again. Matches the study-progress-label, which
+    // hides at the same breakpoint.
+    @media (max-width: 820px) {
+        display: none;
+    }
 }
 
 .example-button-container {
     display: flex;
     justify-content: center;
     width: 56px;
+}
+
+.study-progress-section {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.study-progress-label {
+    font-size: 14px;
+    white-space: nowrap;
+    // Tabular figures keep the N/M count from shifting as digits change width.
+    font-variant-numeric: tabular-nums;
+    opacity: 0.87;
+
+    // On narrow screens the toolbar is cramped by the FAB buttons, so drop the
+    // textual count and leave the progress bar to convey position. Matches the
+    // 820px breakpoint used by the navbar and shared toolbars.
+    @media (max-width: 820px) {
+        display: none;
+    }
 }
 
 .example-flex-container {

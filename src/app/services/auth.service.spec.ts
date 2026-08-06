@@ -64,6 +64,16 @@ describe('AuthService', () => {
     });
   });
 
+  describe('waitForAuthCheck', () => {
+    it('should resolve once the initial checkAuth has settled', () => {
+      // The constructor already ran checkAuth with the synchronous default mock,
+      // so the initial check has settled and waitForAuthCheck resolves immediately.
+      let resolved = false;
+      service.waitForAuthCheck().subscribe(() => (resolved = true));
+      expect(resolved).toBe(true);
+    });
+  });
+
   describe('doLogin', () => {
     it('should call oidc.authorize() when IDP is reachable', () => {
       httpSpy.get.mockReturnValue(of('ok'));

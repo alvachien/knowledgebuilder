@@ -51,12 +51,14 @@ tools/                # Validation scripts, schema, converters (Python, JS, Powe
 
 All routes are lazy-loaded via `loadComponent` / `loadChildren`:
 - `/` → Homepage
+- `/signin-callback` → OIDC signin callback (post-IDP-redirect landing, unguarded)
 - `/vocabulary` → Vocabulary exercises
 - `/translating` → Translation exercises
 - `/listening` → English listening
 - `/chinese` → Chinese exercises (child routes via `chinese-exercises.routes.ts`)
 - `/formula` → Formula recites
 - `/knowledge` → Knowledge exercises (child routes: list + `displayv2`)
+- `/user-detail` → User detail
 - `/404` → Not found (`**` catch-all redirects here)
 
 ### Key Services
@@ -101,7 +103,7 @@ Category → `LearningContentService` method → backend `Storage/` subfolder:
 | 5 | Formula | `getFormulaContents()` | `getFormulaFileContent()` | `formula` |
 | 6 | Knowledge Bank | `getKnowledgeBankContents()` | `getKnowledgeExerciseContent()` | `knowledge-exercises` |
 
-The `Storage/` index files (`data.json` / `formula.json`) and content JSON live in the backend. Knowledge-exercise files are still schema-validated by `tools/validate-schema.js` against `tools/exercise-schema.json`.
+The `Storage/` index files (`data.json` / `formula.json`) and content JSON live in the backend. Schema validation lives in the `knowledgebuilder-content` repo (`npm run validate` runs `util/validate-schema.js`); the local `tools/validate-schema.js` is stale and no longer runs (it targets a removed `public/data/` path).
 
 ### Styling
 
@@ -168,7 +170,7 @@ Component 'FooComponent' is not resolved:
 Did you run and wait for 'resolveComponentResources()'?
 ```
 
-`ng test` routes through the Angular builder, which properly compiles inline and external templates/styles before handing off to Vitest. The full suite (37 spec files, 1188 tests including component, service, dialog, and guard tests) passes cleanly this way.
+`ng test` routes through the Angular builder, which properly compiles inline and external templates/styles before handing off to Vitest. The full suite (38 spec files covering component, service, dialog, and guard tests) passes cleanly this way.
 
 ### Patterns
 
@@ -216,15 +218,14 @@ Did you run and wait for 'resolveComponentResources()'?
 ## Tools
 
 Located in `tools/`:
-- `validate-schema.js` — Validates exercise JSON files against schema: `node tools/validate-schema.js`
-- `exercise-schema.json` — JSON Schema for knowledge exercises (2020-12 draft)
-- `exercise-validation-report.md` — Validation results report
 - `parse_questions.py` / `parse_questions.ps1` — Question parsing utilities
 - `analyze_vocabularies.py` — Vocabulary analysis
 - `clean-cet6.js` — CET-6 data cleanup
 - `cutmp3.py` / `cutmp3v2.py` — Audio file processing
 - `enwordjson2excel.py` — Word data to Excel export
 - `find_duplicates.py` — Duplicate detection in data files
+
+> **Note:** `validate-schema.js`, `exercise-schema.json`, and `exercise-validation-report.md` are legacy/stale — they target a removed `public/data/knowledge-exercises/` path. Schema validation now lives in the `knowledgebuilder-content` repo (`util/validate-schema.js`, run via `npm run validate`).
 
 ## Deprecations to Avoid
 

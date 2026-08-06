@@ -3,15 +3,30 @@
     @if(isStudying) {
       <mat-toolbar class="container">
         <mat-toolbar-row>
-          <section>
+          <section class="study-progress-section">
             <div class="example-button-container">
               <mat-progress-bar mode="determinate" [value]="currentStudyProgress"></mat-progress-bar>
             </div>
+            <span class="study-progress-label">{{currentStudyCursor + 1}}/{{studyQueues.length}}</span>
           </section>
           <span class="toolbar-spacer"></span>
-          <button mat-fab class="toolbar-fab-button" [matTooltip]="t('vocabularyExercises.enableAutoMode')"
-            (click)="onEnableAutoMode()" [disabled]="isAutoMode">
-            <mat-icon>play_circle_outline</mat-icon>
+          @if(isAutoMode) {
+            <mat-form-field class="auto-mode-interval-field" appearance="fill" subscriptSizing="dynamic">
+              <mat-label>{{ t('vocabularyExercises.secondsPerWord') }}</mat-label>
+              <mat-select [value]="autoModeSeconds" (selectionChange)="onAutoModeIntervalChange($event.value)">
+                @for (sec of autoModeSecondsOptions; track sec) {
+                  <mat-option [value]="sec">{{sec}}s</mat-option>
+                }
+              </mat-select>
+            </mat-form-field>
+          }
+          <button mat-fab class="toolbar-fab-button" [matTooltip]="t(autoModeToggleTooltipKey)"
+            (click)="onToggleAutoMode()">
+            <mat-icon>{{ autoModeToggleIcon }}</mat-icon>
+          </button>
+          <button mat-fab class="toolbar-fab-button" [matTooltip]="t('vocabularyExercises.stopAutoMode')"
+            (click)="onStopAutoMode()" [disabled]="!isAutoMode">
+            <mat-icon>stop_circle</mat-icon>
           </button>
           <button mat-fab class="toolbar-fab-button" [matTooltip]="t('vocabularyExercises.previous')" (click)="onStudyPreviousWord()" [disabled]="isAutoMode || isStudyPreviousDisabled">
             <mat-icon>arrow_left</mat-icon>
@@ -24,7 +39,8 @@
           </button>
         </mat-toolbar-row>
       </mat-toolbar>
-      <div class="vocabulary-container">
+      <div class="vocabulary-container"
+        (touchstart)="onStudyTouchStart($event)" (touchend)="onStudyTouchEnd($event)">
         <div class="vocabulary-typing-explain">
           {{studyQueues[currentStudyCursor].enword}}
         </div>
@@ -44,6 +60,50 @@
             <mat-button-toggle [value]="5">5</mat-button-toggle>
           </mat-button-toggle-group>
         </div>
+      </div>
+    }
+    @else if (isDictating) {
+      <mat-toolbar class="container">
+        <mat-toolbar-row>
+          <span class="toolbar-spacer"></span>
+          <button mat-fab class="toolbar-fab-button" [matTooltip]="t('vocabularyExercises.quit')" (click)="onQuitDictation()">
+            <mat-icon>cancel_presentation</mat-icon>
+          </button>
+        </mat-toolbar-row>
+      </mat-toolbar>
+      <div class="vocabulary-dictation-container">
+        <mat-progress-bar class="vocabulary-dictation-progress" mode="determinate" [value]="currentDictationProgress"></mat-progress-bar>
+      </div>
+    }
+    @else if (isDictationCompleted) {
+      <mat-toolbar class="container">
+        <mat-toolbar-row>
+          <span>
+            <h5>{{ t('vocabularyExercises.dictationResult') }}</h5>
+          </span>
+          <span class="toolbar-spacer"></span>
+          <button mat-fab class="toolbar-fab-button" [matTooltip]="t('vocabularyExercises.quit')" (click)="onQuitDictation()">
+            <mat-icon>cancel_presentation</mat-icon>
+          </button>
+        </mat-toolbar-row>
+      </mat-toolbar>
+      <div class="container">
+        <table mat-table [dataSource]="dictationQueues" class="mat-elevation-z8 w-full">
+          <ng-container matColumnDef="order">
+            <th mat-header-cell *matHeaderCellDef> # </th>
+            <td mat-cell *matCellDef="let element; let i = index"> {{i + 1}} </td>
+          </ng-container>
+          <ng-container matColumnDef="enword">
+            <th mat-header-cell *matHeaderCellDef> {{ t('vocabularyExercises.word') }} </th>
+            <td mat-cell *matCellDef="let element"> {{element.enword}} </td>
+          </ng-container>
+          <ng-container matColumnDef="cnword">
+            <th mat-header-cell *matHeaderCellDef> {{ t('vocabularyExercises.chinese') }} </th>
+            <td mat-cell *matCellDef="let element"> {{element.cnword}} </td>
+          </ng-container>
+          <tr mat-header-row *matHeaderRowDef="displayedDictationColumns; sticky: true"></tr>
+          <tr mat-row *matRowDef="let row; columns: displayedDictationColumns;"></tr>
+        </table>
       </div>
     }
     @else if (isTypingInProgress) {
@@ -155,6 +215,9 @@
           </button>
           <button mat-fab class="toolbar-fab-button" [matTooltip]="t('vocabularyExercises.start')" (click)="onTypingWithOptions()" [disabled]="!selectedFile">
             <mat-icon>keyboard</mat-icon>
+          </button>
+          <button mat-fab class="toolbar-fab-button" [matTooltip]="t('vocabularyExercises.dictation')" (click)="onDictationWithOptions()" [disabled]="!selectedFile">
+            <mat-icon>record_voice_over</mat-icon>
           </button>
         </mat-toolbar-row>
       </mat-toolbar>

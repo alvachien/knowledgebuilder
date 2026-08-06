@@ -48,10 +48,13 @@ import { Router } from '@angular/router';
 import { TranslocoModule } from '@jsverse/transloco';
 import { zhCN } from 'date-fns/locale';
 
+import { environment } from '../../../environments/environment';
+
 import type {
   LearnEnglishWordFileItem,
   LearningContent,
   StudyQueueItem,
+  VocabularyDictationOption,
   VocabularyPrintOption,
   VocabularySelectOption,
   VocabularyStudyOption,
@@ -76,6 +79,11 @@ import { AudioService, LearningContentService, LearningRatingService, UIService,
 import { FooterComponent } from '../../shared/footer/footer';
 import { fisherYatesShuffle } from '../../shared/utils/shuffle';
 import { AppPageTitle } from '../page-title/page-title';
+
+// Dictation: milliseconds to wait after speaking each word before advancing to
+// the next. The first word is spoken immediately on start; subsequent words are
+// spoken on each tick of this interval.
+const DICTATION_DELAY_MS = 3000;
 
 @Component({
   selector: 'app-vocabulary-exercises',
@@ -156,11 +164,22 @@ export class VocabularyExercisesComponent implements OnInit {
   currentStudyProgress = 0;
   currentStudyCursor = 0;
   // Auto mode (study): auto-advance to the next word every N seconds. While
-  // active, only the cancel/quit button is enabled; prev/next and the seconds
-  // input are disabled. Auto mode self-stops on reaching the last word.
+  // engaged (isAutoMode), prev/next and swipe are disabled; the play button
+  // toggles pause/resume and a stop button returns to manual study. Auto mode
+  // self-stops on reaching the last word. isAutoModePaused distinguishes a
+  // halted (paused) timer from a running one without leaving auto mode.
   isAutoMode = false;
+  isAutoModePaused = false;
   autoModeSeconds = 5;
+  /** Selectable auto-mode intervals, in seconds per word. */
+  readonly autoModeSecondsOptions = [2, 3, 4, 5, 6, 7, 8, 9, 10];
   private autoModeSubscription?: Subscription;
+  // Touch/swipe tracking for study-mode prev/next navigation. We record the
+  // start position on touchstart and, on touchend, treat a sufficiently
+  // horizontal gesture as a swipe (left = next, right = previous), mirroring
+  // the ArrowLeft/ArrowRight keyboard shortcuts.
+  private studyTouchStartX = 0;
+  private studyTouchStartY = 0;
   // Typing
   typeSetting: VocabularyTypingOption = {
     disableVoice: false,
@@ -183,6 +202,22 @@ export class VocabularyExercisesComponent implements OnInit {
     printEntryDate: true,
     uniformBlankLength: true,
   };
+  // Dictation
+  // Dictation plays each word's audio in turn, waiting a fixed delay between
+  // words, and shows nothing but a progress bar (the learner writes on paper).
+  // It reuses the same queue-prep approach as Typing (coverContentToQueue +
+  // filters + shuffle + count), only without the presentation toggles.
+  dictationSetting: VocabularyDictationOption = {
+    countOfItems: 20,
+  };
+  isDictating = false;
+  isDictationCompleted = false;
+  dictationQueues: VocabularyTypingQueue[] = [];
+  currentDictationCursor = 0;
+  currentDictationProgress = 0;
+  // Columns shown in the post-dictation "check your answers" table.
+  displayedDictationColumns: string[] = ['order', 'enword', 'cnword'];
+  private dictationSubscription?: Subscription;
 
   get wordQueueCount(): number {
     return this.dataSource.data.length;
@@ -567,7 +602,7 @@ export class VocabularyExercisesComponent implements OnInit {
 
     // Speak the first word
     if (!this.studySetting.disableVoice) {
-      this.speakWord(this.studyQueues[0].enword);
+      void this.speakWord(this.studyQueues[0].enword);
     }
 
     // Load existing ratings for this content
@@ -603,7 +638,7 @@ export class VocabularyExercisesComponent implements OnInit {
       );
       this.cdr.markForCheck();
       if (!this.studySetting.disableVoice) {
-        this.speakWord(this.studyQueues[this.currentStudyCursor].enword);
+        void this.speakWord(this.studyQueues[this.currentStudyCursor].enword);
       }
     }
   }
@@ -616,10 +651,49 @@ export class VocabularyExercisesComponent implements OnInit {
       );
       this.cdr.markForCheck();
       if (!this.studySetting.disableVoice) {
-        this.speakWord(this.studyQueues[this.currentStudyCursor].enword);
+        void this.speakWord(this.studyQueues[this.currentStudyCursor].enword);
       }
     } else {
       // Save it to the storage db
+    }
+  }
+
+  /** Records the start of a touch on the study card for swipe detection. */
+  onStudyTouchStart(event: TouchEvent): void {
+    // Only track single-finger touches so a pinch/zoom doesn't read as a swipe.
+    if (event.touches.length !== 1) {
+      return;
+    }
+    this.studyTouchStartX = event.touches[0].clientX;
+    this.studyTouchStartY = event.touches[0].clientY;
+  }
+
+  /** Resolves a touch into a swipe-driven prev/next, or ignores it. */
+  onStudyTouchEnd(event: TouchEvent): void {
+    // Manual swipe is disabled while auto mode is running, matching the
+    // keyboard shortcuts (ArrowLeft/ArrowRight) and the toolbar buttons.
+    if (this.isAutoMode) {
+      return;
+    }
+    if (event.changedTouches.length !== 1) {
+      return;
+    }
+    const deltaX = event.changedTouches[0].clientX - this.studyTouchStartX;
+    const deltaY = event.changedTouches[0].clientY - this.studyTouchStartY;
+    // Ignore short gestures (taps on the card or the rating toggles) and
+    // gestures that are more vertical than horizontal (so scrolling doesn't
+    // navigate). onStudyPreviousWord/onStudyNextWord self-guard the cursor
+    // bounds, so we can call them directly as the keyboard handler does.
+    const swipeThreshold = 50;
+    if (Math.abs(deltaX) < swipeThreshold || Math.abs(deltaX) <= Math.abs(deltaY)) {
+      return;
+    }
+    if (deltaX > 0) {
+      // Swipe right -> previous word (mirrors ArrowLeft).
+      this.onStudyPreviousWord();
+    } else {
+      // Swipe left -> next word (mirrors ArrowRight).
+      this.onStudyNextWord();
     }
   }
 
@@ -637,12 +711,92 @@ export class VocabularyExercisesComponent implements OnInit {
     );
     this.cdr.markForCheck();
     if (!this.studySetting.disableVoice) {
-      this.speakWord(this.studyQueues[this.currentStudyCursor].enword);
+      void this.speakWord(this.studyQueues[this.currentStudyCursor].enword);
     }
     // Fall back to the default if the user cleared the input or entered 0.
     const seconds = this.autoModeSeconds && this.autoModeSeconds > 0 ? this.autoModeSeconds : 5;
     this.isAutoMode = true;
+    this.isAutoModePaused = false;
     this.cdr.markForCheck();
+    this.startAutoAdvanceTimer(seconds);
+  }
+
+  /**
+   * Toolbar play/pause button. Dispatches based on auto-mode state:
+   * - manual  -> start (always from the first word, via onEnableAutoMode)
+   * - running -> pause (halt the timer at the current word)
+   * - paused  -> resume (continue from the current word)
+   */
+  onToggleAutoMode() {
+    if (!this.isAutoMode) {
+      this.onEnableAutoMode();
+    } else if (this.isAutoModePaused) {
+      this.onResumeAutoMode();
+    } else {
+      this.onPauseAutoMode();
+    }
+  }
+
+  /** Halt the auto-advance timer at the current word without leaving auto mode. */
+  onPauseAutoMode() {
+    if (!this.isAutoMode || this.isAutoModePaused) {
+      return;
+    }
+    this.autoModeSubscription?.unsubscribe();
+    this.autoModeSubscription = undefined;
+    this.isAutoModePaused = true;
+    this.cdr.markForCheck();
+  }
+
+  /** Continue auto-advance from the current word after a pause. */
+  onResumeAutoMode() {
+    if (!this.isAutoMode || !this.isAutoModePaused) {
+      return;
+    }
+    this.isAutoModePaused = false;
+    this.cdr.markForCheck();
+    const seconds = this.autoModeSeconds && this.autoModeSeconds > 0 ? this.autoModeSeconds : 5;
+    this.startAutoAdvanceTimer(seconds);
+  }
+
+  /** End auto mode and return to manual study (prev/next re-enabled). */
+  onStopAutoMode() {
+    this.stopAutoMode();
+  }
+
+  /** Icon for the play/pause toggle, based on auto-mode state. */
+  get autoModeToggleIcon(): string {
+    return this.isAutoMode && !this.isAutoModePaused ? 'pause_circle_outline' : 'play_circle_outline';
+  }
+
+  /** Transloco key for the play/pause toggle tooltip, based on auto-mode state. */
+  get autoModeToggleTooltipKey(): string {
+    if (this.isAutoMode && !this.isAutoModePaused) {
+      return 'vocabularyExercises.pauseAutoMode';
+    }
+    if (this.isAutoModePaused) {
+      return 'vocabularyExercises.resumeAutoMode';
+    }
+    return 'vocabularyExercises.enableAutoMode';
+  }
+
+  /** Restart the auto-advance timer with a new per-word interval. */
+  onAutoModeIntervalChange(seconds: number): void {
+    // The dropdown only offers 2..10, but guard against invalid values anyway.
+    if (!seconds || seconds <= 0) {
+      return;
+    }
+    this.autoModeSeconds = seconds;
+    // Restart the timer so the current word's remaining time resets to the new
+    // full interval - but only while actively running. While paused we just
+    // record the new interval; onResumeAutoMode starts the timer with it.
+    if (this.isAutoMode && !this.isAutoModePaused) {
+      this.autoModeSubscription?.unsubscribe();
+      this.startAutoAdvanceTimer(seconds);
+    }
+  }
+
+  private startAutoAdvanceTimer(seconds: number): void {
     this.autoModeSubscription = interval(seconds * 1000)
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe(() => this.autoAdvanceStudy());
@@ -661,14 +815,51 @@ export class VocabularyExercisesComponent implements OnInit {
     this.autoModeSubscription?.unsubscribe();
     this.autoModeSubscription = undefined;
     this.isAutoMode = false;
+    this.isAutoModePaused = false;
     this.cdr.markForCheck();
   }
 
   onQuitStudy() {
+    // Don't stack a second confirmation if one is already on screen. The study
+    // toolbar button can't be clicked while a modal is open, but the
+    // document:keyup Escape handler (see handleKeyboardEvent) re-fires while
+    // the dialog is visible. The dialog is opened with `disableClose` so Escape
+    // cannot dismiss it - otherwise that same Escape keyup would land here
+    // again and reopen the dialog (keydown closes the dialog, then the keyup
+    // reaches this method).
+    if (this.dialog.openDialogs.length > 0) {
+      return;
+    }
+
+    const dialogRef = this.dialog.open(VocabularyQuitConfirmDialogComponent, {
+      disableClose: true,
+      width: '360px',
+      enterAnimationDuration: 400,
+      exitAnimationDuration: 300,
+    });
+
+    dialogRef
+      .afterClosed()
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((confirmed: boolean | undefined) => {
+        if (confirmed === true) {
+          this.performQuitStudy();
+        }
+      });
+  }
+
+  private performQuitStudy() {
     // Stop the auto-advance timer first so it cannot fire after the study
     // queues are cleared below (which would leave onStudyNextWord operating on
     // an empty array).
     this.stopAutoMode();
+
+    // Stop any in-flight word audio (server-served or TTS fallback) so a word
+    // doesn't keep playing after quitting.
+    this.audiosrv.stopWordOneShot();
+    if (typeof window !== 'undefined' && window.speechSynthesis) {
+      window.speechSynthesis.cancel();
+    }
 
     // Sync ratings captured during study back into the list view's source of
     // truth (contentRatingMap) so the rating column reflects any changes once
@@ -732,6 +923,18 @@ export class VocabularyExercisesComponent implements OnInit {
 
   @HostListener('document:keyup', ['$event'])
   handleKeyboardEvent(event: KeyboardEvent) {
+    // ── Dictation mode keyboard shortcut ───────────────────────────
+    // Esc: quit (mid-dictation) or return (from the answer-check view). Dictation
+    // has no other keyboard interaction, so swallow other keys to keep them from
+    // bleeding into typing mode.
+    if (this.isDictating || this.isDictationCompleted) {
+      if (event.key === 'Escape') {
+        this.onQuitDictation();
+        event.preventDefault();
+      }
+      return;
+    }
+
     // ── Study mode keyboard shortcuts ──────────────────────────────
     // 1-5: rate current word, ArrowLeft/Right: prev/next, Esc: quit
     if (this.isStudying) {
@@ -841,7 +1044,25 @@ export class VocabularyExercisesComponent implements OnInit {
     }
   }
 
-  private speakWord(word: string): void {
+  private speakWord(word: string): Promise<void> {
+    // Speak a word. Prefers real pronunciation audio served from the
+    // /api/WordAudio endpoint (looked up in words.db on the server); falls back
+    // to the browser's speechSynthesis TTS when the word is absent from the
+    // database or its audio file is missing (server returns 404). All vocabulary
+    // modes (study, typing, dictation) share this entry point. Fire-and-forget at
+    // the call sites, so the returned promise is intentionally not awaited there.
+    if (!word) {
+      return Promise.resolve();
+    }
+    const url = `${environment.apiUrl}/api/WordAudio?word=${encodeURIComponent(word)}`;
+    return this.audiosrv.playAuthenticatedOneShot(url).then(played => {
+      if (!played) {
+        this.speakWordTts(word);
+      }
+    });
+  }
+
+  private speakWordTts(word: string): void {
     if (typeof window === 'undefined' || !window.speechSynthesis) {
       return;
     }
@@ -880,7 +1101,7 @@ export class VocabularyExercisesComponent implements OnInit {
       const archars = this.wordqueues[idx].enword.split('');
       if (!this.typeSetting.disableVoice) {
         // Use the browser's Web Speech API instead of leaking vocabulary to a third-party server
-        this.speakWord(this.wordqueues[idx].enword);
+        void this.speakWord(this.wordqueues[idx].enword);
       }
 
       archars.forEach((val, index: number) => {
@@ -1104,6 +1325,143 @@ export class VocabularyExercisesComponent implements OnInit {
     };
     this.uiService.setSelectedExerciseItem(items, execPrintSetting);
     void this.router.navigate(['/knowledge/displayv2']);
+  }
+
+  // Dictation
+  onDictationWithOptions() {
+    const dialogRef = this.dialog.open(VocabularyExercisesDictationOptionsDialogComponent, {
+      data: {
+        wordQueueCount:
+          this.selection.selected.length > 0
+            ? this.selection.selected.length
+            : this.dataSource.data.length,
+        withSelection: this.selection.selected.length > 0 ? true : false,
+      },
+      width: '500px',
+      height: '400px',
+      enterAnimationDuration: 800,
+      exitAnimationDuration: 500,
+    });
+
+    dialogRef
+      .afterClosed()
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(result => {
+        if (result !== undefined) {
+          if (result.excludePart) {
+            this.dictationSetting.excludePart = result.excludePart;
+          } else {
+            this.dictationSetting.excludePart = undefined;
+          }
+          this.dictationSetting.wordLeadingCharacter = result.wordLeadingCharacter;
+          this.dictationSetting.countOfItems = result.countOfItems;
+
+          this.onDictationStart();
+          // OnPush: the dictation view switch (isDictating) happens in this async
+          // afterClosed callback - without markForCheck the view would not switch
+          // to the dictation screen until a later DOM event.
+          this.cdr.markForCheck();
+        }
+      });
+  }
+
+  onDictationStart() {
+    // Same queue-prep approach as Typing: selected rows as-is, otherwise filter
+    // by excludePart / leading character, then shuffle and cap to countOfItems.
+    if (this.selection.selected.length > 0) {
+      this.dictationQueues = this.coverContentToQueue(this.selection.selected);
+    } else {
+      this.dictationQueues = this.coverContentToQueue(this.dataSource.data);
+      if (this.dictationSetting.excludePart) {
+        const excludedPart = this.dictationSetting.excludePart;
+        this.dictationQueues = this.dictationQueues.filter(
+          val =>
+            (excludedPart === VocabularyExcludedPartEnum.word && val.enword.indexOf(' ') !== -1) ||
+            (excludedPart === VocabularyExcludedPartEnum.phase && val.enword.indexOf(' ') === -1)
+        );
+      }
+      if (
+        this.dictationSetting.wordLeadingCharacter &&
+        this.dictationSetting.wordLeadingCharacter.length > 0
+      ) {
+        this.dictationQueues = this.dictationQueues.filter(val => {
+          return this.dictationSetting.wordLeadingCharacter?.some(
+            char => val.enword.startsWith(char) || val.enword.startsWith(char.toUpperCase())
+          );
+        });
+      }
+      if (this.dictationQueues.length > this.dictationSetting.countOfItems) {
+        // Randomize the array
+        this.dictationQueues = fisherYatesShuffle(this.dictationQueues);
+        // Keep only the first `this.countOfItems` items
+        this.dictationQueues = this.dictationQueues.slice(0, this.dictationSetting.countOfItems);
+      }
+    }
+
+    // Nothing to dictate (e.g. a filter excluded every word) - bail out before
+    // touching index 0, which would otherwise throw on dictationQueues[0].enword
+    // and produce an Infinity progress value.
+    if (this.dictationQueues.length === 0) {
+      this.isDictating = false;
+      this.isDictationCompleted = false;
+      this.currentDictationCursor = 0;
+      this.currentDictationProgress = 0;
+      return;
+    }
+
+    this.currentDictationCursor = 0;
+    this.currentDictationProgress = Math.round((1 / this.dictationQueues.length) * 100);
+    this.isDictating = true;
+    this.isDictationCompleted = false;
+
+    // Speak the first word immediately, then advance every DICTATION_DELAY_MS.
+    void this.speakWord(this.dictationQueues[0].enword);
+    this.dictationSubscription = interval(DICTATION_DELAY_MS)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(() => this.advanceDictation());
+  }
+
+  private advanceDictation() {
+    if (this.currentDictationCursor < this.dictationQueues.length - 1) {
+      this.currentDictationCursor++;
+      this.currentDictationProgress = Math.round(
+        ((this.currentDictationCursor + 1) / this.dictationQueues.length) * 100
+      );
+      this.cdr.markForCheck();
+      void this.speakWord(this.dictationQueues[this.currentDictationCursor].enword);
+    } else {
+      // Reached the last word - stop the timer and reveal all words so the
+      // learner can check what they wrote against the answers. The queue is
+      // intentionally kept (not cleared) so the completed view can render it.
+      this.stopDictationTimer();
+      this.isDictating = false;
+      this.isDictationCompleted = true;
+      this.cdr.markForCheck();
+    }
+  }
+
+  private stopDictationTimer() {
+    this.dictationSubscription?.unsubscribe();
+    this.dictationSubscription = undefined;
+  }
+
+  onQuitDictation() {
+    // Stop the timer first so it cannot fire after the queues are cleared below.
+    this.stopDictationTimer();
+
+    // Cancel any in-flight word audio (server-served or TTS fallback) so a word
+    // doesn't keep playing after quitting.
+    this.audiosrv.stopWordOneShot();
+    if (typeof window !== 'undefined' && window.speechSynthesis) {
+      window.speechSynthesis.cancel();
+    }
+
+    this.isDictating = false;
+    this.isDictationCompleted = false;
+    this.dictationQueues = [];
+    this.currentDictationCursor = 0;
+    this.currentDictationProgress = 0;
+    this.cdr.markForCheck();
   }
 
   /** Returns the data array in the current sort order (mirrors MatSort behavior). */
@@ -1369,6 +1727,52 @@ export class VocabularyExercisesTypingOptionsDialogComponent {
 }
 
 @Component({
+  selector: 'app-vocabulary-exercises-dictationoptions-dlg',
+  templateUrl: 'vocabulary-exercises-dictationoptions-dialog.html',
+  imports: [
+    MatFormFieldModule,
+    FormsModule,
+    MatInputModule,
+    MatButtonModule,
+    MatDialogTitle,
+    MatDialogContent,
+    MatDialogActions,
+    MatSelectModule,
+    TranslocoModule,
+  ],
+  changeDetection: ChangeDetectionStrategy.OnPush,
+})
+export class VocabularyExercisesDictationOptionsDialogComponent {
+  readonly dialogRef = inject(MatDialogRef<VocabularyExercisesDictationOptionsDialogComponent>);
+
+  readonly excludePart = model(undefined);
+  readonly wordLeadingCharacter = model([] as string[]);
+  readonly countOfItems = model(this.data.withSelection ? this.data.wordQueueCount : 20);
+
+  readonly util = inject(UtilService);
+  readonly allCharacters = this.util.getAllCharacters();
+  readonly allExcludeParts = this.util.getAllTypingExcludeParts();
+
+  constructor(
+    @Inject(MAT_DIALOG_DATA) public data: { wordQueueCount: number; withSelection: boolean }
+  ) {}
+
+  onNoClick(): void {
+    this.dialogRef.close();
+  }
+
+  onYesClick(): void {
+    const closedata: VocabularyDictationOption = {
+      excludePart: this.excludePart(),
+      wordLeadingCharacter: this.wordLeadingCharacter(),
+      countOfItems: this.countOfItems(),
+    };
+
+    this.dialogRef.close(closedata);
+  }
+}
+
+@Component({
   selector: 'app-vocabulary-exercises-printoptions-dlg',
   templateUrl: 'vocabulary-exercises-printoptions-dialog.html',
   imports: [
@@ -1542,5 +1946,31 @@ export class VocabularySelectDialogComponent {
         break;
     }
     this.dialogRef.close(result);
+  }
+}
+
+@Component({
+  selector: 'app-vocabulary-quit-confirm-dlg',
+  templateUrl: 'vocabulary-exercises-quit-confirm-dialog.html',
+  imports: [
+    MatButtonModule,
+    MatDialogTitle,
+    MatDialogContent,
+    MatDialogActions,
+    TranslocoModule,
+  ],
+  changeDetection: ChangeDetectionStrategy.OnPush,
+})
+export class VocabularyQuitConfirmDialogComponent {
+  readonly dialogRef = inject(MatDialogRef<VocabularyQuitConfirmDialogComponent>);
+
+  /** Cancel: keep studying. Initial focus lands here so Enter/Space doesn't quit. */
+  onCancelClick(): void {
+    this.dialogRef.close(false);
+  }
+
+  /** Confirm: close with `true`; onQuitStudy's afterClosed then runs the cleanup. */
+  onConfirmClick(): void {
+    this.dialogRef.close(true);
   }
 }

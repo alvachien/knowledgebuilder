@@ -1,0 +1,10 @@
+<div *transloco="let t">
+  <h2 mat-dialog-title>{{ t('vocabularyExercises.quitConfirmTitle') }}</h2>
+  <mat-dialog-content>
+    <p>{{ t('vocabularyExercises.quitConfirmMessage') }}</p>
+  </mat-dialog-content>
+  <mat-dialog-actions>
+    <button mat-button (click)="onCancelClick()" cdkFocusInitial>{{ t('cancel') }}</button>
+    <button mat-button (click)="onConfirmClick()">{{ t('vocabularyExercises.quit') }}</button>
+  </mat-dialog-actions>
+</div>

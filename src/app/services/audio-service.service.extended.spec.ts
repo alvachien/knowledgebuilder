@@ -1,5 +1,7 @@
 import { NgZone } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
+import { provideHttpClient } from '@angular/common/http';
+import { provideHttpClientTesting, HttpTestingController } from '@angular/common/http/testing';
 import type { HowlOptions } from 'howler';
 import { vi } from 'vitest';
 
@@ -7,6 +9,7 @@ import type { PlaybackState } from './audio-service.service';
 import { AudioService } from './audio-service.service';
 import { HOWL_FACTORY, type HowlFactory } from './howl-factory';
 import { HOWLER_GLOBAL, type HowlerGlobal } from './howler.token';
+import { environment } from '../../environments/environment';
 
 /**
  * Extended test suite for AudioService with mock Howl factory
@@ -19,6 +22,7 @@ describe('AudioService Extended Tests', () => {
   let mockHowlFactory: ReturnType<typeof vi.fn>;
   let mockHowlerGlobal: { volume: ReturnType<typeof vi.fn> };
   let capturedConfig: HowlOptions;
+  let httpMock: HttpTestingController;
 
   /**
    * Creates a mock Howl instance with all required methods
@@ -71,12 +75,16 @@ describe('AudioService Extended Tests', () => {
         { provide: NgZone, useValue: new NgZone({ enableLongStackTrace: false }) },
         { provide: HOWL_FACTORY, useValue: mockHowlFactory },
         { provide: HOWLER_GLOBAL, useValue: mockHowlerGlobal },
+        provideHttpClient(),
+        provideHttpClientTesting(),
       ],
     });
     service = TestBed.inject(AudioService);
+    httpMock = TestBed.inject(HttpTestingController);
   });
 
   afterEach(() => {
+    httpMock.verify();
     if (service) {
       service.ngOnDestroy();
     }
@@ -95,6 +103,24 @@ describe('AudioService Extended Tests', () => {
     it('should set currentAudioFile', () => {
       service.load('test.mp3');
       expect(service.currentAudioFile).toBe('test.mp3');
+    });
+
+    it('should fetch authenticated Storage audio via HttpClient and feed Howl a blob URL', async () => {
+      const url = `${environment.apiUrl}/api/Storage/englishlistening/lesson1.mp3`;
+
+      const promise = service.load(url);
+
+      // currentAudioFile is set synchronously, before the async fetch resolves.
+      expect(service.currentAudioFile).toBe(url);
+
+      const req = httpMock.expectOne(url);
+      req.flush(new Blob(['audio-bytes'], { type: 'audio/mpeg' }));
+
+      await promise;
+
+      expect(mockHowlFactory).toHaveBeenCalled();
+      expect(capturedConfig.src[0]).toMatch(/^blob:/);
+      expect(capturedConfig.format).toEqual(['mp3']);
     });
 
     it('should transition to loading state', () => {
@@ -427,11 +453,17 @@ describe('AudioService Extended Tests', () => {
       expect(mockHowlerGlobal.volume).toHaveBeenCalledWith(1);
     });
 
-    it('should create Howl with API path when frontendfile is false', () => {
-      service.playSound('audio.wav', false);
+    it('should fetch backend audio via HttpClient and create Howl with a blob URL when frontendfile is false', async () => {
+      const promise = service.playSound('audio.wav', false);
+
+      const req = httpMock.expectOne(`${environment.apiUrl}/audio.wav`);
+      req.flush(new Blob(['x'], { type: 'audio/wav' }));
+
+      await promise;
 
       expect(mockHowlFactory).toHaveBeenCalled();
-      expect(capturedConfig.src[0]).toContain('audio.wav');
+      expect(capturedConfig.src[0]).toMatch(/^blob:/);
+      expect(capturedConfig.format).toEqual(['wav']);
     });
 
     it('should use wav format', () => {

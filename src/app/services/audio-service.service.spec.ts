@@ -1,5 +1,7 @@
 import { NgZone } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
+import { provideHttpClient } from '@angular/common/http';
+import { provideHttpClientTesting } from '@angular/common/http/testing';
 import { vi } from 'vitest';
 
 import { AudioService } from './audio-service.service';
@@ -109,7 +111,12 @@ describe('AudioService', () => {
     };
 
     TestBed.configureTestingModule({
-      providers: [AudioService, { provide: NgZone, useValue: new NgZone({}) }],
+      providers: [
+        AudioService,
+        { provide: NgZone, useValue: new NgZone({}) },
+        provideHttpClient(),
+        provideHttpClientTesting(),
+      ],
     });
     service = TestBed.inject(AudioService);
   });

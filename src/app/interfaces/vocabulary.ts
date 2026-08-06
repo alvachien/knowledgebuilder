@@ -54,6 +54,14 @@ export interface VocabularyStudyOption extends VocabularyOptionCore {
   hideExplain: boolean;
 }
 
+// Dictation vocabulary options.
+// Dictation only prepares the word queue (it plays each word's audio and shows
+// nothing but a progress bar), so it needs none of the presentation toggles
+// (disableVoice/hideExplain) that Study and Typing carry - just the core
+// queue-prep fields. Aliased rather than extended to avoid an empty interface
+// (no-empty-object-type).
+export type VocabularyDictationOption = VocabularyOptionCore;
+
 export enum VocabularyTypingStatusEnum {
   'NotStarted' = 0,
   'InProgress' = 1,
