@@ -1,4 +1,3 @@
-import { vi } from 'vitest';
 import type { ComponentFixture } from '@angular/core/testing';
 import { TestBed } from '@angular/core/testing';
 import { MatDialog, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
@@ -11,10 +10,26 @@ import {
   TRANSLOCO_MISSING_HANDLER,
 } from '@jsverse/transloco';
 import { of, throwError } from 'rxjs';
+import { vi } from 'vitest';
 
-import type { LearningContent, LearnEnglishWordFileItem, UserLearningRating, StudyQueueItem } from '../../interfaces';
-import { VocabularyExcludedPartEnum, RatingOperatorEnum, SelectionModeEnum } from '../../interfaces';
-import { AudioService, UIService, UtilService, LearningContentService, LearningRatingService } from '../../services';
+import type {
+  LearningContent,
+  LearnEnglishWordFileItem,
+  UserLearningRating,
+  StudyQueueItem,
+} from '../../interfaces';
+import {
+  VocabularyExcludedPartEnum,
+  RatingOperatorEnum,
+  SelectionModeEnum,
+} from '../../interfaces';
+import {
+  AudioService,
+  UIService,
+  UtilService,
+  LearningContentService,
+  LearningRatingService,
+} from '../../services';
 import { AppPageTitle } from '../page-title/page-title';
 
 import {
@@ -193,7 +208,9 @@ describe('VocabularyExercisesComponent', () => {
     it('should load file content when file is selected', () => {
       component.onFileSelectionChanged({ value: mockDataFiles[0] } as any);
 
-      expect(mockLearningContentService.getVocabularyWordContent).toHaveBeenCalledWith('data/file1.json');
+      expect(mockLearningContentService.getVocabularyWordContent).toHaveBeenCalledWith(
+        'data/file1.json'
+      );
       expect(component.dataSource.data).toEqual(mockWordContent);
     });
 
@@ -260,7 +277,6 @@ describe('VocabularyExercisesComponent', () => {
       expect(markForCheckSpy).toHaveBeenCalled();
     });
   });
-
 
   describe('onAddFileButtonClick', () => {
     it('should trigger file input click', () => {
@@ -332,6 +348,7 @@ describe('VocabularyExercisesComponent', () => {
       // inspect properties that the component assigns after construction.
       let readerInstance: any;
       function MockFileReader(this: any) {
+        // eslint-disable-next-line @typescript-eslint/no-this-alias
         readerInstance = this;
         this.readAsText = vi.fn();
         this.onload = null;
@@ -377,6 +394,7 @@ describe('VocabularyExercisesComponent', () => {
 
       let readerInstance: any;
       function MockFileReader(this: any) {
+        // eslint-disable-next-line @typescript-eslint/no-this-alias
         readerInstance = this;
         this.readAsText = vi.fn();
         this.onload = null;
@@ -646,9 +664,15 @@ describe('VocabularyExercisesComponent', () => {
 
     it('should limit to countOfItems and randomize', () => {
       component.studySetting.countOfItems = 3;
-      vi.spyOn(Math, 'random').mockReturnValueOnce(0.5).mockReturnValueOnce(0.3)
-        .mockReturnValueOnce(0.8).mockReturnValueOnce(0.1).mockReturnValueOnce(0.6)
-        .mockReturnValueOnce(0.4).mockReturnValueOnce(0.7).mockReturnValueOnce(0.2);
+      vi.spyOn(Math, 'random')
+        .mockReturnValueOnce(0.5)
+        .mockReturnValueOnce(0.3)
+        .mockReturnValueOnce(0.8)
+        .mockReturnValueOnce(0.1)
+        .mockReturnValueOnce(0.6)
+        .mockReturnValueOnce(0.4)
+        .mockReturnValueOnce(0.7)
+        .mockReturnValueOnce(0.2);
 
       component['onStudyCore']();
 
@@ -742,7 +766,13 @@ describe('VocabularyExercisesComponent', () => {
       mockRatingService.upsertRating.mockReturnValue(of(savedRating));
 
       component.studyContentId = 1;
-      const item: StudyQueueItem = { enword: 'hello', cnword: '你好', audiofile: '', rating: 4, itemId: 10 };
+      const item: StudyQueueItem = {
+        enword: 'hello',
+        cnword: '你好',
+        audiofile: '',
+        rating: 4,
+        itemId: 10,
+      };
 
       component.onRatingChanged(item);
 
@@ -751,7 +781,13 @@ describe('VocabularyExercisesComponent', () => {
 
     it('should not save when rating is less than 1', () => {
       component.studyContentId = 1;
-      const item: StudyQueueItem = { enword: 'hello', cnword: '你好', audiofile: '', rating: 0, itemId: 10 };
+      const item: StudyQueueItem = {
+        enword: 'hello',
+        cnword: '你好',
+        audiofile: '',
+        rating: 0,
+        itemId: 10,
+      };
 
       component.onRatingChanged(item);
 
@@ -769,7 +805,13 @@ describe('VocabularyExercisesComponent', () => {
 
     it('should not save when studyContentId is 0', () => {
       component.studyContentId = 0;
-      const item: StudyQueueItem = { enword: 'hello', cnword: '你好', audiofile: '', rating: 3, itemId: 10 };
+      const item: StudyQueueItem = {
+        enword: 'hello',
+        cnword: '你好',
+        audiofile: '',
+        rating: 3,
+        itemId: 10,
+      };
 
       component.onRatingChanged(item);
 
@@ -781,7 +823,13 @@ describe('VocabularyExercisesComponent', () => {
       mockRatingService.upsertRating.mockReturnValue(of(savedRating));
 
       component.studyContentId = 1;
-      const item: StudyQueueItem = { enword: 'hello', cnword: '你好', audiofile: '', rating: 5, itemId: 10 };
+      const item: StudyQueueItem = {
+        enword: 'hello',
+        cnword: '你好',
+        audiofile: '',
+        rating: 5,
+        itemId: 10,
+      };
 
       component.onRatingChanged(item);
 
@@ -1236,7 +1284,8 @@ describe('VocabularyExercisesComponent', () => {
 
     beforeEach(() => {
       originalSpeechSynthesis = window.speechSynthesis;
-      originalCtor = (window as unknown as { SpeechSynthesisUtterance?: unknown }).SpeechSynthesisUtterance;
+      originalCtor = (window as unknown as { SpeechSynthesisUtterance?: unknown })
+        .SpeechSynthesisUtterance;
       voicesChangedHandler = null;
       getVoicesMock = vi.fn(() => []);
       speakMock = vi.fn();
@@ -1280,7 +1329,8 @@ describe('VocabularyExercisesComponent', () => {
         configurable: true,
         value: originalSpeechSynthesis,
       });
-      (window as unknown as { SpeechSynthesisUtterance: unknown }).SpeechSynthesisUtterance = originalCtor;
+      (window as unknown as { SpeechSynthesisUtterance: unknown }).SpeechSynthesisUtterance =
+        originalCtor;
     });
 
     it('should not throw and should not speak when speechSynthesis is unavailable', () => {
@@ -1343,7 +1393,7 @@ describe('VocabularyExercisesComponent', () => {
       const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
       component['speakWordTts']('hello');
       const utterance = speakMock.mock.calls[0][0] as SpeechSynthesisUtterance;
-      const makeEvent = (error: string) => ({ error } as unknown as SpeechSynthesisErrorEvent);
+      const makeEvent = (error: string) => ({ error }) as unknown as SpeechSynthesisErrorEvent;
       utterance.onerror!(makeEvent('interrupted'));
       utterance.onerror!(makeEvent('canceled'));
       expect(warnSpy).not.toHaveBeenCalled();
@@ -2339,7 +2389,8 @@ describe('VocabularyExercisesComponent', () => {
     it('should select items whose enword matches the supplied words', () => {
       // 'hello', 'world', 'test' all exist in mockWordContent
       const mockDialogRef = {
-        afterClosed: () => of({ selectedSelectMode: SelectionModeEnum.ByID, importIDs: 'hello, world, test' }),
+        afterClosed: () =>
+          of({ selectedSelectMode: SelectionModeEnum.ByID, importIDs: 'hello, world, test' }),
       };
       mockDialog.open.mockReturnValue(mockDialogRef as any);
 
@@ -2353,7 +2404,8 @@ describe('VocabularyExercisesComponent', () => {
 
     it('should trim whitespace around each word when matching', () => {
       const mockDialogRef = {
-        afterClosed: () => of({ selectedSelectMode: SelectionModeEnum.ByID, importIDs: '  hello ,  world  ' }),
+        afterClosed: () =>
+          of({ selectedSelectMode: SelectionModeEnum.ByID, importIDs: '  hello ,  world  ' }),
       };
       mockDialog.open.mockReturnValue(mockDialogRef as any);
 
@@ -2364,7 +2416,8 @@ describe('VocabularyExercisesComponent', () => {
 
     it('should select nothing when none of the words match', () => {
       const mockDialogRef = {
-        afterClosed: () => of({ selectedSelectMode: SelectionModeEnum.ByID, importIDs: 'nonexistent, alsoabsent' }),
+        afterClosed: () =>
+          of({ selectedSelectMode: SelectionModeEnum.ByID, importIDs: 'nonexistent, alsoabsent' }),
       };
       mockDialog.open.mockReturnValue(mockDialogRef as any);
 
@@ -2404,7 +2457,8 @@ describe('VocabularyExercisesComponent', () => {
 
     it('should randomly select items', () => {
       const mockDialogRef = {
-        afterClosed: () => of({ selectedSelectMode: SelectionModeEnum.FreeSelection, countOfItems: 3 }),
+        afterClosed: () =>
+          of({ selectedSelectMode: SelectionModeEnum.FreeSelection, countOfItems: 3 }),
       };
       mockDialog.open.mockReturnValue(mockDialogRef as any);
 
@@ -2430,7 +2484,8 @@ describe('VocabularyExercisesComponent', () => {
 
     it('should select items by count', () => {
       const mockDialogRef = {
-        afterClosed: () => of({ selectedSelectMode: SelectionModeEnum.ByCount, countOfItems: 3, countOfOffset: 0 }),
+        afterClosed: () =>
+          of({ selectedSelectMode: SelectionModeEnum.ByCount, countOfItems: 3, countOfOffset: 0 }),
       };
       mockDialog.open.mockReturnValue(mockDialogRef as any);
 
@@ -2455,7 +2510,12 @@ describe('VocabularyExercisesComponent', () => {
 
     it('should select items with rating equals 5', () => {
       const mockDialogRef = {
-        afterClosed: () => of({ selectedSelectMode: SelectionModeEnum.ByRating, ratingOperator: RatingOperatorEnum.Equals, ratingValue: 5 }),
+        afterClosed: () =>
+          of({
+            selectedSelectMode: SelectionModeEnum.ByRating,
+            ratingOperator: RatingOperatorEnum.Equals,
+            ratingValue: 5,
+          }),
       };
       mockDialog.open.mockReturnValue(mockDialogRef as any);
 
@@ -2467,7 +2527,12 @@ describe('VocabularyExercisesComponent', () => {
 
     it('should select items with rating greater than 3', () => {
       const mockDialogRef = {
-        afterClosed: () => of({ selectedSelectMode: SelectionModeEnum.ByRating, ratingOperator: RatingOperatorEnum.GreaterThan, ratingValue: 3 }),
+        afterClosed: () =>
+          of({
+            selectedSelectMode: SelectionModeEnum.ByRating,
+            ratingOperator: RatingOperatorEnum.GreaterThan,
+            ratingValue: 3,
+          }),
       };
       mockDialog.open.mockReturnValue(mockDialogRef as any);
 
@@ -2479,7 +2544,11 @@ describe('VocabularyExercisesComponent', () => {
 
     it('should select items with any rating', () => {
       const mockDialogRef = {
-        afterClosed: () => of({ selectedSelectMode: SelectionModeEnum.ByRating, ratingOperator: RatingOperatorEnum.HasAny }),
+        afterClosed: () =>
+          of({
+            selectedSelectMode: SelectionModeEnum.ByRating,
+            ratingOperator: RatingOperatorEnum.HasAny,
+          }),
       };
       mockDialog.open.mockReturnValue(mockDialogRef as any);
 
@@ -2490,7 +2559,11 @@ describe('VocabularyExercisesComponent', () => {
 
     it('should select items with no rating', () => {
       const mockDialogRef = {
-        afterClosed: () => of({ selectedSelectMode: SelectionModeEnum.ByRating, ratingOperator: RatingOperatorEnum.HasNone }),
+        afterClosed: () =>
+          of({
+            selectedSelectMode: SelectionModeEnum.ByRating,
+            ratingOperator: RatingOperatorEnum.HasNone,
+          }),
       };
       mockDialog.open.mockReturnValue(mockDialogRef as any);
 
@@ -2504,7 +2577,12 @@ describe('VocabularyExercisesComponent', () => {
       // ratings: id1=5, id2=3, id3=0. LessThan 4 → only id2 (rating 3);
       // id3 (unrated, 0) is deliberately excluded (covered by HasNone).
       const mockDialogRef = {
-        afterClosed: () => of({ selectedSelectMode: SelectionModeEnum.ByRating, ratingOperator: RatingOperatorEnum.LessThan, ratingValue: 4 }),
+        afterClosed: () =>
+          of({
+            selectedSelectMode: SelectionModeEnum.ByRating,
+            ratingOperator: RatingOperatorEnum.LessThan,
+            ratingValue: 4,
+          }),
       };
       mockDialog.open.mockReturnValue(mockDialogRef as any);
 
@@ -2517,7 +2595,12 @@ describe('VocabularyExercisesComponent', () => {
     it('should select nothing when no rated item is below the value', () => {
       // ratings: id1=5, id2=3, id3=0. LessThan 2 → no rated item qualifies.
       const mockDialogRef = {
-        afterClosed: () => of({ selectedSelectMode: SelectionModeEnum.ByRating, ratingOperator: RatingOperatorEnum.LessThan, ratingValue: 2 }),
+        afterClosed: () =>
+          of({
+            selectedSelectMode: SelectionModeEnum.ByRating,
+            ratingOperator: RatingOperatorEnum.LessThan,
+            ratingValue: 2,
+          }),
       };
       mockDialog.open.mockReturnValue(mockDialogRef as any);
 
@@ -2529,7 +2612,12 @@ describe('VocabularyExercisesComponent', () => {
     it('should select items with rating larger or equals 3', () => {
       // ratings: id1=5, id2=3, id3=0. LargerOrEquals 3 → id1, id2.
       const mockDialogRef = {
-        afterClosed: () => of({ selectedSelectMode: SelectionModeEnum.ByRating, ratingOperator: RatingOperatorEnum.LargerOrEquals, ratingValue: 3 }),
+        afterClosed: () =>
+          of({
+            selectedSelectMode: SelectionModeEnum.ByRating,
+            ratingOperator: RatingOperatorEnum.LargerOrEquals,
+            ratingValue: 3,
+          }),
       };
       mockDialog.open.mockReturnValue(mockDialogRef as any);
 
@@ -2544,7 +2632,12 @@ describe('VocabularyExercisesComponent', () => {
       // ratings: id1=5, id2=3, id3=0. LessOrEquals 3 → only id2 (rating 3);
       // id3 (unrated, 0) is deliberately excluded (covered by HasNone).
       const mockDialogRef = {
-        afterClosed: () => of({ selectedSelectMode: SelectionModeEnum.ByRating, ratingOperator: RatingOperatorEnum.LessOrEquals, ratingValue: 3 }),
+        afterClosed: () =>
+          of({
+            selectedSelectMode: SelectionModeEnum.ByRating,
+            ratingOperator: RatingOperatorEnum.LessOrEquals,
+            ratingValue: 3,
+          }),
       };
       mockDialog.open.mockReturnValue(mockDialogRef as any);
 
@@ -2558,7 +2651,12 @@ describe('VocabularyExercisesComponent', () => {
       // ratings: id1=5, id2=3, id3=0. LessOrEquals 2 → no rated item qualifies;
       // id3 (unrated, 0) is excluded, confirming it does not collapse into HasNone.
       const mockDialogRef = {
-        afterClosed: () => of({ selectedSelectMode: SelectionModeEnum.ByRating, ratingOperator: RatingOperatorEnum.LessOrEquals, ratingValue: 2 }),
+        afterClosed: () =>
+          of({
+            selectedSelectMode: SelectionModeEnum.ByRating,
+            ratingOperator: RatingOperatorEnum.LessOrEquals,
+            ratingValue: 2,
+          }),
       };
       mockDialog.open.mockReturnValue(mockDialogRef as any);
 
@@ -3002,7 +3100,9 @@ describe('VocabularyExercisesPrintOptionsDialogComponent', () => {
 describe('VocabularySelectDialogComponent', () => {
   let mockDialogRef: any;
 
-  async function createComponent(mode: SelectionModeEnum): Promise<VocabularySelectDialogComponent> {
+  async function createComponent(
+    mode: SelectionModeEnum
+  ): Promise<VocabularySelectDialogComponent> {
     mockDialogRef = { close: vi.fn() };
 
     await TestBed.configureTestingModule({

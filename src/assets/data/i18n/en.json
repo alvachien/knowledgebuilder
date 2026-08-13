@@ -216,7 +216,8 @@
     "generateQuiz": "Generate Quiz",
     "submit": "Submit",
     "close": "Close",
-    "notYetSupported": "Not yet supported!"
+    "notYetSupported": "Not yet supported!",
+    "aiRequestFailed": "AI request failed. Please try again later."
   },
   "englishListening": {
     "pageTitle": "Listening",
@@ -256,6 +257,7 @@
   },
   "knowledgeExercises": {
     "title": "Knowledge Bank",
+    "detailV2Title": "Knowledge Bank - Exercise Detail V2",
     "files": "Files",
     "none": "None",
     "items": "Items",

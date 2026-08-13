@@ -1,8 +1,9 @@
-import { ChangeDetectionStrategy, Component, inject, OnDestroy } from '@angular/core';
-import { Router } from '@angular/router';
+import type { OnDestroy } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { Router } from '@angular/router';
 import { TranslocoModule } from '@jsverse/transloco';
-import { Subscription } from 'rxjs';
+import type { Subscription } from 'rxjs';
 import { filter } from 'rxjs/operators';
 
 import { AuthService } from '../../services/auth.service';

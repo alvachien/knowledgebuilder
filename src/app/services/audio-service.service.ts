@@ -1,6 +1,6 @@
+import { HttpClient } from '@angular/common/http';
 import type { OnDestroy } from '@angular/core';
 import { inject, Injectable, NgZone } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
 import type { Howl } from 'howler';
 import type { Observable } from 'rxjs';
 import { BehaviorSubject, firstValueFrom } from 'rxjs';
@@ -74,6 +74,10 @@ export class AudioService implements OnDestroy {
   private wordSound?: Howl;
   private wordGeneration = 0;
 
+  // Monotonic counter guarding against interleaved async loads: a superseded
+  // authenticated fetch must not overwrite the newer Howl/object URL.
+  private loadGeneration = 0;
+
   constructor() {}
 
   ngOnDestroy(): void {
@@ -97,6 +101,8 @@ export class AudioService implements OnDestroy {
   // authenticated images. `currentAudioFile` keeps the *original* URL so callers can
   // cache against it.
   async load(src: string, opts?: AudioLoadOptions): Promise<void> {
+    const generation = ++this.loadGeneration;
+
     // Clean up previous sound
     this.stopTicker();
     if (this.audioInstance) {
@@ -112,13 +118,18 @@ export class AudioService implements OnDestroy {
     this._currentAudioFile = src;
 
     if (this.isAuthenticApiUrl(src)) {
-      await this.loadAuthenticated(src, opts, volume);
+      await this.loadAuthenticated(src, opts, volume, generation);
     } else {
       this.createHowl(src, opts, volume);
     }
   }
 
-  private createHowl(src: string, opts: AudioLoadOptions | undefined, volume: number, format?: string[]): void {
+  private createHowl(
+    src: string,
+    opts: AudioLoadOptions | undefined,
+    volume: number,
+    format?: string[]
+  ): void {
     this.audioInstance = this.howlFactory({
       src: [src],
       ...(format ? { format } : {}),
@@ -173,10 +184,16 @@ export class AudioService implements OnDestroy {
   private async loadAuthenticated(
     src: string,
     opts: AudioLoadOptions | undefined,
-    volume: number
+    volume: number,
+    generation: number
   ): Promise<void> {
     try {
       const blob = await firstValueFrom(this.http.get(src, { responseType: 'blob' }));
+      if (generation !== this.loadGeneration) {
+        // Superseded by a newer load() while fetching - discard silently; the
+        // newer load already reset the state and owns _currentAudioFile.
+        return;
+      }
       if (!blob) {
         this.ngZone.run(() => this.stateSubject.next('error'));
         return;
@@ -241,7 +258,7 @@ export class AudioService implements OnDestroy {
     if (!this.audioInstance) {
       return;
     }
-    if (this.soundId != null) {
+    if (this.soundId !== undefined) {
       this.audioInstance.pause(this.soundId);
     } else {
       this.audioInstance.pause();
@@ -275,7 +292,7 @@ export class AudioService implements OnDestroy {
       return;
     }
     if (typeof seconds === 'number') {
-      if (this.soundId != null) {
+      if (this.soundId !== undefined) {
         this.audioInstance.seek(seconds, this.soundId);
       } else {
         this.audioInstance.seek(seconds);
@@ -311,7 +328,9 @@ export class AudioService implements OnDestroy {
       return 0;
     }
     const s =
-      this.soundId != null ? this.audioInstance.seek(this.soundId) : this.audioInstance.seek();
+      this.soundId !== undefined
+        ? this.audioInstance.seek(this.soundId)
+        : this.audioInstance.seek();
     return typeof s === 'number' ? s : 0;
   }
 
@@ -356,7 +375,9 @@ export class AudioService implements OnDestroy {
     if (!frontendfile && this.isAuthenticApiUrl(path)) {
       try {
         const blob = await firstValueFrom(this.http.get(path, { responseType: 'blob' }));
-        if (!blob) return;
+        if (!blob) {
+          return;
+        }
         const file = new File([blob], filename, { type: blob.type });
         const blobUrl = URL.createObjectURL(file);
         const sound = this.howlFactory({

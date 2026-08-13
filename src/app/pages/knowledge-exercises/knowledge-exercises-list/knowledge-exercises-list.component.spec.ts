@@ -87,8 +87,25 @@ describe('KnowledgeExercisesListComponent', () => {
   let mockRouter: any;
 
   const mockLearningContents: LearningContent[] = [
-    { id: 1, categoryId: 6, nameChinese: 'test-file-1', nameEnglish: 'test-file-1', fileUrl: 'storage/knowledge-exercises/file1.json', createdAt: '2024-01-01', updatedAt: '2024-01-01' },
-    { id: 2, categoryId: 6, nameChinese: 'test-file-2', nameEnglish: 'test-file-2', fileUrl: 'storage/knowledge-exercises/file2.json', includeLatex: true, createdAt: '2024-01-01', updatedAt: '2024-01-01' },
+    {
+      id: 1,
+      categoryId: 6,
+      nameChinese: 'test-file-1',
+      nameEnglish: 'test-file-1',
+      fileUrl: 'storage/knowledge-exercises/file1.json',
+      createdAt: '2024-01-01',
+      updatedAt: '2024-01-01',
+    },
+    {
+      id: 2,
+      categoryId: 6,
+      nameChinese: 'test-file-2',
+      nameEnglish: 'test-file-2',
+      fileUrl: 'storage/knowledge-exercises/file2.json',
+      includeLatex: true,
+      createdAt: '2024-01-01',
+      updatedAt: '2024-01-01',
+    },
   ];
 
   const mockKnowledgeContent: KnowledgeExerciseFileContent[] = [
@@ -110,8 +127,12 @@ describe('KnowledgeExercisesListComponent', () => {
     const learningContentSpy = {
       getKnowledgeBankContents: vi.fn(),
       getKnowledgeExerciseContent: vi.fn(),
-      getStorageFileBaseUrl: vi.fn().mockReturnValue('https://api.test.com/api/Storage/knowledge-exercises/'),
-      getStorageFileUrl: vi.fn((url: string) => `https://api.test.com/${url.replace('storage/', '')}`),
+      getStorageFileBaseUrl: vi
+        .fn()
+        .mockReturnValue('https://api.test.com/api/Storage/knowledge-exercises/'),
+      getStorageFileUrl: vi.fn(
+        (url: string) => `https://api.test.com/${url.replace('storage/', '')}`
+      ),
     };
     const uiSpy = { setSelectedExerciseItem: vi.fn() };
     const routerSpy = { navigate: vi.fn() };
@@ -209,7 +230,9 @@ describe('KnowledgeExercisesListComponent', () => {
     });
 
     it('should load knowledge content for selected file', () => {
-      mockLearningContentService.getKnowledgeExerciseContent.mockReturnValue(of(mockKnowledgeContent));
+      mockLearningContentService.getKnowledgeExerciseContent.mockReturnValue(
+        of(mockKnowledgeContent)
+      );
       const event = { value: mockLearningContents[0] } as any;
 
       component.onFileSelectionChanged(event);
@@ -437,7 +460,8 @@ describe('KnowledgeExercisesListComponent', () => {
     it('should handle showing detail for non-existent element id', () => {
       component.onShowDetail('999');
 
-      expect(component.contentToDisplay).toBe(component.ContentToDisplay.Detail);
+      // View must stay on the list when the id is not found (no stale detail).
+      expect(component.contentToDisplay).toBe(component.ContentToDisplay.List);
       expect(component.selectedElementIdx).toBe(-1);
     });
 
@@ -783,7 +807,9 @@ describe('KnowledgeExercisesListComponent', () => {
       });
 
       it('should select nothing when the tag filter matches no items', () => {
-        const mockDialogRef = { afterClosed: () => of({ countOfItems: 5, filterOnTag: 'nonexistent' }) };
+        const mockDialogRef = {
+          afterClosed: () => of({ countOfItems: 5, filterOnTag: 'nonexistent' }),
+        };
         vi.spyOn(component.dialog, 'open').mockReturnValue(mockDialogRef as any);
 
         component.onSelectFreeSelection();
@@ -871,7 +897,8 @@ describe('KnowledgeExercisesListComponent', () => {
 
       it('should select items with rating larger or equals 3', () => {
         const mockDialogRef = {
-          afterClosed: () => of({ ratingOperator: RatingOperatorEnum.LargerOrEquals, ratingValue: 3 }),
+          afterClosed: () =>
+            of({ ratingOperator: RatingOperatorEnum.LargerOrEquals, ratingValue: 3 }),
         };
         vi.spyOn(component.dialog, 'open').mockReturnValue(mockDialogRef as any);
 
@@ -909,7 +936,8 @@ describe('KnowledgeExercisesListComponent', () => {
 
       it('should select items with rating less or equals 3, excluding unrated', () => {
         const mockDialogRef = {
-          afterClosed: () => of({ ratingOperator: RatingOperatorEnum.LessOrEquals, ratingValue: 3 }),
+          afterClosed: () =>
+            of({ ratingOperator: RatingOperatorEnum.LessOrEquals, ratingValue: 3 }),
         };
         vi.spyOn(component.dialog, 'open').mockReturnValue(mockDialogRef as any);
 
@@ -921,7 +949,8 @@ describe('KnowledgeExercisesListComponent', () => {
 
       it('should select nothing for less or equals when no rated item is at or below the value', () => {
         const mockDialogRef = {
-          afterClosed: () => of({ ratingOperator: RatingOperatorEnum.LessOrEquals, ratingValue: 2 }),
+          afterClosed: () =>
+            of({ ratingOperator: RatingOperatorEnum.LessOrEquals, ratingValue: 2 }),
         };
         vi.spyOn(component.dialog, 'open').mockReturnValue(mockDialogRef as any);
 

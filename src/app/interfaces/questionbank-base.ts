@@ -817,11 +817,15 @@ export class QuestionBankItemReadingComprehension extends QuestionBankItemBase<s
   }
 
   override hasHintOfAnswer(): boolean {
-    return this.items && this.items.length > 0 ? this.items.some(item => item.hasHintOfAnswer()) : false;
+    return this.items && this.items.length > 0
+      ? this.items.some(item => item.hasHintOfAnswer())
+      : false;
   }
 
   override getHintsOfAnswer(): Array<{ id: string; question: string; hint: string }> {
-    if (!this.items) return [];
+    if (!this.items) {
+      return [];
+    }
     return this.items
       .filter(item => item.hasHintOfAnswer())
       .flatMap(item => item.getHintsOfAnswer());
@@ -910,11 +914,15 @@ export class QuestionBankItemListeningComprehension extends QuestionBankItemBase
   }
 
   override hasHintOfAnswer(): boolean {
-    return this.items && this.items.length > 0 ? this.items.some(item => item.hasHintOfAnswer()) : false;
+    return this.items && this.items.length > 0
+      ? this.items.some(item => item.hasHintOfAnswer())
+      : false;
   }
 
   override getHintsOfAnswer(): Array<{ id: string; question: string; hint: string }> {
-    if (!this.items) return [];
+    if (!this.items) {
+      return [];
+    }
     return this.items
       .filter(item => item.hasHintOfAnswer())
       .flatMap(item => item.getHintsOfAnswer());
@@ -1003,11 +1011,15 @@ export class QuestionBankItemCloze extends QuestionBankItemBase<string> {
   }
 
   override hasHintOfAnswer(): boolean {
-    return this.items && this.items.length > 0 ? this.items.some(item => item.hasHintOfAnswer()) : false;
+    return this.items && this.items.length > 0
+      ? this.items.some(item => item.hasHintOfAnswer())
+      : false;
   }
 
   override getHintsOfAnswer(): Array<{ id: string; question: string; hint: string }> {
-    if (!this.items) return [];
+    if (!this.items) {
+      return [];
+    }
     return this.items
       .filter(item => item.hasHintOfAnswer())
       .flatMap(item => item.getHintsOfAnswer());

@@ -5,6 +5,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { UserAuthInfo } from '../../interfaces';
 import { AuthService } from '../../services/auth.service';
+
 import { SigninCallbackComponent } from './signin-callback';
 
 describe('SigninCallbackComponent', () => {

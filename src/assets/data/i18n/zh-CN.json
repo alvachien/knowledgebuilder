@@ -216,7 +216,8 @@
     "generateQuiz": "生成试题",
     "submit": "提交",
     "close": "关闭",
-    "notYetSupported": "暂不支持！"
+    "notYetSupported": "暂不支持！",
+    "aiRequestFailed": "AI请求失败，请稍后重试。"
   },
   "vocabularyExercises": {
     "title": "词汇",
@@ -360,6 +361,7 @@
   },
   "knowledgeExercises": {
     "title": "知识库",
+    "detailV2Title": "知识库 - 习题详情 V2",
     "files": "文件",
     "none": "无",
     "items": "项目",

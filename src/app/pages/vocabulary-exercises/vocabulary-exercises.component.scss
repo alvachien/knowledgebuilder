@@ -1,102 +1,126 @@
 :host,
 .vocabulary-page {
-    // Ensures that the footer is pushed to the bottom if the page is too short.
-    display: flex;
-    flex-direction: column;
-    flex-grow: 1;
+  // Ensures that the footer is pushed to the bottom if the page is too short.
+  display: flex;
+  flex-direction: column;
+  flex-grow: 1;
 }
 
 .vocabulary-page-content {
-    display: flex;
-    flex-wrap: wrap;
-    align-content: center;
-    justify-content: center;
+  display: flex;
+  flex-wrap: wrap;
+  align-content: center;
+  justify-content: center;
 }
 
 .toolbar-spacer {
-    flex: 1 1 auto;
+  flex: 1 1 auto;
 }
 
 .page-toolbar-item {
-    margin-top: 4px;
-    padding-top: 4px;
+  margin-top: 4px;
+  padding-top: 4px;
 }
 
 .control-full-width {
-    width: 100%;
+  width: 100%;
 }
 
 .vocabulary-typing-container {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: space-around;
-    width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-around;
+  width: 100%;
 }
 
 .vocabulary-container {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    width: 100%;
-    padding: 24px;
-    // Let the browser keep vertical panning but yield horizontal gestures to the
-    // touchstart/touchend handlers, so swipes feel snappy and don't fight scroll
-    // or rubber-banding on touch devices.
-    touch-action: pan-y;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  padding: 24px;
+  // Let the browser keep vertical panning but yield horizontal gestures to the
+  // touchstart/touchend handlers, so swipes feel snappy and don't fight scroll
+  // or rubber-banding on touch devices.
+  touch-action: pan-y;
 }
 
 .vocabulary-typing-input-container {
-    font-family: "Consolas";
-    font-size: 72px;
-    display: flex;
-    flex-direction: row;
-    justify-content: space-around;
-    height: 200px;
-    align-items: center;
+  font-family: 'Consolas';
+  font-size: 72px;
+  display: flex;
+  flex-direction: row;
+  justify-content: space-around;
+  height: 200px;
+  align-items: center;
 }
 
 .vocabulary-typing-input-character {
-    white-space: pre-wrap;
-    /* 允许空格换行 */
-    flex-shrink: 0;
-    display: inline-block;
-    /* 可选，根据内容调整宽度 */
+  white-space: pre-wrap;
+  /* 允许空格换行 */
+  flex-shrink: 0;
+  display: inline-block;
+  /* 可选，根据内容调整宽度 */
 }
 
 .vocabulary-typing-explain {
-    font-size: 36px;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    text-align: center;
-    min-height: 50px;
-    margin-bottom: 16px;
-    width: 100%;
+  font-size: 36px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  min-height: 50px;
+  margin-bottom: 16px;
+  width: 100%;
 }
 
 .vocabulary-rating-container {
-    display: flex;
-    justify-content: center;
+  display: flex;
+  justify-content: center;
+
+  // Comfortable touch targets for all screen sizes: 48px minimum hit height
+  // (per Material/WCAG) and padded, readable labels. These improve desktop
+  // too, with no downside.
+  ::ng-deep .mat-button-toggle {
+    min-height: 48px;
+
+    .mat-button-toggle-label-content {
+      padding: 0 12px;
+      font-size: 20px;
+      line-height: 48px;
+    }
+  }
+
+  // Mobile only: also stretch each toggle to fill the available width so the
+  // five buttons have real gaps between them rather than sitting cramped at
+  // the center. On desktop the buttons keep their natural content width
+  // (centered) instead of stretching across the full container.
+  @media (max-width: 820px) {
+    ::ng-deep .mat-button-toggle {
+      min-width: 56px;
+      flex: 1 1 0;
+    }
+  }
 }
 
 .vocabulary-dictation-container {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    width: 100%;
-    padding: 48px 24px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  padding: 48px 24px;
 }
 
 .vocabulary-dictation-progress {
-    width: 100%;
-    max-width: 800px;
-    // The progress bar is the page's only content during dictation, so make it
-    // prominent. Overrides Material's default 4px bar height.
-    height: 24px;
-    border-radius: 12px;
+  width: 100%;
+  max-width: 800px;
+  // The progress bar is the page's only content during dictation, so make it
+  // prominent. Overrides Material's default 4px bar height.
+  height: 24px;
+  border-radius: 12px;
 }
 
 .toolbar-fab-button {
@@ -105,58 +129,58 @@
 }
 
 .auto-mode-interval-field {
-    width: 140px;
-    margin-right: 4px;
-    margin-left: 4px;
+  width: 140px;
+  margin-right: 4px;
+  margin-left: 4px;
 
-    // Collapse on the narrow-screen tier (<=820px) defined in the project's
-    // responsive layout (see knowledgebuilder/CLAUDE.md "Responsive Layout").
-    // Auto mode then runs at the last-selected interval; the picker returns
-    // once the screen widens again. Matches the study-progress-label, which
-    // hides at the same breakpoint.
-    @media (max-width: 820px) {
-        display: none;
-    }
+  // Collapse on the narrow-screen tier (<=820px) defined in the project's
+  // responsive layout (see knowledgebuilder/CLAUDE.md "Responsive Layout").
+  // Auto mode then runs at the last-selected interval; the picker returns
+  // once the screen widens again. Matches the study-progress-label, which
+  // hides at the same breakpoint.
+  @media (max-width: 820px) {
+    display: none;
+  }
 }
 
 .example-button-container {
-    display: flex;
-    justify-content: center;
-    width: 56px;
+  display: flex;
+  justify-content: center;
+  width: 56px;
 }
 
 .study-progress-section {
-    display: flex;
-    align-items: center;
-    gap: 8px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
 }
 
 .study-progress-label {
-    font-size: 14px;
-    white-space: nowrap;
-    // Tabular figures keep the N/M count from shifting as digits change width.
-    font-variant-numeric: tabular-nums;
-    opacity: 0.87;
+  font-size: 14px;
+  white-space: nowrap;
+  // Tabular figures keep the N/M count from shifting as digits change width.
+  font-variant-numeric: tabular-nums;
+  opacity: 0.87;
 
-    // On narrow screens the toolbar is cramped by the FAB buttons, so drop the
-    // textual count and leave the progress bar to convey position. Matches the
-    // 820px breakpoint used by the navbar and shared toolbars.
-    @media (max-width: 820px) {
-        display: none;
-    }
+  // On narrow screens the toolbar is cramped by the FAB buttons, so drop the
+  // textual count and leave the progress bar to convey position. Matches the
+  // 820px breakpoint used by the navbar and shared toolbars.
+  @media (max-width: 820px) {
+    display: none;
+  }
 }
 
 .example-flex-container {
-    display: flex;
-    justify-content: space-between;
-    flex-wrap: wrap;
+  display: flex;
+  justify-content: space-between;
+  flex-wrap: wrap;
 }
 
 result-content {
-    width: 100%;
-    margin: 24px;
+  width: 100%;
+  margin: 24px;
 }
 
 th.mat-sort-header-sorted {
-    color: black;
+  color: black;
 }

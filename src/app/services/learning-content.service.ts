@@ -1,12 +1,20 @@
 import { HttpClient } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
-import { Observable, of } from 'rxjs';
+import type { Observable } from 'rxjs';
+import { of } from 'rxjs';
 import { map, tap } from 'rxjs/operators';
 
 import { environment } from '../../environments/environment';
-
 import type { LearningContent } from '../interfaces';
-import type { LearnEnglishWordFileItem, LearnEnglishSentFileItem, LearnChineseFileItem, EnglishListeningLesson, QuestionBankItemCombinedInterface, KnowledgeExerciseFileContent, FormulaReciteContent } from '../interfaces';
+import type {
+  LearnEnglishWordFileItem,
+  LearnEnglishSentFileItem,
+  LearnChineseFileItem,
+  EnglishListeningLesson,
+  QuestionBankItemCombinedInterface,
+  KnowledgeExerciseFileContent,
+  FormulaReciteContent,
+} from '../interfaces';
 import { getQuestionBankTypeDescription, doesQuestionBankItemHasAnswer } from '../interfaces';
 
 @Injectable({
@@ -106,9 +114,9 @@ export class LearningContentService {
     }
 
     const url = this.getStorageFileUrl(fileUrl);
-    return this.http.get<LearnChineseFileItem[]>(url).pipe(
-      tap(items => this.cachedChineseContent.set(fileUrl, items ?? []))
-    );
+    return this.http
+      .get<LearnChineseFileItem[]>(url)
+      .pipe(tap(items => this.cachedChineseContent.set(fileUrl, items ?? [])));
   }
 
   /** Fetch knowledge bank file list (category=6) from the API. */
@@ -128,15 +136,17 @@ export class LearningContentService {
 
     const url = this.getStorageFileUrl(fileUrl);
     return this.http.get<QuestionBankItemCombinedInterface[]>(url).pipe(
-      map((dfile) => {
-        const items: KnowledgeExerciseFileContent[] = dfile.map((val) => {
-          const item: KnowledgeExerciseFileContent = {
-            ...val,
-            itemTypeString: getQuestionBankTypeDescription(val.itemType),
-          };
-          item.hasAnswer = doesQuestionBankItemHasAnswer(item);
-          return item;
-        }).filter(val => val.question);
+      map(dfile => {
+        const items: KnowledgeExerciseFileContent[] = dfile
+          .map(val => {
+            const item: KnowledgeExerciseFileContent = {
+              ...val,
+              itemTypeString: getQuestionBankTypeDescription(val.itemType),
+            };
+            item.hasAnswer = doesQuestionBankItemHasAnswer(item);
+            return item;
+          })
+          .filter(val => val.question);
         this.cachedKnowledgeContent.set(fileUrl, items);
         return items;
       })
@@ -171,9 +181,9 @@ export class LearningContentService {
     }
 
     const url = this.getStorageFileUrl(fileUrl);
-    return this.http.get<EnglishListeningLesson[]>(url).pipe(
-      tap(items => this.cachedListeningContent.set(fileUrl, items ?? []))
-    );
+    return this.http
+      .get<EnglishListeningLesson[]>(url)
+      .pipe(tap(items => this.cachedListeningContent.set(fileUrl, items ?? [])));
   }
 
   /** Fetch formula file list (category=5) from the API. */
@@ -192,13 +202,16 @@ export class LearningContentService {
     }
 
     const url = this.getStorageFileUrl(fileUrl);
-    return this.http.get<FormulaReciteContent[]>(url).pipe(
-      tap(items => this.cachedFormulaContent.set(fileUrl, items ?? []))
-    );
+    return this.http
+      .get<FormulaReciteContent[]>(url)
+      .pipe(tap(items => this.cachedFormulaContent.set(fileUrl, items ?? [])));
   }
 
   /** Register temporary user-uploaded content in the cache. */
   addTemporaryContent(fileUrl: string, items: LearnEnglishWordFileItem[]): void {
-    this.cachedWordContent.set(fileUrl, items.filter(item => item.enword.length > 1));
+    this.cachedWordContent.set(
+      fileUrl,
+      items.filter(item => item.enword && item.enword.length > 1)
+    );
   }
 }

@@ -1,4 +1,4 @@
-import { TestBed, fakeAsync, tick } from '@angular/core/testing';
+import { TestBed } from '@angular/core/testing';
 import { of, type Observable } from 'rxjs';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
@@ -26,10 +26,7 @@ describe('AuthGuardService', () => {
     };
 
     TestBed.configureTestingModule({
-      providers: [
-        AuthGuardService,
-        { provide: AuthService, useValue: authServiceMock },
-      ],
+      providers: [AuthGuardService, { provide: AuthService, useValue: authServiceMock }],
     });
 
     guard = TestBed.inject(AuthGuardService);
@@ -72,7 +69,9 @@ describe('AuthGuardService', () => {
       authServiceMock.authSubject.getValue = () => new UserAuthInfo();
 
       let emitted: boolean | undefined;
-      (guard.canActivate({} as any, {} as any) as Observable<boolean>).subscribe(r => (emitted = r));
+      (guard.canActivate({} as any, {} as any) as Observable<boolean>).subscribe(
+        r => (emitted = r)
+      );
 
       expect(emitted).toBe(false);
       expect(authServiceMock.doLogin).toHaveBeenCalled();
@@ -90,7 +89,9 @@ describe('AuthGuardService', () => {
       authServiceMock.authSubject.getValue = () => errorInfo;
 
       let emitted: boolean | undefined;
-      (guard.canActivate({} as any, {} as any) as Observable<boolean>).subscribe(r => (emitted = r));
+      (guard.canActivate({} as any, {} as any) as Observable<boolean>).subscribe(
+        r => (emitted = r)
+      );
 
       expect(emitted).toBe(false);
       expect(authServiceMock.doLogin).not.toHaveBeenCalled();

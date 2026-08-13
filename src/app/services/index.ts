@@ -13,4 +13,4 @@ export * from './katex.service';
 export * from './marked.service';
 export * from './learning-content.service';
 export * from './learning-rating.service';
-
+export * from './rating-item-key.util';

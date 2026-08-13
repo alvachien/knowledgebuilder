@@ -1,6 +1,15 @@
 import { SelectionModel } from '@angular/cdk/collections';
 import type { OnInit } from '@angular/core';
-import { Component, ChangeDetectionStrategy, ChangeDetectorRef, DestroyRef, inject, Inject, model, ViewChild } from '@angular/core';
+import {
+  Component,
+  ChangeDetectionStrategy,
+  ChangeDetectorRef,
+  DestroyRef,
+  inject,
+  Inject,
+  model,
+  ViewChild,
+} from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
@@ -65,6 +74,7 @@ import {
   AIService,
   UserCodeService,
   UIService,
+  ratingItemKey,
 } from '../../services';
 import { FooterComponent } from '../../shared/footer/footer';
 import { MarkdownContentComponent } from '../../shared/markdown-content';
@@ -245,6 +255,12 @@ export class TranslateExercisesComponent implements OnInit {
         const numId = typeof data.id === 'string' ? parseInt(data.id, 10) : (data.id ?? 0);
         return isNaN(numId) ? 0 : numId;
       }
+      if (sortHeaderId === 'ensent' || sortHeaderId === 'cnsent') {
+        return data[sortHeaderId] ?? '';
+      }
+      if (sortHeaderId === 'enwords') {
+        return data.enwords?.join(' ') ?? '';
+      }
       return '';
     };
   }
@@ -256,20 +272,20 @@ export class TranslateExercisesComponent implements OnInit {
       .getSentenceContents()
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
-      next: contents => {
-        this.allFiles = contents;
-        this.isLoadingContents = false;
-        // OnPush: the file list arrives in an async subscribe callback, so the
-        // view is not marked dirty automatically — without this the files
-        // dropdown stays empty until a later DOM event triggers detection.
-        this.cdr.markForCheck();
-      },
-      error: err => {
-        console.error(err);
-        this.isLoadingContents = false;
-        this.cdr.markForCheck();
-      },
-    });
+        next: contents => {
+          this.allFiles = contents;
+          this.isLoadingContents = false;
+          // OnPush: the file list arrives in an async subscribe callback, so the
+          // view is not marked dirty automatically — without this the files
+          // dropdown stays empty until a later DOM event triggers detection.
+          this.cdr.markForCheck();
+        },
+        error: err => {
+          console.error(err);
+          this.isLoadingContents = false;
+          this.cdr.markForCheck();
+        },
+      });
   }
 
   private coverContentToQueue(content: LearnEnglishSentFileItem[]): TranslateQueue[] {
@@ -287,7 +303,9 @@ export class TranslateExercisesComponent implements OnInit {
   }
 
   private formatEnwords(enwords?: string[]): string {
-    if (!enwords || enwords.length === 0) {return '';}
+    if (!enwords || enwords.length === 0) {
+      return '';
+    }
     return enwords.join(', ');
   }
   onFileSelectionChanged(event: MatSelectChange) {
@@ -308,18 +326,18 @@ export class TranslateExercisesComponent implements OnInit {
       .getSentenceFileContent(selectedContent.fileUrl)
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
-      next: (df?: LearnEnglishSentFileItem[]) => {
-        this.recitequeues = [];
-        if (df) {
-          this.dataSource.data = df.slice();
-          this.dataSource.paginator = this.paginator;
-          this.dataSource.sort = this.sort!;
-        }
-      },
-      error: err => {
-        console.error(err);
-      },
-    });
+        next: (df?: LearnEnglishSentFileItem[]) => {
+          this.recitequeues = [];
+          if (df) {
+            this.dataSource.data = df.slice();
+            this.dataSource.paginator = this.paginator;
+            this.dataSource.sort = this.sort!;
+          }
+        },
+        error: err => {
+          console.error(err);
+        },
+      });
 
     // Fetch ratings for this content from the API
     this.contentRatingMap.clear();
@@ -328,7 +346,7 @@ export class TranslateExercisesComponent implements OnInit {
         .getRatings(this.studyContentId)
         .pipe(takeUntilDestroyed(this.destroyRef))
         .subscribe({
-          next: (ratings) => {
+          next: ratings => {
             for (const r of ratings) {
               if (r.itemId !== undefined) {
                 this.contentRatingMap.set(r.itemId, r.rating);
@@ -345,11 +363,8 @@ export class TranslateExercisesComponent implements OnInit {
   }
 
   getRating(itemId: string | undefined): number {
-    if (itemId === undefined) {
-      return 0;
-    }
-    const numId = parseInt(itemId, 10);
-    return isNaN(numId) ? 0 : (this.contentRatingMap.get(numId) ?? 0);
+    const numId = ratingItemKey(itemId);
+    return numId === undefined ? 0 : (this.contentRatingMap.get(numId) ?? 0);
   }
 
   onContentRatingChanged(item: LearnEnglishSentFileItem, event: MatButtonToggleChange) {
@@ -362,8 +377,8 @@ export class TranslateExercisesComponent implements OnInit {
     if (this.studyContentId <= 0 || item.id === undefined) {
       return;
     }
-    const numId = parseInt(item.id, 10);
-    if (isNaN(numId)) {
+    const numId = ratingItemKey(item.id);
+    if (numId === undefined) {
       return;
     }
 
@@ -371,7 +386,7 @@ export class TranslateExercisesComponent implements OnInit {
       .upsertRating(this.studyContentId, numId, event.value)
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
-        next: (saved) => {
+        next: saved => {
           this.contentRatingMap.set(numId, saved.rating);
           this.cdr.markForCheck();
         },
@@ -389,13 +404,13 @@ export class TranslateExercisesComponent implements OnInit {
       .getTTS(sent)
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
-      next: (data: any) => {
-        this.audio.playSound(data.audioFileUrl as string, false);
-      },
-      error: err => {
-        console.error(err);
-      },
-    });
+        next: (data: any) => {
+          void this.audio.playSound(data.audioFileUrl as string, false);
+        },
+        error: err => {
+          console.error(err);
+        },
+      });
   }
   onLLMExplain(sent: string) {
     this.dialog.open(TranslateExercisesLLMDialogComponent, {
@@ -478,18 +493,18 @@ export class TranslateExercisesComponent implements OnInit {
       .afterClosed()
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe(result => {
-      if (result !== undefined) {
-        this.setting.direction = result.direction;
-        this.setting.allowEmptyAnswer = result.allowEmptyAnswer;
-        this.setting.countOfItems = result.countOfItems;
+        if (result !== undefined) {
+          this.setting.direction = result.direction;
+          this.setting.allowEmptyAnswer = result.allowEmptyAnswer;
+          this.setting.countOfItems = result.countOfItems;
 
-        this.onStart();
-        // OnPush: the exercise view switch (currentStatus.status = InProgress)
-        // happens in this async afterClosed callback — without markForCheck the
-        // view would not switch to the exercise screen until a later DOM event.
-        this.cdr.markForCheck();
-      }
-    });
+          this.onStart();
+          // OnPush: the exercise view switch (currentStatus.status = InProgress)
+          // happens in this async afterClosed callback — without markForCheck the
+          // view would not switch to the exercise screen until a later DOM event.
+          this.cdr.markForCheck();
+        }
+      });
   }
 
   onPrint() {
@@ -527,7 +542,9 @@ export class TranslateExercisesComponent implements OnInit {
       });
     });
     const execPrintSetting: KnowledgeExercisePrintOption = {
-      formTitle: this.selectedFile?.nameEnglish ? this.selectedFile.nameEnglish : 'Translate Exercises',
+      formTitle: this.selectedFile?.nameEnglish
+        ? this.selectedFile.nameEnglish
+        : 'Translate Exercises',
       printEntryDate: true,
       printScore: true,
       printAnswer: this.printSetting.printAnswer,
@@ -560,23 +577,23 @@ export class TranslateExercisesComponent implements OnInit {
       .afterClosed()
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe(result => {
-      if (result !== undefined) {
-        this.printSetting.printAnswer = result.printAnswer;
-        this.printSetting.printWord = result.printWord;
-        this.printSetting.direction = result.direction;
-        this.printSetting.countOfItems = result.countOfItems;
-        this.printSetting.printEntryDate = result.printEntryDate;
-        this.printSetting.respectRetentionCurve = result.respectRetentionCurve;
-        this.printSetting.printExecDate = result.printExecDate;
-        if (this.printSetting.printExecDate) {
-          this.printSetting.execDate = result.execDate;
-        } else {
-          this.printSetting.execDate = undefined;
-        }
+        if (result !== undefined) {
+          this.printSetting.printAnswer = result.printAnswer;
+          this.printSetting.printWord = result.printWord;
+          this.printSetting.direction = result.direction;
+          this.printSetting.countOfItems = result.countOfItems;
+          this.printSetting.printEntryDate = result.printEntryDate;
+          this.printSetting.respectRetentionCurve = result.respectRetentionCurve;
+          this.printSetting.printExecDate = result.printExecDate;
+          if (this.printSetting.printExecDate) {
+            this.printSetting.execDate = result.execDate;
+          } else {
+            this.printSetting.execDate = undefined;
+          }
 
-        this.onPrint();
-      }
-    });
+          this.onPrint();
+        }
+      });
   }
 
   onSelectByRating() {
@@ -928,8 +945,10 @@ export class TranslateSelectByRatingDialogComponent {
   }
 
   get isValueDisabled(): boolean {
-    return this.ratingOperator() === RatingOperatorEnum.HasAny ||
-           this.ratingOperator() === RatingOperatorEnum.HasNone;
+    return (
+      this.ratingOperator() === RatingOperatorEnum.HasAny ||
+      this.ratingOperator() === RatingOperatorEnum.HasNone
+    );
   }
 
   onNoClick(): void {

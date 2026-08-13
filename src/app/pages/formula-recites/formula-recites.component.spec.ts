@@ -1,4 +1,3 @@
-import { vi } from 'vitest';
 import type { ComponentFixture } from '@angular/core/testing';
 import { TestBed } from '@angular/core/testing';
 import { FormsModule } from '@angular/forms';
@@ -22,6 +21,7 @@ import {
   TRANSLOCO_INTERCEPTOR,
 } from '@jsverse/transloco';
 import { of, throwError } from 'rxjs';
+import { vi } from 'vitest';
 
 import type { FormulaReciteContent, LearningContent } from '../../interfaces';
 import { FormulaReciteAIModeEnum } from '../../interfaces';
@@ -236,7 +236,9 @@ describe('FormulaRecitesComponent', () => {
 
     it('should handle error when loading formula data files', () => {
       vi.spyOn(console, 'error');
-      mockLearningContentService.getFormulaContents.mockReturnValue(throwError(() => new Error('Error')));
+      mockLearningContentService.getFormulaContents.mockReturnValue(
+        throwError(() => new Error('Error'))
+      );
 
       component.ngOnInit();
 
@@ -263,7 +265,9 @@ describe('FormulaRecitesComponent', () => {
 
       component.onFileSelectionChanged(event);
 
-      expect(mockLearningContentService.getFormulaFileContent).toHaveBeenCalledWith('storage/formula/test1.json');
+      expect(mockLearningContentService.getFormulaFileContent).toHaveBeenCalledWith(
+        'storage/formula/test1.json'
+      );
       expect(component.dataSource.data).toEqual(mockFormulaContent);
     });
 
@@ -276,7 +280,9 @@ describe('FormulaRecitesComponent', () => {
 
       component.onFileSelectionChanged(event);
 
-      expect(mockLearningContentService.getFormulaFileContent).toHaveBeenCalledWith('storage/formula/test1.json');
+      expect(mockLearningContentService.getFormulaFileContent).toHaveBeenCalledWith(
+        'storage/formula/test1.json'
+      );
       expect(console.error).toHaveBeenCalledWith(expect.any(Error));
     });
   });
@@ -316,21 +322,42 @@ describe('FormulaRecitesComponent', () => {
 
   describe('display methods', () => {
     it('should return display content text correctly for version 2', () => {
-      component.selectedFile = { id: 1, categoryId: 5, nameChinese: 'test', nameEnglish: 'test', fileUrl: 'storage/formula/test.json', version: 2 };
+      component.selectedFile = {
+        id: 1,
+        categoryId: 5,
+        nameChinese: 'test',
+        nameEnglish: 'test',
+        fileUrl: 'storage/formula/test.json',
+        version: 2,
+      };
       const result = component.getDisplayContentText('content@to@remove');
 
       expect(result).toBe('contenttoremove');
     });
 
     it('should return display content text correctly for version 1', () => {
-      component.selectedFile = { id: 1, categoryId: 5, nameChinese: 'test', nameEnglish: 'test', fileUrl: 'storage/formula/test.json', version: 1 };
+      component.selectedFile = {
+        id: 1,
+        categoryId: 5,
+        nameChinese: 'test',
+        nameEnglish: 'test',
+        fileUrl: 'storage/formula/test.json',
+        version: 1,
+      };
       const result = component.getDisplayContentText('content@to@keep');
 
       expect(result).toBe('content@to@keep');
     });
 
     it('should return display content text in test mode correctly for version 2', () => {
-      component.selectedFile = { id: 1, categoryId: 5, nameChinese: 'test', nameEnglish: 'test', fileUrl: 'storage/formula/test.json', version: 2 };
+      component.selectedFile = {
+        id: 1,
+        categoryId: 5,
+        nameChinese: 'test',
+        nameEnglish: 'test',
+        fileUrl: 'storage/formula/test.json',
+        version: 2,
+      };
       const result = component.getDisplayContentTextInTest('part1@part2@part3');
 
       // 'part2' has 5 characters, so it's replaced with '__'.repeat(5) = 10 underscores
@@ -338,7 +365,14 @@ describe('FormulaRecitesComponent', () => {
     });
 
     it('should return display content text in test mode correctly for version 1', () => {
-      component.selectedFile = { id: 1, categoryId: 5, nameChinese: 'test', nameEnglish: 'test', fileUrl: 'storage/formula/test.json', version: 1 };
+      component.selectedFile = {
+        id: 1,
+        categoryId: 5,
+        nameChinese: 'test',
+        nameEnglish: 'test',
+        fileUrl: 'storage/formula/test.json',
+        version: 1,
+      };
       const result = component.getDisplayContentTextInTest('content');
 
       expect(result).toBe('_'.repeat('content'.length));
@@ -367,7 +401,13 @@ describe('FormulaRecitesComponent', () => {
     it('should open print options dialog', () => {
       const mockDialogRef = { afterClosed: vi.fn().mockReturnValue(of({ countOfItems: 10 })) };
       mockMatDialog.open.mockReturnValue(mockDialogRef);
-      component.selectedFile = { id: 1, categoryId: 5, nameChinese: 'test', nameEnglish: 'test', fileUrl: 'storage/formula/test.json' };
+      component.selectedFile = {
+        id: 1,
+        categoryId: 5,
+        nameChinese: 'test',
+        nameEnglish: 'test',
+        fileUrl: 'storage/formula/test.json',
+      };
       component.dataSource.data = mockFormulaContent;
 
       component.onPrintWithOptions();

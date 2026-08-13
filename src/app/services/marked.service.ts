@@ -3,7 +3,7 @@ import type { MarkedExtension, MarkedOptions } from 'marked';
 import { Marked } from 'marked';
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class MarkedService {
   private markedInstance: Marked | null = null;
@@ -36,7 +36,7 @@ export class MarkedService {
    */
   async parseAsync(markdown: string): Promise<string> {
     const instance = this.getInstance();
-    return instance.parse(markdown) as string;
+    return await instance.parse(markdown);
   }
 
   /**

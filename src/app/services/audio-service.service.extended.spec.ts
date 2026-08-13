@@ -1,15 +1,16 @@
-import { NgZone } from '@angular/core';
-import { TestBed } from '@angular/core/testing';
 import { provideHttpClient } from '@angular/common/http';
 import { provideHttpClientTesting, HttpTestingController } from '@angular/common/http/testing';
+import { NgZone } from '@angular/core';
+import { TestBed } from '@angular/core/testing';
 import type { HowlOptions } from 'howler';
 import { vi } from 'vitest';
 
+import { environment } from '../../environments/environment';
+
 import type { PlaybackState } from './audio-service.service';
 import { AudioService } from './audio-service.service';
-import { HOWL_FACTORY, type HowlFactory } from './howl-factory';
-import { HOWLER_GLOBAL, type HowlerGlobal } from './howler.token';
-import { environment } from '../../environments/environment';
+import { HOWL_FACTORY } from './howl-factory';
+import { HOWLER_GLOBAL } from './howler.token';
 
 /**
  * Extended test suite for AudioService with mock Howl factory
@@ -48,9 +49,15 @@ describe('AudioService Extended Tests', () => {
       state: vi.fn().mockReturnValue('loaded'),
       unload: vi.fn(),
       load: vi.fn(),
-      once: vi.fn().mockImplementation(function (this: any) { return mock; }),
-      on: vi.fn().mockImplementation(function (this: any) { return mock; }),
-      off: vi.fn().mockImplementation(function (this: any) { return mock; }),
+      once: vi.fn().mockImplementation(function (this: any) {
+        return mock;
+      }),
+      on: vi.fn().mockImplementation(function (this: any) {
+        return mock;
+      }),
+      off: vi.fn().mockImplementation(function (this: any) {
+        return mock;
+      }),
     };
 
     return mock;
@@ -92,7 +99,7 @@ describe('AudioService Extended Tests', () => {
 
   describe('load() method', () => {
     it('should create Howl instance with correct config', () => {
-      service.load('test.mp3');
+      void service.load('test.mp3');
 
       expect(mockHowlFactory).toHaveBeenCalled();
       expect(capturedConfig.src).toEqual(['test.mp3']);
@@ -101,7 +108,7 @@ describe('AudioService Extended Tests', () => {
     });
 
     it('should set currentAudioFile', () => {
-      service.load('test.mp3');
+      void service.load('test.mp3');
       expect(service.currentAudioFile).toBe('test.mp3');
     });
 
@@ -127,7 +134,7 @@ describe('AudioService Extended Tests', () => {
       let currentState: PlaybackState = 'idle';
       service.state$.subscribe(s => (currentState = s));
 
-      service.load('test.mp3');
+      void service.load('test.mp3');
 
       expect(currentState).toBe('loading');
     });
@@ -136,23 +143,23 @@ describe('AudioService Extended Tests', () => {
       let currentVolume = 1;
       service.volume$.subscribe(v => (currentVolume = v));
 
-      service.load('test.mp3', { volume: 0.5 });
+      void service.load('test.mp3', { volume: 0.5 });
 
       expect(currentVolume).toBe(0.5);
     });
 
     it('should pass loop option to Howl', () => {
-      service.load('test.mp3', { loop: true });
+      void service.load('test.mp3', { loop: true });
       expect(capturedConfig.loop).toBe(true);
     });
 
     it('should pass html5 option to Howl', () => {
-      service.load('test.mp3', { html5: false });
+      void service.load('test.mp3', { html5: false });
       expect(capturedConfig.html5).toBe(false);
     });
 
     it('should unload previous audio when loading new source', () => {
-      service.load('first.mp3');
+      void service.load('first.mp3');
       const firstInstance = mockHowlInstance;
 
       // Create new mock for second load
@@ -162,7 +169,7 @@ describe('AudioService Extended Tests', () => {
         return mockHowlInstance;
       });
 
-      service.load('second.mp3');
+      void service.load('second.mp3');
 
       expect(firstInstance.unload).toHaveBeenCalled();
     });
@@ -175,7 +182,7 @@ describe('AudioService Extended Tests', () => {
       service.state$.subscribe(s => (currentState = s));
       service.duration$.subscribe(d => (currentDuration = d));
 
-      service.load('test.mp3');
+      void service.load('test.mp3');
 
       // Trigger onload callback
       capturedConfig.onload!(1);
@@ -185,7 +192,7 @@ describe('AudioService Extended Tests', () => {
     });
 
     it('should auto-play when autoplay option is true', () => {
-      service.load('test.mp3', { autoplay: true });
+      void service.load('test.mp3', { autoplay: true });
 
       // Trigger onload callback
       capturedConfig.onload!(1);
@@ -199,7 +206,7 @@ describe('AudioService Extended Tests', () => {
       let currentState: PlaybackState = 'idle';
       service.state$.subscribe(s => (currentState = s));
 
-      service.load('test.mp3');
+      void service.load('test.mp3');
 
       // Trigger onloaderror callback
       capturedConfig.onloaderror!(1, 'Network error');
@@ -213,7 +220,7 @@ describe('AudioService Extended Tests', () => {
       let currentState: PlaybackState = 'idle';
       service.state$.subscribe(s => (currentState = s));
 
-      service.load('test.mp3');
+      void service.load('test.mp3');
 
       // Trigger onplay callback
       capturedConfig.onplay!(42);
@@ -228,7 +235,7 @@ describe('AudioService Extended Tests', () => {
       let currentState: PlaybackState = 'idle';
       service.state$.subscribe(s => (currentState = s));
 
-      service.load('test.mp3');
+      void service.load('test.mp3');
 
       // Trigger onpause callback
       capturedConfig.onpause!(1);
@@ -244,7 +251,7 @@ describe('AudioService Extended Tests', () => {
       service.state$.subscribe(s => (currentState = s));
       service.position$.subscribe(p => (currentPosition = p));
 
-      service.load('test.mp3');
+      void service.load('test.mp3');
 
       // Trigger onstop callback
       capturedConfig.onstop!(1);
@@ -259,7 +266,7 @@ describe('AudioService Extended Tests', () => {
       let currentState: PlaybackState = 'idle';
       service.state$.subscribe(s => (currentState = s));
 
-      service.load('test.mp3');
+      void service.load('test.mp3');
 
       // Trigger onend callback
       capturedConfig.onend!(1);
@@ -273,7 +280,7 @@ describe('AudioService Extended Tests', () => {
       let currentPosition = 0;
       service.position$.subscribe(p => (currentPosition = p));
 
-      service.load('test.mp3');
+      void service.load('test.mp3');
 
       // Trigger onseek callback
       capturedConfig.onseek!(1);
@@ -284,7 +291,7 @@ describe('AudioService Extended Tests', () => {
 
   describe('pause() with loaded audio', () => {
     beforeEach(() => {
-      service.load('test.mp3');
+      void service.load('test.mp3');
     });
 
     it('should call pause on Howl instance with soundId', () => {
@@ -302,7 +309,7 @@ describe('AudioService Extended Tests', () => {
 
   describe('stop() with loaded audio', () => {
     it('should call stop on Howl instance', () => {
-      service.load('test.mp3');
+      void service.load('test.mp3');
       service.stop();
       expect(mockHowlInstance.stop).toHaveBeenCalled();
     });
@@ -310,7 +317,7 @@ describe('AudioService Extended Tests', () => {
 
   describe('toggle() with loaded audio', () => {
     beforeEach(() => {
-      service.load('test.mp3');
+      void service.load('test.mp3');
     });
 
     it('should pause when currently playing', () => {
@@ -333,7 +340,7 @@ describe('AudioService Extended Tests', () => {
 
   describe('seek() with loaded audio', () => {
     beforeEach(() => {
-      service.load('test.mp3');
+      void service.load('test.mp3');
     });
 
     it('should seek to specific position with soundId', () => {
@@ -347,8 +354,8 @@ describe('AudioService Extended Tests', () => {
       expect(currentPosition).toBe(45);
     });
 
-    it('should seek without soundId when soundId is null', () => {
-      (service as any).soundId = null;
+    it('should seek without soundId when soundId is undefined', () => {
+      (service as any).soundId = undefined;
       service.seek(25);
       expect(mockHowlInstance.seek).toHaveBeenCalledWith(25);
     });
@@ -361,7 +368,7 @@ describe('AudioService Extended Tests', () => {
 
   describe('setVolume() with loaded audio', () => {
     it('should call volume on Howl instance', () => {
-      service.load('test.mp3');
+      void service.load('test.mp3');
       service.setVolume(0.7);
       expect(mockHowlInstance.volume).toHaveBeenCalled();
     });
@@ -369,7 +376,7 @@ describe('AudioService Extended Tests', () => {
 
   describe('play() state handling', () => {
     beforeEach(() => {
-      service.load('test.mp3');
+      void service.load('test.mp3');
     });
 
     it('should play immediately when state is loaded', () => {
@@ -388,7 +395,7 @@ describe('AudioService Extended Tests', () => {
 
   describe('internalPlay()', () => {
     it('should call play and set soundId', () => {
-      service.load('test.mp3');
+      void service.load('test.mp3');
       mockHowlInstance.play.mockReturnValue(99);
 
       (service as any).internalPlay();
@@ -400,7 +407,7 @@ describe('AudioService Extended Tests', () => {
 
   describe('getCurrentSeek()', () => {
     it('should return seek position with soundId', () => {
-      service.load('test.mp3');
+      void service.load('test.mp3');
       (service as any).soundId = 5;
       mockHowlInstance.seek.mockReturnValue(45);
 
@@ -411,7 +418,7 @@ describe('AudioService Extended Tests', () => {
     });
 
     it('should return seek position without soundId when null', () => {
-      service.load('test.mp3');
+      void service.load('test.mp3');
       (service as any).soundId = null;
       mockHowlInstance.seek.mockReturnValue(30);
 
@@ -422,8 +429,8 @@ describe('AudioService Extended Tests', () => {
     });
 
     it('should return 0 when seek returns non-number', () => {
-      service.load('test.mp3');
-      mockHowlInstance.seek.mockReturnValue(mockHowlInstance as any);
+      void service.load('test.mp3');
+      mockHowlInstance.seek.mockReturnValue(mockHowlInstance);
 
       const result = (service as any).getCurrentSeek();
 
@@ -433,7 +440,7 @@ describe('AudioService Extended Tests', () => {
 
   describe('startTicker()', () => {
     it('should start animation frame loop', () => {
-      service.load('test.mp3');
+      void service.load('test.mp3');
       // Mock rafId directly instead of spying on requestAnimationFrame to avoid cross-test leakage
       (service as any).rafId = 123;
 
@@ -446,7 +453,7 @@ describe('AudioService Extended Tests', () => {
 
   describe('playSound()', () => {
     it('should create Howl with frontend path when frontendfile is true', () => {
-      service.playSound('click.wav', true);
+      void service.playSound('click.wav', true);
 
       expect(mockHowlFactory).toHaveBeenCalled();
       expect(capturedConfig.src).toEqual(['sounds/click.wav']);
@@ -467,19 +474,19 @@ describe('AudioService Extended Tests', () => {
     });
 
     it('should use wav format', () => {
-      service.playSound('test.wav');
+      void service.playSound('test.wav');
 
       expect(capturedConfig.format).toEqual(['wav']);
     });
 
     it('should use default frontendfile=true', () => {
-      service.playSound('default.wav');
+      void service.playSound('default.wav');
 
       expect(capturedConfig.src).toEqual(['sounds/default.wav']);
     });
 
     it('should call play on the created Howl instance', () => {
-      service.playSound('test.wav');
+      void service.playSound('test.wav');
       expect(mockHowlInstance.play).toHaveBeenCalled();
     });
   });
@@ -587,7 +594,7 @@ describe('AudioService Extended Tests', () => {
     });
 
     it('should unload audio instance on destroy', () => {
-      service.load('test.mp3');
+      void service.load('test.mp3');
       service.ngOnDestroy();
 
       expect(mockHowlInstance.unload).toHaveBeenCalled();

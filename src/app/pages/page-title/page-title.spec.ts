@@ -1,6 +1,6 @@
-import { vi } from 'vitest';
 import { TestBed } from '@angular/core/testing';
 import { Title } from '@angular/platform-browser';
+import { vi } from 'vitest';
 
 import { environment } from '../../../environments/environment';
 

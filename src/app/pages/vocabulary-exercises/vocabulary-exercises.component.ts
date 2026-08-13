@@ -1,5 +1,5 @@
 import { SelectionModel } from '@angular/cdk/collections';
-import type { OnInit } from '@angular/core';
+import type { OnDestroy, OnInit } from '@angular/core';
 import {
   ChangeDetectionStrategy,
   ChangeDetectorRef,
@@ -12,10 +12,10 @@ import {
   ViewChild,
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { interval, Subscription } from 'rxjs';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatButtonToggleModule } from '@angular/material/button-toggle';
+import type { MatButtonToggleChange } from '@angular/material/button-toggle';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MAT_DATE_FORMATS, MAT_DATE_LOCALE } from '@angular/material/core';
 import { MatDatepickerModule } from '@angular/material/datepicker';
@@ -27,29 +27,29 @@ import {
   MatDialogRef,
   MatDialogTitle,
 } from '@angular/material/dialog';
+import { MatDividerModule } from '@angular/material/divider';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
+import { MatMenuModule } from '@angular/material/menu';
 import { MatPaginator, MatPaginatorModule } from '@angular/material/paginator';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatRadioModule } from '@angular/material/radio';
 import type { MatSelectChange } from '@angular/material/select';
-import type { MatButtonToggleChange } from '@angular/material/button-toggle';
 import { MatSelectModule } from '@angular/material/select';
 import { MatSort, MatSortModule } from '@angular/material/sort';
 import { MatTableDataSource, MatTableModule } from '@angular/material/table';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatTooltipModule } from '@angular/material/tooltip';
-import { MatMenuModule } from '@angular/material/menu';
-import { MatDividerModule } from '@angular/material/divider';
 import { MatDateFnsModule, provideDateFnsAdapter } from '@angular/material-date-fns-adapter';
 import { Router } from '@angular/router';
 import { TranslocoModule } from '@jsverse/transloco';
 import { zhCN } from 'date-fns/locale';
+import { interval } from 'rxjs';
+import type { Subscription } from 'rxjs';
 
 import { environment } from '../../../environments/environment';
-
 import type {
   LearnEnglishWordFileItem,
   LearningContent,
@@ -75,7 +75,13 @@ import {
   SelectionModeEnum,
   DEFAULT_UNIFORM_BLANK_LENGTH,
 } from '../../interfaces';
-import { AudioService, LearningContentService, LearningRatingService, UIService, UtilService } from '../../services';
+import {
+  AudioService,
+  LearningContentService,
+  LearningRatingService,
+  UIService,
+  UtilService,
+} from '../../services';
 import { FooterComponent } from '../../shared/footer/footer';
 import { fisherYatesShuffle } from '../../shared/utils/shuffle';
 import { AppPageTitle } from '../page-title/page-title';
@@ -117,7 +123,7 @@ const DICTATION_DELAY_MS = 3000;
     class: 'app-main-content',
   },
 })
-export class VocabularyExercisesComponent implements OnInit {
+export class VocabularyExercisesComponent implements OnInit, OnDestroy {
   allFiles: LearningContent[] = [];
   selectedFile?: LearningContent;
   isLoadingContents = true;
@@ -279,6 +285,19 @@ export class VocabularyExercisesComponent implements OnInit {
     };
   }
 
+  ngOnDestroy(): void {
+    // Stop any in-flight word audio / TTS on route leave — the AudioService is a
+    // root singleton and speechSynthesis is global, so neither stops on its own.
+    this.audiosrv.stopWordOneShot();
+    if (typeof window !== 'undefined' && window.speechSynthesis) {
+      window.speechSynthesis.cancel();
+      if (this.voicesListenerAttached) {
+        window.speechSynthesis.onvoiceschanged = null;
+        this.voicesListenerAttached = false;
+      }
+    }
+  }
+
   ngOnInit(): void {
     this.pageTitle.title = 'Vocabulary';
 
@@ -286,21 +305,21 @@ export class VocabularyExercisesComponent implements OnInit {
       .getVocabularyContents()
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
-      next: contents => {
-        this.allFiles = contents;
-        this.isLoadingContents = false;
-        // OnPush: the file list arrives in an async subscribe callback (not a
-        // template event, not an async pipe), so the view is not marked dirty
-        // automatically. Without this, the files dropdown stays empty until a
-        // later DOM event happens to trigger change detection.
-        this.cdr.markForCheck();
-      },
-      error: err => {
-        console.error(err);
-        this.isLoadingContents = false;
-        this.cdr.markForCheck();
-      },
-    });
+        next: contents => {
+          this.allFiles = contents;
+          this.isLoadingContents = false;
+          // OnPush: the file list arrives in an async subscribe callback (not a
+          // template event, not an async pipe), so the view is not marked dirty
+          // automatically. Without this, the files dropdown stays empty until a
+          // later DOM event happens to trigger change detection.
+          this.cdr.markForCheck();
+        },
+        error: err => {
+          console.error(err);
+          this.isLoadingContents = false;
+          this.cdr.markForCheck();
+        },
+      });
   }
 
   applyFilter(event: Event) {
@@ -330,7 +349,7 @@ export class VocabularyExercisesComponent implements OnInit {
       .upsertRating(this.studyContentId, item.id, event.value)
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
-        next: (saved) => {
+        next: saved => {
           this.contentRatingMap.set(item.id!, saved.rating);
           this.cdr.markForCheck();
         },
@@ -359,18 +378,18 @@ export class VocabularyExercisesComponent implements OnInit {
       .getVocabularyWordContent(selectedContent.fileUrl)
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
-      next: (df?: LearnEnglishWordFileItem[]) => {
-        // Empty the wordqueues
-        if (df) {
-          this.dataSource.data = df.slice();
-          this.dataSource.paginator = this.paginator;
-          this.dataSource.sort = this.sort!;
-        }
-      },
-      error: err => {
-        console.error(err);
-      },
-    });
+        next: (df?: LearnEnglishWordFileItem[]) => {
+          // Empty the wordqueues
+          if (df) {
+            this.dataSource.data = df.slice();
+            this.dataSource.paginator = this.paginator;
+            this.dataSource.sort = this.sort!;
+          }
+        },
+        error: err => {
+          console.error(err);
+        },
+      });
 
     // Fetch ratings for this content from the API
     this.contentRatingMap.clear();
@@ -379,7 +398,7 @@ export class VocabularyExercisesComponent implements OnInit {
         .getRatings(this.studyContentId)
         .pipe(takeUntilDestroyed(this.destroyRef))
         .subscribe({
-          next: (ratings) => {
+          next: ratings => {
             for (const r of ratings) {
               if (r.itemId !== undefined) {
                 this.contentRatingMap.set(r.itemId, r.rating);
@@ -430,7 +449,9 @@ export class VocabularyExercisesComponent implements OnInit {
             }
             const obj = item as Record<string, unknown>;
             if (typeof obj['enword'] !== 'string' || typeof obj['cnword'] !== 'string') {
-              console.error('Invalid file format: each item must have string "enword" and "cnword" properties.');
+              console.error(
+                'Invalid file format: each item must have string "enword" and "cnword" properties.'
+              );
               return;
             }
             if (obj['enword'].length > MAX_WORD_LENGTH || obj['cnword'].length > MAX_WORD_LENGTH) {
@@ -454,7 +475,7 @@ export class VocabularyExercisesComponent implements OnInit {
 
           // Create a synthetic LearningContent entry for the temp file
           const tempContent: LearningContent = {
-            id: -(Date.now()),
+            id: -Date.now(),
             categoryId: 1,
             nameEnglish: tempFileUrl,
             nameChinese: '临时文件',
@@ -515,20 +536,20 @@ export class VocabularyExercisesComponent implements OnInit {
       .afterClosed()
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe(result => {
-      if (result !== undefined) {
-        this.studySetting.disableVoice = result.disableVoice;
-        this.studySetting.hideExplain = result.hideExplain;
-        if (result.excludePart) {
-          this.studySetting.excludePart = result.excludePart;
-        } else {
-          this.studySetting.excludePart = undefined;
-        }
-        this.studySetting.countOfItems = result.countOfItems;
+        if (result !== undefined) {
+          this.studySetting.disableVoice = result.disableVoice;
+          this.studySetting.hideExplain = result.hideExplain;
+          if (result.excludePart) {
+            this.studySetting.excludePart = result.excludePart;
+          } else {
+            this.studySetting.excludePart = undefined;
+          }
+          this.studySetting.countOfItems = result.countOfItems;
 
-        this.onStudyCore();
-        this.cdr.markForCheck();
-      }
-    });
+          this.onStudyCore();
+          this.cdr.markForCheck();
+        }
+      });
   }
 
   private coverContentToQueue(content: LearnEnglishWordFileItem[]): VocabularyTypingQueue[] {
@@ -608,25 +629,25 @@ export class VocabularyExercisesComponent implements OnInit {
     // Load existing ratings for this content
     this.studyRatingMap.clear();
     if (this.studyContentId > 0) {
-    this.ratingService
-      .getRatings(this.studyContentId)
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe({
-        next: (ratings) => {
-          for (const r of ratings) {
-            if (r.itemId !== undefined) {
-              this.studyRatingMap.set(r.itemId, r);
+      this.ratingService
+        .getRatings(this.studyContentId)
+        .pipe(takeUntilDestroyed(this.destroyRef))
+        .subscribe({
+          next: ratings => {
+            for (const r of ratings) {
+              if (r.itemId !== undefined) {
+                this.studyRatingMap.set(r.itemId, r);
+              }
             }
-          }
-          // Pre-populate ratings in study queue
-          for (const sq of this.studyQueues) {
-            if (sq.itemId !== undefined && this.studyRatingMap.has(sq.itemId)) {
-              sq.rating = this.studyRatingMap.get(sq.itemId)!.rating;
+            // Pre-populate ratings in study queue
+            for (const sq of this.studyQueues) {
+              if (sq.itemId !== undefined && this.studyRatingMap.has(sq.itemId)) {
+                sq.rating = this.studyRatingMap.get(sq.itemId)!.rating;
+              }
             }
-          }
-        },
-        error: err => console.error('Failed to load ratings', err),
-      });
+          },
+          error: err => console.error('Failed to load ratings', err),
+        });
     }
   }
 
@@ -766,7 +787,9 @@ export class VocabularyExercisesComponent implements OnInit {
 
   /** Icon for the play/pause toggle, based on auto-mode state. */
   get autoModeToggleIcon(): string {
-    return this.isAutoMode && !this.isAutoModePaused ? 'pause_circle_outline' : 'play_circle_outline';
+    return this.isAutoMode && !this.isAutoModePaused
+      ? 'pause_circle_outline'
+      : 'play_circle_outline';
   }
 
   /** Transloco key for the play/pause toggle tooltip, based on auto-mode state. */
@@ -882,7 +905,10 @@ export class VocabularyExercisesComponent implements OnInit {
   // `event` is undefined for keyboard-driven rating changes (arrow keys / 1-5),
   // which set item.rating directly and cannot produce a deselection.
   onRatingChanged(item: StudyQueueItem, event?: MatButtonToggleChange) {
-    if (event !== undefined && (event.value === undefined || event.value === null || event.value < 1)) {
+    if (
+      event !== undefined &&
+      (event.value === undefined || event.value === null || event.value < 1)
+    ) {
       // Clicking the active toggle deselects it (value becomes undefined); the
       // two-way ngModel has already written that undefined into item.rating.
       // There is no "clear rating" operation, so restore both model and view.
@@ -898,11 +924,11 @@ export class VocabularyExercisesComponent implements OnInit {
       .upsertRating(this.studyContentId, item.itemId, item.rating)
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
-      next: (saved) => {
-        this.studyRatingMap.set(item.itemId!, saved);
-      },
-      error: err => console.error('Failed to save rating', err),
-    });
+        next: saved => {
+          this.studyRatingMap.set(item.itemId!, saved);
+        },
+        error: err => console.error('Failed to save rating', err),
+      });
   }
 
   // Typing
@@ -1003,7 +1029,7 @@ export class VocabularyExercisesComponent implements OnInit {
       } else {
         if (event.key === this._arwords[this._wordidx].letter) {
           this._arwords[this._wordidx].visible = true;
-          this.audiosrv.playSound('Default.wav');
+          void this.audiosrv.playSound('Default.wav');
 
           this._wordidx++;
           if (this._wordidx === this._arwords.length) {
@@ -1012,7 +1038,7 @@ export class VocabularyExercisesComponent implements OnInit {
         } else {
           // Sending the error indicator.
           this.dataSourceResult[this._queueidx].correct = false;
-          this.audiosrv.playSound('beep.wav');
+          void this.audiosrv.playSound('beep.wav');
         }
       }
     }
@@ -1081,7 +1107,7 @@ export class VocabularyExercisesComponent implements OnInit {
       utterance.voice = usVoice;
     }
 
-    utterance.onerror = (e) => {
+    utterance.onerror = e => {
       if (e.error !== 'interrupted' && e.error !== 'canceled') {
         console.warn('speechSynthesis error:', e.error);
       }
@@ -1131,7 +1157,7 @@ export class VocabularyExercisesComponent implements OnInit {
         ).length;
       }
 
-      this.audiosrv.playSound('correct.wav');
+      void this.audiosrv.playSound('correct.wav');
     }
   }
 
@@ -1154,28 +1180,30 @@ export class VocabularyExercisesComponent implements OnInit {
       .afterClosed()
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe(result => {
-      if (result !== undefined) {
-        this.typeSetting.disableVoice = result.disableVoice;
-        this.typeSetting.hideExplain = result.hideExplain;
-        if (result.excludePart) {
-          this.typeSetting.excludePart = result.excludePart;
-        } else {
-          this.typeSetting.excludePart = undefined;
-        }
-        this.typeSetting.countOfItems = result.countOfItems;
+        if (result !== undefined) {
+          this.typeSetting.disableVoice = result.disableVoice;
+          this.typeSetting.hideExplain = result.hideExplain;
+          if (result.excludePart) {
+            this.typeSetting.excludePart = result.excludePart;
+          } else {
+            this.typeSetting.excludePart = undefined;
+          }
+          this.typeSetting.countOfItems = result.countOfItems;
 
-        this.onTypingStart();
-        // OnPush: the typing view switch (isTypingInProgress) happens in this
-        // async afterClosed callback — without markForCheck the view would not
-        // switch to the typing screen until a later DOM event.
-        this.cdr.markForCheck();
-      }
-    });
+          this.onTypingStart();
+          // OnPush: the typing view switch (isTypingInProgress) happens in this
+          // async afterClosed callback — without markForCheck the view would not
+          // switch to the typing screen until a later DOM event.
+          this.cdr.markForCheck();
+        }
+      });
   }
 
   onTypingStart() {
     if (this.selection.selected.length > 0) {
-      this.wordqueues = this.coverContentToQueue(this.selection.selected);
+      // Shuffle the selected items, matching Study/Print behavior. The shuffle
+      // returns a new array, so the selection order in the table is untouched.
+      this.wordqueues = fisherYatesShuffle(this.coverContentToQueue(this.selection.selected));
     } else {
       this.wordqueues = this.coverContentToQueue(this.dataSource.data);
       if (this.typeSetting.excludePart) {
@@ -1202,6 +1230,19 @@ export class VocabularyExercisesComponent implements OnInit {
         // Keep only the first `this.countOfItems` items
         this.wordqueues = this.wordqueues.slice(0, this.typeSetting.countOfItems);
       }
+    }
+
+    // Nothing to type (e.g. a filter excluded every word) - bail out before
+    // setWordQueueIndex(0), which would otherwise hit the idx === length branch
+    // on an empty queue and immediately flip to the completed view with a
+    // "correct.wav" jingle.
+    if (this.wordqueues.length === 0) {
+      this.isTypingInProgress = false;
+      this.isTypingCompleted = false;
+      this._queueidx = -1;
+      this._wordidx = -1;
+      this._arwords = [];
+      return;
     }
 
     this.dataSourceResult = [];
@@ -1239,32 +1280,32 @@ export class VocabularyExercisesComponent implements OnInit {
       .afterClosed()
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe(result => {
-      if (result !== undefined) {
-        if (result.excludePart) {
-          this.printSetting.excludePart = result.excludePart;
-        } else {
-          this.printSetting.excludePart = undefined;
-        }
-        if (result.subTitle) {
-          this.printSetting.subTitle = result.subTitle;
-        } else {
-          this.printSetting.subTitle = undefined;
-        }
-        this.printSetting.wordLeadingCharacter = result.wordLeadingCharacter;
-        this.printSetting.countOfItems = result.countOfItems;
-        this.printSetting.printEntryDate = result.printEntryDate;
-        if (result.wordLeadingCharacter) {
+        if (result !== undefined) {
+          if (result.excludePart) {
+            this.printSetting.excludePart = result.excludePart;
+          } else {
+            this.printSetting.excludePart = undefined;
+          }
+          if (result.subTitle) {
+            this.printSetting.subTitle = result.subTitle;
+          } else {
+            this.printSetting.subTitle = undefined;
+          }
           this.printSetting.wordLeadingCharacter = result.wordLeadingCharacter;
-        } else {
-          this.printSetting.wordLeadingCharacter = undefined;
-        }
-        this.printSetting.printFirstLetter = result.printFirstLetter;
-        this.printSetting.uniformBlankLength = result.uniformBlankLength;
-        this.printSetting.uniformBlankLengthSize = result.uniformBlankLengthSize;
+          this.printSetting.countOfItems = result.countOfItems;
+          this.printSetting.printEntryDate = result.printEntryDate;
+          if (result.wordLeadingCharacter) {
+            this.printSetting.wordLeadingCharacter = result.wordLeadingCharacter;
+          } else {
+            this.printSetting.wordLeadingCharacter = undefined;
+          }
+          this.printSetting.printFirstLetter = result.printFirstLetter;
+          this.printSetting.uniformBlankLength = result.uniformBlankLength;
+          this.printSetting.uniformBlankLengthSize = result.uniformBlankLengthSize;
 
-        this.onNewPrintCore();
-      }
-    });
+          this.onNewPrintCore();
+        }
+      });
   }
 
   onNewPrintCore() {
@@ -1300,6 +1341,12 @@ export class VocabularyExercisesComponent implements OnInit {
         // Keep only the first `this.countOfItems` items
         printqueues = printqueues.slice(0, this.printSetting.countOfItems);
       }
+    }
+
+    // Nothing to print (e.g. a filter excluded every word) - bail out before
+    // navigating to the print view, which would otherwise render an empty sheet.
+    if (printqueues.length === 0) {
+      return;
     }
 
     const items: KnowledgeExerciseFileContent[] = [];
@@ -1366,10 +1413,10 @@ export class VocabularyExercisesComponent implements OnInit {
   }
 
   onDictationStart() {
-    // Same queue-prep approach as Typing: selected rows as-is, otherwise filter
-    // by excludePart / leading character, then shuffle and cap to countOfItems.
+    // Same queue-prep approach as Typing: shuffle the selected rows, otherwise
+    // filter by excludePart / leading character, then shuffle and cap to countOfItems.
     if (this.selection.selected.length > 0) {
-      this.dictationQueues = this.coverContentToQueue(this.selection.selected);
+      this.dictationQueues = fisherYatesShuffle(this.coverContentToQueue(this.selection.selected));
     } else {
       this.dictationQueues = this.coverContentToQueue(this.dataSource.data);
       if (this.dictationSetting.excludePart) {
@@ -1904,8 +1951,10 @@ export class VocabularySelectDialogComponent {
   }
 
   get isValueDisabled(): boolean {
-    return this.ratingOperator() === RatingOperatorEnum.HasAny ||
-           this.ratingOperator() === RatingOperatorEnum.HasNone;
+    return (
+      this.ratingOperator() === RatingOperatorEnum.HasAny ||
+      this.ratingOperator() === RatingOperatorEnum.HasNone
+    );
   }
 
   onNoClick(): void {
@@ -1952,13 +2001,7 @@ export class VocabularySelectDialogComponent {
 @Component({
   selector: 'app-vocabulary-quit-confirm-dlg',
   templateUrl: 'vocabulary-exercises-quit-confirm-dialog.html',
-  imports: [
-    MatButtonModule,
-    MatDialogTitle,
-    MatDialogContent,
-    MatDialogActions,
-    TranslocoModule,
-  ],
+  imports: [MatButtonModule, MatDialogTitle, MatDialogContent, MatDialogActions, TranslocoModule],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class VocabularyQuitConfirmDialogComponent {

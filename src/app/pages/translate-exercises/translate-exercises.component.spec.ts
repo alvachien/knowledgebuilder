@@ -1,4 +1,3 @@
-import { vi } from 'vitest';
 import type { ComponentFixture } from '@angular/core/testing';
 import { TestBed } from '@angular/core/testing';
 import { MatDialog, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
@@ -12,6 +11,7 @@ import {
   TRANSLOCO_INTERCEPTOR,
 } from '@jsverse/transloco';
 import { of, throwError } from 'rxjs';
+import { vi } from 'vitest';
 
 import {
   RatingOperatorEnum,
@@ -82,12 +82,24 @@ describe('TranslateExercisesComponent', () => {
       selectTranslate: vi.fn().mockReturnValue(of('')),
       _loadDependencies: vi.fn().mockReturnValue(of(null)),
       translate: vi.fn((key: string) => {
-        if (key === 'translateExercises.chineseToEnglish') {return '中译英';}
-        if (key === 'translateExercises.englishToChinese') {return '英译中';}
-        if (key === 'translateExercises.explain') {return '讲解';}
-        if (key === 'translateExercises.correct') {return '纠正';}
-        if (key === 'translateExercises.aiMode.explain') {return '讲解';}
-        if (key === 'translateExercises.aiMode.correct') {return '纠正';}
+        if (key === 'translateExercises.chineseToEnglish') {
+          return '中译英';
+        }
+        if (key === 'translateExercises.englishToChinese') {
+          return '英译中';
+        }
+        if (key === 'translateExercises.explain') {
+          return '讲解';
+        }
+        if (key === 'translateExercises.correct') {
+          return '纠正';
+        }
+        if (key === 'translateExercises.aiMode.explain') {
+          return '讲解';
+        }
+        if (key === 'translateExercises.aiMode.correct') {
+          return '纠正';
+        }
         return key;
       }),
       activeLang: 'en',
@@ -172,7 +184,9 @@ describe('TranslateExercisesComponent', () => {
 
       component.onFileSelectionChanged({ value: mockDataFiles[0] } as any);
 
-      expect(mockLearningContentService.getSentenceFileContent).toHaveBeenCalledWith('data/file1.json');
+      expect(mockLearningContentService.getSentenceFileContent).toHaveBeenCalledWith(
+        'data/file1.json'
+      );
       expect(component.dataSource.data).toEqual(mockFileContent);
     });
 
@@ -378,7 +392,13 @@ describe('TranslateExercisesComponent', () => {
   describe('onPrint', () => {
     beforeEach(() => {
       component.dataSource.data = mockFileContent.slice();
-      component.selectedFile = { id: 99, categoryId: 2, nameEnglish: 'TestFile', nameChinese: '测试文件', fileUrl: 'data/testfile.json' };
+      component.selectedFile = {
+        id: 99,
+        categoryId: 2,
+        nameEnglish: 'TestFile',
+        nameChinese: '测试文件',
+        fileUrl: 'data/testfile.json',
+      };
     });
 
     it('should print selected items', () => {
@@ -601,7 +621,9 @@ describe('TranslateExercisesComponent', () => {
 
     it('should select items with rating equals 5', () => {
       const mockDialogRef = {
-        afterClosed: vi.fn().mockReturnValue(of({ ratingOperator: RatingOperatorEnum.Equals, ratingValue: 5 })),
+        afterClosed: vi
+          .fn()
+          .mockReturnValue(of({ ratingOperator: RatingOperatorEnum.Equals, ratingValue: 5 })),
       };
       mockDialog.open.mockReturnValue(mockDialogRef);
 
@@ -613,7 +635,9 @@ describe('TranslateExercisesComponent', () => {
 
     it('should select items with rating greater than 3', () => {
       const mockDialogRef = {
-        afterClosed: vi.fn().mockReturnValue(of({ ratingOperator: RatingOperatorEnum.GreaterThan, ratingValue: 3 })),
+        afterClosed: vi
+          .fn()
+          .mockReturnValue(of({ ratingOperator: RatingOperatorEnum.GreaterThan, ratingValue: 3 })),
       };
       mockDialog.open.mockReturnValue(mockDialogRef);
 
@@ -650,7 +674,9 @@ describe('TranslateExercisesComponent', () => {
       // ratings: id1=5, id2=3, id3=0. LessThan 4 → only id2 (rating 3);
       // id3 (unrated, 0) is deliberately excluded (covered by HasNone).
       const mockDialogRef = {
-        afterClosed: vi.fn().mockReturnValue(of({ ratingOperator: RatingOperatorEnum.LessThan, ratingValue: 4 })),
+        afterClosed: vi
+          .fn()
+          .mockReturnValue(of({ ratingOperator: RatingOperatorEnum.LessThan, ratingValue: 4 })),
       };
       mockDialog.open.mockReturnValue(mockDialogRef);
 
@@ -663,7 +689,9 @@ describe('TranslateExercisesComponent', () => {
     it('should select nothing when no rated item is below the value', () => {
       // ratings: id1=5, id2=3, id3=0. LessThan 2 → no rated item qualifies.
       const mockDialogRef = {
-        afterClosed: vi.fn().mockReturnValue(of({ ratingOperator: RatingOperatorEnum.LessThan, ratingValue: 2 })),
+        afterClosed: vi
+          .fn()
+          .mockReturnValue(of({ ratingOperator: RatingOperatorEnum.LessThan, ratingValue: 2 })),
       };
       mockDialog.open.mockReturnValue(mockDialogRef);
 
@@ -675,7 +703,11 @@ describe('TranslateExercisesComponent', () => {
     it('should select items with rating larger or equals 3', () => {
       // ratings: id1=5, id2=3, id3=0. LargerOrEquals 3 → id1, id2.
       const mockDialogRef = {
-        afterClosed: vi.fn().mockReturnValue(of({ ratingOperator: RatingOperatorEnum.LargerOrEquals, ratingValue: 3 })),
+        afterClosed: vi
+          .fn()
+          .mockReturnValue(
+            of({ ratingOperator: RatingOperatorEnum.LargerOrEquals, ratingValue: 3 })
+          ),
       };
       mockDialog.open.mockReturnValue(mockDialogRef);
 
@@ -690,7 +722,9 @@ describe('TranslateExercisesComponent', () => {
       // ratings: id1=5, id2=3, id3=0. LessOrEquals 3 → only id2 (rating 3);
       // id3 (unrated, 0) is deliberately excluded (covered by HasNone).
       const mockDialogRef = {
-        afterClosed: vi.fn().mockReturnValue(of({ ratingOperator: RatingOperatorEnum.LessOrEquals, ratingValue: 3 })),
+        afterClosed: vi
+          .fn()
+          .mockReturnValue(of({ ratingOperator: RatingOperatorEnum.LessOrEquals, ratingValue: 3 })),
       };
       mockDialog.open.mockReturnValue(mockDialogRef);
 
@@ -704,7 +738,9 @@ describe('TranslateExercisesComponent', () => {
       // ratings: id1=5, id2=3, id3=0. LessOrEquals 2 → no rated item qualifies;
       // id3 (unrated, 0) is excluded, confirming it does not collapse into HasNone.
       const mockDialogRef = {
-        afterClosed: vi.fn().mockReturnValue(of({ ratingOperator: RatingOperatorEnum.LessOrEquals, ratingValue: 2 })),
+        afterClosed: vi
+          .fn()
+          .mockReturnValue(of({ ratingOperator: RatingOperatorEnum.LessOrEquals, ratingValue: 2 })),
       };
       mockDialog.open.mockReturnValue(mockDialogRef);
 
@@ -978,14 +1014,30 @@ describe('TranslateExercisesLLMDialogComponent', () => {
       selectTranslate: vi.fn().mockReturnValue(of('')),
       _loadDependencies: vi.fn().mockReturnValue(of(null)),
       translate: vi.fn((key: string) => {
-        if (key === 'translateExercises.direction.chineseToEnglish') {return '中译英';}
-        if (key === 'translateExercises.direction.englishToChinese') {return '英译中';}
-        if (key === 'translateExercises.chineseToEnglish') {return '中译英';}
-        if (key === 'translateExercises.englishToChinese') {return '英译中';}
-        if (key === 'translateExercises.explain') {return '讲解';}
-        if (key === 'translateExercises.correct') {return '纠正';}
-        if (key === 'translateExercises.aiMode.explain') {return '讲解';}
-        if (key === 'translateExercises.aiMode.correct') {return '纠正';}
+        if (key === 'translateExercises.direction.chineseToEnglish') {
+          return '中译英';
+        }
+        if (key === 'translateExercises.direction.englishToChinese') {
+          return '英译中';
+        }
+        if (key === 'translateExercises.chineseToEnglish') {
+          return '中译英';
+        }
+        if (key === 'translateExercises.englishToChinese') {
+          return '英译中';
+        }
+        if (key === 'translateExercises.explain') {
+          return '讲解';
+        }
+        if (key === 'translateExercises.correct') {
+          return '纠正';
+        }
+        if (key === 'translateExercises.aiMode.explain') {
+          return '讲解';
+        }
+        if (key === 'translateExercises.aiMode.correct') {
+          return '纠正';
+        }
         return key;
       }),
       activeLang: 'en',

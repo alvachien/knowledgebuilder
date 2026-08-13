@@ -6,6 +6,7 @@ import { Subject, of, throwError } from 'rxjs';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { UserAuthInfo } from '../interfaces';
+
 import { AuthService } from './auth.service';
 
 describe('AuthService', () => {
@@ -22,9 +23,9 @@ describe('AuthService', () => {
     eventsSubject = new Subject();
 
     oidcSpy = {
-      checkAuth: vi.fn().mockReturnValue(
-        of({ isAuthenticated: false, userData: null, accessToken: null }),
-      ),
+      checkAuth: vi
+        .fn()
+        .mockReturnValue(of({ isAuthenticated: false, userData: null, accessToken: null })),
       authorize: vi.fn(),
       logoffAndRevokeTokens: vi.fn().mockReturnValue(of(null)),
     };
@@ -98,7 +99,7 @@ describe('AuthService', () => {
           isAuthenticated: true,
           userData: { sub: 'user-123', name: 'Test' },
           accessToken: 'tok',
-        }),
+        })
       );
       service.checkAuth();
       expect(service.authSubject.getValue().isAuthorized).toBe(true);
@@ -110,9 +111,7 @@ describe('AuthService', () => {
     });
 
     it('should still clean local state when IDP revoke call fails', () => {
-      oidcSpy.logoffAndRevokeTokens.mockReturnValue(
-        throwError(() => new Error('IDP down')),
-      );
+      oidcSpy.logoffAndRevokeTokens.mockReturnValue(throwError(() => new Error('IDP down')));
 
       // Set as authorized first
       oidcSpy.checkAuth.mockReturnValue(
@@ -120,7 +119,7 @@ describe('AuthService', () => {
           isAuthenticated: true,
           userData: { sub: 'u', name: 'T' },
           accessToken: 't',
-        }),
+        })
       );
       service.checkAuth();
       expect(service.authSubject.getValue().isAuthorized).toBe(true);
@@ -137,7 +136,7 @@ describe('AuthService', () => {
           isAuthenticated: true,
           userData: { sub: 'user-123', name: 'Test User' },
           accessToken: 'test-token',
-        }),
+        })
       );
       service.checkAuth();
       const value = service.authSubject.getValue();
@@ -149,7 +148,7 @@ describe('AuthService', () => {
 
     it('should clean authSubject when not authenticated', () => {
       oidcSpy.checkAuth.mockReturnValue(
-        of({ isAuthenticated: false, userData: null, accessToken: null }),
+        of({ isAuthenticated: false, userData: null, accessToken: null })
       );
       service.checkAuth();
       const value = service.authSubject.getValue();
@@ -158,9 +157,7 @@ describe('AuthService', () => {
     });
 
     it('should set error when checkAuth throws', () => {
-      oidcSpy.checkAuth.mockReturnValue(
-        throwError(() => new Error('IDP unreachable')),
-      );
+      oidcSpy.checkAuth.mockReturnValue(throwError(() => new Error('IDP unreachable')));
       service.checkAuth();
       const value = service.authSubject.getValue();
       expect(value.isAuthorized).toBe(false);

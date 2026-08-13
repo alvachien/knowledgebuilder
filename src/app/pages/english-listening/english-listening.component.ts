@@ -1,5 +1,5 @@
 import { AsyncPipe } from '@angular/common';
-import type { OnInit, WritableSignal } from '@angular/core';
+import type { OnDestroy, OnInit, WritableSignal } from '@angular/core';
 import {
   ChangeDetectionStrategy,
   ChangeDetectorRef,
@@ -38,6 +38,7 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { TranslocoModule } from '@jsverse/transloco';
 import { NgxPrintModule } from 'ngx-print';
 
+import { environment } from '../../../environments/environment';
 import {
   EnglishListeningStatusEnum,
   convertToQuestionBankItem,
@@ -54,12 +55,11 @@ import type {
   QuestionBankItemBase,
   QuestionBankTypeKeys,
 } from '../../interfaces';
+import type { LearningContent } from '../../interfaces';
 import { AudioService, LearningContentService } from '../../services';
 import { FooterComponent } from '../../shared/footer/footer';
 import { MarkdownContentComponent } from '../../shared/markdown-content';
-import { environment } from '../../../environments/environment';
 import { AppPageTitle } from '../page-title/page-title';
-import type { LearningContent } from '../../interfaces';
 
 @Component({
   selector: 'app-english-listening',
@@ -92,7 +92,7 @@ import type { LearningContent } from '../../interfaces';
     class: 'app-main-content',
   },
 })
-export class EnglishListeningComponent implements OnInit {
+export class EnglishListeningComponent implements OnInit, OnDestroy {
   allFiles: LearningContent[] = [];
   selectedFile?: LearningContent;
   currentStatus: EnglishListeningUIStatus = {
@@ -197,24 +197,29 @@ export class EnglishListeningComponent implements OnInit {
     return this.currentStatus.status === EnglishListeningStatusEnum.Vocabulary;
   }
 
+  ngOnDestroy(): void {
+    // Stop any in-flight playback; AudioService is a root singleton, so without
+    // this the track (and its RAF ticker) keeps running after route leave.
+    this.audiosrv.stop();
+  }
+
   ngOnInit(): void {
     this.pageTitle.title = 'Listening';
-
     this.learningContent
       .getListeningContents()
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
-      next: df => {
-        this.allFiles = df;
-        // OnPush: the file list arrives in an async subscribe callback, so the
-        // view is not marked dirty automatically — without this the files
-        // dropdown stays empty until a later DOM event triggers detection.
-        this.cdr.markForCheck();
-      },
-      error: err => {
-        console.error(err);
-      },
-    });
+        next: df => {
+          this.allFiles = df;
+          // OnPush: the file list arrives in an async subscribe callback, so the
+          // view is not marked dirty automatically — without this the files
+          // dropdown stays empty until a later DOM event triggers detection.
+          this.cdr.markForCheck();
+        },
+        error: err => {
+          console.error(err);
+        },
+      });
   }
 
   // Lesson list
@@ -228,16 +233,16 @@ export class EnglishListeningComponent implements OnInit {
       .getListeningFileContent(event.value.fileUrl)
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
-      next: (df?: EnglishListeningLesson[]) => {
-        if (df) {
-          this.dataSourceLesson.data = df.slice();
-          this.dataSourceLesson.paginator = this.paginatorLesson;
-        }
-      },
-      error: err => {
-        console.error(err);
-      },
-    });
+        next: (df?: EnglishListeningLesson[]) => {
+          if (df) {
+            this.dataSourceLesson.data = df.slice();
+            this.dataSourceLesson.paginator = this.paginatorLesson;
+          }
+        },
+        error: err => {
+          console.error(err);
+        },
+      });
   }
   applyFilter(event: Event) {
     const filterValue = (event.target as HTMLInputElement).value;
@@ -254,12 +259,15 @@ export class EnglishListeningComponent implements OnInit {
   }
 
   // Section list
-  applySectionFilter(_event: Event) {}
+  applySectionFilter(event: Event) {
+    const filterValue = (event.target as HTMLInputElement).value;
+    this.dataSourceSection.filter = filterValue.trim().toLowerCase();
+  }
 
   openSectionDetail(section: EnglishListeningSection) {
     this.selectedSection = section;
 
-    this.dataSourceSectionContent.data = this.selectedSection.exercises!;
+    this.dataSourceSectionContent.data = this.selectedSection.exercises ?? [];
     this.dataSourceSectionContent.paginator = this.paginatorSectionContent;
 
     // Play the content
@@ -347,7 +355,7 @@ export class EnglishListeningComponent implements OnInit {
         this.audiosrv.currentAudioFile === audiofile
       ) {
       } else {
-        this.audiosrv.load(audiofile, { autoplay: false, html5: true });
+        void this.audiosrv.load(audiofile, { autoplay: false, html5: true });
       }
     }
 
@@ -359,8 +367,13 @@ export class EnglishListeningComponent implements OnInit {
     this.currentItemTitle = content.title || '';
     this.currentScripts = content.scripts || [];
     if (updateIndex) {
-      this.totalItemsInSection = 0;
-      this.currentItemIndexInSection = 0;
+      // Started directly from the section-detail table: locate the item within
+      // the section so Prev/Next navigation keeps working (instead of zeroing
+      // the counters, which permanently disables Next).
+      const exercises = this.selectedSection?.exercises ?? [];
+      const idx = exercises.indexOf(content);
+      this.currentItemIndexInSection = idx >= 0 ? idx : 0;
+      this.totalItemsInSection = exercises.length;
     }
 
     if (this.selectedSectionExerciseItems && this.selectedSectionExerciseItems.length > 0) {
@@ -414,6 +427,8 @@ export class EnglishListeningComponent implements OnInit {
     this.audiosrv.stop();
   }
   onReturnToSectionDetail() {
+    this.audiosrv.stop();
+
     //this.selectedSectionExerciseItem = undefined;
     this.showScripts = false;
     this.currentScripts = [];

@@ -1,13 +1,13 @@
-import type { DocsSiteTheme} from './theme-storage';
-import {ThemeStorage} from './theme-storage';
 import { vi } from 'vitest';
 
+import type { DocsSiteTheme } from './theme-storage';
+import { ThemeStorage } from './theme-storage';
 
 const testStorageKey = ThemeStorage.storageKey;
 const testTheme: DocsSiteTheme = {
   color: '#000000',
   background: '#ffffff',
-  name: 'test-theme'
+  name: 'test-theme',
 };
 
 describe('ThemeStorage Service', () => {
@@ -16,7 +16,7 @@ describe('ThemeStorage Service', () => {
   const secondTestTheme: DocsSiteTheme = {
     color: '#666666',
     background: '#333333',
-    name: 'other-test-theme'
+    name: 'other-test-theme',
   };
 
   beforeEach(() => {
