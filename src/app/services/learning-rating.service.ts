@@ -1,9 +1,9 @@
 import { HttpClient } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
-import { Observable, of, switchMap, take, tap } from 'rxjs';
+import { defer, firstValueFrom, from, of, switchMap, take, tap } from 'rxjs';
+import type { Observable } from 'rxjs';
 
 import { environment } from '../../environments/environment';
-
 import type { UserLearningRating } from '../interfaces';
 
 @Injectable({
@@ -13,6 +13,8 @@ export class LearningRatingService {
   private http = inject(HttpClient);
   private readonly apiUrl = `${environment.apiUrl}/api/UserLearningRatings`;
   private ratingCache = new Map<number, UserLearningRating[]>();
+  /** Per-(contentId, itemId) promise chains serializing upserts (see upsertRating). */
+  private upsertChains = new Map<string, Promise<UserLearningRating>>();
 
   getRatings(contentId: number, itemId?: number): Observable<UserLearningRating[]> {
     const cached = this.ratingCache.get(contentId);
@@ -31,7 +33,7 @@ export class LearningRatingService {
           // Cache the full list when fetching all ratings for a content
           this.ratingCache.set(contentId, ratings);
         }
-      }),
+      })
     );
   }
 
@@ -41,7 +43,7 @@ export class LearningRatingService {
         if (saved.contentId) {
           this.addOrUpdateInCache(saved.contentId, saved);
         }
-      }),
+      })
     );
   }
 
@@ -51,11 +53,36 @@ export class LearningRatingService {
         if (rating.contentId) {
           this.addOrUpdateInCache(rating.contentId, { ...rating, id });
         }
-      }),
+      })
     );
   }
 
   upsertRating(contentId: number, itemId: number, rating: number): Observable<UserLearningRating> {
+    // Serialize upserts per (contentId, itemId): the get-then-write below is not
+    // atomic, so two rapid rating changes could both see "no existing row" and
+    // both POST, creating duplicate rows (the backend unique index rejects the
+    // second one with a 500).
+    const key = `${contentId}|${itemId}`;
+    return defer(() => {
+      const previous = this.upsertChains.get(key) ?? Promise.resolve({} as UserLearningRating);
+      const current = previous
+        .catch(() => undefined)
+        .then(() => firstValueFrom(this.doUpsert(contentId, itemId, rating)));
+      this.upsertChains.set(key, current);
+      void current.finally(() => {
+        if (this.upsertChains.get(key) === current) {
+          this.upsertChains.delete(key);
+        }
+      });
+      return from(current);
+    });
+  }
+
+  private doUpsert(
+    contentId: number,
+    itemId: number,
+    rating: number
+  ): Observable<UserLearningRating> {
     return this.getRatings(contentId, itemId).pipe(
       take(1),
       switchMap(existing => {
@@ -66,12 +93,10 @@ export class LearningRatingService {
             itemId,
             rating,
             scoreDate: record.scoreDate,
-          }).pipe(
-            switchMap(() => [{ ...record, rating }] as UserLearningRating[]),
-          );
+          }).pipe(switchMap(() => [{ ...record, rating }] as UserLearningRating[]));
         }
         return this.createRating({ contentId, itemId, rating });
-      }),
+      })
     );
   }
 
@@ -86,7 +111,8 @@ export class LearningRatingService {
   private addOrUpdateInCache(contentId: number, rating: UserLearningRating): void {
     const cached = this.ratingCache.get(contentId);
     if (!cached) {
-      this.ratingCache.set(contentId, [rating]);
+      // Don't seed the cache with a partial (single-item) list — a later
+      // getRatings(contentId) must refetch the full list from the API.
       return;
     }
 

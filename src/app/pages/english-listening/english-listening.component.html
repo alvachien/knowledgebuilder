@@ -87,7 +87,7 @@
         <!-- Content count Column -->
         <ng-container matColumnDef="contentcount">
           <th mat-header-cell *matHeaderCellDef> {{ t('englishListening.countOfExercises') }} </th>
-          <td mat-cell *matCellDef="let element"> {{element.exercises.length}} | <button mat-button
+          <td mat-cell *matCellDef="let element"> {{element.exercises?.length ?? 0}} | <button mat-button
               (click)="openSectionDetail(element)">{{ t('englishListening.openDetail') }}</button> </td>
         </ng-container>
 

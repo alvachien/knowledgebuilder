@@ -1,11 +1,8 @@
 import 'zone.js';
 import 'zone.js/testing';
-import { TestBed } from '@angular/core/testing';
-import {
-  BrowserTestingModule,
-  platformBrowserTesting,
-} from '@angular/platform-browser/testing';
 import { HighContrastModeDetector } from '@angular/cdk/a11y';
+import { TestBed } from '@angular/core/testing';
+import { BrowserTestingModule, platformBrowserTesting } from '@angular/platform-browser/testing';
 
 // Initialize the Angular test environment exactly once.
 // Guard against NG0400 (already initialized).
@@ -28,7 +25,9 @@ if (typeof (globalThis as any).ResizeObserver === 'undefined') {
 // The project uses KaTeX for math rendering; tests don't need real rendering.
 (globalThis as any).katex = {
   render() {},
-  renderToString() { return ''; },
+  renderToString() {
+    return '';
+  },
 };
 (globalThis as any).renderMathInElement = function () {};
 
@@ -37,7 +36,9 @@ if (typeof (globalThis as any).MutationObserver === 'undefined') {
   (globalThis as any).MutationObserver = class MutationObserver {
     observe() {}
     disconnect() {}
-    takeRecords() { return []; }
+    takeRecords() {
+      return [];
+    }
   };
 }
 

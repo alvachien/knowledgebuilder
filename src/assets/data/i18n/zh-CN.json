@@ -216,7 +216,8 @@
     "generateQuiz": "生成试题",
     "submit": "提交",
     "close": "关闭",
-    "notYetSupported": "暂不支持！"
+    "notYetSupported": "暂不支持！",
+    "aiRequestFailed": "AI请求失败，请稍后重试。"
   },
   "vocabularyExercises": {
     "title": "词汇",
@@ -235,10 +236,17 @@
     "addTempFile": "添加临时文件",
     "select": "选择",
     "study": "学习",
+    "dictation": "听写",
+    "dictationResult": "听写结果",
     "previous": "上一个",
     "next": "下一个",
     "quit": "退出",
+    "quitConfirmTitle": "退出学习？",
+    "quitConfirmMessage": "确定要退出本次学习吗？",
     "enableAutoMode": "启用自动模式",
+    "pauseAutoMode": "暂停自动模式",
+    "resumeAutoMode": "恢复自动模式",
+    "stopAutoMode": "停止自动模式",
     "secondsPerWord": "每词秒数",
     "hint": "提示",
     "nextWord": "下一个词",
@@ -251,6 +259,7 @@
     "leadingCharacter": "首字母",
     "excludedPart": "排除部分",
     "optionsOfTyping": "拼写选项",
+    "optionsOfDictation": "听写选项",
     "optionsOfPrinting": "打印选项",
     "subTitle": "副标题",
     "printEntryDate": "打印日期",
@@ -352,6 +361,7 @@
   },
   "knowledgeExercises": {
     "title": "知识库",
+    "detailV2Title": "知识库 - 习题详情 V2",
     "files": "文件",
     "none": "无",
     "items": "项目",

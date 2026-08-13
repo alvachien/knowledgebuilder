@@ -1,4 +1,3 @@
-import { vi } from 'vitest';
 import { SelectionModel } from '@angular/cdk/collections';
 import type { ComponentFixture } from '@angular/core/testing';
 import { TestBed } from '@angular/core/testing';
@@ -7,6 +6,7 @@ import { Title } from '@angular/platform-browser';
 import { Router } from '@angular/router';
 import { TranslocoTestingModule } from '@jsverse/transloco';
 import { of, throwError } from 'rxjs';
+import { vi } from 'vitest';
 
 import type { LearnChineseFileItem, LearningContent } from '../../interfaces';
 import { QuestionBankItemLevelEnum, RatingOperatorEnum } from '../../interfaces';
@@ -32,8 +32,22 @@ describe('ChineseExercisesComponent', () => {
   let routerSpy: any;
 
   const mockLearningContents: LearningContent[] = [
-    { id: 1, categoryId: 4, nameChinese: '测试文件1', nameEnglish: 'Test File 1', fileUrl: 'storage/learnchinese/test1.json', version: 1 },
-    { id: 2, categoryId: 4, nameChinese: '测试文件2', nameEnglish: 'Test File 2', fileUrl: 'storage/learnchinese/test2.json', version: 2 },
+    {
+      id: 1,
+      categoryId: 4,
+      nameChinese: '测试文件1',
+      nameEnglish: 'Test File 1',
+      fileUrl: 'storage/learnchinese/test1.json',
+      version: 1,
+    },
+    {
+      id: 2,
+      categoryId: 4,
+      nameChinese: '测试文件2',
+      nameEnglish: 'Test File 2',
+      fileUrl: 'storage/learnchinese/test2.json',
+      version: 2,
+    },
   ];
 
   const mockLearnChineseFileItem: LearnChineseFileItem[] = [
@@ -178,7 +192,9 @@ describe('ChineseExercisesComponent', () => {
 
       component.onFileSelectionChanged(event);
 
-      expect(contentServiceSpy.getChineseFileContent).toHaveBeenCalledWith('storage/learnchinese/test1.json');
+      expect(contentServiceSpy.getChineseFileContent).toHaveBeenCalledWith(
+        'storage/learnchinese/test1.json'
+      );
       expect(component.dataSource.data).toEqual(mockLearnChineseFileItem);
     });
 
@@ -513,7 +529,13 @@ describe('ChineseExercisesComponent', () => {
     });
 
     it('should include file name in form title', () => {
-      component.selectedFile = { id: 99, categoryId: 4, nameChinese: 'Test File', nameEnglish: 'Test File', fileUrl: 'storage/learnchinese/test.json' };
+      component.selectedFile = {
+        id: 99,
+        categoryId: 4,
+        nameChinese: 'Test File',
+        nameEnglish: 'Test File',
+        fileUrl: 'storage/learnchinese/test.json',
+      };
 
       component.onPrint();
 
@@ -646,7 +668,8 @@ describe('ChineseExercisesComponent', () => {
     it('should select items with rating larger or equals 3', () => {
       // ratings: id1=5, id2=3, id3=0. LargerOrEquals 3 → id1, id2.
       const mockDialogRef = {
-        afterClosed: () => of({ ratingOperator: RatingOperatorEnum.LargerOrEquals, ratingValue: 3 }),
+        afterClosed: () =>
+          of({ ratingOperator: RatingOperatorEnum.LargerOrEquals, ratingValue: 3 }),
       } as MatDialogRef<any>;
       dialogSpy.open.mockReturnValue(mockDialogRef);
 

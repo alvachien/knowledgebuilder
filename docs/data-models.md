@@ -178,9 +178,11 @@ classDiagram
   class VocabularyPrintOption
   class VocabularyTypingOption
   class VocabularyStudyOption
+  class VocabularyDictationOption
   VocabularyOptionCore <|-- VocabularyPrintOption
   VocabularyOptionCore <|-- VocabularyTypingOption
   VocabularyOptionCore <|-- VocabularyStudyOption
+  VocabularyOptionCore <|-- VocabularyDictationOption
 ```
 
 ### Chinese Options

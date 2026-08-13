@@ -1,9 +1,18 @@
-import { ChangeDetectionStrategy, ChangeDetectorRef, Component, DestroyRef, inject, Input, type OnChanges, type SimpleChanges } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
+import {
+  ChangeDetectionStrategy,
+  ChangeDetectorRef,
+  Component,
+  DestroyRef,
+  inject,
+  Input,
+  type OnChanges,
+  type SimpleChanges,
+} from '@angular/core';
 import type { SafeHtml } from '@angular/platform-browser';
 import { DomSanitizer } from '@angular/platform-browser';
-import type { MarkedExtension } from 'marked';
 import DOMPurify from 'dompurify';
+import type { MarkedExtension } from 'marked';
 import { firstValueFrom } from 'rxjs';
 
 import { KatexService } from '../../services/katex.service';
@@ -20,7 +29,8 @@ import { MarkedService } from '../../services/marked.service';
  * `src` - the image then renders with no source. Allowing `blob:` here fixes that
  * while still blocking `javascript:`, `vbscript:`, etc. (verified case-insensitive).
  */
-const ALLOWED_URI_WITH_BLOB = /^(?:(?:(?:f|ht)tps?|blob|mailto|tel|callto|sms|cid|xmpp|matrix):|[^a-z]|[a-z+.\-]+(?:[^a-z+.\-:]|$))/i;
+const ALLOWED_URI_WITH_BLOB =
+  /^(?:(?:(?:f|ht)tps?|blob|mailto|tel|callto|sms|cid|xmpp|matrix):|[^a-z]|[a-z+.\-]+(?:[^a-z+.\-:]|$))/i;
 
 @Component({
   selector: 'app-markdown-content',
@@ -55,6 +65,9 @@ export class MarkdownContentComponent implements OnChanges {
 
   // Active blob URLs created for images — revoked on destroy or re-render to avoid leaks.
   private activeBlobUrls: string[] = [];
+
+  // Monotonic counter guarding against interleaved async renders (see renderMarkdown).
+  private renderGeneration = 0;
 
   constructor() {
     // Revoke all blob URLs when the component is destroyed
@@ -157,17 +170,20 @@ export class MarkdownContentComponent implements OnChanges {
   }
 
   private async renderMarkdown(): Promise<void> {
+    // Generation guard: rapid [markdown] changes interleave the awaits below;
+    // without this a stale render that finishes last would overwrite newer
+    // content (and leak its blob URLs).
+    const generation = ++this.renderGeneration;
+
     if (!this.markdown) {
       this.renderedContent = '';
       this.cdr.markForCheck();
       return;
     }
 
-    // Revoke previously created blob URLs before re-rendering
-    for (const url of this.activeBlobUrls) {
-      URL.revokeObjectURL(url);
-    }
-    this.activeBlobUrls = [];
+    // Blob URLs created by this render. Committed to `activeBlobUrls` only if
+    // this render is still current when it completes.
+    const createdBlobUrls: string[] = [];
 
     let hasMath = false;
     if (this.enableMath) {
@@ -199,8 +215,23 @@ export class MarkdownContentComponent implements OnChanges {
       // <img> tags cannot carry the Authorization header, so we fetch the images here
       // (where the auth interceptor adds the JWT) and inject them as blob: URLs.
       if (this.imageBaseUrl) {
-        rawHtml = await this.resolveAuthenticatedImages(rawHtml);
+        rawHtml = await this.resolveAuthenticatedImages(rawHtml, createdBlobUrls);
       }
+
+      if (generation !== this.renderGeneration) {
+        // Superseded by a newer render while awaiting - discard the output and
+        // revoke the blob URLs this render created.
+        for (const url of createdBlobUrls) {
+          URL.revokeObjectURL(url);
+        }
+        return;
+      }
+
+      // Commit: revoke the previously displayed blob URLs, keep this render's.
+      for (const url of this.activeBlobUrls) {
+        URL.revokeObjectURL(url);
+      }
+      this.activeBlobUrls = createdBlobUrls;
 
       // Sanitize the rendered HTML to prevent XSS (strip <script>, event handlers, etc.)
       // before bypassing Angular's built-in sanitization. This is necessary because
@@ -235,7 +266,10 @@ export class MarkdownContentComponent implements OnChanges {
    * converted to a `File` (to preserve the filename extension for MIME detection), and
    * exposed through `URL.createObjectURL()` so the `<img>` tag can render it.
    */
-  private async resolveAuthenticatedImages(html: string): Promise<string> {
+  private async resolveAuthenticatedImages(
+    html: string,
+    collectedBlobUrls: string[]
+  ): Promise<string> {
     const imgRegex = /<img\s+[^>]*src="([^"]+)"[^>]*>/gi;
     const matches = [...html.matchAll(imgRegex)];
     if (matches.length === 0) {
@@ -244,7 +278,7 @@ export class MarkdownContentComponent implements OnChanges {
 
     // Fetch all images in parallel
     const replacements = await Promise.all(
-      matches.map(async (match) => {
+      matches.map(async match => {
         const relativeSrc = match[1];
         // Skip absolute URLs and data URIs — they don't need authentication
         if (/^(?:https?:|data:|blob:|\/\/)/i.test(relativeSrc)) {
@@ -269,7 +303,7 @@ export class MarkdownContentComponent implements OnChanges {
         }
 
         try {
-          const absoluteUrl = new URL(srcToResolve, this.imageBaseUrl!).href;
+          const absoluteUrl = new URL(srcToResolve, this.imageBaseUrl).href;
           const blob = await firstValueFrom(this.http.get(absoluteUrl, { responseType: 'blob' }));
           if (!blob) {
             return { original: match[0], replacement: match[0] };
@@ -281,7 +315,7 @@ export class MarkdownContentComponent implements OnChanges {
           const filename = relativeSrc.split('/').pop() ?? 'image.png';
           const file = new File([blob], filename, { type: blob.type });
           const blobUrl = URL.createObjectURL(file);
-          this.activeBlobUrls.push(blobUrl);
+          collectedBlobUrls.push(blobUrl);
 
           const replacement = match[0].replace(`src="${relativeSrc}"`, `src="${blobUrl}"`);
           return { original: match[0], replacement };

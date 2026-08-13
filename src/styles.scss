@@ -32,6 +32,22 @@ $theme: mat.define-theme((
   .markdown-content {
     width: 100%;
     max-width: none;
+
+    // Screen body text is 14px (~10.5pt), which renders too small on paper.
+    // 12pt is the standard print body size; line-height 1.6 keeps the printed
+    // exercise sheet readable. p/ul/ol carry an explicit 14px on screen, so
+    // they are overridden below to take on the print base.
+    font-size: 12pt;
+    line-height: 1.6;
+  }
+
+  // Override the explicit 14px / 20px screen sizing set in _markdown.scss so
+  // the question text and options render at the larger print size.
+  .markdown-content p,
+  .markdown-content ul,
+  .markdown-content ol {
+    font-size: 12pt;
+    line-height: 1.6;
   }
 
   .markdown-content,
@@ -59,7 +75,7 @@ $theme: mat.define-theme((
   .markdown-content td, .markdown-content th { page-break-inside: avoid; }
 
   .markdown-content table {
-    font-size: 0.8em;
+    font-size: 0.9em;
   }
 }
 

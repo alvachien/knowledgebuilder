@@ -1,12 +1,12 @@
 <main focusOnNavigation aria-label="Knowledge Exercise" class="knowledge-exercises-detail-v2-page">
-    <div class="knowledge-exercises-detail-v2-page-content">
+    <div class="knowledge-exercises-detail-v2-page-content" *transloco="let t">
         <mat-toolbar class="container">
             <mat-toolbar-row>
                 <span>
-                    <h5>Knowledge Bank - Exericse Detail, Version 2</h5>
+                    <h5>{{ t('knowledgeExercises.detailV2Title') }}</h5>
                 </span>
                 <span class="toolbar-spacer"></span>
-                <button mat-button [useExistingCss]="true" printSectionId="print-section" ngxPrint>Print</button>
+                <button mat-button [useExistingCss]="true" printSectionId="print-section" ngxPrint>{{ t('knowledgeExercises.print') }}</button>
             </mat-toolbar-row>
         </mat-toolbar>
         <div class="mat-elevation-z8 print-container">

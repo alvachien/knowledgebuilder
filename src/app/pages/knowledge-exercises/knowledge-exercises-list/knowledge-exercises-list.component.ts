@@ -70,7 +70,12 @@ enum ContentToDisplayEnum {
   Detail = 2,
   ExtraInfo = 3,
 }
-import { UIService, LearningContentService, LearningRatingService } from '../../../services';
+import {
+  UIService,
+  LearningContentService,
+  LearningRatingService,
+  ratingItemKey,
+} from '../../../services';
 import { FooterComponent } from '../../../shared/footer/footer';
 import { MarkdownContentComponent } from '../../../shared/markdown-content';
 import { fisherYatesShuffle } from '../../../shared/utils/shuffle';
@@ -237,7 +242,9 @@ export class KnowledgeExercisesListComponent implements OnInit {
     this.currentContentId = selectedContent.id;
 
     // Compute the base URL for resolving relative image paths within this JSON file
-    this.currentImageBaseUrl = this.learningContentService.getStorageFileBaseUrl(selectedContent.fileUrl);
+    this.currentImageBaseUrl = this.learningContentService.getStorageFileBaseUrl(
+      selectedContent.fileUrl
+    );
 
     this.dataSource.data = [];
     this.selection.clear();
@@ -247,46 +254,43 @@ export class KnowledgeExercisesListComponent implements OnInit {
       .getKnowledgeExerciseContent(selectedContent.fileUrl)
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
-      next: df => {
-        if (df) {
-          this.originalData = df.slice();
-          this.dataSource.data = df.slice();
-          this.dataSource.paginator = this.paginator || null;
+        next: df => {
+          if (df) {
+            this.originalData = df.slice();
+            this.dataSource.data = df.slice();
+            this.dataSource.paginator = this.paginator || null;
 
-          // Load ratings for this content
-          if (this.currentContentId) {
-            this.ratingService
-              .getRatings(this.currentContentId)
-              .pipe(takeUntilDestroyed(this.destroyRef))
-              .subscribe({
-                next: ratings => {
-                  for (const r of ratings) {
-                    if (r.itemId !== undefined) {
-                      this.contentRatingMap.set(r.itemId, r.rating);
+            // Load ratings for this content
+            if (this.currentContentId) {
+              this.ratingService
+                .getRatings(this.currentContentId)
+                .pipe(takeUntilDestroyed(this.destroyRef))
+                .subscribe({
+                  next: ratings => {
+                    for (const r of ratings) {
+                      if (r.itemId !== undefined) {
+                        this.contentRatingMap.set(r.itemId, r.rating);
+                      }
                     }
-                  }
-                  // OnPush: ratings arrive async; the mat-table only re-renders
-                  // rows when dataSource emits, so without markForCheck the
-                  // rating column stays at 0 until the next interaction.
-                  this.cdr.markForCheck();
-                },
-                error: err => console.error('Failed to load ratings', err),
-              });
+                    // OnPush: ratings arrive async; the mat-table only re-renders
+                    // rows when dataSource emits, so without markForCheck the
+                    // rating column stays at 0 until the next interaction.
+                    this.cdr.markForCheck();
+                  },
+                  error: err => console.error('Failed to load ratings', err),
+                });
+            }
           }
-        }
-      },
-      error: err => {
-        console.error(err);
-      },
-    });
+        },
+        error: err => {
+          console.error(err);
+        },
+      });
   }
 
   getRating(itemId: string | undefined): number {
-    if (itemId === undefined) {
-      return 0;
-    }
-    const numId = parseInt(itemId, 10);
-    return isNaN(numId) ? 0 : (this.contentRatingMap.get(numId) ?? 0);
+    const numId = ratingItemKey(itemId);
+    return numId === undefined ? 0 : (this.contentRatingMap.get(numId) ?? 0);
   }
 
   onContentRatingChanged(item: KnowledgeExerciseFileContent, event: MatButtonToggleChange) {
@@ -299,10 +303,11 @@ export class KnowledgeExercisesListComponent implements OnInit {
     if (this.currentContentId === undefined || item.id === undefined) {
       return;
     }
-    const numId = parseInt(item.id, 10);
-    if (isNaN(numId)) {
+    const numId = ratingItemKey(item.id);
+    if (numId === undefined) {
       return;
     }
+    const previousRating = this.contentRatingMap.get(numId) ?? 0;
 
     this.ratingService
       .upsertRating(this.currentContentId, numId, event.value)
@@ -314,7 +319,8 @@ export class KnowledgeExercisesListComponent implements OnInit {
         },
         error: err => {
           console.error('Failed to save rating', err);
-          this.contentRatingMap.delete(numId);
+          // Restore the previous rating instead of dropping it from the map.
+          this.contentRatingMap.set(numId, previousRating);
           this.cdr.markForCheck();
         },
       });
@@ -404,55 +410,73 @@ export class KnowledgeExercisesListComponent implements OnInit {
   }
 
   private extractOptionsText(options: { [key: string]: string } | undefined): string {
-    if (!options) {return '';}
+    if (!options) {
+      return '';
+    }
     return Object.values(options).join(' ');
   }
 
   private extractItemsText(items: KnowledgeExerciseFileContent[] | undefined): string {
-    if (!items || items.length === 0) {return '';}
+    if (!items || items.length === 0) {
+      return '';
+    }
     return items
       .map(item => {
         const parts: string[] = [];
-        if (item.question) {parts.push(item.question);}
-        if (item.answer) {parts.push(item.answer);}
-        if (item.answers) {parts.push(...item.answers);}
+        if (item.question) {
+          parts.push(item.question);
+        }
+        if (item.answer) {
+          parts.push(item.answer);
+        }
+        if (item.answers) {
+          parts.push(...item.answers);
+        }
         return parts.join(' ');
       })
       .join(' ');
   }
 
   onShowExtraInfo(elemid: string) {
-    this.contentToDisplay = ContentToDisplayEnum.ExtraInfo;
-
     this.selectedElementIdx = this.dataSource.data.findIndex(item => item.id === elemid);
     if (this.selectedElementIdx !== -1) {
+      // Only switch views once the element is actually found — otherwise the
+      // detail view would open on the stale previously-selected element.
+      this.contentToDisplay = ContentToDisplayEnum.ExtraInfo;
       this.setSelectedElement();
     }
   }
 
   onShowDetail(elemid: string) {
-    this.contentToDisplay = ContentToDisplayEnum.Detail;
-
     // Show the detail of the element
     this.selectedElementIdx = this.dataSource.data.findIndex(item => item.id === elemid);
     if (this.selectedElementIdx !== -1) {
+      this.contentToDisplay = ContentToDisplayEnum.Detail;
       this.setSelectedElement();
     }
   }
 
   setSelectedElement() {
-    this.selectedElement = convertToQuestionBankItem(
-      this.dataSource.data[this.selectedElementIdx!]
+    if (this.selectedElementIdx === undefined) {
+      return;
+    }
+    this.selectedElement = convertToQuestionBankItem(this.dataSource.data[this.selectedElementIdx]);
+    const hideLabelOfQuestionType: QuestionBankTypeKeys[] = [
+      QuestionBankTypeEnum.SingleChoice as QuestionBankTypeKeys,
+    ];
+    this.markdownStr = convertQuestionBankItemToMarkdown(
+      this.selectedElement,
+      hideLabelOfQuestionType
     );
-    const hideLabelOfQuestionType: QuestionBankTypeKeys[] = [QuestionBankTypeEnum.SingleChoice as QuestionBankTypeKeys];
-    this.markdownStr = convertQuestionBankItemToMarkdown(this.selectedElement, hideLabelOfQuestionType);
     this.answerMarkdownStr =
       this.selectedElement?.getAnswers()?.join(';').replaceAll(' ', '&nbsp;') ?? '';
     this.hintOfAnswerMarkdownStr = this.buildHintMarkdown(this.selectedElement);
   }
 
   private buildHintMarkdown(item?: QuestionBankItemBase<string>): string {
-    if (!item) return '';
+    if (!item) {
+      return '';
+    }
     // For composite types, format each sub-item's hint with order prefix
     const items = item.items;
     if (items && items.length > 0) {
@@ -486,14 +510,20 @@ export class KnowledgeExercisesListComponent implements OnInit {
   }
 
   onPreviousItem() {
-    this.selectedElementIdx = this.selectedElementIdx! - 1;
+    if (this.selectedElementIdx === undefined) {
+      return;
+    }
+    this.selectedElementIdx = this.selectedElementIdx - 1;
     this.setSelectedElement();
     this.hintOfAnswerMarkdownStr = '';
     this.showDetailHintOfAnswer = false;
   }
 
   onNextItem() {
-    this.selectedElementIdx = this.selectedElementIdx! + 1;
+    if (this.selectedElementIdx === undefined) {
+      return;
+    }
+    this.selectedElementIdx = this.selectedElementIdx + 1;
     this.setSelectedElement();
     this.hintOfAnswerMarkdownStr = '';
     this.showDetailHintOfAnswer = false;
@@ -522,18 +552,18 @@ export class KnowledgeExercisesListComponent implements OnInit {
       .afterClosed()
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe(result => {
-      if (result !== undefined) {
-        this.printSetting.formTitle = result.formTitle;
-        this.printSetting.printEntryDate = result.printEntryDate;
-        this.printSetting.printScore = result.printScore;
-        this.printSetting.printAnswer = result.printAnswer;
-        this.printSetting.printHintOfAnswer = result.printHintOfAnswer;
-        this.printSetting.hideLabelOfQuestionType = result.hideLabelOfQuestionType;
-        this.printSetting.shuffleOptionsInSelection = result.shuffleOptionsInSelection;
+        if (result !== undefined) {
+          this.printSetting.formTitle = result.formTitle;
+          this.printSetting.printEntryDate = result.printEntryDate;
+          this.printSetting.printScore = result.printScore;
+          this.printSetting.printAnswer = result.printAnswer;
+          this.printSetting.printHintOfAnswer = result.printHintOfAnswer;
+          this.printSetting.hideLabelOfQuestionType = result.hideLabelOfQuestionType;
+          this.printSetting.shuffleOptionsInSelection = result.shuffleOptionsInSelection;
 
-        this.onPreviewCore();
-      }
-    });
+          this.onPreviewCore();
+        }
+      });
   }
 
   onSelectByCount() {
@@ -548,20 +578,20 @@ export class KnowledgeExercisesListComponent implements OnInit {
       .afterClosed()
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe(result => {
-      if (result !== undefined && result.countOfItems > 0) {
-        this.selection.clear();
-        const offset = result.countOfOffset ?? 0;
-        this.dataSource.data.forEach((item, index) => {
-          if (index >= offset && index < offset + result.countOfItems) {
-            this.selection.select(item);
-          }
-        });
-        // OnPush: the count-based selection is applied in the async
-        // afterClosed callback — without markForCheck the checkboxes would
-        // not reflect the new selection until a later DOM event.
-        this.cdr.markForCheck();
-      }
-    });
+        if (result !== undefined && result.countOfItems > 0) {
+          this.selection.clear();
+          const offset = result.countOfOffset ?? 0;
+          this.dataSource.data.forEach((item, index) => {
+            if (index >= offset && index < offset + result.countOfItems) {
+              this.selection.select(item);
+            }
+          });
+          // OnPush: the count-based selection is applied in the async
+          // afterClosed callback — without markForCheck the checkboxes would
+          // not reflect the new selection until a later DOM event.
+          this.cdr.markForCheck();
+        }
+      });
   }
 
   onSelectByID() {
@@ -576,21 +606,21 @@ export class KnowledgeExercisesListComponent implements OnInit {
       .afterClosed()
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe(result => {
-      if (result !== undefined && result.importIDs) {
-        // Split by the ','
-        const arids = result.importIDs.split(',');
-        if (arids.length > 0) {
-          this.selection.clear();
-          this.dataSource.data.forEach(item => {
-            const selidx = arids.findIndex((idstr: string) => idstr.trim() === item.id);
-            if (selidx !== -1) {
-              this.selection.select(item);
-            }
-          });
-          this.cdr.markForCheck();
+        if (result !== undefined && result.importIDs) {
+          // Split by the ','
+          const arids = result.importIDs.split(',');
+          if (arids.length > 0) {
+            this.selection.clear();
+            this.dataSource.data.forEach(item => {
+              const selidx = arids.findIndex((idstr: string) => idstr.trim() === item.id);
+              if (selidx !== -1) {
+                this.selection.select(item);
+              }
+            });
+            this.cdr.markForCheck();
+          }
         }
-      }
-    });
+      });
   }
 
   onSelectFreeSelection() {
@@ -605,33 +635,33 @@ export class KnowledgeExercisesListComponent implements OnInit {
       .afterClosed()
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe(result => {
-      if (result !== undefined && result.countOfItems > 0) {
-        // Random select
-        this.selection.clear();
+        if (result !== undefined && result.countOfItems > 0) {
+          // Random select
+          this.selection.clear();
 
-        let narr: KnowledgeExerciseFileContent[] = [];
-        if (result.filterOnTag) {
-          // Filter by tag
-          narr = this.dataSource.data.filter(
-            item =>
-              item.tags &&
-              item.tags.some(
-                tag => tag.toLowerCase().indexOf(result.filterOnTag.toLowerCase()) !== -1
-              )
-          );
-          narr = fisherYatesShuffle(narr);
-        } else {
-          narr = fisherYatesShuffle(this.dataSource.data);
-        }
-
-        narr.forEach((item, index) => {
-          if (index < result.countOfItems) {
-            this.selection.select(item);
+          let narr: KnowledgeExerciseFileContent[] = [];
+          if (result.filterOnTag) {
+            // Filter by tag
+            narr = this.dataSource.data.filter(
+              item =>
+                item.tags &&
+                item.tags.some(
+                  tag => tag.toLowerCase().indexOf(result.filterOnTag.toLowerCase()) !== -1
+                )
+            );
+            narr = fisherYatesShuffle(narr);
+          } else {
+            narr = fisherYatesShuffle(this.dataSource.data);
           }
-        });
-        this.cdr.markForCheck();
-      }
-    });
+
+          narr.forEach((item, index) => {
+            if (index < result.countOfItems) {
+              this.selection.select(item);
+            }
+          });
+          this.cdr.markForCheck();
+        }
+      });
   }
 
   onSelectByRating() {
@@ -646,51 +676,51 @@ export class KnowledgeExercisesListComponent implements OnInit {
       .afterClosed()
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe(result => {
-      if (result !== undefined) {
-        this.selection.clear();
-        const operator = result.ratingOperator as RatingOperatorEnum;
-        const value = result.ratingValue as number;
+        if (result !== undefined) {
+          this.selection.clear();
+          const operator = result.ratingOperator as RatingOperatorEnum;
+          const value = result.ratingValue as number;
 
-        this.dataSource.data.forEach(item => {
-          const rating = this.getRating(item.id);
-          let matches = false;
+          this.dataSource.data.forEach(item => {
+            const rating = this.getRating(item.id);
+            let matches = false;
 
-          switch (operator) {
-            case RatingOperatorEnum.Equals:
-              matches = rating === value;
-              break;
-            case RatingOperatorEnum.GreaterThan:
-              matches = rating > value;
-              break;
-            case RatingOperatorEnum.LargerOrEquals:
-              matches = rating >= value;
-              break;
-            case RatingOperatorEnum.LessThan:
-              // "Less than" intentionally excludes unrated (0) items: a rating
-              // of 0 means "not yet assessed", which is covered by HasNone.
-              // This keeps LessThan 1 from collapsing into HasNone.
-              matches = rating > 0 && rating < value;
-              break;
-            case RatingOperatorEnum.LessOrEquals:
-              // Same unrated-exclusion rationale as LessThan: an unrated (0)
-              // item is "not yet assessed", not "rated at or below the value".
-              matches = rating > 0 && rating <= value;
-              break;
-            case RatingOperatorEnum.HasAny:
-              matches = rating > 0;
-              break;
-            case RatingOperatorEnum.HasNone:
-              matches = rating === 0;
-              break;
-          }
+            switch (operator) {
+              case RatingOperatorEnum.Equals:
+                matches = rating === value;
+                break;
+              case RatingOperatorEnum.GreaterThan:
+                matches = rating > value;
+                break;
+              case RatingOperatorEnum.LargerOrEquals:
+                matches = rating >= value;
+                break;
+              case RatingOperatorEnum.LessThan:
+                // "Less than" intentionally excludes unrated (0) items: a rating
+                // of 0 means "not yet assessed", which is covered by HasNone.
+                // This keeps LessThan 1 from collapsing into HasNone.
+                matches = rating > 0 && rating < value;
+                break;
+              case RatingOperatorEnum.LessOrEquals:
+                // Same unrated-exclusion rationale as LessThan: an unrated (0)
+                // item is "not yet assessed", not "rated at or below the value".
+                matches = rating > 0 && rating <= value;
+                break;
+              case RatingOperatorEnum.HasAny:
+                matches = rating > 0;
+                break;
+              case RatingOperatorEnum.HasNone:
+                matches = rating === 0;
+                break;
+            }
 
-          if (matches) {
-            this.selection.select(item);
-          }
-        });
-        this.cdr.markForCheck();
-      }
-    });
+            if (matches) {
+              this.selection.select(item);
+            }
+          });
+          this.cdr.markForCheck();
+        }
+      });
   }
 
   private onPreviewCore() {
@@ -937,8 +967,10 @@ export class KnowledgeSelectByRatingDialogComponent {
   }
 
   get isValueDisabled(): boolean {
-    return this.ratingOperator() === RatingOperatorEnum.HasAny ||
-           this.ratingOperator() === RatingOperatorEnum.HasNone;
+    return (
+      this.ratingOperator() === RatingOperatorEnum.HasAny ||
+      this.ratingOperator() === RatingOperatorEnum.HasNone
+    );
   }
 
   onNoClick(): void {

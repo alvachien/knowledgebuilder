@@ -70,7 +70,9 @@ describe('LearningRatingService', () => {
     it('should not cache single-item fetches (with itemId)', () => {
       // Fetching with itemId should NOT populate the full-list cache
       service.getRatings(CONTENT_ID, ITEM_ID).subscribe();
-      httpMock.expectOne(`${API_URL}?contentId=${CONTENT_ID}&itemId=${ITEM_ID}`).flush([mockRatings[0]]);
+      httpMock
+        .expectOne(`${API_URL}?contentId=${CONTENT_ID}&itemId=${ITEM_ID}`)
+        .flush([mockRatings[0]]);
 
       // Full-list fetch should still hit the API
       service.getRatings(CONTENT_ID).subscribe();
@@ -84,7 +86,12 @@ describe('LearningRatingService', () => {
       service.getRatings(CONTENT_ID).subscribe();
       httpMock.expectOne(`${API_URL}?contentId=${CONTENT_ID}`).flush(mockRatings);
 
-      const newRating: UserLearningRating = { id: 102, contentId: CONTENT_ID, itemId: 12, rating: 4 };
+      const newRating: UserLearningRating = {
+        id: 102,
+        contentId: CONTENT_ID,
+        itemId: 12,
+        rating: 4,
+      };
       service.createRating(newRating).subscribe();
       httpMock.expectOne(API_URL).flush(newRating);
 
@@ -114,7 +121,7 @@ describe('LearningRatingService', () => {
   });
 
   describe('upsertRating', () => {
-    it('should update existing rating and reflect in cache', () => {
+    it('should update existing rating and reflect in cache', async () => {
       // Populate cache
       service.getRatings(CONTENT_ID).subscribe();
       httpMock.expectOne(`${API_URL}?contentId=${CONTENT_ID}`).flush(mockRatings);
@@ -122,9 +129,13 @@ describe('LearningRatingService', () => {
       service.upsertRating(CONTENT_ID, ITEM_ID, 4).subscribe(saved => {
         expect(saved.rating).toBe(4);
       });
+      // upserts are serialized through a promise chain — let it settle so the
+      // inner HTTP call is issued before expecting it.
+      await new Promise(resolve => setTimeout(resolve, 0));
       // upsertRating calls getRatings(contentId, itemId) which hits cache (no HTTP)
       // then calls updateRating since item exists
       httpMock.expectOne(`${API_URL}/100`).flush(null);
+      await new Promise(resolve => setTimeout(resolve, 0));
 
       // Verify cache
       service.getRatings(CONTENT_ID).subscribe(ratings => {
@@ -132,21 +143,53 @@ describe('LearningRatingService', () => {
       });
     });
 
-    it('should create new rating and add to cache', () => {
+    it('should create new rating and add to cache', async () => {
       // Populate cache with empty list
       service.getRatings(CONTENT_ID).subscribe();
       httpMock.expectOne(`${API_URL}?contentId=${CONTENT_ID}`).flush([]);
 
-      const newRating: UserLearningRating = { id: 200, contentId: CONTENT_ID, itemId: ITEM_ID, rating: 5 };
+      const newRating: UserLearningRating = {
+        id: 200,
+        contentId: CONTENT_ID,
+        itemId: ITEM_ID,
+        rating: 5,
+      };
       service.upsertRating(CONTENT_ID, ITEM_ID, 5).subscribe();
+      await new Promise(resolve => setTimeout(resolve, 0));
       // getRatings(contentId, itemId) hits cache (empty) — no HTTP
       // createRating is called
       httpMock.expectOne(API_URL).flush(newRating);
+      await new Promise(resolve => setTimeout(resolve, 0));
 
       // Verify cache now contains the new rating
       service.getRatings(CONTENT_ID).subscribe(ratings => {
         expect(ratings.length).toBe(1);
         expect(ratings[0].itemId).toBe(ITEM_ID);
+      });
+    });
+
+    it('should serialize two rapid upserts on the same item (no duplicate POST)', async () => {
+      // Populate cache with empty list
+      service.getRatings(CONTENT_ID).subscribe();
+      httpMock.expectOne(`${API_URL}?contentId=${CONTENT_ID}`).flush([]);
+
+      // Fire two upserts without awaiting the first — they must run sequentially:
+      // the first POSTs, the second sees the created row and PUTs instead.
+      service.upsertRating(CONTENT_ID, ITEM_ID, 3).subscribe();
+      service.upsertRating(CONTENT_ID, ITEM_ID, 5).subscribe();
+      await new Promise(resolve => setTimeout(resolve, 0));
+
+      httpMock
+        .expectOne(API_URL)
+        .flush({ id: 200, contentId: CONTENT_ID, itemId: ITEM_ID, rating: 3 });
+      await new Promise(resolve => setTimeout(resolve, 0));
+
+      httpMock.expectOne(`${API_URL}/200`).flush(null);
+      await new Promise(resolve => setTimeout(resolve, 0));
+
+      service.getRatings(CONTENT_ID).subscribe(ratings => {
+        expect(ratings.length).toBe(1);
+        expect(ratings[0].rating).toBe(5);
       });
     });
   });

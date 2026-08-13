@@ -216,7 +216,8 @@
     "generateQuiz": "Generate Quiz",
     "submit": "Submit",
     "close": "Close",
-    "notYetSupported": "Not yet supported!"
+    "notYetSupported": "Not yet supported!",
+    "aiRequestFailed": "AI request failed. Please try again later."
   },
   "englishListening": {
     "pageTitle": "Listening",
@@ -256,6 +257,7 @@
   },
   "knowledgeExercises": {
     "title": "Knowledge Bank",
+    "detailV2Title": "Knowledge Bank - Exercise Detail V2",
     "files": "Files",
     "none": "None",
     "items": "Items",
@@ -317,10 +319,17 @@
     "addTempFile": "Add Temp. File",
     "select": "Select",
     "study": "Study",
+    "dictation": "Dictation",
+    "dictationResult": "Dictation Result",
     "previous": "Previous",
     "next": "Next",
     "quit": "Quit",
+    "quitConfirmTitle": "Quit Study?",
+    "quitConfirmMessage": "Are you sure you want to quit the study session?",
     "enableAutoMode": "Enable Auto Mode",
+    "pauseAutoMode": "Pause Auto Mode",
+    "resumeAutoMode": "Resume Auto Mode",
+    "stopAutoMode": "Stop Auto Mode",
     "secondsPerWord": "Seconds per word",
     "hint": "Hint",
     "nextWord": "Next Word",
@@ -333,6 +342,7 @@
     "leadingCharacter": "Leading character",
     "excludedPart": "Excluded Part",
     "optionsOfTyping": "Options of typing",
+    "optionsOfDictation": "Options of Dictation",
     "optionsOfPrinting": "Options of Printing",
     "subTitle": "Sub Title",
     "printEntryDate": "Print Entry Date",

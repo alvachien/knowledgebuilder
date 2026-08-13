@@ -46,7 +46,9 @@ describe('AIService', () => {
         get: () => false,
       });
 
-      await expect(firstValueFrom(service.getTTS('hello world'))).rejects.toThrow('Data file is not found!');
+      await expect(firstValueFrom(service.getTTS('hello world'))).rejects.toThrow(
+        'User code is not entered!'
+      );
     });
 
     it('should make GET request to TTS endpoint when user code is entered', () => {
@@ -58,9 +60,10 @@ describe('AIService', () => {
         expect(response).toEqual({ data: 'tts-response' });
       });
 
-      const req = httpTestingController.expectOne(r =>
-        r.url === `${environment.apiUrl}/api/TTS/details` &&
-        r.params.get('sentence') === 'hello world'
+      const req = httpTestingController.expectOne(
+        r =>
+          r.url === `${environment.apiUrl}/api/TTS/details` &&
+          r.params.get('sentence') === 'hello world'
       );
       expect(req.request.method).toBe('GET');
 
@@ -74,7 +77,9 @@ describe('AIService', () => {
         get: () => false,
       });
 
-      await expect(firstValueFrom(service.explainSentence('test'))).rejects.toThrow('Data file is not found!');
+      await expect(firstValueFrom(service.explainSentence('test'))).rejects.toThrow(
+        'User code is not entered!'
+      );
     });
 
     it('should make GET request to explain sentence endpoint', () => {
@@ -86,9 +91,10 @@ describe('AIService', () => {
         expect(response).toEqual({ explanation: 'sentence explanation' });
       });
 
-      const req = httpTestingController.expectOne(r =>
-        r.url === `${environment.apiUrl}/api/EnglishLLM/details` &&
-        r.params.get('sentence') === 'this is a test'
+      const req = httpTestingController.expectOne(
+        r =>
+          r.url === `${environment.apiUrl}/api/EnglishLLM/details` &&
+          r.params.get('sentence') === 'this is a test'
       );
       expect(req.request.method).toBe('GET');
 
@@ -102,7 +108,9 @@ describe('AIService', () => {
         get: () => false,
       });
 
-      await expect(firstValueFrom(service.explainFormat('math', 'E=mc2'))).rejects.toThrow('Data file is not found!');
+      await expect(firstValueFrom(service.explainFormat('math', 'E=mc2'))).rejects.toThrow(
+        'User code is not entered!'
+      );
     });
 
     it('should make POST request to explain format endpoint', () => {

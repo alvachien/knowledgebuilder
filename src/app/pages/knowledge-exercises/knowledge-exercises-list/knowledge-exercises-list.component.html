@@ -153,12 +153,12 @@
         <span class="toolbar-spacer"></span>
         <section style="padding-left: 8px;">
           <button mat-fab [matTooltip]="t('knowledgeExercises.previous')" (click)="onPreviousItem()"
-            [disabled]="selectedElementIdx! <= 0">
+            [disabled]="(selectedElementIdx ?? -1) <= 0">
             <mat-icon color="primary">arrow_left</mat-icon>
           </button>
           <span>{{selectedElement?.id}}</span>
           <button mat-fab [matTooltip]="t('knowledgeExercises.next')" (click)="onNextItem()"
-            [disabled]="selectedElementIdx! >= dataSource.data.length - 1">
+            [disabled]="(selectedElementIdx ?? 0) >= dataSource.data.length - 1">
             <mat-icon color="primary">arrow_right</mat-icon>
           </button>
         </section>
@@ -209,12 +209,12 @@
         <span class="toolbar-spacer"></span>
         <section style="padding-left: 8px;">
           <button mat-fab [matTooltip]="t('knowledgeExercises.previous')" (click)="onPreviousItem()"
-            [disabled]="selectedElementIdx! <= 0">
+            [disabled]="(selectedElementIdx ?? -1) <= 0">
             <mat-icon color="primary">arrow_left</mat-icon>
           </button>
           <span>{{selectedElement?.id}}</span>
           <button mat-fab [matTooltip]="t('knowledgeExercises.next')" (click)="onNextItem()"
-            [disabled]="selectedElementIdx! >= dataSource.data.length - 1">
+            [disabled]="(selectedElementIdx ?? 0) >= dataSource.data.length - 1">
             <mat-icon color="primary">arrow_right</mat-icon>
           </button>
         </section>

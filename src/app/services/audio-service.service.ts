@@ -1,8 +1,9 @@
+import { HttpClient } from '@angular/common/http';
 import type { OnDestroy } from '@angular/core';
 import { inject, Injectable, NgZone } from '@angular/core';
 import type { Howl } from 'howler';
 import type { Observable } from 'rxjs';
-import { BehaviorSubject } from 'rxjs';
+import { BehaviorSubject, firstValueFrom } from 'rxjs';
 import { map, distinctUntilChanged } from 'rxjs/operators';
 
 import { environment } from '../../environments/environment';
@@ -19,6 +20,9 @@ export type PlaybackState =
   | 'stopped'
   | 'ended'
   | 'error';
+
+/** Options accepted by {@link AudioService.load} / {@link AudioService.playSound}. */
+type AudioLoadOptions = { autoplay?: boolean; html5?: boolean; loop?: boolean; volume?: number };
 
 const TYPING_SOUND_URL = 'sounds/';
 
@@ -58,23 +62,47 @@ export class AudioService implements OnDestroy {
   private ngZone = inject(NgZone);
   private howlFactory: HowlFactory = inject(HOWL_FACTORY);
   private howlerGlobal: HowlerGlobal = inject(HOWLER_GLOBAL);
+  private http = inject(HttpClient);
+
+  // Object URL for the currently-loaded authenticated audio blob; revoked on
+  // replace/destroy to avoid leaks. Undefined for local (non-fetched) sources.
+  private objectUrl?: string;
+
+  // One-shot word-pronunciation audio state (see playAuthenticatedOneShot).
+  // Kept separate from the persistent `audioInstance` player above so a quick
+  // pronunciation never disturbs a playing content track.
+  private wordSound?: Howl;
+  private wordGeneration = 0;
+
+  // Monotonic counter guarding against interleaved async loads: a superseded
+  // authenticated fetch must not overwrite the newer Howl/object URL.
+  private loadGeneration = 0;
 
   constructor() {}
 
   ngOnDestroy(): void {
     this.stopTicker();
     this.audioInstance?.unload();
+    this.revokeObjectUrl();
+    this.stopWordOneShot();
     this.stateSubject.complete();
     this.positionSubject.complete();
     this.durationSubject.complete();
     this.volumeSubject.complete();
   }
 
-  // Load a new audio source
-  load(
-    src: string,
-    opts?: { autoplay?: boolean; html5?: boolean; loop?: boolean; volume?: number }
-  ): void {
+  // Load a new audio source.
+  //
+  // Authenticated API sources (e.g. `${apiUrl}/api/Storage/...`) cannot be fetched
+  // directly by Howler: HTML5 Audio's <audio> element cannot send the Bearer JWT, so
+  // the StorageController's [Authorize] returns 401 and playback fails silently. Such
+  // sources are fetched via HttpClient (the auth interceptor attaches the token) and
+  // fed to Howler as a blob: URL - the same pattern MarkdownContentComponent uses for
+  // authenticated images. `currentAudioFile` keeps the *original* URL so callers can
+  // cache against it.
+  async load(src: string, opts?: AudioLoadOptions): Promise<void> {
+    const generation = ++this.loadGeneration;
+
     // Clean up previous sound
     this.stopTicker();
     if (this.audioInstance) {
@@ -82,14 +110,29 @@ export class AudioService implements OnDestroy {
       this.audioInstance = undefined;
       this.soundId = undefined;
     }
+    this.revokeObjectUrl();
     this.stateSubject.next('loading');
 
     const volume = opts?.volume ?? this.volumeSubject.value;
     this.volumeSubject.next(volume);
     this._currentAudioFile = src;
 
+    if (this.isAuthenticApiUrl(src)) {
+      await this.loadAuthenticated(src, opts, volume, generation);
+    } else {
+      this.createHowl(src, opts, volume);
+    }
+  }
+
+  private createHowl(
+    src: string,
+    opts: AudioLoadOptions | undefined,
+    volume: number,
+    format?: string[]
+  ): void {
     this.audioInstance = this.howlFactory({
       src: [src],
+      ...(format ? { format } : {}),
       html5: opts?.html5 ?? true, // enable HTML5 Audio for long files/streaming
       preload: true,
       loop: opts?.loop ?? false,
@@ -137,6 +180,54 @@ export class AudioService implements OnDestroy {
     });
   }
 
+  // Fetch an authenticated API source via HttpClient and feed Howler a blob: URL.
+  private async loadAuthenticated(
+    src: string,
+    opts: AudioLoadOptions | undefined,
+    volume: number,
+    generation: number
+  ): Promise<void> {
+    try {
+      const blob = await firstValueFrom(this.http.get(src, { responseType: 'blob' }));
+      if (generation !== this.loadGeneration) {
+        // Superseded by a newer load() while fetching - discard silently; the
+        // newer load already reset the state and owns _currentAudioFile.
+        return;
+      }
+      if (!blob) {
+        this.ngZone.run(() => this.stateSubject.next('error'));
+        return;
+      }
+      // Preserve the filename so Howler/browser can infer the codec from the extension;
+      // the blob's MIME (from the response Content-Type) is kept as the File's type.
+      const filename = src.split('/').pop()?.split('?')[0] ?? 'audio.mp3';
+      const file = new File([blob], filename, { type: blob.type });
+      this.objectUrl = URL.createObjectURL(file);
+      this.createHowl(this.objectUrl, opts, volume, this.formatFromExtension(filename));
+    } catch (err) {
+      console.error('Failed to load authenticated audio:', src, err);
+      this.ngZone.run(() => this.stateSubject.next('error'));
+    }
+  }
+
+  // Mirrors the auth interceptor: it attaches the JWT for URLs under apiUrl.
+  private isAuthenticApiUrl(src: string): boolean {
+    return src === environment.apiUrl || src.startsWith(environment.apiUrl + '/');
+  }
+
+  private formatFromExtension(filename: string): string[] | undefined {
+    const ext = filename.slice(filename.lastIndexOf('.') + 1).toLowerCase();
+    const supported = ['mp3', 'wav', 'ogg', 'm4a', 'webm', 'aac', 'flac'];
+    return supported.includes(ext) ? [ext] : undefined;
+  }
+
+  private revokeObjectUrl(): void {
+    if (this.objectUrl) {
+      URL.revokeObjectURL(this.objectUrl);
+      this.objectUrl = undefined;
+    }
+  }
+
   // Play the audio from the beginning
   play(): void {
     if (!this.audioInstance) {
@@ -167,7 +258,7 @@ export class AudioService implements OnDestroy {
     if (!this.audioInstance) {
       return;
     }
-    if (this.soundId != null) {
+    if (this.soundId !== undefined) {
       this.audioInstance.pause(this.soundId);
     } else {
       this.audioInstance.pause();
@@ -201,7 +292,7 @@ export class AudioService implements OnDestroy {
       return;
     }
     if (typeof seconds === 'number') {
-      if (this.soundId != null) {
+      if (this.soundId !== undefined) {
         this.audioInstance.seek(seconds, this.soundId);
       } else {
         this.audioInstance.seek(seconds);
@@ -237,7 +328,9 @@ export class AudioService implements OnDestroy {
       return 0;
     }
     const s =
-      this.soundId != null ? this.audioInstance.seek(this.soundId) : this.audioInstance.seek();
+      this.soundId !== undefined
+        ? this.audioInstance.seek(this.soundId)
+        : this.audioInstance.seek();
     return typeof s === 'number' ? s : 0;
   }
 
@@ -273,22 +366,135 @@ export class AudioService implements OnDestroy {
     }
   }
 
-  // Old implementation for simple sound effects
-  playSound(filename: string, frontendfile = true): void {
-    let path = '';
-    if (frontendfile) {
-      path = TYPING_SOUND_URL + filename;
-    } else {
-      path = `${environment.apiUrl}/${filename}`;
+  // Simple sound effects. `frontendfile === false` plays a backend file from the API,
+  // which (like load()) must be fetched via HttpClient so the Bearer JWT is attached.
+  async playSound(filename: string, frontendfile = true): Promise<void> {
+    const path = frontendfile ? TYPING_SOUND_URL + filename : `${environment.apiUrl}/${filename}`;
+    this.howlerGlobal.volume(1);
+
+    if (!frontendfile && this.isAuthenticApiUrl(path)) {
+      try {
+        const blob = await firstValueFrom(this.http.get(path, { responseType: 'blob' }));
+        if (!blob) {
+          return;
+        }
+        const file = new File([blob], filename, { type: blob.type });
+        const blobUrl = URL.createObjectURL(file);
+        const sound = this.howlFactory({
+          src: [blobUrl],
+          format: this.formatFromExtension(filename) ?? ['wav'],
+        });
+        sound.play();
+        // Unload the sound + revoke the blob URL after playback to prevent leaks.
+        const cleanup = (): void => {
+          sound.unload();
+          URL.revokeObjectURL(blobUrl);
+        };
+        sound.once('end', cleanup);
+        sound.once('loaderror', cleanup);
+      } catch (err) {
+        console.error('Failed to load authenticated sound:', path, err);
+      }
+      return;
     }
+
     const sound = this.howlFactory({
       src: [path],
       format: ['wav'],
     });
-    this.howlerGlobal.volume(1);
     sound.play();
     // Unload the sound after playback to prevent memory leaks from accumulating Howl instances
     sound.once('end', () => sound.unload());
     sound.once('loaderror', () => sound.unload());
+  }
+
+  // Plays a one-shot authenticated audio source (used for per-word pronunciation
+  // from the /api/WordAudio endpoint). Unlike `load()` - which drives a persistent
+  // player UI - this is a fire-and-forget effect: fetch the blob via HttpClient
+  // (the auth interceptor attaches the Bearer JWT), play it once, then clean up.
+  //
+  // Returns `false` on HTTP failure (e.g. 404 when the word is absent from
+  // words.db) or Howler load/play error, so the caller can fall back to another
+  // mechanism such as speechSynthesis. Returns `true` once playback has started,
+  // or `true` for a request superseded while fetching (a newer word is loading).
+  //
+  // Calling this again - or `stopWordOneShot()` - supersedes any in-flight or
+  // playing word audio, so rapid study navigation never layers a stale word over
+  // the current one.
+  async playAuthenticatedOneShot(src: string, format = 'mp3'): Promise<boolean> {
+    this.stopWordOneShot();
+    const generation = ++this.wordGeneration;
+
+    let blob: Blob;
+    try {
+      blob = await firstValueFrom(this.http.get(src, { responseType: 'blob' }));
+    } catch {
+      return false; // 404 / network failure -> caller falls back (e.g. to TTS)
+    }
+    if (!blob || blob.size === 0) {
+      return false;
+    }
+    if (generation !== this.wordGeneration) {
+      // A newer request superseded this one while it was fetching.
+      return true;
+    }
+
+    const objectUrl = URL.createObjectURL(blob);
+    return new Promise<boolean>(resolve => {
+      let settled = false;
+      const settle = (ok: boolean): void => {
+        if (!settled) {
+          settled = true;
+          resolve(ok);
+        }
+      };
+      const release = (): void => {
+        URL.revokeObjectURL(objectUrl);
+        if (this.wordSound === sound) {
+          this.wordSound = undefined;
+        }
+      };
+      const sound = this.howlFactory({
+        src: [objectUrl],
+        format: [format],
+        volume: this.volumeSubject.value,
+        onload: () => {
+          if (generation !== this.wordGeneration) {
+            sound.unload();
+            release();
+            settle(true);
+            return;
+          }
+          sound.play();
+          settle(true);
+        },
+        onloaderror: () => {
+          sound.unload();
+          release();
+          settle(false);
+        },
+        onend: () => {
+          sound.unload();
+          release();
+        },
+        onplayerror: () => settle(false),
+      });
+      this.wordSound = sound;
+    });
+  }
+
+  // Stops and discards any in-flight/playing one-shot word audio, revoking its
+  // blob URL. Safe to call when nothing is playing.
+  stopWordOneShot(): void {
+    this.wordGeneration++;
+    const sound = this.wordSound;
+    this.wordSound = undefined;
+    if (sound) {
+      try {
+        sound.unload();
+      } catch {
+        // Ignore double-unload races.
+      }
+    }
   }
 }

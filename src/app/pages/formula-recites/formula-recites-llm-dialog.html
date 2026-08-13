@@ -23,7 +23,7 @@
     </mat-form-field>
   </mat-dialog-content>
   <mat-dialog-actions>
-    <button mat-button (click)="onSubmit()" cdkFocusInitial>{{ t('formulaRecites.submit') }}</button>
+    <button mat-button (click)="onSubmit()" [disabled]="submitting" cdkFocusInitial>{{ t('formulaRecites.submit') }}</button>
     <button mat-button (click)="onNoClick()">{{ t('formulaRecites.close') }}</button>
   </mat-dialog-actions>
 </div>

@@ -7,17 +7,17 @@ import { environment } from '../../environments/environment';
 import { UserCodeService } from './user-code.service';
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class AIService {
   private http = inject(HttpClient);
   private usr = inject(UserCodeService);
 
-  constructor() { }
+  constructor() {}
 
   getTTS(sent: string) {
     if (!this.usr.isUserCodeEntered) {
-      return throwError(() => new Error('Data file is not found!'));
+      return throwError(() => new Error('User code is not entered!'));
     }
 
     const url = `${environment.apiUrl}/api/TTS/details`;
@@ -28,7 +28,7 @@ export class AIService {
 
   explainSentence(sent: string) {
     if (!this.usr.isUserCodeEntered) {
-      return throwError(() => new Error('Data file is not found!'));
+      return throwError(() => new Error('User code is not entered!'));
     }
 
     const url = `${environment.apiUrl}/api/EnglishLLM/details`;
@@ -39,14 +39,14 @@ export class AIService {
 
   explainFormat(formattype: string, context: string) {
     if (!this.usr.isUserCodeEntered) {
-      return throwError(() => new Error('Data file is not found!'));
+      return throwError(() => new Error('User code is not entered!'));
     }
 
     const url = `${environment.apiUrl}/api/FormatLLM/AskAnything`;
 
     return this.http.post(url, {
       formattype: formattype,
-      context: context
+      context: context,
     });
   }
 }

@@ -1,5 +1,3 @@
-import { vi } from 'vitest';
-import { firstValueFrom } from 'rxjs';
 import { provideHttpClient } from '@angular/common/http';
 import { provideHttpClientTesting } from '@angular/common/http/testing';
 import type { ComponentFixture } from '@angular/core/testing';
@@ -12,7 +10,9 @@ import {
   TRANSLOCO_MISSING_HANDLER,
   TRANSLOCO_INTERCEPTOR,
 } from '@jsverse/transloco';
+import { firstValueFrom } from 'rxjs';
 import { of, throwError } from 'rxjs';
+import { vi } from 'vitest';
 
 import type { EnglishListeningLesson, LearningContent } from '../../interfaces';
 import { EnglishListeningStatusEnum, QuestionBankTypeEnum } from '../../interfaces';
@@ -259,9 +259,14 @@ describe('EnglishListeningComponent', () => {
     it('should load lessons when file is selected', () => {
       learningContentService.getListeningFileContent.mockReturnValue(of(mockLessons));
 
-      component.onFileSelectionChanged({ value: { fileUrl: 'storage/englishlistening/book1.json' }, source: {} as any });
+      component.onFileSelectionChanged({
+        value: { fileUrl: 'storage/englishlistening/book1.json' },
+        source: {} as any,
+      });
 
-      expect(learningContentService.getListeningFileContent).toHaveBeenCalledWith('storage/englishlistening/book1.json');
+      expect(learningContentService.getListeningFileContent).toHaveBeenCalledWith(
+        'storage/englishlistening/book1.json'
+      );
       expect(component.dataSourceLesson.data).toEqual(mockLessons);
     });
 
@@ -271,7 +276,10 @@ describe('EnglishListeningComponent', () => {
       );
       vi.spyOn(console, 'error');
 
-      component.onFileSelectionChanged({ value: { fileUrl: 'storage/englishlistening/book1.json' }, source: {} as any });
+      component.onFileSelectionChanged({
+        value: { fileUrl: 'storage/englishlistening/book1.json' },
+        source: {} as any,
+      });
 
       expect(console.error).toHaveBeenCalled();
     });
@@ -279,7 +287,10 @@ describe('EnglishListeningComponent', () => {
     it('should handle undefined lesson data', () => {
       learningContentService.getListeningFileContent.mockReturnValue(of(undefined));
 
-      component.onFileSelectionChanged({ value: { fileUrl: 'storage/englishlistening/book1.json' }, source: {} as any });
+      component.onFileSelectionChanged({
+        value: { fileUrl: 'storage/englishlistening/book1.json' },
+        source: {} as any,
+      });
 
       expect(component.dataSourceLesson.data).toEqual([]);
     });
