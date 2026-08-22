@@ -18,6 +18,7 @@ import type { VocabularyReviewOption } from '../../interfaces';
 @Component({
   selector: 'app-vocabulary-exercises-reviewoptions-dlg',
   templateUrl: 'vocabulary-exercises-reviewoptions-dialog.html',
+  styleUrl: 'vocabulary-exercises-options-dialogs.scss',
   imports: [
     MatFormFieldModule,
     FormsModule,

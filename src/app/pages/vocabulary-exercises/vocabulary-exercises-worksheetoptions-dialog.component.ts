@@ -19,6 +19,7 @@ import { DEFAULT_UNIFORM_BLANK_LENGTH } from '../../interfaces';
 @Component({
   selector: 'app-vocabulary-exercises-worksheetoptions-dlg',
   templateUrl: 'vocabulary-exercises-worksheetoptions-dialog.html',
+  styleUrl: 'vocabulary-exercises-options-dialogs.scss',
   imports: [
     MatFormFieldModule,
     FormsModule,

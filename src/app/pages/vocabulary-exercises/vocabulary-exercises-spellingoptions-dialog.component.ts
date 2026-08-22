@@ -18,6 +18,7 @@ import type { VocabularySpellingOption } from '../../interfaces';
 @Component({
   selector: 'app-vocabulary-exercises-spellingoptions-dlg',
   templateUrl: 'vocabulary-exercises-spellingoptions-dialog.html',
+  styleUrl: 'vocabulary-exercises-options-dialogs.scss',
   imports: [
     MatFormFieldModule,
     FormsModule,

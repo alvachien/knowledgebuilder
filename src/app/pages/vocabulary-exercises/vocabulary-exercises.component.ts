@@ -641,7 +641,6 @@ export class VocabularyExercisesComponent implements OnInit {
         currentSettings: this.reviewSetting,
       },
       width: '500px',
-      height: '480px',
       enterAnimationDuration: 800,
       exitAnimationDuration: 500,
     });
@@ -761,7 +760,6 @@ export class VocabularyExercisesComponent implements OnInit {
         currentSettings: this.spellingSetting,
       },
       width: '500px',
-      height: '480px',
       enterAnimationDuration: 800,
       exitAnimationDuration: 500,
     });
@@ -817,7 +815,6 @@ export class VocabularyExercisesComponent implements OnInit {
         currentSettings: this.quizSetting,
       },
       width: '500px',
-      height: '480px',
       enterAnimationDuration: 800,
       exitAnimationDuration: 500,
     });
@@ -886,7 +883,6 @@ export class VocabularyExercisesComponent implements OnInit {
         currentSettings: this.worksheetSetting,
       },
       width: '600px',
-      height: '660px',
       enterAnimationDuration: 800,
       exitAnimationDuration: 500,
     });

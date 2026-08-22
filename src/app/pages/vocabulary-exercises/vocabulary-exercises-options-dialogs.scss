@@ -1,0 +1,13 @@
+// Angular Material's `mat-dialog-content` uses `overflow:auto` with the
+// with-actions content padding (`20px 24px 0` — zero bottom padding). The
+// `mat-mdc-checkbox-touch-target` is `position:absolute; height:48px` centered
+// on a ~24px-tall checkbox host, so on a dialog whose last row is a checkbox
+// it overflows ~11px below the content box. Absolute descendants feed the
+// scroll container's scrollHeight, so scrollHeight > clientHeight and a thin
+// vertical scrollbar appears. A little bottom padding absorbs that overflow.
+// (The quiz dialog already avoids this via `margin-bottom:12px` on its radio
+// group in vocabulary-exercises-quizoptions-dialog.scss.)
+// Verified with tmp/scrollbar-repro.html (Chrome headless scrollHeight audit).
+.mat-mdc-dialog-content {
+  padding-bottom: 12px;
+}
