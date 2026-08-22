@@ -600,7 +600,7 @@ describe('AudioService Extended Tests', () => {
       expect(mockHowlInstance.unload).toHaveBeenCalled();
     });
 
-    it('should complete all subjects on destroy', async () => {
+    it('should complete all subjects on destroy', () => {
       let stateCompleted = false;
       let positionCompleted = false;
       let durationCompleted = false;
@@ -613,7 +613,10 @@ describe('AudioService Extended Tests', () => {
 
       service.ngOnDestroy();
 
-      await new Promise(resolve => setTimeout(resolve, 0));
+      // Subject.complete() notifies subscribers synchronously, so the flags
+      // are set by ngOnDestroy() above - no async flush needed (the previous
+      // `await setTimeout(0)` flaked under zone.js on CI, hitting the 5s test
+      // timeout).
       expect(stateCompleted).toBe(true);
       expect(positionCompleted).toBe(true);
       expect(durationCompleted).toBe(true);
