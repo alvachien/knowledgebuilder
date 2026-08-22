@@ -13,79 +13,8 @@
     justify-content: center;
 }
 
-.toolbar-spacer {
-    flex: 1 1 auto;
-}
-
-.page-toolbar-item {
-    margin-top: 4px;
-    padding-top: 4px;
-}
-
 .control-full-width {
     width: 100%;
-}
-
-.vocabulary-typing-container {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: space-around;
-    width: 100%;
-}
-
-.vocabulary-container {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    width: 100%;
-    padding: 24px;
-}
-
-.vocabulary-typing-input-container {
-    font-family: "Consolas";
-    font-size: 72px;
-    display: flex;
-    flex-direction: row;
-    justify-content: space-around;
-    height: 200px;
-    align-items: center;
-}
-
-.vocabulary-typing-input-character {
-    white-space: pre-wrap;
-    /* 允许空格换行 */
-    flex-shrink: 0;
-    display: inline-block;
-    /* 可选，根据内容调整宽度 */
-}
-
-.vocabulary-typing-explain {
-    font-size: 36px;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    text-align: center;
-    min-height: 50px;
-    margin-bottom: 16px;
-    width: 100%;
-}
-
-.vocabulary-rating-container {
-    display: flex;
-    justify-content: center;
-}
-
-.toolbar-fab-button {
-  margin-right: 4px;
-  margin-left: 4px;
-}
-
-.example-button-container {
-    display: flex;
-    justify-content: center;
-    width: 56px;
 }
 
 .example-flex-container {
@@ -97,8 +26,4 @@
 result-content {
     width: 100%;
     margin: 24px;
-}
-
-th.mat-sort-header-sorted {
-    color: black;
 }

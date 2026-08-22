@@ -273,6 +273,61 @@ export class AudioService implements OnDestroy {
     }
   }
 
+  // Cached speech-synthesis voices. The platform populates getVoices()
+  // asynchronously (after the first speak() call, via the `voiceschanged`
+  // event), so the very first utterance would otherwise fall back to the
+  // default voice despite the explicit US-English selection below. We seed the
+  // cache on demand and refresh it when the platform announces voices are
+  // ready.
+  private cachedVoices: SpeechSynthesisVoice[] = [];
+  private voicesListenerAttached = false;
+
+  private ensureVoiceCache(): void {
+    if (typeof window === 'undefined' || !window.speechSynthesis) {
+      return;
+    }
+
+    if (this.cachedVoices.length === 0) {
+      this.cachedVoices = window.speechSynthesis.getVoices();
+    }
+
+    if (!this.voicesListenerAttached) {
+      this.voicesListenerAttached = true;
+      window.speechSynthesis.onvoiceschanged = () => {
+        this.cachedVoices = window.speechSynthesis?.getVoices() ?? [];
+      };
+    }
+  }
+
+  // Text-to-speech via the browser's Web Speech API (used by the vocabulary
+  // study/typing screens so no vocabulary leaks to a third-party server).
+  speakWord(word: string): void {
+    if (typeof window === 'undefined' || !window.speechSynthesis) {
+      return;
+    }
+
+    window.speechSynthesis.cancel();
+
+    const utterance = new SpeechSynthesisUtterance(word);
+    utterance.lang = 'en-US';
+    utterance.rate = 0.9;
+
+    // Explicit US English voice selection (uses the async-populated cache so
+    // it applies even on the first utterance of a session).
+    this.ensureVoiceCache();
+    const usVoice = this.cachedVoices.find(v => v.lang === 'en-US');
+    if (usVoice) {
+      utterance.voice = usVoice;
+    }
+
+    utterance.onerror = (e) => {
+      if (e.error !== 'interrupted' && e.error !== 'canceled') {
+        console.warn('speechSynthesis error:', e.error);
+      }
+    };
+    window.speechSynthesis.speak(utterance);
+  }
+
   // Old implementation for simple sound effects
   playSound(filename: string, frontendfile = true): void {
     let path = '';

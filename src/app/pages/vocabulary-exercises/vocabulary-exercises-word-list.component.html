@@ -1,0 +1,154 @@
+<ng-container *transloco="let t">
+  <mat-toolbar class="container">
+    <mat-toolbar-row>
+      <span>
+        <h5>{{ t('vocabularyExercises.title') }}</h5>
+      </span>
+      <span class="toolbar-spacer"></span>
+      <mat-form-field class="page-toolbar-item">
+        <mat-label>{{ t('vocabularyExercises.files') }}</mat-label>
+        <mat-select matNativeControl [(value)]="selectedFile" (selectionChange)="fileSelectionChanged.emit($event)"
+          [disabled]="isLoadingContents()" [placeholder]="isLoadingContents() ? t('loading') : t('vocabularyExercises.files')">
+          @if (isLoadingContents()) {
+            <mat-option disabled>
+              <mat-spinner diameter="18"></mat-spinner>
+              {{ t('loading') }}
+            </mat-option>
+          }
+          <mat-option value="">{{ t('vocabularyExercises.none') }}</mat-option>
+          @for (file of allFiles(); track file.id ) {
+            <mat-option [value]="file">{{file.nameEnglish}}</mat-option>
+          }
+        </mat-select>
+      </mat-form-field>
+      <button mat-fab class="toolbar-fab-button" [matTooltip]="t('vocabularyExercises.downloadTemplate')" (click)="downloadTemplate.emit()">
+        <mat-icon>download</mat-icon>
+      </button>
+      <button mat-fab class="toolbar-fab-button" [matTooltip]="t('vocabularyExercises.addTempFile')" (click)="addFileClick.emit(fileInputRef)">
+        <mat-icon>add</mat-icon>
+      </button>
+      <input #fileInputRef
+        type="file"
+        (change)="tempFileSelected.emit($event)"
+        style="display: none;"
+      />
+    </mat-toolbar-row>
+  </mat-toolbar>
+
+  <div class="container">
+    <div class="filter-row">
+      <div class="filter-bar">
+        <mat-form-field class="filter-bar-free-text" subscriptSizing="dynamic">
+          <mat-label>{{ t('vocabularyExercises.filter') }}</mat-label>
+          <input matInput [(ngModel)]="freeText" (keyup)="onFreeTextChanged()" [disabled]="!selectedFile()" />
+        </mat-form-field>
+
+        <button mat-stroked-button [matMenuTriggerFor]="wordMenu" [disabled]="!selectedFile()">{{ t('vocabularyExercises.word') }} ▾</button>
+        <mat-menu #wordMenu="matMenu">
+          <button mat-menu-item (click)="defineWordFilter.emit()">{{ wordMenuLabel }}</button>
+          <button mat-menu-item (click)="clearWordFilter.emit()" [disabled]="!hasWordFilter">{{ t('vocabularyExercises.filterClear') }}</button>
+        </mat-menu>
+
+        <button mat-stroked-button [matMenuTriggerFor]="ratingMenu" [disabled]="!selectedFile()">{{ t('vocabularyExercises.rating') }} ▾</button>
+        <mat-menu #ratingMenu="matMenu">
+          <button mat-menu-item (click)="defineRatingFilter.emit()">{{ ratingMenuLabel }}</button>
+          <button mat-menu-item (click)="clearRatingFilter.emit()" [disabled]="!hasRatingFilter">{{ t('vocabularyExercises.filterClear') }}</button>
+        </mat-menu>
+      </div>
+
+      <div class="filter-bar-actions">
+        <button mat-stroked-button [matMenuTriggerFor]="quickMenu" [disabled]="!selectedFile()">{{ t('vocabularyExercises.quickSelection') }} ▾</button>
+        <mat-menu #quickMenu="matMenu">
+          <button mat-menu-item (click)="quickSelect.emit('random')">{{ t('vocabularyExercises.randomSelect') }}</button>
+          <button mat-menu-item (click)="quickSelect.emit('sequence')">{{ t('vocabularyExercises.sequenceSelect') }}</button>
+          <button mat-menu-item (click)="quickSelect.emit('words')">{{ t('vocabularyExercises.selectWords') }}</button>
+        </mat-menu>
+
+        <button mat-stroked-button [matMenuTriggerFor]="exerciseMenu" [disabled]="!selectedFile()">{{ t('vocabularyExercises.exercises') }} ▾</button>
+        <mat-menu #exerciseMenu="matMenu">
+          <button mat-menu-item (click)="review.emit()">
+            <mat-icon>slideshow</mat-icon>
+            <span>{{ t('vocabularyExercises.study') }}</span>
+          </button>
+          <button mat-menu-item (click)="worksheet.emit()">
+            <mat-icon>print</mat-icon>
+            <span>{{ t('vocabularyExercises.print') }}</span>
+          </button>
+          <button mat-menu-item (click)="spelling.emit()">
+            <mat-icon>keyboard</mat-icon>
+            <span>{{ t('vocabularyExercises.typing') }}</span>
+          </button>
+          <button mat-menu-item (click)="quiz.emit()">
+            <mat-icon>quiz</mat-icon>
+            <span>{{ t('vocabularyExercises.test') }}</span>
+          </button>
+        </mat-menu>
+        <mat-divider [vertical]="true"></mat-divider>
+
+        <!-- Counts: total items in the file | rows after filtering | selected rows -->
+        <div class="filter-bar-counts">
+          <span [matTooltip]="t('vocabularyExercises.items')">{{ wordQueueCount }}</span>
+          <mat-divider [vertical]="true"></mat-divider>
+          <span [matTooltip]="t('vocabularyExercises.filteredItems')">{{ visibleRowCount }}</span>
+          <mat-divider [vertical]="true"></mat-divider>
+          <span [matTooltip]="t('vocabularyExercises.totalSelections')">{{ selectionCount() }}</span>
+        </div>
+      </div>
+    </div>
+
+    <table mat-table [dataSource]="dataSource()" matSort class="mat-elevation-z8 w-full">
+      <!-- ID Column -->
+      <ng-container matColumnDef="id">
+        <th mat-header-cell *matHeaderCellDef mat-sort-header sortActionDescription="Sort by ID"> {{ t('vocabularyExercises.id') }} </th>
+        <td mat-cell *matCellDef="let element"> {{element.id}} </td>
+      </ng-container>
+
+      <!-- Checkbox Column -->
+      <ng-container matColumnDef="select">
+        <th mat-header-cell *matHeaderCellDef>
+          <mat-checkbox (change)="$event ? allRowsToggled.emit() : null" [checked]="selection().hasValue() && isAllSelected()"
+            [indeterminate]="selection().hasValue() && !isAllSelected()">
+          </mat-checkbox>
+        </th>
+        <td mat-cell *matCellDef="let row">
+          <mat-checkbox (click)="$event.stopPropagation()" (change)="$event ? selection().toggle(row) : null"
+            [checked]="selection().isSelected(row)">
+          </mat-checkbox>
+        </td>
+      </ng-container>
+
+      <!-- English Word Column -->
+      <ng-container matColumnDef="enword">
+        <th mat-header-cell *matHeaderCellDef mat-sort-header sortActionDescription="Sort by word"> {{ t('vocabularyExercises.word') }} </th>
+        <td mat-cell *matCellDef="let element"> {{element.enword}} </td>
+      </ng-container>
+
+      <!-- Chinese Word Column -->
+      <ng-container matColumnDef="cnword">
+        <th mat-header-cell *matHeaderCellDef> {{ t('vocabularyExercises.chinese') }} </th>
+        <td mat-cell *matCellDef="let element"> {{element.cnword}} </td>
+      </ng-container>
+
+      <!-- Rating Column -->
+      <ng-container matColumnDef="rating">
+        <th mat-header-cell *matHeaderCellDef mat-sort-header sortActionDescription="Sort by rating"> {{ t('vocabularyExercises.rating') }} </th>
+        <td mat-cell *matCellDef="let element">
+          <mat-button-toggle-group [ngModel]="getRating(element.id)" aria-label="Rating"
+            (change)="contentRatingChanged.emit({ item: element, event: $event })">
+            <mat-button-toggle [value]="1" [disabled]="!ratingsEnabled()">1</mat-button-toggle>
+            <mat-button-toggle [value]="2" [disabled]="!ratingsEnabled()">2</mat-button-toggle>
+            <mat-button-toggle [value]="3" [disabled]="!ratingsEnabled()">3</mat-button-toggle>
+            <mat-button-toggle [value]="4" [disabled]="!ratingsEnabled()">4</mat-button-toggle>
+            <mat-button-toggle [value]="5" [disabled]="!ratingsEnabled()">5</mat-button-toggle>
+          </mat-button-toggle-group>
+        </td>
+      </ng-container>
+
+      <tr mat-header-row *matHeaderRowDef="displayedColumns; sticky: true"></tr>
+      <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+    </table>
+    <mat-paginator [pageSizeOptions]="[20, 50, 100, 200]" showFirstLastButtons
+      aria-label="Select page of periodic elements">
+    </mat-paginator>
+  </div>
+</ng-container>

@@ -1,0 +1,93 @@
+// See word-list: the host replaces blocks that were direct flex items.
+:host {
+    display: contents;
+}
+
+.toolbar-spacer {
+    flex: 1 1 auto;
+}
+
+.toolbar-fab-button {
+  margin-right: 4px;
+  margin-left: 4px;
+}
+
+.example-button-container {
+    display: flex;
+    justify-content: center;
+    width: 56px;
+}
+
+.vocabulary-test-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: space-around;
+    width: 100%;
+}
+
+.vocabulary-test-prompt {
+    font-size: 48px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    min-height: 80px;
+    margin: 24px 0;
+    width: 100%;
+    word-break: break-word;
+}
+
+.vocabulary-test-options {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    width: 100%;
+    max-width: 640px;
+    padding: 0 16px 24px;
+    box-sizing: border-box;
+}
+
+.vocabulary-test-option {
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    height: auto;
+    min-height: 48px;
+    padding: 8px 16px;
+    text-align: left;
+
+    .vocabulary-test-option-key {
+        margin-right: 16px;
+        font-weight: bold;
+        flex-shrink: 0;
+    }
+
+    .vocabulary-test-option-text {
+        white-space: pre-wrap;
+        word-break: break-word;
+        flex: 1 1 auto;
+    }
+
+    .vocabulary-test-option-icon {
+        margin-left: auto;
+        flex-shrink: 0;
+    }
+
+    &.vocabulary-test-option-correct {
+        border-color: #4caf50;
+        color: #4caf50;
+    }
+
+    &.vocabulary-test-option-wrong {
+        border-color: #f44336;
+        color: #f44336;
+    }
+}
+
+.vocabulary-test-status {
+    margin-top: 8px;
+    font-size: 18px;
+    font-weight: 500;
+    text-align: center;
+}

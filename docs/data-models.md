@@ -147,7 +147,7 @@ classDiagram
   }
   LearnEnglishSentFileItem <|-- TranslateQueue
 
-  class StudyQueueItem {
+  class ReviewQueueItem {
     +enword: string
     +cnword: string
     +rating: number
@@ -166,22 +166,42 @@ classDiagram
   LearningContent "1" --> "*" UserLearningRating : ratings
 ```
 
+#### Word item contract
+
+Every source of `LearnEnglishWordFileItem` applies the same content rule:
+**`enword` must be longer than one character.**
+
+- Server files: `LearningContentService` filters out shorter words when loading
+  (`getVocabularyWordContent` and the cache setter).
+- Temp files uploaded via the vocabulary page's "Add Temp. File": the container
+  rejects the whole upload if any item's `enword` is one character or empty,
+  so a temp file can never inject words the service would have filtered.
+
 ### Vocabulary Options
 
 ```mermaid
 classDiagram
   direction LR
   class VocabularyOptionCore {
-    +excludePart: VocabularyExcludedPartEnum
     +countOfItems: number
   }
-  class VocabularyPrintOption
-  class VocabularyTypingOption
-  class VocabularyStudyOption
-  VocabularyOptionCore <|-- VocabularyPrintOption
-  VocabularyOptionCore <|-- VocabularyTypingOption
-  VocabularyOptionCore <|-- VocabularyStudyOption
+  class VocabularyWorksheetOption
+  class VocabularySpellingOption
+  class VocabularyReviewOption
+  class VocabularyQuizOption {
+    +direction: VocabularyQuizDirection
+  }
+  VocabularyOptionCore <|-- VocabularyWorksheetOption
+  VocabularyOptionCore <|-- VocabularySpellingOption
+  VocabularyOptionCore <|-- VocabularyReviewOption
+  VocabularyOptionCore <|-- VocabularyQuizOption
 ```
+
+`VocabularyQuizOption` drives the vocabulary page's Test exercise: it generates
+single-choice questions (`buildVocabularyQuizQuestions`) - either EN word ->
+pick the correct CN explanation among 4 candidates (`en2cn`) or the reverse
+(`cn2en`) - answered interactively in a `VocabularyQuizSessionStore` session
+(`VocabularyQuizQuestion` / `VocabularyQuizQueueResult`).
 
 ### Chinese Options
 
@@ -198,4 +218,4 @@ classDiagram
   ChineseRecitetOptionAbstract <|-- ChineseReciteOption
 ```
 
-Enums (`QuestionBankTypeEnum`, `QuestionBankContentFormatEnum`, `QuestionBankItemLevelEnum`, `SelectionModeEnum`, `RatingOperatorEnum`, `PrintExecDateEnum`, `ChineseReciteStatusEnum`, `EnglishListeningStatusEnum`, `TranslateDirectionEnum`, `VocabularyExcludedPartEnum`, `FormulaReciteAIModeEnum`, `TranslationAIModeEnum`, etc.) and the status/queue interfaces (`VocabularyTypingQueue`, `VocabularyTypingQueueResult`, `VocabularyWordLetter`, `TranslateExerciseUIStatus`, `ChineseReciteStatus`, `EnglishListeningUIStatus`) are omitted from the diagram for readability.
+Enums (`QuestionBankTypeEnum`, `QuestionBankContentFormatEnum`, `QuestionBankItemLevelEnum`, `SelectionModeEnum`, `RatingOperatorEnum`, `PrintExecDateEnum`, `ChineseReciteStatusEnum`, `EnglishListeningStatusEnum`, `TranslateDirectionEnum`, `FormulaReciteAIModeEnum`, `TranslationAIModeEnum`, etc.) and the status/queue interfaces (`VocabularySpellingQueue`, `VocabularySpellingQueueResult`, `VocabularySpellingLetter`, `TranslateExerciseUIStatus`, `ChineseReciteStatus`, `EnglishListeningUIStatus`) are omitted from the diagram for readability.

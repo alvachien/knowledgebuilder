@@ -1,0 +1,20 @@
+<div *transloco="let t">
+  <h2 mat-dialog-title>{{ t('vocabularyExercises.optionsOfTest') }}</h2>
+  <mat-dialog-content class="control-full-width">
+    <mat-form-field class="control-full-width">
+      <mat-label>{{ t('vocabularyExercises.count') }}</mat-label>
+      <input matInput type="number" [(ngModel)]="countOfItems" [disabled]="data.withSelection">
+      <span matSuffix>{{data.wordQueueCount}}</span>
+    </mat-form-field>
+    <div class="control-full-width">
+      <mat-radio-group [(ngModel)]="direction" class="control-full-width test-direction-group">
+        <mat-radio-button value="en2cn">{{ t('vocabularyExercises.directionEn2Cn') }}</mat-radio-button>
+        <mat-radio-button value="cn2en">{{ t('vocabularyExercises.directionCn2En') }}</mat-radio-button>
+      </mat-radio-group>
+    </div>
+  </mat-dialog-content>
+  <mat-dialog-actions>
+    <button mat-button (click)="onNoClick()">{{ t('no') }}</button>
+    <button mat-button (click)="onYesClick()" [disabled]="isCountInvalid" cdkFocusInitial>{{ t('ok') }}</button>
+  </mat-dialog-actions>
+</div>
