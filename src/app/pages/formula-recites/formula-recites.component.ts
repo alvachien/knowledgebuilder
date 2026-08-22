@@ -10,10 +10,8 @@ import {
   model,
   ViewChild,
 } from '@angular/core';
-import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import type { SafeHtml } from '@angular/platform-browser';
 import { SecurityContext } from '@angular/core';
-import { DomSanitizer } from '@angular/platform-browser';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCheckboxModule } from '@angular/material/checkbox';
@@ -40,6 +38,8 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatTableDataSource, MatTableModule } from '@angular/material/table';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatDateFnsModule, provideDateFnsAdapter } from '@angular/material-date-fns-adapter';
+import { DomSanitizer } from '@angular/platform-browser';
+import type { SafeHtml } from '@angular/platform-browser';
 import { Router } from '@angular/router';
 import { TranslocoModule, TranslocoService } from '@jsverse/transloco';
 import { zhCN } from 'date-fns/locale';
@@ -57,7 +57,13 @@ import {
   MY_DATE_FORMATS,
   QuestionBankTypeEnum,
 } from '../../interfaces';
-import { AIService, LearningContentService, UIService, UserCodeService, UtilService } from '../../services';
+import {
+  AIService,
+  LearningContentService,
+  UIService,
+  UserCodeService,
+  UtilService,
+} from '../../services';
 import { FooterComponent } from '../../shared/footer/footer';
 import { MathItemComponent } from '../../shared/mathitem';
 import { fisherYatesShuffle } from '../../shared/utils/shuffle';
@@ -238,16 +244,16 @@ export class FormulaRecitesComponent implements OnInit {
       .getFormulaFileContent(selectedContent.fileUrl)
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
-      next: df => {
-        if (df) {
-          this.dataSource.data = df.slice();
-          this.dataSource.paginator = this.paginator;
-        }
-      },
-      error: err => {
-        console.error(err);
-      },
-    });
+        next: df => {
+          if (df) {
+            this.dataSource.data = df.slice();
+            this.dataSource.paginator = this.paginator;
+          }
+        },
+        error: err => {
+          console.error(err);
+        },
+      });
   }
 
   onLLMExplain(item: FormulaReciteContent) {
@@ -347,23 +353,23 @@ export class FormulaRecitesComponent implements OnInit {
       .afterClosed()
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe(result => {
-      if (result !== undefined) {
-        this.printSetting.countOfItems = result.countOfItems;
-        this.printSetting.subtitle = result.subtitle ?? '';
-        this.printSetting.printEntryDate = result.printEntryDate;
-        this.printSetting.randomOrder = result.randomOrder;
-        this.printSetting.printSource = result.printSource;
-        this.printSetting.respectRetentionCurve = result.respectRetentionCurve;
-        this.printSetting.printExecDate = result.printExecDate;
-        if (this.printSetting.printExecDate) {
-          this.printSetting.execDate = result.execDate;
-        } else {
-          this.printSetting.execDate = undefined;
-        }
+        if (result !== undefined) {
+          this.printSetting.countOfItems = result.countOfItems;
+          this.printSetting.subtitle = result.subtitle ?? '';
+          this.printSetting.printEntryDate = result.printEntryDate;
+          this.printSetting.randomOrder = result.randomOrder;
+          this.printSetting.printSource = result.printSource;
+          this.printSetting.respectRetentionCurve = result.respectRetentionCurve;
+          this.printSetting.printExecDate = result.printExecDate;
+          if (this.printSetting.printExecDate) {
+            this.printSetting.execDate = result.execDate;
+          } else {
+            this.printSetting.execDate = undefined;
+          }
 
-        this.onPrint();
-      }
-    });
+          this.onPrint();
+        }
+      });
   }
 }
 
@@ -458,6 +464,7 @@ export class FormulaRecitesPrintOptionsDialogComponent {
     MatDialogActions,
     TranslocoModule,
   ],
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class FormulaRecitesLLMDialogComponent {
   readonly dialogRef = inject(MatDialogRef<FormulaRecitesLLMDialogComponent>);
@@ -468,6 +475,9 @@ export class FormulaRecitesLLMDialogComponent {
   readonly transloco = inject(TranslocoService);
   aiutil = inject(AIService);
   private readonly destroyRef = inject(DestroyRef);
+  private readonly snackBar = inject(MatSnackBar);
+  /** True while an LLM request is in flight — guards against double submit. */
+  submitting = false;
   allAIModes = [
     { value: FormulaReciteAIModeEnum.Explain },
     { value: FormulaReciteAIModeEnum.MoreQuiz },
@@ -490,36 +500,33 @@ export class FormulaRecitesLLMDialogComponent {
   }
 
   onSubmit(): void {
-    if (this.mode() === FormulaReciteAIModeEnum.Explain) {
-      this.aiutil
-        .explainFormat(
-          this.data.formattype,
-          `请讲解一下如下知识点'${this.data.content}'，返回长度控制在200字。`
-        )
-        .pipe(takeUntilDestroyed(this.destroyRef))
-        .subscribe({
-          next: (data: any) => {
-            this.aireply.set(data.content);
-          },
-          error: err => {
-            console.error(err);
-          },
-        });
-    } else if (this.mode() === FormulaReciteAIModeEnum.MoreQuiz) {
-      this.aiutil
-        .explainFormat(
-          this.data.formattype,
-          `请为知识点：'${this.data.content}'生成三个题目，难度为高考。`
-        )
-        .pipe(takeUntilDestroyed(this.destroyRef))
-        .subscribe({
-          next: (data: any) => {
-            this.aireply.set(data.content);
-          },
-          error: err => {
-            console.error(err);
-          },
-        });
+    if (this.submitting) {
+      return;
     }
+    this.submitting = true;
+    const prompt =
+      this.mode() === FormulaReciteAIModeEnum.Explain
+        ? `请讲解一下如下知识点'${this.data.content}'，返回长度控制在200字。`
+        : `请为知识点：'${this.data.content}'生成三个题目，难度为高考。`;
+    this.aiutil
+      .explainFormat(this.data.formattype, prompt)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (data: any) => {
+          this.submitting = false;
+          this.aireply.set(data.content);
+        },
+        error: err => {
+          this.submitting = false;
+          console.error(err);
+          this.snackBar.open(
+            this.transloco.translate('formulaRecites.aiRequestFailed'),
+            undefined,
+            {
+              duration: 5_000,
+            }
+          );
+        },
+      });
   }
 }

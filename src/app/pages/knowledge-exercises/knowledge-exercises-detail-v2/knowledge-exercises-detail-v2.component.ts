@@ -1,10 +1,12 @@
 import type { AfterViewInit, OnInit } from '@angular/core';
-import { ChangeDetectionStrategy, ChangeDetectorRef, Component, inject, model } from '@angular/core';
+import { ChangeDetectionStrategy, ChangeDetectorRef, Component, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { MatToolbarModule } from '@angular/material/toolbar';
+import { Router } from '@angular/router';
+import { TranslocoModule } from '@jsverse/transloco';
 import { NgxPrintModule } from 'ngx-print';
 
 import type { KnowledgeExercisePrintOption, QuestionBankItemBase } from '../../../interfaces';
@@ -26,6 +28,7 @@ import { MarkdownContentComponent } from '../../../shared/markdown-content';
     FormsModule,
     NgxPrintModule,
     MarkdownContentComponent,
+    TranslocoModule,
   ],
   templateUrl: './knowledge-exercises-detail-v2.component.html',
   styleUrl: './knowledge-exercises-detail-v2.component.scss',
@@ -36,9 +39,9 @@ import { MarkdownContentComponent } from '../../../shared/markdown-content';
 export class KnowledgeExercisesDetailV2Component implements OnInit, AfterViewInit {
   questions: QuestionBankItemBase<string>[] = [];
   printSetting?: KnowledgeExercisePrintOption;
-  isPrintMode = model(false);
   readonly uiService = inject(UIService);
   private readonly cdr = inject(ChangeDetectorRef);
+  private readonly router = inject(Router);
   markdownStr = '';
   markdownAdditionStr = '';
   includeLatex = false;
@@ -48,6 +51,13 @@ export class KnowledgeExercisesDetailV2Component implements OnInit, AfterViewIni
 
   ngOnInit() {
     this.questions = this.uiService.ExerciseItems;
+    if (this.questions.length === 0) {
+      // The exercise items live only in memory (UIService); a refresh or
+      // deep-link lands here with nothing to display, rendering an empty page
+      // titled "### **undefined**". Send the user back to the list instead.
+      void this.router.navigate(['/knowledge']);
+      return;
+    }
     this.printSetting = this.uiService.ExercisePrintSetting;
     this.includeLatex = this.uiService.IncludeLatex;
   }
@@ -60,7 +70,7 @@ export class KnowledgeExercisesDetailV2Component implements OnInit, AfterViewIni
   ngAfterViewInit() {
     setTimeout(() => {
       this.markdownStr = `### **${this.printSetting?.formTitle}**, (${this.printID})<br>
- ${this.printSetting?.printScore ? 'Date: <ins>&emsp;&emsp;&emsp;&emsp;&emsp;</ins>' : ''}&emsp;Durtion: <ins>&emsp;&emsp;&emsp;&emsp;&emsp;</ins>${this.printSetting?.printScore ? '&emsp; Score: <ins>&emsp;&emsp;&emsp;&emsp;</ins>' : ''}<br>
+ ${this.printSetting?.printScore ? 'Date: <ins>&emsp;&emsp;&emsp;&emsp;&emsp;</ins>' : ''}&emsp;Duration: <ins>&emsp;&emsp;&emsp;&emsp;&emsp;</ins>${this.printSetting?.printScore ? '&emsp; Score: <ins>&emsp;&emsp;&emsp;&emsp;</ins>' : ''}<br>
  `;
       this.questions.forEach((item, _idx) => {
         this.markdownStr +=

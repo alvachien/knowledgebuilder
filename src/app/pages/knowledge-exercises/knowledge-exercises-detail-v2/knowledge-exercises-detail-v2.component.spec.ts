@@ -1,11 +1,13 @@
 import type { ComponentFixture } from '@angular/core/testing';
 import { TestBed } from '@angular/core/testing';
-import { By } from '@angular/platform-browser';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { MatToolbarModule } from '@angular/material/toolbar';
+import { By } from '@angular/platform-browser';
+import { TranslocoModule, TranslocoService, TRANSLOCO_TRANSPILER } from '@jsverse/transloco';
 import { NgxPrintModule } from 'ngx-print';
+import { of } from 'rxjs';
 import { vi } from 'vitest';
 
 import type { KnowledgeExercisePrintOption } from '../../../interfaces';
@@ -47,6 +49,17 @@ describe('KnowledgeExercisesDetailV2Component', () => {
 
   beforeEach(async () => {
     const uiSpy = { someMethod: vi.fn() };
+    const mockTranslocoService = {
+      setActiveLang: vi.fn(),
+      getActiveLang: vi.fn(),
+      selectTranslate: vi.fn().mockReturnValue(of('')),
+      _loadDependencies: vi.fn().mockReturnValue(of(null)),
+      translate: vi.fn((key: string) => key),
+      activeLang: 'en',
+      config: { reRenderOnLangChange: true, prodMode: false },
+      langChanges$: of('en'),
+      events$: of(),
+    };
 
     await TestBed.configureTestingModule({
       imports: [
@@ -57,9 +70,12 @@ describe('KnowledgeExercisesDetailV2Component', () => {
         NgxPrintModule,
         MarkdownContentComponent,
         KnowledgeExercisesDetailV2Component,
+        TranslocoModule,
       ],
       providers: [
         { provide: UIService, useValue: uiSpy },
+        { provide: TranslocoService, useValue: mockTranslocoService },
+        { provide: TRANSLOCO_TRANSPILER, useValue: {} },
       ],
     }).compileComponents();
 
@@ -87,6 +103,10 @@ describe('KnowledgeExercisesDetailV2Component', () => {
     });
 
     it('should initialize with print setting from UIService', () => {
+      Object.defineProperty(mockUIService, 'ExerciseItems', {
+        value: [mockQuestion],
+        enumerable: true,
+      });
       Object.defineProperty(mockUIService, 'ExercisePrintSetting', {
         value: mockPrintSetting,
         enumerable: true,
@@ -103,6 +123,10 @@ describe('KnowledgeExercisesDetailV2Component', () => {
     });
 
     it('should initialize with includeLatex false when not specified', () => {
+      Object.defineProperty(mockUIService, 'ExerciseItems', {
+        value: [mockQuestion],
+        enumerable: true,
+      });
       Object.defineProperty(mockUIService, 'IncludeLatex', {
         value: false,
         enumerable: true,
@@ -361,7 +385,8 @@ describe('KnowledgeExercisesDetailV2Component', () => {
 
       const compiled = fixture.nativeElement;
       const toolbarTitle = compiled.querySelector('h5');
-      expect(toolbarTitle.textContent).toContain('Knowledge Bank - Exericse Detail, Version 2');
+      // The title goes through Transloco; the mock returns the key verbatim.
+      expect(toolbarTitle.textContent).toContain('knowledgeExercises.detailV2Title');
     });
 
     it('should push the built markdown into <app-markdown-content> on init (no Print click)', () => {
@@ -372,30 +397,30 @@ describe('KnowledgeExercisesDetailV2Component', () => {
       vi.useFakeTimers();
       try {
         Object.defineProperty(mockUIService, 'ExerciseItems', {
-        value: [mockQuestion],
-        enumerable: true,
-      });
-      Object.defineProperty(mockUIService, 'ExercisePrintSetting', {
-        value: { ...mockPrintSetting, printAnswer: false },
-        enumerable: true,
-      });
-      Object.defineProperty(mockUIService, 'IncludeLatex', {
-        value: false,
-        enumerable: true,
-      });
+          value: [mockQuestion],
+          enumerable: true,
+        });
+        Object.defineProperty(mockUIService, 'ExercisePrintSetting', {
+          value: { ...mockPrintSetting, printAnswer: false },
+          enumerable: true,
+        });
+        Object.defineProperty(mockUIService, 'IncludeLatex', {
+          value: false,
+          enumerable: true,
+        });
 
-      component.ngOnInit();
-      fixture.detectChanges();
-      component.ngAfterViewInit();
-      vi.advanceTimersByTime(1);
-      fixture.detectChanges();
+        component.ngOnInit();
+        fixture.detectChanges();
+        component.ngAfterViewInit();
+        vi.advanceTimersByTime(1);
+        fixture.detectChanges();
 
-      const markdownEl = fixture.nativeElement.querySelector('app-markdown-content');
-      expect(markdownEl).toBeTruthy();
-      const markdownDebug = fixture.debugElement.query(By.css('app-markdown-content'));
-      const markdownCmp = markdownDebug.componentInstance as { markdown: string };
-      expect(markdownCmp.markdown).toBe(component.markdownStr);
-      expect(markdownCmp.markdown).toContain('Test Exercise');
+        const markdownEl = fixture.nativeElement.querySelector('app-markdown-content');
+        expect(markdownEl).toBeTruthy();
+        const markdownDebug = fixture.debugElement.query(By.css('app-markdown-content'));
+        const markdownCmp = markdownDebug.componentInstance as { markdown: string };
+        expect(markdownCmp.markdown).toBe(component.markdownStr);
+        expect(markdownCmp.markdown).toContain('Test Exercise');
       } finally {
         vi.useRealTimers();
       }

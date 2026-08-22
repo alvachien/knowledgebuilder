@@ -1,3 +1,5 @@
+import { provideHttpClient } from '@angular/common/http';
+import { provideHttpClientTesting } from '@angular/common/http/testing';
 import { NgZone } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { vi } from 'vitest';
@@ -10,6 +12,7 @@ describe('AudioService', () => {
 
   // Setup proper Howl mock class
   function MockHowl(this: any, config: any) {
+    // eslint-disable-next-line @typescript-eslint/no-this-alias
     const self = this;
     self.config = config;
     self.isPlaying = false;
@@ -109,7 +112,12 @@ describe('AudioService', () => {
     };
 
     TestBed.configureTestingModule({
-      providers: [AudioService, { provide: NgZone, useValue: new NgZone({}) }],
+      providers: [
+        AudioService,
+        { provide: NgZone, useValue: new NgZone({}) },
+        provideHttpClient(),
+        provideHttpClientTesting(),
+      ],
     });
     service = TestBed.inject(AudioService);
   });
@@ -134,7 +142,7 @@ describe('AudioService', () => {
   });
 
   it('should set current audio file path when loaded', () => {
-    service.load('test.mp3');
+    void service.load('test.mp3');
     expect(service.currentAudioFile).toBe('test.mp3');
   });
 
@@ -155,13 +163,13 @@ describe('AudioService', () => {
   });
 
   it('should update volume correctly', () => {
-    service.load('test.mp3');
+    void service.load('test.mp3');
     service.setVolume(0.5);
     expect(service['volumeSubject'].value).toBe(0.5);
   });
 
   it('should clamp volume to 0-1 range', () => {
-    service.load('test.mp3');
+    void service.load('test.mp3');
     service.setVolume(1.5);
     expect(service['volumeSubject'].value).toBe(1);
     service.setVolume(-0.5);
@@ -193,7 +201,7 @@ describe('AudioService', () => {
   });
 
   it('should handle load and play cycle', async () => {
-    service.load('test.mp3');
+    void service.load('test.mp3');
     await new Promise(resolve => setTimeout(resolve, 10));
     expect(service.currentAudioFile).toBe('test.mp3');
     expect(() => service.play()).not.toThrow();

@@ -1,9 +1,10 @@
 import { HttpClient } from '@angular/common/http';
-import { inject, Injectable, OnDestroy } from '@angular/core';
+import type { OnDestroy } from '@angular/core';
+import { inject, Injectable } from '@angular/core';
 import { Router } from '@angular/router';
 import { EventTypes, OidcSecurityService, PublicEventsService } from 'angular-auth-oidc-client';
-import { catchError, EMPTY, map, of, type Observable, type Subscription, TimeoutError } from 'rxjs';
-import { BehaviorSubject, timeout } from 'rxjs';
+import { catchError, EMPTY, filter, finalize, first, map, of, timeout } from 'rxjs';
+import { BehaviorSubject, TimeoutError, type Observable, type Subscription } from 'rxjs';
 
 import { environment } from '../../environments/environment';
 import { UserAuthInfo } from '../interfaces';
@@ -18,6 +19,14 @@ export class AuthService implements OnDestroy {
   public readonly authSubject = new BehaviorSubject<UserAuthInfo>(new UserAuthInfo());
   public readonly authContent: Observable<UserAuthInfo> = this.authSubject.asObservable();
 
+  /**
+   * Emits `true` once the initial `checkAuth()` has settled (success or failure).
+   * Lets the route guard wait for auth to be determined before deciding, instead of
+   * reading the not-yet-checked `authSubject` synchronously and bouncing a valid
+   * session to the IDP on every protected-route refresh (H3).
+   */
+  private readonly _initialCheckDone = new BehaviorSubject<boolean>(false);
+
   private readonly oidc = inject(OidcSecurityService);
   private readonly events = inject(PublicEventsService);
   private readonly router = inject(Router);
@@ -30,7 +39,7 @@ export class AuthService implements OnDestroy {
   private _loginSub?: Subscription;
 
   constructor() {
-    this._eventsSub = this.events.registerForEvents().subscribe((notification) => {
+    this._eventsSub = this.events.registerForEvents().subscribe(notification => {
       switch (notification.type) {
         case EventTypes.NewAuthenticationResult:
           // Authentication result changed — checkAuth will handle state update.
@@ -70,7 +79,7 @@ export class AuthService implements OnDestroy {
     return this.http.get(wellKnownUrl, { responseType: 'text' }).pipe(
       timeout(IDP_HEALTH_CHECK_TIMEOUT_MS),
       map(() => true),
-      catchError(() => of(false)),
+      catchError(() => of(false))
     );
   }
 
@@ -81,7 +90,7 @@ export class AuthService implements OnDestroy {
   public doLogin(): void {
     // Cancel any prior login health-check to prevent parallel requests
     this._loginSub?.unsubscribe();
-    this._loginSub = this.isIdpReachable().subscribe((reachable) => {
+    this._loginSub = this.isIdpReachable().subscribe(reachable => {
       if (!reachable) {
         this.authSubject.next(UserAuthInfo.createWithError('auth.idp_unreachable'));
         return;
@@ -98,7 +107,7 @@ export class AuthService implements OnDestroy {
           // IDP may be unreachable — still clean up local state so the user
           // isn't stuck in a half-logged-in state.
           return of(undefined);
-        }),
+        })
       )
       .subscribe(() => {
         // Emit a new clean instance instead of mutating the existing one.
@@ -114,12 +123,13 @@ export class AuthService implements OnDestroy {
       .pipe(
         catchError((err: unknown) => {
           const message =
-            err instanceof TimeoutError
-              ? 'auth.idp_timeout'
-              : 'auth.check_auth_failed';
+            err instanceof TimeoutError ? 'auth.idp_timeout' : 'auth.check_auth_failed';
           this.authSubject.next(UserAuthInfo.createWithError(message));
           return EMPTY;
         }),
+        // Release the route guard once the check has settled - fires on success
+        // (emit -> complete) and on error (catchError -> EMPTY -> complete).
+        finalize(() => this._initialCheckDone.next(true))
       )
       .subscribe(({ isAuthenticated, userData, accessToken }) => {
         if (isAuthenticated && accessToken) {
@@ -135,6 +145,22 @@ export class AuthService implements OnDestroy {
           this.authSubject.next(UserAuthInfo.createClean());
         }
       });
+  }
+
+  /**
+   * Resolves when the initial `checkAuth()` has settled. Completes immediately if
+   * the check already finished, so repeated guard evaluations (e.g. navigating
+   * between guarded routes) don't re-wait.
+   */
+  public waitForAuthCheck(): Observable<void> {
+    if (this._initialCheckDone.value) {
+      return of(undefined);
+    }
+    return this._initialCheckDone.asObservable().pipe(
+      filter(done => done),
+      first(),
+      map(() => undefined)
+    );
   }
 
   /** Clear any error currently shown in the navbar. */

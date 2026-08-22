@@ -45,6 +45,7 @@ webapp-content.zip
 # Exclude from current branch
 learning/
 learning
+learning
 
 *.mp3
 .vscode/settings.json

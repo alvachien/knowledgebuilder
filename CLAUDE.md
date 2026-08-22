@@ -52,6 +52,7 @@ tools/                # Validation scripts, schema, converters (Python, JS, Powe
 
 All routes are lazy-loaded via `loadComponent` / `loadChildren`:
 - `/` → Homepage
+- `/signin-callback` → OIDC signin callback (post-IDP-redirect landing, unguarded)
 - `/vocabulary` → Vocabulary exercises
 - `/translating` → Translation exercises
 - `/listening` → English listening
@@ -122,7 +123,7 @@ Category → `LearningContentService` method → backend `Storage/` subfolder:
 | 5 | Formula | `getFormulaContents()` | `getFormulaFileContent()` | `formula` |
 | 6 | Knowledge Bank | `getKnowledgeBankContents()` | `getKnowledgeExerciseContent()` | `knowledge-exercises` |
 
-The `Storage/` index files (`data.json` / `formula.json`) and content JSON live in the backend. Knowledge-exercise files are still schema-validated by `tools/validate-schema.js` against `tools/exercise-schema.json`.
+The `Storage/` index files (`data.json` / `formula.json`) and content JSON live in the backend. Schema validation lives in the `knowledgebuilder-content` repo (`npm run validate` runs `util/validate-schema.js`); the local `tools/validate-schema.js` is stale and no longer runs (it targets a removed `public/data/` path).
 
 ### Styling
 
@@ -237,9 +238,6 @@ Did you run and wait for 'resolveComponentResources()'?
 ## Tools
 
 Located in `tools/`:
-- `validate-schema.js` — Validates exercise JSON files against schema: `node tools/validate-schema.js`
-- `exercise-schema.json` — JSON Schema for knowledge exercises (2020-12 draft)
-- `exercise-validation-report.md` — Validation results report
 - `parse_questions.py` / `parse_questions.ps1` — Question parsing utilities
 - `analyze_vocabularies.py` — Vocabulary analysis
 - `clean-cet6.js` — CET-6 data cleanup
@@ -250,6 +248,8 @@ Located in `tools/`:
 `tools/` also holds the raw knowledge-exercise JSON data files (`1-01.json` ... `2-06.json`, `questions.json`) and a Python venv at `tools/.venv/` (self-ignored via its own internal `.gitignore` — never commit it). Tool documentation lives in `docs/util-tools.md`.
 
 Other docs in `docs/`: `data-models.md` (the data-model reference), `authentication-flow.md`, `vocabulary-exercises-architecture.md` (the as-built vocabulary-page design — container/store/screen/dialog structure, filter pipeline, ratings, and the worksheet-generation & print-rendering flow, which supersedes the former `vocabulary-print.md`), `vocabulary-page-review.md` (code-review findings & fix status), and `chinese-print.md` (Chinese print/format notes).
+
+> **Note:** `validate-schema.js`, `exercise-schema.json`, and `exercise-validation-report.md` are legacy/stale — they target a removed `public/data/knowledge-exercises/` path. Schema validation now lives in the `knowledgebuilder-content` repo (`util/validate-schema.js`, run via `npm run validate`).
 
 ## Deprecations to Avoid
 

@@ -5,7 +5,6 @@ import { TestBed } from '@angular/core/testing';
 import type {
   EnglishListeningLesson,
   FormulaReciteContent,
-  KnowledgeExerciseFileContent,
   LearnChineseFileItem,
   LearnEnglishSentFileItem,
   LearnEnglishWordFileItem,
@@ -189,8 +188,12 @@ describe('LearningContentService', () => {
       httpMock.expectOne(`${API_URL}?categoryId=2`).flush(sentenceContents);
 
       // Both come from cache now — no further HTTP
-      service.getContentsByCategory(1).subscribe(contents => expect(contents).toBe(mockVocabularyContents));
-      service.getContentsByCategory(2).subscribe(contents => expect(contents).toBe(sentenceContents));
+      service
+        .getContentsByCategory(1)
+        .subscribe(contents => expect(contents).toBe(mockVocabularyContents));
+      service
+        .getContentsByCategory(2)
+        .subscribe(contents => expect(contents).toBe(sentenceContents));
     });
   });
 
@@ -344,7 +347,7 @@ describe('LearningContentService', () => {
         // q4 has no question → filtered out; 3 items remain
         expect(items.length).toBe(3);
 
-        const [q1, q2, q3] = items as KnowledgeExerciseFileContent[];
+        const [q1, q2, q3] = items;
         expect(q1.id).toBe('q1');
         expect(q1.itemTypeString).toBe('单选题');
         expect(q1.hasAnswer).toBe(true); // has answer 'B'

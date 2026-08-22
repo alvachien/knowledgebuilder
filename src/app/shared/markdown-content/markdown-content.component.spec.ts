@@ -1,6 +1,6 @@
-import { SimpleChange } from '@angular/core';
 import { provideHttpClient } from '@angular/common/http';
 import { provideHttpClientTesting, HttpTestingController } from '@angular/common/http/testing';
+import { SimpleChange } from '@angular/core';
 import type { ComponentFixture } from '@angular/core/testing';
 import { TestBed } from '@angular/core/testing';
 import { vi } from 'vitest';
@@ -186,7 +186,9 @@ describe('MarkdownContentComponent', () => {
       vi.spyOn(console, 'error').mockImplementation(() => {});
       // Mock the MarkedService parse method
       const markedService = (component as any).markedService;
-      vi.spyOn(markedService, 'parse').mockImplementation(() => { throw new Error('Parse error'); });
+      vi.spyOn(markedService, 'parse').mockImplementation(() => {
+        throw new Error('Parse error');
+      });
 
       component.markdown = '# Test';
       await component['renderMarkdown']();
@@ -403,7 +405,9 @@ describe('MarkdownContentComponent', () => {
       vi.spyOn(component.sanitizer, 'bypassSecurityTrustHtml');
       // Mock the MarkedService parse method
       const markedService = (component as any).markedService;
-      vi.spyOn(markedService, 'parse').mockImplementation(() => { throw new Error('Parse error'); });
+      vi.spyOn(markedService, 'parse').mockImplementation(() => {
+        throw new Error('Parse error');
+      });
 
       component.markdown = '# Test';
       await component['renderMarkdown']();
@@ -445,7 +449,9 @@ describe('MarkdownContentComponent', () => {
     it('should mark the view for check on a render error', async () => {
       vi.spyOn(console, 'error').mockImplementation(() => {});
       const markedService = (component as any).markedService;
-      vi.spyOn(markedService, 'parse').mockImplementation(() => { throw new Error('Parse error'); });
+      vi.spyOn(markedService, 'parse').mockImplementation(() => {
+        throw new Error('Parse error');
+      });
       const markForCheckSpy = vi.spyOn(component['cdr'], 'markForCheck');
       markForCheckSpy.mockClear();
 
