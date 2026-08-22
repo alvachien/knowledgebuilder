@@ -2,11 +2,14 @@
 
 An AI-powered web-based Learning app for English, Chinese, and Knowledge Bank.
 
-## Branch `feature/v2`
+Built with Angular 21 (standalone components, Signals, Angular Material, Tailwind CSS, Transloco i18n en/zh-CN). This project was generated with [Angular CLI](https://github.com/angular/angular-cli) version 21.1.2.
 
-Development of the Knowledge Builder web app (Angular 21, standalone components).
+### Prerequisites
 
-This project was generated with [Angular CLI](https://github.com/angular/angular-cli) version 21.1.2.
+The frontend expects two sibling backend services to be running (see the workspace-level docs for `start-learning-all.ps1`):
+
+- **[aclearningutil](https://github.com/alvachien/aclearningutil)** - REST API serving all learning content (`apiUrl` in `src/environments/environment*.ts`)
+- **[acidserver](https://github.com/alvachien/acidserver)** - OIDC identity provider; all exercise routes require sign-in
 
 ### Development server
 
@@ -23,6 +26,10 @@ Run `ng build` to build the project. The build artifacts will be stored in the `
 ### Running unit tests
 
 Run `ng test` to execute the unit tests via [Vitest](https://vitest.dev).
+
+### Linting and formatting
+
+Run `ng lint` (ESLint via @angular-eslint) and `npm run format` (Prettier).
 
 ### Further help
 
@@ -46,7 +53,7 @@ The API URL is configured in `src/environments/environment*.ts` via `apiUrl`.
 | Version | Package Version | Branch | Status |
 |---|---|---|---|
 | **V1** | `0.*` | `v1` | Legacy — live on `gh-pages` branch |
-| **V2** | `1.*`+ | `main`, `feature/v2` | Active development |
+| **V2** | `1.*`+ | `main` (feature branches as needed) | Active development |
 
 The `gh-pages` branch currently serves V1.
 

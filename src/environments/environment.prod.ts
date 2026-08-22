@@ -1,8 +1,8 @@
 export const environment = {
   homeurl: 'https://www.alvachien.com/learning',
   production: true,
-  releasedate: '2026-08-06',
-  version: '1.8.428',
+  releasedate: '2026-08-22',
+  version: '1.8.429',
   apiUrl: 'https://www.alvachien.com/learningutil',
   pageTitle: 'Knowledge Builder',
   loginRequired: true,

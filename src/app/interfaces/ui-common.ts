@@ -14,7 +14,6 @@ export enum SelectionModeEnum {
   'ByID' = 0,
   'FreeSelection' = 1,
   'ByCount' = 2,
-  'ByRating' = 3,
 }
 export type SelectionModeEnumKeys = keyof typeof SelectionModeEnum;
 
@@ -37,8 +36,6 @@ export const getSelectionModeName = (itemType: SelectionModeEnum): string => {
       return 'Free Selection';
     case SelectionModeEnum.ByCount:
       return 'By Count';
-    case SelectionModeEnum.ByRating:
-      return 'By Rating';
     default:
       return 'Unknown';
   }
@@ -49,7 +46,6 @@ export const getSelectionModeNames = (): Map<SelectionModeEnum, string> => {
   map.set(SelectionModeEnum.ByID, getSelectionModeName(SelectionModeEnum.ByID));
   map.set(SelectionModeEnum.FreeSelection, getSelectionModeName(SelectionModeEnum.FreeSelection));
   map.set(SelectionModeEnum.ByCount, getSelectionModeName(SelectionModeEnum.ByCount));
-  map.set(SelectionModeEnum.ByRating, getSelectionModeName(SelectionModeEnum.ByRating));
   return map;
 };
 
@@ -71,6 +67,38 @@ export const getRatingOperatorName = (operator: RatingOperatorEnum): string => {
       return 'Less or Equals';
     default:
       return 'Unknown';
+  }
+};
+
+/**
+ * Shared rating comparison used by the vocabulary list filter bar (rating
+ * conditions) so all rating matching goes through one place.
+ * Note: LessThan / LessOrEquals intentionally exclude unrated (0) words — a
+ * rating of 0 means "not yet assessed", which is covered by HasNone. This keeps
+ * LessThan 1 from collapsing into HasNone.
+ */
+export const matchRating = (
+  rating: number,
+  operator: RatingOperatorEnum,
+  value: number
+): boolean => {
+  switch (operator) {
+    case RatingOperatorEnum.Equals:
+      return rating === value;
+    case RatingOperatorEnum.GreaterThan:
+      return rating > value;
+    case RatingOperatorEnum.LargerOrEquals:
+      return rating >= value;
+    case RatingOperatorEnum.LessThan:
+      return rating > 0 && rating < value;
+    case RatingOperatorEnum.LessOrEquals:
+      return rating > 0 && rating <= value;
+    case RatingOperatorEnum.HasAny:
+      return rating > 0;
+    case RatingOperatorEnum.HasNone:
+      return rating === 0;
+    default:
+      return false;
   }
 };
 

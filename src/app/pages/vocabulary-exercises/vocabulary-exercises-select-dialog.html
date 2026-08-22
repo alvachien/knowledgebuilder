@@ -24,24 +24,6 @@
           <input matInput type="number" [(ngModel)]="countOfItems" min="1" />
         </mat-form-field>
       }
-      @case (SelectionMode.ByRating) {
-        <mat-form-field class="control-full-width">
-          <mat-label>{{ t('selection.ratingOperator') }}</mat-label>
-          <mat-select [(ngModel)]="ratingOperator">
-            @for (op of ratingOperators; track op.value) {
-              <mat-option [value]="op.value">{{ t('selection.' + op.label) }}</mat-option>
-            }
-          </mat-select>
-        </mat-form-field>
-        <mat-form-field class="control-full-width">
-          <mat-label>{{ t('selection.ratingValue') }}</mat-label>
-          <mat-select [(ngModel)]="ratingValue" [disabled]="isValueDisabled">
-            @for (val of ratingValues; track val) {
-              <mat-option [value]="val">{{ val }}</mat-option>
-            }
-          </mat-select>
-        </mat-form-field>
-      }
     }
   </mat-dialog-content>
   <mat-dialog-actions>

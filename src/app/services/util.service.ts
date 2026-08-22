@@ -1,32 +1,15 @@
 import { Injectable } from '@angular/core';
 import { format } from 'date-fns';
 
-import { ChineseExerciseTypeEnum, QuestionBankItemLevelEnum, VocabularyExcludedPartEnum } from '../interfaces';
-
-/** Shape of the exclude-part dropdown options returned by `getAllTypingExcludeParts`. */
-export interface ExcludePartOption {
-  value: VocabularyExcludedPartEnum;
-  label: string;
-}
+import { ChineseExerciseTypeEnum, QuestionBankItemLevelEnum } from '../interfaces';
 
 @Injectable({
   providedIn: 'root'
 })
 export class UtilService {
-  getAllCharacters(): string[] {
-    return Array.from('abcdefghijklmnopqrstuvwxyz');
-  }
-
   getEntryDateString(valdate?: Date): string {
     const entryDateStr = `Date: ${valdate ? format(valdate, 'yyyy-MM-dd') : '__________'}. Start: _____, End: _____. Score: ____`;
     return entryDateStr;
-  }
-
-  getAllTypingExcludeParts(): ExcludePartOption[] {
-    return [
-      { value: VocabularyExcludedPartEnum.word, label: 'Words' },
-      { value: VocabularyExcludedPartEnum.phase, label: 'Phases' }
-    ];
   }
 
   getChineseExerciseTypeString(exercise: ChineseExerciseTypeEnum): string {

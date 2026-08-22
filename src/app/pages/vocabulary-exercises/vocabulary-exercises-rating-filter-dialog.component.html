@@ -1,0 +1,35 @@
+<div *transloco="let t">
+  <h2 mat-dialog-title>{{ t('vocabularyExercises.editRatingFilter') }}</h2>
+  <mat-dialog-content>
+    @for (c of conditions(); track $index) {
+      <div class="condition-row">
+        <mat-form-field subscriptSizing="dynamic" class="condition-operator">
+          <mat-select [(ngModel)]="c.operator">
+            @for (op of ratingOperators; track op.value) {
+              <mat-option [value]="op.value">{{ op.symbol }}</mat-option>
+            }
+          </mat-select>
+        </mat-form-field>
+        <mat-form-field subscriptSizing="dynamic" class="condition-value">
+          <mat-select [(ngModel)]="c.value">
+            @for (val of ratingValues; track val) {
+              <mat-option [value]="val">{{ val }}</mat-option>
+            }
+          </mat-select>
+        </mat-form-field>
+        <button mat-icon-button type="button" (click)="onRemoveCondition($index)"
+          [attr.aria-label]="t('vocabularyExercises.filterClear')">
+          <mat-icon>delete</mat-icon>
+        </button>
+      </div>
+    }
+    <button mat-stroked-button type="button" (click)="onAddCondition()">
+      <mat-icon>add</mat-icon>
+      {{ t('vocabularyExercises.addCondition') }}
+    </button>
+  </mat-dialog-content>
+  <mat-dialog-actions>
+    <button mat-button (click)="onCancel()">{{ t('vocabularyExercises.cancel') }}</button>
+    <button mat-button (click)="onClose()" cdkFocusInitial>{{ t('vocabularyExercises.close') }}</button>
+  </mat-dialog-actions>
+</div>

@@ -1,6 +1,7 @@
 import type { ComponentFixture } from '@angular/core/testing';
 import { TestBed } from '@angular/core/testing';
 import { MatDialog, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
+import { By } from '@angular/platform-browser';
 import { NoopAnimationsModule } from '@angular/platform-browser/animations';
 import { Router } from '@angular/router';
 import {
@@ -9,38 +10,21 @@ import {
   TRANSLOCO_TRANSPILER,
   TRANSLOCO_MISSING_HANDLER,
 } from '@jsverse/transloco';
-import { of, throwError } from 'rxjs';
+import { of, Subject, throwError } from 'rxjs';
 import { vi } from 'vitest';
 
-import type {
-  LearningContent,
-  LearnEnglishWordFileItem,
-  UserLearningRating,
-  StudyQueueItem,
-} from '../../interfaces';
-import {
-  VocabularyExcludedPartEnum,
-  RatingOperatorEnum,
-  SelectionModeEnum,
-} from '../../interfaces';
-import {
-  AudioService,
-  UIService,
-  UtilService,
-  LearningContentService,
-  LearningRatingService,
-} from '../../services';
+import type { LearningContent, LearnEnglishWordFileItem, UserLearningRating } from '../../interfaces';
+import { RatingOperatorEnum, SelectionModeEnum } from '../../interfaces';
+import { AudioService, UIService, LearningContentService, LearningRatingService } from '../../services';
 import { AppPageTitle } from '../page-title/page-title';
 
-import {
-  VocabularyExercisesComponent,
-  VocabularyExercisesStudyOptionsDialogComponent,
-  VocabularyExercisesTypingOptionsDialogComponent,
-  VocabularyExercisesDictationOptionsDialogComponent,
-  VocabularyExercisesPrintOptionsDialogComponent,
-  VocabularySelectDialogComponent,
-  VocabularyQuitConfirmDialogComponent,
-} from './vocabulary-exercises.component';
+import { VocabularyExercisesQuizOptionsDialogComponent } from './vocabulary-exercises-quizoptions-dialog.component';
+import { VocabularyExercisesReviewOptionsDialogComponent } from './vocabulary-exercises-reviewoptions-dialog.component';
+import { VocabularySelectDialogComponent } from './vocabulary-exercises-select-dialog.component';
+import { VocabularyExercisesSpellingOptionsDialogComponent } from './vocabulary-exercises-spellingoptions-dialog.component';
+import { VocabularyExercisesWordListComponent } from './vocabulary-exercises-word-list.component';
+import { VocabularyExercisesWorksheetOptionsDialogComponent } from './vocabulary-exercises-worksheetoptions-dialog.component';
+import { VocabularyExercisesComponent } from './vocabulary-exercises.component';
 
 const mockDataFiles: LearningContent[] = [
   { id: 1, categoryId: 1, nameEnglish: 'File1', nameChinese: '文件一', fileUrl: 'data/file1.json' },
@@ -93,18 +77,10 @@ describe('VocabularyExercisesComponent', () => {
       getVocabularyWordContent: vi.fn(),
       addTemporaryContent: vi.fn(),
     };
-    mockAudioService = {
-      playSound: vi.fn(),
-      stopSound: vi.fn(),
-      // Real AudioService.playAuthenticatedOneShot is async; default to a resolved
-      // 'true' (audio played) so indirect speakWord() callers don't hit the TTS
-      // fallback or throw on `.then`. Per-test overrides set false to exercise it.
-      playAuthenticatedOneShot: vi.fn().mockResolvedValue(true),
-      stopWordOneShot: vi.fn(),
-    };
+    mockAudioService = { playSound: vi.fn(), stopSound: vi.fn(), speakWord: vi.fn() };
     mockUIService = { setSelectedExerciseItem: vi.fn() };
     mockRouter = { navigate: vi.fn() };
-    mockDialog = { open: vi.fn(), openDialogs: [] };
+    mockDialog = { open: vi.fn() };
     mockPageTitle = { title: '' } as AppPageTitle;
     mockRatingService = {
       getRatings: vi.fn().mockReturnValue(of([])),
@@ -124,13 +100,6 @@ describe('VocabularyExercisesComponent', () => {
         { provide: MatDialog, useValue: mockDialog },
         { provide: AppPageTitle, useValue: mockPageTitle },
         { provide: LearningRatingService, useValue: mockRatingService },
-        {
-          provide: UtilService,
-          useValue: {
-            getAllCharacters: () => ['a', 'b', 'c'],
-            getAllTypingExcludeParts: () => [],
-          },
-        },
         { provide: TranslocoService, useValue: createMockTranslocoService() },
         { provide: TRANSLOCO_TRANSPILER, useValue: {} },
         { provide: TRANSLOCO_MISSING_HANDLER, useValue: {} },
@@ -154,22 +123,17 @@ describe('VocabularyExercisesComponent', () => {
     it('should load all data files on initialization', () => {
       fixture.detectChanges();
       expect(mockLearningContentService.getVocabularyContents).toHaveBeenCalled();
-      expect(component.allFiles).toEqual(mockDataFiles);
+      expect(component.allFiles()).toEqual(mockDataFiles);
     });
 
-    it('should mark the OnPush view for check after the file list arrives (no click needed)', () => {
-      // Regression: the file list lands in an async subscribe callback (not a
-      // template event, not an async pipe). With ChangeDetectionStrategy.OnPush
-      // the view is not marked dirty automatically, so the files dropdown stayed
-      // empty until a later DOM event triggered detection. The component must
-      // call markForCheck() once the list is ready.
-      const markForCheckSpy = vi.spyOn(component['cdr'], 'markForCheck');
-      markForCheckSpy.mockClear();
-
+    it('should expose the file list via signals when it arrives (no click needed)', () => {
+      // Regression guard: the file list lands in an async subscribe callback.
+      // Because allFiles/isLoadingContents are signals read by the template,
+      // the OnPush view updates without any manual markForCheck.
       fixture.detectChanges(); // runs ngOnInit → synchronous of() emit → next
 
-      expect(component.allFiles).toEqual(mockDataFiles);
-      expect(markForCheckSpy).toHaveBeenCalled();
+      expect(component.allFiles()).toEqual(mockDataFiles);
+      expect(component.isLoadingContents()).toBe(false);
     });
 
     it('should handle error when loading data files fails', () => {
@@ -184,23 +148,226 @@ describe('VocabularyExercisesComponent', () => {
     });
   });
 
-  describe('applyFilter', () => {
-    it('should filter data source with trimmed lowercase value', () => {
-      component.dataSource.data = mockWordContent;
-      const event = { target: { value: '  HELLO  ' } } as any;
-
-      component.applyFilter(event);
-
-      expect(component.dataSource.filter).toBe('hello');
+  // The filter bar's structured criteria travel through dataSource.filter as
+  // JSON; tests go through applyListFilter rather than assigning raw strings.
+  const applyFreeText = (text: string) =>
+    component.applyListFilter({
+      freeText: text,
+      wordConditions: [],
+      ratingConditions: [],
     });
 
-    it('should handle empty filter value', () => {
+  describe('applyListFilter', () => {
+    it('should serialize non-empty criteria into the data source filter', () => {
       component.dataSource.data = mockWordContent;
-      const event = { target: { value: '' } } as any;
 
-      component.applyFilter(event);
+      applyFreeText('  HELLO  ');
+
+      expect(component.dataSource.filter).not.toBe('');
+      expect(component.dataSource.filteredData.length).toBe(1);
+      expect(component.dataSource.filteredData[0].enword).toBe('hello');
+    });
+
+    it('should clear the filter string when all criteria are empty', () => {
+      component.dataSource.data = mockWordContent;
+
+      component.applyListFilter({ freeText: '', wordConditions: [], ratingConditions: [] });
 
       expect(component.dataSource.filter).toBe('');
+    });
+
+    it('should AND the word and rating conditions with the free text', () => {
+      const ratedWords: LearnEnglishWordFileItem[] = [
+        { id: 1, enword: 'apple', cnword: '苹果' },
+        { id: 2, enword: 'application', cnword: '应用' },
+        { id: 3, enword: 'apricot', cnword: '杏' },
+      ];
+      component.dataSource.data = ratedWords;
+      component.contentRatingMap.set(new Map([
+        [1, 5],
+        [2, 2],
+        [3, 5],
+      ]));
+
+      component.applyListFilter({
+        freeText: '',
+        wordConditions: [{ operator: 'startsWith', text: 'app' }],
+        ratingConditions: [{ operator: RatingOperatorEnum.LargerOrEquals, value: 5 }],
+      });
+
+      expect(component.dataSource.filteredData.length).toBe(1);
+      expect(component.dataSource.filteredData[0].enword).toBe('apple');
+    });
+
+    it('should filter phrases in/out via the textless phrase operators', () => {
+      const words: LearnEnglishWordFileItem[] = [
+        { id: 1, enword: 'apple', cnword: '苹果' },
+        { id: 2, enword: 'give up', cnword: '放弃' },
+      ];
+      component.dataSource.data = words;
+
+      component.applyListFilter({
+        freeText: '',
+        wordConditions: [{ operator: 'isPhrase', text: '' }],
+        ratingConditions: [],
+      });
+      expect(component.dataSource.filteredData.length).toBe(1);
+      expect(component.dataSource.filteredData[0].enword).toBe('give up');
+
+      component.applyListFilter({
+        freeText: '',
+        wordConditions: [{ operator: 'notPhrase', text: '' }],
+        ratingConditions: [],
+      });
+      expect(component.dataSource.filteredData.length).toBe(1);
+      expect(component.dataSource.filteredData[0].enword).toBe('apple');
+    });
+
+    it('should re-run an active rating filter when a rating change makes a row match', () => {
+      const ratedWords: LearnEnglishWordFileItem[] = [
+        { id: 1, enword: 'apple', cnword: '苹果' },
+        { id: 2, enword: 'banana', cnword: '香蕉' },
+      ];
+      component.dataSource.data = ratedWords;
+      component.contentRatingMap.set(new Map([[1, 5]]));
+      component.studyContentId = 1;
+      mockRatingService.upsertRating.mockReturnValue(
+        of({ contentId: 1, itemId: 2, rating: 5 } as UserLearningRating)
+      );
+      component.applyListFilter({
+        freeText: '',
+        wordConditions: [],
+        ratingConditions: [{ operator: RatingOperatorEnum.Equals, value: 5 }],
+      });
+      expect(component.dataSource.filteredData.length).toBe(1);
+
+      component.onContentRatingChanged(ratedWords[1], { value: 5 } as any);
+
+      // The rating upsert must force the predicate to re-run: banana now matches.
+      expect(component.dataSource.filteredData.length).toBe(2);
+    });
+  });
+
+  describe('filter menu wiring', () => {
+    it('onFreeTextChanged applies the free-text filter immediately', () => {
+      component.dataSource.data = mockWordContent;
+      component.onFreeTextChanged('hello');
+      expect(component.dataSource.filter).toContain('hello');
+      expect(component.dataSource.filteredData.length).toBe(1);
+    });
+
+    it('onDefineWordFilter applies the dialog result to the table filter', () => {
+      component.dataSource.data = mockWordContent;
+      mockDialog.open.mockReturnValue({
+        afterClosed: () => of([{ operator: 'startsWith', text: 'hello' }]),
+      });
+      component.onDefineWordFilter();
+      expect(component.dataSource.filter).toContain('startsWith');
+      expect(component.dataSource.filter).toContain('"text":"hello"');
+      expect(component.wordConditions()).toEqual([{ operator: 'startsWith', text: 'hello' }]);
+    });
+
+    it('onDefineWordFilter with a cancelled dialog leaves the filter untouched', () => {
+      component.wordConditions.set([{ operator: 'contains', text: 'x' }]);
+      component.applyListFilter({
+        freeText: '',
+        wordConditions: component.wordConditions(),
+        ratingConditions: [],
+      });
+      const before = component.dataSource.filter;
+      mockDialog.open.mockReturnValue({ afterClosed: () => of(undefined) });
+      component.onDefineWordFilter();
+      expect(component.wordConditions()).toEqual([{ operator: 'contains', text: 'x' }]);
+      expect(component.dataSource.filter).toBe(before);
+    });
+
+    it('onClearWordFilter empties the word conditions', () => {
+      component.wordConditions.set([{ operator: 'contains', text: 'x' }]);
+      component.onClearWordFilter();
+      expect(component.wordConditions()).toEqual([]);
+    });
+
+    it('onClearRatingFilter empties the rating conditions', () => {
+      component.ratingConditions.set([{ operator: RatingOperatorEnum.Equals, value: 3 }]);
+      component.onClearRatingFilter();
+      expect(component.ratingConditions()).toEqual([]);
+    });
+  });
+
+  describe('list screen re-creation keeps the filter box in sync (M3)', () => {
+    it('restores the applied free text in the re-created word list after a session', () => {
+      fixture.detectChanges(); // initial list screen
+      component.onFreeTextChanged('hello'); // user filters the table
+
+      // Run a session and come back: the @switch destroys the list screen and
+      // re-creates a fresh child on return.
+      component.mode.set('review');
+      fixture.detectChanges();
+      component.mode.set('list');
+      fixture.detectChanges();
+
+      const child = fixture.debugElement.query(By.directive(VocabularyExercisesWordListComponent));
+      expect(child.componentInstance.freeText).toBe('hello');
+    });
+  });
+
+  describe('table filter drives counts, exercises and selection', () => {
+    beforeEach(() => {
+      component.dataSource.data = mockWordContent.slice();
+      component.selection.clear();
+    });
+
+    it('visibleRowCount returns the total when no filter is active', () => {
+      expect(component.visibleRowCount).toBe(mockWordContent.length);
+    });
+
+    it('visibleRowCount returns the filtered count when a filter is active', () => {
+      applyFreeText('hello');
+
+      expect(component.visibleRowCount).toBe(1);
+    });
+
+    it('onReviewCore builds the queue from filtered rows only', () => {
+      applyFreeText('hello');
+      component.reviewSetting.countOfItems = 10;
+
+      component['onReviewCore']();
+
+      expect(component.reviewStore.queue().length).toBe(1);
+      expect(component.reviewStore.queue()[0].enword).toBe('hello');
+    });
+
+    it('onSpellingStart builds the queue from filtered rows only', () => {
+      applyFreeText('banana');
+      component.spellingSetting.countOfItems = 10;
+
+      component.onSpellingStart();
+
+      expect(component.spellingStore.queue().length).toBe(1);
+      expect(component.spellingStore.queue()[0].enword).toBe('banana');
+    });
+
+    it('onNewWorksheetCore builds print items from filtered rows only', () => {
+      applyFreeText('apple');
+      component.worksheetSetting.countOfItems = 10;
+      component.worksheetSetting.subTitle = 'Test';
+      mockRouter.navigate.mockReturnValue(Promise.resolve(true));
+
+      component['onNewWorksheetCore']();
+
+      const args = mockUIService.setSelectedExerciseItem.mock.lastCall;
+      expect(args?.[0].length).toBe(1);
+      expect(args?.[0][0].question).toContain('apple pie');
+    });
+
+    it('an explicit selection still wins over the table filter', () => {
+      applyFreeText('hello');
+      component.selection.select(mockWordContent[2]); // 'test'
+
+      component['onReviewCore']();
+
+      expect(component.reviewStore.queue().length).toBe(1);
+      expect(component.reviewStore.queue()[0].enword).toBe('test');
     });
   });
 
@@ -208,10 +375,7 @@ describe('VocabularyExercisesComponent', () => {
     it('should load file content when file is selected', () => {
       component.onFileSelectionChanged({ value: mockDataFiles[0] } as any);
 
-      expect(mockLearningContentService.getVocabularyWordContent).toHaveBeenCalledWith(
-        'data/file1.json'
-      );
-      expect(component.dataSource.data).toEqual(mockWordContent);
+      expect(mockLearningContentService.getVocabularyWordContent).toHaveBeenCalledWith('data/file1.json');
     });
 
     it('should clear data source when no file selected', () => {
@@ -263,18 +427,112 @@ describe('VocabularyExercisesComponent', () => {
       expect(component.selection.selected.length).toBe(0);
     });
 
-    it('should mark the OnPush view for check when ratings load (no click needed)', () => {
-      // Regression: ratings arrive in an async subscribe callback; the mat-table
-      // only re-renders rows when dataSource emits, so without markForCheck the
-      // rating column stays at 0 until the next interaction.
+    it('should expose loaded ratings via signal (no click needed)', () => {
+      // Regression guard: ratings arrive in an async subscribe callback.
+      // Because contentRatingMap is a signal passed to the word-list child as
+      // an input, the rating column refreshes without manual markForCheck.
       mockRatingService.getRatings.mockReturnValue(of([{ itemId: 1, rating: 5 }]));
-      const markForCheckSpy = vi.spyOn(component['cdr'], 'markForCheck');
-      markForCheckSpy.mockClear();
+      const before = component.contentRatingMap();
 
       component.onFileSelectionChanged({ value: mockDataFiles[0] } as any);
 
       expect(component.getRating(1)).toBe(5);
-      expect(markForCheckSpy).toHaveBeenCalled();
+      expect(component.contentRatingMap()).not.toBe(before);
+    });
+
+    it('should drop a slow content response from a superseded file selection', () => {
+      // Rapid switch A -> B with A's response landing last: last click wins.
+      const file1$ = new Subject<LearnEnglishWordFileItem[]>();
+      mockLearningContentService.getVocabularyWordContent.mockReturnValueOnce(file1$.asObservable());
+
+      component.onFileSelectionChanged({ value: mockDataFiles[0] } as any);
+      component.onFileSelectionChanged({ value: mockDataFiles[1] } as any);
+
+      file1$.next([{ enword: 'stale', cnword: '过期' }]);
+
+      expect(component.dataSource.data.some(w => w.enword === 'stale')).toBe(false);
+    });
+
+    it('should drop slow ratings from a superseded file selection', () => {
+      const ratings$ = new Subject<UserLearningRating[]>();
+      mockRatingService.getRatings.mockReturnValueOnce(ratings$.asObservable());
+
+      component.onFileSelectionChanged({ value: mockDataFiles[0] } as any);
+      component.onFileSelectionChanged({ value: mockDataFiles[1] } as any);
+
+      ratings$.next([{ contentId: 1, itemId: 1, rating: 5 }]);
+
+      expect(component.getRating(1)).toBe(0);
+    });
+
+    it('should clear the previous file rows and studyContentId when the new content load errors (L3)', () => {
+      // File A loads successfully with rows + a rating; studyContentId = 1.
+      mockRatingService.getRatings.mockReturnValue(
+        of([{ contentId: 1, itemId: 1, rating: 4 } as UserLearningRating])
+      );
+      component.onFileSelectionChanged({ value: mockDataFiles[0] } as any);
+      expect(component.dataSource.data.length).toBe(mockWordContent.length);
+      expect(component.studyContentId).toBe(1);
+      expect(component.getRating(1)).toBe(4);
+
+      // File B's content GET fails: A's rows must not remain bound to B's
+      // studyContentId (clicking a rating would then persist against the wrong
+      // file). The token bump also discards B's in-flight ratings load.
+      mockLearningContentService.getVocabularyWordContent.mockReturnValueOnce(
+        throwError(() => new Error('Load failed'))
+      );
+      vi.spyOn(console, 'error').mockImplementation(() => {});
+
+      component.onFileSelectionChanged({ value: mockDataFiles[1] } as any);
+
+      expect(component.dataSource.data).toEqual([]);
+      expect(component.studyContentId).toBe(0);
+      expect(component.contentRatingMap().size).toBe(0);
+      expect(component.getRating(1)).toBe(0);
+    });
+
+    it('should not filter a cached file new rows against the previous file ratings (L4)', () => {
+      // A rating filter (>= 5) is active. File B's content resolves
+      // synchronously (cached); without clearing the rating map before the
+      // content subscribe, B's rows would be filtered against A's ratings
+      // (colliding item id 1). B's ratings GET errors, so the stale filter
+      // would never be corrected — the case the fix targets.
+      const fileARows: LearnEnglishWordFileItem[] = [
+        { id: 1, enword: 'apple', cnword: '苹果' },
+        { id: 2, enword: 'banana', cnword: '香蕉' },
+      ];
+      const fileBRows: LearnEnglishWordFileItem[] = [
+        { id: 1, enword: 'cherry', cnword: '樱桃' }, // id collides with file A
+        { id: 3, enword: 'date', cnword: '枣' },
+      ];
+
+      // File A: content + ratings (id 1 -> 5); the filter shows only id 1.
+      mockLearningContentService.getVocabularyWordContent.mockReturnValue(of(fileARows));
+      mockRatingService.getRatings.mockReturnValue(
+        of([{ contentId: 1, itemId: 1, rating: 5 } as UserLearningRating])
+      );
+      component.applyListFilter({
+        freeText: '',
+        wordConditions: [],
+        ratingConditions: [{ operator: RatingOperatorEnum.LargerOrEquals, value: 5 }],
+      });
+
+      component.onFileSelectionChanged({ value: mockDataFiles[0] } as any);
+      expect(component.dataSource.filteredData.length).toBe(1);
+      expect(component.dataSource.filteredData[0].enword).toBe('apple');
+
+      // File B: cached content, ratings GET errors.
+      mockLearningContentService.getVocabularyWordContent.mockReturnValue(of(fileBRows));
+      mockRatingService.getRatings.mockReturnValue(throwError(() => new Error('ratings failed')));
+      vi.spyOn(console, 'error').mockImplementation(() => {});
+
+      component.onFileSelectionChanged({ value: mockDataFiles[1] } as any);
+
+      // B's row id 1 (cherry) has no real rating; it must not inherit A's 5
+      // through the still-cached map. With the map cleared before the content
+      // subscribe, every B row reads 0 and the >=5 filter hides them all.
+      expect(component.dataSource.data.some(w => w.enword === 'cherry')).toBe(true);
+      expect(component.dataSource.filteredData.length).toBe(0);
     });
   });
 
@@ -333,6 +591,35 @@ describe('VocabularyExercisesComponent', () => {
   });
 
   describe('onAddTempFile', () => {
+    // FileReader is constructed with `new` in the component, so the mock must
+    // be constructor-compatible; the class records created instances so each
+    // test can set result/onload afterwards.
+    interface MockReader {
+      readAsText: ReturnType<typeof vi.fn>;
+      onload: ((ev: { target: unknown }) => void) | null;
+      result: string;
+    }
+    const createdReaders: MockReader[] = [];
+    class MockFileReader {
+      onload: ((ev: { target: unknown }) => void) | null = null;
+      result = '';
+      readAsText = vi.fn();
+      constructor() {
+        createdReaders.push(this);
+      }
+    }
+    const installFileReaderMock = (): ReturnType<typeof vi.spyOn> =>
+      vi
+        .spyOn(window, 'FileReader')
+        .mockImplementation(
+          MockFileReader as unknown as new () => FileReader
+        );
+
+    // The instances array is describe-scoped; clear it per test so
+    // `createdReaders[0]` is always THIS test's reader (not a previous test's
+    // stale one, whose onload closes over a since-destroyed component).
+    beforeEach(() => createdReaders.length = 0);
+
     it('should handle file upload and update content service', () => {
       const mockFile = new File(['[{"enword":"test","cnword":"测试"}]'], 'test.json', {
         type: 'application/json',
@@ -342,29 +629,14 @@ describe('VocabularyExercisesComponent', () => {
       const timestampRegex = /temp-\d{4}-\d{2}-\d{2}T\d{2}-\d{2}-\d{2}-\d{3}Z\.json/;
 
       const addTempContentSpy = mockLearningContentService.addTemporaryContent;
-
-      // FileReader is used with `new` in the component, so the mock must be
-      // constructor-compatible. We share an instance reference so the test can
-      // inspect properties that the component assigns after construction.
-      let readerInstance: any;
-      function MockFileReader(this: any) {
-        // eslint-disable-next-line @typescript-eslint/no-this-alias
-        readerInstance = this;
-        this.readAsText = vi.fn();
-        this.onload = null;
-        this.result = '';
-      }
-      const fileReaderSpy = vi
-        .spyOn(window, 'FileReader')
-        .mockImplementation(MockFileReader as any);
+      const fileReaderSpy = installFileReaderMock();
 
       try {
         component.onAddTempFile(mockEvent);
 
-        readerInstance.result = '[{"enword":"test","cnword":"测试"}]';
-        if (readerInstance.onload) {
-          readerInstance.onload({ target: readerInstance } as any);
-        }
+        const reader = createdReaders[0];
+        reader.result = '[{"enword":"test","cnword":"测试"}]';
+        reader.onload?.({ target: reader });
 
         expect(addTempContentSpy).toHaveBeenCalled();
         const callArgs = mockLearningContentService.addTemporaryContent.mock.lastCall;
@@ -392,31 +664,93 @@ describe('VocabularyExercisesComponent', () => {
       });
       const mockEvent = { target: { files: [mockFile] } } as any;
 
-      let readerInstance: any;
-      function MockFileReader(this: any) {
-        // eslint-disable-next-line @typescript-eslint/no-this-alias
-        readerInstance = this;
-        this.readAsText = vi.fn();
-        this.onload = null;
-        this.result = '';
-      }
-      const fileReaderSpy = vi
-        .spyOn(window, 'FileReader')
-        .mockImplementation(MockFileReader as any);
+      const fileReaderSpy = installFileReaderMock();
       const consoleSpy = vi.spyOn(console, 'error');
 
       try {
         component.onAddTempFile(mockEvent);
 
-        readerInstance.result = 'invalid json';
-        if (readerInstance.onload) {
-          readerInstance.onload({ target: readerInstance } as any);
-        }
+        const reader = createdReaders[0];
+        reader.result = 'invalid json';
+        reader.onload?.({ target: reader });
 
         expect(consoleSpy).toHaveBeenCalledWith('Error parsing JSON file:', expect.any(Error));
       } finally {
         fileReaderSpy.mockRestore();
         consoleSpy.mockRestore();
+      }
+    });
+
+    it('resets the file input so the same (e.g. corrected) file can be picked again (M4)', () => {
+      const mockFile = new File(['[{"enword":"test","cnword":"测试"}]'], 'test.json', {
+        type: 'application/json',
+      });
+      // A real file input keeps the picked path in `value`; unless it is
+      // cleared, re-picking the same file fires no change event.
+      const target = { files: [mockFile], value: 'C:\\fakepath\\test.json' };
+      const mockEvent = { target } as any;
+      const fileReaderSpy = installFileReaderMock();
+
+      try {
+        component.onAddTempFile(mockEvent);
+
+        expect(target.value).toBe('');
+      } finally {
+        fileReaderSpy.mockRestore();
+      }
+    });
+
+    it('should reject files containing one-character enwords (service contract)', () => {
+      const mockFile = new File(['[{"enword":"a","cnword":"测试"}]'], 'test.json', {
+        type: 'application/json',
+      });
+      const mockEvent = { target: { files: [mockFile] } } as any;
+
+      const fileReaderSpy = installFileReaderMock();
+      const consoleSpy = vi.spyOn(console, 'error');
+
+      try {
+        component.onAddTempFile(mockEvent);
+
+        const reader = createdReaders[0];
+        reader.result = '[{"enword":"a","cnword":"测试"}]';
+        reader.onload?.({ target: reader });
+
+        expect(mockLearningContentService.addTemporaryContent).not.toHaveBeenCalled();
+        expect(component.dataSource.data.length).toBe(0);
+        expect(consoleSpy).toHaveBeenCalledWith(
+          'Invalid word length: "enword" must be longer than one character.'
+        );
+      } finally {
+        fileReaderSpy.mockRestore();
+        consoleSpy.mockRestore();
+      }
+    });
+
+    it('does not mutate state if the component is destroyed mid-read (L5)', () => {
+      // Navigating away mid-read fires no takeUntilDestroyed, so the onload
+      // callback must bail against a destroyed component instead of writing
+      // signals / registering temp content in the service cache.
+      const mockFile = new File(['[{"enword":"test","cnword":"测试"}]'], 'test.json', {
+        type: 'application/json',
+      });
+      const mockEvent = { target: { files: [mockFile] } } as any;
+      const fileReaderSpy = installFileReaderMock();
+
+      try {
+        component.onAddTempFile(mockEvent);
+        const reader = createdReaders[0];
+        reader.result = '[{"enword":"test","cnword":"测试"}]';
+
+        fixture.destroy();
+        expect(component['isDestroyed']).toBe(true);
+
+        reader.onload?.({ target: reader });
+
+        expect(mockLearningContentService.addTemporaryContent).not.toHaveBeenCalled();
+        expect(component.dataSource.data.length).toBe(0);
+      } finally {
+        fileReaderSpy.mockRestore();
       }
     });
   });
@@ -448,100 +782,72 @@ describe('VocabularyExercisesComponent', () => {
     });
   });
 
-  describe('getter methods', () => {
-    it('wordQueueCount should return data source length', () => {
-      component.dataSource.data = mockWordContent;
-      expect(component.wordQueueCount).toBe(8);
-    });
-
-    it('wordQueueCount should return 0 for empty data source', () => {
-      component.dataSource.data = [];
-      expect(component.wordQueueCount).toBe(0);
-    });
-
-    it('wordExplain should return cnword of current queue item', () => {
-      component['wordqueues'] = [
-        { enword: 'test', cnword: '测试', completed: false },
-        { enword: 'hello', cnword: '你好', completed: false },
-      ];
-      component['_queueidx'] = 0;
-      expect(component.wordExplain).toBe('测试');
-    });
-
-    it('wordExplain should return empty string when queue index is out of bounds', () => {
-      component['wordqueues'] = [{ enword: 'test', cnword: '测试', completed: false }];
-      component['_queueidx'] = -1;
-      expect(component.wordExplain).toBe('');
-    });
-
-    it('currentTypingProgress should return 100 when wordQueueCount is 0', () => {
-      component.dataSource.data = [];
-      expect(component.currentTypingProgress).toBe(100);
-    });
-
-    it('currentTypingProgress should calculate progress correctly', () => {
-      component.dataSource.data = mockWordContent.slice();
-      component['_queueidx'] = 4;
-      expect(component.currentTypingProgress).toBe(50);
-    });
-  });
-
-  describe('study mode', () => {
-    it('should initialize study settings with defaults', () => {
-      expect(component.studySetting.disableVoice).toBe(false);
-      expect(component.studySetting.hideExplain).toBe(false);
-      expect(component.studySetting.countOfItems).toBe(20);
-    });
-
-    it('should track study state', () => {
-      expect(component.isStudying).toBe(false);
-      component.isStudying = true;
-      expect(component.isStudying).toBe(true);
-    });
-  });
-
-  describe('study navigation getters', () => {
+  describe('select-all with an active filter (M1)', () => {
     beforeEach(() => {
-      component.studyQueues = [
-        { enword: 'test1', cnword: '测试1', audiofile: '', rating: 0 },
-        { enword: 'test2', cnword: '测试2', audiofile: '', rating: 0 },
-        { enword: 'test3', cnword: '测试3', audiofile: '', rating: 0 },
-      ];
+      component.dataSource.data = mockWordContent.slice();
+      component.selection.clear();
     });
 
-    it('isStudyPreviousDisabled should return true when at first word', () => {
-      component.currentStudyCursor = 0;
-      expect(component.isStudyPreviousDisabled).toBe(true);
+    it('toggleAllRows replaces the selection with exactly the visible rows (hidden selections dropped)', () => {
+      component.selection.select(mockWordContent[0], mockWordContent[1]); // 'hello', 'world'
+      applyFreeText('test'); // visible rows: only 'test'
+
+      component.toggleAllRows();
+
+      expect(component.selection.selected).toEqual([mockWordContent[2]]);
     });
 
-    it('isStudyPreviousDisabled should return false when not at first word', () => {
-      component.currentStudyCursor = 1;
-      expect(component.isStudyPreviousDisabled).toBe(false);
+    it('isAllSelected is false when only rows hidden by the filter are selected', () => {
+      component.selection.select(mockWordContent[0]); // 'hello' — hidden by the filter below
+      applyFreeText('test'); // visible rows: only 'test'; selected count (1) === visible count (1)
+
+      expect(component.isAllSelected()).toBe(false);
     });
 
-    it('isStudyNextDisabled should return true when at last word', () => {
-      component.currentStudyCursor = 2;
-      expect(component.isStudyNextDisabled).toBe(true);
+    it('isAllSelected is true when every visible row is selected even if hidden rows are also selected', () => {
+      component.selection.select(mockWordContent[0]); // hidden by the filter below
+      applyFreeText('test');
+      component.selection.select(mockWordContent[2]); // 'test' — the only visible row
+
+      expect(component.isAllSelected()).toBe(true);
     });
 
-    it('isStudyNextDisabled should return false when not at last word', () => {
-      component.currentStudyCursor = 1;
-      expect(component.isStudyNextDisabled).toBe(false);
+    it('toggleAllRows clears the selection when every visible row is already selected', () => {
+      component.selection.select(mockWordContent[0]);
+      applyFreeText('test');
+      component.selection.select(mockWordContent[2]);
+
+      component.toggleAllRows();
+
+      expect(component.selection.selected.length).toBe(0);
     });
   });
 
-  describe('onStudyWithOptions', () => {
+  describe('review mode', () => {
+    it('should initialize review settings with defaults', () => {
+      expect(component.reviewSetting.disableVoice).toBe(false);
+      expect(component.reviewSetting.hideExplain).toBe(false);
+      expect(component.reviewSetting.countOfItems).toBe(20);
+    });
+
+    it('should track review state', () => {
+      expect(component.mode()).toBe('list');
+      component.mode.set('review');
+      expect(component.mode()).toBe('review');
+    });
+  });
+
+  describe('onReviewWithOptions', () => {
     it('should open dialog with correct data when selection exists', () => {
       component.selection.select(mockWordContent[0], mockWordContent[1]);
       const mockDialogRef = { afterClosed: () => of(undefined) };
       mockDialog.open.mockReturnValue(mockDialogRef as any);
 
-      component.onStudyWithOptions();
+      component.onReviewWithOptions();
 
       expect(mockDialog.open).toHaveBeenCalledWith(expect.any(Function), {
-        data: { wordQueueCount: 2, withSelection: true },
+        data: { wordQueueCount: 2, withSelection: true, currentSettings: component.reviewSetting },
         width: '500px',
-        height: '480px',
         enterAnimationDuration: 800,
         exitAnimationDuration: 500,
       });
@@ -552,61 +858,39 @@ describe('VocabularyExercisesComponent', () => {
       const mockDialogRef = { afterClosed: () => of(undefined) };
       mockDialog.open.mockReturnValue(mockDialogRef as any);
 
-      component.onStudyWithOptions();
+      component.onReviewWithOptions();
 
       expect(mockDialog.open).toHaveBeenCalledWith(expect.any(Function), {
-        data: { wordQueueCount: 8, withSelection: false },
+        data: { wordQueueCount: 8, withSelection: false, currentSettings: component.reviewSetting },
         width: '500px',
-        height: '480px',
         enterAnimationDuration: 800,
         exitAnimationDuration: 500,
       });
     });
 
-    it('should apply study settings and start study when dialog returns data', () => {
+    it('should apply review settings and start review when dialog returns data', () => {
       const mockDialogRef = {
         afterClosed: () =>
           of({
             disableVoice: true,
             hideExplain: false,
-            excludePart: VocabularyExcludedPartEnum.word,
             countOfItems: 10,
           }),
       };
       mockDialog.open.mockReturnValue(mockDialogRef as any);
-      vi.spyOn(component as any, 'onStudyCore');
+      vi.spyOn(component as any, 'onReviewCore');
       component.dataSource.data = mockWordContent.slice();
 
-      component.onStudyWithOptions();
+      component.onReviewWithOptions();
 
-      expect(component.studySetting.disableVoice).toBe(true);
-      expect(component.studySetting.hideExplain).toBe(false);
-      expect(component.studySetting.excludePart).toBe(VocabularyExcludedPartEnum.word);
-      expect(component.studySetting.countOfItems).toBe(10);
-      expect(component['onStudyCore']).toHaveBeenCalled();
-    });
-
-    it('should clear excludePart when dialog returns undefined excludePart', () => {
-      const mockDialogRef = {
-        afterClosed: () =>
-          of({
-            disableVoice: false,
-            hideExplain: false,
-            countOfItems: 15,
-          }),
-      };
-      mockDialog.open.mockReturnValue(mockDialogRef as any);
-      vi.spyOn(component as any, 'onStudyCore');
-      component.studySetting.excludePart = VocabularyExcludedPartEnum.word;
-      component.dataSource.data = mockWordContent.slice();
-
-      component.onStudyWithOptions();
-
-      expect(component.studySetting.excludePart).toBeUndefined();
+      expect(component.reviewSetting.disableVoice).toBe(true);
+      expect(component.reviewSetting.hideExplain).toBe(false);
+      expect(component.reviewSetting.countOfItems).toBe(10);
+      expect(component['onReviewCore']).toHaveBeenCalled();
     });
   });
 
-  describe('onStudyCore', () => {
+  describe('onReviewCore', () => {
     beforeEach(() => {
       component.dataSource.data = mockWordContent.slice();
     });
@@ -614,118 +898,31 @@ describe('VocabularyExercisesComponent', () => {
     it('should process selected items and randomize', () => {
       component.selection.select(mockWordContent[0], mockWordContent[1]);
 
-      component['onStudyCore']();
+      component['onReviewCore']();
 
-      expect(component.studyQueues.length).toBe(2);
-      expect(component.isStudying).toBe(true);
-      expect(component.currentStudyCursor).toBe(0);
+      expect(component.reviewStore.queue().length).toBe(2);
+      expect(component.mode()).toBe('review');
+      expect(component.reviewStore.cursor()).toBe(0);
     });
 
     it('should set initial progress based on first word position', () => {
       component.selection.select(mockWordContent[0], mockWordContent[1]);
 
-      component['onStudyCore']();
+      component['onReviewCore']();
 
       // With 2 items, initial progress should be 50% (1/2 * 100)
-      expect(component.currentStudyProgress).toBe(50);
-    });
-
-    it('should filter by excludePart=word (only phrases)', () => {
-      component.studySetting.excludePart = VocabularyExcludedPartEnum.word;
-      component.studySetting.countOfItems = 10;
-
-      component['onStudyCore']();
-
-      expect(component.studyQueues.length).toBe(1);
-      expect(component.studyQueues[0].enword).toBe('apple pie');
-    });
-
-    it('should filter by excludePart=phase (only single words)', () => {
-      component.studySetting.excludePart = VocabularyExcludedPartEnum.phase;
-      component.studySetting.countOfItems = 10;
-
-      component['onStudyCore']();
-
-      expect(component.studyQueues.every(q => q.enword.indexOf(' ') === -1)).toBe(true);
-    });
-
-    it('should filter by wordLeadingCharacter', () => {
-      component.studySetting.wordLeadingCharacter = ['h', 'w'];
-      component.studySetting.countOfItems = 10;
-
-      component['onStudyCore']();
-
-      expect(
-        component.studyQueues.every(
-          q => q.enword.startsWith('h') || q.enword.startsWith('w') || q.enword.startsWith('H')
-        )
-      ).toBe(true);
+      expect(component.reviewStore.progress()).toBe(50);
     });
 
     it('should limit to countOfItems and randomize', () => {
-      component.studySetting.countOfItems = 3;
-      vi.spyOn(Math, 'random')
-        .mockReturnValueOnce(0.5)
-        .mockReturnValueOnce(0.3)
-        .mockReturnValueOnce(0.8)
-        .mockReturnValueOnce(0.1)
-        .mockReturnValueOnce(0.6)
-        .mockReturnValueOnce(0.4)
-        .mockReturnValueOnce(0.7)
-        .mockReturnValueOnce(0.2);
+      component.reviewSetting.countOfItems = 3;
+      vi.spyOn(Math, 'random').mockReturnValueOnce(0.5).mockReturnValueOnce(0.3)
+        .mockReturnValueOnce(0.8).mockReturnValueOnce(0.1).mockReturnValueOnce(0.6)
+        .mockReturnValueOnce(0.4).mockReturnValueOnce(0.7).mockReturnValueOnce(0.2);
 
-      component['onStudyCore']();
+      component['onReviewCore']();
 
-      expect(component.studyQueues.length).toBe(3);
-    });
-
-    it('should pre-populate ratings from API into study queues', () => {
-      const mockRatings: UserLearningRating[] = [
-        { contentId: 1, itemId: 10, rating: 4 },
-        { contentId: 1, itemId: 20, rating: 2 },
-      ];
-      mockRatingService.getRatings.mockReturnValue(of(mockRatings));
-
-      // Set up data with known ids
-      component.dataSource.data = [
-        { id: 10, enword: 'hello', cnword: '你好' },
-        { id: 20, enword: 'world', cnword: '世界' },
-        { id: 30, enword: 'test', cnword: '测试' },
-      ] as LearnEnglishWordFileItem[];
-      component.studyContentId = 1;
-
-      component['onStudyCore']();
-
-      // Ratings should be loaded and mapped
-      expect(mockRatingService.getRatings).toHaveBeenCalledWith(1);
-      const ratedItems = component.studyQueues.filter(q => q.rating > 0);
-      expect(ratedItems.length).toBe(2);
-      expect(component.studyQueues.find(q => q.itemId === 10)?.rating).toBe(4);
-      expect(component.studyQueues.find(q => q.itemId === 20)?.rating).toBe(2);
-    });
-
-    it('should default rating to 0 when no rating exists for an item', () => {
-      mockRatingService.getRatings.mockReturnValue(of([]));
-
-      component.dataSource.data = [
-        { id: 10, enword: 'hello', cnword: '你好' },
-      ] as LearnEnglishWordFileItem[];
-      component.studyContentId = 1;
-
-      component['onStudyCore']();
-
-      expect(component.studyQueues[0].rating).toBe(0);
-    });
-
-    it('should not load ratings when studyContentId is 0', () => {
-      component.dataSource.data = [
-        { id: 10, enword: 'hello', cnword: '你好' },
-      ] as LearnEnglishWordFileItem[];
-      component.studyContentId = 0;
-
-      component['onStudyCore']();
-
-      expect(mockRatingService.getRatings).not.toHaveBeenCalled();
+      expect(component.reviewStore.queue().length).toBe(3);
     });
 
     it('should bail out safely when the queue is empty (no data)', () => {
@@ -734,853 +931,108 @@ describe('VocabularyExercisesComponent', () => {
       component.studyContentId = 1;
       mockRatingService.getRatings.mockReturnValue(of([]));
 
-      expect(() => component['onStudyCore']()).not.toThrow();
+      expect(() => component['onReviewCore']()).not.toThrow();
 
-      expect(component.studyQueues.length).toBe(0);
-      expect(component.isStudying).toBe(false);
-      expect(component.currentStudyCursor).toBe(0);
-      expect(component.currentStudyProgress).toBe(0);
+      expect(component.reviewStore.queue().length).toBe(0);
+      expect(component.mode()).toBe('list');
       // No point loading ratings when there is nothing to study.
       expect(mockRatingService.getRatings).not.toHaveBeenCalled();
     });
 
     it('should bail out safely when a filter removes every word', () => {
-      // mockWordContent has no word starting with 'z', so the leading-char
-      // filter eliminates everything.
-      component.studySetting.wordLeadingCharacter = ['z'];
-      component.studySetting.countOfItems = 10;
+      // A table filter matching no rows leaves getVisibleData() empty, so the
+      // queue is empty and the container stays on the list.
+      component.reviewSetting.countOfItems = 10;
       component.selection.clear();
       component.studyContentId = 0;
-
-      expect(() => component['onStudyCore']()).not.toThrow();
-
-      expect(component.studyQueues.length).toBe(0);
-      expect(component.isStudying).toBe(false);
-      expect(component.currentStudyProgress).toBe(0);
-    });
-  });
-
-  describe('onRatingChanged', () => {
-    it('should save rating via upsertRating when valid', () => {
-      const savedRating: UserLearningRating = { contentId: 1, itemId: 10, rating: 4 };
-      mockRatingService.upsertRating.mockReturnValue(of(savedRating));
-
-      component.studyContentId = 1;
-      const item: StudyQueueItem = {
-        enword: 'hello',
-        cnword: '你好',
-        audiofile: '',
-        rating: 4,
-        itemId: 10,
-      };
-
-      component.onRatingChanged(item);
-
-      expect(mockRatingService.upsertRating).toHaveBeenCalledWith(1, 10, 4);
-    });
-
-    it('should not save when rating is less than 1', () => {
-      component.studyContentId = 1;
-      const item: StudyQueueItem = {
-        enword: 'hello',
-        cnword: '你好',
-        audiofile: '',
-        rating: 0,
-        itemId: 10,
-      };
-
-      component.onRatingChanged(item);
-
-      expect(mockRatingService.upsertRating).not.toHaveBeenCalled();
-    });
-
-    it('should not save when itemId is undefined', () => {
-      component.studyContentId = 1;
-      const item: StudyQueueItem = { enword: 'hello', cnword: '你好', audiofile: '', rating: 3 };
-
-      component.onRatingChanged(item);
-
-      expect(mockRatingService.upsertRating).not.toHaveBeenCalled();
-    });
-
-    it('should not save when studyContentId is 0', () => {
-      component.studyContentId = 0;
-      const item: StudyQueueItem = {
-        enword: 'hello',
-        cnword: '你好',
-        audiofile: '',
-        rating: 3,
-        itemId: 10,
-      };
-
-      component.onRatingChanged(item);
-
-      expect(mockRatingService.upsertRating).not.toHaveBeenCalled();
-    });
-
-    it('should update studyRatingMap after successful save', () => {
-      const savedRating: UserLearningRating = { contentId: 1, itemId: 10, rating: 5 };
-      mockRatingService.upsertRating.mockReturnValue(of(savedRating));
-
-      component.studyContentId = 1;
-      const item: StudyQueueItem = {
-        enword: 'hello',
-        cnword: '你好',
-        audiofile: '',
-        rating: 5,
-        itemId: 10,
-      };
-
-      component.onRatingChanged(item);
-
-      expect(component['studyRatingMap'].get(10)).toEqual(savedRating);
-    });
-  });
-
-  describe('onStudyPreviousWord', () => {
-    beforeEach(() => {
-      component.studyQueues = [
-        { enword: 'test1', cnword: '测试1', audiofile: '', rating: 0 },
-        { enword: 'test2', cnword: '测试2', audiofile: '', rating: 0 },
-      ];
-    });
-
-    it('should move to previous word when not at start', () => {
-      component.currentStudyCursor = 1;
-
-      component.onStudyPreviousWord();
-
-      expect(component.currentStudyCursor).toBe(0);
-      expect(component.currentStudyProgress).toBe(50);
-    });
-
-    it('should not move before start', () => {
-      component.currentStudyCursor = 0;
-
-      component.onStudyPreviousWord();
-
-      expect(component.currentStudyCursor).toBe(0);
-    });
-  });
-
-  describe('onStudyNextWord', () => {
-    beforeEach(() => {
-      component.studyQueues = [
-        { enword: 'test1', cnword: '测试1', audiofile: '', rating: 0 },
-        { enword: 'test2', cnword: '测试2', audiofile: '', rating: 0 },
-      ];
-    });
-
-    it('should move to next word when not at end', () => {
-      component.currentStudyCursor = 0;
-
-      component.onStudyNextWord();
-
-      expect(component.currentStudyCursor).toBe(1);
-      expect(component.currentStudyProgress).toBe(100);
-    });
-
-    it('should not move past end', () => {
-      component.currentStudyCursor = 1;
-
-      component.onStudyNextWord();
-
-      expect(component.currentStudyCursor).toBe(1);
-    });
-  });
-
-  describe('onQuitStudy', () => {
-    it('should reset study state on performQuitStudy', () => {
-      component.isStudying = true;
-      component.studyQueues = [{ enword: 'test', cnword: '测试', audiofile: '', rating: 0 }];
-      component.currentStudyCursor = 1;
-      component.currentStudyProgress = 50;
-
-      component['performQuitStudy']();
-
-      expect(component.isStudying).toBe(false);
-      expect(component.studyQueues).toEqual([]);
-      expect(component.currentStudyCursor).toBe(0);
-      expect(component.currentStudyProgress).toBe(0);
-    });
-
-    it('should open a confirmation dialog and not quit until confirmed', () => {
-      component.isStudying = true;
-      component.studyQueues = [{ enword: 'test', cnword: '测试', audiofile: '', rating: 0 }];
-      const mockDialogRef = { afterClosed: () => of(false) };
-      mockDialog.open.mockReturnValue(mockDialogRef as any);
-
-      component.onQuitStudy();
-
-      expect(mockDialog.open).toHaveBeenCalledWith(
-        VocabularyQuitConfirmDialogComponent,
-        expect.objectContaining({ disableClose: true })
-      );
-      // Cancelled -> study state preserved.
-      expect(component.isStudying).toBe(true);
-      expect(component.studyQueues.length).toBe(1);
-    });
-
-    it('should quit when the confirmation is confirmed', () => {
-      component.isStudying = true;
-      component.studyQueues = [{ enword: 'test', cnword: '测试', audiofile: '', rating: 0 }];
-      const mockDialogRef = { afterClosed: () => of(true) };
-      mockDialog.open.mockReturnValue(mockDialogRef as any);
-
-      component.onQuitStudy();
-
-      expect(component.isStudying).toBe(false);
-      expect(component.studyQueues).toEqual([]);
-    });
-
-    it('should not stack a second confirmation when one is already open', () => {
-      component.isStudying = true;
-      // Simulate the quit confirmation already being on screen.
-      mockDialog.openDialogs = [{} as any];
-      mockDialog.open.mockClear();
-
-      component.onQuitStudy();
-
-      expect(mockDialog.open).not.toHaveBeenCalled();
-    });
-  });
-
-  describe('auto mode (study)', () => {
-    afterEach(() => {
-      // Ensure no interval subscription leaks into the next test, then restore
-      // real timers regardless of whether the test used fake timers.
-      component['stopAutoMode']?.();
-      vi.useRealTimers();
-    });
-
-    it('should default to autoModeSeconds=5 and isAutoMode=false', () => {
-      expect(component.autoModeSeconds).toBe(5);
-      expect(component.isAutoMode).toBe(false);
-    });
-
-    it('should not enable auto mode when the study queue is empty', () => {
-      component.studyQueues = [];
-
-      component.onEnableAutoMode();
-
-      expect(component.isAutoMode).toBe(false);
-    });
-
-    it('should not double-start when already running', () => {
-      component.studyQueues = [
-        { enword: 'a', cnword: '甲', audiofile: '', rating: 0 },
-        { enword: 'b', cnword: '乙', audiofile: '', rating: 0 },
-      ];
-
-      component.onEnableAutoMode();
-      const firstSub = component['autoModeSubscription'];
-
-      component.onEnableAutoMode();
-
-      // Second call is a no-op: the original subscription is left intact.
-      expect(component['autoModeSubscription']).toBe(firstSub);
-    });
-
-    it('should auto-advance to the next word every N seconds', () => {
-      vi.useFakeTimers();
-      component.studyQueues = [
-        { enword: 'a', cnword: '甲', audiofile: '', rating: 0 },
-        { enword: 'b', cnword: '乙', audiofile: '', rating: 0 },
-        { enword: 'c', cnword: '丙', audiofile: '', rating: 0 },
-      ];
-      component.currentStudyCursor = 0;
-      component.autoModeSeconds = 5;
-
-      component.onEnableAutoMode();
-
-      expect(component.isAutoMode).toBe(true);
-      expect(component.currentStudyCursor).toBe(0);
-
-      vi.advanceTimersByTime(5000);
-      expect(component.currentStudyCursor).toBe(1);
-
-      vi.advanceTimersByTime(5000);
-      expect(component.currentStudyCursor).toBe(2);
-    });
-
-    it('should restart from the first word regardless of the current cursor', () => {
-      vi.useFakeTimers();
-      component.studyQueues = [
-        { enword: 'a', cnword: '甲', audiofile: '', rating: 0 },
-        { enword: 'b', cnword: '乙', audiofile: '', rating: 0 },
-        { enword: 'c', cnword: '丙', audiofile: '', rating: 0 },
-        { enword: 'd', cnword: '丁', audiofile: '', rating: 0 },
-      ];
-      component.currentStudyCursor = 2; // mid-queue
-      component.autoModeSeconds = 5;
-
-      component.onEnableAutoMode();
-
-      // Always jumps to the first word, even though the cursor was mid-queue.
-      expect(component.isAutoMode).toBe(true);
-      expect(component.currentStudyCursor).toBe(0);
-      expect(component.currentStudyProgress).toBe(25); // (0 + 1) / 4 * 100
-
-      // Auto-advances from the first word through the queue.
-      vi.advanceTimersByTime(5000);
-      expect(component.currentStudyCursor).toBe(1);
-      vi.advanceTimersByTime(5000);
-      expect(component.currentStudyCursor).toBe(2);
-      vi.advanceTimersByTime(5000);
-      expect(component.currentStudyCursor).toBe(3);
-      expect(component.isAutoMode).toBe(true);
-
-      // Reaches the last word and self-stops on the next tick.
-      vi.advanceTimersByTime(5000);
-      expect(component.isAutoMode).toBe(false);
-      expect(component.currentStudyCursor).toBe(3);
-
-      // No further advances after auto mode stopped.
-      vi.advanceTimersByTime(5000);
-      expect(component.currentStudyCursor).toBe(3);
-    });
-
-    it('should fall back to 5 seconds when autoModeSeconds is invalid', () => {
-      vi.useFakeTimers();
-      component.studyQueues = [
-        { enword: 'a', cnword: '甲', audiofile: '', rating: 0 },
-        { enword: 'b', cnword: '乙', audiofile: '', rating: 0 },
-      ];
-      component.currentStudyCursor = 0;
-      component.autoModeSeconds = 0;
-
-      component.onEnableAutoMode();
-      expect(component.isAutoMode).toBe(true);
-
-      // 0 would fire immediately if used literally; the fallback to 5s means no
-      // advance until 5s elapse.
-      vi.advanceTimersByTime(1000);
-      expect(component.currentStudyCursor).toBe(0);
-
-      vi.advanceTimersByTime(4000);
-      expect(component.currentStudyCursor).toBe(1);
-    });
-
-    it('should stop the auto timer when quitting study', () => {
-      vi.useFakeTimers();
-      component.studyQueues = [
-        { enword: 'a', cnword: '甲', audiofile: '', rating: 0 },
-        { enword: 'b', cnword: '乙', audiofile: '', rating: 0 },
-      ];
-      component.currentStudyCursor = 0;
-      component.autoModeSeconds = 5;
-      component.isStudying = true;
-
-      component.onEnableAutoMode();
-      expect(component.isAutoMode).toBe(true);
-
-      component['performQuitStudy']();
-
-      expect(component.isAutoMode).toBe(false);
-      // Timer cleared: advancing time must not throw or change state.
-      vi.advanceTimersByTime(10000);
-      expect(component.isAutoMode).toBe(false);
-    });
-
-    it('should ignore ArrowLeft/ArrowRight while auto mode is running', () => {
-      component.isStudying = true;
-      component.isAutoMode = true;
-      component.studyQueues = [
-        { enword: 'a', cnword: '甲', audiofile: '', rating: 0 },
-        { enword: 'b', cnword: '乙', audiofile: '', rating: 0 },
-      ];
-      component.currentStudyCursor = 0;
-
-      component.handleKeyboardEvent(new KeyboardEvent('keyup', { key: 'ArrowRight' }));
-      expect(component.currentStudyCursor).toBe(0);
-
-      component.handleKeyboardEvent(new KeyboardEvent('keyup', { key: 'ArrowLeft' }));
-      expect(component.currentStudyCursor).toBe(0);
-    });
-
-    it('should restart the auto timer immediately when the interval changes', () => {
-      vi.useFakeTimers();
-      component.studyQueues = [
-        { enword: 'a', cnword: '甲', audiofile: '', rating: 0 },
-        { enword: 'b', cnword: '乙', audiofile: '', rating: 0 },
-        { enword: 'c', cnword: '丙', audiofile: '', rating: 0 },
-      ];
-      component.currentStudyCursor = 0;
-      component.autoModeSeconds = 5;
-
-      component.onEnableAutoMode();
-      expect(component.currentStudyCursor).toBe(0);
-
-      // Switch to a 2s interval mid-word. The timer restarts, so 2s (not 5s)
-      // now advances to the next word.
-      component.onAutoModeIntervalChange(2);
-      expect(component.autoModeSeconds).toBe(2);
-
-      vi.advanceTimersByTime(2000);
-      expect(component.currentStudyCursor).toBe(1);
-
-      // The new interval persists for subsequent advances.
-      vi.advanceTimersByTime(2000);
-      expect(component.currentStudyCursor).toBe(2);
-    });
-
-    it('should pause the timer at the current word', () => {
-      vi.useFakeTimers();
-      component.studyQueues = [
-        { enword: 'a', cnword: '甲', audiofile: '', rating: 0 },
-        { enword: 'b', cnword: '乙', audiofile: '', rating: 0 },
-        { enword: 'c', cnword: '丙', audiofile: '', rating: 0 },
-      ];
-      component.autoModeSeconds = 5;
-
-      component.onEnableAutoMode();
-      vi.advanceTimersByTime(5000);
-      expect(component.currentStudyCursor).toBe(1);
-
-      component.onPauseAutoMode();
-      expect(component.isAutoMode).toBe(true);
-      expect(component.isAutoModePaused).toBe(true);
-
-      // Paused: advancing time does not move the cursor.
-      vi.advanceTimersByTime(20000);
-      expect(component.currentStudyCursor).toBe(1);
-    });
-
-    it('should resume from the current word after a pause', () => {
-      vi.useFakeTimers();
-      component.studyQueues = [
-        { enword: 'a', cnword: '甲', audiofile: '', rating: 0 },
-        { enword: 'b', cnword: '乙', audiofile: '', rating: 0 },
-        { enword: 'c', cnword: '丙', audiofile: '', rating: 0 },
-      ];
-      component.autoModeSeconds = 5;
-
-      component.onEnableAutoMode();
-      vi.advanceTimersByTime(5000);
-      expect(component.currentStudyCursor).toBe(1);
-
-      component.onPauseAutoMode();
-      vi.advanceTimersByTime(20000);
-      expect(component.currentStudyCursor).toBe(1);
-
-      component.onResumeAutoMode();
-      expect(component.isAutoModePaused).toBe(false);
-
-      // Resume restarts the timer from the current word: a full interval must
-      // elapse before advancing.
-      vi.advanceTimersByTime(4000);
-      expect(component.currentStudyCursor).toBe(1);
-      vi.advanceTimersByTime(1000);
-      expect(component.currentStudyCursor).toBe(2);
-    });
-
-    it('should stop and return to manual study', () => {
-      vi.useFakeTimers();
-      component.studyQueues = [
-        { enword: 'a', cnword: '甲', audiofile: '', rating: 0 },
-        { enword: 'b', cnword: '乙', audiofile: '', rating: 0 },
-      ];
-      component.autoModeSeconds = 5;
-
-      component.onEnableAutoMode();
-      vi.advanceTimersByTime(5000);
-      expect(component.currentStudyCursor).toBe(1);
-
-      component.onStopAutoMode();
-      expect(component.isAutoMode).toBe(false);
-      expect(component.isAutoModePaused).toBe(false);
-      // Cursor is preserved: manual study resumes from where auto left off.
-      expect(component.currentStudyCursor).toBe(1);
-      // Timer cleared: advancing time must not change state.
-      vi.advanceTimersByTime(10000);
-      expect(component.currentStudyCursor).toBe(1);
-    });
-
-    it('should not resume the timer when the interval changes while paused', () => {
-      vi.useFakeTimers();
-      component.studyQueues = [
-        { enword: 'a', cnword: '甲', audiofile: '', rating: 0 },
-        { enword: 'b', cnword: '乙', audiofile: '', rating: 0 },
-        { enword: 'c', cnword: '丙', audiofile: '', rating: 0 },
-      ];
-      component.autoModeSeconds = 5;
-
-      component.onEnableAutoMode();
-      vi.advanceTimersByTime(5000);
-      expect(component.currentStudyCursor).toBe(1);
-
-      component.onPauseAutoMode();
-      // Changing the interval while paused records the new value but must not
-      // restart the timer (which would un-pause).
-      component.onAutoModeIntervalChange(2);
-      expect(component.autoModeSeconds).toBe(2);
-      expect(component.isAutoModePaused).toBe(true);
-
-      vi.advanceTimersByTime(10000);
-      expect(component.currentStudyCursor).toBe(1);
-
-      // Resuming uses the new interval.
-      component.onResumeAutoMode();
-      vi.advanceTimersByTime(2000);
-      expect(component.currentStudyCursor).toBe(2);
-    });
-
-    it('should toggle start -> pause -> resume via onToggleAutoMode', () => {
-      vi.useFakeTimers();
-      component.studyQueues = [
-        { enword: 'a', cnword: '甲', audiofile: '', rating: 0 },
-        { enword: 'b', cnword: '乙', audiofile: '', rating: 0 },
-      ];
-      component.autoModeSeconds = 5;
-
-      // Manual -> start.
-      component.onToggleAutoMode();
-      expect(component.isAutoMode).toBe(true);
-      expect(component.isAutoModePaused).toBe(false);
-
-      // Running -> pause.
-      component.onToggleAutoMode();
-      expect(component.isAutoModePaused).toBe(true);
-
-      // Paused -> resume.
-      component.onToggleAutoMode();
-      expect(component.isAutoModePaused).toBe(false);
-
-      // Timer is running again after resume.
-      vi.advanceTimersByTime(5000);
-      expect(component.currentStudyCursor).toBe(1);
-    });
-
-    it('should expose the pause icon while running and the play icon otherwise', () => {
-      component.studyQueues = [
-        { enword: 'a', cnword: '甲', audiofile: '', rating: 0 },
-        { enword: 'b', cnword: '乙', audiofile: '', rating: 0 },
-      ];
-
-      // Manual.
-      expect(component.autoModeToggleIcon).toBe('play_circle_outline');
-      expect(component.autoModeToggleTooltipKey).toBe('vocabularyExercises.enableAutoMode');
-
-      // Running.
-      component.isAutoMode = true;
-      component.isAutoModePaused = false;
-      expect(component.autoModeToggleIcon).toBe('pause_circle_outline');
-      expect(component.autoModeToggleTooltipKey).toBe('vocabularyExercises.pauseAutoMode');
-
-      // Paused (resume).
-      component.isAutoModePaused = true;
-      expect(component.autoModeToggleIcon).toBe('play_circle_outline');
-      expect(component.autoModeToggleTooltipKey).toBe('vocabularyExercises.resumeAutoMode');
-    });
-  });
-
-  describe('speakWordTts (TTS fallback engine)', () => {
-    let originalSpeechSynthesis: SpeechSynthesis | undefined;
-    let originalCtor: unknown;
-    let getVoicesMock: ReturnType<typeof vi.fn>;
-    let speakMock: ReturnType<typeof vi.fn>;
-    let cancelMock: ReturnType<typeof vi.fn>;
-    let voicesChangedHandler: (() => void) | null;
-
-    beforeEach(() => {
-      originalSpeechSynthesis = window.speechSynthesis;
-      originalCtor = (window as unknown as { SpeechSynthesisUtterance?: unknown })
-        .SpeechSynthesisUtterance;
-      voicesChangedHandler = null;
-      getVoicesMock = vi.fn(() => []);
-      speakMock = vi.fn();
-      cancelMock = vi.fn();
-
-      Object.defineProperty(window, 'speechSynthesis', {
-        configurable: true,
-        value: {
-          getVoices: getVoicesMock,
-          speak: speakMock,
-          cancel: cancelMock,
-          set onvoiceschanged(fn: (() => void) | null) {
-            voicesChangedHandler = fn;
-          },
-          get onvoiceschanged(): (() => void) | null {
-            return voicesChangedHandler;
-          },
-        },
+      component.applyListFilter({
+        freeText: 'zzz-not-found',
+        wordConditions: [],
+        ratingConditions: [],
       });
 
-      // jsdom does not ship SpeechSynthesisUtterance; provide a minimal stub.
-      (window as unknown as { SpeechSynthesisUtterance: unknown }).SpeechSynthesisUtterance =
-        class {
-          text: string;
-          lang = '';
-          rate = 1;
-          voice?: SpeechSynthesisVoice;
-          onerror?: (e: { error: string }) => void;
-          constructor(text: string) {
-            this.text = text;
-          }
-        };
+      expect(() => component['onReviewCore']()).not.toThrow();
 
-      // Fresh per-instance voice cache/listener state for each test.
-      component['cachedVoices'] = [];
-      component['voicesListenerAttached'] = false;
-    });
-
-    afterEach(() => {
-      Object.defineProperty(window, 'speechSynthesis', {
-        configurable: true,
-        value: originalSpeechSynthesis,
-      });
-      (window as unknown as { SpeechSynthesisUtterance: unknown }).SpeechSynthesisUtterance =
-        originalCtor;
-    });
-
-    it('should not throw and should not speak when speechSynthesis is unavailable', () => {
-      Object.defineProperty(window, 'speechSynthesis', {
-        configurable: true,
-        value: undefined,
-      });
-
-      expect(() => component['speakWordTts']('hello')).not.toThrow();
-      expect(speakMock).not.toHaveBeenCalled();
-    });
-
-    it('should speak the word with an en-US utterance at rate 0.9', () => {
-      component['speakWordTts']('hello');
-
-      expect(cancelMock).toHaveBeenCalled();
-      expect(speakMock).toHaveBeenCalledTimes(1);
-      const utterance = speakMock.mock.calls[0][0] as SpeechSynthesisUtterance;
-      expect(utterance.text).toBe('hello');
-      expect(utterance.lang).toBe('en-US');
-      expect(utterance.rate).toBe(0.9);
-    });
-
-    it('should select the en-US voice from the cache when voices are already loaded', () => {
-      const usVoice = { lang: 'en-US', name: 'US English' } as SpeechSynthesisVoice;
-      getVoicesMock.mockReturnValue([usVoice]);
-
-      component['speakWordTts']('hello');
-
-      const utterance = speakMock.mock.calls[0][0] as SpeechSynthesisUtterance;
-      expect(utterance.voice).toBe(usVoice);
-    });
-
-    it('should attach onvoiceschanged and refresh the cache when voices load later', () => {
-      // First call: no voices available yet — selection skipped, listener attached.
-      component['speakWordTts']('hello');
-      expect(voicesChangedHandler).not.toBeNull();
-      const firstUtterance = speakMock.mock.calls[0][0] as SpeechSynthesisUtterance;
-      expect(firstUtterance.voice).toBeUndefined();
-
-      // Platform later publishes the voice list.
-      const usVoice = { lang: 'en-US', name: 'US English' } as SpeechSynthesisVoice;
-      getVoicesMock.mockReturnValue([usVoice]);
-      voicesChangedHandler!();
-
-      // The next utterance should now pick up the cached US voice.
-      component['speakWordTts']('world');
-      const secondUtterance = speakMock.mock.calls[1][0] as SpeechSynthesisUtterance;
-      expect(secondUtterance.voice).toBe(usVoice);
-    });
-
-    it('should not re-attach the onvoiceschanged listener on subsequent calls', () => {
-      component['speakWordTts']('hello');
-      const firstHandler = voicesChangedHandler;
-      component['speakWordTts']('world');
-      expect(voicesChangedHandler).toBe(firstHandler);
-    });
-
-    it('should not warn on interrupted/canceled errors', () => {
-      const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
-      component['speakWordTts']('hello');
-      const utterance = speakMock.mock.calls[0][0] as SpeechSynthesisUtterance;
-      const makeEvent = (error: string) => ({ error }) as unknown as SpeechSynthesisErrorEvent;
-      utterance.onerror!(makeEvent('interrupted'));
-      utterance.onerror!(makeEvent('canceled'));
-      expect(warnSpy).not.toHaveBeenCalled();
-      warnSpy.mockRestore();
-    });
-
-    it('should warn on other speechSynthesis errors', () => {
-      const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
-      component['speakWordTts']('hello');
-      const utterance = speakMock.mock.calls[0][0] as SpeechSynthesisUtterance;
-      utterance.onerror!({ error: 'audio-busy' } as unknown as SpeechSynthesisErrorEvent);
-      expect(warnSpy).toHaveBeenCalledWith('speechSynthesis error:', 'audio-busy');
-      warnSpy.mockRestore();
+      expect(component.reviewStore.queue().length).toBe(0);
+      expect(component.mode()).toBe('list');
     });
   });
 
-  describe('speakWord (audio API with TTS fallback)', () => {
-    it('should request the word-audio endpoint with the URL-encoded word', async () => {
-      mockAudioService.playAuthenticatedOneShot.mockResolvedValue(true);
+  describe('onQuitReview', () => {
+    it('should reset review state and return to the list', () => {
+      component.dataSource.data = mockWordContent.slice();
+      component['onReviewCore']();
+      component.mode.set('review');
 
-      await component['speakWord']('apple pie');
+      component.onQuitReview();
 
-      expect(mockAudioService.playAuthenticatedOneShot).toHaveBeenCalledWith(
-        expect.stringContaining('/api/WordAudio?word=apple%20pie')
-      );
+      expect(component.mode()).toBe('list');
+      expect(component.reviewStore.queue()).toEqual([]);
+      expect(component.reviewStore.cursor()).toBe(0);
+      expect(component.reviewStore.progress()).toBe(0);
     });
 
-    it('should not fall back to TTS when the API serves audio', async () => {
-      mockAudioService.playAuthenticatedOneShot.mockResolvedValue(true);
-      const ttsSpy = vi.spyOn(component as any, 'speakWordTts').mockImplementation(() => {});
-
-      await component['speakWord']('hello');
-
-      expect(ttsSpy).not.toHaveBeenCalled();
-      ttsSpy.mockRestore();
-    });
-
-    it('should fall back to TTS when the API returns 404 (false)', async () => {
-      mockAudioService.playAuthenticatedOneShot.mockResolvedValue(false);
-      const ttsSpy = vi.spyOn(component as any, 'speakWordTts').mockImplementation(() => {});
-
-      await component['speakWord']('hello');
-
-      expect(ttsSpy).toHaveBeenCalledWith('hello');
-      ttsSpy.mockRestore();
-    });
-
-    it('should do nothing for an empty word', async () => {
-      const ttsSpy = vi.spyOn(component as any, 'speakWordTts').mockImplementation(() => {});
-
-      await component['speakWord']('');
-
-      expect(mockAudioService.playAuthenticatedOneShot).not.toHaveBeenCalled();
-      expect(ttsSpy).not.toHaveBeenCalled();
-      ttsSpy.mockRestore();
-    });
-  });
-
-  describe('handleKeyboardEvent — study mode shortcuts', () => {
-    beforeEach(() => {
-      component.isStudying = true;
-      component.studyQueues = [
-        { enword: 'hello', cnword: '你好', audiofile: '', rating: 0, itemId: 10 },
-        { enword: 'world', cnword: '世界', audiofile: '', rating: 0, itemId: 20 },
-        { enword: 'test', cnword: '测试', audiofile: '', rating: 0, itemId: 30 },
-      ];
-      component.currentStudyCursor = 1;
+    it('should merge confirmed review ratings back into the list rating map', () => {
+      mockRatingService.getRatings.mockReturnValue(of([{ contentId: 1, itemId: 10, rating: 3 }]));
+      component.dataSource.data = [{ id: 10, enword: 'hello', cnword: '你好' }] as LearnEnglishWordFileItem[];
       component.studyContentId = 1;
+      component['onReviewCore']();
+
+      component.onQuitReview();
+
+      expect(component.contentRatingMap().get(10)).toBe(3);
     });
 
-    it('should set rating to 1-5 when pressing number keys', () => {
-      const savedRating: UserLearningRating = { contentId: 1, itemId: 20, rating: 3 };
-      mockRatingService.upsertRating.mockReturnValue(of(savedRating));
-      const event = new KeyboardEvent('keyup', { key: '3' });
+    it('should re-run an active rating filter with ratings changed during review', () => {
+      // Regression guard: quitting merges confirmed ratings into
+      // contentRatingMap, but the filter string is unchanged - without
+      // re-assigning dataSource.filter, a word downrated below a rating
+      // filter's threshold during review stays visible in the list.
+      mockRatingService.getRatings.mockReturnValue(of([{ contentId: 1, itemId: 10, rating: 4 }]));
+      mockRatingService.upsertRating.mockReturnValue(of({ contentId: 1, itemId: 10, rating: 1 }));
+      component.dataSource.data = [
+        { id: 10, enword: 'hello', cnword: '你好' },
+        { id: 11, enword: 'world', cnword: '世界' },
+      ] as LearnEnglishWordFileItem[];
+      component.studyContentId = 1;
+      // Ratings as a completed file load would have left them.
+      component.contentRatingMap.set(new Map([[10, 4]]));
+      component.applyListFilter({
+        freeText: '',
+        wordConditions: [],
+        ratingConditions: [{ operator: RatingOperatorEnum.LargerOrEquals, value: 3 }],
+      });
+      // Only item 10 (rating 4) passes the filter.
+      expect(component.dataSource.filteredData.length).toBe(1);
 
-      component.handleKeyboardEvent(event);
+      component['onReviewCore']();
+      expect(component.mode()).toBe('review');
 
-      expect(component.studyQueues[1].rating).toBe(3);
-      expect(mockRatingService.upsertRating).toHaveBeenCalledWith(1, 20, 3);
-    });
+      // Downrate the word during the session (server confirms 1).
+      component.reviewStore.rateCurrent(1);
 
-    it('should move to previous word on ArrowLeft', () => {
-      const event = new KeyboardEvent('keyup', { key: 'ArrowLeft' });
+      component.onQuitReview();
 
-      component.handleKeyboardEvent(event);
-
-      expect(component.currentStudyCursor).toBe(0);
-    });
-
-    it('should move to next word on ArrowRight', () => {
-      const event = new KeyboardEvent('keyup', { key: 'ArrowRight' });
-
-      component.handleKeyboardEvent(event);
-
-      expect(component.currentStudyCursor).toBe(2);
-    });
-
-    it('should increase rating on ArrowUp', () => {
-      component.studyQueues[1].rating = 2;
-      const savedRating: UserLearningRating = { contentId: 1, itemId: 20, rating: 3 };
-      mockRatingService.upsertRating.mockReturnValue(of(savedRating));
-      const event = new KeyboardEvent('keyup', { key: 'ArrowUp' });
-
-      component.handleKeyboardEvent(event);
-
-      expect(component.studyQueues[1].rating).toBe(3);
-      expect(mockRatingService.upsertRating).toHaveBeenCalledWith(1, 20, 3);
-    });
-
-    it('should not increase rating above 5 on ArrowUp', () => {
-      component.studyQueues[1].rating = 5;
-      const event = new KeyboardEvent('keyup', { key: 'ArrowUp' });
-
-      component.handleKeyboardEvent(event);
-
-      expect(component.studyQueues[1].rating).toBe(5);
-      expect(mockRatingService.upsertRating).not.toHaveBeenCalled();
-    });
-
-    it('should decrease rating on ArrowDown', () => {
-      component.studyQueues[1].rating = 3;
-      const savedRating: UserLearningRating = { contentId: 1, itemId: 20, rating: 2 };
-      mockRatingService.upsertRating.mockReturnValue(of(savedRating));
-      const event = new KeyboardEvent('keyup', { key: 'ArrowDown' });
-
-      component.handleKeyboardEvent(event);
-
-      expect(component.studyQueues[1].rating).toBe(2);
-      expect(mockRatingService.upsertRating).toHaveBeenCalledWith(1, 20, 2);
-    });
-
-    it('should not decrease rating below 1 on ArrowDown', () => {
-      component.studyQueues[1].rating = 1;
-      const event = new KeyboardEvent('keyup', { key: 'ArrowDown' });
-
-      component.handleKeyboardEvent(event);
-
-      expect(component.studyQueues[1].rating).toBe(1);
-      expect(mockRatingService.upsertRating).not.toHaveBeenCalled();
-    });
-
-    it('should trigger the quit confirmation on Escape', () => {
-      mockDialog.open.mockReturnValue({ afterClosed: () => of(false) } as any);
-      const event = new KeyboardEvent('keyup', { key: 'Escape' });
-
-      component.handleKeyboardEvent(event);
-
-      expect(mockDialog.open).toHaveBeenCalledWith(
-        VocabularyQuitConfirmDialogComponent,
-        expect.objectContaining({ disableClose: true })
-      );
-    });
-
-    it('should not handle shortcuts when not in study mode', () => {
-      component.isStudying = false;
-      const event = new KeyboardEvent('keyup', { key: '3' });
-      vi.spyOn(component, 'onRatingChanged');
-
-      component.handleKeyboardEvent(event);
-
-      expect(component.onRatingChanged).not.toHaveBeenCalled();
-    });
-
-    it('should ignore keys outside 1-5 range in study mode', () => {
-      const event = new KeyboardEvent('keyup', { key: '7' });
-
-      component.handleKeyboardEvent(event);
-
-      expect(component.studyQueues[1].rating).toBe(0);
+      expect(component.contentRatingMap().get(10)).toBe(1);
+      // The row must drop out of the rating-filtered list on quit.
+      expect(component.dataSource.filteredData.length).toBe(0);
     });
   });
 
-  describe('typing mode', () => {
-    it('should initialize typing settings with defaults', () => {
-      expect(component.typeSetting.disableVoice).toBe(false);
-      expect(component.typeSetting.hideExplain).toBe(false);
-      expect(component.typeSetting.countOfItems).toBe(20);
+  describe('spelling mode', () => {
+    it('should initialize spelling settings with defaults', () => {
+      expect(component.spellingSetting.disableVoice).toBe(false);
+      expect(component.spellingSetting.hideExplain).toBe(false);
+      expect(component.spellingSetting.countOfItems).toBe(20);
     });
 
-    it('should track typing state', () => {
-      expect(component.isTypingInProgress).toBe(false);
-      expect(component.isTypingCompleted).toBe(false);
+    it('should track spelling state', () => {
+      expect(component.mode()).toBe('list');
     });
   });
 
-  describe('onTypingWithOptions', () => {
-    it('should open dialog and start typing when confirmed', () => {
+  describe('onSpellingWithOptions', () => {
+    it('should open dialog and start spelling when confirmed', () => {
       const mockDialogRef = {
         afterClosed: () =>
           of({
@@ -1590,37 +1042,19 @@ describe('VocabularyExercisesComponent', () => {
           }),
       };
       mockDialog.open.mockReturnValue(mockDialogRef as any);
-      vi.spyOn(component, 'onTypingStart');
+      vi.spyOn(component, 'onSpellingStart');
       component.dataSource.data = mockWordContent.slice();
 
-      component.onTypingWithOptions();
+      component.onSpellingWithOptions();
 
-      expect(component.typeSetting.disableVoice).toBe(true);
-      expect(component.onTypingStart).toHaveBeenCalled();
+      expect(component.spellingSetting.disableVoice).toBe(true);
+      expect(component.onSpellingStart).toHaveBeenCalled();
     });
 
-    it('should handle undefined excludePart from dialog', () => {
-      const mockDialogRef = {
-        afterClosed: () =>
-          of({
-            disableVoice: false,
-            hideExplain: false,
-            countOfItems: 10,
-          }),
-      };
-      mockDialog.open.mockReturnValue(mockDialogRef as any);
-      vi.spyOn(component, 'onTypingStart');
-      component.typeSetting.excludePart = VocabularyExcludedPartEnum.word;
-
-      component.onTypingWithOptions();
-
-      expect(component.typeSetting.excludePart).toBeUndefined();
-    });
-
-    it('should mark the OnPush view for check when the typing dialog confirms (no click needed)', () => {
-      // Regression: the typing view switch (isTypingInProgress) happens in the
-      // async afterClosed callback. With ChangeDetectionStrategy.OnPush the
-      // view would not switch to the typing screen without markForCheck.
+    it('should switch to the spelling screen via the mode signal when the spelling dialog confirms', () => {
+      // Regression guard: the typing view switch happens in the async
+      // afterClosed callback. Because mode is a signal read by the template's
+      // @switch, the OnPush view switches without manual markForCheck.
       const mockDialogRef = {
         afterClosed: () =>
           of({
@@ -1630,17 +1064,15 @@ describe('VocabularyExercisesComponent', () => {
           }),
       };
       mockDialog.open.mockReturnValue(mockDialogRef as any);
-      vi.spyOn(component, 'onTypingStart');
-      const markForCheckSpy = vi.spyOn(component['cdr'], 'markForCheck');
-      markForCheckSpy.mockClear();
+      vi.spyOn(component, 'onSpellingStart');
 
-      component.onTypingWithOptions();
+      component.onSpellingWithOptions();
 
-      expect(markForCheckSpy).toHaveBeenCalled();
+      expect(component.onSpellingStart).toHaveBeenCalled();
     });
   });
 
-  describe('onTypingStart', () => {
+  describe('onSpellingStart', () => {
     beforeEach(() => {
       component.dataSource.data = mockWordContent.slice();
     });
@@ -1648,620 +1080,230 @@ describe('VocabularyExercisesComponent', () => {
     it('should use selected items when selection exists', () => {
       component.selection.select(mockWordContent[0], mockWordContent[1]);
 
-      component.onTypingStart();
+      component.onSpellingStart();
 
-      expect(component['wordqueues'].length).toBe(2);
-      expect(component.isTypingInProgress).toBe(true);
+      expect(component.spellingStore.queue().length).toBe(2);
+      expect(component.mode()).toBe('spelling');
     });
 
-    it('should filter by excludePart in typing mode', () => {
-      component.typeSetting.excludePart = VocabularyExcludedPartEnum.word;
-      component.typeSetting.countOfItems = 10;
+    it('should limit and randomize spelling queues', () => {
+      component.spellingSetting.countOfItems = 3;
 
-      component.onTypingStart();
+      component.onSpellingStart();
 
-      expect(component['wordqueues'].every(q => q.enword.indexOf(' ') !== -1)).toBe(true);
+      expect(component.spellingStore.queue().length).toBe(3);
+      expect(component.spellingStore.results().length).toBe(3);
     });
 
-    it('should filter by wordLeadingCharacter in typing mode', () => {
-      component.typeSetting.wordLeadingCharacter = ['t', 'h'];
-      component.typeSetting.countOfItems = 10;
-
-      component.onTypingStart();
-
-      expect(
-        component['wordqueues'].every(q => q.enword.startsWith('t') || q.enword.startsWith('h'))
-      ).toBe(true);
-    });
-
-    it('should limit and randomize typing queues', () => {
-      component.typeSetting.countOfItems = 3;
-
-      component.onTypingStart();
-
-      expect(component['wordqueues'].length).toBe(3);
-      expect(component.dataSourceResult.length).toBe(3);
-    });
-  });
-
-  describe('handleKeyboardEvent', () => {
-    beforeEach(() => {
-      component['_arwords'] = [
-        { idx: 0, letter: 't', visible: false },
-        { idx: 1, letter: 'e', visible: false },
-        { idx: 2, letter: 's', visible: false },
-        { idx: 3, letter: 't', visible: false },
-      ];
-      component['_wordidx'] = 0;
-      component.dataSourceResult = [{ enword: 'test', correct: true }];
-      component['_queueidx'] = 0;
-      component['wordqueues'] = [{ enword: 'test', cnword: '测试', completed: false }];
-    });
-
-    it('should handle correct key press', () => {
-      const event = new KeyboardEvent('keyup', { key: 't' });
-
-      component.handleKeyboardEvent(event);
-
-      expect(component['_arwords'][0].visible).toBe(true);
-      expect(component['_wordidx']).toBe(1);
-      expect(mockAudioService.playSound).toHaveBeenCalledWith('Default.wav');
-    });
-
-    it('should handle incorrect key press', () => {
-      const event = new KeyboardEvent('keyup', { key: 'x' });
-
-      component.handleKeyboardEvent(event);
-
-      expect(component.dataSourceResult[0].correct).toBe(false);
-      expect(mockAudioService.playSound).toHaveBeenCalledWith('beep.wav');
-    });
-
-    it('should handle backspace key', () => {
-      component['_wordidx'] = 2;
-      component['_arwords'][0].visible = true;
-      component['_arwords'][1].visible = true;
-      const event = new KeyboardEvent('keyup', { key: 'Backspace' });
-
-      component.handleKeyboardEvent(event);
-
-      expect(component['_wordidx']).toBe(1);
-      expect(component['_arwords'][1].visible).toBe(false);
-    });
-
-    it('should not go below index 0 on backspace', () => {
-      component['_wordidx'] = 0;
-      const event = new KeyboardEvent('keyup', { key: 'Backspace' });
-
-      component.handleKeyboardEvent(event);
-
-      expect(component['_wordidx']).toBe(0);
-    });
-
-    it('should complete word when last letter is typed', () => {
-      component['_wordidx'] = 3;
-      component['_arwords'][0].visible = true;
-      component['_arwords'][1].visible = true;
-      component['_arwords'][2].visible = true;
-      vi.spyOn(component, 'setWordQueueIndex');
-      const event = new KeyboardEvent('keyup', { key: 't' });
-
-      component.handleKeyboardEvent(event);
-
-      expect(component.setWordQueueIndex).toHaveBeenCalledWith(1);
-    });
-  });
-
-  describe('onNeedHint', () => {
-    beforeEach(() => {
-      component['_arwords'] = [
-        { idx: 0, letter: 't', visible: false },
-        { idx: 1, letter: 'e', visible: false },
-      ];
-      component['_wordidx'] = 0;
-      component['_queueidx'] = 0;
-      component.dataSourceResult = [{ enword: 'test', correct: true }];
-      component['wordqueues'] = [
-        { enword: 'test', cnword: '测试', completed: false },
-        { enword: 'hello', cnword: '你好', completed: false },
-      ];
-    });
-
-    it('should reveal current letter and mark as incorrect', () => {
-      component.onNeedHint();
-
-      expect(component.dataSourceResult[0].correct).toBe(false);
-      expect(component['_arwords'][0].visible).toBe(true);
-      expect(component['_wordidx']).toBe(1);
-    });
-
-    it('should move to next word when last letter is revealed', () => {
-      component['_wordidx'] = 1;
-      vi.spyOn(component, 'setWordQueueIndex');
-
-      component.onNeedHint();
-
-      expect(component.setWordQueueIndex).toHaveBeenCalledWith(1);
-    });
-  });
-
-  describe('onNextWord', () => {
-    beforeEach(() => {
-      component['_queueidx'] = 0;
-      component.dataSourceResult = [{ enword: 'test', correct: true }];
-    });
-
-    it('should mark current word as incorrect and move to next', () => {
-      vi.spyOn(component, 'setWordQueueIndex');
-
-      component.onNextWord();
-
-      expect(component.dataSourceResult[0].correct).toBe(false);
-      expect(component.setWordQueueIndex).toHaveBeenCalledWith(1);
-    });
-  });
-
-  describe('setWordQueueIndex', () => {
-    beforeEach(() => {
-      component['wordqueues'] = [
-        { enword: 'test', cnword: '测试', completed: false },
-        { enword: 'hello', cnword: '你好', completed: false },
-      ];
-      component['_queueidx'] = -1;
-      component.dataSourceResult = [
-        { enword: 'test', correct: true },
-        { enword: 'hello', correct: true },
-      ];
-    });
-
-    it('should initialize word letters and set queue index', () => {
-      component.setWordQueueIndex(0);
-
-      expect(component['_queueidx']).toBe(0);
-      expect(component['_arwords'].length).toBe(4);
-      expect(component['_wordidx']).toBe(0);
-    });
-
-    it('should speak word when voice is not disabled', () => {
-      component.typeSetting.disableVoice = false;
-      const speakSpy = vi.spyOn(component as any, 'speakWord');
-
-      component.setWordQueueIndex(0);
-
-      expect(speakSpy).toHaveBeenCalledWith('test');
-    });
-
-    it('should not speak word when voice is disabled', () => {
-      component.typeSetting.disableVoice = true;
-      const speakSpy = vi.spyOn(component as any, 'speakWord');
-
-      component.setWordQueueIndex(0);
-
-      expect(speakSpy).not.toHaveBeenCalled();
-    });
-
-    it('should mark previous word as completed', () => {
-      component['_queueidx'] = 0;
-
-      component.setWordQueueIndex(1);
-
-      expect(component['wordqueues'][0].completed).toBe(true);
-    });
-
-    it('should complete typing when all words are done', () => {
-      component['_queueidx'] = 1;
-      component['wordqueues'][0].completed = true;
-
-      component.setWordQueueIndex(2);
-
-      expect(component.isTypingInProgress).toBe(false);
-      expect(component.isTypingCompleted).toBe(true);
-      expect(mockAudioService.playSound).toHaveBeenCalledWith('correct.wav');
-    });
-
-    it('should calculate correct and incorrect counts on completion', () => {
-      component['_queueidx'] = 1;
-      component['wordqueues'][0].completed = true;
-      component.dataSourceResult = [
-        { enword: 'test', correct: true },
-        { enword: 'hello', correct: false },
-      ];
-
-      component.setWordQueueIndex(2);
-
-      expect(component.typingCorrectWordCount).toBe(1);
-      expect(component.typingIncorrectWordCount).toBe(1);
-    });
-  });
-
-  describe('dictation mode', () => {
-    afterEach(() => {
-      // Ensure no interval subscription leaks into the next test, then restore
-      // real timers regardless of whether the test used fake timers.
-      component['stopDictationTimer']?.();
-      vi.useRealTimers();
-    });
-
-    it('should initialize dictation settings with defaults', () => {
-      expect(component.dictationSetting.countOfItems).toBe(20);
-      expect(component.isDictating).toBe(false);
-    });
-
-    it('should build the queue from selection when selection exists', () => {
-      component.dataSource.data = mockWordContent.slice();
-      component.selection.select(mockWordContent[0], mockWordContent[1]);
-
-      component.onDictationStart();
-
-      expect(component.dictationQueues.length).toBe(2);
-      expect(component.isDictating).toBe(true);
-      expect(component.currentDictationCursor).toBe(0);
-    });
-
-    it('should set initial progress based on the first word position', () => {
-      component.dataSource.data = mockWordContent.slice();
-      component.selection.select(mockWordContent[0], mockWordContent[1]);
-
-      component.onDictationStart();
-
-      // With 2 items, initial progress should be 50% (1/2 * 100).
-      expect(component.currentDictationProgress).toBe(50);
-    });
-
-    it('should filter by excludePart=word (only phrases)', () => {
-      component.dataSource.data = mockWordContent.slice();
-      component.dictationSetting.excludePart = VocabularyExcludedPartEnum.word;
-      component.dictationSetting.countOfItems = 10;
-
-      component.onDictationStart();
-
-      expect(component.dictationQueues.length).toBe(1);
-      expect(component.dictationQueues[0].enword).toBe('apple pie');
-    });
-
-    it('should filter by wordLeadingCharacter', () => {
-      component.dataSource.data = mockWordContent.slice();
-      component.dictationSetting.wordLeadingCharacter = ['h', 'w'];
-      component.dictationSetting.countOfItems = 10;
-
-      component.onDictationStart();
-
-      expect(
-        component.dictationQueues.every(
-          q => q.enword.startsWith('h') || q.enword.startsWith('w') || q.enword.startsWith('H')
-        )
-      ).toBe(true);
-    });
-
-    it('should limit to countOfItems and randomize', () => {
-      component.dataSource.data = mockWordContent.slice();
-      component.dictationSetting.countOfItems = 3;
-
-      component.onDictationStart();
-
-      expect(component.dictationQueues.length).toBe(3);
-    });
-
-    it('should bail out safely when the queue is empty (no data)', () => {
+    it('should stay on the list when the queue is empty', () => {
       component.dataSource.data = [];
-      component.selection.clear();
 
-      expect(() => component.onDictationStart()).not.toThrow();
+      component.onSpellingStart();
 
-      expect(component.dictationQueues.length).toBe(0);
-      expect(component.isDictating).toBe(false);
-      expect(component.currentDictationProgress).toBe(0);
-    });
-
-    it('should bail out safely when a filter removes every word', () => {
-      // mockWordContent has no word starting with 'z', so the leading-char
-      // filter eliminates everything.
-      component.dataSource.data = mockWordContent.slice();
-      component.dictationSetting.wordLeadingCharacter = ['z'];
-      component.dictationSetting.countOfItems = 10;
-
-      expect(() => component.onDictationStart()).not.toThrow();
-
-      expect(component.dictationQueues.length).toBe(0);
-      expect(component.isDictating).toBe(false);
-    });
-
-    it('should advance to the next word every 3 seconds', () => {
-      vi.useFakeTimers();
-      component.dataSource.data = mockWordContent.slice();
-      component.selection.select(mockWordContent[0], mockWordContent[1], mockWordContent[2]);
-
-      component.onDictationStart();
-
-      expect(component.isDictating).toBe(true);
-      expect(component.currentDictationCursor).toBe(0);
-      expect(component.currentDictationProgress).toBe(33); // round(1/3 * 100)
-
-      vi.advanceTimersByTime(3000);
-      expect(component.currentDictationCursor).toBe(1);
-      expect(component.currentDictationProgress).toBe(67); // round(2/3 * 100)
-
-      vi.advanceTimersByTime(3000);
-      expect(component.currentDictationCursor).toBe(2);
-      expect(component.currentDictationProgress).toBe(100);
-    });
-
-    it('should reveal all words for checking after the last word', () => {
-      vi.useFakeTimers();
-      component.dataSource.data = mockWordContent.slice();
-      component.selection.select(mockWordContent[0], mockWordContent[1]);
-
-      component.onDictationStart();
-
-      // Advance to the last word (cursor 1 of 2).
-      vi.advanceTimersByTime(3000);
-      expect(component.currentDictationCursor).toBe(1);
-      expect(component.currentDictationProgress).toBe(100);
-      expect(component.isDictating).toBe(true);
-
-      // Next tick finishes dictation -> stop the timer and reveal the words.
-      vi.advanceTimersByTime(3000);
-      expect(component.isDictating).toBe(false);
-      expect(component.isDictationCompleted).toBe(true);
-      // The queue is preserved so the completed view can render it.
-      expect(component.dictationQueues.length).toBe(2);
-      expect(component.currentDictationProgress).toBe(100);
-
-      // No further advances / the timer cannot fire after completion.
-      vi.advanceTimersByTime(3000);
-      expect(component.currentDictationCursor).toBe(1);
-      expect(component.isDictationCompleted).toBe(true);
-    });
-
-    it('should reset the completed flag when restarting dictation', () => {
-      component.dataSource.data = mockWordContent.slice();
-      component.selection.select(mockWordContent[0], mockWordContent[1]);
-      component.isDictationCompleted = true;
-
-      component.onDictationStart();
-
-      expect(component.isDictationCompleted).toBe(false);
-      expect(component.isDictating).toBe(true);
-    });
-
-    it('should reset state and stop the timer on quit', () => {
-      vi.useFakeTimers();
-      component.dataSource.data = mockWordContent.slice();
-      component.selection.select(mockWordContent[0], mockWordContent[1]);
-      component.onDictationStart();
-      expect(component.isDictating).toBe(true);
-
-      component.onQuitDictation();
-
-      expect(component.isDictating).toBe(false);
-      expect(component.isDictationCompleted).toBe(false);
-      expect(component.dictationQueues).toEqual([]);
-      expect(component.currentDictationCursor).toBe(0);
-      expect(component.currentDictationProgress).toBe(0);
-      // Timer cleared: advancing time must not throw or change state.
-      vi.advanceTimersByTime(10000);
-      expect(component.isDictating).toBe(false);
-    });
-
-    it('should return to the list from the completed view on quit', () => {
-      vi.useFakeTimers();
-      component.dataSource.data = mockWordContent.slice();
-      component.selection.select(mockWordContent[0], mockWordContent[1]);
-      component.onDictationStart();
-      // Run to completion (2 words -> 2 ticks).
-      vi.advanceTimersByTime(6000);
-      expect(component.isDictationCompleted).toBe(true);
-
-      component.onQuitDictation();
-
-      expect(component.isDictationCompleted).toBe(false);
-      expect(component.isDictating).toBe(false);
-      expect(component.dictationQueues).toEqual([]);
-    });
-
-    it('should cancel in-flight speech on quit', () => {
-      const original = (window as unknown as { speechSynthesis?: unknown }).speechSynthesis;
-      const cancelMock = vi.fn();
-      Object.defineProperty(window, 'speechSynthesis', {
-        configurable: true,
-        value: { cancel: cancelMock },
-      });
-
-      try {
-        component.isDictating = true;
-
-        component.onQuitDictation();
-
-        expect(cancelMock).toHaveBeenCalled();
-      } finally {
-        Object.defineProperty(window, 'speechSynthesis', {
-          configurable: true,
-          value: original,
-        });
-      }
+      expect(component.mode()).toBe('list');
+      expect(component.spellingStore.queue().length).toBe(0);
     });
   });
 
-  describe('onDictationWithOptions', () => {
-    afterEach(() => {
-      component['stopDictationTimer']?.();
-      vi.useRealTimers();
-    });
-
-    it('should open dialog with correct data when selection exists', () => {
-      component.dataSource.data = mockWordContent.slice();
-      component.selection.select(mockWordContent[0], mockWordContent[1]);
-      const mockDialogRef = { afterClosed: () => of(undefined) };
-      mockDialog.open.mockReturnValue(mockDialogRef as any);
-
-      component.onDictationWithOptions();
-
-      expect(mockDialog.open).toHaveBeenCalledWith(expect.any(Function), {
-        data: { wordQueueCount: 2, withSelection: true },
-        width: '500px',
-        height: '400px',
-        enterAnimationDuration: 800,
-        exitAnimationDuration: 500,
-      });
-    });
-
-    it('should open dialog with full dataset when no selection', () => {
-      component.dataSource.data = mockWordContent.slice();
-      const mockDialogRef = { afterClosed: () => of(undefined) };
-      mockDialog.open.mockReturnValue(mockDialogRef as any);
-
-      component.onDictationWithOptions();
-
-      expect(mockDialog.open).toHaveBeenCalledWith(expect.any(Function), {
-        data: { wordQueueCount: 8, withSelection: false },
-        width: '500px',
-        height: '400px',
-        enterAnimationDuration: 800,
-        exitAnimationDuration: 500,
-      });
-    });
-
-    it('should apply dictation settings and start when dialog returns data', () => {
-      const mockDialogRef = {
-        afterClosed: () =>
-          of({
-            excludePart: VocabularyExcludedPartEnum.word,
-            countOfItems: 10,
-            wordLeadingCharacter: ['a'],
-          }),
-      };
-      mockDialog.open.mockReturnValue(mockDialogRef as any);
-      vi.spyOn(component, 'onDictationStart');
-      component.dataSource.data = mockWordContent.slice();
-
-      component.onDictationWithOptions();
-
-      expect(component.dictationSetting.excludePart).toBe(VocabularyExcludedPartEnum.word);
-      expect(component.dictationSetting.countOfItems).toBe(10);
-      expect(component.dictationSetting.wordLeadingCharacter).toEqual(['a']);
-      expect(component.onDictationStart).toHaveBeenCalled();
-    });
-
-    it('should clear excludePart when dialog returns undefined excludePart', () => {
-      const mockDialogRef = {
-        afterClosed: () =>
-          of({
-            countOfItems: 15,
-            wordLeadingCharacter: [],
-          }),
-      };
-      mockDialog.open.mockReturnValue(mockDialogRef as any);
-      vi.spyOn(component, 'onDictationStart');
-      component.dictationSetting.excludePart = VocabularyExcludedPartEnum.word;
-      component.dataSource.data = mockWordContent.slice();
-
-      component.onDictationWithOptions();
-
-      expect(component.dictationSetting.excludePart).toBeUndefined();
-    });
-
-    it('should mark the OnPush view for check when the dictation dialog confirms (no click needed)', () => {
-      // Regression: the dictation view switch (isDictating) happens in the
-      // async afterClosed callback. With ChangeDetectionStrategy.OnPush the
-      // view would not switch to the dictation screen without markForCheck.
-      const mockDialogRef = {
-        afterClosed: () =>
-          of({
-            countOfItems: 5,
-            wordLeadingCharacter: [],
-          }),
-      };
-      mockDialog.open.mockReturnValue(mockDialogRef as any);
-      vi.spyOn(component, 'onDictationStart');
-      const markForCheckSpy = vi.spyOn(component['cdr'], 'markForCheck');
-      markForCheckSpy.mockClear();
-
-      component.onDictationWithOptions();
-
-      expect(markForCheckSpy).toHaveBeenCalled();
-    });
-  });
-
-  describe('handleKeyboardEvent - dictation', () => {
-    afterEach(() => {
-      component['stopDictationTimer']?.();
-      vi.useRealTimers();
-    });
-
-    it('should quit dictation on Escape', () => {
-      component.isDictating = true;
-      vi.spyOn(component, 'onQuitDictation');
-      const event = new KeyboardEvent('keyup', { key: 'Escape' });
-
-      component.handleKeyboardEvent(event);
-
-      expect(component.onQuitDictation).toHaveBeenCalled();
-    });
-
-    it('should return from the completed view on Escape', () => {
-      component.isDictating = false;
-      component.isDictationCompleted = true;
-      component.dictationQueues = [{ enword: 'hello', cnword: '你好', completed: false }];
-      vi.spyOn(component, 'onQuitDictation');
-
-      component.handleKeyboardEvent(new KeyboardEvent('keyup', { key: 'Escape' }));
-
-      expect(component.onQuitDictation).toHaveBeenCalled();
-    });
-
-    it('should swallow other keys while dictating (no typing-mode handling)', () => {
-      component.isDictating = true;
-      // Set up typing-mode state that a 't' keypress would normally mutate.
-      component['_arwords'] = [{ idx: 0, letter: 't', visible: false }];
-      component['_wordidx'] = 0;
-      component['_queueidx'] = 0;
-      component.dataSourceResult = [{ enword: 'test', correct: true }];
-
-      component.handleKeyboardEvent(new KeyboardEvent('keyup', { key: 't' }));
-
-      expect(component['_arwords'][0].visible).toBe(false);
-      expect(component['_wordidx']).toBe(0);
-    });
-  });
-
-  describe('print mode', () => {
-    it('should initialize print settings with defaults', () => {
-      expect(component.printSetting.countOfItems).toBe(20);
-      expect(component.printSetting.printEntryDate).toBe(true);
-    });
-  });
-
-  describe('onPrintWithOptions', () => {
+  describe('spelling session integration', () => {
     beforeEach(() => {
       component.dataSource.data = mockWordContent.slice();
     });
 
-    it('should open dialog and print when confirmed', () => {
+    it('switches to the result screen when the store completes the session', () => {
+      component.spellingSetting.countOfItems = 1;
+      component.onSpellingStart();
+      expect(component.mode()).toBe('spelling');
+
+      // Give up the single word: the store completes, the container effect
+      // reacts by switching the screen.
+      component.spellingStore.nextWord();
+      TestBed.tick();
+
+      expect(component.mode()).toBe('spellingresult');
+    });
+
+    it('onQuitSpelling resets the store and returns to the list', () => {
+      component.spellingSetting.countOfItems = 2;
+      component.onSpellingStart();
+      expect(component.spellingStore.queue().length).toBeGreaterThan(0);
+
+      component.onQuitSpelling();
+
+      expect(component.mode()).toBe('list');
+      expect(component.spellingStore.queue()).toEqual([]);
+    });
+  });
+
+  describe('quiz mode', () => {
+    it('should initialize quiz settings with defaults', () => {
+      expect(component.quizSetting.direction).toBe('en2cn');
+      expect(component.quizSetting.countOfItems).toBe(20);
+    });
+  });
+
+  describe('onQuizWithOptions', () => {
+    it('should apply quiz settings and start the quiz when dialog returns data', () => {
+      const mockDialogRef = {
+        afterClosed: () =>
+          of({
+            direction: 'cn2en',
+            countOfItems: 5,
+          }),
+      };
+      mockDialog.open.mockReturnValue(mockDialogRef as any);
+      vi.spyOn(component, 'onQuizStart');
+      component.dataSource.data = mockWordContent.slice();
+
+      component.onQuizWithOptions();
+
+      expect(component.quizSetting.direction).toBe('cn2en');
+      expect(component.quizSetting.countOfItems).toBe(5);
+      expect(component.onQuizStart).toHaveBeenCalled();
+    });
+
+    it('should leave settings untouched when the dialog is cancelled', () => {
+      const mockDialogRef = { afterClosed: () => of(undefined) };
+      mockDialog.open.mockReturnValue(mockDialogRef as any);
+      vi.spyOn(component, 'onQuizStart');
+      component.quizSetting.direction = 'cn2en';
+
+      component.onQuizWithOptions();
+
+      expect(component.quizSetting.direction).toBe('cn2en');
+      expect(component.onQuizStart).not.toHaveBeenCalled();
+    });
+  });
+
+  describe('onQuizStart', () => {
+    beforeEach(() => {
+      component.dataSource.data = mockWordContent.slice();
+    });
+
+    it('should build single-choice questions from the visible rows', () => {
+      component.quizSetting.countOfItems = 3;
+
+      component.onQuizStart();
+
+      expect(component.quizStore.questions().length).toBe(3);
+      expect(component.mode()).toBe('quiz');
+      const q = component.quizStore.questions()[0];
+      expect(q.options.length).toBe(4);
+      expect(q.options[q.answerIndex]).toBe(q.cnword);
+      expect(q.prompt).toBe(q.enword);
+    });
+
+    it('should use selected rows when a selection exists', () => {
+      component.selection.select(mockWordContent[0], mockWordContent[1]);
+
+      component.onQuizStart();
+
+      expect(component.quizStore.questions().length).toBe(2);
+      expect(component.mode()).toBe('quiz');
+    });
+
+    it('should build reversed questions in the cn2en direction', () => {
+      component.quizSetting.direction = 'cn2en';
+      component.quizSetting.countOfItems = 3;
+
+      component.onQuizStart();
+
+      const q = component.quizStore.questions()[0];
+      expect(q.prompt).toBe(q.cnword);
+      expect(q.options[q.answerIndex]).toBe(q.enword);
+    });
+
+    it('should stay on the list when there is nothing to quiz', () => {
+      component.dataSource.data = [];
+
+      component.onQuizStart();
+
+      expect(component.mode()).toBe('list');
+      expect(component.quizStore.questions().length).toBe(0);
+    });
+
+    it('should stay on the list when every row shares one explanation', () => {
+      component.dataSource.data = [
+        { enword: 'hello', cnword: '你好' },
+        { enword: 'hi', cnword: '你好' },
+      ];
+
+      component.onQuizStart();
+
+      expect(component.mode()).toBe('list');
+      expect(component.quizStore.questions().length).toBe(0);
+    });
+  });
+
+  describe('quiz session integration', () => {
+    beforeEach(() => {
+      component.dataSource.data = mockWordContent.slice();
+    });
+
+    it('switches to the quiz result screen when the store completes the session', () => {
+      component.quizSetting.countOfItems = 1;
+      component.onQuizStart();
+      expect(component.mode()).toBe('quiz');
+
+      // Answer the single question: the store completes, the container effect
+      // reacts by switching the screen.
+      const answerIndex = component.quizStore.currentQuestion()!.answerIndex;
+      component.quizStore.answer(answerIndex);
+      component.quizStore.next();
+      TestBed.tick();
+
+      expect(component.mode()).toBe('quizresult');
+    });
+
+    it('onQuitQuiz resets the store and returns to the list', () => {
+      component.quizSetting.countOfItems = 2;
+      component.onQuizStart();
+      expect(component.quizStore.questions().length).toBeGreaterThan(0);
+
+      component.onQuitQuiz();
+
+      expect(component.mode()).toBe('list');
+      expect(component.quizStore.questions()).toEqual([]);
+    });
+  });
+
+  describe('worksheet mode', () => {
+    it('should initialize worksheet settings with defaults', () => {
+      expect(component.worksheetSetting.countOfItems).toBe(20);
+      expect(component.worksheetSetting.printEntryDate).toBe(true);
+    });
+  });
+
+  describe('onWorksheetWithOptions', () => {
+    beforeEach(() => {
+      component.dataSource.data = mockWordContent.slice();
+    });
+
+    it('should open dialog and generate the worksheet when confirmed', () => {
       const mockDialogRef = {
         afterClosed: () =>
           of({
             countOfItems: 10,
             printEntryDate: true,
             subTitle: 'Test Title',
-            wordLeadingCharacter: ['a'],
             printFirstLetter: true,
             uniformBlankLength: false,
             uniformBlankLengthSize: 30,
           }),
       };
       mockDialog.open.mockReturnValue(mockDialogRef as any);
-      vi.spyOn(component as any, 'onNewPrintCore');
+      vi.spyOn(component as any, 'onNewWorksheetCore');
 
-      component.onPrintWithOptions();
+      component.onWorksheetWithOptions();
 
-      expect(component.printSetting.countOfItems).toBe(10);
-      expect(component.printSetting.subTitle).toBe('Test Title');
-      expect(component.printSetting.uniformBlankLength).toBe(false);
-      expect(component.printSetting.uniformBlankLengthSize).toBe(30);
-      expect(component['onNewPrintCore']).toHaveBeenCalled();
+      expect(component.worksheetSetting.countOfItems).toBe(10);
+      expect(component.worksheetSetting.subTitle).toBe('Test Title');
+      expect(component.worksheetSetting.uniformBlankLength).toBe(false);
+      expect(component.worksheetSetting.uniformBlankLengthSize).toBe(30);
+      expect(component['onNewWorksheetCore']).toHaveBeenCalled();
     });
 
-    it('should clear optional print settings when undefined', () => {
+    it('should clear the subtitle when the dialog returns none', () => {
       const mockDialogRef = {
         afterClosed: () =>
           of({
@@ -2271,67 +1313,37 @@ describe('VocabularyExercisesComponent', () => {
           }),
       };
       mockDialog.open.mockReturnValue(mockDialogRef as any);
-      vi.spyOn(component as any, 'onNewPrintCore');
-      component.printSetting.excludePart = VocabularyExcludedPartEnum.word;
-      component.printSetting.subTitle = 'Old Title';
+      vi.spyOn(component as any, 'onNewWorksheetCore');
+      component.worksheetSetting.subTitle = 'Old Title';
 
-      component.onPrintWithOptions();
+      component.onWorksheetWithOptions();
 
-      expect(component.printSetting.excludePart).toBeUndefined();
-      expect(component.printSetting.subTitle).toBeUndefined();
-      expect(component.printSetting.wordLeadingCharacter).toBeUndefined();
+      expect(component.worksheetSetting.subTitle).toBeUndefined();
     });
   });
 
-  describe('onNewPrintCore', () => {
+  describe('onNewWorksheetCore', () => {
     beforeEach(() => {
       component.dataSource.data = mockWordContent.slice();
       mockRouter.navigate.mockReturnValue(Promise.resolve(true));
     });
 
-    it('should print selected items with randomization', () => {
+    it('should build worksheet items with randomization', () => {
       component.selection.select(mockWordContent[0], mockWordContent[1]);
-      component.printSetting.subTitle = 'Test';
+      component.worksheetSetting.subTitle = 'Test';
 
-      component['onNewPrintCore']();
+      component['onNewWorksheetCore']();
 
       expect(mockUIService.setSelectedExerciseItem).toHaveBeenCalled();
       expect(mockRouter.navigate).toHaveBeenCalledWith(['/knowledge/displayv2']);
     });
 
-    it('should filter by excludePart in print mode', () => {
-      component.printSetting.excludePart = VocabularyExcludedPartEnum.word;
-      component.printSetting.countOfItems = 10;
-      component.printSetting.subTitle = 'Test';
-
-      component['onNewPrintCore']();
-
-      const args = mockUIService.setSelectedExerciseItem.mock.lastCall;
-      expect(args?.[0].length).toBe(1);
-      expect(args?.[0][0].question).toContain('apple pie');
-    });
-
-    it('should filter by wordLeadingCharacter in print mode', () => {
-      component.printSetting.wordLeadingCharacter = ['h', 'w'];
-      component.printSetting.countOfItems = 10;
-      component.printSetting.subTitle = 'Test';
-
-      component['onNewPrintCore']();
-
-      const args = mockUIService.setSelectedExerciseItem.mock.lastCall;
-      expect(
-        args?.[0].every(
-          (item: any) => item.question.includes('hello') || item.question.includes('world')
-        )
-      ).toBe(true);
-    });
-
     it('should include first letter when printFirstLetter is true', () => {
       component.selection.select(mockWordContent[0]);
-      component.printSetting.printFirstLetter = true;
-      component.printSetting.subTitle = 'Test';
+      component.worksheetSetting.printFirstLetter = true;
+      component.worksheetSetting.subTitle = 'Test';
 
-      component['onNewPrintCore']();
+      component['onNewWorksheetCore']();
 
       const args = mockUIService.setSelectedExerciseItem.mock.lastCall;
       expect(args?.[0][0].question).toContain('h ');
@@ -2339,31 +1351,31 @@ describe('VocabularyExercisesComponent', () => {
 
     it('should not include first letter when printFirstLetter is false', () => {
       component.selection.select(mockWordContent[0]);
-      component.printSetting.printFirstLetter = false;
-      component.printSetting.subTitle = 'Test';
+      component.worksheetSetting.printFirstLetter = false;
+      component.worksheetSetting.subTitle = 'Test';
 
-      component['onNewPrintCore']();
+      component['onNewWorksheetCore']();
 
       const args = mockUIService.setSelectedExerciseItem.mock.lastCall;
       expect(args?.[0][0].question).not.toContain('h @');
     });
 
     it('should thread uniformBlankLength off into the exec print setting', () => {
-      component.printSetting.subTitle = 'Test';
-      component.printSetting.uniformBlankLength = false;
+      component.worksheetSetting.subTitle = 'Test';
+      component.worksheetSetting.uniformBlankLength = false;
 
-      component['onNewPrintCore']();
+      component['onNewWorksheetCore']();
 
       const execPrintSetting = mockUIService.setSelectedExerciseItem.mock.lastCall?.[1];
       expect(execPrintSetting.uniformBlankLength).toBe(false);
     });
 
     it('should thread a custom uniformBlankLengthSize into the exec print setting', () => {
-      component.printSetting.subTitle = 'Test';
-      component.printSetting.uniformBlankLength = true;
-      component.printSetting.uniformBlankLengthSize = 25;
+      component.worksheetSetting.subTitle = 'Test';
+      component.worksheetSetting.uniformBlankLength = true;
+      component.worksheetSetting.uniformBlankLengthSize = 25;
 
-      component['onNewPrintCore']();
+      component['onNewWorksheetCore']();
 
       const execPrintSetting = mockUIService.setSelectedExerciseItem.mock.lastCall?.[1];
       expect(execPrintSetting.uniformBlankLength).toBe(true);
@@ -2371,10 +1383,10 @@ describe('VocabularyExercisesComponent', () => {
     });
 
     it('should default uniformBlankLength to true (legacy behavior) from the initializer', () => {
-      component.printSetting.subTitle = 'Test';
+      component.worksheetSetting.subTitle = 'Test';
       // uniformBlankLength left at its initializer default (true).
 
-      component['onNewPrintCore']();
+      component['onNewWorksheetCore']();
 
       const execPrintSetting = mockUIService.setSelectedExerciseItem.mock.lastCall?.[1];
       expect(execPrintSetting.uniformBlankLength).toBe(true);
@@ -2389,8 +1401,7 @@ describe('VocabularyExercisesComponent', () => {
     it('should select items whose enword matches the supplied words', () => {
       // 'hello', 'world', 'test' all exist in mockWordContent
       const mockDialogRef = {
-        afterClosed: () =>
-          of({ selectedSelectMode: SelectionModeEnum.ByID, importIDs: 'hello, world, test' }),
+        afterClosed: () => of({ selectedSelectMode: SelectionModeEnum.ByID, importIDs: 'hello, world, test' }),
       };
       mockDialog.open.mockReturnValue(mockDialogRef as any);
 
@@ -2404,8 +1415,7 @@ describe('VocabularyExercisesComponent', () => {
 
     it('should trim whitespace around each word when matching', () => {
       const mockDialogRef = {
-        afterClosed: () =>
-          of({ selectedSelectMode: SelectionModeEnum.ByID, importIDs: '  hello ,  world  ' }),
+        afterClosed: () => of({ selectedSelectMode: SelectionModeEnum.ByID, importIDs: '  hello ,  world  ' }),
       };
       mockDialog.open.mockReturnValue(mockDialogRef as any);
 
@@ -2416,14 +1426,42 @@ describe('VocabularyExercisesComponent', () => {
 
     it('should select nothing when none of the words match', () => {
       const mockDialogRef = {
-        afterClosed: () =>
-          of({ selectedSelectMode: SelectionModeEnum.ByID, importIDs: 'nonexistent, alsoabsent' }),
+        afterClosed: () => of({ selectedSelectMode: SelectionModeEnum.ByID, importIDs: 'nonexistent, alsoabsent' }),
       };
       mockDialog.open.mockReturnValue(mockDialogRef as any);
 
       component.onSelect(SelectionModeEnum.ByID);
 
       expect(component.selection.selected.length).toBe(0);
+    });
+
+    it('normalizes newline separators so a pasted list matches (M14)', () => {
+      const mockDialogRef = {
+        afterClosed: () => of({ selectedSelectMode: SelectionModeEnum.ByID, importIDs: 'hello\nworld\ntest' }),
+      };
+      mockDialog.open.mockReturnValue(mockDialogRef as any);
+
+      component.onSelect(SelectionModeEnum.ByID);
+
+      expect(component.selection.selected.length).toBe(3);
+      expect(component.selection.selected.some(i => i.enword === 'hello')).toBe(true);
+      expect(component.selection.selected.some(i => i.enword === 'world')).toBe(true);
+      expect(component.selection.selected.some(i => i.enword === 'test')).toBe(true);
+    });
+
+    it('does not clear the existing selection when no token matches (M14)', () => {
+      // Pre-existing selection that a no-match paste must not wipe.
+      component.selection.select(mockWordContent[0], mockWordContent[1]);
+      const mockDialogRef = {
+        afterClosed: () => of({ selectedSelectMode: SelectionModeEnum.ByID, importIDs: 'nonexistent' }),
+      };
+      mockDialog.open.mockReturnValue(mockDialogRef as any);
+
+      component.onSelect(SelectionModeEnum.ByID);
+
+      expect(component.selection.selected.length).toBe(2);
+      expect(component.selection.selected.some(i => i.enword === 'hello')).toBe(true);
+      expect(component.selection.selected.some(i => i.enword === 'world')).toBe(true);
     });
 
     it('should not match numeric strings against the id field', () => {
@@ -2457,8 +1495,7 @@ describe('VocabularyExercisesComponent', () => {
 
     it('should randomly select items', () => {
       const mockDialogRef = {
-        afterClosed: () =>
-          of({ selectedSelectMode: SelectionModeEnum.FreeSelection, countOfItems: 3 }),
+        afterClosed: () => of({ selectedSelectMode: SelectionModeEnum.FreeSelection, countOfItems: 3 }),
       };
       mockDialog.open.mockReturnValue(mockDialogRef as any);
 
@@ -2484,8 +1521,7 @@ describe('VocabularyExercisesComponent', () => {
 
     it('should select items by count', () => {
       const mockDialogRef = {
-        afterClosed: () =>
-          of({ selectedSelectMode: SelectionModeEnum.ByCount, countOfItems: 3, countOfOffset: 0 }),
+        afterClosed: () => of({ selectedSelectMode: SelectionModeEnum.ByCount, countOfItems: 3, countOfOffset: 0 }),
       };
       mockDialog.open.mockReturnValue(mockDialogRef as any);
 
@@ -2495,202 +1531,54 @@ describe('VocabularyExercisesComponent', () => {
     });
   });
 
-  describe('onSelect (By Rating)', () => {
-    beforeEach(() => {
-      component.dataSource.data = [
-        { id: 1, enword: 'hello', cnword: '你好' },
-        { id: 2, enword: 'world', cnword: '世界' },
-        { id: 3, enword: 'test', cnword: '测试' },
-      ] as LearnEnglishWordFileItem[];
-      // Set up ratings
-      component['contentRatingMap'].set(1, 5);
-      component['contentRatingMap'].set(2, 3);
-      component['contentRatingMap'].set(3, 0);
-    });
-
-    it('should select items with rating equals 5', () => {
-      const mockDialogRef = {
-        afterClosed: () =>
-          of({
-            selectedSelectMode: SelectionModeEnum.ByRating,
-            ratingOperator: RatingOperatorEnum.Equals,
-            ratingValue: 5,
-          }),
-      };
-      mockDialog.open.mockReturnValue(mockDialogRef as any);
-
-      component.onSelect(SelectionModeEnum.ByRating);
-
-      expect(component.selection.selected.length).toBe(1);
-      expect(component.selection.selected[0].id).toBe(1);
-    });
-
-    it('should select items with rating greater than 3', () => {
-      const mockDialogRef = {
-        afterClosed: () =>
-          of({
-            selectedSelectMode: SelectionModeEnum.ByRating,
-            ratingOperator: RatingOperatorEnum.GreaterThan,
-            ratingValue: 3,
-          }),
-      };
-      mockDialog.open.mockReturnValue(mockDialogRef as any);
-
-      component.onSelect(SelectionModeEnum.ByRating);
-
-      expect(component.selection.selected.length).toBe(1);
-      expect(component.selection.selected[0].id).toBe(1);
-    });
-
-    it('should select items with any rating', () => {
-      const mockDialogRef = {
-        afterClosed: () =>
-          of({
-            selectedSelectMode: SelectionModeEnum.ByRating,
-            ratingOperator: RatingOperatorEnum.HasAny,
-          }),
-      };
-      mockDialog.open.mockReturnValue(mockDialogRef as any);
-
-      component.onSelect(SelectionModeEnum.ByRating);
-
-      expect(component.selection.selected.length).toBe(2);
-    });
-
-    it('should select items with no rating', () => {
-      const mockDialogRef = {
-        afterClosed: () =>
-          of({
-            selectedSelectMode: SelectionModeEnum.ByRating,
-            ratingOperator: RatingOperatorEnum.HasNone,
-          }),
-      };
-      mockDialog.open.mockReturnValue(mockDialogRef as any);
-
-      component.onSelect(SelectionModeEnum.ByRating);
-
-      expect(component.selection.selected.length).toBe(1);
-      expect(component.selection.selected[0].id).toBe(3);
-    });
-
-    it('should select rated items below the value, excluding unrated (0)', () => {
-      // ratings: id1=5, id2=3, id3=0. LessThan 4 → only id2 (rating 3);
-      // id3 (unrated, 0) is deliberately excluded (covered by HasNone).
-      const mockDialogRef = {
-        afterClosed: () =>
-          of({
-            selectedSelectMode: SelectionModeEnum.ByRating,
-            ratingOperator: RatingOperatorEnum.LessThan,
-            ratingValue: 4,
-          }),
-      };
-      mockDialog.open.mockReturnValue(mockDialogRef as any);
-
-      component.onSelect(SelectionModeEnum.ByRating);
-
-      expect(component.selection.selected.length).toBe(1);
-      expect(component.selection.selected[0].id).toBe(2);
-    });
-
-    it('should select nothing when no rated item is below the value', () => {
-      // ratings: id1=5, id2=3, id3=0. LessThan 2 → no rated item qualifies.
-      const mockDialogRef = {
-        afterClosed: () =>
-          of({
-            selectedSelectMode: SelectionModeEnum.ByRating,
-            ratingOperator: RatingOperatorEnum.LessThan,
-            ratingValue: 2,
-          }),
-      };
-      mockDialog.open.mockReturnValue(mockDialogRef as any);
-
-      component.onSelect(SelectionModeEnum.ByRating);
-
-      expect(component.selection.selected.length).toBe(0);
-    });
-
-    it('should select items with rating larger or equals 3', () => {
-      // ratings: id1=5, id2=3, id3=0. LargerOrEquals 3 → id1, id2.
-      const mockDialogRef = {
-        afterClosed: () =>
-          of({
-            selectedSelectMode: SelectionModeEnum.ByRating,
-            ratingOperator: RatingOperatorEnum.LargerOrEquals,
-            ratingValue: 3,
-          }),
-      };
-      mockDialog.open.mockReturnValue(mockDialogRef as any);
-
-      component.onSelect(SelectionModeEnum.ByRating);
-
-      expect(component.selection.selected.length).toBe(2);
-      expect(component.selection.selected.some(i => i.id === 1)).toBe(true);
-      expect(component.selection.selected.some(i => i.id === 2)).toBe(true);
-    });
-
-    it('should select items with rating less or equals 3, excluding unrated', () => {
-      // ratings: id1=5, id2=3, id3=0. LessOrEquals 3 → only id2 (rating 3);
-      // id3 (unrated, 0) is deliberately excluded (covered by HasNone).
-      const mockDialogRef = {
-        afterClosed: () =>
-          of({
-            selectedSelectMode: SelectionModeEnum.ByRating,
-            ratingOperator: RatingOperatorEnum.LessOrEquals,
-            ratingValue: 3,
-          }),
-      };
-      mockDialog.open.mockReturnValue(mockDialogRef as any);
-
-      component.onSelect(SelectionModeEnum.ByRating);
-
-      expect(component.selection.selected.length).toBe(1);
-      expect(component.selection.selected[0].id).toBe(2);
-    });
-
-    it('should select nothing for less or equals when no rated item is at or below the value', () => {
-      // ratings: id1=5, id2=3, id3=0. LessOrEquals 2 → no rated item qualifies;
-      // id3 (unrated, 0) is excluded, confirming it does not collapse into HasNone.
-      const mockDialogRef = {
-        afterClosed: () =>
-          of({
-            selectedSelectMode: SelectionModeEnum.ByRating,
-            ratingOperator: RatingOperatorEnum.LessOrEquals,
-            ratingValue: 2,
-          }),
-      };
-      mockDialog.open.mockReturnValue(mockDialogRef as any);
-
-      component.onSelect(SelectionModeEnum.ByRating);
-
-      expect(component.selection.selected.length).toBe(0);
-    });
-
-    it('should preserve the existing selection when the dialog is cancelled', () => {
-      component.selection.select(component.dataSource.data[0]);
-      const initialCount = component.selection.selected.length;
-
-      const mockDialogRef = { afterClosed: () => of(undefined) };
-      mockDialog.open.mockReturnValue(mockDialogRef as any);
-
-      component.onSelect(SelectionModeEnum.ByRating);
-
-      expect(component.selection.selected.length).toBe(initialCount);
-    });
-  });
-
-  describe('onClearSelection', () => {
+  describe('onQuickSelect', () => {
     beforeEach(() => {
       component.dataSource.data = mockWordContent.slice();
     });
 
-    it('should clear all selected items', () => {
-      component.selection.select(...component.dataSource.data.slice(0, 3));
+    it('sequence opens the unified dialog in By Count mode and applies count + offset', () => {
+      const mockDialogRef = {
+        afterClosed: () => of({ selectedSelectMode: SelectionModeEnum.ByCount, countOfItems: 2, countOfOffset: 1 }),
+      };
+      mockDialog.open.mockReturnValue(mockDialogRef as any);
+
+      component.onQuickSelect('sequence');
+
+      expect(mockDialog.open).toHaveBeenCalledWith(
+        VocabularySelectDialogComponent,
+        expect.objectContaining({ data: expect.objectContaining({ mode: SelectionModeEnum.ByCount }) })
+      );
+      expect(component.selection.selected.length).toBe(2);
+    });
+
+    it('random opens the unified dialog in Free Selection mode and applies the count', () => {
+      const mockDialogRef = {
+        afterClosed: () => of({ selectedSelectMode: SelectionModeEnum.FreeSelection, countOfItems: 3 }),
+      };
+      mockDialog.open.mockReturnValue(mockDialogRef as any);
+
+      component.onQuickSelect('random');
+
+      expect(mockDialog.open).toHaveBeenCalledWith(
+        VocabularySelectDialogComponent,
+        expect.objectContaining({ data: expect.objectContaining({ mode: SelectionModeEnum.FreeSelection }) })
+      );
       expect(component.selection.selected.length).toBe(3);
+    });
 
-      component.onClearSelection();
+    it('words opens the unified dialog in By Word mode and applies the word list', () => {
+      const mockDialogRef = {
+        afterClosed: () => of({ selectedSelectMode: SelectionModeEnum.ByID, importIDs: 'hello, world' }),
+      };
+      mockDialog.open.mockReturnValue(mockDialogRef as any);
 
-      expect(component.selection.selected.length).toBe(0);
-      expect(component.selection.isEmpty()).toBe(true);
+      component.onQuickSelect('words');
+
+      expect(mockDialog.open).toHaveBeenCalledWith(
+        VocabularySelectDialogComponent,
+        expect.objectContaining({ data: expect.objectContaining({ mode: SelectionModeEnum.ByID }) })
+      );
+      expect(component.selection.selected.length).toBe(2);
     });
   });
 
@@ -2707,401 +1595,664 @@ describe('VocabularyExercisesComponent', () => {
       expect(mockRatingService.upsertRating).not.toHaveBeenCalled();
       expect(group.value).toBe(4);
     });
+  });
 
-    it('onRatingChanged should not save and should restore model and selection on deselect', () => {
+  describe('rating save failure (M2)', () => {
+    it('reverts the toggle group to the last confirmed rating when the upsert fails', () => {
       component.studyContentId = 1;
-      const item: StudyQueueItem = {
-        enword: 'hello',
-        cnword: '你好',
-        audiofile: '',
-        rating: undefined as unknown as number,
-        itemId: 10,
-      };
-      const group = { value: undefined as unknown };
-      const event = { value: undefined, source: { value: 4, buttonToggleGroup: group } } as any;
+      component.contentRatingMap.set(new Map([[10, 3]]));
+      vi.spyOn(console, 'error');
+      mockRatingService.upsertRating.mockReturnValue(throwError(() => new Error('save failed')));
+      const group = { value: 5 as unknown };
+      const event = { value: 5, source: { value: 5, buttonToggleGroup: group } } as any;
 
-      component.onRatingChanged(item, event);
+      component.onContentRatingChanged({ id: 10 } as any, event);
 
-      expect(mockRatingService.upsertRating).not.toHaveBeenCalled();
-      expect(item.rating).toBe(4);
+      expect(group.value).toBe(3);
+    });
+
+    it('reverts the toggle group to unrated (0) when no rating was confirmed yet', () => {
+      component.studyContentId = 1;
+      vi.spyOn(console, 'error');
+      mockRatingService.upsertRating.mockReturnValue(throwError(() => new Error('save failed')));
+      const group = { value: 4 as unknown };
+      const event = { value: 4, source: { value: 4, buttonToggleGroup: group } } as any;
+
+      component.onContentRatingChanged({ id: 10 } as any, event);
+
+      expect(group.value).toBe(0);
+    });
+
+    it('a stale failure does not revert the toggle when a newer rating is pending', () => {
+      component.studyContentId = 1;
+      component.contentRatingMap.set(new Map([[10, 3]]));
+      vi.spyOn(console, 'error');
+      const firstSave = new Subject<UserLearningRating>();
+      const secondSave = new Subject<UserLearningRating>();
+      mockRatingService.upsertRating
+        .mockReturnValueOnce(firstSave)
+        .mockReturnValueOnce(secondSave);
+      const group = { value: 3 as unknown };
+      const item = { id: 10 } as any;
+
+      component.onContentRatingChanged(item, { value: 5, source: { value: 5, buttonToggleGroup: group } } as any);
+      component.onContentRatingChanged(item, { value: 4, source: { value: 4, buttonToggleGroup: group } } as any);
+      group.value = 4; // the user's latest click is what the toggle shows
+
+      firstSave.error(new Error('save failed'));
+
       expect(group.value).toBe(4);
     });
   });
 });
 
-describe('VocabularyExercisesStudyOptionsDialogComponent', () => {
-  let component: VocabularyExercisesStudyOptionsDialogComponent;
-  let fixture: ComponentFixture<VocabularyExercisesStudyOptionsDialogComponent>;
-  let mockDialogRef: any;
-
-  beforeEach(async () => {
-    mockDialogRef = { close: vi.fn() };
+describe('VocabularyExercisesReviewOptionsDialogComponent', () => {
+  const configureTestBed = async (data: unknown) => {
+    const mockDialogRef = { close: vi.fn() };
 
     await TestBed.configureTestingModule({
       imports: [
-        VocabularyExercisesStudyOptionsDialogComponent,
+        VocabularyExercisesReviewOptionsDialogComponent,
         NoopAnimationsModule,
         TranslocoModule,
       ],
       providers: [
         { provide: MatDialogRef, useValue: mockDialogRef },
-        {
-          provide: MAT_DIALOG_DATA,
-          useValue: {
-            wordQueueCount: 30,
-            withSelection: false,
-          },
-        },
-        {
-          provide: UtilService,
-          useValue: {
-            getAllCharacters: () => ['a', 'b', 'c'],
-            getAllTypingExcludeParts: () => [],
-          },
-        },
+        { provide: MAT_DIALOG_DATA, useValue: data },
         { provide: TranslocoService, useValue: createMockTranslocoService() },
         { provide: TRANSLOCO_TRANSPILER, useValue: {} },
         { provide: TRANSLOCO_MISSING_HANDLER, useValue: {} },
       ],
     }).compileComponents();
 
-    fixture = TestBed.createComponent(VocabularyExercisesStudyOptionsDialogComponent);
-    component = fixture.componentInstance;
+    const fixture = TestBed.createComponent(VocabularyExercisesReviewOptionsDialogComponent);
+    const component = fixture.componentInstance;
     fixture.detectChanges();
-  });
+    return { component, fixture, mockDialogRef };
+  };
 
-  it('should create', () => {
-    expect(component).toBeTruthy();
-  });
+  describe('without a selection', () => {
+    let component: VocabularyExercisesReviewOptionsDialogComponent;
+    let fixture: ComponentFixture<VocabularyExercisesReviewOptionsDialogComponent>;
+    let mockDialogRef: any;
 
-  it('should initialize with correct default values', () => {
-    expect(component.countOfItems()).toBe(20);
-    expect(component.disableVoice()).toBe(false);
-    expect(component.hideExplain()).toBe(false);
-  });
+    beforeEach(async () => {
+      ({ component, fixture, mockDialogRef } = await configureTestBed({
+        wordQueueCount: 30,
+        withSelection: false,
+      }));
+    });
 
-  it('should close dialog without data on cancel', () => {
-    component.onNoClick();
-    expect(mockDialogRef.close).toHaveBeenCalledWith();
-  });
+    it('should create', () => {
+      expect(component).toBeTruthy();
+    });
 
-  it('should close dialog with data on confirm', () => {
-    component.countOfItems.set(15);
-    component.disableVoice.set(true);
-    component.hideExplain.set(false);
+    it('should initialize with correct default values', () => {
+      expect(component.countOfItems()).toBe(20);
+      expect(component.disableVoice()).toBe(false);
+      expect(component.hideExplain()).toBe(false);
+    });
 
-    component.onYesClick();
+    it('should close dialog without data on cancel', () => {
+      component.onNoClick();
+      expect(mockDialogRef.close).toHaveBeenCalledWith();
+    });
 
-    expect(mockDialogRef.close).toHaveBeenCalledWith({
-      countOfItems: 15,
-      disableVoice: true,
-      hideExplain: false,
-      excludePart: undefined,
-      wordLeadingCharacter: [],
+    it('should close dialog with data on confirm', () => {
+      component.countOfItems.set(15);
+      component.disableVoice.set(true);
+      component.hideExplain.set(false);
+
+      component.onYesClick();
+
+      expect(mockDialogRef.close).toHaveBeenCalledWith({
+        countOfItems: 15,
+        disableVoice: true,
+        hideExplain: false,
+      });
+    });
+
+    it('should flag invalid output combination when both disableVoice and hideExplain are true', () => {
+      component.disableVoice.set(true);
+      component.hideExplain.set(true);
+
+      // The OK button is disabled for this combination (no output possible),
+      // so onYesClick is unreachable through the UI.
+      expect(component.isOutputDisabled).toBe(true);
+    });
+
+    describe('count validation (M10)', () => {
+      it('flags a cleared / zero / negative / fractional count as invalid', () => {
+        [null, 0, -3, 1.5].forEach(bad => {
+          component.countOfItems.set(bad as any);
+          expect(component.isCountInvalid).toBe(true);
+        });
+        component.countOfItems.set(5);
+        expect(component.isCountInvalid).toBe(false);
+      });
+
+      it('disables OK while the count is invalid and enables it once valid', () => {
+        const okButton = (): HTMLButtonElement =>
+          fixture.nativeElement.querySelectorAll('button[mat-button]')[1];
+
+        component.countOfItems.set(0 as any);
+        fixture.detectChanges();
+        expect(okButton().disabled).toBe(true);
+
+        component.countOfItems.set(8);
+        fixture.detectChanges();
+        expect(okButton().disabled).toBe(false);
+      });
+
+      it('clamps an invalid count to a positive integer on confirm', () => {
+        component.countOfItems.set(-3 as any);
+        component.onYesClick();
+        expect(mockDialogRef.close).toHaveBeenCalledWith({
+          countOfItems: 1,
+          disableVoice: false,
+          hideExplain: false,
+        });
+      });
     });
   });
 
-  it('should not close when both disableVoice and hideExplain are true', () => {
-    component.disableVoice.set(true);
-    component.hideExplain.set(true);
+  describe('with current settings and a selection', () => {
+    let component: VocabularyExercisesReviewOptionsDialogComponent;
+    let mockDialogRef: any;
 
-    component.onYesClick();
-
-    expect(mockDialogRef.close).not.toHaveBeenCalled();
-  });
-});
-
-describe('VocabularyExercisesTypingOptionsDialogComponent', () => {
-  let component: VocabularyExercisesTypingOptionsDialogComponent;
-  let fixture: ComponentFixture<VocabularyExercisesTypingOptionsDialogComponent>;
-  let mockDialogRef: any;
-
-  beforeEach(async () => {
-    mockDialogRef = { close: vi.fn() };
-
-    await TestBed.configureTestingModule({
-      imports: [
-        VocabularyExercisesTypingOptionsDialogComponent,
-        NoopAnimationsModule,
-        TranslocoModule,
-      ],
-      providers: [
-        { provide: MatDialogRef, useValue: mockDialogRef },
-        {
-          provide: MAT_DIALOG_DATA,
-          useValue: {
-            wordQueueCount: 25,
-            withSelection: false,
-          },
-        },
-        {
-          provide: UtilService,
-          useValue: {
-            getAllCharacters: () => ['a', 'b', 'c'],
-            getAllTypingExcludeParts: () => [],
-          },
-        },
-        { provide: TranslocoService, useValue: createMockTranslocoService() },
-        { provide: TRANSLOCO_TRANSPILER, useValue: {} },
-        { provide: TRANSLOCO_MISSING_HANDLER, useValue: {} },
-      ],
-    }).compileComponents();
-
-    fixture = TestBed.createComponent(VocabularyExercisesTypingOptionsDialogComponent);
-    component = fixture.componentInstance;
-    fixture.detectChanges();
-  });
-
-  it('should create', () => {
-    expect(component).toBeTruthy();
-  });
-
-  it('should initialize with correct default values', () => {
-    expect(component.countOfItems()).toBe(20);
-    expect(component.disableVoice()).toBe(false);
-    expect(component.hideExplain()).toBe(false);
-  });
-
-  it('should close dialog without data on cancel', () => {
-    component.onNoClick();
-    expect(mockDialogRef.close).toHaveBeenCalledWith();
-  });
-
-  it('should close dialog with data on confirm', () => {
-    component.countOfItems.set(10);
-    component.disableVoice.set(true);
-    component.hideExplain.set(false);
-
-    component.onYesClick();
-
-    expect(mockDialogRef.close).toHaveBeenCalledWith({
-      countOfItems: 10,
-      disableVoice: true,
-      hideExplain: false,
-      excludePart: undefined,
-      wordLeadingCharacter: [],
+    beforeEach(async () => {
+      ({ component, mockDialogRef } = await configureTestBed({
+        wordQueueCount: 3,
+        withSelection: true,
+        currentSettings: { disableVoice: true, hideExplain: false, countOfItems: 50 },
+      }));
     });
-  });
 
-  it('should not close when both disableVoice and hideExplain are true', () => {
-    component.disableVoice.set(true);
-    component.hideExplain.set(true);
+    it('seeds every field from currentSettings and pins the count to the selection size', () => {
+      expect(component.disableVoice()).toBe(true);
+      expect(component.hideExplain()).toBe(false);
+      // The disabled count input advertises the selection size.
+      expect(component.countOfItems()).toBe(3);
+    });
 
-    component.onYesClick();
+    it('returns the persisted count, not the selection count, on confirm (M11)', () => {
+      component.onYesClick();
 
-    expect(mockDialogRef.close).not.toHaveBeenCalled();
-  });
-});
-
-describe('VocabularyExercisesDictationOptionsDialogComponent', () => {
-  let component: VocabularyExercisesDictationOptionsDialogComponent;
-  let fixture: ComponentFixture<VocabularyExercisesDictationOptionsDialogComponent>;
-  let mockDialogRef: any;
-
-  beforeEach(async () => {
-    mockDialogRef = { close: vi.fn() };
-
-    await TestBed.configureTestingModule({
-      imports: [
-        VocabularyExercisesDictationOptionsDialogComponent,
-        NoopAnimationsModule,
-        TranslocoModule,
-      ],
-      providers: [
-        { provide: MatDialogRef, useValue: mockDialogRef },
-        {
-          provide: MAT_DIALOG_DATA,
-          useValue: {
-            wordQueueCount: 25,
-            withSelection: false,
-          },
-        },
-        {
-          provide: UtilService,
-          useValue: {
-            getAllCharacters: () => ['a', 'b', 'c'],
-            getAllTypingExcludeParts: () => [],
-          },
-        },
-        { provide: TranslocoService, useValue: createMockTranslocoService() },
-        { provide: TRANSLOCO_TRANSPILER, useValue: {} },
-        { provide: TRANSLOCO_MISSING_HANDLER, useValue: {} },
-      ],
-    }).compileComponents();
-
-    fixture = TestBed.createComponent(VocabularyExercisesDictationOptionsDialogComponent);
-    component = fixture.componentInstance;
-    fixture.detectChanges();
-  });
-
-  it('should create', () => {
-    expect(component).toBeTruthy();
-  });
-
-  it('should initialize with correct default values', () => {
-    expect(component.countOfItems()).toBe(20);
-  });
-
-  it('should initialize with selection count when withSelection is true', async () => {
-    await TestBed.resetTestingModule();
-    await TestBed.configureTestingModule({
-      imports: [
-        VocabularyExercisesDictationOptionsDialogComponent,
-        NoopAnimationsModule,
-        TranslocoModule,
-      ],
-      providers: [
-        { provide: MatDialogRef, useValue: mockDialogRef },
-        {
-          provide: MAT_DIALOG_DATA,
-          useValue: {
-            wordQueueCount: 40,
-            withSelection: true,
-          },
-        },
-        {
-          provide: UtilService,
-          useValue: {
-            getAllCharacters: () => ['a', 'b', 'c'],
-            getAllTypingExcludeParts: () => [],
-          },
-        },
-        { provide: TranslocoService, useValue: createMockTranslocoService() },
-        { provide: TRANSLOCO_TRANSPILER, useValue: {} },
-        { provide: TRANSLOCO_MISSING_HANDLER, useValue: {} },
-      ],
-    }).compileComponents();
-
-    const f = TestBed.createComponent(VocabularyExercisesDictationOptionsDialogComponent);
-    f.detectChanges();
-
-    expect(f.componentInstance.countOfItems()).toBe(40);
-  });
-
-  it('should close dialog without data on cancel', () => {
-    component.onNoClick();
-    expect(mockDialogRef.close).toHaveBeenCalledWith();
-  });
-
-  it('should close dialog with data on confirm', () => {
-    component.countOfItems.set(12);
-
-    component.onYesClick();
-
-    expect(mockDialogRef.close).toHaveBeenCalledWith({
-      countOfItems: 12,
-      excludePart: undefined,
-      wordLeadingCharacter: [],
+      expect(mockDialogRef.close).toHaveBeenCalledWith({
+        disableVoice: true,
+        hideExplain: false,
+        countOfItems: 50,
+      });
     });
   });
 });
 
-describe('VocabularyExercisesPrintOptionsDialogComponent', () => {
-  let component: VocabularyExercisesPrintOptionsDialogComponent;
-  let fixture: ComponentFixture<VocabularyExercisesPrintOptionsDialogComponent>;
-  let mockDialogRef: any;
-
-  beforeEach(async () => {
-    mockDialogRef = { close: vi.fn() };
+describe('VocabularyExercisesSpellingOptionsDialogComponent', () => {
+  const configureTestBed = async (data: unknown) => {
+    const mockDialogRef = { close: vi.fn() };
 
     await TestBed.configureTestingModule({
       imports: [
-        VocabularyExercisesPrintOptionsDialogComponent,
+        VocabularyExercisesSpellingOptionsDialogComponent,
         NoopAnimationsModule,
         TranslocoModule,
       ],
       providers: [
         { provide: MatDialogRef, useValue: mockDialogRef },
-        {
-          provide: MAT_DIALOG_DATA,
-          useValue: {
-            wordQueueCount: 40,
-            withSelection: true,
-            title: 'Test File',
-          },
-        },
-        {
-          provide: UtilService,
-          useValue: {
-            getAllCharacters: () => ['a', 'b', 'c'],
-            getAllTypingExcludeParts: () => [],
-          },
-        },
+        { provide: MAT_DIALOG_DATA, useValue: data },
         { provide: TranslocoService, useValue: createMockTranslocoService() },
         { provide: TRANSLOCO_TRANSPILER, useValue: {} },
         { provide: TRANSLOCO_MISSING_HANDLER, useValue: {} },
       ],
     }).compileComponents();
 
-    fixture = TestBed.createComponent(VocabularyExercisesPrintOptionsDialogComponent);
-    component = fixture.componentInstance;
+    const fixture = TestBed.createComponent(VocabularyExercisesSpellingOptionsDialogComponent);
+    const component = fixture.componentInstance;
     fixture.detectChanges();
+    return { component, fixture, mockDialogRef };
+  };
+
+  describe('without a selection', () => {
+    let component: VocabularyExercisesSpellingOptionsDialogComponent;
+    let fixture: ComponentFixture<VocabularyExercisesSpellingOptionsDialogComponent>;
+    let mockDialogRef: any;
+
+    beforeEach(async () => {
+      ({ component, fixture, mockDialogRef } = await configureTestBed({
+        wordQueueCount: 25,
+        withSelection: false,
+      }));
+    });
+
+    it('should create', () => {
+      expect(component).toBeTruthy();
+    });
+
+    it('should initialize with correct default values', () => {
+      expect(component.countOfItems()).toBe(20);
+      expect(component.disableVoice()).toBe(false);
+      expect(component.hideExplain()).toBe(false);
+    });
+
+    it('should close dialog without data on cancel', () => {
+      component.onNoClick();
+      expect(mockDialogRef.close).toHaveBeenCalledWith();
+    });
+
+    it('should close dialog with data on confirm', () => {
+      component.countOfItems.set(10);
+      component.disableVoice.set(true);
+      component.hideExplain.set(false);
+
+      component.onYesClick();
+
+      expect(mockDialogRef.close).toHaveBeenCalledWith({
+        countOfItems: 10,
+        disableVoice: true,
+        hideExplain: false,
+      });
+    });
+
+    it('should flag invalid output combination when both disableVoice and hideExplain are true', () => {
+      component.disableVoice.set(true);
+      component.hideExplain.set(true);
+
+      // The OK button is disabled for this combination (no output possible),
+      // so onYesClick is unreachable through the UI.
+      expect(component.isOutputDisabled).toBe(true);
+    });
+
+    describe('count validation (M10)', () => {
+      it('flags a cleared / zero / negative / fractional count as invalid', () => {
+        [null, 0, -3, 1.5].forEach(bad => {
+          component.countOfItems.set(bad as any);
+          expect(component.isCountInvalid).toBe(true);
+        });
+        component.countOfItems.set(5);
+        expect(component.isCountInvalid).toBe(false);
+      });
+
+      it('disables OK while the count is invalid and enables it once valid', () => {
+        const okButton = (): HTMLButtonElement =>
+          fixture.nativeElement.querySelectorAll('button[mat-button]')[1];
+
+        component.countOfItems.set(0 as any);
+        fixture.detectChanges();
+        expect(okButton().disabled).toBe(true);
+
+        component.countOfItems.set(8);
+        fixture.detectChanges();
+        expect(okButton().disabled).toBe(false);
+      });
+
+      it('clamps an invalid count to a positive integer on confirm', () => {
+        component.countOfItems.set(-3 as any);
+        component.onYesClick();
+        expect(mockDialogRef.close).toHaveBeenCalledWith({
+          countOfItems: 1,
+          disableVoice: false,
+          hideExplain: false,
+        });
+      });
+    });
   });
 
-  it('should create', () => {
-    expect(component).toBeTruthy();
+  describe('with current settings and a selection', () => {
+    let component: VocabularyExercisesSpellingOptionsDialogComponent;
+    let mockDialogRef: any;
+
+    beforeEach(async () => {
+      ({ component, mockDialogRef } = await configureTestBed({
+        wordQueueCount: 3,
+        withSelection: true,
+        currentSettings: { disableVoice: false, hideExplain: true, countOfItems: 50 },
+      }));
+    });
+
+    it('seeds every field from currentSettings and pins the count to the selection size', () => {
+      expect(component.disableVoice()).toBe(false);
+      expect(component.hideExplain()).toBe(true);
+      expect(component.countOfItems()).toBe(3);
+    });
+
+    it('returns the persisted count, not the selection count, on confirm (M11)', () => {
+      component.onYesClick();
+
+      expect(mockDialogRef.close).toHaveBeenCalledWith({
+        disableVoice: false,
+        hideExplain: true,
+        countOfItems: 50,
+      });
+    });
+  });
+});
+
+describe('VocabularyExercisesQuizOptionsDialogComponent', () => {
+  const configureTestBed = async (data: unknown) => {
+    await TestBed.configureTestingModule({
+      imports: [
+        VocabularyExercisesQuizOptionsDialogComponent,
+        NoopAnimationsModule,
+        TranslocoModule,
+      ],
+      providers: [
+        { provide: MatDialogRef, useValue: { close: vi.fn() } },
+        { provide: MAT_DIALOG_DATA, useValue: data },
+        { provide: TranslocoService, useValue: createMockTranslocoService() },
+        { provide: TRANSLOCO_TRANSPILER, useValue: {} },
+        { provide: TRANSLOCO_MISSING_HANDLER, useValue: {} },
+      ],
+    }).compileComponents();
+  };
+
+  describe('without current settings', () => {
+    let component: VocabularyExercisesQuizOptionsDialogComponent;
+    let fixture: ComponentFixture<VocabularyExercisesQuizOptionsDialogComponent>;
+    let mockDialogRef: any;
+
+    beforeEach(async () => {
+      await configureTestBed({ wordQueueCount: 25, withSelection: false });
+      mockDialogRef = TestBed.inject(MatDialogRef);
+      fixture = TestBed.createComponent(VocabularyExercisesQuizOptionsDialogComponent);
+      component = fixture.componentInstance;
+      fixture.detectChanges();
+    });
+
+    it('should create', () => {
+      expect(component).toBeTruthy();
+    });
+
+    it('should initialize with correct default values', () => {
+      expect(component.countOfItems()).toBe(20);
+      expect(component.direction()).toBe('en2cn');
+    });
+
+    it('should close dialog without data on cancel', () => {
+      component.onNoClick();
+      expect(mockDialogRef.close).toHaveBeenCalledWith();
+    });
+
+    it('should close dialog with data on confirm', () => {
+      component.countOfItems.set(10);
+      component.direction.set('cn2en');
+
+      component.onYesClick();
+
+      expect(mockDialogRef.close).toHaveBeenCalledWith({
+        direction: 'cn2en',
+        countOfItems: 10,
+      });
+    });
+
+    describe('count validation (M10)', () => {
+      it('flags a cleared / zero / negative / fractional count as invalid', () => {
+        [null, 0, -3, 1.5].forEach(bad => {
+          component.countOfItems.set(bad as any);
+          expect(component.isCountInvalid).toBe(true);
+        });
+        component.countOfItems.set(5);
+        expect(component.isCountInvalid).toBe(false);
+      });
+
+      it('disables OK while the count is invalid and enables it once valid', () => {
+        const okButton = (): HTMLButtonElement =>
+          fixture.nativeElement.querySelectorAll('button[mat-button]')[1];
+
+        component.countOfItems.set(0 as any);
+        fixture.detectChanges();
+        expect(okButton().disabled).toBe(true);
+
+        component.countOfItems.set(8);
+        fixture.detectChanges();
+        expect(okButton().disabled).toBe(false);
+      });
+
+      it('clamps an invalid count to a positive integer on confirm', () => {
+        component.countOfItems.set(-3 as any);
+        component.onYesClick();
+        expect(mockDialogRef.close).toHaveBeenCalledWith({ direction: 'en2cn', countOfItems: 1 });
+      });
+    });
   });
 
-  it('should initialize with selection count when withSelection is true', () => {
-    expect(component.countOfItems()).toBe(40);
-    expect(component.subTitle()).toBe('Test File');
+  describe('with current settings and a selection', () => {
+    let component: VocabularyExercisesQuizOptionsDialogComponent;
+    let fixture: ComponentFixture<VocabularyExercisesQuizOptionsDialogComponent>;
+    let mockDialogRef: any;
+
+    beforeEach(async () => {
+      await configureTestBed({
+        wordQueueCount: 3,
+        withSelection: true,
+        currentSettings: { direction: 'cn2en', countOfItems: 8 },
+      });
+      mockDialogRef = TestBed.inject(MatDialogRef);
+      fixture = TestBed.createComponent(VocabularyExercisesQuizOptionsDialogComponent);
+      component = fixture.componentInstance;
+      fixture.detectChanges();
+    });
+
+    it('should seed every field from currentSettings and use the selection count', () => {
+      expect(component.direction()).toBe('cn2en');
+      // withSelection pins the count to the number of selected rows.
+      expect(component.countOfItems()).toBe(3);
+    });
+
+    it('returns the persisted count, not the selection count, on confirm (M11)', () => {
+      component.onYesClick();
+
+      expect(mockDialogRef.close).toHaveBeenCalledWith({
+        direction: 'cn2en',
+        countOfItems: 8,
+      });
+    });
+  });
+});
+
+describe('VocabularyExercisesWorksheetOptionsDialogComponent', () => {
+  const configureTestBed = async (data: unknown) => {
+    const mockDialogRef = { close: vi.fn() };
+
+    await TestBed.configureTestingModule({
+      imports: [
+        VocabularyExercisesWorksheetOptionsDialogComponent,
+        NoopAnimationsModule,
+        TranslocoModule,
+      ],
+      providers: [
+        { provide: MatDialogRef, useValue: mockDialogRef },
+        { provide: MAT_DIALOG_DATA, useValue: data },
+        { provide: TranslocoService, useValue: createMockTranslocoService() },
+        { provide: TRANSLOCO_TRANSPILER, useValue: {} },
+        { provide: TRANSLOCO_MISSING_HANDLER, useValue: {} },
+      ],
+    }).compileComponents();
+
+    const fixture = TestBed.createComponent(VocabularyExercisesWorksheetOptionsDialogComponent);
+    const component = fixture.componentInstance;
+    fixture.detectChanges();
+    return { component, fixture, mockDialogRef };
+  };
+
+  describe('without a selection', () => {
+    let component: VocabularyExercisesWorksheetOptionsDialogComponent;
+    let fixture: ComponentFixture<VocabularyExercisesWorksheetOptionsDialogComponent>;
+    let mockDialogRef: any;
+
+    beforeEach(async () => {
+      ({ component, fixture, mockDialogRef } = await configureTestBed({
+        wordQueueCount: 40,
+        withSelection: false,
+        title: 'Test File',
+      }));
+    });
+
+    it('should create', () => {
+      expect(component).toBeTruthy();
+    });
+
+    it('should initialize with defaults and seed subTitle from the file name (M12 fallback)', () => {
+      expect(component.countOfItems()).toBe(20);
+      // No saved subtitle -> fall back to the file name.
+      expect(component.subTitle()).toBe('Test File');
+    });
+
+    it('should close dialog without data on cancel', () => {
+      component.onNoClick();
+      expect(mockDialogRef.close).toHaveBeenCalledWith();
+    });
+
+    it('should close dialog with full options on confirm', () => {
+      component.countOfItems.set(25);
+      component.printEntryDate.set(false);
+      component.printFirstLetter.set(true);
+
+      component.onYesClick();
+
+      expect(mockDialogRef.close).toHaveBeenCalledWith(
+        expect.objectContaining({
+          countOfItems: 25,
+          printEntryDate: false,
+          printFirstLetter: true,
+          uniformBlankLength: true,
+          uniformBlankLengthSize: 30,
+        })
+      );
+    });
+
+    it('should close dialog with a custom uniform blank length on confirm', () => {
+      component.uniformBlankLength.set(true);
+      component.uniformBlankLengthSize.set(30);
+
+      component.onYesClick();
+
+      expect(mockDialogRef.close).toHaveBeenCalledWith(
+        expect.objectContaining({
+          uniformBlankLength: true,
+          uniformBlankLengthSize: 30,
+        })
+      );
+    });
+
+    it('should close dialog with uniform blank disabled when toggled off', () => {
+      component.uniformBlankLength.set(false);
+
+      component.onYesClick();
+
+      expect(mockDialogRef.close).toHaveBeenCalledWith(
+        expect.objectContaining({
+          uniformBlankLength: false,
+        })
+      );
+    });
+
+    describe('count validation (M10)', () => {
+      it('flags a cleared / zero / negative / fractional count as invalid', () => {
+        [null, 0, -3, 1.5].forEach(bad => {
+          component.countOfItems.set(bad as any);
+          expect(component.isCountInvalid).toBe(true);
+        });
+        component.countOfItems.set(5);
+        expect(component.isCountInvalid).toBe(false);
+      });
+
+      it('disables OK while the count is invalid and enables it once valid', () => {
+        const okButton = (): HTMLButtonElement =>
+          fixture.nativeElement.querySelectorAll('button[mat-button]')[1];
+
+        component.countOfItems.set(0 as any);
+        fixture.detectChanges();
+        expect(okButton().disabled).toBe(true);
+
+        component.countOfItems.set(8);
+        fixture.detectChanges();
+        expect(okButton().disabled).toBe(false);
+      });
+
+      it('clamps an invalid count to a positive integer on confirm', () => {
+        component.countOfItems.set(-3 as any);
+        component.onYesClick();
+        expect(mockDialogRef.close).toHaveBeenCalledWith(
+          expect.objectContaining({ countOfItems: 1 })
+        );
+      });
+    });
   });
 
-  it('should close dialog without data on cancel', () => {
-    component.onNoClick();
-    expect(mockDialogRef.close).toHaveBeenCalledWith();
+  describe('with current settings and a selection', () => {
+    let component: VocabularyExercisesWorksheetOptionsDialogComponent;
+    let mockDialogRef: any;
+
+    beforeEach(async () => {
+      ({ component, mockDialogRef } = await configureTestBed({
+        wordQueueCount: 40,
+        withSelection: true,
+        title: 'Test File',
+        currentSettings: {
+          subTitle: 'Unit 5 Test',
+          countOfItems: 50,
+          printEntryDate: true,
+          printFirstLetter: false,
+          uniformBlankLength: false,
+          uniformBlankLengthSize: 14,
+        },
+      }));
+    });
+
+    it('seeds subTitle from currentSettings, not the file name (M12)', () => {
+      expect(component.subTitle()).toBe('Unit 5 Test');
+    });
+
+    it('still displays the selection count in the disabled count input', () => {
+      expect(component.countOfItems()).toBe(40);
+    });
+
+    it('returns the persisted count, not the selection count, on confirm (M11)', () => {
+      // The disabled count input shows 40 (selection size); confirm must not
+      // write that back as the persisted count.
+      component.onYesClick();
+
+      expect(mockDialogRef.close).toHaveBeenCalledWith(
+        expect.objectContaining({ countOfItems: 50 })
+      );
+    });
   });
 
-  it('should close dialog with full options on confirm', () => {
-    component.countOfItems.set(25);
-    component.printEntryDate.set(false);
-    component.printFirstLetter.set(true);
+  describe('dead machinery removal (L11)', () => {
+    it('renders no datepicker or radio controls', async () => {
+      const { fixture } = await configureTestBed({
+        wordQueueCount: 40,
+        withSelection: false,
+        title: 'Test File',
+      });
 
-    component.onYesClick();
+      // The worksheet dialog never used its datepicker/radio imports; they were
+      // dead weight bundled into the lazy chunk. Lock the removal in.
+      expect(fixture.nativeElement.querySelector('mat-datepicker, mat-datepicker-toggle, mat-radio-group')).toBeNull();
+    });
 
-    expect(mockDialogRef.close).toHaveBeenCalledWith(
-      expect.objectContaining({
-        countOfItems: 25,
-        printEntryDate: false,
-        printFirstLetter: true,
-        uniformBlankLength: true,
-        uniformBlankLengthSize: 30,
-      })
-    );
-  });
+    it('does not carry the allPrintExecDates / printExecDate fields', async () => {
+      const { component } = await configureTestBed({
+        wordQueueCount: 40,
+        withSelection: false,
+        title: 'Test File',
+      });
 
-  it('should close dialog with a custom uniform blank length on confirm', () => {
-    component.uniformBlankLength.set(true);
-    component.uniformBlankLengthSize.set(30);
-
-    component.onYesClick();
-
-    expect(mockDialogRef.close).toHaveBeenCalledWith(
-      expect.objectContaining({
-        uniformBlankLength: true,
-        uniformBlankLengthSize: 30,
-      })
-    );
-  });
-
-  it('should close dialog with uniform blank disabled when toggled off', () => {
-    component.uniformBlankLength.set(false);
-
-    component.onYesClick();
-
-    expect(mockDialogRef.close).toHaveBeenCalledWith(
-      expect.objectContaining({
-        uniformBlankLength: false,
-      })
-    );
+      expect((component as any).allPrintExecDates).toBeUndefined();
+      component.onYesClick();
+      const closedata = (component as any).dialogRef.close.mock.calls[0][0];
+      expect(closedata.printExecDate).toBeUndefined();
+    });
   });
 });
 
 describe('VocabularySelectDialogComponent', () => {
   let mockDialogRef: any;
+  let fixture: ComponentFixture<VocabularySelectDialogComponent>;
 
   async function createComponent(
-    mode: SelectionModeEnum
+    mode: SelectionModeEnum,
+    extraData: { rowCount?: number; visibleWords?: string[] } = {}
   ): Promise<VocabularySelectDialogComponent> {
     mockDialogRef = { close: vi.fn() };
 
@@ -3109,14 +2260,14 @@ describe('VocabularySelectDialogComponent', () => {
       imports: [VocabularySelectDialogComponent, NoopAnimationsModule, TranslocoModule],
       providers: [
         { provide: MatDialogRef, useValue: mockDialogRef },
-        { provide: MAT_DIALOG_DATA, useValue: { mode } },
+        { provide: MAT_DIALOG_DATA, useValue: { mode, ...extraData } },
         { provide: TranslocoService, useValue: createMockTranslocoService() },
         { provide: TRANSLOCO_TRANSPILER, useValue: {} },
         { provide: TRANSLOCO_MISSING_HANDLER, useValue: {} },
       ],
     }).compileComponents();
 
-    const fixture = TestBed.createComponent(VocabularySelectDialogComponent);
+    fixture = TestBed.createComponent(VocabularySelectDialogComponent);
     fixture.detectChanges();
     return fixture.componentInstance;
   }
@@ -3127,7 +2278,7 @@ describe('VocabularySelectDialogComponent', () => {
   });
 
   it('By Count: should close with countOfItems and countOfOffset on confirm', async () => {
-    const component = await createComponent(SelectionModeEnum.ByCount);
+    const component = await createComponent(SelectionModeEnum.ByCount, { rowCount: 200 });
     component.countOfItems.set(10);
     component.countOfOffset.set(5);
     component.onYesClick();
@@ -3140,26 +2291,124 @@ describe('VocabularySelectDialogComponent', () => {
   });
 
   it('By Count: isFormInvalid true when countOfItems is 0', async () => {
-    const component = await createComponent(SelectionModeEnum.ByCount);
+    const component = await createComponent(SelectionModeEnum.ByCount, { rowCount: 200 });
     component.countOfItems.set(0);
     expect(component.isFormInvalid).toBe(true);
   });
 
-  it('By Word: should close with importIDs on confirm', async () => {
-    const component = await createComponent(SelectionModeEnum.ByID);
-    component.importWords.set('hello, world');
+  describe('By Count validation (M13)', () => {
+    it('flags a cleared / zero / negative / fractional count as invalid', async () => {
+      const component = await createComponent(SelectionModeEnum.ByCount, { rowCount: 200 });
+      [null, 0, -3, 1.5].forEach(bad => {
+        component.countOfItems.set(bad as any);
+        expect(component.isFormInvalid).toBe(true);
+      });
+      component.countOfItems.set(5);
+      expect(component.isFormInvalid).toBe(false);
+    });
+
+    it('flags a negative / fractional / out-of-range offset as invalid', async () => {
+      const component = await createComponent(SelectionModeEnum.ByCount, { rowCount: 200 });
+      component.countOfItems.set(10);
+      // offset must be an integer in [0, rowCount)
+      [-1, 0.5, 200, 10000].forEach(bad => {
+        component.countOfOffset.set(bad as any);
+        expect(component.isFormInvalid).toBe(true);
+      });
+      // valid offsets (0 and rowCount - 1)
+      component.countOfOffset.set(0);
+      expect(component.isFormInvalid).toBe(false);
+      component.countOfOffset.set(199);
+      expect(component.isFormInvalid).toBe(false);
+    });
+
+    it('disables OK while the offset is out of range and enables it once valid', async () => {
+      const component = await createComponent(SelectionModeEnum.ByCount, { rowCount: 8 });
+      const okButton = (): HTMLButtonElement =>
+        fixture.nativeElement.querySelectorAll('button[mat-button]')[1];
+
+      component.countOfItems.set(3);
+      component.countOfOffset.set(8); // === rowCount -> out of range
+      fixture.detectChanges();
+      expect(okButton().disabled).toBe(true);
+
+      component.countOfOffset.set(5);
+      fixture.detectChanges();
+      expect(okButton().disabled).toBe(false);
+    });
+
+    it('clamps count to >= 1 and offset to [0, rowCount-1] on confirm', async () => {
+      const component = await createComponent(SelectionModeEnum.ByCount, { rowCount: 10 });
+      component.countOfItems.set(-3 as any);
+      component.countOfOffset.set(100 as any);
+      component.onYesClick();
+      expect(mockDialogRef.close).toHaveBeenCalledWith({
+        selectedSelectMode: SelectionModeEnum.ByCount,
+        countOfItems: 1,
+        countOfOffset: 9,
+      });
+    });
+  });
+
+  it('By Word: should close with normalized comma-joined importIDs on confirm', async () => {
+    const component = await createComponent(SelectionModeEnum.ByID, {
+      visibleWords: ['hello', 'world'],
+    });
+    // Newlines and surrounding whitespace normalize to a clean comma list (M14).
+    component.importWords.set('  hello\n, world  ');
     component.onYesClick();
 
     expect(mockDialogRef.close).toHaveBeenCalledWith({
       selectedSelectMode: SelectionModeEnum.ByID,
-      importIDs: 'hello, world',
+      importIDs: 'hello,world',
     });
   });
 
   it('By Word: isFormInvalid true when importWords is empty', async () => {
-    const component = await createComponent(SelectionModeEnum.ByID);
+    const component = await createComponent(SelectionModeEnum.ByID, {
+      visibleWords: ['hello', 'world'],
+    });
     component.importWords.set('');
     expect(component.isFormInvalid).toBe(true);
+  });
+
+  describe('By Word validation (M14)', () => {
+    it('flags separator-only input (e.g. ",,,") as invalid', async () => {
+      const component = await createComponent(SelectionModeEnum.ByID, {
+        visibleWords: ['hello', 'world'],
+      });
+      component.importWords.set(',,,');
+      expect(component.isFormInvalid).toBe(true);
+    });
+
+    it('flags input where no token matches a visible word', async () => {
+      const component = await createComponent(SelectionModeEnum.ByID, {
+        visibleWords: ['hello', 'world'],
+      });
+      component.importWords.set('nonexistent, alsoabsent');
+      expect(component.isFormInvalid).toBe(true);
+    });
+
+    it('accepts newline-separated input with at least one match', async () => {
+      const component = await createComponent(SelectionModeEnum.ByID, {
+        visibleWords: ['hello', 'world', 'test'],
+      });
+      component.importWords.set('hello\nbanana\ntest');
+      expect(component.isFormInvalid).toBe(false);
+    });
+
+    it('preserves multi-word entries like "apple pie" (whitespace not split on)', async () => {
+      const component = await createComponent(SelectionModeEnum.ByID, {
+        visibleWords: ['apple pie', 'hello'],
+      });
+      component.importWords.set('apple pie, hello');
+      expect(component.isFormInvalid).toBe(false);
+      component.onYesClick();
+      expect(mockDialogRef.close).toHaveBeenCalledWith({
+        selectedSelectMode: SelectionModeEnum.ByID,
+        importIDs: 'apple pie,hello',
+      });
+    });
   });
 
   it('Free Selection: should close with countOfItems on confirm', async () => {
@@ -3179,91 +2428,13 @@ describe('VocabularySelectDialogComponent', () => {
     expect(component.isFormInvalid).toBe(true);
   });
 
-  it('By Rating: should close with ratingOperator and ratingValue on confirm', async () => {
-    const component = await createComponent(SelectionModeEnum.ByRating);
-    component.ratingOperator.set(RatingOperatorEnum.GreaterThan);
-    component.ratingValue.set(3);
-    component.onYesClick();
-
-    expect(mockDialogRef.close).toHaveBeenCalledWith({
-      selectedSelectMode: SelectionModeEnum.ByRating,
-      ratingOperator: RatingOperatorEnum.GreaterThan,
-      ratingValue: 3,
-    });
-  });
-
-  it('By Rating: isValueDisabled true when HasAny selected', async () => {
-    const component = await createComponent(SelectionModeEnum.ByRating);
-    component.ratingOperator.set(RatingOperatorEnum.HasAny);
-    expect(component.isValueDisabled).toBe(true);
-  });
-
-  it('By Rating: isValueDisabled true when HasNone selected', async () => {
-    const component = await createComponent(SelectionModeEnum.ByRating);
-    component.ratingOperator.set(RatingOperatorEnum.HasNone);
-    expect(component.isValueDisabled).toBe(true);
-  });
-
-  it('By Rating: isValueDisabled false when Equals selected', async () => {
-    const component = await createComponent(SelectionModeEnum.ByRating);
-    component.ratingOperator.set(RatingOperatorEnum.Equals);
-    expect(component.isValueDisabled).toBe(false);
-  });
-
-  it('By Rating: ratingOperators includes Larger or Equals and Less or Equals (7 total)', async () => {
-    const component = await createComponent(SelectionModeEnum.ByRating);
-    const values = component.ratingOperators.map(op => op.value);
-    expect(values).toContain(RatingOperatorEnum.LargerOrEquals);
-    expect(values).toContain(RatingOperatorEnum.LessOrEquals);
-    expect(component.ratingOperators.length).toBe(7);
-  });
-
   it('titleKey returns the correct key per mode', async () => {
     const component = await createComponent(SelectionModeEnum.ByCount);
     component.data.mode = SelectionModeEnum.ByCount;
-    expect(component.titleKey).toBe('vocabularyExercises.selectByCount');
+    expect(component.titleKey).toBe('vocabularyExercises.sequenceSelect');
     component.data.mode = SelectionModeEnum.ByID;
-    expect(component.titleKey).toBe('vocabularyExercises.selectByWord');
+    expect(component.titleKey).toBe('vocabularyExercises.selectWords');
     component.data.mode = SelectionModeEnum.FreeSelection;
-    expect(component.titleKey).toBe('vocabularyExercises.selectFree');
-    component.data.mode = SelectionModeEnum.ByRating;
-    expect(component.titleKey).toBe('vocabularyExercises.selectByRating');
-  });
-});
-
-describe('VocabularyQuitConfirmDialogComponent', () => {
-  let component: VocabularyQuitConfirmDialogComponent;
-  let mockDialogRef: any;
-
-  beforeEach(async () => {
-    mockDialogRef = { close: vi.fn() };
-
-    await TestBed.configureTestingModule({
-      imports: [VocabularyQuitConfirmDialogComponent, NoopAnimationsModule, TranslocoModule],
-      providers: [
-        { provide: MatDialogRef, useValue: mockDialogRef },
-        { provide: TranslocoService, useValue: createMockTranslocoService() },
-        { provide: TRANSLOCO_TRANSPILER, useValue: {} },
-        { provide: TRANSLOCO_MISSING_HANDLER, useValue: {} },
-      ],
-    }).compileComponents();
-
-    const fixture = TestBed.createComponent(VocabularyQuitConfirmDialogComponent);
-    component = fixture.componentInstance;
-    fixture.detectChanges();
-  });
-
-  it('should create', () => {
-    expect(component).toBeTruthy();
-  });
-
-  it('should close with false on cancel', () => {
-    component.onCancelClick();
-    expect(mockDialogRef.close).toHaveBeenCalledWith(false);
-  });
-
-  it('should close with true on confirm', () => {
-    component.onConfirmClick();
-    expect(mockDialogRef.close).toHaveBeenCalledWith(true);
+    expect(component.titleKey).toBe('vocabularyExercises.randomSelect');
   });
 });

@@ -1,0 +1,54 @@
+// See word-list: the host replaces blocks that were direct flex items.
+:host {
+    display: contents;
+}
+
+.toolbar-spacer {
+    flex: 1 1 auto;
+}
+
+.toolbar-fab-button {
+  margin-right: 4px;
+  margin-left: 4px;
+}
+
+// Seconds-per-word selector: compact so it fits the toolbar row on tablets.
+.seconds-field {
+  margin-right: 4px;
+  width: 90px;
+
+  .mat-mdc-text-field-wrapper {
+    padding-top: 4px;
+  }
+}
+
+.example-button-container {
+    display: flex;
+    justify-content: center;
+    width: 56px;
+}
+
+.vocabulary-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    padding: 24px;
+}
+
+.vocabulary-typing-explain {
+    font-size: 36px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    min-height: 50px;
+    margin-bottom: 16px;
+    width: 100%;
+}
+
+.vocabulary-rating-container {
+    display: flex;
+    justify-content: center;
+}

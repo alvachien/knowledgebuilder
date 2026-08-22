@@ -1,0 +1,147 @@
+import { Injectable, computed, inject, signal } from '@angular/core';
+
+import type { VocabularyQuizQuestion, VocabularyQuizQueueResult } from '../../interfaces';
+import { AudioService } from '../../services';
+
+/**
+ * State and behavior of one vocabulary quiz session: the generated
+ * single-choice question queue, the cursor, the picked option of the current
+ * question, the per-question results, and the answer sounds. Provided on the
+ * page container so the quiz and result screens share one instance; the
+ * container only decides the screen (`mode`) - everything test-related lives
+ * here. Mirrors the spelling session store.
+ */
+// eslint-disable-next-line @angular-eslint/use-injectable-provided-in -- intentionally NOT root-provided: the page container provides it so the test/result screens share one instance scoped to the page
+@Injectable()
+export class VocabularyQuizSessionStore {
+  private static readonly OPTION_KEYS = ['1', '2', '3', '4', 'a', 'b', 'c', 'd'];
+
+  private readonly audiosrv = inject(AudioService);
+
+  readonly questions = signal<VocabularyQuizQuestion[]>([]);
+  readonly currentIndex = signal(-1);
+  // Index into the current question's options that the user picked; -1 until
+  // the question is answered (answers are final - no re-answering).
+  readonly selectedIndex = signal(-1);
+  readonly results = signal<VocabularyQuizQueueResult[]>([]);
+  /** Set when the last question is answered; the container switches to the result screen. */
+  readonly isComplete = signal(false);
+  // Count of questions answered so far (answers are final). Drives progress so
+  // a session reaches 100% on the last answer and a single-question session
+  // does not read 0% throughout (L7).
+  private readonly answeredCount = signal(0);
+
+  /** Progress in percent, measured against the question queue. */
+  readonly progress = computed(() => {
+    const len = this.questions().length;
+    return len === 0 ? 100 : Math.round((this.answeredCount() * 100) / len);
+  });
+
+  /** The question under the cursor (null when the queue is empty). */
+  readonly currentQuestion = computed(() => {
+    const idx = this.currentIndex();
+    const questions = this.questions();
+    return idx >= 0 && idx < questions.length ? questions[idx] : null;
+  });
+
+  /** Whether the current question has been answered (and can be advanced). */
+  readonly isAnswered = computed(() => this.selectedIndex() >= 0);
+
+  /** Whether the user's pick on the current question was correct (false until answered). */
+  readonly isCorrect = computed(() => {
+    if (!this.isAnswered()) {
+      return false;
+    }
+    const question = this.currentQuestion();
+    return question ? this.selectedIndex() === question.answerIndex : false;
+  });
+
+  readonly correctCount = computed(() => this.results().filter(r => r.correct).length);
+  readonly incorrectCount = computed(() => this.results().filter(r => !r.correct).length);
+
+  /**
+   * Start a new session over `questions`. Returns false (and stays reset) when
+   * there is nothing to ask, so the caller can keep showing the list.
+   */
+  start(questions: VocabularyQuizQuestion[]): boolean {
+    this.reset();
+    if (questions.length === 0) {
+      return false;
+    }
+
+    this.questions.set(questions);
+    this.results.set(questions.map(q => ({ enword: q.enword, cnword: q.cnword, correct: true })));
+    this.currentIndex.set(0);
+    this.answeredCount.set(0);
+    return true;
+  }
+
+  /** Drop every piece of session state (quit mid-session / leave the result screen). */
+  reset(): void {
+    this.questions.set([]);
+    this.results.set([]);
+    this.currentIndex.set(-1);
+    this.selectedIndex.set(-1);
+    this.isComplete.set(false);
+    this.answeredCount.set(0);
+  }
+
+  /**
+   * Lock in the user's pick for the current question. Out-of-range picks and
+   * re-answers are ignored; the per-question result is recorded and the
+   * matching sound plays.
+   */
+  answer(index: number): void {
+    const question = this.currentQuestion();
+    if (!question || this.isAnswered() || index < 0 || index >= question.options.length) {
+      return;
+    }
+
+    const correct = index === question.answerIndex;
+    this.selectedIndex.set(index);
+    const qi = this.currentIndex();
+    this.results.update(rs => rs.map((r, i) => (i === qi ? { ...r, correct } : r)));
+    this.answeredCount.update(c => c + 1);
+    this.audiosrv.playSound(correct ? 'correct.wav' : 'beep.wav');
+  }
+
+  /** Move to the next question; answering the last one completes the session. */
+  next(): void {
+    if (!this.isAnswered()) {
+      return;
+    }
+
+    const nextIndex = this.currentIndex() + 1;
+    if (nextIndex < this.questions().length) {
+      this.currentIndex.set(nextIndex);
+      this.selectedIndex.set(-1);
+    } else {
+      // Session over: leave no live answer state behind.
+      this.isComplete.set(true);
+      this.currentIndex.set(-1);
+      this.selectedIndex.set(-1);
+      this.audiosrv.playSound('correct.wav');
+    }
+  }
+
+  /**
+   * Handle one keystroke: 1-4 / A-D pick the matching option, Enter or the
+   * right arrow advances to the next (already answered) question.
+   */
+  handleKey(key: string): void {
+    if (key === 'Enter' || key === 'ArrowRight') {
+      this.next();
+      return;
+    }
+
+    const idx = VocabularyQuizSessionStore.OPTION_KEYS.indexOf(key.toLowerCase());
+    if (idx === -1) {
+      return;
+    }
+    const optionIndex = idx % 4;
+    const question = this.currentQuestion();
+    if (question && optionIndex < question.options.length) {
+      this.answer(optionIndex);
+    }
+  }
+}

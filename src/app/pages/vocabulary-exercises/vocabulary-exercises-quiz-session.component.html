@@ -1,0 +1,48 @@
+<ng-container *transloco="let t">
+  <mat-toolbar class="container">
+    <mat-toolbar-row>
+      <section>
+        <div class="example-button-container">
+          <mat-progress-bar mode="determinate" [value]="store.progress()"></mat-progress-bar>
+        </div>
+      </section>
+      <span class="toolbar-spacer"></span>
+      <button mat-fab class="toolbar-fab-button" [matTooltip]="t('vocabularyExercises.nextQuestion')"
+        [attr.aria-label]="t('vocabularyExercises.nextQuestion')"
+        (click)="store.next()" [disabled]="!store.isAnswered()">
+        <mat-icon>next</mat-icon>
+      </button>
+      <button mat-fab class="toolbar-fab-button" [matTooltip]="t('vocabularyExercises.quit')"
+        [attr.aria-label]="t('vocabularyExercises.quit')" (click)="quit.emit()">
+        <mat-icon>cancel_presentation</mat-icon>
+      </button>
+    </mat-toolbar-row>
+  </mat-toolbar>
+  <div class="vocabulary-test-container">
+    <div class="vocabulary-test-prompt">
+      {{ store.currentQuestion()?.prompt }}
+    </div>
+
+    <div class="vocabulary-test-options">
+      @for (option of store.currentQuestion()?.options ?? []; track $index; let i = $index) {
+        <button mat-stroked-button class="vocabulary-test-option" (click)="store.answer(i)"
+          [class.vocabulary-test-option-correct]="store.isAnswered() && i === store.currentQuestion()?.answerIndex"
+          [class.vocabulary-test-option-wrong]="store.isAnswered() && i === store.selectedIndex() && i !== store.currentQuestion()?.answerIndex">
+          <span class="vocabulary-test-option-key">{{ optionKeys[i] }}</span>
+          <span class="vocabulary-test-option-text">{{ option }}</span>
+          @if (store.isAnswered() && i === store.currentQuestion()?.answerIndex) {
+            <mat-icon class="vocabulary-test-option-icon" aria-hidden="true">check_circle</mat-icon>
+          }
+          @if (store.isAnswered() && i === store.selectedIndex() && i !== store.currentQuestion()?.answerIndex) {
+            <mat-icon class="vocabulary-test-option-icon" aria-hidden="true">cancel</mat-icon>
+          }
+        </button>
+      }
+    </div>
+    @if (store.isAnswered()) {
+      <div class="vocabulary-test-status" role="status" aria-live="polite">
+        {{ store.isCorrect() ? t('vocabularyExercises.correct') : t('vocabularyExercises.incorrect') }}
+      </div>
+    }
+  </div>
+</ng-container>

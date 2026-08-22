@@ -216,4 +216,138 @@ describe('AudioService', () => {
     expect(cancelSpy).toHaveBeenCalledWith(123);
     expect(service['rafId']).toBeUndefined();
   });
+
+  describe('speakWord', () => {
+    let originalSpeechSynthesis: SpeechSynthesis | undefined;
+    let originalCtor: unknown;
+    let getVoicesMock: ReturnType<typeof vi.fn>;
+    let speakMock: ReturnType<typeof vi.fn>;
+    let cancelMock: ReturnType<typeof vi.fn>;
+    let voicesChangedHandler: (() => void) | null;
+
+    beforeEach(() => {
+      originalSpeechSynthesis = window.speechSynthesis;
+      originalCtor = (window as unknown as { SpeechSynthesisUtterance?: unknown }).SpeechSynthesisUtterance;
+      voicesChangedHandler = null;
+      getVoicesMock = vi.fn(() => []);
+      speakMock = vi.fn();
+      cancelMock = vi.fn();
+
+      Object.defineProperty(window, 'speechSynthesis', {
+        configurable: true,
+        value: {
+          getVoices: getVoicesMock,
+          speak: speakMock,
+          cancel: cancelMock,
+          set onvoiceschanged(fn: (() => void) | null) {
+            voicesChangedHandler = fn;
+          },
+          get onvoiceschanged(): (() => void) | null {
+            return voicesChangedHandler;
+          },
+        },
+      });
+
+      // jsdom does not ship SpeechSynthesisUtterance; provide a minimal stub.
+      (window as unknown as { SpeechSynthesisUtterance: unknown }).SpeechSynthesisUtterance =
+        class {
+          text: string;
+          lang = '';
+          rate = 1;
+          voice?: SpeechSynthesisVoice;
+          onerror?: (e: { error: string }) => void;
+          constructor(text: string) {
+            this.text = text;
+          }
+        };
+
+      // Fresh per-instance voice cache/listener state for each test.
+      service['cachedVoices'] = [];
+      service['voicesListenerAttached'] = false;
+    });
+
+    afterEach(() => {
+      Object.defineProperty(window, 'speechSynthesis', {
+        configurable: true,
+        value: originalSpeechSynthesis,
+      });
+      (window as unknown as { SpeechSynthesisUtterance: unknown }).SpeechSynthesisUtterance = originalCtor;
+    });
+
+    it('should not throw and should not speak when speechSynthesis is unavailable', () => {
+      Object.defineProperty(window, 'speechSynthesis', {
+        configurable: true,
+        value: undefined,
+      });
+
+      expect(() => service.speakWord('hello')).not.toThrow();
+      expect(speakMock).not.toHaveBeenCalled();
+    });
+
+    it('should speak the word with an en-US utterance at rate 0.9', () => {
+      service.speakWord('hello');
+
+      expect(cancelMock).toHaveBeenCalled();
+      expect(speakMock).toHaveBeenCalledTimes(1);
+      const utterance = speakMock.mock.calls[0][0] as SpeechSynthesisUtterance;
+      expect(utterance.text).toBe('hello');
+      expect(utterance.lang).toBe('en-US');
+      expect(utterance.rate).toBe(0.9);
+    });
+
+    it('should select the en-US voice from the cache when voices are already loaded', () => {
+      const usVoice = { lang: 'en-US', name: 'US English' } as SpeechSynthesisVoice;
+      getVoicesMock.mockReturnValue([usVoice]);
+
+      service.speakWord('hello');
+
+      const utterance = speakMock.mock.calls[0][0] as SpeechSynthesisUtterance;
+      expect(utterance.voice).toBe(usVoice);
+    });
+
+    it('should attach onvoiceschanged and refresh the cache when voices load later', () => {
+      // First call: no voices available yet — selection skipped, listener attached.
+      service.speakWord('hello');
+      expect(voicesChangedHandler).not.toBeNull();
+      const firstUtterance = speakMock.mock.calls[0][0] as SpeechSynthesisUtterance;
+      expect(firstUtterance.voice).toBeUndefined();
+
+      // Platform later publishes the voice list.
+      const usVoice = { lang: 'en-US', name: 'US English' } as SpeechSynthesisVoice;
+      getVoicesMock.mockReturnValue([usVoice]);
+      voicesChangedHandler!();
+
+      // The next utterance should now pick up the cached US voice.
+      service.speakWord('world');
+      const secondUtterance = speakMock.mock.calls[1][0] as SpeechSynthesisUtterance;
+      expect(secondUtterance.voice).toBe(usVoice);
+    });
+
+    it('should not re-attach the onvoiceschanged listener on subsequent calls', () => {
+      service.speakWord('hello');
+      const firstHandler = voicesChangedHandler;
+      service.speakWord('world');
+      expect(voicesChangedHandler).toBe(firstHandler);
+    });
+
+    it('should not warn on interrupted/canceled errors', () => {
+      const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
+      service.speakWord('hello');
+      const utterance = speakMock.mock.calls[0][0] as SpeechSynthesisUtterance;
+      const makeEvent = (error: string) => ({ error } as unknown as SpeechSynthesisErrorEvent);
+      utterance.onerror!(makeEvent('interrupted'));
+      utterance.onerror!(makeEvent('canceled'));
+      expect(warnSpy).not.toHaveBeenCalled();
+      warnSpy.mockRestore();
+    });
+
+    it('should warn on other speechSynthesis errors', () => {
+      const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
+      service.speakWord('hello');
+      const utterance = speakMock.mock.calls[0][0] as SpeechSynthesisUtterance;
+      utterance.onerror!({ error: 'audio-busy' } as unknown as SpeechSynthesisErrorEvent);
+      expect(warnSpy).toHaveBeenCalledWith('speechSynthesis error:', 'audio-busy');
+      warnSpy.mockRestore();
+    });
+  });
 });

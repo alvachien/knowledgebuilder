@@ -32,9 +32,9 @@ ng generate service service-name         # Generate service
 ```
 src/
   app/
-    pages/            # Feature page components (routed views, lazy-loaded)
+    pages/            # Feature page components (routed views, lazy-loaded), incl. signin-callback, user-detail, page-title
     shared/           # Reusable components, directives, theme/style-manager
-    services/         # Injectable services (audio, storage, AI, UI, util, katex, marked, user-code)
+    services/         # Injectable services (learning-content, audio, auth, rating, AI, UI, util, katex, marked, user-code)
     interfaces/       # TypeScript interfaces, enums, and data models
   assets/
     data/i18n/        # Transloco translation files (en.json, zh-CN.json)
@@ -44,7 +44,8 @@ public/
   font/               # Font assets
   sounds/             # Sound-effect audio clips
   favicon.png / favicon.svg
-tools/                # Validation scripts, schema, converters (Python, JS, PowerShell)
+docs/                 # Architecture/design notes (data-models.md is the data-model reference)
+tools/                # Validation scripts, schema, converters (Python, JS, PowerShell), raw exercise JSON
 ```
 
 ### Routing (`app.routes.ts`)
@@ -58,19 +59,38 @@ All routes are lazy-loaded via `loadComponent` / `loadChildren`:
 - `/chinese` → Chinese exercises (child routes via `chinese-exercises.routes.ts`)
 - `/formula` → Formula recites
 - `/knowledge` → Knowledge exercises (child routes: list + `displayv2`)
+- `/signin-callback` → OIDC sign-in callback (public)
 - `/user-detail` → User detail
 - `/404` → Not found (`**` catch-all redirects here)
+
+All exercise routes (`/vocabulary`, `/translating`, `/listening`, `/chinese`, `/formula`, `/knowledge`) plus `/user-detail` are wrapped in `canActivate: [AuthGuardService]` (OIDC; see the parent `CLAUDE.md` shared auth contract).
 
 ### Key Services
 
 - **LearningContentService** — Central data loading service. Fetches the file list for every category (Vocabulary, Sentences, Listening, Chinese, Formula, Knowledge Bank) from the `api/LearningContents` endpoint and loads each file's content via the authenticated `api/Storage` controller. HTTP responses are cached per category/fileUrl. `LearningContent` records also carry `version`, `includeLatex`, and `translationDisabled` metadata, so no separate index-file load is needed.
-- **AudioService** — Audio playback via Howler.js. Uses DI tokens for testability: `HOWLER_PROVIDER` (global Howler), `HOWL_FACTORY` (Howl instance factory).
+- **AudioService** — Audio playback via Howler.js (`playSound()`), plus word pronunciation via the browser Web Speech API (`speakWord()`, with a voice cache). Uses DI tokens for testability: `HOWLER_PROVIDER` (global Howler), `HOWL_FACTORY` (Howl instance factory).
 - **KaTeXService** — Math formula rendering.
 - **MarkedService** — Markdown parsing.
 - **AiService** — AI integration for learning assistance.
+- **AuthService / AuthGuardService / AuthInterceptor** (`auth.service.ts`, `auth-guard.service.ts`, `auth.interceptor.ts`) — OIDC authentication via `angular-auth-oidc-client` against `acidserver`. The functional guard protects all exercise routes; the interceptor attaches tokens to API calls.
+- **LearningRatingService** — Per-user learning ratings, persisted server-side via the rating API, with per-content in-memory caching.
+- **UtilService** — General utilities.
 - **UiService** — UI utilities.
 - **UserCodeService** — Tracks user-entered access codes.
 - **AppPageTitle** (`pages/page-title/`) — Sets page-level browser title via `@angular/platform-browser` `Title` service, with environment-configured suffix.
+
+### Vocabulary Exercises Page Architecture (`pages/vocabulary-exercises/`)
+
+Decomposed into a container component, presentational children, and three signal stores (see `docs/vocabulary-page-architecture-refactor-plan.md`):
+
+- **`VocabularyExercisesComponent`** - the container. Owns a `mode` signal (`'list' | 'review' | 'spelling' | 'spellingresult' | 'quiz' | 'quizresult'`); the template renders exactly one screen via `@switch`, so screen components are created/destroyed on transition. Owns file loading, the shared `MatTableDataSource`/`SelectionModel`, word-queue preparation (filters → shuffle → cap via `prepareWordQueue()`), and all dialog orchestration: dialogs open via `MatDialog`, and `afterClosed()` is piped through `takeUntilDestroyed(destroyRef)`; an `undefined` result (Cancel/backdrop/Esc) leaves state untouched.
+- **`VocabularyExercisesWordListComponent`** - the presentational list screen. Receives the container's shared dataSource/selection/signals as inputs and forwards user intents as outputs; wires its template's paginator/sort onto the shared dataSource via `@ViewChild` setters.
+- **Signal stores** - `ReviewSessionStore` (queue, cursor, auto-mode interval, per-word `ratingMap`, progress computeds), `SpellingSessionStore` (queue, per-letter reveal state, results), and `QuizSessionStore` (single-choice question queue, per-question answer state, results). Plain `@Injectable()` classes (no state library), provided in the container's `providers` so the container and session screens share one instance per page instance. They are imported directly, not via the barrel.
+- **Session screens** - `review-session`, `spelling-session`, `spelling-result`, `quiz-session`, and `quiz-result` components inject their store directly (no state inputs) and each registers a `document:keyup` `@HostListener`, so keystroke handling only lives while that screen is mounted.
+- **Dialogs** - one mode-driven select dialog (By Count / Free Selection / By Word), plus `reviewoptions`, `spellingoptions`, `worksheetoptions`, `quizoptions`, `word-filter`, and `rating-filter` dialogs. Filter dialogs clone their seed conditions so Cancel cannot mutate them; options dialogs round-trip `currentSettings` so reopening shows the last picks.
+- **Filter pipeline** - free-text + word conditions + rating conditions combine into a `VocabularyListFilter` (`interfaces/vocabulary.ts`), serialized as JSON into `MatTableDataSource.filter`; the row predicate delegates to the pure `matchVocabularyListFilter()` (closing over the rating map). After async rating loads, re-assign `dataSource.filter = dataSource.filter` to force re-filtering.
+- **Ratings** - list ratings live in a `contentRatingMap` signal; the review store captures only server-confirmed ratings and returns them on `quit()`, which the container merges back into the map. Temporary (uploaded) content gets a synthetic `LearningContent` with a negative id, and rating calls are disabled for it.
+- **Quiz exercise** - the Exercises-menu Quiz item reuses the shared word-queue selection (table selection, else filter + `prepareWordQueue`), then builds single-choice questions via the pure `buildVocabularyQuizQuestions()` (`interfaces/vocabulary.ts`): EN word -> pick the CN explanation among 4 candidates (`en2cn`), or CN explanation -> pick the EN word (`cn2en`). Distractors come from the visible (filtered) rows, deduplicated by displayed text; questions that cannot gather one distinct alternative are skipped.
 
 ### Internationalization (Transloco)
 
@@ -170,7 +190,7 @@ Component 'FooComponent' is not resolved:
 Did you run and wait for 'resolveComponentResources()'?
 ```
 
-`ng test` routes through the Angular builder, which properly compiles inline and external templates/styles before handing off to Vitest. The full suite (38 spec files covering component, service, dialog, and guard tests) passes cleanly this way.
+`ng test` routes through the Angular builder, which properly compiles inline and external templates/styles before handing off to Vitest. The full suite (44 spec files, ~1400 tests including component, service, dialog, store, and guard tests) passes cleanly this way.
 
 ### Patterns
 
@@ -224,6 +244,10 @@ Located in `tools/`:
 - `cutmp3.py` / `cutmp3v2.py` — Audio file processing
 - `enwordjson2excel.py` — Word data to Excel export
 - `find_duplicates.py` — Duplicate detection in data files
+
+`tools/` also holds the raw knowledge-exercise JSON data files (`1-01.json` ... `2-06.json`, `questions.json`) and a Python venv at `tools/.venv/` (self-ignored via its own internal `.gitignore` — never commit it). Tool documentation lives in `docs/util-tools.md`.
+
+Other docs in `docs/`: `data-models.md` (the data-model reference), `authentication-flow.md`, `vocabulary-exercises-architecture.md` (the as-built vocabulary-page design — container/store/screen/dialog structure, filter pipeline, ratings, and the worksheet-generation & print-rendering flow, which supersedes the former `vocabulary-print.md`), `vocabulary-page-review.md` (code-review findings & fix status), and `chinese-print.md` (Chinese print/format notes).
 
 > **Note:** `validate-schema.js`, `exercise-schema.json`, and `exercise-validation-report.md` are legacy/stale — they target a removed `public/data/knowledge-exercises/` path. Schema validation now lives in the `knowledgebuilder-content` repo (`util/validate-schema.js`, run via `npm run validate`).
 

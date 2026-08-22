@@ -12,25 +12,12 @@
     <div class="control-full-width">
       <mat-checkbox [(ngModel)]="hideExplain"> {{ t('vocabularyExercises.hideExplaination') }} </mat-checkbox>
     </div>
-    <mat-form-field class="control-full-width">
-      <mat-label>{{ t('vocabularyExercises.leadingCharacter') }}</mat-label>
-      <mat-select [(value)]="wordLeadingCharacter" multiple [disabled]="data.withSelection">
-        @for (char of allCharacters; track $index ) {
-          <mat-option [value]="char">{{char}}</mat-option>
-        }
-      </mat-select>
-    </mat-form-field>
-    <mat-form-field class="control-full-width">
-      <mat-label>{{ t('vocabularyExercises.excludedPart') }}</mat-label>
-      <mat-select [(value)]="excludePart" [disabled]="data.withSelection">
-        @for (char of allExcludeParts; track $index ) {
-          <mat-option [value]="char.value">{{char.label}}</mat-option>
-        }
-      </mat-select>
-    </mat-form-field>
   </mat-dialog-content>
+  @if (isOutputDisabled) {
+    <div class="control-full-width dialog-validation-message">{{ t('vocabularyExercises.voiceAndExplainExclusive') }}</div>
+  }
   <mat-dialog-actions>
     <button mat-button (click)="onNoClick()">{{ t('no') }}</button>
-    <button mat-button (click)="onYesClick()" cdkFocusInitial>{{ t('ok') }}</button>
+    <button mat-button (click)="onYesClick()" [disabled]="isOutputDisabled || isCountInvalid" cdkFocusInitial>{{ t('ok') }}</button>
   </mat-dialog-actions>
 </div>

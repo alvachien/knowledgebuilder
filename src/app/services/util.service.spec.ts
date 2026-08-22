@@ -4,7 +4,6 @@ import { format } from 'date-fns';
 import {
   ChineseExerciseTypeEnum,
   QuestionBankItemLevelEnum,
-  VocabularyExcludedPartEnum,
 } from '../interfaces';
 
 import { UtilService } from './util.service';
@@ -26,13 +25,6 @@ describe('UtilService', () => {
     expect(result).toEqual('Date: __________. Start: _____, End: _____. Score: ____');
   });
 
-  it('should return the expected character array', () => {
-    const result = service.getAllCharacters();
-    expect(result.length).toEqual(26);
-    expect(result[0]).toEqual('a');
-    expect(result[25]).toEqual('z');
-  });
-
   describe('getEntryDateString', () => {
     it('should return formatted date when provided', () => {
       const testDate = new Date(2023, 0, 15); // Jan 15, 2023
@@ -44,15 +36,6 @@ describe('UtilService', () => {
     it('should return placeholders when no date provided', () => {
       const result = service.getEntryDateString();
       expect(result).toEqual('Date: __________. Start: _____, End: _____. Score: ____');
-    });
-  });
-
-  describe('getAllTypingExcludeParts', () => {
-    it('should return the expected exclude parts', () => {
-      const result = service.getAllTypingExcludeParts();
-      expect(result.length).toEqual(2);
-      expect(result[0]).toEqual({ value: VocabularyExcludedPartEnum.word, label: 'Words' });
-      expect(result[1]).toEqual({ value: VocabularyExcludedPartEnum.phase, label: 'Phases' });
     });
   });
 

@@ -1,0 +1,4 @@
+// See word-list: the host replaces blocks that were direct flex items.
+:host {
+    display: contents;
+}
