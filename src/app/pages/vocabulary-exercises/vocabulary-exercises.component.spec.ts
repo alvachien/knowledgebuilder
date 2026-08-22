@@ -848,7 +848,6 @@ describe('VocabularyExercisesComponent', () => {
       expect(mockDialog.open).toHaveBeenCalledWith(expect.any(Function), {
         data: { wordQueueCount: 2, withSelection: true, currentSettings: component.reviewSetting },
         width: '500px',
-        height: '480px',
         enterAnimationDuration: 800,
         exitAnimationDuration: 500,
       });
@@ -864,7 +863,6 @@ describe('VocabularyExercisesComponent', () => {
       expect(mockDialog.open).toHaveBeenCalledWith(expect.any(Function), {
         data: { wordQueueCount: 8, withSelection: false, currentSettings: component.reviewSetting },
         width: '500px',
-        height: '480px',
         enterAnimationDuration: 800,
         exitAnimationDuration: 500,
       });
