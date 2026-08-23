@@ -235,7 +235,7 @@ describe('FormulaRecitesComponent', () => {
     });
 
     it('should handle error when loading formula data files', () => {
-      vi.spyOn(console, 'error');
+      vi.spyOn(console, 'error').mockImplementation(() => {});
       mockLearningContentService.getFormulaContents.mockReturnValue(
         throwError(() => new Error('Error'))
       );
@@ -272,7 +272,7 @@ describe('FormulaRecitesComponent', () => {
     });
 
     it('should handle error when loading formula content', () => {
-      vi.spyOn(console, 'error');
+      vi.spyOn(console, 'error').mockImplementation(() => {});
       mockLearningContentService.getFormulaFileContent.mockReturnValue(
         throwError(() => new Error('Error'))
       );

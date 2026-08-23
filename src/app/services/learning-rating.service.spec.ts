@@ -121,6 +121,24 @@ describe('LearningRatingService', () => {
   });
 
   describe('upsertRating', () => {
+    // upserts are serialized through a Promise chain (upsertRating →
+    // firstValueFrom(doUpsert)). The chain only progresses far enough to issue
+    // its inner HTTP call once microtasks drain. Drain them with a pure
+    // microtask (Promise.resolve) instead of a macrotask (setTimeout 0): the
+    // latter flaked under zone.js on CI and hit the 5s test timeout, leaving an
+    // unflushed request whose async teardown then polluted the following
+    // clearCache tests. A microtask drain never crosses into a zone.js
+    // macrotask, so it has no 5s-timeout path.
+    const flushMicrotasks = async (): Promise<void> => {
+      // A bounded loop of microtask ticks drains the (short, fixed-depth)
+      // upsert chain plus any zone bookkeeping without ever scheduling a
+      // macrotask.
+      for (let i = 0; i < 10; i++) {
+        // eslint-disable-next-line no-await-in-loop
+        await Promise.resolve();
+      }
+    };
+
     it('should update existing rating and reflect in cache', async () => {
       // Populate cache
       service.getRatings(CONTENT_ID).subscribe();
@@ -129,13 +147,12 @@ describe('LearningRatingService', () => {
       service.upsertRating(CONTENT_ID, ITEM_ID, 4).subscribe(saved => {
         expect(saved.rating).toBe(4);
       });
-      // upserts are serialized through a promise chain — let it settle so the
-      // inner HTTP call is issued before expecting it.
-      await new Promise(resolve => setTimeout(resolve, 0));
+      // Drain the Promise chain so doUpsert issues its inner HTTP call.
+      await flushMicrotasks();
       // upsertRating calls getRatings(contentId, itemId) which hits cache (no HTTP)
       // then calls updateRating since item exists
       httpMock.expectOne(`${API_URL}/100`).flush(null);
-      await new Promise(resolve => setTimeout(resolve, 0));
+      await flushMicrotasks();
 
       // Verify cache
       service.getRatings(CONTENT_ID).subscribe(ratings => {
@@ -155,11 +172,11 @@ describe('LearningRatingService', () => {
         rating: 5,
       };
       service.upsertRating(CONTENT_ID, ITEM_ID, 5).subscribe();
-      await new Promise(resolve => setTimeout(resolve, 0));
+      await flushMicrotasks();
       // getRatings(contentId, itemId) hits cache (empty) — no HTTP
       // createRating is called
       httpMock.expectOne(API_URL).flush(newRating);
-      await new Promise(resolve => setTimeout(resolve, 0));
+      await flushMicrotasks();
 
       // Verify cache now contains the new rating
       service.getRatings(CONTENT_ID).subscribe(ratings => {
@@ -177,15 +194,15 @@ describe('LearningRatingService', () => {
       // the first POSTs, the second sees the created row and PUTs instead.
       service.upsertRating(CONTENT_ID, ITEM_ID, 3).subscribe();
       service.upsertRating(CONTENT_ID, ITEM_ID, 5).subscribe();
-      await new Promise(resolve => setTimeout(resolve, 0));
+      await flushMicrotasks();
 
       httpMock
         .expectOne(API_URL)
         .flush({ id: 200, contentId: CONTENT_ID, itemId: ITEM_ID, rating: 3 });
-      await new Promise(resolve => setTimeout(resolve, 0));
+      await flushMicrotasks();
 
       httpMock.expectOne(`${API_URL}/200`).flush(null);
-      await new Promise(resolve => setTimeout(resolve, 0));
+      await flushMicrotasks();
 
       service.getRatings(CONTENT_ID).subscribe(ratings => {
         expect(ratings.length).toBe(1);
