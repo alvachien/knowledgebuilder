@@ -88,7 +88,7 @@ describe('TranslateExercisesComponent', () => {
         if (key === 'translateExercises.englishToChinese') {
           return '英译中';
         }
-        if (key === 'translateExercises.explain') {
+        if (key === 'explain') {
           return '讲解';
         }
         if (key === 'translateExercises.correct') {
@@ -1026,7 +1026,7 @@ describe('TranslateExercisesLLMDialogComponent', () => {
         if (key === 'translateExercises.englishToChinese') {
           return '英译中';
         }
-        if (key === 'translateExercises.explain') {
+        if (key === 'explain') {
           return '讲解';
         }
         if (key === 'translateExercises.correct') {

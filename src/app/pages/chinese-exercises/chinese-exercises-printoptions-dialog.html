@@ -11,13 +11,13 @@
     </mat-form-field>
 
     <mat-form-field class="control-full-width">
-      <mat-label>{{ t('chineseExercises.count') }}</mat-label>
+      <mat-label>{{ t('count') }}</mat-label>
       <input matInput type="number" [(ngModel)]="countOfItems" name="reciteCount" [disabled]="data.disableCount">
       <span matSuffix>{{data.reciteContentCount}}</span>
     </mat-form-field>
 
     <div class="control-full-width">
-      <mat-checkbox [(ngModel)]="printEntryDate" name="reciteEntryDate"> {{ t('chineseExercises.printEntryDate') }} </mat-checkbox>
+      <mat-checkbox [(ngModel)]="printEntryDate" name="reciteEntryDate"> {{ t('printEntryDate') }} </mat-checkbox>
     </div>
 
     <div class="control-full-width">
@@ -34,7 +34,7 @@
     </div>
 
     <mat-form-field class="control-full-width">
-      <mat-label>{{ t('chineseExercises.execDate') }}</mat-label>
+      <mat-label>{{ t('execDate') }}</mat-label>
       <input matInput [(ngModel)]="execDate" name="reciteExecDate" [matDatepicker]="picker" [disabled]="selectedExecDateModel() !== 2">
       <mat-datepicker-toggle matIconSuffix [for]="picker"></mat-datepicker-toggle>
       <mat-datepicker #picker></mat-datepicker>

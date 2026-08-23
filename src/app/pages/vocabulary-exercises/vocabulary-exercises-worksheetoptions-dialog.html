@@ -2,7 +2,7 @@
   <h2 mat-dialog-title>{{ t('vocabularyExercises.optionsOfPrinting') }}</h2>
   <mat-dialog-content class="control-full-width">
     <mat-form-field class="control-full-width">
-      <mat-label>{{ t('vocabularyExercises.count') }}</mat-label>
+      <mat-label>{{ t('count') }}</mat-label>
       <input matInput type="number" [(ngModel)]="countOfItems" [disabled]="data.withSelection">
       <span matSuffix>{{data.wordQueueCount}}</span>
     </mat-form-field>
@@ -11,7 +11,7 @@
       <input matInput type="text" [(ngModel)]="subTitle">
     </mat-form-field>
     <div class="control-full-width">
-      <mat-checkbox [(ngModel)]="printEntryDate"> {{ t('vocabularyExercises.printEntryDate') }} </mat-checkbox>
+      <mat-checkbox [(ngModel)]="printEntryDate"> {{ t('printEntryDate') }} </mat-checkbox>
     </div>
     <div class="control-full-width">
       <mat-checkbox [(ngModel)]="printFirstLetter"> {{ t('vocabularyExercises.printFirstLetter') }} </mat-checkbox>

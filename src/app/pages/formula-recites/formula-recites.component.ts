@@ -485,7 +485,7 @@ export class FormulaRecitesLLMDialogComponent {
   getAIModeName(mode: FormulaReciteAIModeEnum): string {
     switch (mode) {
       case FormulaReciteAIModeEnum.Explain:
-        return this.transloco.translate('formulaRecites.explain');
+        return this.transloco.translate('explain');
       default:
         return this.transloco.translate('formulaRecites.generateQuiz');
     }

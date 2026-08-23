@@ -47,7 +47,7 @@ function createMockTranslocoService() {
     selectTranslate: vi.fn().mockReturnValue(of('')),
     _loadDependencies: vi.fn().mockReturnValue(of(null)),
     translate: vi.fn((key: string) => {
-      if (key === 'formulaRecites.explain') {
+      if (key === 'explain') {
         return '讲解';
       }
       if (key === 'formulaRecites.generateQuiz') {
@@ -59,7 +59,7 @@ function createMockTranslocoService() {
       if (key === 'translateExercises.englishToChinese') {
         return '英译中';
       }
-      if (key === 'translateExercises.explain') {
+      if (key === 'explain') {
         return '讲解';
       }
       if (key === 'translateExercises.correct') {

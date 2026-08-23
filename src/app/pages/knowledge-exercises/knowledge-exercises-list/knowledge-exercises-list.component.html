@@ -8,25 +8,25 @@
         </span>
         <span class="toolbar-spacer"></span>
         <mat-form-field class="toolbar-item">
-          <mat-label>{{ t('knowledgeExercises.files') }}</mat-label>
+          <mat-label>{{ t('files') }}</mat-label>
           <mat-select matNativeControl [(value)]="selectedFile" (selectionChange)="onFileSelectionChanged($event)"
-            [disabled]="isLoadingContents" [placeholder]="isLoadingContents ? t('loading') : t('knowledgeExercises.files')">
+            [disabled]="isLoadingContents" [placeholder]="isLoadingContents ? t('loading') : t('files')">
             @if (isLoadingContents) {
               <mat-option disabled>
                 <mat-spinner diameter="18"></mat-spinner>
                 {{ t('loading') }}
               </mat-option>
             }
-            <mat-option value="">{{ t('knowledgeExercises.none') }}</mat-option>
+            <mat-option value="">{{ t('none') }}</mat-option>
             @for (file of allFiles; track file.id ) {
             <mat-option [value]="file">{{file.nameChinese}}</mat-option>
             }
           </mat-select>
         </mat-form-field>
-        <span class="toolbar-item-count" matSuffix><small>{{ t('knowledgeExercises.items') }}: {{itemCount}}</small></span>
+        <span class="toolbar-item-count" matSuffix><small>{{ t('items') }}: {{itemCount}}</small></span>
         <section style="padding-left: 8px;">
           <div class="example-button-container">
-            <button mat-fab [matMenuTriggerFor]="selectMenu" [matTooltip]="t('knowledgeExercises.select')"
+            <button mat-fab [matMenuTriggerFor]="selectMenu" [matTooltip]="t('select')"
               [disabled]="!selectedFile">
               <mat-icon>query_builder</mat-icon>
             </button>
@@ -36,11 +36,11 @@
           <button mat-menu-item (click)="onSelectByCount()">{{ t('knowledgeExercises.selectByCount') }}</button>
           <button mat-menu-item (click)="onSelectByID()">{{ t('knowledgeExercises.selectByID') }}</button>
           <button mat-menu-item (click)="onSelectFreeSelection()">{{ t('knowledgeExercises.selectFree') }}</button>
-          <button mat-menu-item (click)="onSelectByRating()">{{ t('knowledgeExercises.selectByRating') }}</button>
+          <button mat-menu-item (click)="onSelectByRating()">{{ t('selectByRating') }}</button>
         </mat-menu>
         <section style="padding-left: 8px;">
           <div class="example-button-container">
-            <button mat-fab [matTooltip]="t('knowledgeExercises.print')" (click)="onPreview()"
+            <button mat-fab [matTooltip]="t('print')" (click)="onPreview()"
               [disabled]="selection.isEmpty()">
               <mat-icon>print</mat-icon>
             </button>
@@ -51,7 +51,7 @@
 
     <div class="container">
       <mat-form-field class="w-full">
-        <mat-label>{{ t('knowledgeExercises.filter') }}</mat-label>
+        <mat-label>{{ t('filter') }}</mat-label>
         <input matInput (keyup)="applyFilter($event)" #input>
       </mat-form-field>
 
@@ -73,7 +73,7 @@
 
         <!-- ID Column -->
         <ng-container matColumnDef="id">
-          <th mat-header-cell *matHeaderCellDef> {{ t('knowledgeExercises.id') }} </th>
+          <th mat-header-cell *matHeaderCellDef> {{ t('id') }} </th>
           <td mat-cell *matCellDef="let element">
             <button mat-button (click)="onShowDetail(element.id)">{{element.id}}</button>
           </td>
@@ -91,7 +91,7 @@
         <ng-container matColumnDef="tags">
           <th mat-header-cell *matHeaderCellDef> {{ t('knowledgeExercises.tags') }} </th>
           <td mat-cell *matCellDef="let element"> {{element.tags ? element.tags.join(', ') : ''}} </td>
-          <td mat-footer-cell *matFooterCellDef> {{ t('knowledgeExercises.totalRecords') }}: {{itemCount}} </td>
+          <td mat-footer-cell *matFooterCellDef> {{ t('totalRecords') }}: {{itemCount}} </td>
         </ng-container>
 
         <!-- Difficulty -->
@@ -121,7 +121,7 @@
 
         <!-- Rating Column -->
         <ng-container matColumnDef="rating">
-          <th mat-header-cell *matHeaderCellDef> {{ t('knowledgeExercises.rating') }} </th>
+          <th mat-header-cell *matHeaderCellDef> {{ t('rating') }} </th>
           <td mat-cell *matCellDef="let element">
             <mat-button-toggle-group [ngModel]="getRating(element.id)" aria-label="Rating"
               (change)="onContentRatingChanged(element, $event)">
@@ -132,7 +132,7 @@
               <mat-button-toggle [value]="5">5</mat-button-toggle>
             </mat-button-toggle-group>
           </td>
-          <td mat-footer-cell *matFooterCellDef> {{ t('knowledgeExercises.totalSelections') }}: {{selection.selected.length}} </td>
+          <td mat-footer-cell *matFooterCellDef> {{ t('totalSelections') }}: {{selection.selected.length}} </td>
         </ng-container>
 
         <tr mat-header-row *matHeaderRowDef="displayedColumns; sticky: true"></tr>
@@ -165,15 +165,15 @@
         <span class="toolbar-spacer"></span>
         <section style="padding-left: 8px;">
           <div class="example-button-container">
-            <button mat-fab extended [matTooltip]="t('knowledgeExercises.toggleAnswer')" (click)="onToggleAnswer()"
+            <button mat-fab extended [matTooltip]="t('toggleAnswer')" (click)="onToggleAnswer()"
               [disabled]="!selectedElement?.hasAnswer">
-              {{ t('knowledgeExercises.toggleAnswer') }}
+              {{ t('toggleAnswer') }}
             </button>
             <button mat-fab extended [matTooltip]="t('knowledgeExercises.toggleHintOfAnswer')"
               (click)="onToggleHintOfAnswer()" [disabled]="!selectedElement?.hasHintOfAnswer()">
               {{ t('knowledgeExercises.toggleHintOfAnswer') }}
             </button>
-            <button mat-fab [matTooltip]="t('knowledgeExercises.backToList')" (click)="onBackToList()">
+            <button mat-fab [matTooltip]="t('backToList')" (click)="onBackToList()">
               <mat-icon>door_back</mat-icon>
             </button>
           </div>
@@ -194,7 +194,7 @@
     @if (showDetailHintOfAnswer) {
     <div class="container knowledge-exercises-detail-view">
       <mat-divider></mat-divider>
-      {{ t('knowledgeExercises.hint') }}:
+      {{ t('hint') }}:
       <br />
       <app-markdown-content [markdown]="hintOfAnswerMarkdownStr" [enableMath]="false" [imageBaseUrl]="currentImageBaseUrl"></app-markdown-content>
     </div>
@@ -221,7 +221,7 @@
         <span class="toolbar-spacer"></span>
         <section style="padding-left: 8px;">
           <div class="example-button-container">
-            <button mat-fab [matTooltip]="t('knowledgeExercises.backToList')" (click)="onBackToList()">
+            <button mat-fab [matTooltip]="t('backToList')" (click)="onBackToList()">
               <mat-icon>door_back</mat-icon>
             </button>
           </div>

@@ -122,6 +122,55 @@ describe('VocabularyQuizSessionStore', () => {
     });
   });
 
+  describe('previous', () => {
+    it('is disabled at the first question (no-op)', () => {
+      store.start([question(), question({ enword: 'banana' })]);
+
+      expect(store.isPreviousDisabled()).toBe(true);
+      store.previous();
+
+      expect(store.currentIndex()).toBe(0);
+    });
+
+    it('moves back to the previous question and restores its pick', () => {
+      store.start([question(), question({ enword: 'banana', cnword: '香蕉', answerIndex: 1 })]);
+      store.answer(0); // correct on q0
+      store.next();
+      store.answer(0); // wrong on q1 (correct index is 1)
+      expect(store.currentIndex()).toBe(1);
+
+      store.previous();
+
+      expect(store.currentIndex()).toBe(0);
+      // Restored pick of q0, not a blank slate.
+      expect(store.selectedIndex()).toBe(0);
+      expect(store.isAnswered()).toBe(true);
+      expect(store.isCorrect()).toBe(true);
+    });
+
+    it('re-displays the wrong pick when going back to a missed question', () => {
+      store.start([question({ answerIndex: 1 }), question({ enword: 'banana', cnword: '香蕉' })]);
+      store.answer(0); // wrong on q0 (correct index is 1)
+      store.next();
+      store.previous();
+
+      expect(store.selectedIndex()).toBe(0);
+      expect(store.isCorrect()).toBe(false);
+    });
+
+    it('is a no-op after completion', () => {
+      store.start([question()]);
+      store.answer(0);
+      store.next();
+      expect(store.isComplete()).toBe(true);
+
+      store.previous();
+
+      expect(store.currentIndex()).toBe(-1);
+      expect(store.isComplete()).toBe(true);
+    });
+  });
+
   describe('handleKey', () => {
     beforeEach(() => {
       store.start([question()]);
@@ -160,6 +209,25 @@ describe('VocabularyQuizSessionStore', () => {
       store.handleKey('ArrowRight');
 
       expect(store.isComplete()).toBe(true);
+    });
+
+    it('goes back with ArrowLeft to review a previous question', () => {
+      store.start([question(), question({ enword: 'banana' })]);
+      store.answer(0);
+      store.handleKey('Enter');
+      expect(store.currentIndex()).toBe(1);
+
+      store.handleKey('ArrowLeft');
+
+      expect(store.currentIndex()).toBe(0);
+      expect(store.selectedIndex()).toBe(0);
+    });
+
+    it('ArrowLeft is a no-op at the first question', () => {
+      store.start([question(), question({ enword: 'banana' })]);
+      store.handleKey('ArrowLeft');
+
+      expect(store.currentIndex()).toBe(0);
     });
   });
 

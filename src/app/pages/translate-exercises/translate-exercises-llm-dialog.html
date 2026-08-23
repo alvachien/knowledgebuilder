@@ -1,8 +1,8 @@
 <div *transloco="let t">
-  <h2 mat-dialog-title>{{ t('translateExercises.chatWithAI') }}</h2>
+  <h2 mat-dialog-title>{{ t('chatWithAI') }}</h2>
   <mat-dialog-content>
     <mat-form-field class="control-full-width">
-      <mat-label>{{ t('translateExercises.mode') }}</mat-label>
+      <mat-label>{{ t('mode') }}</mat-label>
       <mat-select matNativeControl [(value)]="mode">
         @for (lvl of allAIModes; track lvl.value ) {
           <mat-option [value]="lvl.value">{{getAIModeName(lvl.value)}}</mat-option>
@@ -18,12 +18,12 @@
       <input matInput type="text" [(ngModel)]="trans" [disabled]="!isTranslationModeCorrection">
     </mat-form-field>
     <mat-form-field class="control-full-width">
-      <mat-label>{{ t('translateExercises.aiReply') }}</mat-label>
+      <mat-label>{{ t('aiReply') }}</mat-label>
       <textarea matInput placeholder="AI replys..." rows="5" [(ngModel)]="aireply" readonly="true"></textarea>
     </mat-form-field>
   </mat-dialog-content>
   <mat-dialog-actions>
-    <button mat-button (click)="onSubmit()" cdkFocusInitial>{{ t('translateExercises.submit') }}</button>
-    <button mat-button (click)="onNoClick()">{{ t('translateExercises.close') }}</button>
+    <button mat-button (click)="onSubmit()" cdkFocusInitial>{{ t('submit') }}</button>
+    <button mat-button (click)="onNoClick()">{{ t('close') }}</button>
   </mat-dialog-actions>
 </div>

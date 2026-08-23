@@ -7,15 +7,15 @@
         </span>
         <span class="toolbar-spacer"></span>
         <mat-form-field class="page-toolbar-item">
-          <mat-label>{{ t('formulaRecites.files') }}</mat-label>
+          <mat-label>{{ t('files') }}</mat-label>
           <mat-select matNativeControl [(value)]="selectedFile" (selectionChange)="onFileSelectionChanged($event)">
-            <mat-option value="">{{ t('formulaRecites.none') }}</mat-option>
+            <mat-option value="">{{ t('none') }}</mat-option>
             @for (file of allFiles; track file.id ) {
               <mat-option [value]="file">{{file.nameChinese}}</mat-option>
             }
           </mat-select>
         </mat-form-field>
-        <span class="toolbar-item-count" matSuffix><small>{{ t('formulaRecites.items') }}: {{reciteContentCount}}</small></span>
+        <span class="toolbar-item-count" matSuffix><small>{{ t('items') }}: {{reciteContentCount}}</small></span>
         <section style="padding-left: 8px;">
           <div class="example-button-container">
             <button mat-fab (click)="onPrintWithOptions()" [disabled]="!selectedFile">
@@ -28,7 +28,7 @@
 
     <div class="container">
       <mat-form-field class="w-full">
-        <mat-label>{{ t('formulaRecites.filter') }}</mat-label>
+        <mat-label>{{ t('filter') }}</mat-label>
         <input matInput (keyup)="applyFilter($event)" #input>
       </mat-form-field>
       <table mat-table [dataSource]="dataSource" class="mat-elevation-z8 w-full">
@@ -56,7 +56,7 @@
 
         <!-- AI Column -->
         <ng-container matColumnDef="ai">
-          <th mat-header-cell *matHeaderCellDef> {{ t('formulaRecites.ai') }} </th>
+          <th mat-header-cell *matHeaderCellDef> {{ t('ai') }} </th>
           <td mat-cell *matCellDef="let element"> 
             <button mat-mini-fab aria-label="Play" (click)="onLLMExplain(element)" [disabled]="!usercode.isUserCodeEntered">
               <mat-icon>help_outline</mat-icon>
@@ -87,7 +87,7 @@
 
         <!-- Source Column -->
         <ng-container matColumnDef="source">
-          <th mat-header-cell *matHeaderCellDef> {{ t('formulaRecites.source') }} </th>
+          <th mat-header-cell *matHeaderCellDef> {{ t('source') }} </th>
           <td mat-cell *matCellDef="let element">
             <div>{{element.source}}</div>
           </td>

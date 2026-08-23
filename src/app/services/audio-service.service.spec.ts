@@ -65,7 +65,18 @@ describe('AudioService', () => {
 
     self.duration = vi.fn().mockReturnValue(100);
     self.state = vi.fn().mockReturnValue('loaded');
-    self.unload = vi.fn();
+    // Pending onload timer (scheduled below); cleared on unload() so a
+    // superseded/destroyed Howl can't fire onload into the next test and
+    // call .next() on already-completed subjects (which throws and wedges
+    // the runner under CI load). See "should complete all subjects on
+    // destroy" / "should handle load and play cycle".
+    self._onloadTimer = undefined as ReturnType<typeof setTimeout> | undefined;
+    self.unload = vi.fn(() => {
+      if (self._onloadTimer !== undefined) {
+        clearTimeout(self._onloadTimer);
+        self._onloadTimer = undefined;
+      }
+    });
 
     self.load = vi.fn(() => {
       self.loaded = true;
@@ -93,7 +104,8 @@ describe('AudioService', () => {
       return self;
     });
 
-    setTimeout(() => {
+    self._onloadTimer = setTimeout(() => {
+      self._onloadTimer = undefined;
       self.loaded = true;
       if (config.onload) {
         config.onload();

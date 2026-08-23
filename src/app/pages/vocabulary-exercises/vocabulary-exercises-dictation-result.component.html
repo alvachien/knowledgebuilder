@@ -1,7 +1,7 @@
 <ng-container *transloco="let t">
   <div class="container">
     <div>{{ t('vocabularyExercises.dictationResult') }}: {{ store.queue().length }}</div>
-    <button mat-raised-button color="primary" (click)="backToList.emit()">{{ t('vocabularyExercises.backToList') }}</button>
+    <button mat-raised-button color="primary" (click)="backToList.emit()">{{ t('backToList') }}</button>
 
     <table mat-table [dataSource]="store.queue()" class="mat-elevation-z8 w-full">
       <!-- Order Column -->

@@ -9,31 +9,31 @@
           </span>
           <span class="toolbar-spacer"></span>
           <mat-form-field class="page-toolbar-item">
-            <mat-label>{{ t('chineseExercises.files') }}</mat-label>
+            <mat-label>{{ t('files') }}</mat-label>
             <mat-select matNativeControl [(value)]="selectedFile" (selectionChange)="onFileSelectionChanged($event)"
-              [disabled]="isLoadingContents" [placeholder]="isLoadingContents ? t('loading') : t('chineseExercises.files')">
+              [disabled]="isLoadingContents" [placeholder]="isLoadingContents ? t('loading') : t('files')">
               @if (isLoadingContents) {
                 <mat-option disabled>
                   <mat-spinner diameter="18"></mat-spinner>
                   {{ t('loading') }}
                 </mat-option>
               }
-              <mat-option value="">{{ t('chineseExercises.none') }}</mat-option>
+              <mat-option value="">{{ t('none') }}</mat-option>
               @for (file of allFiles; track file.id ) {
                 <mat-option [value]="file">{{file.nameChinese}}</mat-option>
               }
             </mat-select>
           </mat-form-field>
-          <span class="toolbar-item-count"><small>{{ t('chineseExercises.items') }}: {{reciteContentCount}}</small></span>
+          <span class="toolbar-item-count"><small>{{ t('items') }}: {{reciteContentCount}}</small></span>
           <section style="padding-left: 8px;">
             <div class="example-button-container">
-              <button mat-fab [matMenuTriggerFor]="selectMenu" [matTooltip]="t('chineseExercises.select')" [disabled]="!selectedFile">
+              <button mat-fab [matMenuTriggerFor]="selectMenu" [matTooltip]="t('select')" [disabled]="!selectedFile">
                 <mat-icon>query_builder</mat-icon>
               </button>
             </div>
           </section>
           <mat-menu #selectMenu="matMenu">
-            <button mat-menu-item (click)="onSelectByRating()">{{ t('chineseExercises.selectByRating') }}</button>
+            <button mat-menu-item (click)="onSelectByRating()">{{ t('selectByRating') }}</button>
           </mat-menu>
           <section style="padding-left: 8px;">
             <div class="example-button-container">
@@ -47,14 +47,14 @@
 
       <div class="container">
         <mat-form-field class="w-full">
-          <mat-label>{{ t('chineseExercises.filter') }}</mat-label>
+          <mat-label>{{ t('filter') }}</mat-label>
           <input matInput (keyup)="applyFilter($event)" #input>
         </mat-form-field>
 
         <table mat-table [dataSource]="dataSource" matSort class="mat-elevation-z8 w-full">
           <!-- ID Column -->
           <ng-container matColumnDef="id">
-            <th mat-header-cell *matHeaderCellDef mat-sort-header sortActionDescription="Sort by ID"> {{ t('chineseExercises.id') }} </th>
+            <th mat-header-cell *matHeaderCellDef mat-sort-header sortActionDescription="Sort by ID"> {{ t('id') }} </th>
             <td mat-cell *matCellDef="let element"> {{element.id}} </td>
             <td mat-footer-cell *matFooterCellDef></td>
           </ng-container>
@@ -78,7 +78,7 @@
 
           <!-- Subject Column -->
           <ng-container matColumnDef="subject">
-            <th mat-header-cell *matHeaderCellDef mat-sort-header sortActionDescription="Sort by subject"> {{ t('chineseExercises.subject') }} </th>
+            <th mat-header-cell *matHeaderCellDef mat-sort-header sortActionDescription="Sort by subject"> {{ t('subject') }} </th>
             <td mat-cell *matCellDef="let element"> {{element.subject}} </td>
             <td mat-footer-cell *matFooterCellDef></td>
           </ng-container>
@@ -92,25 +92,25 @@
 
           <!-- Content Column -->
           <ng-container matColumnDef="content">
-            <th mat-header-cell *matHeaderCellDef> {{ t('chineseExercises.content') }} </th>
+            <th mat-header-cell *matHeaderCellDef> {{ t('content') }} </th>
             <td mat-cell *matCellDef="let element">
               <mat-form-field class="control-full-width">
                 <textarea matNativeControl readonly [ngModel]="getDisplayContentText(element)"></textarea>
               </mat-form-field>
             </td>
-            <td mat-footer-cell *matFooterCellDef> {{ t('chineseExercises.totalRecords') }}: {{reciteContentCount}} </td>
+            <td mat-footer-cell *matFooterCellDef> {{ t('totalRecords') }}: {{reciteContentCount}} </td>
           </ng-container>
 
           <!-- Source column -->
           <ng-container matColumnDef="source">
-            <th mat-header-cell *matHeaderCellDef> {{ t('chineseExercises.source') }} </th>
+            <th mat-header-cell *matHeaderCellDef> {{ t('source') }} </th>
             <td mat-cell *matCellDef="let element">{{element.source ?? ''}}</td>
-            <td mat-footer-cell *matFooterCellDef> {{ t('chineseExercises.totalSelections') }}: {{selection.selected.length}} </td>
+            <td mat-footer-cell *matFooterCellDef> {{ t('totalSelections') }}: {{selection.selected.length}} </td>
           </ng-container>
 
           <!-- Rating Column -->
           <ng-container matColumnDef="rating">
-            <th mat-header-cell *matHeaderCellDef mat-sort-header sortActionDescription="Sort by rating"> {{ t('chineseExercises.rating') }} </th>
+            <th mat-header-cell *matHeaderCellDef mat-sort-header sortActionDescription="Sort by rating"> {{ t('rating') }} </th>
             <td mat-cell *matCellDef="let element">
               <mat-button-toggle-group [ngModel]="getRating(element.id)" aria-label="Rating"
                 (change)="onContentRatingChanged(element, $event)">

@@ -2,7 +2,7 @@
   <h2 mat-dialog-title>{{ t('vocabularyExercises.optionsOfDictation') }}</h2>
   <mat-dialog-content class="control-full-width">
     <mat-form-field class="control-full-width">
-      <mat-label>{{ t('vocabularyExercises.count') }}</mat-label>
+      <mat-label>{{ t('count') }}</mat-label>
       <input matInput type="number" [(ngModel)]="countOfItems" [disabled]="data.withSelection">
       <span matSuffix>{{data.wordQueueCount}}</span>
     </mat-form-field>
