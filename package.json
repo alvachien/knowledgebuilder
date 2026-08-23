@@ -76,7 +76,7 @@
     "flatted": "^3.4.2",
     "hono": "^4.12.28",
     "js-yaml": "^4.3.0",
-    "postcss": "^8.5.16",
+    "postcss": "^8.5.26",
     "rollup": "^4.62.2",
     "sucrase": {
       "glob": "^10.5.0"
