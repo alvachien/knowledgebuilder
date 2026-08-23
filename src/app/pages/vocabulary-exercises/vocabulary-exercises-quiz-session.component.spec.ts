@@ -127,8 +127,8 @@ describe('VocabularyExercisesQuizSessionComponent', () => {
       const fabs: NodeListOf<HTMLButtonElement> =
         fixture.nativeElement.querySelectorAll('button[mat-fab]');
 
-      // Next question, quit.
-      expect(fabs.length).toBe(2);
+      // Previous question, next question, quit.
+      expect(fabs.length).toBe(3);
       fabs.forEach(fab => {
         expect(fab.getAttribute('aria-label')).toBeTruthy();
       });

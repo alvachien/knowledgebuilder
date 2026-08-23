@@ -6,16 +6,16 @@
       </span>
       <span class="toolbar-spacer"></span>
       <mat-form-field class="page-toolbar-item">
-        <mat-label>{{ t('vocabularyExercises.files') }}</mat-label>
+        <mat-label>{{ t('files') }}</mat-label>
         <mat-select matNativeControl [(value)]="selectedFile" (selectionChange)="fileSelectionChanged.emit($event)"
-          [disabled]="isLoadingContents()" [placeholder]="isLoadingContents() ? t('loading') : t('vocabularyExercises.files')">
+          [disabled]="isLoadingContents()" [placeholder]="isLoadingContents() ? t('loading') : t('files')">
           @if (isLoadingContents()) {
             <mat-option disabled>
               <mat-spinner diameter="18"></mat-spinner>
               {{ t('loading') }}
             </mat-option>
           }
-          <mat-option value="">{{ t('vocabularyExercises.none') }}</mat-option>
+          <mat-option value="">{{ t('none') }}</mat-option>
           @for (file of allFiles(); track file.id ) {
             <mat-option [value]="file">{{file.nameEnglish}}</mat-option>
           }
@@ -39,7 +39,7 @@
     <div class="filter-row">
       <div class="filter-bar">
         <mat-form-field class="filter-bar-free-text" subscriptSizing="dynamic">
-          <mat-label>{{ t('vocabularyExercises.filter') }}</mat-label>
+          <mat-label>{{ t('filter') }}</mat-label>
           <input matInput [(ngModel)]="freeText" (keyup)="onFreeTextChanged()" [disabled]="!selectedFile()" />
         </mat-form-field>
 
@@ -49,7 +49,7 @@
           <button mat-menu-item (click)="clearWordFilter.emit()" [disabled]="!hasWordFilter">{{ t('vocabularyExercises.filterClear') }}</button>
         </mat-menu>
 
-        <button mat-stroked-button [matMenuTriggerFor]="ratingMenu" [disabled]="!selectedFile()">{{ t('vocabularyExercises.rating') }} ▾</button>
+        <button mat-stroked-button [matMenuTriggerFor]="ratingMenu" [disabled]="!selectedFile()">{{ t('rating') }} ▾</button>
         <mat-menu #ratingMenu="matMenu">
           <button mat-menu-item (click)="defineRatingFilter.emit()">{{ ratingMenuLabel }}</button>
           <button mat-menu-item (click)="clearRatingFilter.emit()" [disabled]="!hasRatingFilter">{{ t('vocabularyExercises.filterClear') }}</button>
@@ -105,11 +105,11 @@
 
         <!-- Counts: total items in the file | rows after filtering | selected rows -->
         <div class="filter-bar-counts">
-          <span [matTooltip]="t('vocabularyExercises.items')">{{ wordQueueCount }}</span>
+          <span [matTooltip]="t('items')">{{ wordQueueCount }}</span>
           <mat-divider [vertical]="true"></mat-divider>
           <span [matTooltip]="t('vocabularyExercises.filteredItems')">{{ visibleRowCount }}</span>
           <mat-divider [vertical]="true"></mat-divider>
-          <span [matTooltip]="t('vocabularyExercises.totalSelections')">{{ selectionCount() }}</span>
+          <span [matTooltip]="t('totalSelections')">{{ selectionCount() }}</span>
         </div>
       </div>
     </div>
@@ -117,7 +117,7 @@
     <table mat-table [dataSource]="dataSource()" matSort class="mat-elevation-z8 w-full">
       <!-- ID Column -->
       <ng-container matColumnDef="id">
-        <th mat-header-cell *matHeaderCellDef mat-sort-header sortActionDescription="Sort by ID"> {{ t('vocabularyExercises.id') }} </th>
+        <th mat-header-cell *matHeaderCellDef mat-sort-header sortActionDescription="Sort by ID"> {{ t('id') }} </th>
         <td mat-cell *matCellDef="let element"> {{element.id}} </td>
       </ng-container>
 
@@ -149,7 +149,7 @@
 
       <!-- Rating Column -->
       <ng-container matColumnDef="rating">
-        <th mat-header-cell *matHeaderCellDef mat-sort-header sortActionDescription="Sort by rating"> {{ t('vocabularyExercises.rating') }} </th>
+        <th mat-header-cell *matHeaderCellDef mat-sort-header sortActionDescription="Sort by rating"> {{ t('rating') }} </th>
         <td mat-cell *matCellDef="let element">
           <mat-button-toggle-group [ngModel]="getRating(element.id)" aria-label="Rating"
             (change)="contentRatingChanged.emit({ item: element, event: $event })">

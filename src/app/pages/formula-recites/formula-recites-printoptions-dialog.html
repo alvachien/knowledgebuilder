@@ -1,5 +1,5 @@
 <div *transloco="let t">
-  <h2 mat-dialog-title>{{ t('formulaRecites.optionsOfPrinting') }}</h2>
+  <h2 mat-dialog-title>{{ t('optionsOfPrinting') }}</h2>
   <mat-dialog-content>
     <mat-form-field class="control-full-width">
       <mat-label>{{ t('formulaRecites.subTitle') }}</mat-label>
@@ -7,11 +7,11 @@
       <span matTextPrefix>{{data.filename}}</span>
     </mat-form-field>
     <mat-form-field class="control-full-width">
-      <mat-label>{{ t('formulaRecites.count') }}</mat-label>
+      <mat-label>{{ t('count') }}</mat-label>
       <input matInput type="number" [(ngModel)]="countOfItems" [disabled]="data.disableCount">
       <span matSuffix>{{data.reciteContentCount}}</span>
     </mat-form-field>
-    <mat-checkbox class="control-full-width" [(ngModel)]="printEntryDate">{{ t('formulaRecites.printEntryDate') }}</mat-checkbox>
+    <mat-checkbox class="control-full-width" [(ngModel)]="printEntryDate">{{ t('printEntryDate') }}</mat-checkbox>
     <div class="control-full-width">
       <mat-label>{{ t('formulaRecites.execDateOption') }}</mat-label>
       <mat-radio-group aria-label="Select an option" class="control-full-width" [(ngModel)]="selectedExecDateModel">
@@ -21,7 +21,7 @@
       </mat-radio-group>
     </div>
     <mat-form-field class="control-full-width">
-      <mat-label>{{ t('formulaRecites.execDate') }}</mat-label>
+      <mat-label>{{ t('execDate') }}</mat-label>
       <input matInput [(ngModel)]="execDate" [matDatepicker]="picker" [disabled]="selectedExecDateModel() !== 2">
       <mat-datepicker-toggle matIconSuffix [for]="picker"></mat-datepicker-toggle>
       <mat-datepicker #picker></mat-datepicker>

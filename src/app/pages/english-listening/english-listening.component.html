@@ -8,9 +8,9 @@
         </span>
         <span class="toolbar-spacer"></span>
         <mat-form-field class="page-toolbar-item">
-          <mat-label>{{ t('englishListening.files') }}</mat-label>
+          <mat-label>{{ t('files') }}</mat-label>
           <mat-select matNativeControl [(value)]="selectedFile" (selectionChange)="onFileSelectionChanged($event)">
-            <mat-option value="">{{ t('englishListening.none') }}</mat-option>
+            <mat-option value="">{{ t('none') }}</mat-option>
             @for (file of allFiles; track file.id ) {
             <mat-option [value]="file">{{file.nameEnglish}}</mat-option>
             }
@@ -21,7 +21,7 @@
 
     <div class="container">
       <mat-form-field class="w-full">
-        <mat-label>{{ t('englishListening.filter') }}</mat-label>
+        <mat-label>{{ t('filter') }}</mat-label>
         <input matInput (keyup)="applyFilter($event)" #input>
       </mat-form-field>
 
@@ -73,7 +73,7 @@
 
     <div class="container">
       <mat-form-field class="w-full">
-        <mat-label>{{ t('englishListening.filter') }}</mat-label>
+        <mat-label>{{ t('filter') }}</mat-label>
         <input matInput (keyup)="applySectionFilter($event)" #input>
       </mat-form-field>
 
@@ -192,11 +192,11 @@
         <mat-divider [vertical]="true" style="height: 80%"></mat-divider>
         }
         <span class="function-control-flex-container">
-          <button mat-fab class="toolbar-fab-button" matTooltip="{{ t('englishListening.toggleAnswer') }}"
+          <button mat-fab class="toolbar-fab-button" matTooltip="{{ t('toggleAnswer') }}"
             (click)="onToggleAnswer()"><mat-icon color="primary">forum</mat-icon></button>
           <button mat-fab class="toolbar-fab-button" matTooltip="{{ t('englishListening.toggleScripts') }}"
             (click)="onToggleScripts()"><mat-icon color="primary">article</mat-icon></button>
-          <button mat-fab class="toolbar-fab-button" matTooltip="{{ t('englishListening.print') }}"
+          <button mat-fab class="toolbar-fab-button" matTooltip="{{ t('print') }}"
             [useExistingCss]="true" printSectionId="print-section" ngxPrint><mat-icon
               color="primary">print</mat-icon></button>
           <button mat-fab class="toolbar-fab-button" matTooltip="{{ t('englishListening.returnToSectionDetail') }}"

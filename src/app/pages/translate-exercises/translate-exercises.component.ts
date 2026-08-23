@@ -861,7 +861,7 @@ export class TranslateExercisesLLMDialogComponent {
   getAIModeName(mode: TranslationAIModeEnum): string {
     switch (mode) {
       case TranslationAIModeEnum.Explain:
-        return this.transloco.translate('translateExercises.explain');
+        return this.transloco.translate('explain');
       default:
         return this.transloco.translate('translateExercises.correct');
     }
