@@ -1,0 +1,38 @@
+// See word-list: the host replaces blocks that were direct flex items.
+:host {
+    display: contents;
+}
+
+.toolbar-spacer {
+    flex: 1 1 auto;
+}
+
+.toolbar-fab-button {
+  margin-right: 4px;
+  margin-left: 4px;
+}
+
+.example-button-container {
+    display: flex;
+    justify-content: center;
+    width: 56px;
+}
+
+.vocabulary-dictation-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    min-height: 200px;
+}
+
+.vocabulary-dictation-status {
+    font-size: 36px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    min-height: 50px;
+    width: 100%;
+}

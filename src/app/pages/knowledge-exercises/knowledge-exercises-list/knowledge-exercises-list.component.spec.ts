@@ -210,7 +210,7 @@ describe('KnowledgeExercisesListComponent', () => {
     });
 
     it('should handle error when loading knowledge exercise files', () => {
-      vi.spyOn(console, 'error');
+      vi.spyOn(console, 'error').mockImplementation(() => {});
       mockLearningContentService.getKnowledgeBankContents.mockReturnValue(
         throwError(() => new Error('Error'))
       );
@@ -252,7 +252,7 @@ describe('KnowledgeExercisesListComponent', () => {
     });
 
     it('should handle error when loading knowledge content', () => {
-      vi.spyOn(console, 'error');
+      vi.spyOn(console, 'error').mockImplementation(() => {});
       mockLearningContentService.getKnowledgeExerciseContent.mockReturnValue(
         throwError(() => new Error('Error'))
       );

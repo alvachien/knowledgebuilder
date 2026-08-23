@@ -168,7 +168,7 @@ describe('ChineseExercisesComponent', () => {
     });
 
     it('should handle error when loading learn chinese data files', () => {
-      const errorSpy = vi.spyOn(console, 'error');
+      const errorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
       contentServiceSpy.getChineseContents.mockReturnValue(
         throwError(() => new Error('Test error'))
       );

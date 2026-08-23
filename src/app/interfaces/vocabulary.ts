@@ -41,6 +41,11 @@ export interface VocabularySpellingOption extends VocabularyOptionCore {
   hideExplain: boolean;
 }
 
+// Dictation vocabulary options. Dictation plays each word's audio in turn on a
+// fixed interval; there is no typing and no hide-audio/hide-description toggle,
+// so only the item count is configurable.
+export interface VocabularyDictationOption extends VocabularyOptionCore {}
+
 export interface VocabularyReviewOption extends VocabularyOptionCore {
   disableVoice: boolean;
   hideExplain: boolean;

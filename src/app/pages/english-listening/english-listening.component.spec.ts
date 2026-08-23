@@ -193,7 +193,7 @@ describe('EnglishListeningComponent', () => {
       learningContentService.getListeningContents.mockReturnValue(
         throwError(() => new Error('Load failed'))
       );
-      vi.spyOn(console, 'error');
+      vi.spyOn(console, 'error').mockImplementation(() => {});
 
       fixture.detectChanges();
 
@@ -274,7 +274,7 @@ describe('EnglishListeningComponent', () => {
       learningContentService.getListeningFileContent.mockReturnValue(
         throwError(() => new Error('Load failed'))
       );
-      vi.spyOn(console, 'error');
+      vi.spyOn(console, 'error').mockImplementation(() => {});
 
       component.onFileSelectionChanged({
         value: { fileUrl: 'storage/englishlistening/book1.json' },

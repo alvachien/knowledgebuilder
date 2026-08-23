@@ -170,7 +170,7 @@ describe('TranslateExercisesComponent', () => {
       mockLearningContentService.getSentenceContents.mockReturnValue(
         throwError(() => new Error('Load failed'))
       );
-      vi.spyOn(console, 'error');
+      vi.spyOn(console, 'error').mockImplementation(() => {});
 
       fixture.detectChanges();
 
@@ -213,7 +213,7 @@ describe('TranslateExercisesComponent', () => {
       mockLearningContentService.getSentenceFileContent.mockReturnValue(
         throwError(() => new Error('Load failed'))
       );
-      vi.spyOn(console, 'error');
+      vi.spyOn(console, 'error').mockImplementation(() => {});
 
       component.onFileSelectionChanged({ value: mockDataFiles[0] } as any);
 
@@ -268,7 +268,7 @@ describe('TranslateExercisesComponent', () => {
 
     it('should handle error when TTS fails', () => {
       mockAIService.getTTS.mockReturnValue(throwError(() => new Error('TTS failed')));
-      vi.spyOn(console, 'error');
+      vi.spyOn(console, 'error').mockImplementation(() => {});
 
       component.onPlayTTS('Hello world');
 
@@ -1110,7 +1110,7 @@ describe('TranslateExercisesLLMDialogComponent', () => {
 
   it('should handle error when AI service fails', () => {
     mockAIService.explainSentence.mockReturnValue(throwError(() => new Error('AI failed')));
-    vi.spyOn(console, 'error');
+    vi.spyOn(console, 'error').mockImplementation(() => {});
 
     component.onSubmit();
 

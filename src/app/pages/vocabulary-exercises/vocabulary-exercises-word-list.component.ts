@@ -99,6 +99,7 @@ export class VocabularyExercisesWordListComponent implements OnInit {
   readonly review = output<void>();
   readonly worksheet = output<void>();
   readonly spelling = output<void>();
+  readonly dictation = output<void>();
   readonly quiz = output<void>();
 
   // ── Filter bar ──────────────────────────────────────────────────
@@ -120,6 +121,7 @@ export class VocabularyExercisesWordListComponent implements OnInit {
   readonly defineRatingFilter = output<void>();
   readonly clearRatingFilter = output<void>();
   readonly quickSelect = output<'random' | 'sequence' | 'words'>();
+  readonly clearSelection = output<void>();
 
   displayedColumns: string[] = ['select', 'id', 'enword', 'cnword', 'rating'];
 

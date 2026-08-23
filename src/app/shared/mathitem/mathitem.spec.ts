@@ -947,7 +947,7 @@ describe('MathItemComponent', () => {
 
   describe('Console Warning', () => {
     it('should warn for unrecognized segment types', () => {
-      vi.spyOn(console, 'warn');
+      vi.spyOn(console, 'warn').mockImplementation(() => {});
 
       // To trigger the warning, we'd need to mock extractMath to return unknown type
       // Since that's complex, we'll just verify the code path exists
