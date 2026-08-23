@@ -25,6 +25,7 @@ import type {
   VocabularyReviewOption,
   VocabularyQuizOption,
   VocabularySpellingOption,
+  VocabularyDictationOption,
   VocabularySpellingQueue,
   KnowledgeExerciseFileContent,
   KnowledgeExercisePrintOption,
@@ -48,6 +49,10 @@ import { VocabularyExercisesQuizResultComponent } from './vocabulary-exercises-q
 import { VocabularyExercisesQuizSessionComponent } from './vocabulary-exercises-quiz-session.component';
 import { VocabularyQuizSessionStore } from './vocabulary-exercises-quiz-session.store';
 import { VocabularyExercisesQuizOptionsDialogComponent } from './vocabulary-exercises-quizoptions-dialog.component';
+import { VocabularyExercisesDictationOptionsDialogComponent } from './vocabulary-exercises-dictationoptions-dialog.component';
+import { VocabularyExercisesDictationResultComponent } from './vocabulary-exercises-dictation-result.component';
+import { VocabularyExercisesDictationSessionComponent } from './vocabulary-exercises-dictation-session.component';
+import { VocabularyDictationSessionStore } from './vocabulary-exercises-dictation-session.store';
 import { VocabularyExercisesRatingFilterDialogComponent } from './vocabulary-exercises-rating-filter-dialog.component';
 import { VocabularyExercisesReviewSessionComponent } from './vocabulary-exercises-review-session.component';
 import { VocabularyReviewSessionStore } from './vocabulary-exercises-review-session.store';
@@ -62,7 +67,7 @@ import { VocabularyExercisesWordListComponent } from './vocabulary-exercises-wor
 import { VocabularyExercisesWorksheetOptionsDialogComponent } from './vocabulary-exercises-worksheetoptions-dialog.component';
 
 /** The screens of the vocabulary exercises page, switched via @switch in the template. */
-export type VocabularyExercisesMode = 'list' | 'review' | 'spelling' | 'spellingresult' | 'quiz' | 'quizresult';
+export type VocabularyExercisesMode = 'list' | 'review' | 'spelling' | 'spellingresult' | 'dictation' | 'dictationresult' | 'quiz' | 'quizresult';
 
 @Component({
   selector: 'app-vocabulary-exercises',
@@ -74,12 +79,14 @@ export type VocabularyExercisesMode = 'list' | 'review' | 'spelling' | 'spelling
     VocabularyExercisesReviewSessionComponent,
     VocabularyExercisesSpellingSessionComponent,
     VocabularyExercisesSpellingResultComponent,
+    VocabularyExercisesDictationSessionComponent,
+    VocabularyExercisesDictationResultComponent,
     VocabularyExercisesQuizSessionComponent,
     VocabularyExercisesQuizResultComponent,
   ],
   templateUrl: './vocabulary-exercises.component.html',
   styleUrl: './vocabulary-exercises.component.scss',
-  providers: [VocabularySpellingSessionStore, VocabularyReviewSessionStore, VocabularyQuizSessionStore],
+  providers: [VocabularySpellingSessionStore, VocabularyReviewSessionStore, VocabularyDictationSessionStore, VocabularyQuizSessionStore],
   host: {
     class: 'app-main-content',
   },
@@ -127,6 +134,9 @@ export class VocabularyExercisesComponent implements OnInit {
   // Quiz session state/behavior; provided on this component so the quiz and
   // result screens share one instance.
   readonly quizStore = inject(VocabularyQuizSessionStore);
+  // Dictation session state/behavior; provided on this component so the
+  // dictation and result screens share one instance.
+  readonly dictationStore = inject(VocabularyDictationSessionStore);
   // Maps selected file index to backend ContentId
   studyContentId = 0;
   // Latest rating the user requested per item in the list view; upsert
@@ -155,6 +165,11 @@ export class VocabularyExercisesComponent implements OnInit {
   // Quiz options (session state itself lives in quizStore).
   quizSetting: VocabularyQuizOption = {
     direction: 'en2cn',
+    countOfItems: 20,
+  };
+  // Dictation options (session state itself lives in dictationStore). Per spec
+  // there is no hide-audio/hide-description toggle, only the item count.
+  dictationSetting: VocabularyDictationOption = {
     countOfItems: 20,
   };
   // Worksheet options.
@@ -211,6 +226,14 @@ export class VocabularyExercisesComponent implements OnInit {
     effect(() => {
       if (this.quizStore.isComplete() && this.mode() === 'quiz') {
         this.mode.set('quizresult');
+      }
+    });
+
+    // Mirror of the spelling/quiz effects: when the last dictated word has
+    // been spoken, move to the dictation result screen.
+    effect(() => {
+      if (this.dictationStore.isComplete() && this.mode() === 'dictation') {
+        this.mode.set('dictationresult');
       }
     });
 
@@ -326,6 +349,16 @@ export class VocabularyExercisesComponent implements OnInit {
   onClearRatingFilter(): void {
     this.ratingConditions.set([]);
     this.applyCurrentFilter();
+  }
+
+  /**
+   * Clear the table selection from the Quick Selection menu. Mirrors the
+   * selection.clear() calls used on file switch / toggle-all: drops every
+   * selected row so Review/Spelling/Dictation/Worksheet no longer act on a
+   * stale selection.
+   */
+  onClearSelection(): void {
+    this.selection.clear();
   }
 
   /**
@@ -801,6 +834,66 @@ export class VocabularyExercisesComponent implements OnInit {
    */
   onQuitSpelling() {
     this.spellingStore.reset();
+    this.mode.set('list');
+  }
+
+  onDictationWithOptions() {
+    const dialogRef = this.dialog.open(VocabularyExercisesDictationOptionsDialogComponent, {
+      data: {
+        wordQueueCount:
+          this.selection.selected.length > 0
+            ? this.selection.selected.length
+            : this.visibleRowCount,
+        withSelection: this.selection.selected.length > 0 ? true : false,
+        currentSettings: this.dictationSetting,
+      },
+      width: '500px',
+      enterAnimationDuration: 800,
+      exitAnimationDuration: 500,
+    });
+
+    dialogRef
+      .afterClosed()
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(result => {
+        if (result !== undefined) {
+          this.dictationSetting.countOfItems = result.countOfItems;
+
+          this.onDictationStart();
+        }
+      });
+  }
+
+  /**
+   * Build the dictation queue: the queue follows the same selection mechanism
+   * as Review/Spelling (explicit table selection, otherwise the filtered rows
+   * run through prepareWordQueue). The store speaks each word in turn on a
+   * fixed interval; there is no typing.
+   */
+  onDictationStart() {
+    let items: VocabularySpellingQueue[];
+    if (this.selection.selected.length > 0) {
+      items = this.coverContentToQueue(this.selection.selected);
+    } else {
+      items = this.prepareWordQueue(
+        this.coverContentToQueue(this.getVisibleData()),
+        this.dictationSetting
+      );
+    }
+
+    // Nothing to dictate (e.g. a filter excluded every word): stay on the list.
+    if (this.dictationStore.start(items)) {
+      this.mode.set('dictation');
+    }
+  }
+
+  /**
+   * Leave the dictation session (quit mid-session or back from the result
+   * screen): drop every piece of dictation state (which also cancels the
+   * pending tick and any in-flight speech), then return to the list.
+   */
+  onQuitDictation() {
+    this.dictationStore.reset();
     this.mode.set('list');
   }
 

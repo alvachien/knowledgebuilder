@@ -110,6 +110,18 @@ describe('VocabularyExercisesWordListComponent', () => {
     expect(spy).toHaveBeenCalledWith('random');
   });
 
+  it('emits the clearSelection intent', () => {
+    const spy = vi.spyOn(component.clearSelection, 'emit');
+    component.clearSelection.emit();
+    expect(spy).toHaveBeenCalled();
+  });
+
+  it('emits the dictation intent', () => {
+    const spy = vi.spyOn(component.dictation, 'emit');
+    component.dictation.emit();
+    expect(spy).toHaveBeenCalled();
+  });
+
   describe('free-text box seeding (M3)', () => {
     it('seeds the filter box from the applied free text when the list screen initializes', () => {
       fixture.componentRef.setInput('appliedFreeText', 'hello');

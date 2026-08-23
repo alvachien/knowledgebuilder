@@ -140,7 +140,7 @@ describe('VocabularyExercisesComponent', () => {
       mockLearningContentService.getVocabularyContents.mockReturnValue(
         throwError(() => new Error('Load failed'))
       );
-      vi.spyOn(console, 'error');
+      vi.spyOn(console, 'error').mockImplementation(() => {});
 
       fixture.detectChanges();
 
@@ -396,7 +396,7 @@ describe('VocabularyExercisesComponent', () => {
       mockLearningContentService.getVocabularyWordContent.mockReturnValue(
         throwError(() => new Error('Load failed'))
       );
-      vi.spyOn(console, 'error');
+      vi.spyOn(console, 'error').mockImplementation(() => {});
 
       component.onFileSelectionChanged({ value: mockDataFiles[0] } as any);
 
@@ -665,7 +665,7 @@ describe('VocabularyExercisesComponent', () => {
       const mockEvent = { target: { files: [mockFile] } } as any;
 
       const fileReaderSpy = installFileReaderMock();
-      const consoleSpy = vi.spyOn(console, 'error');
+      const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
 
       try {
         component.onAddTempFile(mockEvent);
@@ -707,7 +707,7 @@ describe('VocabularyExercisesComponent', () => {
       const mockEvent = { target: { files: [mockFile] } } as any;
 
       const fileReaderSpy = installFileReaderMock();
-      const consoleSpy = vi.spyOn(console, 'error');
+      const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
 
       try {
         component.onAddTempFile(mockEvent);
@@ -779,6 +779,28 @@ describe('VocabularyExercisesComponent', () => {
       component.selection.select(...mockWordContent);
       component.toggleAllRows();
       expect(component.selection.selected.length).toBe(0);
+    });
+  });
+
+  describe('onClearSelection', () => {
+    beforeEach(() => {
+      component.dataSource.data = mockWordContent.slice();
+    });
+
+    it('should clear every selected row', () => {
+      component.selection.select(mockWordContent[0], mockWordContent[1], mockWordContent[2]);
+      expect(component.selection.selected.length).toBe(3);
+
+      component.onClearSelection();
+
+      expect(component.selection.selected.length).toBe(0);
+      expect(component.selection.isEmpty()).toBe(true);
+    });
+
+    it('should be a no-op when nothing is selected', () => {
+      expect(component.selection.isEmpty()).toBe(true);
+      expect(() => component.onClearSelection()).not.toThrow();
+      expect(component.selection.isEmpty()).toBe(true);
     });
   });
 
@@ -1132,6 +1154,106 @@ describe('VocabularyExercisesComponent', () => {
 
       expect(component.mode()).toBe('list');
       expect(component.spellingStore.queue()).toEqual([]);
+    });
+  });
+
+  describe('dictation mode', () => {
+    beforeEach(() => {
+      vi.useFakeTimers();
+      component.dataSource.data = mockWordContent.slice();
+    });
+
+    afterEach(() => {
+      vi.useRealTimers();
+    });
+
+    it('should initialize dictation settings with defaults', () => {
+      expect(component.dictationSetting.countOfItems).toBe(20);
+    });
+
+    it('onDictationStart builds the queue from filtered rows and switches to the dictation screen', () => {
+      applyFreeText('banana');
+      component.dictationSetting.countOfItems = 10;
+
+      component.onDictationStart();
+
+      expect(component.dictationStore.queue().length).toBe(1);
+      expect(component.dictationStore.queue()[0].enword).toBe('banana');
+      expect(component.mode()).toBe('dictation');
+      expect(mockAudioService.speakWord).toHaveBeenCalledWith('banana');
+    });
+
+    it('onDictationStart uses selected rows when a selection exists', () => {
+      component.selection.select(mockWordContent[0], mockWordContent[1]);
+
+      component.onDictationStart();
+
+      expect(component.dictationStore.queue().length).toBe(2);
+      expect(component.mode()).toBe('dictation');
+    });
+
+    it('onDictationStart stays on the list when the queue is empty', () => {
+      component.dataSource.data = [];
+
+      component.onDictationStart();
+
+      expect(component.mode()).toBe('list');
+      expect(component.dictationStore.queue().length).toBe(0);
+    });
+
+    it('switches to the result screen when the store completes the session', () => {
+      component.dictationSetting.countOfItems = 1;
+      component.onDictationStart();
+      expect(component.mode()).toBe('dictation');
+
+      // Advance past the single word's interval: the store completes, the
+      // container effect reacts by switching the screen.
+      vi.advanceTimersByTime(5000);
+      TestBed.tick();
+
+      expect(component.mode()).toBe('dictationresult');
+    });
+
+    it('onQuitDictation resets the store and returns to the list', () => {
+      component.dictationSetting.countOfItems = 2;
+      component.onDictationStart();
+      expect(component.dictationStore.queue().length).toBeGreaterThan(0);
+
+      component.onQuitDictation();
+
+      expect(component.mode()).toBe('list');
+      expect(component.dictationStore.queue()).toEqual([]);
+    });
+  });
+
+  describe('onDictationWithOptions', () => {
+    beforeEach(() => {
+      component.dataSource.data = mockWordContent.slice();
+    });
+
+    it('should apply dictation settings and start dictation when the dialog returns data', () => {
+      const mockDialogRef = {
+        afterClosed: () => of({ countOfItems: 5 }),
+      };
+      mockDialog.open.mockReturnValue(mockDialogRef as any);
+      vi.spyOn(component, 'onDictationStart');
+
+      component.onDictationWithOptions();
+
+      expect(component.dictationSetting.countOfItems).toBe(5);
+      expect(component.onDictationStart).toHaveBeenCalled();
+    });
+
+    it('should leave settings untouched when the dialog is cancelled', () => {
+      const mockDialogRef = { afterClosed: () => of(undefined) };
+      mockDialog.open.mockReturnValue(mockDialogRef as any);
+      vi.spyOn(component, 'onDictationStart');
+      component.dictationSetting.countOfItems = 7;
+
+      component.onDictationWithOptions();
+
+      expect(component.dictationSetting.countOfItems).toBe(7);
+      expect(component.onDictationStart).not.toHaveBeenCalled();
     });
   });
 
@@ -1601,7 +1723,7 @@ describe('VocabularyExercisesComponent', () => {
     it('reverts the toggle group to the last confirmed rating when the upsert fails', () => {
       component.studyContentId = 1;
       component.contentRatingMap.set(new Map([[10, 3]]));
-      vi.spyOn(console, 'error');
+      vi.spyOn(console, 'error').mockImplementation(() => {});
       mockRatingService.upsertRating.mockReturnValue(throwError(() => new Error('save failed')));
       const group = { value: 5 as unknown };
       const event = { value: 5, source: { value: 5, buttonToggleGroup: group } } as any;
@@ -1613,7 +1735,7 @@ describe('VocabularyExercisesComponent', () => {
 
     it('reverts the toggle group to unrated (0) when no rating was confirmed yet', () => {
       component.studyContentId = 1;
-      vi.spyOn(console, 'error');
+      vi.spyOn(console, 'error').mockImplementation(() => {});
       mockRatingService.upsertRating.mockReturnValue(throwError(() => new Error('save failed')));
       const group = { value: 4 as unknown };
       const event = { value: 4, source: { value: 4, buttonToggleGroup: group } } as any;
@@ -1626,7 +1748,7 @@ describe('VocabularyExercisesComponent', () => {
     it('a stale failure does not revert the toggle when a newer rating is pending', () => {
       component.studyContentId = 1;
       component.contentRatingMap.set(new Map([[10, 3]]));
-      vi.spyOn(console, 'error');
+      vi.spyOn(console, 'error').mockImplementation(() => {});
       const firstSave = new Subject<UserLearningRating>();
       const secondSave = new Subject<UserLearningRating>();
       mockRatingService.upsertRating

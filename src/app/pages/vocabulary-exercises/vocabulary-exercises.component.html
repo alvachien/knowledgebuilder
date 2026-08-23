@@ -18,6 +18,16 @@
           (backToList)="onQuitSpelling()">
         </app-vocabulary-exercises-spelling-result>
       }
+       @case ('dictation') {
+        <app-vocabulary-exercises-dictation-session
+          (quit)="onQuitDictation()">
+        </app-vocabulary-exercises-dictation-session>
+      }
+       @case ('dictationresult') {
+        <app-vocabulary-exercises-dictation-result
+          (backToList)="onQuitDictation()">
+        </app-vocabulary-exercises-dictation-result>
+      }
        @case ('quiz') {
         <app-vocabulary-exercises-quiz-session
           (quit)="onQuitQuiz()">
@@ -50,11 +60,13 @@
           (defineRatingFilter)="onDefineRatingFilter()"
           (clearRatingFilter)="onClearRatingFilter()"
           (quickSelect)="onQuickSelect($event)"
+          (clearSelection)="onClearSelection()"
           (allRowsToggled)="toggleAllRows()"
           (contentRatingChanged)="onContentRatingChanged($event.item, $event.event)"
           (review)="onReviewWithOptions()"
           (worksheet)="onWorksheetWithOptions()"
           (spelling)="onSpellingWithOptions()"
+          (dictation)="onDictationWithOptions()"
           (quiz)="onQuizWithOptions()">
         </app-vocabulary-exercises-word-list>
       }

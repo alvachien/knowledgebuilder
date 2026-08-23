@@ -59,9 +59,23 @@
       <div class="filter-bar-actions">
         <button mat-stroked-button [matMenuTriggerFor]="quickMenu" [disabled]="!selectedFile()">{{ t('vocabularyExercises.quickSelection') }} ▾</button>
         <mat-menu #quickMenu="matMenu">
-          <button mat-menu-item (click)="quickSelect.emit('random')">{{ t('vocabularyExercises.randomSelect') }}</button>
-          <button mat-menu-item (click)="quickSelect.emit('sequence')">{{ t('vocabularyExercises.sequenceSelect') }}</button>
-          <button mat-menu-item (click)="quickSelect.emit('words')">{{ t('vocabularyExercises.selectWords') }}</button>
+          <button mat-menu-item (click)="quickSelect.emit('random')">
+            <mat-icon>shuffle</mat-icon>
+            <span>{{ t('vocabularyExercises.randomSelect') }}</span>
+          </button>
+          <button mat-menu-item (click)="quickSelect.emit('sequence')">
+            <mat-icon>format_list_numbered</mat-icon>
+            <span>{{ t('vocabularyExercises.sequenceSelect') }}</span>
+          </button>
+          <button mat-menu-item (click)="quickSelect.emit('words')">
+            <mat-icon>text_fields</mat-icon>
+            <span>{{ t('vocabularyExercises.selectWords') }}</span>
+          </button>
+          <mat-divider></mat-divider>
+          <button mat-menu-item (click)="clearSelection.emit()" [disabled]="selection().isEmpty()">
+            <mat-icon>deselect</mat-icon>
+            <span>{{ t('vocabularyExercises.clearSelection') }}</span>
+          </button>
         </mat-menu>
 
         <button mat-stroked-button [matMenuTriggerFor]="exerciseMenu" [disabled]="!selectedFile()">{{ t('vocabularyExercises.exercises') }} ▾</button>
@@ -77,6 +91,10 @@
           <button mat-menu-item (click)="spelling.emit()">
             <mat-icon>keyboard</mat-icon>
             <span>{{ t('vocabularyExercises.typing') }}</span>
+          </button>
+          <button mat-menu-item (click)="dictation.emit()">
+            <mat-icon>hearing</mat-icon>
+            <span>{{ t('vocabularyExercises.dictation') }}</span>
           </button>
           <button mat-menu-item (click)="quiz.emit()">
             <mat-icon>quiz</mat-icon>
