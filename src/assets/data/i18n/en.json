@@ -336,9 +336,7 @@
     "operatorGreaterThan": "Greater Than",
     "operatorLessThan": "Less Than",
     "operatorLargerOrEquals": "Larger or Equals",
-    "operatorLessOrEquals": "Less or Equals",
-    "operatorHasAny": "Has Any Rating",
-    "operatorHasNone": "Has No Rating"
+    "operatorLessOrEquals": "Less or Equals"
   },
   "auth": {
     "login": "Login",

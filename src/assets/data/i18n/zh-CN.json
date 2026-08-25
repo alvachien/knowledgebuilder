@@ -334,9 +334,7 @@
     "operatorGreaterThan": "大于",
     "operatorLessThan": "小于",
     "operatorLargerOrEquals": "大于等于",
-    "operatorLessOrEquals": "小于等于",
-    "operatorHasAny": "有评分",
-    "operatorHasNone": "无评分"
+    "operatorLessOrEquals": "小于等于"
   },
   "auth": {
     "login": "登录",

@@ -58,6 +58,7 @@ import {
   convertQuestionBankItemToMarkdown,
   QuestionBankTypeEnum,
   RatingOperatorEnum,
+  matchRating,
 } from '../../../interfaces';
 
 interface FilterResult {
@@ -683,36 +684,7 @@ export class KnowledgeExercisesListComponent implements OnInit {
 
           this.dataSource.data.forEach(item => {
             const rating = this.getRating(item.id);
-            let matches = false;
-
-            switch (operator) {
-              case RatingOperatorEnum.Equals:
-                matches = rating === value;
-                break;
-              case RatingOperatorEnum.GreaterThan:
-                matches = rating > value;
-                break;
-              case RatingOperatorEnum.LargerOrEquals:
-                matches = rating >= value;
-                break;
-              case RatingOperatorEnum.LessThan:
-                // "Less than" intentionally excludes unrated (0) items: a rating
-                // of 0 means "not yet assessed", which is covered by HasNone.
-                // This keeps LessThan 1 from collapsing into HasNone.
-                matches = rating > 0 && rating < value;
-                break;
-              case RatingOperatorEnum.LessOrEquals:
-                // Same unrated-exclusion rationale as LessThan: an unrated (0)
-                // item is "not yet assessed", not "rated at or below the value".
-                matches = rating > 0 && rating <= value;
-                break;
-              case RatingOperatorEnum.HasAny:
-                matches = rating > 0;
-                break;
-              case RatingOperatorEnum.HasNone:
-                matches = rating === 0;
-                break;
-            }
+            const matches = matchRating(rating, operator, value);
 
             if (matches) {
               this.selection.select(item);
@@ -957,20 +929,11 @@ export class KnowledgeSelectByRatingDialogComponent {
       { value: RatingOperatorEnum.LargerOrEquals, label: 'operatorLargerOrEquals' },
       { value: RatingOperatorEnum.LessThan, label: 'operatorLessThan' },
       { value: RatingOperatorEnum.LessOrEquals, label: 'operatorLessOrEquals' },
-      { value: RatingOperatorEnum.HasAny, label: 'operatorHasAny' },
-      { value: RatingOperatorEnum.HasNone, label: 'operatorHasNone' },
     ];
   }
 
   get ratingValues(): number[] {
     return [1, 2, 3, 4, 5];
-  }
-
-  get isValueDisabled(): boolean {
-    return (
-      this.ratingOperator() === RatingOperatorEnum.HasAny ||
-      this.ratingOperator() === RatingOperatorEnum.HasNone
-    );
   }
 
   onNoClick(): void {

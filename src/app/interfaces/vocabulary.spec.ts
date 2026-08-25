@@ -150,13 +150,13 @@ describe('vocabulary.ts', () => {
       expect(matchVocabularyListFilter(item, 5, filter)).toBe(true);
       expect(matchVocabularyListFilter(item, 4, filter)).toBe(true);
       expect(matchVocabularyListFilter(item, 3, filter)).toBe(false);
-      // Unrated words are excluded from LessThan / LessOrEquals.
+      // Unrated (0) words compare numerically: 0 < 2 is true.
       expect(
         matchVocabularyListFilter(item, 0, {
           ...baseFilter,
           ratingConditions: [{ operator: RatingOperatorEnum.LessThan, value: 2 }],
         })
-      ).toBe(false);
+      ).toBe(true);
     });
 
     it('ANDs free text, word and rating conditions', () => {

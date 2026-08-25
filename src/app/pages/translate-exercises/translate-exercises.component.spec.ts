@@ -647,9 +647,10 @@ describe('TranslateExercisesComponent', () => {
       expect(component.selection.selected[0].id).toBe('1');
     });
 
-    it('should select items with any rating', () => {
+    it('should select items with any rating (>= 1)', () => {
+      // ratings: id1=5, id2=3, id3=0. LargerOrEquals 1 → id1, id2.
       const mockDialogRef = {
-        afterClosed: vi.fn().mockReturnValue(of({ ratingOperator: RatingOperatorEnum.HasAny })),
+        afterClosed: vi.fn().mockReturnValue(of({ ratingOperator: RatingOperatorEnum.LargerOrEquals, ratingValue: 1 })),
       };
       mockDialog.open.mockReturnValue(mockDialogRef);
 
@@ -658,9 +659,10 @@ describe('TranslateExercisesComponent', () => {
       expect(component.selection.selected.length).toBe(2);
     });
 
-    it('should select items with no rating', () => {
+    it('should select items with no rating (< 1)', () => {
+      // ratings: id1=5, id2=3, id3=0. LessThan 1 → only id3 (unrated, 0 < 1).
       const mockDialogRef = {
-        afterClosed: vi.fn().mockReturnValue(of({ ratingOperator: RatingOperatorEnum.HasNone })),
+        afterClosed: vi.fn().mockReturnValue(of({ ratingOperator: RatingOperatorEnum.LessThan, ratingValue: 1 })),
       };
       mockDialog.open.mockReturnValue(mockDialogRef);
 
@@ -670,9 +672,9 @@ describe('TranslateExercisesComponent', () => {
       expect(component.selection.selected[0].id).toBe('3');
     });
 
-    it('should select rated items below the value, excluding unrated (0)', () => {
-      // ratings: id1=5, id2=3, id3=0. LessThan 4 → only id2 (rating 3);
-      // id3 (unrated, 0) is deliberately excluded (covered by HasNone).
+    it('should select items with rating below the value, including unrated (0)', () => {
+      // ratings: id1=5, id2=3, id3=0. LessThan 4 → id2 (3) and id3 (0);
+      // unrated (0) compares numerically (0 < 4); use < 1 for unrated-only.
       const mockDialogRef = {
         afterClosed: vi
           .fn()
@@ -682,12 +684,13 @@ describe('TranslateExercisesComponent', () => {
 
       component.onSelectByRating();
 
-      expect(component.selection.selected.length).toBe(1);
-      expect(component.selection.selected[0].id).toBe('2');
+      expect(component.selection.selected.length).toBe(2);
+      expect(component.selection.selected.some(i => i.id === '2')).toBe(true);
+      expect(component.selection.selected.some(i => i.id === '3')).toBe(true);
     });
 
-    it('should select nothing when no rated item is below the value', () => {
-      // ratings: id1=5, id2=3, id3=0. LessThan 2 → no rated item qualifies.
+    it('should select only unrated (0) items when no rated item is below the value', () => {
+      // ratings: id1=5, id2=3, id3=0. LessThan 2 → only id3 (unrated, 0 < 2).
       const mockDialogRef = {
         afterClosed: vi
           .fn()
@@ -697,7 +700,8 @@ describe('TranslateExercisesComponent', () => {
 
       component.onSelectByRating();
 
-      expect(component.selection.selected.length).toBe(0);
+      expect(component.selection.selected.length).toBe(1);
+      expect(component.selection.selected[0].id).toBe('3');
     });
 
     it('should select items with rating larger or equals 3', () => {
@@ -718,9 +722,9 @@ describe('TranslateExercisesComponent', () => {
       expect(component.selection.selected.some(i => i.id === '2')).toBe(true);
     });
 
-    it('should select items with rating less or equals 3, excluding unrated', () => {
-      // ratings: id1=5, id2=3, id3=0. LessOrEquals 3 → only id2 (rating 3);
-      // id3 (unrated, 0) is deliberately excluded (covered by HasNone).
+    it('should select items with rating less or equals 3, including unrated', () => {
+      // ratings: id1=5, id2=3, id3=0. LessOrEquals 3 → id2 (3) and id3 (0);
+      // unrated (0) compares numerically (0 <= 3).
       const mockDialogRef = {
         afterClosed: vi
           .fn()
@@ -730,13 +734,13 @@ describe('TranslateExercisesComponent', () => {
 
       component.onSelectByRating();
 
-      expect(component.selection.selected.length).toBe(1);
-      expect(component.selection.selected[0].id).toBe('2');
+      expect(component.selection.selected.length).toBe(2);
+      expect(component.selection.selected.some(i => i.id === '2')).toBe(true);
+      expect(component.selection.selected.some(i => i.id === '3')).toBe(true);
     });
 
-    it('should select nothing for less or equals when no rated item is at or below the value', () => {
-      // ratings: id1=5, id2=3, id3=0. LessOrEquals 2 → no rated item qualifies;
-      // id3 (unrated, 0) is excluded, confirming it does not collapse into HasNone.
+    it('should select only unrated (0) for less or equals when no rated item is at or below the value', () => {
+      // ratings: id1=5, id2=3, id3=0. LessOrEquals 2 → only id3 (unrated, 0 <= 2).
       const mockDialogRef = {
         afterClosed: vi
           .fn()
@@ -746,7 +750,8 @@ describe('TranslateExercisesComponent', () => {
 
       component.onSelectByRating();
 
-      expect(component.selection.selected.length).toBe(0);
+      expect(component.selection.selected.length).toBe(1);
+      expect(component.selection.selected[0].id).toBe('3');
     });
 
     it('should clear the previous selection before applying the new rating match', () => {
@@ -754,13 +759,13 @@ describe('TranslateExercisesComponent', () => {
       expect(component.selection.selected.length).toBe(1);
 
       const mockDialogRef = {
-        afterClosed: vi.fn().mockReturnValue(of({ ratingOperator: RatingOperatorEnum.HasNone })),
+        afterClosed: vi.fn().mockReturnValue(of({ ratingOperator: RatingOperatorEnum.LessThan, ratingValue: 1 })),
       };
       mockDialog.open.mockReturnValue(mockDialogRef);
 
       component.onSelectByRating();
 
-      // HasNone matches only id3; the previously selected id1 is dropped.
+      // < 1 matches only id3 (unrated); the previously selected id1 is dropped.
       expect(component.selection.selected.length).toBe(1);
       expect(component.selection.selected[0].id).toBe('3');
     });
@@ -784,7 +789,7 @@ describe('TranslateExercisesComponent', () => {
       const markForCheckSpy = vi.spyOn(component['cdr'], 'markForCheck');
       markForCheckSpy.mockClear();
       const mockDialogRef = {
-        afterClosed: vi.fn().mockReturnValue(of({ ratingOperator: RatingOperatorEnum.HasAny })),
+        afterClosed: vi.fn().mockReturnValue(of({ ratingOperator: RatingOperatorEnum.LargerOrEquals, ratingValue: 1 })),
       };
       mockDialog.open.mockReturnValue(mockDialogRef);
 
@@ -1197,30 +1202,13 @@ describe('TranslateSelectByRatingDialogComponent', () => {
     });
   });
 
-  it('isValueDisabled should return true when HasAny operator is selected', () => {
-    component.ratingOperator.set(RatingOperatorEnum.HasAny);
-    expect(component.isValueDisabled).toBe(true);
-  });
-
-  it('isValueDisabled should return true when HasNone operator is selected', () => {
-    component.ratingOperator.set(RatingOperatorEnum.HasNone);
-    expect(component.isValueDisabled).toBe(true);
-  });
-
-  it('isValueDisabled should return false when Equals operator is selected', () => {
-    component.ratingOperator.set(RatingOperatorEnum.Equals);
-    expect(component.isValueDisabled).toBe(false);
-  });
-
-  it('ratingOperators should include all seven operators', () => {
+  it('ratingOperators should include all five value-based operators', () => {
     const values = component.ratingOperators.map(op => op.value);
     expect(values).toContain(RatingOperatorEnum.Equals);
     expect(values).toContain(RatingOperatorEnum.GreaterThan);
     expect(values).toContain(RatingOperatorEnum.LargerOrEquals);
     expect(values).toContain(RatingOperatorEnum.LessThan);
     expect(values).toContain(RatingOperatorEnum.LessOrEquals);
-    expect(values).toContain(RatingOperatorEnum.HasAny);
-    expect(values).toContain(RatingOperatorEnum.HasNone);
-    expect(component.ratingOperators.length).toBe(7);
+    expect(component.ratingOperators.length).toBe(5);
   });
 });

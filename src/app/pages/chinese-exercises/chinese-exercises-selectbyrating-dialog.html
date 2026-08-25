@@ -11,7 +11,7 @@
     </mat-form-field>
     <mat-form-field class="control-full-width">
       <mat-label>{{ t('selection.ratingValue') }}</mat-label>
-      <mat-select [(ngModel)]="ratingValue" [disabled]="isValueDisabled">
+      <mat-select [(ngModel)]="ratingValue">
         @for (val of ratingValues; track val) {
           <mat-option [value]="val">{{ val }}</mat-option>
         }

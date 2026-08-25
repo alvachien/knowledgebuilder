@@ -21,8 +21,6 @@ export enum RatingOperatorEnum {
   'Equals' = 0,
   'GreaterThan' = 1,
   'LessThan' = 2,
-  'HasAny' = 3,
-  'HasNone' = 4,
   'LargerOrEquals' = 5,
   'LessOrEquals' = 6,
 }
@@ -57,10 +55,6 @@ export const getRatingOperatorName = (operator: RatingOperatorEnum): string => {
       return 'Greater Than';
     case RatingOperatorEnum.LessThan:
       return 'Less Than';
-    case RatingOperatorEnum.HasAny:
-      return 'Has Any';
-    case RatingOperatorEnum.HasNone:
-      return 'Has None';
     case RatingOperatorEnum.LargerOrEquals:
       return 'Larger or Equals';
     case RatingOperatorEnum.LessOrEquals:
@@ -72,10 +66,12 @@ export const getRatingOperatorName = (operator: RatingOperatorEnum): string => {
 
 /**
  * Shared rating comparison used by the vocabulary list filter bar (rating
- * conditions) so all rating matching goes through one place.
- * Note: LessThan / LessOrEquals intentionally exclude unrated (0) words — a
- * rating of 0 means "not yet assessed", which is covered by HasNone. This keeps
- * LessThan 1 from collapsing into HasNone.
+ * conditions) and the Select-by-Rating dialogs, so all rating matching goes
+ * through one place. An unrated word has rating 0 and is compared numerically
+ * like any other value: `< 1` / `<= 0` match unrated words, `>= 1` matches any
+ * rated word. (Ratings are 1–5, so `< 1` is equivalent to the former "HasNone"
+ * and `>= 1` to the former "HasAny", which is why those operators were
+ * dropped.)
  */
 export const matchRating = (
   rating: number,
@@ -90,13 +86,9 @@ export const matchRating = (
     case RatingOperatorEnum.LargerOrEquals:
       return rating >= value;
     case RatingOperatorEnum.LessThan:
-      return rating > 0 && rating < value;
+      return rating < value;
     case RatingOperatorEnum.LessOrEquals:
-      return rating > 0 && rating <= value;
-    case RatingOperatorEnum.HasAny:
-      return rating > 0;
-    case RatingOperatorEnum.HasNone:
-      return rating === 0;
+      return rating <= value;
     default:
       return false;
   }
