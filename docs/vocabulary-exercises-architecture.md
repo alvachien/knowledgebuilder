@@ -426,7 +426,7 @@ Matching is `freeText AND every active word condition AND every rating condition
 
 - `freeText`: lowercased substring of `${id}${enword}${cnword}` (mirrors the old default `MatTableDataSource` predicate).
 - `wordConditions`: text operators compare lowercased `enword`; phrase operators match on shape (`isPhrase` = `enword` contains a space; `notPhrase` = the negation) and are always active.
-- `ratingConditions`: each delegated to `matchRating(rating, operator, value)` (`ui-common.ts`); `LessThan`/`LessOrEquals` intentionally exclude unrated (`0`) words so "LessThan 1" does not collapse into "HasNone".
+- `ratingConditions`: each delegated to `matchRating(rating, operator, value)` (`ui-common.ts`). An unrated word has rating `0` and is compared numerically like any other value, so `< 1` matches unrated words and `>= 1` matches any rated word (ratings are 1–5). The Rating filter dialog offers only the five value-based operators (`>=`, `>`, `=`, `<=`, `<`) with values 1–5; the former `HasAny`/`HasNone` operators were removed as redundant (`>= 1` ≡ HasAny, `< 1` ≡ HasNone).
 
 ### 8.2 Wiring through `MatTableDataSource`
 
@@ -544,7 +544,7 @@ interface RatingCondition  { operator: RatingOperatorEnum; value: number; }
 interface VocabularyListFilter { freeText: string; wordConditions: WordCondition[]; ratingConditions: RatingCondition[]; }
 ```
 
-`RatingOperatorEnum` (`Equals`, `GreaterThan`, `LessThan`, `HasAny`, `HasNone`, `LargerOrEquals`, `LessOrEquals`) and `SelectionModeEnum` (`ByID`, `FreeSelection`, `ByCount`) live in `ui-common.ts`, alongside `matchRating()`.
+`RatingOperatorEnum` (`Equals`, `GreaterThan`, `LessThan`, `LargerOrEquals`, `LessOrEquals`) and `SelectionModeEnum` (`ByID`, `FreeSelection`, `ByCount`) live in `ui-common.ts`, alongside `matchRating()`, which compares an unrated (`0`) word numerically.
 
 ### 10.6 Pure helpers
 
