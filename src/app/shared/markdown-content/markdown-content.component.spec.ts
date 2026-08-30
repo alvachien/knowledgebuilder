@@ -353,11 +353,14 @@ describe('MarkdownContentComponent', () => {
 
   describe('integration tests', () => {
     it('should update rendered content when markdown input changes via ngOnChanges', async () => {
+      // Await the render promise directly instead of fixture.whenStable():
+      // zone-stability waits stalled past the 5 s timeout on loaded CI
+      // runners (the same flake class as the navbar timer tests).
       component.markdown = '# First';
       component.ngOnChanges({
         markdown: new SimpleChange(null, '# First', true),
       });
-      await fixture.whenStable();
+      await component['renderMarkdown']();
 
       const firstHtml = component.renderedContent.toString();
       expect(firstHtml).toContain('First');
@@ -366,7 +369,7 @@ describe('MarkdownContentComponent', () => {
       component.ngOnChanges({
         markdown: new SimpleChange('# First', '# Second', false),
       });
-      await fixture.whenStable();
+      await component['renderMarkdown']();
 
       const secondHtml = component.renderedContent.toString();
       expect(secondHtml).toContain('Second');
@@ -378,13 +381,13 @@ describe('MarkdownContentComponent', () => {
       component.ngOnChanges({
         markdown: new SimpleChange(null, 'Math: $x=1$', true),
       });
-      await fixture.whenStable();
+      await component['renderMarkdown']();
 
       component.enableMath = true;
       component.ngOnChanges({
         enableMath: new SimpleChange(false, true, false),
       });
-      await fixture.whenStable();
+      await component['renderMarkdown']();
 
       expect(component.renderedContent).toBeTruthy();
     });
