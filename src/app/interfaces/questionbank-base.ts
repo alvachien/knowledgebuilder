@@ -13,7 +13,6 @@ import {
   QuestionBankTypeEnum,
   VALID_OPTION_KEYS,
 } from './questionbank';
-import type { SelectionModeEnum } from './ui-common';
 import { hasChinese, replaceAtSymbols } from './ui-common';
 
 export const getQuestionBankTypeDescription = (itemType: QuestionBankTypeEnum): string => {
@@ -1392,13 +1391,6 @@ export interface KnowledgeExercisePrintOption {
   // (line break between items instead of an inline em-space). Used by Chinese
   // recite prints so multi-item answer keys are not run together on one line.
   answerLineBreakPerItem?: boolean;
-}
-
-export interface KnowledgeExerciseSelectOption {
-  selectedSelectMode: SelectionModeEnum;
-  importIDs?: string;
-  countOfItems?: number;
-  filterOnTag?: string;
 }
 
 // Check item has answer or not

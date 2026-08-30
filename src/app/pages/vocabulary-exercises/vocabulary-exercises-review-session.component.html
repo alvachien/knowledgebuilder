@@ -16,23 +16,23 @@
           }
         </mat-select>
       </mat-form-field>
-      <button mat-fab class="toolbar-fab-button" [matTooltip]="t('vocabularyExercises.enableAutoMode')"
-        [attr.aria-label]="t('vocabularyExercises.enableAutoMode')"
+      <button mat-fab class="toolbar-fab-button" [matTooltip]="t('common.enableAutoMode')"
+        [attr.aria-label]="t('common.enableAutoMode')"
         (click)="store.enableAutoMode()" [disabled]="store.isAutoMode()">
         <mat-icon>play_circle_outline</mat-icon>
       </button>
-      <button mat-fab class="toolbar-fab-button" [matTooltip]="t('vocabularyExercises.previous')"
-        [attr.aria-label]="t('vocabularyExercises.previous')"
+      <button mat-fab class="toolbar-fab-button" [matTooltip]="t('common.previous')"
+        [attr.aria-label]="t('common.previous')"
         (click)="store.previous()" [disabled]="store.isAutoMode() || store.isPreviousDisabled()">
         <mat-icon>arrow_left</mat-icon>
       </button>
-      <button mat-fab class="toolbar-fab-button" [matTooltip]="t('vocabularyExercises.next')"
-        [attr.aria-label]="t('vocabularyExercises.next')"
+      <button mat-fab class="toolbar-fab-button" [matTooltip]="t('common.next')"
+        [attr.aria-label]="t('common.next')"
         (click)="store.next()" [disabled]="store.isAutoMode() || store.isNextDisabled()">
         <mat-icon>arrow_right</mat-icon>
       </button>
-      <button mat-fab class="toolbar-fab-button" [matTooltip]="t('vocabularyExercises.quit')"
-        [attr.aria-label]="t('vocabularyExercises.quit')" (click)="quit.emit()">
+      <button mat-fab class="toolbar-fab-button" [matTooltip]="t('common.quit')"
+        [attr.aria-label]="t('common.quit')" (click)="quit.emit()">
         <mat-icon>cancel_presentation</mat-icon>
       </button>
     </mat-toolbar-row>

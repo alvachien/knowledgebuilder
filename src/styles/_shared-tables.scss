@@ -13,6 +13,11 @@ table[mat-table] {
     background: rgba(0, 0, 0, 0.03);
   }
 
+  // Sorted column header (mat-sort-header)
+  th.mat-sort-header-sorted {
+    color: black;
+  }
+
   // Data cells - consistent padding and borders
   td.mat-mdc-cell {
     padding: 8px 12px;
@@ -79,6 +84,13 @@ table[mat-table] {
   border-right: 1px solid rgba(0, 0, 0, 0.12);
 }
 
+// Row-number column (result tables)
+.mat-column-order {
+  width: 50px;
+  text-align: center;
+  border-right: 1px solid rgba(0, 0, 0, 0.12);
+}
+
 // Rating column (mat-button-toggle-group)
 .mat-column-rating {
   width: 200px;
@@ -90,9 +102,6 @@ table[mat-table] {
 .mat-column-extraInfo {
   width: 60px;
   text-align: center;
-}
-
-.mat-column-ai {
   border-right: 1px solid rgba(0, 0, 0, 0.12);
 }
 
@@ -129,6 +138,7 @@ table[mat-table] {
 .mat-column-tags {
   width: 150px;
   text-align: left;
+  border-right: 1px solid rgba(0, 0, 0, 0.12);
 }
 
 // Name / subject columns
@@ -162,7 +172,8 @@ table[mat-table] {
   border-right: 1px solid rgba(0, 0, 0, 0.12);
 }
 
-.mat-column-cnword {
+.mat-column-cnword,
+.mat-column-chinese {
   width: 150px;
   text-align: left;
   border-right: 1px solid rgba(0, 0, 0, 0.12);
@@ -177,7 +188,8 @@ table[mat-table] {
 }
 
 // Content column (Chinese textarea)
-.mat-column-content {
+.mat-column-content,
+.mat-column-explaination {
   text-align: left;
   border-right: 1px solid rgba(0, 0, 0, 0.12);
 }
@@ -185,6 +197,7 @@ table[mat-table] {
 // Value column (formula)
 .mat-column-value {
   text-align: left;
+  border-right: 1px solid rgba(0, 0, 0, 0.12);
 }
 
 // Listening-specific columns

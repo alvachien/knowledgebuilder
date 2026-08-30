@@ -48,11 +48,11 @@ export class VocabularySelectDialogComponent {
       case SelectionModeEnum.ByID:
         return 'vocabularyExercises.selectWords';
       case SelectionModeEnum.FreeSelection:
-        return 'vocabularyExercises.randomSelect';
+        return 'common.randomSelect';
       case SelectionModeEnum.ByCount:
-        return 'vocabularyExercises.sequenceSelect';
+        return 'common.sequenceSelect';
       default:
-        return 'vocabularyExercises.sequenceSelect';
+        return 'common.sequenceSelect';
     }
   }
 

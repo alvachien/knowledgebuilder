@@ -1,0 +1,47 @@
+<ng-container *transloco="let t">
+  <div class="result-content">
+    <div class="result-header">
+      <span>{{ t('translateExercises.timeCost') }}: {{ store.timeCostSeconds() }}</span>
+      <span class="result-score">{{ t('common.score') }}: {{ store.correctCount() }} / {{ store.results().length }}</span>
+      <span>{{ t('common.incorrect') }}: {{ store.incorrectCount() }}</span>
+      <button mat-raised-button color="primary" (click)="backToList.emit()">{{ t('backToList') }}</button>
+    </div>
+
+    <table mat-table [dataSource]="store.results()" class="mat-elevation-z8 w-full">
+      <!-- English Sent Column -->
+      <ng-container matColumnDef="ensent">
+        <th mat-header-cell *matHeaderCellDef> {{ t('english') }} </th>
+        <td mat-cell *matCellDef="let element"> {{element.ensent}} </td>
+      </ng-container>
+
+      <!-- English Words Column -->
+      <ng-container matColumnDef="enwords">
+        <th mat-header-cell *matHeaderCellDef> {{ t('translateExercises.words') }} </th>
+        <td mat-cell *matCellDef="let element"> {{element.enwords?.join(', ') || ''}} </td>
+      </ng-container>
+
+      <!-- Chinese Sent Column -->
+      <ng-container matColumnDef="cnsent">
+        <th mat-header-cell *matHeaderCellDef> {{ t('chinese') }} </th>
+        <td mat-cell *matCellDef="let element"> {{element.cnsent}} </td>
+      </ng-container>
+
+      <!-- Inputted Sent Column -->
+      <ng-container matColumnDef="inputted">
+        <th mat-header-cell *matHeaderCellDef> {{ t('inputted') }} </th>
+        <td mat-cell *matCellDef="let element"> {{element.inputted}} </td>
+      </ng-container>
+
+      <!-- Correct Column -->
+      <ng-container matColumnDef="correct">
+        <th mat-header-cell *matHeaderCellDef> {{ t('common.correct') }} </th>
+        <td mat-cell *matCellDef="let element">
+          <mat-checkbox [checked]="element.correct" [disabled]="true"></mat-checkbox>
+        </td>
+      </ng-container>
+
+      <tr mat-header-row *matHeaderRowDef="displayedColumns; sticky: true"></tr>
+      <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+    </table>
+  </div>
+</ng-container>

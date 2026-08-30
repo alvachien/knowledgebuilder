@@ -1,6 +1,5 @@
 export * from './vocabulary-exercises.component';
 export * from './vocabulary-exercises-worksheetoptions-dialog.component';
-export * from './vocabulary-exercises-rating-filter-dialog.component';
 export * from './vocabulary-exercises-select-dialog.component';
 export * from './vocabulary-exercises-reviewoptions-dialog.component';
 export * from './vocabulary-exercises-review-session.component';
@@ -10,5 +9,4 @@ export * from './vocabulary-exercises-quiz-session.component';
 export * from './vocabulary-exercises-spellingoptions-dialog.component';
 export * from './vocabulary-exercises-spelling-result.component';
 export * from './vocabulary-exercises-spelling-session.component';
-export * from './vocabulary-exercises-word-filter-dialog.component';
 export * from './vocabulary-exercises-word-list.component';

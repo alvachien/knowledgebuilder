@@ -1,30 +1,22 @@
-import { SelectionModel } from '@angular/cdk/collections';
+import type { SelectionModel } from '@angular/cdk/collections';
 import type { OnInit } from '@angular/core';
 import {
   ChangeDetectionStrategy,
-  ChangeDetectorRef,
   Component,
   DestroyRef,
-  Inject,
-  inject,
-  model,
   ViewChild,
+  inject,
+  input,
+  model,
+  output,
+  signal,
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { FormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
-import { MatButtonToggleModule, type MatButtonToggleChange } from '@angular/material/button-toggle';
+import type { MatButtonToggleChange } from '@angular/material/button-toggle';
+import { MatButtonToggleModule } from '@angular/material/button-toggle';
 import { MatCheckboxModule } from '@angular/material/checkbox';
-import { MAT_DATE_FORMATS, MAT_DATE_LOCALE } from '@angular/material/core';
-import { MatDatepickerModule } from '@angular/material/datepicker';
-import {
-  MAT_DIALOG_DATA,
-  MatDialog,
-  MatDialogActions,
-  MatDialogContent,
-  MatDialogRef,
-  MatDialogTitle,
-} from '@angular/material/dialog';
 import { MatDividerModule } from '@angular/material/divider';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
@@ -32,918 +24,223 @@ import { MatInputModule } from '@angular/material/input';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatPaginator, MatPaginatorModule } from '@angular/material/paginator';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { MatRadioModule } from '@angular/material/radio';
 import type { MatSelectChange } from '@angular/material/select';
 import { MatSelectModule } from '@angular/material/select';
-import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
-import { MatTableDataSource, MatTableModule } from '@angular/material/table';
+import { MatSort, MatSortModule } from '@angular/material/sort';
+import type { MatTableDataSource } from '@angular/material/table';
+import { MatTableModule } from '@angular/material/table';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatTooltipModule } from '@angular/material/tooltip';
-import { MatDateFnsModule, provideDateFnsAdapter } from '@angular/material-date-fns-adapter';
-import { Router, RouterModule } from '@angular/router';
 import { TranslocoModule, TranslocoService } from '@jsverse/transloco';
-import { zhCN } from 'date-fns/locale';
+import type { IFilterDefinition } from 'actslib';
 
-import type {
-  KnowledgeExerciseFileContent,
-  KnowledgeExercisePrintOption,
-  LearningContent,
-  QuestionBankItemBase,
-  QuestionBankTypeKeys,
-} from '../../../interfaces';
-import {
-  getAllQuestionBankTypes,
-  MY_DATE_FORMATS,
-  convertToQuestionBankItem,
-  convertQuestionBankItemToMarkdown,
-  QuestionBankTypeEnum,
-  RatingOperatorEnum,
-  matchRating,
-} from '../../../interfaces';
+import type { KnowledgeExerciseFileContent, LearningContent } from '../../../interfaces';
+import { KNOWLEDGE_FILTER_PROPERTIES } from '../../../interfaces';
+import { ratingItemKey } from '../../../services';
+import { hasActiveFilterDefinition, summarizeFilterDefinition } from '../../../shared/filter-dialog';
 
-interface FilterResult {
-  item: KnowledgeExerciseFileContent;
-  ranking: number;
-}
+/** Menu-label cap before the ellipsis, matching the vocabulary list. */
+const FILTER_MENU_MAX_LENGTH = 40;
 
-enum ContentToDisplayEnum {
-  List = 1,
-  Detail = 2,
-  ExtraInfo = 3,
-}
-import {
-  UIService,
-  LearningContentService,
-  LearningRatingService,
-  ratingItemKey,
-} from '../../../services';
-import { FooterComponent } from '../../../shared/footer/footer';
-import { MarkdownContentComponent } from '../../../shared/markdown-content';
-import { fisherYatesShuffle } from '../../../shared/utils/shuffle';
-import { AppPageTitle } from '../../page-title/page-title';
+const BASE_DISPLAYED_COLUMNS = [
+  'select',
+  'id',
+  'itemtype',
+  'difficulty',
+  'suggestedCompletionTime',
+  'tags',
+  'extraInfo',
+  'rating',
+];
 
+/**
+ * List screen of the knowledge exercises page: toolbar (file selector), the
+ * Fiori-style filter bar (live free text + the single Filter menu), the
+ * quick-selection/exercise menus and the exercise table with paginator/sort.
+ * Purely presentational — the container owns the dataSource, selection model
+ * and all dialog orchestration; this component only renders them and forwards
+ * user interactions as outputs. The paginator/sort wiring onto the shared
+ * MatTableDataSource happens here because the corresponding elements live in
+ * this template.
+ */
 @Component({
   selector: 'app-knowledge-exercises-list',
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     MatToolbarModule,
     FormsModule,
-    ReactiveFormsModule,
     MatFormFieldModule,
     MatSelectModule,
+    MatCheckboxModule,
+    MatTableModule,
+    MatPaginatorModule,
+    MatProgressSpinnerModule,
+    MatSortModule,
     MatButtonModule,
-    MatButtonToggleModule,
     MatIconModule,
     MatInputModule,
-    MatMenuModule,
-    MatPaginatorModule,
-    MatTableModule,
-    MatCheckboxModule,
-    MatSnackBarModule,
-    RouterModule,
-    MarkdownContentComponent,
-    MatDividerModule,
-    FooterComponent,
+    MatButtonToggleModule,
     MatTooltipModule,
-    MatProgressSpinnerModule,
+    MatMenuModule,
+    MatDividerModule,
     TranslocoModule,
   ],
   templateUrl: './knowledge-exercises-list.component.html',
   styleUrl: './knowledge-exercises-list.component.scss',
-  host: {
-    class: 'app-main-content',
-  },
 })
 export class KnowledgeExercisesListComponent implements OnInit {
-  // Enum reference for template
-  readonly ContentToDisplay = ContentToDisplayEnum;
-  // Title
-  pageTitle: AppPageTitle = inject(AppPageTitle);
-  // Selected file
-  selectedFile?: LearningContent;
-  allFiles?: LearningContent[];
-  isLoadingContents = true;
-  // Current content ID for rating
-  private currentContentId?: number;
-  // List page
-  contentToDisplay = ContentToDisplayEnum.List;
-  dataSource: MatTableDataSource<KnowledgeExerciseFileContent> = new MatTableDataSource();
-  selection = new SelectionModel<KnowledgeExerciseFileContent>(true, []);
-  paginator?: MatPaginator;
-  private originalData: KnowledgeExerciseFileContent[] = [];
-  @ViewChild(MatPaginator, { static: false }) set content(content: MatPaginator) {
-    if (content) {
-      // initially setter gets called with undefined
-      this.paginator = content;
-      this.dataSource.paginator = this.paginator;
-    }
-  }
-  displayedColumns = [
-    'select',
-    'id',
-    'itemtype',
-    'difficulty',
-    'suggestedCompletionTime',
-    'tags',
-    'extraInfo',
-    'rating',
-  ];
-  // Navigation
-  readonly router = inject(Router);
-  readonly learningContentService = inject(LearningContentService);
-  readonly uiService = inject(UIService);
-  private readonly ratingService = inject(LearningRatingService);
-  // Dialog
-  readonly dialog = inject(MatDialog);
-  private readonly destroyRef = inject(DestroyRef);
-  private readonly cdr = inject(ChangeDetectorRef);
-  // Map to store ratings by item ID
-  private contentRatingMap = new Map<number, number>();
-  printSetting: KnowledgeExercisePrintOption = {
-    formTitle: '',
-    printEntryDate: false,
-    printScore: false,
-    printAnswer: false,
-    printHintOfAnswer: false,
-    printID: true,
-    hideLabelOfQuestionType: [],
-    shuffleOptionsInSelection: true,
-  };
-  // Snackbar
-  readonly _snackBar = inject(MatSnackBar);
-  // Detail
-  selectedElementIdx?: number;
-  selectedElement?: QuestionBankItemBase<string>;
-  markdownStr: string = '';
-  answerMarkdownStr: string = '';
-  hintOfAnswerMarkdownStr: string = '';
-  showDetailAnswer = false;
-  showDetailHintOfAnswer = false;
-  // Base URL for resolving relative image paths in the currently-loaded exercise JSON
-  currentImageBaseUrl?: string;
+  readonly allFiles = input.required<LearningContent[]>();
+  readonly selectedFile = model<LearningContent | undefined>(undefined);
+  readonly isLoadingContents = input.required<boolean>();
+  readonly dataSource = input.required<MatTableDataSource<KnowledgeExerciseFileContent>>();
+  readonly selection = input.required<SelectionModel<KnowledgeExerciseFileContent>>();
+  readonly contentRatings = input.required<Map<number, number>>();
 
-  /** Whether the number of selected elements matches the total number of rows. */
-  isAllSelected() {
-    const numSelected = this.selection.selected.length;
-    const numRows = this.dataSource.data.length;
-    return numSelected === numRows;
-  }
+  // ── Filter bar ──────────────────────────────────────────────────
+  // The container owns the applied condition definition (it opens the shared
+  // filter dialog); this child only renders it for the menu label and
+  // forwards intents. freeText is a local field for the input box, emitted
+  // live.
+  readonly filterDefinition = input.required<IFilterDefinition>();
+  /**
+   * Free text currently applied by the container, seeded into the input box
+   * on init. The list screen stays mounted across detail visits (the container
+   * toggles it with [hidden]), so this only matters when the child is created
+   * with a filter already applied by the container — the box must not show
+   * empty while the table is invisibly filtered.
+   */
+  readonly appliedFreeText = input('');
+  readonly freeTextChanged = output<string>();
+  readonly defineFilter = output<void>();
+  readonly clearFilter = output<void>();
+  readonly quickSelect = output<'random' | 'sequence' | 'ids'>();
+  readonly selectAllVisible = output<void>();
+  readonly clearSelection = output<void>();
 
-  /** Selects all rows if they are not all selected; otherwise clear selection. */
-  toggleAllRows() {
-    if (this.isAllSelected()) {
-      this.selection.clear();
+  readonly allRowsToggled = output<void>();
+  readonly fileSelectionChanged = output<MatSelectChange>();
+  readonly contentRatingChanged = output<{
+    item: KnowledgeExerciseFileContent;
+    event: MatButtonToggleChange;
+  }>();
+  readonly showDetail = output<string>();
+  readonly showExtraInfo = output<string>();
+  readonly print = output<void>();
+
+  /** Stable identities so mat-table's column defs only re-diff on a real flip. */
+  readonly displayedColumns = BASE_DISPLAYED_COLUMNS;
+
+  freeText = '';
+
+  private readonly transloco = inject(TranslocoService);
+
+  /**
+   * True while an IME composition is in progress. Intermediate pinyin
+   * fragments fire `input` events; filtering those would flicker the table
+   * mid-word on a Chinese-content page, so they are suppressed until
+   * compositionend delivers the final text.
+   */
+  private composing = false;
+
+  /** Free text applies live, except mid-composition. */
+  onFreeTextChanged(value: string): void {
+    if (this.composing) {
       return;
     }
-
-    this.selection.select(...this.dataSource.data);
+    this.freeTextChanged.emit(value);
   }
 
-  get itemCount(): number {
-    return this.dataSource.data.length;
+  onCompositionStart(): void {
+    this.composing = true;
+  }
+
+  onCompositionEnd(value: string): void {
+    this.composing = false;
+    this.freeTextChanged.emit(value);
+  }
+
+  get hasFilter(): boolean {
+    return hasActiveFilterDefinition(this.filterDefinition());
+  }
+
+  /** Condition-definition summary (join words and parentheses included) for the Filter menu item. */
+  get filterMenuLabel(): string {
+    if (!this.hasFilter) {
+      return this.transloco.translate('common.filterNew');
+    }
+    return summarizeFilterDefinition(
+      this.filterDefinition(),
+      KNOWLEDGE_FILTER_PROPERTIES,
+      { translate: key => this.transloco.translate(key) },
+      FILTER_MENU_MAX_LENGTH
+    );
+  }
+
+  private readonly destroyRef = inject(DestroyRef);
+
+  /**
+   * Live mirror of the selection size. The selection model is a shared mutable
+   * object owned by the container: selection changes triggered from
+   * container-side dialog flows (Random, Sequence, By ID, Select All Visible,
+   * Clear) do not change any input reference, so the count is mirrored into a
+   * signal that the template reads instead of poking change detection by hand.
+   */
+  readonly selectionCount = signal(0);
+
+  @ViewChild(MatPaginator, { static: false }) set content(paginator: MatPaginator) {
+    if (paginator) {
+      // initially setter gets called with undefined
+      this.dataSource().paginator = paginator;
+    }
+  }
+  @ViewChild(MatSort, { static: false }) set contentSort(sort: MatSort) {
+    if (sort) {
+      this.dataSource().sort = sort;
+    }
   }
 
   ngOnInit(): void {
-    // Set the page title
-    this.pageTitle.title = 'Exercises';
-    // Fetch knowledge bank contents from the API. The includeLatex flag is carried on
-    // each LearningContent record, so no separate metadata index load is needed.
-    this.learningContentService
-      .getKnowledgeBankContents()
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe({
-        next: contents => {
-          this.allFiles = contents;
-          this.isLoadingContents = false;
-          // OnPush: the file list arrives in an async subscribe callback, so
-          // the view is not marked dirty automatically — without this the
-          // files dropdown stays empty until a later DOM event triggers
-          // detection.
-          this.cdr.markForCheck();
-        },
-        error: err => {
-          console.error(err);
-          this.isLoadingContents = false;
-          this.cdr.markForCheck();
-        },
-      });
+    // Restore the filter box to what the container has applied; a fresh
+    // instance starts empty otherwise.
+    this.freeText = this.appliedFreeText();
+
+    // Seed the count from the live selection: the shared SelectionModel may
+    // already hold rows checked before this child was created (e.g. container
+    // dialog flows), but the selection.changed subscription only fires on the
+    // *next* change — so without this seed the toolbar shows 0 while
+    // checkboxes are visibly checked.
+    this.selectionCount.set(this.selection().selected.length);
+
+    this.selection()
+      .changed.pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(() => this.selectionCount.set(this.selection().selected.length));
   }
 
-  onFileSelectionChanged(event: MatSelectChange) {
-    if (!event.value) {
-      this.originalData = [];
-      this.dataSource.data = [];
-      this.dataSource.paginator = this.paginator || null;
-      this.contentRatingMap.clear();
-      this.currentContentId = undefined;
-      return;
-    }
-
-    const selectedContent = event.value as LearningContent;
-    this.currentContentId = selectedContent.id;
-
-    // Compute the base URL for resolving relative image paths within this JSON file
-    this.currentImageBaseUrl = this.learningContentService.getStorageFileBaseUrl(
-      selectedContent.fileUrl
-    );
-
-    this.dataSource.data = [];
-    this.selection.clear();
-    this.contentRatingMap.clear();
-
-    this.learningContentService
-      .getKnowledgeExerciseContent(selectedContent.fileUrl)
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe({
-        next: df => {
-          if (df) {
-            this.originalData = df.slice();
-            this.dataSource.data = df.slice();
-            this.dataSource.paginator = this.paginator || null;
-
-            // Load ratings for this content
-            if (this.currentContentId) {
-              this.ratingService
-                .getRatings(this.currentContentId)
-                .pipe(takeUntilDestroyed(this.destroyRef))
-                .subscribe({
-                  next: ratings => {
-                    for (const r of ratings) {
-                      if (r.itemId !== undefined) {
-                        this.contentRatingMap.set(r.itemId, r.rating);
-                      }
-                    }
-                    // OnPush: ratings arrive async; the mat-table only re-renders
-                    // rows when dataSource emits, so without markForCheck the
-                    // rating column stays at 0 until the next interaction.
-                    this.cdr.markForCheck();
-                  },
-                  error: err => console.error('Failed to load ratings', err),
-                });
-            }
-          }
-        },
-        error: err => {
-          console.error(err);
-        },
-      });
+  get wordQueueCount(): number {
+    return this.dataSource().data.length;
   }
 
-  getRating(itemId: string | undefined): number {
+  /** Rows the table currently shows: the filtered count when a filter is active. */
+  get visibleRowCount(): number {
+    return this.dataSource().filter
+      ? this.dataSource().filteredData.length
+      : this.dataSource().data.length;
+  }
+
+  /**
+   * Whether every visible row is selected. Comparing against the visible rows
+   * (not just counts) keeps the header checkbox honest when the selection also
+   * contains rows the current filter hides — mirroring the container's
+   * isAllSelected/toggleAllRows semantics.
+   */
+  isAllSelected(): boolean {
+    const source = this.dataSource();
+    const visible = source.filter ? source.filteredData : source.data;
+    return visible.length > 0 && visible.every(row => this.selection().isSelected(row));
+  }
+
+  getRating(itemId: string | number | undefined): number {
     const numId = ratingItemKey(itemId);
-    return numId === undefined ? 0 : (this.contentRatingMap.get(numId) ?? 0);
-  }
-
-  onContentRatingChanged(item: KnowledgeExerciseFileContent, event: MatButtonToggleChange) {
-    if (event.value === undefined || event.value === null || event.value < 1) {
-      // Clicking the active toggle deselects it (value becomes undefined).
-      // There is no "clear rating" operation, so restore the previous selection.
-      event.source.buttonToggleGroup.value = event.source.value;
-      return;
-    }
-    if (this.currentContentId === undefined || item.id === undefined) {
-      return;
-    }
-    const numId = ratingItemKey(item.id);
-    if (numId === undefined) {
-      return;
-    }
-    const previousRating = this.contentRatingMap.get(numId) ?? 0;
-
-    this.ratingService
-      .upsertRating(this.currentContentId, numId, event.value)
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe({
-        next: saved => {
-          this.contentRatingMap.set(numId, saved.rating);
-          this.cdr.markForCheck();
-        },
-        error: err => {
-          console.error('Failed to save rating', err);
-          // Restore the previous rating instead of dropping it from the map.
-          this.contentRatingMap.set(numId, previousRating);
-          this.cdr.markForCheck();
-        },
-      });
-  }
-
-  applyFilter(event: Event) {
-    const filterValue = (event.target as HTMLInputElement).value;
-    const filterTerms = filterValue
-      .trim()
-      .toLowerCase()
-      .split(/\s+/)
-      .filter(term => term.length > 0);
-
-    if (filterTerms.length === 0) {
-      this.dataSource.data = this.originalData.slice();
-      this.dataSource.paginator = this.paginator || null;
-      return;
-    }
-
-    const results: FilterResult[] = this.originalData
-      .map(item => {
-        const ranking = this.calculateRanking(item, filterTerms);
-        return { item, ranking };
-      })
-      .filter(result => result.ranking > 0);
-
-    results.sort((a, b) => b.ranking - a.ranking);
-
-    this.dataSource.data = results.map(r => r.item);
-    this.dataSource.paginator = this.paginator || null;
-  }
-
-  private calculateRanking(item: KnowledgeExerciseFileContent, filterTerms: string[]): number {
-    let totalRanking = 0;
-
-    const fieldPriorities: Array<{
-      getValue: (i: KnowledgeExerciseFileContent) => string | string[] | undefined;
-      weight: number;
-    }> = [
-      { getValue: i => i.id, weight: 8 },
-      { getValue: i => i.question, weight: 7 },
-      { getValue: i => i.tags, weight: 6 },
-      { getValue: i => this.extractOptionsText(i.options), weight: 5 },
-      { getValue: i => i.answer, weight: 4 },
-      { getValue: i => i.answers?.join(' '), weight: 4 },
-      { getValue: i => i.hintofanswer, weight: 3 },
-      { getValue: i => i.extraInfo?.join(' '), weight: 2 },
-      { getValue: i => this.extractItemsText(i.items), weight: 1 },
-    ];
-
-    for (const term of filterTerms) {
-      let termMatched = false;
-
-      for (const field of fieldPriorities) {
-        const value = field.getValue(item);
-        const textValue = Array.isArray(value)
-          ? value.join(' ').toLowerCase()
-          : value?.toLowerCase() || '';
-
-        if (textValue.includes(term)) {
-          totalRanking += field.weight;
-          termMatched = true;
-          break;
-        }
-      }
-
-      if (termMatched) {
-        totalRanking += 10;
-      }
-    }
-
-    const matchedAllTerms = filterTerms.every(term => {
-      return fieldPriorities.some(field => {
-        const value = field.getValue(item);
-        const textValue = Array.isArray(value)
-          ? value.join(' ').toLowerCase()
-          : value?.toLowerCase() || '';
-        return textValue.includes(term);
-      });
-    });
-
-    if (matchedAllTerms) {
-      totalRanking += 100;
-    }
-
-    return totalRanking;
-  }
-
-  private extractOptionsText(options: { [key: string]: string } | undefined): string {
-    if (!options) {
-      return '';
-    }
-    return Object.values(options).join(' ');
-  }
-
-  private extractItemsText(items: KnowledgeExerciseFileContent[] | undefined): string {
-    if (!items || items.length === 0) {
-      return '';
-    }
-    return items
-      .map(item => {
-        const parts: string[] = [];
-        if (item.question) {
-          parts.push(item.question);
-        }
-        if (item.answer) {
-          parts.push(item.answer);
-        }
-        if (item.answers) {
-          parts.push(...item.answers);
-        }
-        return parts.join(' ');
-      })
-      .join(' ');
-  }
-
-  onShowExtraInfo(elemid: string) {
-    this.selectedElementIdx = this.dataSource.data.findIndex(item => item.id === elemid);
-    if (this.selectedElementIdx !== -1) {
-      // Only switch views once the element is actually found — otherwise the
-      // detail view would open on the stale previously-selected element.
-      this.contentToDisplay = ContentToDisplayEnum.ExtraInfo;
-      this.setSelectedElement();
-    }
-  }
-
-  onShowDetail(elemid: string) {
-    // Show the detail of the element
-    this.selectedElementIdx = this.dataSource.data.findIndex(item => item.id === elemid);
-    if (this.selectedElementIdx !== -1) {
-      this.contentToDisplay = ContentToDisplayEnum.Detail;
-      this.setSelectedElement();
-    }
-  }
-
-  setSelectedElement() {
-    if (this.selectedElementIdx === undefined) {
-      return;
-    }
-    this.selectedElement = convertToQuestionBankItem(this.dataSource.data[this.selectedElementIdx]);
-    const hideLabelOfQuestionType: QuestionBankTypeKeys[] = [
-      QuestionBankTypeEnum.SingleChoice as QuestionBankTypeKeys,
-    ];
-    this.markdownStr = convertQuestionBankItemToMarkdown(
-      this.selectedElement,
-      hideLabelOfQuestionType
-    );
-    this.answerMarkdownStr =
-      this.selectedElement?.getAnswers()?.join(';').replaceAll(' ', '&nbsp;') ?? '';
-    this.hintOfAnswerMarkdownStr = this.buildHintMarkdown(this.selectedElement);
-  }
-
-  private buildHintMarkdown(item?: QuestionBankItemBase<string>): string {
-    if (!item) {
-      return '';
-    }
-    // For composite types, format each sub-item's hint with order prefix
-    const items = item.items;
-    if (items && items.length > 0) {
-      const hints = items
-        .filter(subItem => subItem.hasHintOfAnswer())
-        .map(subItem => {
-          const hint = subItem.getHintsOfAnswer();
-          const hintText = hint.length > 0 ? hint[0].hint : '';
-          return `*${subItem.order}*. ${hintText}`;
-        });
-      return hints.join('<br>');
-    }
-    // For simple types, return own hint
-    return item.hintofanswer ? String(item.hintofanswer) : '';
-  }
-
-  getExtraInfoMarkdown(): string {
-    if (!this.selectedElement?.extraInfo) {
-      return '';
-    }
-    return Array.isArray(this.selectedElement.extraInfo)
-      ? this.selectedElement.extraInfo.join('\n\n')
-      : String(this.selectedElement.extraInfo);
-  }
-
-  onBackToList() {
-    this.showDetailAnswer = false;
-    this.showDetailHintOfAnswer = false;
-    this.hintOfAnswerMarkdownStr = '';
-    this.contentToDisplay = ContentToDisplayEnum.List;
-  }
-
-  onPreviousItem() {
-    if (this.selectedElementIdx === undefined) {
-      return;
-    }
-    this.selectedElementIdx = this.selectedElementIdx - 1;
-    this.setSelectedElement();
-    this.hintOfAnswerMarkdownStr = '';
-    this.showDetailHintOfAnswer = false;
-  }
-
-  onNextItem() {
-    if (this.selectedElementIdx === undefined) {
-      return;
-    }
-    this.selectedElementIdx = this.selectedElementIdx + 1;
-    this.setSelectedElement();
-    this.hintOfAnswerMarkdownStr = '';
-    this.showDetailHintOfAnswer = false;
-  }
-
-  onToggleAnswer() {
-    this.showDetailAnswer = !this.showDetailAnswer;
-  }
-  onToggleHintOfAnswer() {
-    this.showDetailHintOfAnswer = !this.showDetailHintOfAnswer;
-  }
-
-  onPreview() {
-    // Show the dailog
-    const dialogRef = this.dialog.open(KnowledgeExercisesPrintOptionsDialogComponent, {
-      data: {
-        defaultTitle: this.selectedFile?.nameChinese || '',
-      },
-      width: '600px',
-      height: '500px',
-      enterAnimationDuration: 800,
-      exitAnimationDuration: 500,
-    });
-
-    dialogRef
-      .afterClosed()
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe(result => {
-        if (result !== undefined) {
-          this.printSetting.formTitle = result.formTitle;
-          this.printSetting.printEntryDate = result.printEntryDate;
-          this.printSetting.printScore = result.printScore;
-          this.printSetting.printAnswer = result.printAnswer;
-          this.printSetting.printHintOfAnswer = result.printHintOfAnswer;
-          this.printSetting.hideLabelOfQuestionType = result.hideLabelOfQuestionType;
-          this.printSetting.shuffleOptionsInSelection = result.shuffleOptionsInSelection;
-
-          this.onPreviewCore();
-        }
-      });
-  }
-
-  onSelectByCount() {
-    const dialogRef = this.dialog.open(KnowledgeSelectByCountDialogComponent, {
-      data: {},
-      width: '400px',
-      enterAnimationDuration: 800,
-      exitAnimationDuration: 500,
-    });
-
-    dialogRef
-      .afterClosed()
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe(result => {
-        if (result !== undefined && result.countOfItems > 0) {
-          this.selection.clear();
-          const offset = result.countOfOffset ?? 0;
-          this.dataSource.data.forEach((item, index) => {
-            if (index >= offset && index < offset + result.countOfItems) {
-              this.selection.select(item);
-            }
-          });
-          // OnPush: the count-based selection is applied in the async
-          // afterClosed callback — without markForCheck the checkboxes would
-          // not reflect the new selection until a later DOM event.
-          this.cdr.markForCheck();
-        }
-      });
-  }
-
-  onSelectByID() {
-    const dialogRef = this.dialog.open(KnowledgeSelectByIDDialogComponent, {
-      data: {},
-      width: '500px',
-      enterAnimationDuration: 800,
-      exitAnimationDuration: 500,
-    });
-
-    dialogRef
-      .afterClosed()
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe(result => {
-        if (result !== undefined && result.importIDs) {
-          // Split by the ','
-          const arids = result.importIDs.split(',');
-          if (arids.length > 0) {
-            this.selection.clear();
-            this.dataSource.data.forEach(item => {
-              const selidx = arids.findIndex((idstr: string) => idstr.trim() === item.id);
-              if (selidx !== -1) {
-                this.selection.select(item);
-              }
-            });
-            this.cdr.markForCheck();
-          }
-        }
-      });
-  }
-
-  onSelectFreeSelection() {
-    const dialogRef = this.dialog.open(KnowledgeSelectFreeDialogComponent, {
-      data: {},
-      width: '400px',
-      enterAnimationDuration: 800,
-      exitAnimationDuration: 500,
-    });
-
-    dialogRef
-      .afterClosed()
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe(result => {
-        if (result !== undefined && result.countOfItems > 0) {
-          // Random select
-          this.selection.clear();
-
-          let narr: KnowledgeExerciseFileContent[] = [];
-          if (result.filterOnTag) {
-            // Filter by tag
-            narr = this.dataSource.data.filter(
-              item =>
-                item.tags &&
-                item.tags.some(
-                  tag => tag.toLowerCase().indexOf(result.filterOnTag.toLowerCase()) !== -1
-                )
-            );
-            narr = fisherYatesShuffle(narr);
-          } else {
-            narr = fisherYatesShuffle(this.dataSource.data);
-          }
-
-          narr.forEach((item, index) => {
-            if (index < result.countOfItems) {
-              this.selection.select(item);
-            }
-          });
-          this.cdr.markForCheck();
-        }
-      });
-  }
-
-  onSelectByRating() {
-    const dialogRef = this.dialog.open(KnowledgeSelectByRatingDialogComponent, {
-      data: {},
-      width: '400px',
-      enterAnimationDuration: 800,
-      exitAnimationDuration: 500,
-    });
-
-    dialogRef
-      .afterClosed()
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe(result => {
-        if (result !== undefined) {
-          this.selection.clear();
-          const operator = result.ratingOperator as RatingOperatorEnum;
-          const value = result.ratingValue as number;
-
-          this.dataSource.data.forEach(item => {
-            const rating = this.getRating(item.id);
-            const matches = matchRating(rating, operator, value);
-
-            if (matches) {
-              this.selection.select(item);
-            }
-          });
-          this.cdr.markForCheck();
-        }
-      });
-  }
-
-  private onPreviewCore() {
-    const narr = this.selection.selected.slice();
-    narr.forEach((item, index) => {
-      item.order = index + 1;
-
-      // For reading comprehension, listening comprehension and cloze
-      // They have sub items
-      if (item.items && item.items.length > 0) {
-        item.items.forEach((sbitem, sbindex) => {
-          sbitem.order = sbindex + 1;
-        });
-      }
-    });
-
-    this.uiService.setSelectedExerciseItem(
-      narr,
-      this.printSetting,
-      this.selectedFile?.includeLatex ?? false,
-      this.currentImageBaseUrl
-    );
-    void this.router.navigate(['/knowledge/displayv2']);
-  }
-}
-
-@Component({
-  selector: 'app-knowledge-exercises-printoptions-dlg',
-  templateUrl: 'knowledge-exercises-printoptions-dlg.html',
-  imports: [
-    MatFormFieldModule,
-    FormsModule,
-    ReactiveFormsModule,
-    MatInputModule,
-    MatCheckboxModule,
-    MatButtonModule,
-    MatDialogTitle,
-    MatDialogContent,
-    MatDialogActions,
-    MatSelectModule,
-    MatRadioModule,
-    MatDatepickerModule,
-    MatDateFnsModule,
-    TranslocoModule,
-  ],
-  providers: [
-    provideDateFnsAdapter(),
-    { provide: MAT_DATE_FORMATS, useValue: MY_DATE_FORMATS },
-    { provide: MAT_DATE_LOCALE, useValue: zhCN },
-  ],
-  changeDetection: ChangeDetectionStrategy.OnPush,
-})
-export class KnowledgeExercisesPrintOptionsDialogComponent {
-  readonly dialogRef = inject(MatDialogRef<KnowledgeExercisesPrintOptionsDialogComponent>);
-  private readonly _snackBar = inject(MatSnackBar);
-  readonly transloco = inject(TranslocoService);
-
-  allQuestionBankTypes = getAllQuestionBankTypes();
-  readonly formTitle = model('');
-  readonly printEntryDate = model(true);
-  readonly printScore = model(true);
-  readonly printAnswer = model(true);
-  readonly printHintOfAnswer = model(false);
-  readonly printID = model(true);
-  readonly hideLabelOfQuestionType = model([]);
-  readonly shuffleOptionsInSelection = model(false);
-
-  constructor(@Inject(MAT_DIALOG_DATA) public data: { defaultTitle: string }) {
-    this.formTitle.set(data.defaultTitle);
-  }
-
-  onNoClick(): void {
-    this.dialogRef.close();
-  }
-
-  onYesClick(): void {
-    if (this.formTitle().trim() === '') {
-      this._snackBar.open(
-        this.transloco.translate('required_field'),
-        this.transloco.translate('close'),
-        {
-          duration: 3000,
-        }
-      );
-      return;
-    }
-
-    const closedata: KnowledgeExercisePrintOption = {
-      formTitle: this.formTitle(),
-      printEntryDate: this.printEntryDate(),
-      printScore: this.printScore(),
-      printAnswer: this.printAnswer(),
-      printHintOfAnswer: this.printHintOfAnswer(),
-      printID: this.printID(),
-      hideLabelOfQuestionType: this.hideLabelOfQuestionType(),
-      shuffleOptionsInSelection: this.shuffleOptionsInSelection(),
-    };
-
-    this.dialogRef.close(closedata);
-  }
-}
-
-@Component({
-  selector: 'app-knowledge-selectbycount-dlg',
-  templateUrl: 'knowledge-exercises-selectbycount-dialog.html',
-  imports: [
-    MatFormFieldModule,
-    FormsModule,
-    MatInputModule,
-    MatButtonModule,
-    MatDialogTitle,
-    MatDialogContent,
-    MatDialogActions,
-    TranslocoModule,
-  ],
-  changeDetection: ChangeDetectionStrategy.OnPush,
-})
-export class KnowledgeSelectByCountDialogComponent {
-  readonly dialogRef = inject(MatDialogRef<KnowledgeSelectByCountDialogComponent>);
-  readonly countOfItems = model(20);
-  readonly countOfOffset = model(0);
-
-  onNoClick(): void {
-    this.dialogRef.close();
-  }
-
-  get isFormInvalid(): boolean {
-    return this.countOfItems() <= 0 || (this.countOfOffset() ?? 0) < 0;
-  }
-
-  onYesClick(): void {
-    this.dialogRef.close({
-      countOfItems: this.countOfItems(),
-      countOfOffset: this.countOfOffset(),
-    });
-  }
-}
-
-@Component({
-  selector: 'app-knowledge-selectbyid-dlg',
-  templateUrl: 'knowledge-exercises-selectbyid-dialog.html',
-  imports: [
-    MatFormFieldModule,
-    FormsModule,
-    MatInputModule,
-    MatButtonModule,
-    MatDialogTitle,
-    MatDialogContent,
-    MatDialogActions,
-    TranslocoModule,
-  ],
-  changeDetection: ChangeDetectionStrategy.OnPush,
-})
-export class KnowledgeSelectByIDDialogComponent {
-  readonly dialogRef = inject(MatDialogRef<KnowledgeSelectByIDDialogComponent>);
-  readonly importIDs = model('');
-
-  onNoClick(): void {
-    this.dialogRef.close();
-  }
-
-  get isFormInvalid(): boolean {
-    return this.importIDs().trim().length <= 0;
-  }
-
-  onYesClick(): void {
-    this.dialogRef.close({
-      importIDs: this.importIDs(),
-    });
-  }
-}
-
-@Component({
-  selector: 'app-knowledge-selectfree-dlg',
-  templateUrl: 'knowledge-exercises-selectfree-dialog.html',
-  imports: [
-    MatFormFieldModule,
-    FormsModule,
-    MatInputModule,
-    MatButtonModule,
-    MatDialogTitle,
-    MatDialogContent,
-    MatDialogActions,
-    TranslocoModule,
-  ],
-  changeDetection: ChangeDetectionStrategy.OnPush,
-})
-export class KnowledgeSelectFreeDialogComponent {
-  readonly dialogRef = inject(MatDialogRef<KnowledgeSelectFreeDialogComponent>);
-  readonly countOfItems = model(20);
-  readonly filterOnTag = model('');
-
-  onNoClick(): void {
-    this.dialogRef.close();
-  }
-
-  get isFormInvalid(): boolean {
-    return this.countOfItems() <= 0;
-  }
-
-  onYesClick(): void {
-    this.dialogRef.close({
-      countOfItems: this.countOfItems(),
-      filterOnTag: this.filterOnTag(),
-    });
-  }
-}
-
-@Component({
-  selector: 'app-knowledge-selectbyrating-dlg',
-  templateUrl: 'knowledge-exercises-selectbyrating-dialog.html',
-  imports: [
-    MatFormFieldModule,
-    FormsModule,
-    MatInputModule,
-    MatButtonModule,
-    MatDialogTitle,
-    MatDialogContent,
-    MatDialogActions,
-    MatSelectModule,
-    TranslocoModule,
-  ],
-  changeDetection: ChangeDetectionStrategy.OnPush,
-})
-export class KnowledgeSelectByRatingDialogComponent {
-  readonly dialogRef = inject(MatDialogRef<KnowledgeSelectByRatingDialogComponent>);
-  readonly ratingOperator = model(RatingOperatorEnum.Equals);
-  readonly ratingValue = model(3);
-
-  get ratingOperators(): { value: RatingOperatorEnum; label: string }[] {
-    return [
-      { value: RatingOperatorEnum.Equals, label: 'operatorEquals' },
-      { value: RatingOperatorEnum.GreaterThan, label: 'operatorGreaterThan' },
-      { value: RatingOperatorEnum.LargerOrEquals, label: 'operatorLargerOrEquals' },
-      { value: RatingOperatorEnum.LessThan, label: 'operatorLessThan' },
-      { value: RatingOperatorEnum.LessOrEquals, label: 'operatorLessOrEquals' },
-    ];
-  }
-
-  get ratingValues(): number[] {
-    return [1, 2, 3, 4, 5];
-  }
-
-  onNoClick(): void {
-    this.dialogRef.close();
-  }
-
-  onYesClick(): void {
-    this.dialogRef.close({
-      ratingOperator: this.ratingOperator(),
-      ratingValue: this.ratingValue(),
-    });
+    return numId === undefined ? 0 : (this.contentRatings().get(numId) ?? 0);
   }
 }

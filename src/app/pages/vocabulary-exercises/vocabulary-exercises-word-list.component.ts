@@ -32,9 +32,17 @@ import { MatTableModule } from '@angular/material/table';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { TranslocoModule, TranslocoService } from '@jsverse/transloco';
+import type { IFilterDefinition } from 'actslib';
 
-import type { LearnEnglishWordFileItem, LearningContent, WordCondition, RatingCondition, WordMatchOperator } from '../../interfaces';
-import { RatingOperatorEnum, isWordConditionActive, summarizeWordFilter, summarizeRatingFilter } from '../../interfaces';
+import type { LearnEnglishWordFileItem, LearningContent } from '../../interfaces';
+import { VOCABULARY_FILTER_PROPERTIES } from '../../interfaces';
+import { hasActiveFilterDefinition, summarizeFilterDefinition } from '../../shared/filter-dialog';
+
+const BASE_DISPLAYED_COLUMNS = ['select', 'id', 'enword', 'cnword'];
+const RATED_DISPLAYED_COLUMNS = [...BASE_DISPLAYED_COLUMNS, 'rating'];
+
+/** Character cap for the Filter menu's dynamic summary (ellipsis appended). */
+const FILTER_MENU_MAX_LENGTH = 40;
 
 /**
  * List screen of the vocabulary exercises page: toolbar (file selector, select
@@ -79,11 +87,10 @@ export class VocabularyExercisesWordListComponent implements OnInit {
   readonly selection = input.required<SelectionModel<LearnEnglishWordFileItem>>();
   readonly contentRatings = input.required<Map<number, number>>();
   /**
-   * Whether the rating column is editable. Temp content (negative
+   * Whether ratings apply to the loaded file. Temp uploads (negative
    * `studyContentId`) cannot persist ratings — the container refuses the call,
-   * but the toggle group must also be disabled so it cannot latch a phantom
-   * value the `[ngModel]` binding would never reset (same writeValue-skip
-   * mechanism as M2). Defaults to enabled for legacy callers.
+   * so the rating column is hidden entirely: no stored value is displayed and
+   * no toggle can latch a phantom value. Defaults to enabled for legacy callers.
    */
   readonly ratingsEnabled = input(true);
 
@@ -103,11 +110,10 @@ export class VocabularyExercisesWordListComponent implements OnInit {
   readonly quiz = output<void>();
 
   // ── Filter bar ──────────────────────────────────────────────────
-  // The container owns the applied word/rating conditions (it opens the
-  // dialogs); this child only renders them for the menu labels and forwards
+  // The container owns the applied condition definition (it opens the shared
+  // filter dialog); this child only renders it for the menu labels and forwards
   // intents. freeText is a local field for the input box, emitted live.
-  readonly wordConditions = input.required<WordCondition[]>();
-  readonly ratingConditions = input.required<RatingCondition[]>();
+  readonly filterDefinition = input.required<IFilterDefinition>();
   /**
    * Free text currently applied by the container. The container's filter
    * survives the @switch destroy/recreate of this screen (e.g. returning from
@@ -116,60 +122,60 @@ export class VocabularyExercisesWordListComponent implements OnInit {
    */
   readonly appliedFreeText = input('');
   readonly freeTextChanged = output<string>();
-  readonly defineWordFilter = output<void>();
-  readonly clearWordFilter = output<void>();
-  readonly defineRatingFilter = output<void>();
-  readonly clearRatingFilter = output<void>();
+  readonly defineFilter = output<void>();
+  readonly clearFilter = output<void>();
   readonly quickSelect = output<'random' | 'sequence' | 'words'>();
   readonly clearSelection = output<void>();
 
-  displayedColumns: string[] = ['select', 'id', 'enword', 'cnword', 'rating'];
+  /** Stable identities so mat-table's column defs only re-diff on a real flip. */
+  get displayedColumns(): string[] {
+    return this.ratingsEnabled() ? RATED_DISPLAYED_COLUMNS : BASE_DISPLAYED_COLUMNS;
+  }
 
   freeText = '';
 
   private readonly transloco = inject(TranslocoService);
 
-  private readonly wordOpLabelKeys: Record<WordMatchOperator, string> = {
-    startsWith: 'wordOpStartsWith',
-    contains: 'wordOpContains',
-    equal: 'wordOpEqual',
-    endsWith: 'wordOpEndsWith',
-    isPhrase: 'wordOpIsPhrase',
-    notPhrase: 'wordOpNotPhrase',
-  };
+  /**
+   * True while an IME composition is in progress. Intermediate pinyin
+   * fragments fire `input` events; filtering those would flicker the table
+   * mid-word (free text matches the Chinese gloss too), so they are
+   * suppressed until compositionend delivers the final text.
+   */
+  private composing = false;
 
-  private readonly ratingOpSymbols: Record<number, string> = {
-    [RatingOperatorEnum.LargerOrEquals]: '>=',
-    [RatingOperatorEnum.GreaterThan]: '>',
-    [RatingOperatorEnum.Equals]: '=',
-    [RatingOperatorEnum.LessOrEquals]: '<=',
-    [RatingOperatorEnum.LessThan]: '<',
-  };
-
-  /** Free text applies live. */
-  onFreeTextChanged(): void {
-    this.freeTextChanged.emit(this.freeText);
+  /** Free text applies live, except mid-composition. */
+  onFreeTextChanged(value: string): void {
+    if (this.composing) {
+      return;
+    }
+    this.freeTextChanged.emit(value);
   }
 
-  get hasWordFilter(): boolean {
-    return this.wordConditions().some(isWordConditionActive);
+  onCompositionStart(): void {
+    this.composing = true;
   }
 
-  get wordMenuLabel(): string {
-    return this.hasWordFilter
-      ? summarizeWordFilter(this.wordConditions(), op =>
-          this.transloco.translate('vocabularyExercises.' + this.wordOpLabelKeys[op]))
-      : this.transloco.translate('vocabularyExercises.filterNew');
+  onCompositionEnd(value: string): void {
+    this.composing = false;
+    this.freeTextChanged.emit(value);
   }
 
-  get hasRatingFilter(): boolean {
-    return this.ratingConditions().length > 0;
+  get hasFilter(): boolean {
+    return hasActiveFilterDefinition(this.filterDefinition());
   }
 
-  get ratingMenuLabel(): string {
-    return this.hasRatingFilter
-      ? summarizeRatingFilter(this.ratingConditions(), op => this.ratingOpSymbols[op] ?? '?')
-      : this.transloco.translate('vocabularyExercises.filterNew');
+  /** Condition-definition summary (join words and parentheses included) for the Filter menu item. */
+  get filterMenuLabel(): string {
+    if (!this.hasFilter) {
+      return this.transloco.translate('common.filterNew');
+    }
+    return summarizeFilterDefinition(
+      this.filterDefinition(),
+      VOCABULARY_FILTER_PROPERTIES,
+      { translate: key => this.transloco.translate(key) },
+      FILTER_MENU_MAX_LENGTH
+    );
   }
 
   private readonly destroyRef = inject(DestroyRef);

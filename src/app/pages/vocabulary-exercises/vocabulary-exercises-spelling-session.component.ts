@@ -37,12 +37,14 @@ export class VocabularyExercisesSpellingSessionComponent {
   readonly quit = output<void>();
 
   /**
-   * Spelling input: forward word characters to the store, nothing else.
-   * Browser/app chords, focus navigation and button activation keys are not
-   * typing — forwarding them would mark the current word incorrect (a button
-   * activated via Enter/Space on keydown would also "type" the same key).
-   * Escape quits the session, like on the review screen. Space from anywhere
-   * else stays typeable: phrases contain spaces.
+   * Spelling input: forward word characters (and Backspace) to the store,
+   * nothing else. Only single-character keys count as typing; named keys are
+   * ignored — forwarding them would mark the current word incorrect (the
+   * Shift keyup trailing a capital letter, CapsLock toggles, focus navigation
+   * via Enter/Tab, a button activated via Enter/Space that would also "type"
+   * the same key on keyup, arrow/F-keys, ...). Escape quits the session, like
+   * on the review screen. Space from anywhere else stays typeable: phrases
+   * contain spaces.
    */
   @HostListener('document:keyup', ['$event'])
   handleKeyboardEvent(event: KeyboardEvent) {
@@ -55,17 +57,18 @@ export class VocabularyExercisesSpellingSessionComponent {
       return;
     }
 
-    if (event.key === 'Enter' || event.key === 'Tab') {
+    const key = event.key;
+    if (key !== 'Backspace' && key.length !== 1) {
       return;
     }
 
-    if (event.key === ' ') {
+    if (key === ' ') {
       const target = event.target as HTMLElement | null;
       if (target?.closest('button')) {
         return;
       }
     }
 
-    this.store.handleKey(event.key);
+    this.store.handleKey(key);
   }
 }

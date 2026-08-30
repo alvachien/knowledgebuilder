@@ -1,0 +1,26 @@
+// See word-list: the host replaces blocks that were direct flex items.
+:host {
+    display: contents;
+}
+
+.container {
+    width: 100%;
+    box-sizing: border-box;
+    padding: 16px 24px 24px;
+}
+
+// Score line rendered as a centered section header above the result table.
+.result-header {
+    margin: 0 0 16px;
+    text-align: center;
+    font-size: 22px;
+    font-weight: 500;
+    line-height: 1.4;
+    color: var(--mat-sys-on-surface, rgba(0, 0, 0, 0.87));
+}
+
+// Spacing between the back button and the result table so the table's sticky
+// header and elevation shadow no longer overlap the button.
+.container > button {
+    margin-bottom: 16px;
+}

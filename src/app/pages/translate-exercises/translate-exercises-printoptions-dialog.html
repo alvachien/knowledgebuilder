@@ -4,8 +4,8 @@
     <mat-form-field class="control-full-width">
       <mat-label>{{ t('direction') }}</mat-label>
       <mat-select matNativeControl [(ngModel)]="direction">
-        @for (lvl of data.allDirections; track $index) {
-          <mat-option [value]="lvl.value">{{data.getDirectionName(lvl.value)}}</mat-option>
+        @for (lvl of allDirections; track $index) {
+          <mat-option [value]="lvl.value">{{getDirectionName(lvl.value)}}</mat-option>
         }
       </mat-select>
     </mat-form-field>

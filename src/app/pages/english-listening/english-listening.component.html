@@ -4,7 +4,7 @@
     <mat-toolbar class="container">
       <mat-toolbar-row>
         <span>
-          <h5>{{ t('englishListening.pageTitle') }}</h5>
+          <h5>{{ t('listening') }}</h5>
         </span>
         <span class="toolbar-spacer"></span>
         <mat-form-field class="page-toolbar-item">
@@ -28,7 +28,7 @@
       <table mat-table [dataSource]="dataSourceLesson" class="mat-elevation-z8 w-full">
         <!-- Title Column -->
         <ng-container matColumnDef="title">
-          <th mat-header-cell *matHeaderCellDef> {{ t('englishListening.columnTitle') }} </th>
+          <th mat-header-cell *matHeaderCellDef> {{ t('common.title') }} </th>
           <td mat-cell *matCellDef="let element"> {{element.title}} </td>
         </ng-container>
 
@@ -93,7 +93,7 @@
 
         <!-- Vocabulary column -->
         <ng-container matColumnDef="vocabulary">
-          <th mat-header-cell *matHeaderCellDef> {{ t('englishListening.vocabularyColumn') }} </th>
+          <th mat-header-cell *matHeaderCellDef> {{ t('vocabulary') }} </th>
           <td mat-cell *matCellDef="let element">
             @if(element.vocabulary && element.vocabulary.length > 0) {
             <button mat-button (click)="displayVocabulary(element)">{{ t('englishListening.displayVocabulary')
@@ -133,7 +133,7 @@
       <table mat-table [dataSource]="dataSourceSectionContent" class="mat-elevation-z8 w-full">
         <!-- Title Column -->
         <ng-container matColumnDef="title">
-          <th mat-header-cell *matHeaderCellDef> {{ t('englishListening.columnTitle') }} </th>
+          <th mat-header-cell *matHeaderCellDef> {{ t('common.title') }} </th>
           <td mat-cell *matCellDef="let element"> {{element.title}} </td>
         </ng-container>
 
@@ -141,7 +141,7 @@
         <ng-container matColumnDef="item">
           <th mat-header-cell *matHeaderCellDef> {{ t('englishListening.itemCollection') }} </th>
           <td mat-cell *matCellDef="let element">
-            <button mat-button (click)="startExercise(element)">{{ t('englishListening.startExercise') }}</button>
+            <button mat-button (click)="startExercise(element)">{{ t('common.start') }}</button>
           </td>
         </ng-container>
 
@@ -267,7 +267,7 @@
 
     <div class="container">
       <div class="mat-elevation-z8">
-        <h3>{{ t('englishListening.vocabularyColumn') }}：</h3>
+        <h3>{{ t('vocabulary') }}：</h3>
         @for(vocab of selectedSection?.vocabulary ?? []; track $index) {
         <app-markdown-content [markdown]="vocab" [enableMath]="false"></app-markdown-content>
         }

@@ -1,5 +1,5 @@
 <div *transloco="let t">
-  <h2 mat-dialog-title>{{ t('translateExercises.extraInfoTitle') }}</h2>
+  <h2 mat-dialog-title>{{ t(data.titleKey) }}</h2>
   <mat-dialog-content class="mat-typography">
     <app-markdown-content [markdown]="data.content" [enableMath]="false"></app-markdown-content>
   </mat-dialog-content>

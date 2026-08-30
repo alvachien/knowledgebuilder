@@ -1,6 +1,7 @@
 import type { ComponentFixture } from '@angular/core/testing';
 import { TestBed } from '@angular/core/testing';
 import { MatDialog, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
+import { MatSnackBar } from '@angular/material/snack-bar';
 import { By } from '@angular/platform-browser';
 import { NoopAnimationsModule } from '@angular/platform-browser/animations';
 import { Router } from '@angular/router';
@@ -10,11 +11,17 @@ import {
   TRANSLOCO_TRANSPILER,
   TRANSLOCO_MISSING_HANDLER,
 } from '@jsverse/transloco';
+import { FilterJoinType, FilterOperation } from 'actslib';
+import type { IFilterCondition, IFilterDefinition } from 'actslib';
 import { of, Subject, throwError } from 'rxjs';
 import { vi } from 'vitest';
 
-import type { LearningContent, LearnEnglishWordFileItem, UserLearningRating } from '../../interfaces';
-import { RatingOperatorEnum, SelectionModeEnum } from '../../interfaces';
+import type {
+  LearningContent,
+  LearnEnglishWordFileItem,
+  UserLearningRating,
+} from '../../interfaces';
+import { SelectionModeEnum, VOCABULARY_IS_PHRASE, VOCABULARY_UPLOAD_MAX_ITEMS } from '../../interfaces';
 import { AudioService, UIService, LearningContentService, LearningRatingService } from '../../services';
 import { AppPageTitle } from '../page-title/page-title';
 
@@ -70,6 +77,7 @@ describe('VocabularyExercisesComponent', () => {
   let mockDialog: any;
   let mockPageTitle: AppPageTitle;
   let mockRatingService: any;
+  let mockSnackBar: { open: ReturnType<typeof vi.fn> };
 
   beforeEach(async () => {
     mockLearningContentService = {
@@ -77,7 +85,13 @@ describe('VocabularyExercisesComponent', () => {
       getVocabularyWordContent: vi.fn(),
       addTemporaryContent: vi.fn(),
     };
-    mockAudioService = { playSound: vi.fn(), stopSound: vi.fn(), speakWord: vi.fn() };
+    mockAudioService = {
+      playSound: vi.fn(),
+      stopSound: vi.fn(),
+      speakWord: vi.fn(),
+      playAuthenticatedOneShot: vi.fn().mockResolvedValue(true),
+    };
+    mockSnackBar = { open: vi.fn() };
     mockUIService = { setSelectedExerciseItem: vi.fn() };
     mockRouter = { navigate: vi.fn() };
     mockDialog = { open: vi.fn() };
@@ -98,6 +112,7 @@ describe('VocabularyExercisesComponent', () => {
         { provide: UIService, useValue: mockUIService },
         { provide: Router, useValue: mockRouter },
         { provide: MatDialog, useValue: mockDialog },
+        { provide: MatSnackBar, useValue: mockSnackBar },
         { provide: AppPageTitle, useValue: mockPageTitle },
         { provide: LearningRatingService, useValue: mockRatingService },
         { provide: TranslocoService, useValue: createMockTranslocoService() },
@@ -150,11 +165,25 @@ describe('VocabularyExercisesComponent', () => {
 
   // The filter bar's structured criteria travel through dataSource.filter as
   // JSON; tests go through applyListFilter rather than assigning raw strings.
+  // cond/andG/orG build the actslib definition the filter now carries. Values
+  // are pre-folded (lower-case) as the dialog's prepareValue hooks emit them.
+  const cond = (
+    property: string,
+    operation: FilterOperation,
+    lowValue: string | number
+  ): IFilterCondition => ({ property, operation, lowValue });
+  const andG = (...conditions: Array<IFilterCondition | IFilterDefinition>): IFilterDefinition => ({
+    join: FilterJoinType.AND,
+    conditions,
+  });
+  const orG = (...conditions: Array<IFilterCondition | IFilterDefinition>): IFilterDefinition => ({
+    join: FilterJoinType.OR,
+    conditions,
+  });
   const applyFreeText = (text: string) =>
     component.applyListFilter({
       freeText: text,
-      wordConditions: [],
-      ratingConditions: [],
+      root: andG(),
     });
 
   describe('applyListFilter', () => {
@@ -171,9 +200,52 @@ describe('VocabularyExercisesComponent', () => {
     it('should clear the filter string when all criteria are empty', () => {
       component.dataSource.data = mockWordContent;
 
-      component.applyListFilter({ freeText: '', wordConditions: [], ratingConditions: [] });
+      component.applyListFilter({ freeText: '', root: andG() });
 
       expect(component.dataSource.filter).toBe('');
+    });
+
+    it('should apply nested OR groups end-to-end through the data source', () => {
+      const ratedWords: LearnEnglishWordFileItem[] = [
+        { id: 1, enword: 'apple', cnword: '苹果' },
+        { id: 2, enword: 'banana', cnword: '香蕉' },
+        { id: 3, enword: 'cherry', cnword: '樱桃' },
+      ];
+      component.dataSource.data = ratedWords;
+      component.contentRatingMap.set(new Map([[3, 5]]));
+
+      component.applyListFilter({
+        freeText: '',
+        root: orG(
+          cond('enword', FilterOperation.BeginsWith, 'app'),
+          cond('rating', FilterOperation.Equal, 5)
+        ),
+      });
+
+      // Word branch hits apple, rating branch hits cherry; banana matches neither.
+      expect(component.dataSource.filteredData.map(w => w.enword)).toEqual(['apple', 'cherry']);
+    });
+
+    it('should AND free text with an OR condition tree end-to-end', () => {
+      const ratedWords: LearnEnglishWordFileItem[] = [
+        { id: 1, enword: 'apple', cnword: '苹果' },
+        { id: 2, enword: 'banana', cnword: '香蕉' },
+        { id: 3, enword: 'apple pie', cnword: '苹果派' },
+      ];
+      component.dataSource.data = ratedWords;
+      component.contentRatingMap.set(new Map([[1, 5]]));
+
+      component.applyListFilter({
+        freeText: 'pie',
+        root: orG(
+          cond('rating', FilterOperation.Equal, 5),
+          VOCABULARY_IS_PHRASE.emit('enword')
+        ),
+      });
+
+      // The OR tree would hit apple (rating 5) and apple pie (phrase), but the
+      // free text narrows it to 'apple pie' alone.
+      expect(component.dataSource.filteredData.map(w => w.enword)).toEqual(['apple pie']);
     });
 
     it('should AND the word and rating conditions with the free text', () => {
@@ -191,15 +263,17 @@ describe('VocabularyExercisesComponent', () => {
 
       component.applyListFilter({
         freeText: '',
-        wordConditions: [{ operator: 'startsWith', text: 'app' }],
-        ratingConditions: [{ operator: RatingOperatorEnum.LargerOrEquals, value: 5 }],
+        root: andG(
+          cond('enword', FilterOperation.BeginsWith, 'app'),
+          cond('rating', FilterOperation.GreaterOrEqual, 5)
+        ),
       });
 
       expect(component.dataSource.filteredData.length).toBe(1);
       expect(component.dataSource.filteredData[0].enword).toBe('apple');
     });
 
-    it('should filter phrases in/out via the textless phrase operators', () => {
+    it('should filter phrases via the textless isPhrase operator', () => {
       const words: LearnEnglishWordFileItem[] = [
         { id: 1, enword: 'apple', cnword: '苹果' },
         { id: 2, enword: 'give up', cnword: '放弃' },
@@ -208,19 +282,10 @@ describe('VocabularyExercisesComponent', () => {
 
       component.applyListFilter({
         freeText: '',
-        wordConditions: [{ operator: 'isPhrase', text: '' }],
-        ratingConditions: [],
+        root: andG(VOCABULARY_IS_PHRASE.emit('enword')),
       });
       expect(component.dataSource.filteredData.length).toBe(1);
       expect(component.dataSource.filteredData[0].enword).toBe('give up');
-
-      component.applyListFilter({
-        freeText: '',
-        wordConditions: [{ operator: 'notPhrase', text: '' }],
-        ratingConditions: [],
-      });
-      expect(component.dataSource.filteredData.length).toBe(1);
-      expect(component.dataSource.filteredData[0].enword).toBe('apple');
     });
 
     it('should re-run an active rating filter when a rating change makes a row match', () => {
@@ -236,8 +301,7 @@ describe('VocabularyExercisesComponent', () => {
       );
       component.applyListFilter({
         freeText: '',
-        wordConditions: [],
-        ratingConditions: [{ operator: RatingOperatorEnum.Equals, value: 5 }],
+        root: andG(cond('rating', FilterOperation.Equal, 5)),
       });
       expect(component.dataSource.filteredData.length).toBe(1);
 
@@ -256,41 +320,50 @@ describe('VocabularyExercisesComponent', () => {
       expect(component.dataSource.filteredData.length).toBe(1);
     });
 
-    it('onDefineWordFilter applies the dialog result to the table filter', () => {
+    it('onDefineFilter applies the shared dialog result (an actslib definition) to the table filter', () => {
       component.dataSource.data = mockWordContent;
       mockDialog.open.mockReturnValue({
-        afterClosed: () => of([{ operator: 'startsWith', text: 'hello' }]),
+        afterClosed: () => of({
+          root: andG(
+            cond('enword', FilterOperation.BeginsWith, 'hello'),
+            cond('rating', FilterOperation.Equal, 4)
+          ),
+        }),
       });
-      component.onDefineWordFilter();
-      expect(component.dataSource.filter).toContain('startsWith');
-      expect(component.dataSource.filter).toContain('"text":"hello"');
-      expect(component.wordConditions()).toEqual([{ operator: 'startsWith', text: 'hello' }]);
+      component.onDefineFilter();
+      expect(component.dataSource.filter).toContain('BeginsWith');
+      expect(component.dataSource.filter).toContain('"lowValue":"hello"');
+      expect(component.filterDefinition().conditions).toEqual([
+        cond('enword', FilterOperation.BeginsWith, 'hello'),
+        cond('rating', FilterOperation.Equal, 4),
+      ]);
     });
 
-    it('onDefineWordFilter with a cancelled dialog leaves the filter untouched', () => {
-      component.wordConditions.set([{ operator: 'contains', text: 'x' }]);
-      component.applyListFilter({
-        freeText: '',
-        wordConditions: component.wordConditions(),
-        ratingConditions: [],
-      });
+    it('onDefineFilter with a cancelled dialog leaves the filter untouched', () => {
+      const tree = andG(cond('cnword', FilterOperation.Contains, 'x'));
+      component.filterDefinition.set(tree);
+      component.applyListFilter({ freeText: '', root: tree });
       const before = component.dataSource.filter;
       mockDialog.open.mockReturnValue({ afterClosed: () => of(undefined) });
-      component.onDefineWordFilter();
-      expect(component.wordConditions()).toEqual([{ operator: 'contains', text: 'x' }]);
+      component.onDefineFilter();
+      expect(component.filterDefinition()).toBe(tree);
       expect(component.dataSource.filter).toBe(before);
     });
 
-    it('onClearWordFilter empties the word conditions', () => {
-      component.wordConditions.set([{ operator: 'contains', text: 'x' }]);
-      component.onClearWordFilter();
-      expect(component.wordConditions()).toEqual([]);
-    });
-
-    it('onClearRatingFilter empties the rating conditions', () => {
-      component.ratingConditions.set([{ operator: RatingOperatorEnum.Equals, value: 3 }]);
-      component.onClearRatingFilter();
-      expect(component.ratingConditions()).toEqual([]);
+    it('onClearFilter empties the condition tree and the table filter', () => {
+      component.filterDefinition.set(
+        orG(
+          cond('enword', FilterOperation.Contains, 'x'),
+          cond('rating', FilterOperation.Equal, 3)
+        )
+      );
+      component.applyListFilter({
+        freeText: '',
+        root: component.filterDefinition(),
+      });
+      component.onClearFilter();
+      expect(component.filterDefinition()).toEqual({ join: FilterJoinType.AND, conditions: [] });
+      expect(component.dataSource.filter).toBe('');
     });
   });
 
@@ -513,8 +586,7 @@ describe('VocabularyExercisesComponent', () => {
       );
       component.applyListFilter({
         freeText: '',
-        wordConditions: [],
-        ratingConditions: [{ operator: RatingOperatorEnum.LargerOrEquals, value: 5 }],
+        root: andG(cond('rating', FilterOperation.GreaterOrEqual, 5)),
       });
 
       component.onFileSelectionChanged({ value: mockDataFiles[0] } as any);
@@ -597,11 +669,15 @@ describe('VocabularyExercisesComponent', () => {
     interface MockReader {
       readAsText: ReturnType<typeof vi.fn>;
       onload: ((ev: { target: unknown }) => void) | null;
+      onerror: (() => void) | null;
+      onabort: (() => void) | null;
       result: string;
     }
     const createdReaders: MockReader[] = [];
     class MockFileReader {
       onload: ((ev: { target: unknown }) => void) | null = null;
+      onerror: (() => void) | null = null;
+      onabort: (() => void) | null = null;
       result = '';
       readAsText = vi.fn();
       constructor() {
@@ -645,6 +721,32 @@ describe('VocabularyExercisesComponent', () => {
         expect(component.dataSource.data.length).toBe(1);
         expect(component.dataSource.data[0].enword).toBe('test');
         expect(component.dataSource.data[0].cnword).toBe('测试');
+        // Clean import: no snackbar notice.
+        expect(mockSnackBar.open).not.toHaveBeenCalled();
+      } finally {
+        fileReaderSpy.mockRestore();
+      }
+    });
+
+    it('strips a leading UTF-8 BOM before parsing', () => {
+      const mockFile = new File(['\uFEFF[{"enword":"test","cnword":"测试"}]'], 'bom.json', {
+        type: 'application/json',
+      });
+      const mockEvent = { target: { files: [mockFile] } } as any;
+      const fileReaderSpy = installFileReaderMock();
+
+      try {
+        component.onAddTempFile(mockEvent);
+
+        const reader = createdReaders[0];
+        reader.result = '\uFEFF[{"enword":"test","cnword":"测试"}]';
+        reader.onload?.({ target: reader });
+
+        expect(mockLearningContentService.addTemporaryContent).toHaveBeenCalledWith(
+          expect.any(String),
+          [{ enword: 'test', cnword: '测试' }]
+        );
+        expect(mockSnackBar.open).not.toHaveBeenCalled();
       } finally {
         fileReaderSpy.mockRestore();
       }
@@ -658,14 +760,13 @@ describe('VocabularyExercisesComponent', () => {
       expect(mockLearningContentService.addTemporaryContent).not.toHaveBeenCalled();
     });
 
-    it('should handle JSON parsing error', () => {
+    it('reports a parse failure via snackbar', () => {
       const mockFile = new File(['invalid json'], 'test.json', {
         type: 'application/json',
       });
       const mockEvent = { target: { files: [mockFile] } } as any;
 
       const fileReaderSpy = installFileReaderMock();
-      const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
 
       try {
         component.onAddTempFile(mockEvent);
@@ -674,10 +775,60 @@ describe('VocabularyExercisesComponent', () => {
         reader.result = 'invalid json';
         reader.onload?.({ target: reader });
 
-        expect(consoleSpy).toHaveBeenCalledWith('Error parsing JSON file:', expect.any(Error));
+        expect(mockSnackBar.open).toHaveBeenCalledWith(
+          'vocabularyExercises.uploadErrParse',
+          'close',
+          expect.anything()
+        );
+        expect(mockLearningContentService.addTemporaryContent).not.toHaveBeenCalled();
+        expect(component.dataSource.data.length).toBe(0);
       } finally {
         fileReaderSpy.mockRestore();
-        consoleSpy.mockRestore();
+      }
+    });
+
+    it('reports UTF-16 content with a targeted message', () => {
+      const mockFile = new File(['nul bytes'], 'utf16.json', { type: 'application/json' });
+      const mockEvent = { target: { files: [mockFile] } } as any;
+      const fileReaderSpy = installFileReaderMock();
+
+      try {
+        component.onAddTempFile(mockEvent);
+
+        const reader = createdReaders[0];
+        reader.result =
+          String.fromCharCode(0xff, 0xfe) + '[' + String.fromCharCode(0) + ']';
+        reader.onload?.({ target: reader });
+
+        expect(mockSnackBar.open).toHaveBeenCalledWith(
+          'vocabularyExercises.uploadErrUtf16',
+          'close',
+          expect.anything()
+        );
+      } finally {
+        fileReaderSpy.mockRestore();
+      }
+    });
+
+    it('reports non-array JSON payloads', () => {
+      const mockFile = new File(['{}'], 'obj.json', { type: 'application/json' });
+      const mockEvent = { target: { files: [mockFile] } } as any;
+      const fileReaderSpy = installFileReaderMock();
+
+      try {
+        component.onAddTempFile(mockEvent);
+
+        const reader = createdReaders[0];
+        reader.result = '{"enword":"test","cnword":"测试"}';
+        reader.onload?.({ target: reader });
+
+        expect(mockSnackBar.open).toHaveBeenCalledWith(
+          'vocabularyExercises.uploadErrNotArray',
+          'close',
+          expect.anything()
+        );
+      } finally {
+        fileReaderSpy.mockRestore();
       }
     });
 
@@ -700,14 +851,13 @@ describe('VocabularyExercisesComponent', () => {
       }
     });
 
-    it('should reject files containing one-character enwords (service contract)', () => {
+    it('reports an empty result when no row survives validation', () => {
       const mockFile = new File(['[{"enword":"a","cnword":"测试"}]'], 'test.json', {
         type: 'application/json',
       });
       const mockEvent = { target: { files: [mockFile] } } as any;
 
       const fileReaderSpy = installFileReaderMock();
-      const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
 
       try {
         component.onAddTempFile(mockEvent);
@@ -716,14 +866,97 @@ describe('VocabularyExercisesComponent', () => {
         reader.result = '[{"enword":"a","cnword":"测试"}]';
         reader.onload?.({ target: reader });
 
+        // The one-character row is skipped; nothing remains to import.
         expect(mockLearningContentService.addTemporaryContent).not.toHaveBeenCalled();
         expect(component.dataSource.data.length).toBe(0);
-        expect(consoleSpy).toHaveBeenCalledWith(
-          'Invalid word length: "enword" must be longer than one character.'
+        expect(mockSnackBar.open).toHaveBeenCalledWith(
+          'vocabularyExercises.uploadErrEmpty',
+          'close',
+          expect.anything()
         );
       } finally {
         fileReaderSpy.mockRestore();
-        consoleSpy.mockRestore();
+      }
+    });
+
+    it('skips invalid rows and imports the rest, warning with the skipped count', () => {
+      const payload =
+        '[{"enword":"good","cnword":"好"},{"other":1},{"enword":"a","cnword":"坏"},{"enword":"also","cnword":"也"}]';
+      const mockFile = new File([payload], 'mixed.json', { type: 'application/json' });
+      const mockEvent = { target: { files: [mockFile] } } as any;
+      const fileReaderSpy = installFileReaderMock();
+
+      try {
+        component.onAddTempFile(mockEvent);
+
+        const reader = createdReaders[0];
+        reader.result = payload;
+        reader.onload?.({ target: reader });
+
+        expect(mockLearningContentService.addTemporaryContent).toHaveBeenCalledWith(expect.any(String), [
+          { enword: 'good', cnword: '好' },
+          { enword: 'also', cnword: '也' },
+        ]);
+        expect(component.dataSource.data.length).toBe(2);
+        expect(mockSnackBar.open).toHaveBeenCalledTimes(1);
+        expect(mockSnackBar.open).toHaveBeenCalledWith(
+          'vocabularyExercises.uploadWarnSkipped',
+          'close',
+          expect.anything()
+        );
+      } finally {
+        fileReaderSpy.mockRestore();
+      }
+    });
+
+    it('warns when an oversized file is truncated at the cap', () => {
+      const rows: LearnEnglishWordFileItem[] = [];
+      for (let i = 0; i < VOCABULARY_UPLOAD_MAX_ITEMS + 3; i++) {
+        rows.push({ enword: `w${i}`, cnword: `词${i}` });
+      }
+      const mockFile = new File(['[]'], 'big.json', { type: 'application/json' });
+      const mockEvent = { target: { files: [mockFile] } } as any;
+      const fileReaderSpy = installFileReaderMock();
+
+      try {
+        component.onAddTempFile(mockEvent);
+
+        const reader = createdReaders[0];
+        reader.result = JSON.stringify(rows);
+        reader.onload?.({ target: reader });
+
+        expect(component.dataSource.data.length).toBe(VOCABULARY_UPLOAD_MAX_ITEMS);
+        expect(mockSnackBar.open).toHaveBeenCalledWith(
+          'vocabularyExercises.uploadWarnTruncated',
+          'close',
+          expect.anything()
+        );
+      } finally {
+        fileReaderSpy.mockRestore();
+      }
+    });
+
+    it('reports reader failures via onerror instead of failing silently', () => {
+      const mockFile = new File(['[{"enword":"test","cnword":"测试"}]'], 'test.json', {
+        type: 'application/json',
+      });
+      const mockEvent = { target: { files: [mockFile] } } as any;
+      const fileReaderSpy = installFileReaderMock();
+
+      try {
+        component.onAddTempFile(mockEvent);
+
+        const reader = createdReaders[0];
+        reader.onerror?.();
+
+        expect(mockSnackBar.open).toHaveBeenCalledWith(
+          'vocabularyExercises.uploadErrRead',
+          'close',
+          expect.anything()
+        );
+        expect(mockLearningContentService.addTemporaryContent).not.toHaveBeenCalled();
+      } finally {
+        fileReaderSpy.mockRestore();
       }
     });
 
@@ -752,6 +985,47 @@ describe('VocabularyExercisesComponent', () => {
       } finally {
         fileReaderSpy.mockRestore();
       }
+    });
+
+    it('hides the rating column while a temporary file is loaded, restores it for real files', () => {
+      // Temp uploads cannot persist ratings (negative studyContentId), so the
+      // rating column must disappear — no values shown, nothing clickable.
+      // The mock TranslocoService returns the key verbatim, so the header
+      // cell text is exactly 'rating'. (nativeElement is untyped here: pass
+      // an explicit element type to the mapper rather than a selector generic.)
+      const ratingHeaderCellCount = (): number =>
+        Array.from(
+          fixture.nativeElement.querySelectorAll('th'),
+          (th: Element) => th.textContent?.trim() ?? ''
+        ).filter(text => text === 'rating').length;
+
+      component.onFileSelectionChanged({ value: mockDataFiles[0] } as any);
+      fixture.detectChanges();
+      expect(ratingHeaderCellCount()).toBe(1);
+
+      const mockFile = new File(['[{"enword":"test","cnword":"测试"}]'], 'temp.json', {
+        type: 'application/json',
+      });
+      const mockEvent = { target: { files: [mockFile] } } as any;
+      const fileReaderSpy = installFileReaderMock();
+
+      try {
+        component.onAddTempFile(mockEvent);
+        const reader = createdReaders[0];
+        reader.result = '[{"enword":"test","cnword":"测试"}]';
+        reader.onload?.({ target: reader });
+        fixture.detectChanges();
+
+        expect(ratingHeaderCellCount()).toBe(0);
+        expect(fixture.nativeElement.querySelector('mat-button-toggle')).toBeNull();
+      } finally {
+        fileReaderSpy.mockRestore();
+      }
+
+      // Selecting a persisted file brings the column back.
+      component.onFileSelectionChanged({ value: mockDataFiles[1] } as any);
+      fixture.detectChanges();
+      expect(ratingHeaderCellCount()).toBe(1);
     });
   });
 
@@ -969,8 +1243,7 @@ describe('VocabularyExercisesComponent', () => {
       component.studyContentId = 0;
       component.applyListFilter({
         freeText: 'zzz-not-found',
-        wordConditions: [],
-        ratingConditions: [],
+        root: andG(),
       });
 
       expect(() => component['onReviewCore']()).not.toThrow();
@@ -1021,8 +1294,7 @@ describe('VocabularyExercisesComponent', () => {
       component.contentRatingMap.set(new Map([[10, 4]]));
       component.applyListFilter({
         freeText: '',
-        wordConditions: [],
-        ratingConditions: [{ operator: RatingOperatorEnum.LargerOrEquals, value: 3 }],
+        root: andG(cond('rating', FilterOperation.GreaterOrEqual, 3)),
       });
       // Only item 10 (rating 4) passes the filter.
       expect(component.dataSource.filteredData.length).toBe(1);
@@ -2553,10 +2825,10 @@ describe('VocabularySelectDialogComponent', () => {
   it('titleKey returns the correct key per mode', async () => {
     const component = await createComponent(SelectionModeEnum.ByCount);
     component.data.mode = SelectionModeEnum.ByCount;
-    expect(component.titleKey).toBe('vocabularyExercises.sequenceSelect');
+    expect(component.titleKey).toBe('common.sequenceSelect');
     component.data.mode = SelectionModeEnum.ByID;
     expect(component.titleKey).toBe('vocabularyExercises.selectWords');
     component.data.mode = SelectionModeEnum.FreeSelection;
-    expect(component.titleKey).toBe('vocabularyExercises.randomSelect');
+    expect(component.titleKey).toBe('common.randomSelect');
   });
 });

@@ -56,6 +56,7 @@ describe('VocabularyExercisesSpellingSessionComponent', () => {
     ctrlKey?: boolean;
     altKey?: boolean;
     metaKey?: boolean;
+    shiftKey?: boolean;
   }): KeyboardEvent {
     return {
       target: document.body,
@@ -94,6 +95,31 @@ describe('VocabularyExercisesSpellingSessionComponent', () => {
       component.handleKeyboardEvent(keyup({ key: 'f', ctrlKey: true }));
 
       expect(store.results()[0].correct).toBe(true);
+    });
+
+    it('ignores Shift pressed on its own (must not count as a typing error)', () => {
+      component.handleKeyboardEvent(keyup({ key: 'Shift' }));
+
+      expect(store.results()[0].correct).toBe(true);
+      expect(store.letters()[0].visible).toBe(false);
+    });
+
+    it('accepts a capital letter typed with Shift and ignores its trailing Shift keyup', () => {
+      store.start([{ enword: 'Apple', cnword: '苹果', completed: false } as VocabularySpellingQueue], true);
+
+      component.handleKeyboardEvent(keyup({ key: 'A', shiftKey: true }));
+      component.handleKeyboardEvent(keyup({ key: 'Shift' }));
+
+      expect(store.letters()[0].visible).toBe(true);
+      expect(store.letters()[1].visible).toBe(false);
+      expect(store.results()[0].correct).toBe(true);
+    });
+
+    it('ignores CapsLock toggles (must not count as a typing error)', () => {
+      component.handleKeyboardEvent(keyup({ key: 'CapsLock' }));
+
+      expect(store.results()[0].correct).toBe(true);
+      expect(store.letters()[0].visible).toBe(false);
     });
 
     it('quits on Escape instead of marking the word incorrect (parity with the review screen)', () => {
@@ -160,7 +186,7 @@ describe('VocabularyExercisesSpellingSessionComponent', () => {
       const status = fixture.nativeElement.querySelector('.vocabulary-typing-status');
       expect(status).toBeTruthy();
       expect(status.getAttribute('aria-live')).toBe('polite');
-      expect(status.textContent).toContain('vocabularyExercises.incorrect');
+      expect(status.textContent).toContain('common.incorrect');
     });
   });
 });

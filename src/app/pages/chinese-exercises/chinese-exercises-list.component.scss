@@ -1,0 +1,82 @@
+// The host element stands in for the toolbar/table blocks that used to be
+// direct children of the page's flex container; display: contents keeps the
+// original layout semantics (its children become the flex items).
+:host {
+    display: contents;
+}
+
+.toolbar-spacer {
+    flex: 1 1 auto;
+}
+
+.page-toolbar-item {
+    margin-top: 4px;
+    padding-top: 4px;
+}
+
+// Row above the table: the bordered filter box (free text + Content/Rating
+// filters) on the left, the action menus and counts on the right.
+.filter-row {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px 16px;
+    margin-bottom: 8px;
+}
+
+// Fiori-style bordered box around the actual filters only. The free-text
+// filter grows to fill the box; on narrow screens the box takes a full row
+// and the free text wraps inside it.
+.filter-bar {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px 16px;
+    flex: 1 1 auto;
+    box-sizing: border-box;
+    padding: 8px 12px;
+    border: 1px solid var(--mat-sys-outline-variant, #e0e0e0);
+    border-radius: 4px;
+}
+
+.filter-bar-free-text {
+    flex: 1 1 auto;
+    min-width: 200px;
+}
+
+// Action menus (Selection, Exercises) and counts, outside the bordered
+// box, pushed to the right edge of the row.
+.filter-bar-actions {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px 16px;
+    margin-left: auto;
+
+    mat-divider {
+        height: 24px;
+    }
+}
+
+// Read-only counts at the end of the row: total | filtered | selected.
+.filter-bar-counts {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: var(--mat-sys-on-surface-variant, #666);
+    white-space: nowrap;
+
+    mat-divider {
+        height: 18px;
+    }
+}
+
+@media (max-width: 820px) {
+    .filter-bar {
+        flex: 1 1 100%;
+    }
+
+    .filter-bar-free-text {
+        flex: 1 1 100%;
+    }
+}

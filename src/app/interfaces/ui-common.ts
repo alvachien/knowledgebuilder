@@ -17,15 +17,6 @@ export enum SelectionModeEnum {
 }
 export type SelectionModeEnumKeys = keyof typeof SelectionModeEnum;
 
-export enum RatingOperatorEnum {
-  'Equals' = 0,
-  'GreaterThan' = 1,
-  'LessThan' = 2,
-  'LargerOrEquals' = 5,
-  'LessOrEquals' = 6,
-}
-export type RatingOperatorEnumKeys = keyof typeof RatingOperatorEnum;
-
 export const getSelectionModeName = (itemType: SelectionModeEnum): string => {
   switch (itemType) {
     case SelectionModeEnum.ByID:
@@ -45,53 +36,6 @@ export const getSelectionModeNames = (): Map<SelectionModeEnum, string> => {
   map.set(SelectionModeEnum.FreeSelection, getSelectionModeName(SelectionModeEnum.FreeSelection));
   map.set(SelectionModeEnum.ByCount, getSelectionModeName(SelectionModeEnum.ByCount));
   return map;
-};
-
-export const getRatingOperatorName = (operator: RatingOperatorEnum): string => {
-  switch (operator) {
-    case RatingOperatorEnum.Equals:
-      return 'Equals';
-    case RatingOperatorEnum.GreaterThan:
-      return 'Greater Than';
-    case RatingOperatorEnum.LessThan:
-      return 'Less Than';
-    case RatingOperatorEnum.LargerOrEquals:
-      return 'Larger or Equals';
-    case RatingOperatorEnum.LessOrEquals:
-      return 'Less or Equals';
-    default:
-      return 'Unknown';
-  }
-};
-
-/**
- * Shared rating comparison used by the vocabulary list filter bar (rating
- * conditions) and the Select-by-Rating dialogs, so all rating matching goes
- * through one place. An unrated word has rating 0 and is compared numerically
- * like any other value: `< 1` / `<= 0` match unrated words, `>= 1` matches any
- * rated word. (Ratings are 1–5, so `< 1` is equivalent to the former "HasNone"
- * and `>= 1` to the former "HasAny", which is why those operators were
- * dropped.)
- */
-export const matchRating = (
-  rating: number,
-  operator: RatingOperatorEnum,
-  value: number
-): boolean => {
-  switch (operator) {
-    case RatingOperatorEnum.Equals:
-      return rating === value;
-    case RatingOperatorEnum.GreaterThan:
-      return rating > value;
-    case RatingOperatorEnum.LargerOrEquals:
-      return rating >= value;
-    case RatingOperatorEnum.LessThan:
-      return rating < value;
-    case RatingOperatorEnum.LessOrEquals:
-      return rating <= value;
-    default:
-      return false;
-  }
 };
 
 // Detect if a string contains Chinese characters

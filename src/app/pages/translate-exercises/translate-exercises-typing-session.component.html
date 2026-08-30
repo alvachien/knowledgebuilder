@@ -1,0 +1,34 @@
+<ng-container *transloco="let t">
+  <mat-toolbar class="container">
+    <mat-toolbar-row>
+      <span class="toolbar-spacer"></span>
+      <section>
+        <div class="typing-progress">
+          <mat-progress-bar mode="determinate" [value]="store.progress()"></mat-progress-bar>
+        </div>
+      </section>
+      <button mat-fab class="toolbar-fab-button" [matTooltip]="t('common.quit')"
+        [attr.aria-label]="t('common.quit')" (click)="quit.emit()">
+        <mat-icon>cancel_presentation</mat-icon>
+      </button>
+    </mat-toolbar-row>
+  </mat-toolbar>
+
+  <div class="container" id="translate-container">
+    @if (store.currentPrompt()) {
+      <mat-label class="w-full">{{ store.currentPrompt() }}</mat-label>
+
+      <div class="w-full">
+        <mat-form-field class="control-full-width">
+          <mat-label>{{ t('inputted') }}</mat-label>
+          <input matInput type="text" [ngModel]="store.inputted()" (ngModelChange)="store.setInput($event)"
+            (keyup.enter)="store.submitAndNext()" cdkFocusInitial />
+        </mat-form-field>
+      </div>
+
+      <div class="typing-actions">
+        <button mat-flat-button (click)="store.submitAndNext()">{{ t('submit') }}</button>
+      </div>
+    }
+  </div>
+</ng-container>

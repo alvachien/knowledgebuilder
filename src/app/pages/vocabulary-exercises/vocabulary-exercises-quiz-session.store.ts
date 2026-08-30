@@ -114,7 +114,7 @@ export class VocabularyQuizSessionStore {
     this.picks.update(p => p.map((v, i) => (i === qi ? index : v)));
     this.results.update(rs => rs.map((r, i) => (i === qi ? { ...r, correct } : r)));
     this.answeredCount.update(c => c + 1);
-    this.audiosrv.playSound(correct ? 'correct.wav' : 'beep.wav');
+    void this.audiosrv.playSound(correct ? 'correct.wav' : 'beep.wav');
   }
 
   /** Move to the next question; answering the last one completes the session. */
@@ -130,7 +130,7 @@ export class VocabularyQuizSessionStore {
       // Session over: leave no live answer state behind.
       this.isComplete.set(true);
       this.currentIndex.set(-1);
-      this.audiosrv.playSound('correct.wav');
+      void this.audiosrv.playSound('correct.wav');
     }
   }
 

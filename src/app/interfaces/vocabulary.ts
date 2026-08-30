@@ -1,7 +1,16 @@
-import { fisherYatesShuffle } from "../shared/utils/shuffle";
+import {
+  FisherYatesShuffle,
+  FilterJoinType,
+  FilterOperation,
+  FilterUtility,
+  type IFilterDefinition,
+} from 'actslib';
 
-import type { SelectionModeEnum, RatingOperatorEnum } from "./ui-common";
-import { matchRating } from "./ui-common";
+import { hasActiveFilterDefinition } from "../shared/filter-dialog/filter-dialog-model";
+import type { FilterCustomOperator, FilterableProperty } from "../shared/filter-dialog/filter-dialog-model";
+
+import type { LearnEnglishWordFileItem } from "./learnenglish";
+import type { SelectionModeEnum } from "./ui-common";
 
 // Letter in word
 export interface VocabularySpellingLetter {
@@ -44,7 +53,7 @@ export interface VocabularySpellingOption extends VocabularyOptionCore {
 // Dictation vocabulary options. Dictation plays each word's audio in turn on a
 // fixed interval; there is no typing and no hide-audio/hide-description toggle,
 // so only the item count is configurable.
-export interface VocabularyDictationOption extends VocabularyOptionCore {}
+export type VocabularyDictationOption = VocabularyOptionCore;
 
 export interface VocabularyReviewOption extends VocabularyOptionCore {
   disableVoice: boolean;
@@ -107,7 +116,7 @@ export const buildVocabularyQuizQuestions = (
     const correctText = direction === 'en2cn' ? item.cnword : item.enword;
 
     const distractorTexts = new Set<string>();
-    for (const candidate of fisherYatesShuffle(pool)) {
+    for (const candidate of FisherYatesShuffle(pool)) {
       const text = direction === 'en2cn' ? candidate.cnword : candidate.enword;
       if (text !== correctText) {
         distractorTexts.add(text);
@@ -122,7 +131,7 @@ export const buildVocabularyQuizQuestions = (
       continue;
     }
 
-    const options = fisherYatesShuffle([correctText, ...distractorTexts]);
+    const options = FisherYatesShuffle([correctText, ...distractorTexts]);
     questions.push({
       enword: item.enword,
       cnword: item.cnword,
@@ -168,107 +177,110 @@ export interface ReviewQueueItem {
   itemId?: number;
 };
 
-/**
- * Word-text match operators offered by the vocabulary list filter bar. The
- * phrase operators are textless: they match on the word's shape (a phrase is
- * an enword containing a space) and stay active with blank text.
- */
-export type WordMatchOperator = 'startsWith' | 'contains' | 'equal' | 'endsWith' | 'isPhrase' | 'notPhrase';
+// ── Filter-bar schema (shared filter dialog) ─────────────────────────────────
+//
+// The vocabulary filter is edited by SharedFilterDialogComponent; its seed and
+// result are actslib `IFilterDefinition`, so this page keeps no tree model of
+// its own (see docs/reusable-filter-dialog-design.md).
 
-/** One ANDed word-match condition in the vocabulary list filter. */
-export interface WordCondition {
-  operator: WordMatchOperator;
-  text: string;
-}
-
-/** True for the textless phrase operators (Is Phrase / Not Phrase). */
-export const isPhraseOperator = (op: WordMatchOperator): boolean =>
-  op === 'isPhrase' || op === 'notPhrase';
-
-/**
- * True when a word condition participates in filtering: phrase operators are
- * always active, the text operators need non-blank text.
- */
-export const isWordConditionActive = (c: WordCondition): boolean =>
-  isPhraseOperator(c.operator) || c.text.trim().length > 0;
-
-/** One ANDed rating condition in the vocabulary list filter. */
-export interface RatingCondition {
-  operator: RatingOperatorEnum;
-  value: number;
-}
-
-/** Maximum characters before the word-filter summary is ellipsized. */
-const WORD_SUMMARY_MAX = 40;
-
-/**
- * Human-readable summary of the active word conditions for the Word menu's
- * dynamic label, e.g. "starts with a; ends with ing…". Blank-text rows are
- * inactive and skipped. `operatorLabel` supplies the localized operator name.
- */
-export const summarizeWordFilter = (
-  conditions: WordCondition[],
-  operatorLabel: (op: WordMatchOperator) => string
-): string => {
-  const parts: string[] = [];
-  for (const c of conditions) {
-    if (isPhraseOperator(c.operator)) {
-      // Textless condition: the operator label alone is the summary.
-      parts.push(operatorLabel(c.operator));
-      continue;
-    }
-    const text = c.text.trim();
-    if (text.length === 0) {
-      continue;
-    }
-    parts.push(`${operatorLabel(c.operator)} ${text}`);
-  }
-  const joined = parts.join('; ');
-  if (joined.length <= WORD_SUMMARY_MAX) {
-    return joined;
-  }
-  return `${joined.slice(0, WORD_SUMMARY_MAX - 1).trimEnd()}…`;
+/** The `isPhrase` custom operator: a phrase is English text containing a
+ *  space. Valueless (the editor shows no input) and recognized from its own
+ *  `Contains ' '` emission when re-seeding. */
+export const VOCABULARY_IS_PHRASE: FilterCustomOperator = {
+  id: 'isPhrase',
+  labelKey: 'vocabularyExercises.wordOpIsPhrase',
+  emit: property => ({ property, operation: FilterOperation.Contains, lowValue: ' ' }),
+  recognize: c => c.operation === FilterOperation.Contains && c.lowValue === ' ',
 };
 
+/** actslib string comparisons are case-sensitive while the page matches
+ *  case-insensitively — the dialog folds emitted text values (this hook) and
+ *  `matchVocabularyListFilter` folds the row fields the same way. */
+const foldVocabularyText = (value: string | number): string => String(value).trim().toLowerCase();
+
+const WORD_MATCH_OPERATIONS: FilterOperation[] = [
+  FilterOperation.BeginsWith,
+  FilterOperation.Contains,
+  FilterOperation.Equal,
+  FilterOperation.EndsWith,
+];
+
 /**
- * Human-readable summary of the rating conditions for the Rating menu's
- * dynamic label, e.g. ">=3; =5". `operatorSymbol` supplies the operator
- * symbol (the component maps the 5 value-based operators to >= > = <= <).
+ * Vocabulary's filterable properties: the two text columns plus the per-user
+ * rating. The phrase operator is offered only for the English word, and a
+ * "notPhrase" variant was dropped (actslib `FilterUtility` has no negation).
+ * `rating` is not a row field — the predicate passes it in the synthesized
+ * target (see `matchVocabularyListFilter`); unrated words carry 0 and compare
+ * numerically.
  */
-export const summarizeRatingFilter = (
-  conditions: RatingCondition[],
-  operatorSymbol: (op: RatingOperatorEnum) => string
-): string =>
-  conditions.map(c => `${operatorSymbol(c.operator)}${c.value}`).join('; ');
+export const VOCABULARY_FILTER_PROPERTIES: FilterableProperty[] = [
+  {
+    key: 'enword',
+    labelKey: 'vocabularyExercises.word',
+    kind: 'string',
+    operations: WORD_MATCH_OPERATIONS,
+    customOperators: [VOCABULARY_IS_PHRASE],
+    prepareValue: foldVocabularyText,
+  },
+  {
+    key: 'cnword',
+    labelKey: 'chinese',
+    kind: 'string',
+    operations: WORD_MATCH_OPERATIONS,
+    prepareValue: foldVocabularyText,
+  },
+  {
+    key: 'rating',
+    labelKey: 'rating',
+    kind: 'number',
+    operations: [
+      FilterOperation.GreaterOrEqual,
+      FilterOperation.GreaterThan,
+      FilterOperation.Equal,
+      FilterOperation.LessOrEqual,
+      FilterOperation.LessThan,
+      FilterOperation.Between,
+    ],
+    numberRange: { min: 0, max: 5 },
+  },
+];
+
+/** A fresh (empty) filter definition: matches everything, shown as "new filter". */
+export const emptyVocabularyFilterDefinition = (): IFilterDefinition => ({
+  join: FilterJoinType.AND,
+  conditions: [],
+});
 
 /**
  * Combined criteria of the vocabulary list filter bar. `freeText` applies live
- * (cross-field substring over id/enword/cnword); `wordConditions` and
- * `ratingConditions` are lists defined via the Word/Rating filter dialogs and
- * are ANDed together (and with freeText). A text word condition whose text is
- * blank is inactive (skipped); the phrase operators (`isPhrase`/`notPhrase`)
- * are textless and always active. (See
- * docs/superpowers/specs/2026-08-16-vocabulary-filter-menus-design.md.)
+ * (cross-field substring over id/enword/cnword); `root` is the actslib
+ * condition definition produced by the shared filter dialog. The definition
+ * and freeText are ANDed. Condition values arrive case-folded (the dialog's
+ * `prepareValue` hooks on `VOCABULARY_FILTER_PROPERTIES`).
  */
 export interface VocabularyListFilter {
   /** Cross-field substring search over id/enword/cnword (legacy behaviour). */
   freeText: string;
-  /** ANDed; blank-text rows are inactive. */
-  wordConditions: WordCondition[];
-  /** ANDed. */
-  ratingConditions: RatingCondition[];
+  /** actslib filter definition (word/rating leaves and nested AND/OR groups). */
+  root: IFilterDefinition;
 }
 
+/**
+ * True when the filter carries nothing: blank freeText and no condition
+ * anywhere in the definition (an empty root, or only empty sub-groups).
+ */
 export const isVocabularyListFilterEmpty = (filter: VocabularyListFilter): boolean =>
-  filter.freeText.trim().length === 0 &&
-  !filter.wordConditions.some(isWordConditionActive) &&
-  filter.ratingConditions.length === 0;
+  filter.freeText.trim().length === 0 && !hasActiveFilterDefinition(filter.root);
 
 /**
- * Single matching rule for the vocabulary list filter bar. freeText AND every
- * active word condition AND every rating condition. All filtering decisions
- * flow through here: the table predicate calls it and nothing else grows
- * private matching logic.
+ * Single matching rule for the vocabulary list filter bar: freeText AND the
+ * actslib definition. The definition is produced by the shared filter dialog
+ * (its string values already trimmed + lowercased via `prepareValue`) and is
+ * evaluated here by `FilterUtility.MatchFilter` against a case-folded target
+ * carrying the row's rating; the free-text check concatenates id/enword/cnword
+ * and has no per-property condition equivalent, so it stays hand-written. All
+ * filtering decisions flow through here: the table predicate calls it and
+ * nothing else grows private matching logic.
  */
 export const matchVocabularyListFilter = (
   item: { id?: number; enword: string; cnword: string },
@@ -285,49 +297,78 @@ export const matchVocabularyListFilter = (
     }
   }
 
-  const enword = item.enword.toLowerCase();
-  for (const c of filter.wordConditions) {
-    if (isPhraseOperator(c.operator)) {
-      // A phrase is an enword containing a space.
-      const isPhrase = item.enword.indexOf(' ') !== -1;
-      if (c.operator === 'isPhrase' ? !isPhrase : isPhrase) {
-        return false;
-      }
-      continue;
-    }
-    const text = c.text.trim().toLowerCase();
-    if (text.length === 0) {
-      continue;
-    }
-    switch (c.operator) {
-      case 'startsWith':
-        if (!enword.startsWith(text)) {
-          return false;
-        }
-        break;
-      case 'contains':
-        if (!enword.includes(text)) {
-          return false;
-        }
-        break;
-      case 'equal':
-        if (enword !== text) {
-          return false;
-        }
-        break;
-      case 'endsWith':
-        if (!enword.endsWith(text)) {
-          return false;
-        }
-        break;
-    }
+  // FilterUtility compares strings case-sensitively, so the condition values
+  // are folded by the dialog's prepareValue hooks and the row's text fields
+  // fold here. The rating rides along as a numeric property: it lives in the
+  // page's rating map, not on the row; unrated words pass 0 and compare
+  // numerically, like unrated rows on every other list page.
+  const target = {
+    enword: item.enword.toLowerCase(),
+    cnword: item.cnword.toLowerCase(),
+    rating,
+  };
+  return FilterUtility.MatchFilter(target, filter.root);
+};
+
+export const VOCABULARY_UPLOAD_MAX_ITEMS = 10000;
+export const VOCABULARY_UPLOAD_MAX_WORD_LENGTH = 500;
+
+/** Hard failures that reject the whole upload. */
+export type VocabularyUploadFailureReason = 'utf16' | 'parse' | 'not-array';
+
+export type VocabularyUploadParseResult =
+  | { ok: false; reason: VocabularyUploadFailureReason }
+  | {
+      ok: true;
+      items: LearnEnglishWordFileItem[];
+      /** Rows dropped because enword/cnword were missing or out of contract. */
+      skippedCount: number;
+      /** True when the import stopped early at VOCABULARY_UPLOAD_MAX_ITEMS rows. */
+      truncated: boolean;
+    };
+
+/**
+ * Parses a user-uploaded vocabulary JSON file (the Add Temp. File flow). The
+ * same row contract as LearningContentService's word files applies; invalid
+ * rows are skipped (and counted) instead of rejecting the whole file, and
+ * hitting the item cap is reported rather than silently truncating.
+ */
+export const parseVocabularyUpload = (fileContent: string): VocabularyUploadParseResult => {
+  // readAsText decodes UTF-16 files as mojibake; stray NUL bytes are the tell.
+  if (fileContent.includes('\u0000')) {
+    return { ok: false, reason: 'utf16' };
+  }
+  let parsed: unknown;
+  try {
+    // Excel/Notepad/PowerShell exports often carry a UTF-8 BOM that JSON.parse rejects.
+    parsed = JSON.parse(fileContent.replace(/^\uFEFF/, ''));
+  } catch {
+    return { ok: false, reason: 'parse' };
+  }
+  if (!Array.isArray(parsed)) {
+    return { ok: false, reason: 'not-array' };
   }
 
-  for (const c of filter.ratingConditions) {
-    if (!matchRating(rating, c.operator, c.value)) {
-      return false;
+  const items: LearnEnglishWordFileItem[] = [];
+  let skippedCount = 0;
+  for (const raw of parsed) {
+    const obj = typeof raw === 'object' && raw !== null ? (raw as Record<string, unknown>) : undefined;
+    const enword = typeof obj?.['enword'] === 'string' ? obj['enword'] : undefined;
+    const cnword = typeof obj?.['cnword'] === 'string' ? obj['cnword'] : undefined;
+    if (
+      enword === undefined ||
+      cnword === undefined ||
+      enword.length <= 1 ||
+      enword.length > VOCABULARY_UPLOAD_MAX_WORD_LENGTH ||
+      cnword.length > VOCABULARY_UPLOAD_MAX_WORD_LENGTH
+    ) {
+      skippedCount++;
+      continue;
+    }
+    items.push({ enword, cnword });
+    if (items.length >= VOCABULARY_UPLOAD_MAX_ITEMS) {
+      return { ok: true, items, skippedCount, truncated: true };
     }
   }
-
-  return true;
+  return { ok: true, items, skippedCount, truncated: false };
 };

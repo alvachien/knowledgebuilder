@@ -1,6 +1,7 @@
 import { TestBed } from '@angular/core/testing';
 import { of, Subject, throwError } from 'rxjs';
 
+import { environment } from '../../../environments/environment';
 import type { ReviewQueueItem, UserLearningRating } from '../../interfaces';
 import { AudioService, LearningRatingService } from '../../services';
 
@@ -11,6 +12,7 @@ describe('VocabularyReviewSessionStore', () => {
   let mockAudioService: {
     speakWord: ReturnType<typeof vi.fn>;
     playSound: ReturnType<typeof vi.fn>;
+    playAuthenticatedOneShot: ReturnType<typeof vi.fn>;
   };
   let mockRatingService: {
     getRatings: ReturnType<typeof vi.fn>;
@@ -28,6 +30,7 @@ describe('VocabularyReviewSessionStore', () => {
     mockAudioService = {
       speakWord: vi.fn(),
       playSound: vi.fn(),
+      playAuthenticatedOneShot: vi.fn().mockResolvedValue(true),
     };
     mockRatingService = {
       getRatings: vi.fn().mockReturnValue(of([])),
@@ -51,6 +54,7 @@ describe('VocabularyReviewSessionStore', () => {
       expect(store.queue()).toEqual([]);
       expect(store.cursor()).toBe(0);
       expect(store.progress()).toBe(0);
+      expect(mockAudioService.playAuthenticatedOneShot).not.toHaveBeenCalled();
       expect(mockAudioService.speakWord).not.toHaveBeenCalled();
       expect(mockRatingService.getRatings).not.toHaveBeenCalled();
     });
@@ -61,12 +65,17 @@ describe('VocabularyReviewSessionStore', () => {
       expect(store.queue().length).toBe(2);
       expect(store.cursor()).toBe(0);
       expect(store.progress()).toBe(50);
-      expect(mockAudioService.speakWord).toHaveBeenCalledWith('hello');
+      expect(mockAudioService.playAuthenticatedOneShot).toHaveBeenCalledWith(
+        `${environment.apiUrl}/api/WordAudio?word=hello`
+      );
+      // Recorded audio resolved successfully: no TTS fallback.
+      expect(mockAudioService.speakWord).not.toHaveBeenCalled();
     });
 
     it('does not speak when voice is disabled', () => {
       store.start([word('hello')], true, 0);
 
+      expect(mockAudioService.playAuthenticatedOneShot).not.toHaveBeenCalled();
       expect(mockAudioService.speakWord).not.toHaveBeenCalled();
     });
 
@@ -173,11 +182,76 @@ describe('VocabularyReviewSessionStore', () => {
 
     it('speaks the word on navigation when voice is enabled', () => {
       store.start([word('hello'), word('world')], false, 0);
-      mockAudioService.speakWord.mockClear();
+      mockAudioService.playAuthenticatedOneShot.mockClear();
 
       store.next();
 
-      expect(mockAudioService.speakWord).toHaveBeenCalledWith('world');
+      expect(mockAudioService.playAuthenticatedOneShot).toHaveBeenCalledWith(
+        `${environment.apiUrl}/api/WordAudio?word=world`
+      );
+      expect(mockAudioService.speakWord).not.toHaveBeenCalled();
+    });
+  });
+
+  describe('pronunciation (MP3-first with TTS fallback)', () => {
+    async function flushTasks(): Promise<void> {
+      await new Promise(resolve => setTimeout(resolve, 0));
+    }
+
+    it('falls back to TTS when the word has no recorded audio', async () => {
+      mockAudioService.playAuthenticatedOneShot.mockResolvedValue(false);
+
+      store.start([word('xyzzy')], false, 0);
+      await flushTasks();
+
+      expect(mockAudioService.speakWord).toHaveBeenCalledWith('xyzzy');
+    });
+
+    it('does not use TTS when recorded audio plays', async () => {
+      mockAudioService.playAuthenticatedOneShot.mockResolvedValue(true);
+
+      store.start([word('hello')], false, 0);
+      await flushTasks();
+
+      expect(mockAudioService.speakWord).not.toHaveBeenCalled();
+    });
+
+    it('ignores a late miss for a word the cursor has already left', async () => {
+      let releaseLate!: (ok: boolean) => void;
+      mockAudioService.playAuthenticatedOneShot
+        .mockImplementationOnce(
+          () =>
+            new Promise<boolean>(resolve => {
+              releaseLate = resolve;
+            })
+        )
+        .mockResolvedValue(true);
+
+      store.start([word('hello'), word('world')], false, 0);
+      store.next(); // 'hello' is superseded by 'world's own fetch
+
+      releaseLate(false); // 'hello' turns out to have no audio - too late
+      await flushTasks();
+
+      expect(mockAudioService.speakWord).not.toHaveBeenCalled();
+    });
+
+    it('drops the fallback once the session is quit/reset', async () => {
+      let releaseLate!: (ok: boolean) => void;
+      mockAudioService.playAuthenticatedOneShot.mockImplementationOnce(
+        () =>
+          new Promise<boolean>(resolve => {
+            releaseLate = resolve;
+          })
+      );
+
+      store.start([word('hello')], false, 0);
+      store.quit();
+
+      releaseLate(false);
+      await flushTasks();
+
+      expect(mockAudioService.speakWord).not.toHaveBeenCalled();
     });
   });
 
@@ -426,11 +500,14 @@ describe('VocabularyReviewSessionStore', () => {
 
     it('speaks the first word when auto mode starts (voice enabled)', () => {
       store.start([word('hello'), word('world')], false, 0);
-      mockAudioService.speakWord.mockClear();
+      mockAudioService.playAuthenticatedOneShot.mockClear();
 
       store.enableAutoMode();
 
-      expect(mockAudioService.speakWord).toHaveBeenCalledWith('hello');
+      expect(mockAudioService.playAuthenticatedOneShot).toHaveBeenCalledWith(
+        `${environment.apiUrl}/api/WordAudio?word=hello`
+      );
+      expect(mockAudioService.speakWord).not.toHaveBeenCalled();
     });
   });
 

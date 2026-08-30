@@ -144,7 +144,7 @@ describe('VocabularyExercisesQuizSessionComponent', () => {
       const status = fixture.nativeElement.querySelector('.vocabulary-test-status');
       expect(status).toBeTruthy();
       expect(status.getAttribute('aria-live')).toBe('polite');
-      expect(status.textContent).toContain('vocabularyExercises.correct');
+      expect(status.textContent).toContain('common.correct');
     });
 
     it('announces incorrect after a wrong answer', () => {
@@ -154,7 +154,7 @@ describe('VocabularyExercisesQuizSessionComponent', () => {
 
       const status = fixture.nativeElement.querySelector('.vocabulary-test-status');
       expect(status).toBeTruthy();
-      expect(status.textContent).toContain('vocabularyExercises.incorrect');
+      expect(status.textContent).toContain('common.incorrect');
     });
 
     it('does not render the status region before answering', () => {

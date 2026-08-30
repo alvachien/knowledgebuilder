@@ -1,12 +1,24 @@
 /**
- * Fisher-Yates (Knuth) shuffle — produces an unbiased uniform random permutation.
- * Returns a NEW array; the input is not mutated.
+ * Weighted random pick: an item's chance of being chosen is proportional to
+ * its weight. `random` returns [0, 1) and is injectable for tests. Returns
+ * undefined for an empty list; a list whose weights are all 0 yields the last
+ * item.
  */
-export function fisherYatesShuffle<T>(array: readonly T[]): T[] {
-  const result = array.slice();
-  for (let i = result.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
-    [result[i], result[j]] = [result[j], result[i]];
+export function pickWeighted<T>(
+  items: readonly T[],
+  weight: (item: T) => number,
+  random: () => number = Math.random
+): T | undefined {
+  if (items.length === 0) {
+    return undefined;
   }
-  return result;
+  const total = items.reduce((sum, item) => sum + weight(item), 0);
+  let roll = random() * total;
+  for (const item of items) {
+    roll -= weight(item);
+    if (roll < 0) {
+      return item;
+    }
+  }
+  return items[items.length - 1];
 }

@@ -1,0 +1,165 @@
+<div *transloco="let t">
+  <h2 mat-dialog-title>{{ t(titleKey) }}</h2>
+  <mat-dialog-content>
+    <div class="fdlg-split" [style.--split-left]="splitLeft() + '%'">
+      <!-- Left pane: condition-tree navigator with an insert/delete toolbar. -->
+      <div class="fdlg-tree-pane">
+        <div class="fdlg-tree-toolbar">
+          <button mat-icon-button type="button" (click)="onInsertCondition()" [disabled]="!canInsertCondition()"
+            [attr.aria-label]="t('common.addCondition')" [title]="t('common.addCondition')">
+            <mat-icon>add</mat-icon>
+          </button>
+          <button mat-icon-button type="button" (click)="onInsertGroup()" [disabled]="!canInsertGroup()"
+            [attr.aria-label]="t('common.addFilterGroup')" [title]="t('common.addFilterGroup')">
+            <mat-icon>playlist_add</mat-icon>
+          </button>
+          <button mat-icon-button type="button" (click)="onDeleteSelected()" [disabled]="!canDeleteSelected()"
+            [attr.aria-label]="t('common.removeFilterGroup')" [title]="t('common.removeFilterGroup')">
+            <mat-icon>delete</mat-icon>
+          </button>
+        </div>
+        <div class="fdlg-tree-scroll">
+          <mat-tree class="fdlg-tree" [dataSource]="treeData()" [childrenAccessor]="childrenAccessor"
+            [trackBy]="trackByMember" [expansionKey]="expansionKeyMember" [attr.aria-label]="t(titleKey)">
+            <!-- One node template for both kinds: leaves simply have no children.
+                 [isExpanded] keeps every group open — the whole expression must
+                 stay visible in a filter editor. -->
+            <mat-nested-tree-node *matTreeNodeDef="let node; let level=level" [isExpanded]="true"
+              (activation)="select(node)">
+              <div class="fdlg-node-row" [class.fdlg-node-selected]="isSelected(node)"
+                [class.fdlg-node-invalid]="isNodeInvalid(node)" [style.margin-left.px]="level * 16"
+                (click)="select(node)">
+                <mat-icon class="fdlg-node-icon">{{ isNode(node) ? 'folder' : 'description' }}</mat-icon>
+                <span class="fdlg-node-label">{{ describeNode(node) }}</span>
+                @if (isNodeInvalid(node)) {
+                  <mat-icon class="fdlg-node-warn" [attr.aria-label]="t('common.filterGroupNeedsTwo')"
+                    [title]="t('common.filterGroupNeedsTwo')">error</mat-icon>
+                }
+              </div>
+              @if (isNode(node)) {
+                <div class="fdlg-tree-children">
+                  <ng-container matTreeNodeOutlet></ng-container>
+                </div>
+              }
+            </mat-nested-tree-node>
+          </mat-tree>
+        </div>
+      </div>
+
+      <!-- Draggable splitter between the panes. -->
+      <div class="fdlg-splitter" role="separator" aria-orientation="vertical" tabindex="0"
+        [attr.aria-label]="t('common.filterSplitter')" (pointerdown)="onSplitPointerDown($event)"
+        (pointermove)="onSplitPointerMove($event)" (pointerup)="onSplitPointerUp($event)"
+        (keydown)="onSplitKeydown($event)"></div>
+
+      <!-- Right pane: editor for the selected tree member. -->
+      <div class="fdlg-detail-pane">
+        @if (selectedMember(); as sel) {
+          @if (isNode(sel)) {
+            <div class="fdlg-detail-title">{{ t('common.filterGroup') }}</div>
+            <p class="fdlg-hint">{{ t('common.filterJoinHint') }}</p>
+            <mat-form-field subscriptSizing="dynamic" class="fdlg-join">
+              <mat-select [ngModel]="sel.join" (ngModelChange)="onJoinChange(sel.id, $event)"
+                [attr.aria-label]="t('common.filterJoinSelect')">
+                @for (join of joinOptions; track join.value) {
+                  <mat-option [value]="join.value">{{ t(join.labelKey) }}</mat-option>
+                }
+              </mat-select>
+            </mat-form-field>
+            @if (isNodeInvalid(sel)) {
+              <p class="fdlg-error">{{ t('common.filterGroupNeedsTwo') }}</p>
+            }
+          } @else if (leafOf(sel); as leaf) {
+            @if (propertyOf(leaf); as prop) {
+              <div class="fdlg-detail-title">{{ t('common.filterCondition') }}</div>
+              <div class="fdlg-condition-row">
+                <mat-form-field subscriptSizing="dynamic" class="fdlg-property">
+                  <mat-select [ngModel]="leaf.propertyKey" (ngModelChange)="onPropertyChange(leaf.id, $event)">
+                    @for (p of properties; track p.key) {
+                      <mat-option [value]="p.key">{{ t(p.labelKey) }}</mat-option>
+                    }
+                  </mat-select>
+                </mat-form-field>
+                <mat-form-field subscriptSizing="dynamic" class="fdlg-operator">
+                  <!-- An enum property's operator is fixed: membership renders as OR-of-equals. -->
+                  <mat-select [ngModel]="leaf.operator" (ngModelChange)="onOperatorChange(leaf.id, $event)"
+                    [disabled]="prop.kind === 'enum'">
+                    @for (op of operatorOptions(prop); track op.value) {
+                      <mat-option [value]="op.value">{{ t(op.labelKey) }}</mat-option>
+                    }
+                  </mat-select>
+                </mat-form-field>
+
+                @switch (valueEditor(prop, leaf.operator)) {
+                  @case ('text') {
+                    <mat-form-field subscriptSizing="dynamic" class="fdlg-text">
+                      <input matInput [ngModel]="scalarToInput(leaf.single)"
+                        (ngModelChange)="onSingleChange(leaf.id, $event)" />
+                    </mat-form-field>
+                  }
+                  @case ('number') {
+                    <mat-form-field subscriptSizing="dynamic" class="fdlg-number">
+                      <input matInput type="number" [min]="prop.numberRange?.min ?? null"
+                        [max]="prop.numberRange?.max ?? null"
+                        [ngModel]="scalarToInput(leaf.single)"
+                        (ngModelChange)="onSingleChange(leaf.id, $event)" />
+                    </mat-form-field>
+                  }
+                  @case ('date') {
+                    <mat-form-field subscriptSizing="dynamic" class="fdlg-date">
+                      <input matInput type="date" [ngModel]="scalarToInput(leaf.single)"
+                        (ngModelChange)="onSingleChange(leaf.id, $event)" />
+                    </mat-form-field>
+                  }
+                  @case ('between') {
+                    <div class="fdlg-between">
+                      <mat-form-field subscriptSizing="dynamic" class="fdlg-between-bound">
+                        <input matInput [type]="betweenInputType(prop)"
+                          [ngModel]="scalarToInput(leaf.between[0])"
+                          (ngModelChange)="onBetweenChange(leaf.id, 0, $event)" />
+                      </mat-form-field>
+                      <span class="fdlg-between-sep" aria-hidden="true">&ndash;</span>
+                      <mat-form-field subscriptSizing="dynamic" class="fdlg-between-bound">
+                        <input matInput [type]="betweenInputType(prop)"
+                          [ngModel]="scalarToInput(leaf.between[1])"
+                          (ngModelChange)="onBetweenChange(leaf.id, 1, $event)" />
+                      </mat-form-field>
+                    </div>
+                  }
+                  @case ('enum') {
+                    <div class="fdlg-choices" role="group" [attr.aria-label]="t(prop.labelKey)">
+                      @for (c of prop.choices ?? []; track c.value) {
+                        <mat-checkbox [checked]="isChoiceSelected(leaf, c.value)"
+                          (change)="onChoiceToggle(leaf.id, c.value, $event.checked)">
+                          {{ t(c.labelKey) }}
+                        </mat-checkbox>
+                      }
+                    </div>
+                  }
+                  @case ('none') {
+                    <!-- Valueless custom operator: no value control at all. -->
+                  }
+                }
+              </div>
+              @if (isLeafMissing(leaf)) {
+                <p class="fdlg-error">{{ t(prop.kind === 'enum' ? 'common.filterEnumNeedsChoice' :
+                  'common.filterNeedsValue') }}</p>
+              }
+            }
+          }
+        } @else {
+          <div class="fdlg-detail-empty">{{ t('common.filterDetailEmpty') }}</div>
+        }
+      </div>
+    </div>
+
+    <div class="fdlg-preview">
+      <span class="fdlg-preview-label">{{ t('common.filterPreview') }}</span>
+      <span class="fdlg-preview-expression">{{ previewExpression() || t('common.filterPreviewEmpty') }}</span>
+    </div>
+  </mat-dialog-content>
+  <mat-dialog-actions>
+    <button mat-button (click)="onCancel()">{{ t('cancel') }}</button>
+    <button mat-button (click)="onSubmit()" cdkFocusInitial [disabled]="!canSubmit()">{{ t('submit') }}</button>
+  </mat-dialog-actions>
+</div>

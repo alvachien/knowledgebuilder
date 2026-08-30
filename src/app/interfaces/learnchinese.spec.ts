@@ -1,7 +1,13 @@
+import { FilterJoinType, FilterOperation, type IFilterCondition, type IFilterDefinition } from 'actslib';
+
 import {
+  CHINESE_FILTER_PROPERTIES,
   ChineseExerciseTypeEnum,
   getChineseReciteItemDisplayContent,
   convertChineseReciteItemToKnowledge,
+  isChineseListFilterEmpty,
+  matchChineseListFilter,
+  type ChineseListFilter,
   type LearnChineseFileItem,
 } from './learnchinese';
 import { QuestionBankTypeEnum, QuestionBankItemLevelEnum } from './questionbank';
@@ -760,6 +766,181 @@ describe('learnchinese.ts', () => {
       };
       const result = convertChineseReciteItemToKnowledge([item], 2);
       expect(result[0].question).toBe('Test. undefined');
+    });
+  });
+
+  describe('Chinese list filter', () => {
+    const emptyRoot: IFilterDefinition = { join: FilterJoinType.AND, conditions: [] };
+    const baseFilter: ChineseListFilter = { freeText: '', root: emptyRoot };
+
+    const item: LearnChineseFileItem = {
+      id: 7,
+      subject: '静夜思',
+      author: '李白',
+      content: '床前明月光，疑是地上霜。',
+      source: '唐诗三百首',
+    };
+
+    /** Shorthand for a leaf condition (values as the dialog emits them). */
+    const cond = (
+      property: string,
+      operation: FilterOperation,
+      lowValue: string | number
+    ): IFilterCondition => ({ property, operation, lowValue });
+
+    const filterWith = (...conditions: Array<IFilterCondition | IFilterDefinition>): ChineseListFilter => ({
+      freeText: '',
+      root: { join: FilterJoinType.AND, conditions },
+    });
+
+    describe('CHINESE_FILTER_PROPERTIES', () => {
+      it('covers the three text columns plus the rating', () => {
+        expect(CHINESE_FILTER_PROPERTIES.map(p => p.key)).toEqual(['subject', 'author', 'content', 'rating']);
+        expect(CHINESE_FILTER_PROPERTIES.map(p => p.kind)).toEqual(['string', 'string', 'string', 'number']);
+      });
+
+      it('whitelists shape-match operators on text (no lexicographic comparisons)', () => {
+        const subject = CHINESE_FILTER_PROPERTIES.find(p => p.key === 'subject');
+        expect(subject?.operations).toEqual([
+          FilterOperation.BeginsWith,
+          FilterOperation.Contains,
+          FilterOperation.Equal,
+          FilterOperation.EndsWith,
+        ]);
+        expect(subject?.prepareValue).toBeInstanceOf(Function);
+      });
+
+      it('offers the full comparison set on rating (incl. Between), ranged 0..5', () => {
+        const rating = CHINESE_FILTER_PROPERTIES.find(p => p.key === 'rating');
+        expect(rating?.operations).toEqual([
+          FilterOperation.GreaterOrEqual,
+          FilterOperation.GreaterThan,
+          FilterOperation.Equal,
+          FilterOperation.LessOrEqual,
+          FilterOperation.LessThan,
+          FilterOperation.Between,
+        ]);
+        expect(rating?.numberRange).toEqual({ min: 0, max: 5 });
+      });
+    });
+
+    describe('isChineseListFilterEmpty', () => {
+      it('is empty when no condition is set', () => {
+        expect(isChineseListFilterEmpty({ ...baseFilter })).toBe(true);
+      });
+
+      it('is not empty when free text or a condition is set', () => {
+        expect(isChineseListFilterEmpty({ ...baseFilter, freeText: 'a' })).toBe(false);
+        expect(isChineseListFilterEmpty(filterWith(cond('subject', FilterOperation.Contains, 'a')))).toBe(false);
+      });
+
+      it('is empty when the root holds only empty sub-groups', () => {
+        expect(
+          isChineseListFilterEmpty({
+            ...baseFilter,
+            root: { join: FilterJoinType.AND, conditions: [{ join: FilterJoinType.OR, conditions: [] }] },
+          })
+        ).toBe(true);
+      });
+    });
+
+    describe('matchChineseListFilter', () => {
+      it('matches everything when the filter is empty', () => {
+        expect(matchChineseListFilter(item, 0, { ...baseFilter })).toBe(true);
+      });
+
+      it('free text matches all fields case-insensitively (legacy default-predicate haystack)', () => {
+        expect(matchChineseListFilter(item, 0, { ...baseFilter, freeText: '李白' })).toBe(true);
+        expect(matchChineseListFilter(item, 0, { ...baseFilter, freeText: '明月光' })).toBe(true);
+        expect(matchChineseListFilter(item, 0, { ...baseFilter, freeText: '唐诗' })).toBe(true);
+        expect(matchChineseListFilter(item, 0, { ...baseFilter, freeText: '7' })).toBe(true);
+        expect(matchChineseListFilter(item, 0, { ...baseFilter, freeText: '杜甫' })).toBe(false);
+      });
+
+      it('each condition honors its operator against the chosen field', () => {
+        expect(matchChineseListFilter(item, 0, filterWith(cond('subject', FilterOperation.BeginsWith, '静夜')))).toBe(true);
+        expect(matchChineseListFilter(item, 0, filterWith(cond('subject', FilterOperation.BeginsWith, '夜思')))).toBe(false);
+        expect(matchChineseListFilter(item, 0, filterWith(cond('author', FilterOperation.Equal, '李白')))).toBe(true);
+        expect(matchChineseListFilter(item, 0, filterWith(cond('content', FilterOperation.EndsWith, '上霜。')))).toBe(true);
+        // subject field only: the content must not match a 'subject' condition.
+        expect(matchChineseListFilter(item, 0, filterWith(cond('subject', FilterOperation.Contains, '明月光')))).toBe(false);
+      });
+
+      it('matches case-folded text (dialog emits folded values, rows fold here)', () => {
+        const latin: LearnChineseFileItem = { subject: 'Spring Dawn', author: 'Li Bai' };
+        expect(matchChineseListFilter(latin, 0, filterWith(cond('subject', FilterOperation.BeginsWith, 'spring')))).toBe(true);
+        expect(matchChineseListFilter(latin, 0, filterWith(cond('author', FilterOperation.Equal, 'li bai')))).toBe(true);
+      });
+
+      it('treats missing author/content as empty strings and unrated as 0', () => {
+        const bare: LearnChineseFileItem = { subject: '无题' };
+        expect(matchChineseListFilter(bare, 0, filterWith(cond('author', FilterOperation.Equal, '')))).toBe(true);
+        expect(matchChineseListFilter(bare, 0, filterWith(cond('author', FilterOperation.Equal, '李白')))).toBe(false);
+        expect(matchChineseListFilter(bare, 0, filterWith(cond('rating', FilterOperation.LessThan, 1)))).toBe(true);
+        expect(matchChineseListFilter(bare, 0, filterWith(cond('rating', FilterOperation.GreaterOrEqual, 1)))).toBe(false);
+        // Between is inclusive on both bounds (as the dialog's editor emits).
+        const between = (low: number, high: number) => ({
+          property: 'rating',
+          operation: FilterOperation.Between,
+          lowValue: low,
+          highValue: high,
+        });
+        expect(matchChineseListFilter(bare, 3, filterWith(between(2, 4)))).toBe(true);
+        expect(matchChineseListFilter(bare, 4, filterWith(between(2, 4)))).toBe(true);
+        expect(matchChineseListFilter(bare, 5, filterWith(between(2, 4)))).toBe(false);
+      });
+
+      it('ANDs multiple conditions', () => {
+        expect(
+          matchChineseListFilter(item, 0, filterWith(
+            cond('author', FilterOperation.Equal, '李白'),
+            cond('content', FilterOperation.Contains, '明月')
+          ))
+        ).toBe(true);
+        expect(
+          matchChineseListFilter(item, 0, filterWith(
+            cond('author', FilterOperation.Equal, '李白'),
+            cond('subject', FilterOperation.Contains, '春晓')
+          ))
+        ).toBe(false);
+      });
+
+      it('evaluates nested AND/OR groups (SQL-WHERE nesting)', () => {
+        const group: ChineseListFilter = {
+          freeText: '',
+          root: {
+            join: FilterJoinType.AND,
+            conditions: [
+              cond('subject', FilterOperation.Contains, '静夜'),
+              {
+                join: FilterJoinType.OR,
+                conditions: [
+                  cond('author', FilterOperation.Equal, '杜甫'),
+                  cond('rating', FilterOperation.GreaterOrEqual, 3),
+                ],
+              },
+            ],
+          },
+        };
+        // 静夜思 matches AND (杜甫 fails OR rating>=3 passes at rating 4).
+        expect(matchChineseListFilter(item, 4, group)).toBe(true);
+        expect(matchChineseListFilter(item, 2, group)).toBe(false);
+      });
+
+      it('ANDs free text with the definition', () => {
+        expect(
+          matchChineseListFilter(item, 0, {
+            freeText: '李白',
+            root: { join: FilterJoinType.AND, conditions: [cond('subject', FilterOperation.Contains, '春晓')] },
+          })
+        ).toBe(false);
+        expect(
+          matchChineseListFilter(item, 0, {
+            freeText: '李白',
+            root: { join: FilterJoinType.AND, conditions: [cond('subject', FilterOperation.Contains, '静夜')] },
+          })
+        ).toBe(true);
+      });
     });
   });
 });

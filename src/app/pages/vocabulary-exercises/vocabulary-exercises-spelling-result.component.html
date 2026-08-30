@@ -1,6 +1,6 @@
 <ng-container *transloco="let t">
   <div class="container">
-    <div class="result-header">{{ t('vocabularyExercises.score') }}: {{store.correctCount()}} / {{store.queue().length }} </div>
+    <div class="result-header">{{ t('common.score') }}: {{store.correctCount()}} / {{store.queue().length }} </div>
     <button mat-raised-button color="primary" (click)="backToList.emit()">{{ t('backToList') }}</button>
 
     <table mat-table [dataSource]="store.results()" class="mat-elevation-z8 w-full">
@@ -12,7 +12,7 @@
 
       <!-- Correct Column -->
       <ng-container matColumnDef="correct">
-        <th mat-header-cell *matHeaderCellDef> {{ t('vocabularyExercises.correct') }} </th>
+        <th mat-header-cell *matHeaderCellDef> {{ t('common.correct') }} </th>
         <td mat-cell *matCellDef="let element">
           <mat-checkbox [checked]="element.correct" [disabled]="true"></mat-checkbox>
         </td>
