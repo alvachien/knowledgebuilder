@@ -1,6 +1,6 @@
 {
   "name": "knowledgebuilder",
-  "version": "1.8.434",
+  "version": "1.9.0",
   "license": "MIT",
   "description": "An AI-powered web-based Learning app for English, Chinese, and Knowledge Bank part.",
   "author": {
@@ -35,6 +35,7 @@
     "@angular/router": "21.2.21",
     "@jsverse/transloco": "^8.2.1",
     "@types/dompurify": "^3.0.5",
+    "actslib": "^0.6.81",
     "angular-auth-oidc-client": "^21.0.2",
     "date-fns": "^4.1.0",
     "dompurify": "^3.4.11",
