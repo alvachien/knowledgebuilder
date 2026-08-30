@@ -114,12 +114,23 @@ describe('NavbarComponent', () => {
       expect(component.homeUrl).toBeDefined();
     });
 
-    it('should call getSkipLinkHref after timeout', async () => {
-      fixture.detectChanges();
+    it('should call getSkipLinkHref after timeout', () => {
+      // Deterministic: fake only setTimeout so the constructor's 100 ms
+      // timer is advanced by the test clock instead of racing the wall
+      // clock (a real 150 ms sleep was flaky under CI worker starvation).
+      mockNavigationFocusService.getSkipLinkHref.mockClear();
+      vi.useFakeTimers({ toFake: ['setTimeout', 'clearTimeout'] });
+      try {
+        const testFixture = TestBed.createComponent(NavbarComponent);
+        testFixture.detectChanges();
 
-      await new Promise(resolve => setTimeout(resolve, 150));
-      expect(mockNavigationFocusService.getSkipLinkHref).toHaveBeenCalled();
-      expect(component.skipLinkHref).toBe('/test-link');
+        vi.advanceTimersByTime(150);
+
+        expect(mockNavigationFocusService.getSkipLinkHref).toHaveBeenCalled();
+        expect(testFixture.componentInstance.skipLinkHref).toBe('/test-link');
+      } finally {
+        vi.useRealTimers();
+      }
     });
 
     it('should initialize skipLinkHidden to true', () => {
@@ -128,18 +139,26 @@ describe('NavbarComponent', () => {
   });
 
   describe('OnPush change detection', () => {
-    it('should mark the view for check after the skipLinkHref timeout fires', async () => {
+    it('should mark the view for check after the skipLinkHref timeout fires', () => {
       // Regression: skipLinkHref is set inside a setTimeout(100). With
       // ChangeDetectionStrategy.OnPush the bound href would not reach the
-      // template without markForCheck.
-      const markForCheckSpy = vi.spyOn(component['cdr'], 'markForCheck');
-      markForCheckSpy.mockClear();
+      // template without markForCheck. The timer is driven by a fake
+      // setTimeout clock so the test never races the wall clock.
+      vi.useFakeTimers({ toFake: ['setTimeout', 'clearTimeout'] });
+      try {
+        const testFixture = TestBed.createComponent(NavbarComponent);
+        const testComponent = testFixture.componentInstance;
+        const markForCheckSpy = vi.spyOn(testComponent['cdr'], 'markForCheck');
+        markForCheckSpy.mockClear();
 
-      fixture.detectChanges();
-      await new Promise(resolve => setTimeout(resolve, 150));
+        testFixture.detectChanges();
+        vi.advanceTimersByTime(150);
 
-      expect(component.skipLinkHref).toBe('/test-link');
-      expect(markForCheckSpy).toHaveBeenCalled();
+        expect(testComponent.skipLinkHref).toBe('/test-link');
+        expect(markForCheckSpy).toHaveBeenCalled();
+      } finally {
+        vi.useRealTimers();
+      }
     });
 
     it('should mark the view for check when auth state arrives (no click needed)', () => {
