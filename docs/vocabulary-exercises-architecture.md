@@ -1,7 +1,7 @@
 # Vocabulary Exercises Page — Architecture Design
 
 Date: 2026-08-22
-Scope: `src/app/pages/vocabulary-exercises/` — the `/vocabulary` route, an Angular 21 standalone feature page.
+Scope: `src/app/pages/vocabulary-exercises/` — the `/vocabulary` route, an Angular 22 standalone feature page.
 
 This document describes the **as-built** architecture of the vocabulary exercises page after the `feat/voc-refactor` decomposition. It is the design reference for the page's container/store/screen/dialog structure, the filter pipeline, the rating lifecycle, keyboard handling, and the data models that cross those boundaries — including the **Worksheet** exercise's generation and print-rendering flow (§15), which merges and supersedes the former `vocabulary-print.md` with corrected terminology (the feature is *worksheet* throughout; *print* is reserved for the genuine browser-print mechanics). For the line-by-line review findings and their fix status, see [`vocabulary-page-review.md`](./vocabulary-page-review.md); for the data-model field reference, see [`data-models.md`](./data-models.md).
 

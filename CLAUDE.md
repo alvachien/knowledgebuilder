@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-**alvachien.com** is an Angular 21 AI-powered learning platform for English, Chinese, and Knowledge Bank exercises. Built with Angular CLI 21.1.2. The app is fully standalone (no NgModules for feature code) and uses `@jsverse/transloco` for i18n (English + Chinese).
+**alvachien.com** is an Angular 22 AI-powered learning platform for English, Chinese, and Knowledge Bank exercises. Built with Angular CLI 22.1.6 (TypeScript ~6.0). The app is fully standalone (no NgModules for feature code) and uses `@jsverse/transloco` for i18n (English + Chinese).
 
 ## Development Commands
 

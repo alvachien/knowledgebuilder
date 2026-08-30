@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, ChangeDetectionStrategy } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { RouterOutlet } from '@angular/router';
 import { RouterTestingModule } from '@angular/router/testing';
@@ -9,6 +9,7 @@ import { NavigationFocusService } from './shared/navigation-focus/navigation-foc
 @Component({
   selector: 'app-navbar',
   template: '<div>Mock Navbar</div>',
+  changeDetection: ChangeDetectionStrategy.Eager,
   standalone: true,
 })
 class MockNavbarComponent {}

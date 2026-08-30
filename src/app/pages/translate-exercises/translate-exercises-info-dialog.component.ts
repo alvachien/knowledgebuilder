@@ -1,4 +1,4 @@
-import { Component, Inject, inject } from '@angular/core';
+import { Component, Inject, inject, ChangeDetectionStrategy } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import {
   MAT_DIALOG_DATA,
@@ -14,6 +14,7 @@ import { MarkdownContentComponent } from '../../shared/markdown-content';
 @Component({
   selector: 'app-translate-exercises-info-dlg',
   templateUrl: './translate-exercises-info-dialog.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [
     MatButtonModule,
     MatDialogTitle,

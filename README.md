@@ -2,7 +2,7 @@
 
 An AI-powered web-based Learning app for English, Chinese, and Knowledge Bank.
 
-Built with Angular 21 (standalone components, Signals, Angular Material, Tailwind CSS, Transloco i18n en/zh-CN). This project was generated with [Angular CLI](https://github.com/angular/angular-cli) version 21.1.2.
+Built with Angular 22 (standalone components, Signals, Angular Material, Tailwind CSS, Transloco i18n en/zh-CN). This project was originally generated with [Angular CLI](https://github.com/angular/angular-cli) version 21.1.2.
 
 ### Prerequisites
 

@@ -1,4 +1,4 @@
-import { Component, Inject, inject, model } from '@angular/core';
+import { Component, Inject, inject, model, ChangeDetectionStrategy } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCheckboxModule } from '@angular/material/checkbox';
@@ -20,6 +20,7 @@ import { TranslateDirectionEnum } from '../../interfaces';
 @Component({
   selector: 'app-translate-exercises-options-dlg',
   templateUrl: './translate-exercises-options-dialog.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [
     MatFormFieldModule,
     MatInputModule,
@@ -49,7 +50,9 @@ export class TranslateExercisesOptionsDialogComponent {
       ? this.data.reciteQueuesCount
       : (this.data.currentSettings?.countOfItems ?? 20)
   );
-  readonly direction = model(this.data.currentSettings?.direction ?? TranslateDirectionEnum.EnglishToChinese);
+  readonly direction = model(
+    this.data.currentSettings?.direction ?? TranslateDirectionEnum.EnglishToChinese
+  );
 
   constructor(
     @Inject(MAT_DIALOG_DATA)

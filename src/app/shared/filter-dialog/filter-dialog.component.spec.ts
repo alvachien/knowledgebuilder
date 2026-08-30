@@ -1,4 +1,4 @@
-import { provideHttpClient } from '@angular/common/http';
+import { provideHttpClient, withXhr } from '@angular/common/http';
 import { provideHttpClientTesting } from '@angular/common/http/testing';
 import type { ComponentFixture } from '@angular/core/testing';
 import { TestBed } from '@angular/core/testing';
@@ -13,7 +13,6 @@ import { FilterJoinType, FilterOperation } from 'actslib';
 import type { EnumLike, IFilterCondition, IFilterDefinition } from 'actslib';
 import { of } from 'rxjs';
 import { vi } from 'vitest';
-
 
 import type { FilterDialogData, FilterableProperty } from './filter-dialog-model';
 import { SharedFilterDialogComponent } from './filter-dialog.component';
@@ -38,19 +37,34 @@ const COLOR_VALUES: EnumLike = { red: 'red', blue: 'blue' };
 const IS_PHRASE = {
   id: 'isPhrase',
   labelKey: 'test.opIsPhrase',
-  emit: (property: string): IFilterCondition => ({ property, operation: FilterOperation.Contains, lowValue: ' ' }),
-  recognize: (c: IFilterCondition): boolean => c.operation === FilterOperation.Contains && c.lowValue === ' ',
+  emit: (property: string): IFilterCondition => ({
+    property,
+    operation: FilterOperation.Contains,
+    lowValue: ' ',
+  }),
+  recognize: (c: IFilterCondition): boolean =>
+    c.operation === FilterOperation.Contains && c.lowValue === ' ',
 };
 
 const SCHEMA: FilterableProperty[] = [
-  { key: 'enword', labelKey: 'test.word', kind: 'string', customOperators: [IS_PHRASE],
-    prepareValue: v => String(v).trim().toLowerCase() },
+  {
+    key: 'enword',
+    labelKey: 'test.word',
+    kind: 'string',
+    customOperators: [IS_PHRASE],
+    prepareValue: v => String(v).trim().toLowerCase(),
+  },
   { key: 'rating', labelKey: 'test.rating', kind: 'number' },
-  { key: 'color', labelKey: 'test.color', kind: 'enum', enumValues: COLOR_VALUES,
+  {
+    key: 'color',
+    labelKey: 'test.color',
+    kind: 'enum',
+    enumValues: COLOR_VALUES,
     choices: [
       { value: 'red', labelKey: 'test.red' },
       { value: 'blue', labelKey: 'test.blue' },
-    ] },
+    ],
+  },
 ];
 
 describe('SharedFilterDialogComponent', () => {
@@ -67,7 +81,7 @@ describe('SharedFilterDialogComponent', () => {
         { provide: TranslocoService, useValue: mockTranslocoService() },
         { provide: TRANSLOCO_TRANSPILER, useValue: {} },
         { provide: TRANSLOCO_MISSING_HANDLER, useValue: {} },
-        provideHttpClient(),
+        provideHttpClient(withXhr()),
         provideHttpClientTesting(),
       ],
     }).compileComponents();
@@ -78,9 +92,13 @@ describe('SharedFilterDialogComponent', () => {
   const rootNode = () => component().root();
   const rows = () => fixture.nativeElement.querySelectorAll('.fdlg-node-row');
   const toolbarButtons = () =>
-    fixture.nativeElement.querySelectorAll('.fdlg-tree-toolbar button') as NodeListOf<HTMLButtonElement>;
+    fixture.nativeElement.querySelectorAll(
+      '.fdlg-tree-toolbar button'
+    ) as NodeListOf<HTMLButtonElement>;
   const actionButtons = () =>
-    fixture.nativeElement.querySelectorAll('mat-dialog-actions button') as NodeListOf<HTMLButtonElement>;
+    fixture.nativeElement.querySelectorAll(
+      'mat-dialog-actions button'
+    ) as NodeListOf<HTMLButtonElement>;
 
   const seedDef: IFilterDefinition = {
     join: FilterJoinType.AND,
@@ -102,8 +120,8 @@ describe('SharedFilterDialogComponent', () => {
     expect(select, `select ${cssClass}`).toBeTruthy();
     select.click();
     fixture.detectChanges();
-    const option = Array.from(document.querySelectorAll<HTMLElement>('mat-option')).find(
-      o => o.textContent?.includes(optionText)
+    const option = Array.from(document.querySelectorAll<HTMLElement>('mat-option')).find(o =>
+      o.textContent?.includes(optionText)
     );
     expect(option, `mat-option containing ${optionText}`).toBeDefined();
     option?.click();
@@ -214,7 +232,12 @@ describe('SharedFilterDialogComponent', () => {
         root: {
           join: FilterJoinType.AND,
           conditions: [
-            { property: 'color', operation: FilterOperation.Equal, lowValue: 'red', enumValues: COLOR_VALUES },
+            {
+              property: 'color',
+              operation: FilterOperation.Equal,
+              lowValue: 'red',
+              enumValues: COLOR_VALUES,
+            },
             { property: 'rating', operation: FilterOperation.Equal, lowValue: 4 },
           ],
         },
@@ -224,9 +247,11 @@ describe('SharedFilterDialogComponent', () => {
       firstRow[1].click(); // the enum leaf
       fixture.detectChanges();
 
-      const checkboxes: NodeListOf<HTMLInputElement> = fixture.nativeElement.querySelectorAll('.fdlg-choices input[type=checkbox]');
+      const checkboxes: NodeListOf<HTMLInputElement> = fixture.nativeElement.querySelectorAll(
+        '.fdlg-choices input[type=checkbox]'
+      );
       expect(checkboxes.length).toBe(2);
-      expect((checkboxes[0]).checked).toBe(true); // 'red' seeded
+      expect(checkboxes[0].checked).toBe(true); // 'red' seeded
 
       // Check 'blue' too — the leaf now holds a two-value selection.
       checkboxes[1].click();
@@ -238,7 +263,10 @@ describe('SharedFilterDialogComponent', () => {
       const arg = closeSpy.mock.calls[0][0] as { root: IFilterDefinition };
       const group = arg.root.conditions[0] as IFilterDefinition;
       expect(group.join).toBe(FilterJoinType.OR);
-      expect((group.conditions as IFilterCondition[]).map(c => c.lowValue)).toEqual(['red', 'blue']);
+      expect((group.conditions as IFilterCondition[]).map(c => c.lowValue)).toEqual([
+        'red',
+        'blue',
+      ]);
       expect((group.conditions as IFilterCondition[])[0].enumValues).toBe(COLOR_VALUES);
     });
 
@@ -286,13 +314,18 @@ describe('SharedFilterDialogComponent', () => {
       const input: HTMLInputElement = fixture.nativeElement.querySelector('.fdlg-text input');
       typeInto(input, '   ');
       expect(submit.disabled).toBe(true);
-      expect(fixture.nativeElement.querySelector('.fdlg-error').textContent).toContain('common.filterNeedsValue');
+      expect(fixture.nativeElement.querySelector('.fdlg-error').textContent).toContain(
+        'common.filterNeedsValue'
+      );
     });
 
     it('an empty nested group is flagged and blocks submit; the root is exempt', async () => {
       await createWith({
         properties: SCHEMA,
-        root: { join: FilterJoinType.AND, conditions: [{ property: 'rating', operation: FilterOperation.Equal, lowValue: 2 }] },
+        root: {
+          join: FilterJoinType.AND,
+          conditions: [{ property: 'rating', operation: FilterOperation.Equal, lowValue: 2 }],
+        },
       });
       fixture.detectChanges();
 

@@ -1,6 +1,13 @@
 const tseslint = require('typescript-eslint');
 const angular = require('@angular-eslint/eslint-plugin');
 const angularTemplate = require('@angular-eslint/eslint-plugin-template');
+// angular-eslint v22: the individual plugins no longer ship `configs`; the
+// premade recommended configs live in the umbrella `angular-eslint` package.
+const { configs: ngConfigs } = require('angular-eslint');
+const templateRecommendedRules = Object.assign(
+  {},
+  ...ngConfigs.templateRecommended.map((config) => config.rules ?? {})
+);
 
 module.exports = tseslint.config(
   {
@@ -109,7 +116,7 @@ module.exports = tseslint.config(
       '@angular-eslint/template': angularTemplate
     },
     rules: {
-      ...angularTemplate.configs.recommended.rules
+      ...templateRecommendedRules
     }
   }
 );

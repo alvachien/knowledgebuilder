@@ -1,6 +1,6 @@
-import type { AfterViewInit, ElementRef} from '@angular/core';
-import { Component, Input, input, ViewChild } from '@angular/core';
-import type { FormGroup} from '@angular/forms';
+import type { AfterViewInit, ElementRef } from '@angular/core';
+import { Component, Input, input, ViewChild, ChangeDetectionStrategy } from '@angular/core';
+import type { FormGroup } from '@angular/forms';
 import { ReactiveFormsModule } from '@angular/forms';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -10,21 +10,30 @@ import { MatSelectModule } from '@angular/material/select';
 import { TranslocoModule } from '@jsverse/transloco';
 
 import type { QuestionBankTypeKeys, ValidOptionKeys } from '../../interfaces';
-import { getQuestionBankLevelName, QuestionBankTypeEnum, VALID_OPTION_KEYS } from '../../interfaces';
+import {
+  getQuestionBankLevelName,
+  QuestionBankTypeEnum,
+  VALID_OPTION_KEYS,
+} from '../../interfaces';
 import type {
-  QuestionBankItemBase, QuestionBankItemCloze, QuestionBankItemDictation, QuestionBankItemEssay, QuestionBankItemFillInTheBlank,
-  QuestionBankItemFillInTheBlankParagraph, QuestionBankItemListeningComprehension, QuestionBankItemMultipleChoice, QuestionBankItemReadingComprehension, 
-  QuestionBankItemShortAnswer, QuestionBankItemSingleChoice,
-  QuestionBankItemTrueFalse
+  QuestionBankItemBase,
+  QuestionBankItemCloze,
+  QuestionBankItemDictation,
+  QuestionBankItemEssay,
+  QuestionBankItemFillInTheBlank,
+  QuestionBankItemFillInTheBlankParagraph,
+  QuestionBankItemListeningComprehension,
+  QuestionBankItemMultipleChoice,
+  QuestionBankItemReadingComprehension,
+  QuestionBankItemShortAnswer,
+  QuestionBankItemSingleChoice,
+  QuestionBankItemTrueFalse,
 } from '../../interfaces/questionbank-base';
 
 import 'katex/contrib/auto-render';
 
 // 为TypeScript声明renderMathInElement函数
-declare function renderMathInElement(
-  element: HTMLElement,
-  options?: any
-): void;
+declare function renderMathInElement(element: HTMLElement, options?: any): void;
 
 @Component({
   selector: 'app-knowledge-exercise-item',
@@ -39,6 +48,7 @@ declare function renderMathInElement(
     TranslocoModule,
   ],
   templateUrl: './knowledge-exercise-item.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './knowledge-exercise-item.component.scss',
 })
 export class KnowledgeExerciseItemComponent implements AfterViewInit {
@@ -100,8 +110,9 @@ export class KnowledgeExerciseItemComponent implements AfterViewInit {
         const scitem = this._question as QuestionBankItemSingleChoice;
         this.questionString = scitem.question;
         this.refToID = scitem.referToID;
-        (Object.keys(VALID_OPTION_KEYS) as ValidOptionKeys[]).forEach((key) => {
-          if (scitem.options && scitem.options[key] !== undefined) { // Check option exists
+        (Object.keys(VALID_OPTION_KEYS) as ValidOptionKeys[]).forEach(key => {
+          if (scitem.options && scitem.options[key] !== undefined) {
+            // Check option exists
             this.options.push({ key: key.toString(), value: scitem.options[key] });
           }
         });
@@ -112,8 +123,9 @@ export class KnowledgeExerciseItemComponent implements AfterViewInit {
         const scitem = this._question as QuestionBankItemMultipleChoice;
         this.refToID = scitem.referToID;
         this.questionString = scitem.question;
-        (Object.keys(VALID_OPTION_KEYS) as ValidOptionKeys[]).forEach((key) => {
-          if (scitem.options && scitem.options[key] !== undefined) { // Check option exists
+        (Object.keys(VALID_OPTION_KEYS) as ValidOptionKeys[]).forEach(key => {
+          if (scitem.options && scitem.options[key] !== undefined) {
+            // Check option exists
             this.options.push({ key: key.toString(), value: scitem.options[key] });
           }
         });
@@ -126,7 +138,7 @@ export class KnowledgeExerciseItemComponent implements AfterViewInit {
         this.paragraphes = [];
         this.paragraphes = dictitem.paragraphes;
         this._questionLevelName = getQuestionBankLevelName(dictitem.questionLevel);
-        this._dictationCountOfInputs = dictitem.countOfInputs;        
+        this._dictationCountOfInputs = dictitem.countOfInputs;
         break;
       }
 
@@ -140,27 +152,27 @@ export class KnowledgeExerciseItemComponent implements AfterViewInit {
 
       case QuestionBankTypeEnum.ReadingComprehension: {
         const scitem = this._question as QuestionBankItemReadingComprehension;
-        this.questionLines = scitem.question.split('\n');        
+        this.questionLines = scitem.question.split('\n');
         break;
       }
 
       case QuestionBankTypeEnum.Cloze: {
         const scitem = this._question as QuestionBankItemCloze;
         this.questionLines = scitem.question.split('\n');
-        break; 
+        break;
       }
 
       case QuestionBankTypeEnum.ListeningComprehension: {
         const scitem = this._question as QuestionBankItemListeningComprehension;
         this.questionLines = scitem.question.split('\n');
-        break; 
+        break;
       }
 
       case QuestionBankTypeEnum.TrueFalse: {
         const scitem = this._question as QuestionBankItemTrueFalse;
         this.questionString = scitem.question;
         this.refToID = scitem.referToID;
-        break; 
+        break;
       }
 
       case QuestionBankTypeEnum.Essay: {
@@ -172,17 +184,21 @@ export class KnowledgeExerciseItemComponent implements AfterViewInit {
       }
 
       default: {
-        break; 
+        break;
       }
     }
   }
-  get question(): QuestionBankItemBase<string> | undefined { return this._question; }
+  get question(): QuestionBankItemBase<string> | undefined {
+    return this._question;
+  }
 
   @Input() hideLabels: QuestionBankTypeKeys[] = [];
   @Input() isSubItem: boolean = false;
 
   isLabelOfQuestionTypeHidden(): boolean {
-    return !(this.hideLabels && this.hideLabels.includes(this._question?.itemType as QuestionBankTypeKeys));
+    return !(
+      this.hideLabels && this.hideLabels.includes(this._question?.itemType as QuestionBankTypeKeys)
+    );
   }
 
   getFormControlName(optkey: any) {
@@ -202,9 +218,9 @@ export class KnowledgeExerciseItemComponent implements AfterViewInit {
         { left: '$$', right: '$$', display: true },
         { left: '$', right: '$', display: false },
         { left: '\\(', right: '\\)', display: false },
-        { left: '\\[', right: '\\]', display: true }
+        { left: '\\[', right: '\\]', display: true },
       ],
-      throwOnError: false
+      throwOnError: false,
     });
   }
 }

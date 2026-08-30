@@ -1,5 +1,5 @@
 import { provideLocationMocks } from '@angular/common/testing';
-import { Component, NgZone } from '@angular/core';
+import { Component, NgZone, ChangeDetectionStrategy } from '@angular/core';
 import type { ComponentFixture } from '@angular/core/testing';
 import { TestBed } from '@angular/core/testing';
 import { Router } from '@angular/router';
@@ -136,6 +136,7 @@ describe('Navigation focus service', () => {
     <button class="no-id" appFocusOnNavigation>Target 3</button>
   `,
   standalone: true,
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [NavigationFocusDirective],
 })
 class NavigationFocusTestComponent {}
@@ -143,6 +144,7 @@ class NavigationFocusTestComponent {}
 @Component({
   selector: 'app-route-test',
   template: '',
+  changeDetection: ChangeDetectionStrategy.Eager,
   standalone: true,
 })
 class RouteTestComponent {}

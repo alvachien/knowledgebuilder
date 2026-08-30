@@ -1,5 +1,12 @@
 import type { AfterViewInit, ElementRef, OnInit } from '@angular/core';
-import { Component, Input, ViewChild, ViewEncapsulation, inject } from '@angular/core';
+import {
+  Component,
+  Input,
+  ViewChild,
+  ViewEncapsulation,
+  inject,
+  ChangeDetectionStrategy,
+} from '@angular/core';
 
 import { replaceAtSymbols } from '../../interfaces';
 import { KatexService } from '../../services/katex.service';
@@ -9,6 +16,7 @@ import { KatexService } from '../../services/katex.service';
   templateUrl: 'mathitem.html',
   styleUrls: ['mathitem.scss'],
   encapsulation: ViewEncapsulation.None,
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [],
 })
 export class MathItemComponent implements OnInit, AfterViewInit {

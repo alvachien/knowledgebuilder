@@ -1,4 +1,4 @@
-import { provideHttpClient } from '@angular/common/http';
+import { provideHttpClient, withXhr } from '@angular/common/http';
 import { provideHttpClientTesting, HttpTestingController } from '@angular/common/http/testing';
 import { NgZone } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
@@ -82,7 +82,7 @@ describe('AudioService Extended Tests', () => {
         { provide: NgZone, useValue: new NgZone({ enableLongStackTrace: false }) },
         { provide: HOWL_FACTORY, useValue: mockHowlFactory },
         { provide: HOWLER_GLOBAL, useValue: mockHowlerGlobal },
-        provideHttpClient(),
+        provideHttpClient(withXhr()),
         provideHttpClientTesting(),
       ],
     });

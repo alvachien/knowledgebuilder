@@ -1,5 +1,5 @@
 import { MediaMatcher } from '@angular/cdk/layout';
-import { ChangeDetectorRef, inject } from '@angular/core';
+import { ChangeDetectorRef, inject, ChangeDetectionStrategy } from '@angular/core';
 import { Component, ViewEncapsulation } from '@angular/core';
 import { RouterOutlet, RouterModule } from '@angular/router';
 
@@ -10,6 +10,7 @@ import { NavbarComponent } from './shared/navbar/navbar';
   imports: [RouterOutlet, RouterModule, NavbarComponent],
   encapsulation: ViewEncapsulation.None,
   templateUrl: './app.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './app.component.scss',
 })
 export class AppComponent {

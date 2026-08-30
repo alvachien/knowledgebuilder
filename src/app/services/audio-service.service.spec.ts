@@ -1,4 +1,4 @@
-import { provideHttpClient } from '@angular/common/http';
+import { provideHttpClient, withXhr } from '@angular/common/http';
 import { provideHttpClientTesting } from '@angular/common/http/testing';
 import { NgZone } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
@@ -127,7 +127,7 @@ describe('AudioService', () => {
       providers: [
         AudioService,
         { provide: NgZone, useValue: new NgZone({}) },
-        provideHttpClient(),
+        provideHttpClient(withXhr()),
         provideHttpClientTesting(),
       ],
     });
@@ -239,7 +239,8 @@ describe('AudioService', () => {
 
     beforeEach(() => {
       originalSpeechSynthesis = window.speechSynthesis;
-      originalCtor = (window as unknown as { SpeechSynthesisUtterance?: unknown }).SpeechSynthesisUtterance;
+      originalCtor = (window as unknown as { SpeechSynthesisUtterance?: unknown })
+        .SpeechSynthesisUtterance;
       voicesChangedHandler = null;
       getVoicesMock = vi.fn(() => []);
       speakMock = vi.fn();
@@ -283,7 +284,8 @@ describe('AudioService', () => {
         configurable: true,
         value: originalSpeechSynthesis,
       });
-      (window as unknown as { SpeechSynthesisUtterance: unknown }).SpeechSynthesisUtterance = originalCtor;
+      (window as unknown as { SpeechSynthesisUtterance: unknown }).SpeechSynthesisUtterance =
+        originalCtor;
     });
 
     it('should not throw and should not speak when speechSynthesis is unavailable', () => {
@@ -346,7 +348,7 @@ describe('AudioService', () => {
       const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
       service.speakWord('hello');
       const utterance = speakMock.mock.calls[0][0] as SpeechSynthesisUtterance;
-      const makeEvent = (error: string) => ({ error } as unknown as SpeechSynthesisErrorEvent);
+      const makeEvent = (error: string) => ({ error }) as unknown as SpeechSynthesisErrorEvent;
       utterance.onerror!(makeEvent('interrupted'));
       utterance.onerror!(makeEvent('canceled'));
       expect(warnSpy).not.toHaveBeenCalled();
