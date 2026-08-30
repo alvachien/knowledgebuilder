@@ -13,21 +13,7 @@
   justify-content: center;
 }
 
-.toolbar-spacer {
-  flex: 1 1 auto;
-}
-
-.control-full-width {
+.result-content {
   width: 100%;
-}
-
-.example-button-container {
-  display: flex;
-  justify-content: center;
-  width: 60px;
-}
-
-.page-toolbar-item {
-  margin-top: 4px;
-  padding-top: 4px;
+  margin: 24px;
 }

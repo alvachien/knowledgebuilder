@@ -4,8 +4,8 @@
     <mat-form-field class="control-full-width">
       <mat-label>{{ t('direction') }}</mat-label>
       <mat-select matNativeControl [(value)]="direction">
-        @for (lvl of data.allDirections; track lvl.value ) {
-          <mat-option [value]="lvl.value">{{data.getDirectionName(lvl.value)}}</mat-option>
+        @for (lvl of allDirections; track lvl.value ) {
+          <mat-option [value]="lvl.value">{{getDirectionName(lvl.value)}}</mat-option>
         }
       </mat-select>
     </mat-form-field>
@@ -14,9 +14,6 @@
       <input matInput type="number" [(ngModel)]="countOfItems" [disabled]="data.withSelection" />
       <span matSuffix>{{data.reciteQueuesCount}}</span>
     </mat-form-field>
-    <div class="control-full-width">
-      <mat-checkbox [(ngModel)]="allowEmptyAnswer">{{ t('translateExercises.allowEmptyAnswer') }}</mat-checkbox>
-    </div>
   </mat-dialog-content>
   <mat-dialog-actions>
     <button mat-button (click)="onNoClick()">{{ t('no') }}</button>

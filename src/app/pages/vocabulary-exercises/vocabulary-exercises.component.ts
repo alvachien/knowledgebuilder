@@ -12,8 +12,11 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import type { MatButtonToggleChange } from '@angular/material/button-toggle';
 import { MatDialog } from '@angular/material/dialog';
 import type { MatSelectChange } from '@angular/material/select';
+import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatTableDataSource } from '@angular/material/table';
 import { Router } from '@angular/router';
+import { TranslocoService } from '@jsverse/transloco';
+import { FisherYatesShuffle, type IFilterDefinition } from 'actslib';
 
 import type {
   LearnEnglishWordFileItem,
@@ -30,30 +33,33 @@ import type {
   KnowledgeExerciseFileContent,
   KnowledgeExercisePrintOption,
   VocabularyListFilter,
-  WordCondition,
-  RatingCondition,
+  VocabularyUploadFailureReason,
 } from '../../interfaces';
 import {
   QuestionBankTypeEnum,
   SelectionModeEnum,
+  VOCABULARY_FILTER_PROPERTIES,
+  VOCABULARY_UPLOAD_MAX_ITEMS,
   buildVocabularyQuizQuestions,
+  emptyVocabularyFilterDefinition,
   isVocabularyListFilterEmpty,
   matchVocabularyListFilter,
+  parseVocabularyUpload,
 } from '../../interfaces';
 import { LearningContentService, LearningRatingService, UIService } from '../../services';
+import type { FilterDialogData, FilterDialogResult } from '../../shared/filter-dialog/filter-dialog-model';
+import { SharedFilterDialogComponent } from '../../shared/filter-dialog/filter-dialog.component';
 import { FooterComponent } from '../../shared/footer/footer';
-import { fisherYatesShuffle } from '../../shared/utils/shuffle';
 import { AppPageTitle } from '../page-title/page-title';
 
+import { VocabularyExercisesDictationResultComponent } from './vocabulary-exercises-dictation-result.component';
+import { VocabularyExercisesDictationSessionComponent } from './vocabulary-exercises-dictation-session.component';
+import { VocabularyDictationSessionStore } from './vocabulary-exercises-dictation-session.store';
+import { VocabularyExercisesDictationOptionsDialogComponent } from './vocabulary-exercises-dictationoptions-dialog.component';
 import { VocabularyExercisesQuizResultComponent } from './vocabulary-exercises-quiz-result.component';
 import { VocabularyExercisesQuizSessionComponent } from './vocabulary-exercises-quiz-session.component';
 import { VocabularyQuizSessionStore } from './vocabulary-exercises-quiz-session.store';
 import { VocabularyExercisesQuizOptionsDialogComponent } from './vocabulary-exercises-quizoptions-dialog.component';
-import { VocabularyExercisesDictationOptionsDialogComponent } from './vocabulary-exercises-dictationoptions-dialog.component';
-import { VocabularyExercisesDictationResultComponent } from './vocabulary-exercises-dictation-result.component';
-import { VocabularyExercisesDictationSessionComponent } from './vocabulary-exercises-dictation-session.component';
-import { VocabularyDictationSessionStore } from './vocabulary-exercises-dictation-session.store';
-import { VocabularyExercisesRatingFilterDialogComponent } from './vocabulary-exercises-rating-filter-dialog.component';
 import { VocabularyExercisesReviewSessionComponent } from './vocabulary-exercises-review-session.component';
 import { VocabularyReviewSessionStore } from './vocabulary-exercises-review-session.store';
 import { VocabularyExercisesReviewOptionsDialogComponent } from './vocabulary-exercises-reviewoptions-dialog.component';
@@ -62,12 +68,18 @@ import { VocabularyExercisesSpellingResultComponent } from './vocabulary-exercis
 import { VocabularyExercisesSpellingSessionComponent } from './vocabulary-exercises-spelling-session.component';
 import { VocabularySpellingSessionStore } from './vocabulary-exercises-spelling-session.store';
 import { VocabularyExercisesSpellingOptionsDialogComponent } from './vocabulary-exercises-spellingoptions-dialog.component';
-import { VocabularyExercisesWordFilterDialogComponent } from './vocabulary-exercises-word-filter-dialog.component';
 import { VocabularyExercisesWordListComponent } from './vocabulary-exercises-word-list.component';
 import { VocabularyExercisesWorksheetOptionsDialogComponent } from './vocabulary-exercises-worksheetoptions-dialog.component';
 
 /** The screens of the vocabulary exercises page, switched via @switch in the template. */
 export type VocabularyExercisesMode = 'list' | 'review' | 'spelling' | 'spellingresult' | 'dictation' | 'dictationresult' | 'quiz' | 'quizresult';
+
+/** i18n key per hard upload failure surfaced by onAddTempFile. */
+const UPLOAD_FAILURE_KEYS: Record<VocabularyUploadFailureReason, string> = {
+  utf16: 'vocabularyExercises.uploadErrUtf16',
+  parse: 'vocabularyExercises.uploadErrParse',
+  'not-array': 'vocabularyExercises.uploadErrNotArray',
+};
 
 @Component({
   selector: 'app-vocabulary-exercises',
@@ -106,11 +118,10 @@ export class VocabularyExercisesComponent implements OnInit {
   // so the new reference reaches the OnPush word-list child as an input.
   contentRatingMap = signal(new Map<number, number>());
   // Filter bar: the container is the single source of truth for the applied
-  // word/rating conditions (it opens the dialogs). freeText is fed back from
-  // the child's live input via freeTextChanged.
+  // condition definition (it opens the shared filter dialog). freeText is fed
+  // back from the child's live input via freeTextChanged.
   freeText = signal('');
-  wordConditions = signal<WordCondition[]>([]);
-  ratingConditions = signal<RatingCondition[]>([]);
+  filterDefinition = signal<IFilterDefinition>(emptyVocabularyFilterDefinition());
   // Parsed form of the active list filter; applyListFilter keeps it in sync
   // with dataSource.filter so the row predicate does not JSON.parse per row.
   // Null means no filter (MatTable skips the predicate for an empty filter).
@@ -120,6 +131,8 @@ export class VocabularyExercisesComponent implements OnInit {
   // Service
   private readonly contentService = inject(LearningContentService);
   readonly dialog = inject(MatDialog);
+  private readonly snackBar = inject(MatSnackBar);
+  private readonly transloco = inject(TranslocoService);
   // Navigation
   readonly router = inject(Router);
   readonly uiService = inject(UIService);
@@ -304,50 +317,35 @@ export class VocabularyExercisesComponent implements OnInit {
     this.applyCurrentFilter();
   }
 
-  onDefineWordFilter(): void {
+  onDefineFilter(): void {
     this.dialog
-      .open(VocabularyExercisesWordFilterDialogComponent, {
-        data: this.wordConditions(),
-        width: '480px',
-        enterAnimationDuration: 800,
-        exitAnimationDuration: 500,
-      })
+      .open<SharedFilterDialogComponent, FilterDialogData, FilterDialogResult | undefined>(
+        SharedFilterDialogComponent,
+        {
+          data: {
+            properties: VOCABULARY_FILTER_PROPERTIES,
+            root: this.filterDefinition(),
+          },
+          // Tree navigator + detail pane sit side by side; the splitter can
+          // resize them but needs the extra width to start from.
+          width: '880px',
+          enterAnimationDuration: 800,
+          exitAnimationDuration: 500,
+        }
+      )
       .afterClosed()
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe(result => {
         // undefined (Cancel / backdrop / Esc) leaves the previous filter untouched.
         if (result !== undefined) {
-          this.wordConditions.set(result);
+          this.filterDefinition.set(result.root);
           this.applyCurrentFilter();
         }
       });
   }
 
-  onClearWordFilter(): void {
-    this.wordConditions.set([]);
-    this.applyCurrentFilter();
-  }
-
-  onDefineRatingFilter(): void {
-    this.dialog
-      .open(VocabularyExercisesRatingFilterDialogComponent, {
-        data: this.ratingConditions(),
-        width: '480px',
-        enterAnimationDuration: 800,
-        exitAnimationDuration: 500,
-      })
-      .afterClosed()
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe(result => {
-        if (result !== undefined) {
-          this.ratingConditions.set(result);
-          this.applyCurrentFilter();
-        }
-      });
-  }
-
-  onClearRatingFilter(): void {
-    this.ratingConditions.set([]);
+  onClearFilter(): void {
+    this.filterDefinition.set(emptyVocabularyFilterDefinition());
     this.applyCurrentFilter();
   }
 
@@ -378,8 +376,7 @@ export class VocabularyExercisesComponent implements OnInit {
   private applyCurrentFilter(): void {
     this.applyListFilter({
       freeText: this.freeText(),
-      wordConditions: this.wordConditions(),
-      ratingConditions: this.ratingConditions(),
+      root: this.filterDefinition(),
     });
   }
 
@@ -560,91 +557,87 @@ export class VocabularyExercisesComponent implements OnInit {
         if (this.isDestroyed) {
           return;
         }
-        try {
-          const fileContent = e.target!.result as string;
-          const parsed: unknown = JSON.parse(fileContent);
-
-          // Validate schema: must be an array of objects with string enword/cnword
-          if (!Array.isArray(parsed)) {
-            console.error('Invalid file format: expected a JSON array.');
-            return;
-          }
-
-          const arwords: LearnEnglishWordFileItem[] = [];
-          const MAX_ITEMS = 10000;
-          const MAX_WORD_LENGTH = 500;
-
-          for (const item of parsed) {
-            if (typeof item !== 'object' || item === null) {
-              console.error('Invalid file format: array items must be objects.');
-              return;
-            }
-            const obj = item as Record<string, unknown>;
-            if (typeof obj['enword'] !== 'string' || typeof obj['cnword'] !== 'string') {
-              console.error('Invalid file format: each item must have string "enword" and "cnword" properties.');
-              return;
-            }
-            // Same contract as LearningContentService's word files: words
-            // longer than one character (see docs/data-models.md).
-            if (obj['enword'].length <= 1) {
-              console.error('Invalid word length: "enword" must be longer than one character.');
-              return;
-            }
-            if (obj['enword'].length > MAX_WORD_LENGTH || obj['cnword'].length > MAX_WORD_LENGTH) {
-              console.error(`Invalid word length (max ${MAX_WORD_LENGTH} characters).`);
-              return;
-            }
-            arwords.push({ enword: obj['enword'], cnword: obj['cnword'] });
-            if (arwords.length >= MAX_ITEMS) {
-              break;
-            }
-          }
-
-          if (arwords.length === 0) {
-            console.error('No valid vocabulary items found in file.');
-            return;
-          }
-
-          // Generate a unique temp file URL
-          const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
-          const tempFileUrl = `temp-${timestamp}.json`;
-
-          // Create a synthetic LearningContent entry for the temp file
-          const tempContent: LearningContent = {
-            id: -(Date.now()),
-            categoryId: 1,
-            nameEnglish: tempFileUrl,
-            nameChinese: '临时文件',
-            fileUrl: tempFileUrl,
-          };
-
-          // Register content in the learning content service cache
-          this.contentService.addTemporaryContent(tempFileUrl, arwords);
-
-          // Reset cross-file state, mirroring onFileSelectionChanged: stale
-          // selections from the previous file would otherwise override the
-          // freshly loaded rows in review/spelling/worksheet prep. The negative temp
-          // id keeps every `studyContentId > 0` rating guard inactive. The
-          // token bump also invalidates any in-flight load of the previous
-          // file, whose late response would otherwise overwrite these rows.
-          this.selection.clear();
-          this.studyContentId = tempContent.id;
-          this.fileLoadToken++;
-          this.contentRatingMap.set(new Map());
-          this.pendingContentRatings.clear();
-
-          // Add to file list and select it.
-          this.allFiles.update(files => [...files, tempContent]);
-          this.selectedFile.set(tempContent);
-
-          // Update data source
-          this.dataSource.data = arwords.slice();
-        } catch (error) {
-          console.error('Error parsing JSON file:', error);
-        }
+        this.importUploadedWords((e.target?.result ?? '') as string);
       };
+      reader.onerror = () => this.onUploadReadProblem();
+      reader.onabort = () => this.onUploadReadProblem();
 
       reader.readAsText(selectedFile);
+    }
+  }
+
+  /** Reader failed/aborted; like onload, useless after navigation (L5). */
+  private onUploadReadProblem(): void {
+    if (this.isDestroyed) {
+      return;
+    }
+    this.notifyUpload(this.transloco.translate('vocabularyExercises.uploadErrRead'));
+  }
+
+  private notifyUpload(message: string): void {
+    this.snackBar.open(message, this.transloco.translate('close'), { duration: 5000 });
+  }
+
+  private importUploadedWords(fileContent: string): void {
+    const result = parseVocabularyUpload(fileContent);
+    if (!result.ok) {
+      this.notifyUpload(this.transloco.translate(UPLOAD_FAILURE_KEYS[result.reason]));
+      return;
+    }
+    if (result.items.length === 0) {
+      this.notifyUpload(this.transloco.translate('vocabularyExercises.uploadErrEmpty'));
+      return;
+    }
+
+    // Generate a unique temp file URL
+    const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
+    const tempFileUrl = `temp-${timestamp}.json`;
+
+    // Create a synthetic LearningContent entry for the temp file
+    const tempContent: LearningContent = {
+      id: -(Date.now()),
+      categoryId: 1,
+      nameEnglish: tempFileUrl,
+      nameChinese: '临时文件',
+      fileUrl: tempFileUrl,
+    };
+
+    // Register content in the learning content service cache
+    this.contentService.addTemporaryContent(tempFileUrl, result.items);
+
+    // Reset cross-file state, mirroring onFileSelectionChanged: stale
+    // selections from the previous file would otherwise override the
+    // freshly loaded rows in review/spelling/worksheet prep. The negative temp
+    // id keeps every `studyContentId > 0` rating guard inactive. The
+    // token bump also invalidates any in-flight load of the previous
+    // file, whose late response would otherwise overwrite these rows.
+    this.selection.clear();
+    this.studyContentId = tempContent.id;
+    this.fileLoadToken++;
+    this.contentRatingMap.set(new Map());
+    this.pendingContentRatings.clear();
+
+    // Add to file list and select it.
+    this.allFiles.update(files => [...files, tempContent]);
+    this.selectedFile.set(tempContent);
+
+    // Update data source
+    this.dataSource.data = result.items.slice();
+
+    // Partial-import warnings, shown after the imported rows are visible.
+    const warnings: string[] = [];
+    if (result.skippedCount > 0) {
+      warnings.push(
+        this.transloco.translate('vocabularyExercises.uploadWarnSkipped', { count: result.skippedCount })
+      );
+    }
+    if (result.truncated) {
+      warnings.push(
+        this.transloco.translate('vocabularyExercises.uploadWarnTruncated', { max: VOCABULARY_UPLOAD_MAX_ITEMS })
+      );
+    }
+    if (warnings.length > 0) {
+      this.notifyUpload(warnings.join(' '));
     }
   }
 
@@ -727,7 +720,7 @@ export class VocabularyExercisesComponent implements OnInit {
     let queues = items;
     if (queues.length > options.countOfItems) {
       // Randomize the array, then keep only the first `countOfItems` items
-      queues = fisherYatesShuffle(queues);
+      queues = FisherYatesShuffle(queues);
       queues = queues.slice(0, options.countOfItems);
     }
 
@@ -741,7 +734,7 @@ export class VocabularyExercisesComponent implements OnInit {
     if (this.selection.selected.length > 0) {
       sourceItems = this.selection.selected.slice();
       // Randomize the array
-      sourceItems = fisherYatesShuffle(sourceItems);
+      sourceItems = FisherYatesShuffle(sourceItems);
     } else {
       sourceItems = this.prepareWordQueue(this.getVisibleData(), this.reviewSetting);
     }
@@ -941,7 +934,7 @@ export class VocabularyExercisesComponent implements OnInit {
     if (this.selection.selected.length > 0) {
       sourceItems = this.selection.selected.slice();
       // Randomize the array
-      sourceItems = fisherYatesShuffle(sourceItems);
+      sourceItems = FisherYatesShuffle(sourceItems);
     } else {
       sourceItems = this.prepareWordQueue(visible, this.quizSetting);
     }
@@ -1006,7 +999,7 @@ export class VocabularyExercisesComponent implements OnInit {
     if (this.selection.selected.length > 0) {
       worksheetqueues = this.coverContentToQueue(this.selection.selected);
       // Randomize the array
-      worksheetqueues = fisherYatesShuffle(worksheetqueues);
+      worksheetqueues = FisherYatesShuffle(worksheetqueues);
     } else {
       worksheetqueues = this.prepareWordQueue(
         this.coverContentToQueue(this.getVisibleData()),
@@ -1130,7 +1123,7 @@ export class VocabularyExercisesComponent implements OnInit {
       case SelectionModeEnum.FreeSelection: {
         const count = option.countOfItems ?? 0;
         if (count > 0) {
-          this.applyCountSelection(fisherYatesShuffle(this.getVisibleData()), 0, count);
+          this.applyCountSelection(FisherYatesShuffle(this.getVisibleData()), 0, count);
         }
         break;
       }

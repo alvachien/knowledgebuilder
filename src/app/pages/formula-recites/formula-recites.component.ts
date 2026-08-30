@@ -42,6 +42,7 @@ import { DomSanitizer } from '@angular/platform-browser';
 import type { SafeHtml } from '@angular/platform-browser';
 import { Router } from '@angular/router';
 import { TranslocoModule, TranslocoService } from '@jsverse/transloco';
+import { FisherYatesShuffle } from 'actslib';
 import { zhCN } from 'date-fns/locale';
 
 import type {
@@ -66,7 +67,6 @@ import {
 } from '../../services';
 import { FooterComponent } from '../../shared/footer/footer';
 import { MathItemComponent } from '../../shared/mathitem';
-import { fisherYatesShuffle } from '../../shared/utils/shuffle';
 import { AppPageTitle } from '../page-title/page-title';
 
 @Component({
@@ -287,13 +287,13 @@ export class FormulaRecitesComponent implements OnInit {
     if (this.selection.selected.length > 0) {
       this.printqueues = this.selection.selected;
       if (this.printSetting.randomOrder) {
-        this.printqueues = fisherYatesShuffle(this.printqueues);
+        this.printqueues = FisherYatesShuffle(this.printqueues);
       }
     } else {
       this.printqueues = this.dataSource.data.slice();
 
       if (this.printSetting.randomOrder) {
-        this.printqueues = fisherYatesShuffle(this.printqueues);
+        this.printqueues = FisherYatesShuffle(this.printqueues);
       }
 
       if (this.printqueues.length > this.printSetting.countOfItems) {

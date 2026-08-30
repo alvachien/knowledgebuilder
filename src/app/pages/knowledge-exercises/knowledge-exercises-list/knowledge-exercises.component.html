@@ -1,0 +1,121 @@
+<main focusOnNavigation aria-label="Knowledge Bank" class="knowledge-exercises-page" *transloco="let t">
+  <div class="knowledge-exercises-page-content">
+    <!-- The list screen stays mounted (toggled via [hidden]) so its
+         paginator page/size and sort survive a detail round-trip; the
+         detail/extra-info screens are rendered on demand. -->
+    @if (mode() === 'detail') {
+        <mat-toolbar class="container">
+          <mat-toolbar-row>
+            <span>
+              <h5>{{ t('knowledge_bank') }} {{ t('knowledgeExercises.detail') }}</h5>
+            </span>
+            <span class="toolbar-spacer"></span>
+            <section style="padding-left: 8px;">
+              <button mat-fab [matTooltip]="t('common.previous')" (click)="onPreviousItem()"
+                [disabled]="(selectedElementIdx ?? -1) <= 0">
+                <mat-icon color="primary">arrow_left</mat-icon>
+              </button>
+              <span>{{selectedElement?.id}}</span>
+              <button mat-fab [matTooltip]="t('common.next')" (click)="onNextItem()"
+                [disabled]="(selectedElementIdx ?? 0) >= visibleRowCount - 1">
+                <mat-icon color="primary">arrow_right</mat-icon>
+              </button>
+            </section>
+            <span class="toolbar-spacer"></span>
+            <section style="padding-left: 8px;">
+              <div class="example-button-container">
+                <button mat-fab extended [matTooltip]="t('toggleAnswer')" (click)="onToggleAnswer()"
+                  [disabled]="!selectedElement?.hasAnswer">
+                  {{ t('toggleAnswer') }}
+                </button>
+                <button mat-fab extended [matTooltip]="t('knowledgeExercises.toggleHintOfAnswer')"
+                  (click)="onToggleHintOfAnswer()" [disabled]="!selectedElement?.hasHintOfAnswer()">
+                  {{ t('knowledgeExercises.toggleHintOfAnswer') }}
+                </button>
+                <button mat-fab [matTooltip]="t('backToList')" (click)="onBackToList()">
+                  <mat-icon>door_back</mat-icon>
+                </button>
+              </div>
+            </section>
+          </mat-toolbar-row>
+        </mat-toolbar>
+        <div class="container knowledge-exercises-detail-view">
+          <app-markdown-content [markdown]="markdownStr" [enableMath]="false" [imageBaseUrl]="currentImageBaseUrl"></app-markdown-content>
+        </div>
+        @if (showDetailAnswer) {
+          <div class="container knowledge-exercises-detail-view">
+            <mat-divider></mat-divider>
+            {{ t('knowledgeExercises.answer') }}:
+            <br />
+            <app-markdown-content [markdown]="answerMarkdownStr" [enableMath]="false" [imageBaseUrl]="currentImageBaseUrl"></app-markdown-content>
+          </div>
+        }
+        @if (showDetailHintOfAnswer) {
+          <div class="container knowledge-exercises-detail-view">
+            <mat-divider></mat-divider>
+            {{ t('hint') }}:
+            <br />
+            <app-markdown-content [markdown]="hintOfAnswerMarkdownStr" [enableMath]="false" [imageBaseUrl]="currentImageBaseUrl"></app-markdown-content>
+          </div>
+        }
+    }
+    @if (mode() === 'extrainfo') {
+        <mat-toolbar class="container">
+          <mat-toolbar-row>
+            <span>
+              <h5>{{ t('knowledge_bank') }} {{ t('common.extraInfo') }}</h5>
+            </span>
+            <span class="toolbar-spacer"></span>
+            <section style="padding-left: 8px;">
+              <button mat-fab [matTooltip]="t('common.previous')" (click)="onPreviousItem()"
+                [disabled]="(selectedElementIdx ?? -1) <= 0">
+                <mat-icon color="primary">arrow_left</mat-icon>
+              </button>
+              <span>{{selectedElement?.id}}</span>
+              <button mat-fab [matTooltip]="t('common.next')" (click)="onNextItem()"
+                [disabled]="(selectedElementIdx ?? 0) >= visibleRowCount - 1">
+                <mat-icon color="primary">arrow_right</mat-icon>
+              </button>
+            </section>
+            <span class="toolbar-spacer"></span>
+            <section style="padding-left: 8px;">
+              <div class="example-button-container">
+                <button mat-fab [matTooltip]="t('backToList')" (click)="onBackToList()">
+                  <mat-icon>door_back</mat-icon>
+                </button>
+              </div>
+            </section>
+          </mat-toolbar-row>
+        </mat-toolbar>
+        <div class="container knowledge-exercises-detail-view">
+          <app-markdown-content [markdown]="getExtraInfoMarkdown()"
+            [enableMath]="false" [imageBaseUrl]="currentImageBaseUrl"></app-markdown-content>
+        </div>
+    }
+    <app-knowledge-exercises-list
+      [hidden]="mode() !== 'list'"
+      [allFiles]="allFiles()"
+      [(selectedFile)]="selectedFile"
+      [isLoadingContents]="isLoadingContents()"
+      [dataSource]="dataSource"
+      [selection]="selection"
+      [contentRatings]="contentRatingMap()"
+      [filterDefinition]="filterDefinition()"
+      [appliedFreeText]="freeText()"
+      (fileSelectionChanged)="onFileSelectionChanged($event)"
+      (freeTextChanged)="onFreeTextChanged($event)"
+      (defineFilter)="onDefineFilter()"
+      (clearFilter)="onClearFilter()"
+      (quickSelect)="onQuickSelect($event)"
+      (selectAllVisible)="onSelectAllVisible()"
+      (clearSelection)="onClearSelection()"
+      (allRowsToggled)="toggleAllRows()"
+      (contentRatingChanged)="onContentRatingChanged($event.item, $event.event)"
+      (showDetail)="onShowDetail($event)"
+      (showExtraInfo)="onShowExtraInfo($event)"
+      (print)="onPreviewWithOptions()">
+    </app-knowledge-exercises-list>
+  </div>
+</main>
+
+<app-footer></app-footer>

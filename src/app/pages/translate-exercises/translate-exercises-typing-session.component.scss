@@ -1,0 +1,28 @@
+:host {
+    display: contents;
+}
+
+.toolbar-spacer {
+    flex: 1 1 auto;
+}
+
+.toolbar-fab-button {
+    margin-right: 4px;
+    margin-left: 4px;
+}
+
+.typing-progress {
+    width: 240px;
+    display: flex;
+    align-items: center;
+}
+
+.control-full-width {
+    width: 100%;
+}
+
+.typing-actions {
+    display: flex;
+    justify-content: flex-end;
+    margin-top: 8px;
+}

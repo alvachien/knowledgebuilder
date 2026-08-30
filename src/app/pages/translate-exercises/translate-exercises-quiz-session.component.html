@@ -1,0 +1,56 @@
+<ng-container *transloco="let t">
+  <mat-toolbar class="container">
+    <mat-toolbar-row>
+      <section>
+        <div class="example-button-container">
+          <mat-progress-bar mode="determinate" [value]="store.progress()"></mat-progress-bar>
+        </div>
+      </section>
+      <span class="toolbar-spacer"></span>
+      <button mat-fab class="toolbar-fab-button" [matTooltip]="t('common.previousQuestion')"
+        [attr.aria-label]="t('common.previousQuestion')"
+        (click)="store.previous()" [disabled]="store.isPreviousDisabled()">
+        <mat-icon>arrow_left</mat-icon>
+      </button>
+      <button mat-fab class="toolbar-fab-button" [matTooltip]="t('common.nextQuestion')"
+        [attr.aria-label]="t('common.nextQuestion')"
+        (click)="store.next()" [disabled]="!store.isAnswered()">
+        <mat-icon>arrow_right</mat-icon>
+      </button>
+      <button mat-fab class="toolbar-fab-button" [matTooltip]="t('common.quit')"
+        [attr.aria-label]="t('common.quit')" (click)="quit.emit()">
+        <mat-icon>cancel_presentation</mat-icon>
+      </button>
+    </mat-toolbar-row>
+  </mat-toolbar>
+  <div class="sentence-quiz-container">
+    <div class="sentence-quiz-prompt">
+      {{ store.isAnswered() ? store.currentQuestion()?.ensent : store.currentQuestion()?.prompt }}
+    </div>
+    <div class="sentence-quiz-hint">
+      {{ store.currentQuestion()?.cnsent }}
+    </div>
+
+    <div class="sentence-quiz-options">
+      @for (option of store.currentQuestion()?.options ?? []; track $index; let i = $index) {
+        <button mat-stroked-button class="sentence-quiz-option" (click)="store.answer(i)"
+          [class.sentence-quiz-option-correct]="store.isAnswered() && i === store.currentQuestion()?.answerIndex"
+          [class.sentence-quiz-option-wrong]="store.isAnswered() && i === store.selectedIndex() && i !== store.currentQuestion()?.answerIndex">
+          <span class="sentence-quiz-option-key">{{ optionKeys[i] }}</span>
+          <span class="sentence-quiz-option-text">{{ option }}</span>
+          @if (store.isAnswered() && i === store.currentQuestion()?.answerIndex) {
+            <mat-icon class="sentence-quiz-option-icon" aria-hidden="true">check_circle</mat-icon>
+          }
+          @if (store.isAnswered() && i === store.selectedIndex() && i !== store.currentQuestion()?.answerIndex) {
+            <mat-icon class="sentence-quiz-option-icon" aria-hidden="true">cancel</mat-icon>
+          }
+        </button>
+      }
+    </div>
+    @if (store.isAnswered()) {
+      <div class="sentence-quiz-status" role="status" aria-live="polite">
+        {{ store.isCorrect() ? t('common.correct') : t('common.incorrect') }}
+      </div>
+    }
+  </div>
+</ng-container>

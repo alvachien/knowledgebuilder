@@ -7,18 +7,18 @@
         </div>
       </section>
       <span class="toolbar-spacer"></span>
-      <button mat-fab class="toolbar-fab-button" [matTooltip]="t('vocabularyExercises.previousQuestion')"
-        [attr.aria-label]="t('vocabularyExercises.previousQuestion')"
+      <button mat-fab class="toolbar-fab-button" [matTooltip]="t('common.previousQuestion')"
+        [attr.aria-label]="t('common.previousQuestion')"
         (click)="store.previous()" [disabled]="store.isPreviousDisabled()">
         <mat-icon>arrow_left</mat-icon>
       </button>
-      <button mat-fab class="toolbar-fab-button" [matTooltip]="t('vocabularyExercises.nextQuestion')"
-        [attr.aria-label]="t('vocabularyExercises.nextQuestion')"
+      <button mat-fab class="toolbar-fab-button" [matTooltip]="t('common.nextQuestion')"
+        [attr.aria-label]="t('common.nextQuestion')"
         (click)="store.next()" [disabled]="!store.isAnswered()">
         <mat-icon>arrow_right</mat-icon>
       </button>
-      <button mat-fab class="toolbar-fab-button" [matTooltip]="t('vocabularyExercises.quit')"
-        [attr.aria-label]="t('vocabularyExercises.quit')" (click)="quit.emit()">
+      <button mat-fab class="toolbar-fab-button" [matTooltip]="t('common.quit')"
+        [attr.aria-label]="t('common.quit')" (click)="quit.emit()">
         <mat-icon>cancel_presentation</mat-icon>
       </button>
     </mat-toolbar-row>
@@ -46,7 +46,7 @@
     </div>
     @if (store.isAnswered()) {
       <div class="vocabulary-test-status" role="status" aria-live="polite">
-        {{ store.isCorrect() ? t('vocabularyExercises.correct') : t('vocabularyExercises.incorrect') }}
+        {{ store.isCorrect() ? t('common.correct') : t('common.incorrect') }}
       </div>
     }
   </div>

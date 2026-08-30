@@ -1,8 +1,143 @@
 //
 // Data file.
 
+import {
+  FilterJoinType,
+  FilterOperation,
+  FilterUtility,
+  type IFilterDefinition,
+} from 'actslib';
+
+import { hasActiveFilterDefinition } from "../shared/filter-dialog/filter-dialog-model";
+import type { FilterableProperty } from "../shared/filter-dialog/filter-dialog-model";
+
 import { QuestionBankItemLevelEnum, QuestionBankTypeEnum } from "./questionbank";
 import type { KnowledgeExerciseFileContent } from "./questionbank-base";
+
+// ── Filter-bar schema (shared filter dialog) ───────────────────────────────
+//
+// The Chinese list filter is edited by SharedFilterDialogComponent; its seed
+// and result are actslib `IFilterDefinition`, so this page keeps no tree model
+// of its own (see docs/reusable-filter-dialog-design.md).
+
+/** actslib string comparisons are case-sensitive while the page matches
+ *  case-insensitively — the dialog folds emitted text values (this hook) and
+ *  `matchChineseListFilter` folds the row fields the same way. */
+const foldChineseText = (value: string | number): string => String(value).trim().toLowerCase();
+
+const TEXT_MATCH_OPERATIONS: FilterOperation[] = [
+  FilterOperation.BeginsWith,
+  FilterOperation.Contains,
+  FilterOperation.Equal,
+  FilterOperation.EndsWith,
+];
+
+/**
+ * Chinese's filterable properties: the three text columns plus the per-user
+ * rating. Lexicographic string comparisons are not offered (the same call
+ * vocabulary makes for its word columns); `rating` is not a row field — the
+ * predicate passes it in the synthesized target (see
+ * `matchChineseListFilter`); unrated items carry 0 and compare numerically.
+ */
+export const CHINESE_FILTER_PROPERTIES: FilterableProperty[] = [
+  {
+    key: 'subject',
+    labelKey: 'subject',
+    kind: 'string',
+    operations: TEXT_MATCH_OPERATIONS,
+    prepareValue: foldChineseText,
+  },
+  {
+    key: 'author',
+    labelKey: 'common.author',
+    kind: 'string',
+    operations: TEXT_MATCH_OPERATIONS,
+    prepareValue: foldChineseText,
+  },
+  {
+    key: 'content',
+    labelKey: 'content',
+    kind: 'string',
+    operations: TEXT_MATCH_OPERATIONS,
+    prepareValue: foldChineseText,
+  },
+  {
+    key: 'rating',
+    labelKey: 'rating',
+    kind: 'number',
+    operations: [
+      FilterOperation.GreaterOrEqual,
+      FilterOperation.GreaterThan,
+      FilterOperation.Equal,
+      FilterOperation.LessOrEqual,
+      FilterOperation.LessThan,
+      FilterOperation.Between,
+    ],
+    numberRange: { min: 0, max: 5 },
+  },
+];
+
+/** A fresh (empty) filter definition: matches everything, shown as "new filter". */
+export const emptyChineseFilterDefinition = (): IFilterDefinition => ({
+  join: FilterJoinType.AND,
+  conditions: [],
+});
+
+/**
+ * Combined criteria of the Chinese list filter bar. `freeText` applies live
+ * (cross-field substring over id/subject/author/content/source); `root` is
+ * the actslib condition definition produced by the shared filter dialog. The
+ * definition and freeText are ANDed. Condition values arrive case-folded (the
+ * dialog's `prepareValue` hooks on `CHINESE_FILTER_PROPERTIES`).
+ */
+export interface ChineseListFilter {
+  /** Cross-field substring search (legacy default-predicate behaviour). */
+  freeText: string;
+  /** actslib filter definition (text/rating leaves and nested AND/OR groups). */
+  root: IFilterDefinition;
+}
+
+/**
+ * True when the filter carries nothing: blank freeText and no condition
+ * anywhere in the definition (an empty root, or only empty sub-groups).
+ */
+export const isChineseListFilterEmpty = (filter: ChineseListFilter): boolean =>
+  filter.freeText.trim().length === 0 && !hasActiveFilterDefinition(filter.root);
+
+/**
+ * Single matching rule for the Chinese list filter bar: freeText AND the
+ * actslib definition. All filtering decisions flow through here: the table
+ * predicate calls it and nothing else grows private matching logic.
+ */
+export const matchChineseListFilter = (
+  item: LearnChineseFileItem,
+  rating: number,
+  filter: ChineseListFilter
+): boolean => {
+  const freeText = filter.freeText.trim().toLowerCase();
+  if (freeText.length > 0) {
+    // Mirrors the old default MatTableDataSource predicate: the row's string
+    // values concatenated, lowercased, substring-matched.
+    const haystack =
+      `${item.id ?? ''}${item.subject}${item.author ?? ''}${item.content ?? ''}${item.source ?? ''}`.toLowerCase();
+    if (!haystack.includes(freeText)) {
+      return false;
+    }
+  }
+
+  // FilterUtility compares strings case-sensitively, so the condition values
+  // are folded by the dialog's prepareValue hooks and the row's text fields
+  // fold here. The rating rides along as a numeric property: it lives in the
+  // page's rating map, not on the row; unrated items pass 0 and compare
+  // numerically, like unrated rows on every other list page.
+  const target = {
+    subject: item.subject.toLowerCase(),
+    author: (item.author ?? '').toLowerCase(),
+    content: (item.content ?? '').toLowerCase(),
+    rating,
+  };
+  return FilterUtility.MatchFilter(target, filter.root);
+};
 
 export enum ChineseExerciseTypeEnum {
   ClassicalChinese = "Classical Chinese", // Classical Chinese，古文

@@ -25,7 +25,7 @@
     </div>
 
     <div class="control-full-width">
-      <mat-label>{{ t('chineseExercises.execDateOption') }}</mat-label>
+      <mat-label>{{ t('common.execDateOption') }}</mat-label>
       <mat-radio-group aria-label="Select an option" class="control-full-width" name="reciteExecDateOption" [(ngModel)]="selectedExecDateModel">
         @for (ped of allPrintExecDates; track $index) {
           <mat-radio-button [value]="ped.value">{{ped.label}}</mat-radio-button>

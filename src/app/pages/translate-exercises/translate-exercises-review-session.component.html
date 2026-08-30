@@ -1,0 +1,60 @@
+<ng-container *transloco="let t">
+  <mat-toolbar class="container">
+    <mat-toolbar-row>
+      <section>
+        <div class="example-button-container">
+          <mat-progress-bar mode="determinate" [value]="store.progress()"></mat-progress-bar>
+        </div>
+      </section>
+      <span class="toolbar-spacer"></span>
+      <mat-form-field class="seconds-field" appearance="outline" subscriptSizing="dynamic">
+        <mat-label>{{ t('translateExercises.secondsPerSentence') }}</mat-label>
+        <mat-select [ngModel]="store.autoModeSeconds()" (ngModelChange)="store.setAutoModeSeconds($event)"
+          [disabled]="store.isAutoMode()">
+          @for (sec of autoModeSecondChoices; track sec) {
+            <mat-option [value]="sec">{{ sec }}s</mat-option>
+          }
+        </mat-select>
+      </mat-form-field>
+      <button mat-fab class="toolbar-fab-button" [matTooltip]="t('common.enableAutoMode')"
+        [attr.aria-label]="t('common.enableAutoMode')"
+        (click)="store.enableAutoMode()" [disabled]="store.isAutoMode()">
+        <mat-icon>play_circle_outline</mat-icon>
+      </button>
+      <button mat-fab class="toolbar-fab-button" [matTooltip]="t('common.previous')"
+        [attr.aria-label]="t('common.previous')"
+        (click)="store.previous()" [disabled]="store.isAutoMode() || store.isPreviousDisabled()">
+        <mat-icon>arrow_left</mat-icon>
+      </button>
+      <button mat-fab class="toolbar-fab-button" [matTooltip]="t('common.next')"
+        [attr.aria-label]="t('common.next')"
+        (click)="store.next()" [disabled]="store.isAutoMode() || store.isNextDisabled()">
+        <mat-icon>arrow_right</mat-icon>
+      </button>
+      <button mat-fab class="toolbar-fab-button" [matTooltip]="t('common.quit')"
+        [attr.aria-label]="t('common.quit')" (click)="quit.emit()">
+        <mat-icon>cancel_presentation</mat-icon>
+      </button>
+    </mat-toolbar-row>
+  </mat-toolbar>
+  <div class="sentence-review-container">
+    <div class="sentence-review-text">
+      {{store.currentItem().ensent}}
+    </div>
+
+    <div class="sentence-review-text">
+      {{store.currentItem().cnsent}}
+    </div>
+
+    <div class="sentence-review-rating-container">
+      <mat-button-toggle-group [ngModel]="store.currentItem().rating" aria-label="Rating"
+        (change)="store.setRatingFromToggle($event)">
+        <mat-button-toggle [value]="1">1</mat-button-toggle>
+        <mat-button-toggle [value]="2">2</mat-button-toggle>
+        <mat-button-toggle [value]="3">3</mat-button-toggle>
+        <mat-button-toggle [value]="4">4</mat-button-toggle>
+        <mat-button-toggle [value]="5">5</mat-button-toggle>
+      </mat-button-toggle-group>
+    </div>
+  </div>
+</ng-container>

@@ -1,0 +1,161 @@
+<ng-container *transloco="let t">
+  <mat-toolbar class="container">
+    <mat-toolbar-row>
+      <span>
+        <h5>{{ t('chinese') }}</h5>
+      </span>
+      <span class="toolbar-spacer"></span>
+      <mat-form-field class="page-toolbar-item">
+        <mat-label>{{ t('files') }}</mat-label>
+        <mat-select matNativeControl [(value)]="selectedFile" (selectionChange)="fileSelectionChanged.emit($event)"
+          [disabled]="isLoadingContents()" [placeholder]="isLoadingContents() ? t('loading') : t('files')">
+          @if (isLoadingContents()) {
+            <mat-option disabled>
+              <mat-spinner diameter="18"></mat-spinner>
+              {{ t('loading') }}
+            </mat-option>
+          }
+          <mat-option value="">{{ t('none') }}</mat-option>
+          @for (file of allFiles(); track file.id ) {
+            <mat-option [value]="file">{{file.nameChinese}}</mat-option>
+          }
+        </mat-select>
+      </mat-form-field>
+    </mat-toolbar-row>
+  </mat-toolbar>
+
+  <div class="container">
+    <div class="filter-row">
+      <div class="filter-bar">
+        <mat-form-field class="filter-bar-free-text" subscriptSizing="dynamic">
+          <mat-label>{{ t('filter') }}</mat-label>
+          <input matInput [(ngModel)]="freeText" (keyup)="onFreeTextChanged()" [disabled]="!selectedFile()" />
+        </mat-form-field>
+
+        <button mat-stroked-button [matMenuTriggerFor]="filterMenu" [disabled]="!selectedFile()">{{ t('filter') }} ▾</button>
+        <mat-menu #filterMenu="matMenu">
+          <button mat-menu-item (click)="defineFilter.emit()">{{ filterMenuLabel }}</button>
+          <button mat-menu-item (click)="clearFilter.emit()" [disabled]="!hasFilter">{{ t('common.filterClear') }}</button>
+        </mat-menu>
+      </div>
+
+      <div class="filter-bar-actions">
+        <button mat-stroked-button [matMenuTriggerFor]="quickMenu" [disabled]="!selectedFile()">{{ t('common.quickSelection') }} ▾</button>
+        <mat-menu #quickMenu="matMenu">
+          <button mat-menu-item (click)="quickSelect.emit('random')">
+            <mat-icon>shuffle</mat-icon>
+            <span>{{ t('common.randomSelect') }}</span>
+          </button>
+          <button mat-menu-item (click)="quickSelect.emit('sequence')">
+            <mat-icon>format_list_numbered</mat-icon>
+            <span>{{ t('common.sequenceSelect') }}</span>
+          </button>
+          <mat-divider></mat-divider>
+          <button mat-menu-item (click)="selectAllVisible.emit()" [disabled]="visibleRowCount === 0">
+            <mat-icon>select_all</mat-icon>
+            <span>{{ t('common.selectAllVisible') }}</span>
+          </button>
+          <button mat-menu-item (click)="clearSelection.emit()" [disabled]="selection().isEmpty()">
+            <mat-icon>deselect</mat-icon>
+            <span>{{ t('common.clearSelection') }}</span>
+          </button>
+        </mat-menu>
+
+        <button mat-stroked-button [matMenuTriggerFor]="exerciseMenu" [disabled]="!selectedFile()">{{ t('common.exercises') }} ▾</button>
+        <mat-menu #exerciseMenu="matMenu">
+          <button mat-menu-item (click)="recite.emit()">
+            <mat-icon>menu_book</mat-icon>
+            <span>{{ t('chineseExercises.recite') }}</span>
+          </button>
+          <button mat-menu-item (click)="print.emit()">
+            <mat-icon>print</mat-icon>
+            <span>{{ t('print') }}</span>
+          </button>
+        </mat-menu>
+        <mat-divider [vertical]="true"></mat-divider>
+
+        <!-- Counts: total items in the file | rows after filtering | selected rows -->
+        <div class="filter-bar-counts">
+          <span [matTooltip]="t('items')">{{ contentQueueCount }}</span>
+          <mat-divider [vertical]="true"></mat-divider>
+          <span [matTooltip]="t('common.filteredItems')">{{ visibleRowCount }}</span>
+          <mat-divider [vertical]="true"></mat-divider>
+          <span [matTooltip]="t('totalSelections')">{{ selectionCount() }}</span>
+        </div>
+      </div>
+    </div>
+
+    <table mat-table [dataSource]="dataSource()" matSort class="mat-elevation-z8 w-full">
+      <!-- Checkbox Column -->
+      <ng-container matColumnDef="select">
+        <th mat-header-cell *matHeaderCellDef>
+          <mat-checkbox (change)="$event ? allRowsToggled.emit() : null"
+                        [checked]="selection().hasValue() && isAllSelected()"
+                        [indeterminate]="selection().hasValue() && !isAllSelected()">
+          </mat-checkbox>
+        </th>
+        <td mat-cell *matCellDef="let row">
+          <mat-checkbox (click)="$event.stopPropagation()"
+                        (change)="$event ? selection().toggle(row) : null"
+                        [checked]="selection().isSelected(row)">
+          </mat-checkbox>
+        </td>
+      </ng-container>
+
+      <!-- ID Column -->
+      <ng-container matColumnDef="id">
+        <th mat-header-cell *matHeaderCellDef mat-sort-header sortActionDescription="Sort by ID"> {{ t('id') }} </th>
+        <td mat-cell *matCellDef="let element"> {{element.id}} </td>
+      </ng-container>
+
+      <!-- Subject Column -->
+      <ng-container matColumnDef="subject">
+        <th mat-header-cell *matHeaderCellDef mat-sort-header sortActionDescription="Sort by subject"> {{ t('subject') }} </th>
+        <td mat-cell *matCellDef="let element"> {{element.subject}} </td>
+      </ng-container>
+
+      <!-- Author Column -->
+      <ng-container matColumnDef="author">
+        <th mat-header-cell *matHeaderCellDef mat-sort-header sortActionDescription="Sort by author"> {{ t('common.author') }} </th>
+        <td mat-cell *matCellDef="let element"> {{element.author}} </td>
+      </ng-container>
+
+      <!-- Content Column -->
+      <ng-container matColumnDef="content">
+        <th mat-header-cell *matHeaderCellDef> {{ t('content') }} </th>
+        <td mat-cell *matCellDef="let element">
+          <mat-form-field class="control-full-width">
+            <textarea matNativeControl readonly [ngModel]="getDisplayContentText(element)"></textarea>
+          </mat-form-field>
+        </td>
+      </ng-container>
+
+      <!-- Source column -->
+      <ng-container matColumnDef="source">
+        <th mat-header-cell *matHeaderCellDef> {{ t('source') }} </th>
+        <td mat-cell *matCellDef="let element">{{element.source ?? ''}}</td>
+      </ng-container>
+
+      <!-- Rating Column -->
+      <ng-container matColumnDef="rating">
+        <th mat-header-cell *matHeaderCellDef mat-sort-header sortActionDescription="Sort by rating"> {{ t('rating') }} </th>
+        <td mat-cell *matCellDef="let element">
+          <mat-button-toggle-group [ngModel]="getRating(element.id)" aria-label="Rating"
+            (change)="contentRatingChanged.emit({ item: element, event: $event })">
+            <mat-button-toggle [value]="1">1</mat-button-toggle>
+            <mat-button-toggle [value]="2">2</mat-button-toggle>
+            <mat-button-toggle [value]="3">3</mat-button-toggle>
+            <mat-button-toggle [value]="4">4</mat-button-toggle>
+            <mat-button-toggle [value]="5">5</mat-button-toggle>
+          </mat-button-toggle-group>
+        </td>
+      </ng-container>
+
+      <tr mat-header-row *matHeaderRowDef="displayedColumns; sticky: true"></tr>
+      <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+    </table>
+    <mat-paginator [pageSizeOptions]="[20, 50, 100]" showFirstLastButtons
+      aria-label="Select page of periodic elements">
+    </mat-paginator>
+  </div>
+</ng-container>

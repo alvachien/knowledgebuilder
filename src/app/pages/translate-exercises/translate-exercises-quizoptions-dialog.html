@@ -1,0 +1,14 @@
+<div *transloco="let t">
+  <h2 mat-dialog-title>{{ t('common.optionsOfQuiz') }}</h2>
+  <mat-dialog-content class="control-full-width">
+    <mat-form-field class="control-full-width">
+      <mat-label>{{ t('count') }}</mat-label>
+      <input matInput type="number" [(ngModel)]="countOfItems" [disabled]="data.withSelection">
+      <span matSuffix>{{data.sentenceQueueCount}}</span>
+    </mat-form-field>
+  </mat-dialog-content>
+  <mat-dialog-actions>
+    <button mat-button (click)="onNoClick()">{{ t('no') }}</button>
+    <button mat-button (click)="onYesClick()" [disabled]="isCountInvalid" cdkFocusInitial>{{ t('ok') }}</button>
+  </mat-dialog-actions>
+</div>

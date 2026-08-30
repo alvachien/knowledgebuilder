@@ -6,12 +6,29 @@ import { TestBed } from '@angular/core/testing';
 import { MatTableDataSource } from '@angular/material/table';
 import { NoopAnimationsModule } from '@angular/platform-browser/animations';
 import { TranslocoModule, TranslocoService, TRANSLOCO_TRANSPILER, TRANSLOCO_MISSING_HANDLER } from '@jsverse/transloco';
+import { FilterJoinType, FilterOperation } from 'actslib';
+import type { IFilterCondition, IFilterDefinition } from 'actslib';
 import { of } from 'rxjs';
 
-import { RatingOperatorEnum } from '../../interfaces';
+import { VOCABULARY_IS_PHRASE } from '../../interfaces';
 import type { LearnEnglishWordFileItem, LearningContent } from '../../interfaces';
 
 import { VocabularyExercisesWordListComponent } from './vocabulary-exercises-word-list.component';
+
+// cond/andG/orG build the actslib definition the filter input now carries.
+const cond = (property: string, operation: FilterOperation, lowValue: string | number): IFilterCondition => ({
+  property,
+  operation,
+  lowValue,
+});
+const andG = (...conditions: Array<IFilterCondition | IFilterDefinition>): IFilterDefinition => ({
+  join: FilterJoinType.AND,
+  conditions,
+});
+const orG = (...conditions: Array<IFilterCondition | IFilterDefinition>): IFilterDefinition => ({
+  join: FilterJoinType.OR,
+  conditions,
+});
 
 function mockTransloco() {
   return {
@@ -19,7 +36,10 @@ function mockTransloco() {
     getActiveLang: vi.fn(),
     selectTranslate: vi.fn().mockReturnValue(of('')),
     _loadDependencies: vi.fn().mockReturnValue(of(null)),
-    translate: vi.fn((key: string) => key),
+    // Returns the key's last dot-segment as the "label": short enough that
+    // the filter summary stays under the 40-char ellipsis, keeping the
+    // summary assertions readable (single-segment keys pass through).
+    translate: vi.fn((key: string) => key.split('.').pop() ?? key),
     activeLang: 'en',
     config: { reRenderOnLangChange: true, prodMode: false },
     langChanges$: of('en'),
@@ -51,57 +71,83 @@ describe('VocabularyExercisesWordListComponent', () => {
     fixture.componentRef.setInput('dataSource', new MatTableDataSource<LearnEnglishWordFileItem>([]));
     fixture.componentRef.setInput('selection', new SelectionModel<LearnEnglishWordFileItem>(true, []));
     fixture.componentRef.setInput('contentRatings', new Map<number, number>());
-    fixture.componentRef.setInput('wordConditions', []);
-    fixture.componentRef.setInput('ratingConditions', []);
+    fixture.componentRef.setInput('filterDefinition', andG());
     // Do NOT call detectChanges: class-logic tests only (getters read signal
     // inputs + the mock translate); rendering *transloco is unnecessary.
   });
 
-  it('shows "New" for the Word menu when there are no active conditions', () => {
-    expect(component.hasWordFilter).toBe(false);
-    expect(component.wordMenuLabel).toBe('vocabularyExercises.filterNew');
+  it('shows "New" for the Filter menu when there are no active conditions', () => {
+    expect(component.hasFilter).toBe(false);
+    expect(component.filterMenuLabel).toBe('filterNew');
   });
 
-  it('builds a readable Word menu summary when conditions are active', () => {
-    fixture.componentRef.setInput('wordConditions', [
-      { operator: 'startsWith', text: 'a' },
-      { operator: 'endsWith', text: 'ing' },
-    ]);
-    expect(component.hasWordFilter).toBe(true);
-    // The mock translate returns the full i18n key verbatim (long), so the
-    // 40-char ellipsizing kicks in. In the real app the short localized
-    // labels ("Starts with a; ends with ing") fit without truncation.
-    expect(component.wordMenuLabel).toContain('vocabularyExercises.wordOpStartsWith a');
-    expect(component.wordMenuLabel.endsWith('…')).toBe(true);
+  it('builds a readable Filter menu summary when conditions are active', () => {
+    fixture.componentRef.setInput('filterDefinition', andG(cond('enword', FilterOperation.BeginsWith, 'a')));
+    expect(component.hasFilter).toBe(true);
+    expect(component.filterMenuLabel).toBe('word opStartsWith a');
   });
 
-  it('treats blank-text conditions as no filter', () => {
-    fixture.componentRef.setInput('wordConditions', [{ operator: 'contains', text: '   ' }]);
-    expect(component.hasWordFilter).toBe(false);
-    expect(component.wordMenuLabel).toBe('vocabularyExercises.filterNew');
+  it('labels cnword conditions with the Chinese field name', () => {
+    fixture.componentRef.setInput('filterDefinition', andG(cond('cnword', FilterOperation.Contains, '苹果')));
+    expect(component.filterMenuLabel).toBe('chinese opContains 苹果');
   });
 
   it('treats a textless phrase condition as an active filter', () => {
-    fixture.componentRef.setInput('wordConditions', [{ operator: 'isPhrase', text: '' }]);
-    expect(component.hasWordFilter).toBe(true);
-    expect(component.wordMenuLabel).toContain('vocabularyExercises.wordOpIsPhrase');
+    fixture.componentRef.setInput('filterDefinition', andG(VOCABULARY_IS_PHRASE.emit('enword')));
+    expect(component.hasFilter).toBe(true);
+    expect(component.filterMenuLabel).toBe('word wordOpIsPhrase');
   });
 
-  it('shows "New" for the Rating menu when empty and a symbol summary otherwise', () => {
-    expect(component.hasRatingFilter).toBe(false);
-    expect(component.ratingMenuLabel).toBe('vocabularyExercises.filterNew');
-    fixture.componentRef.setInput('ratingConditions', [
-      { operator: RatingOperatorEnum.LargerOrEquals, value: 3 },
-    ]);
-    expect(component.hasRatingFilter).toBe(true);
-    expect(component.ratingMenuLabel).toBe('>=3');
+  it('joins word and rating leaves with the group join word in one summary', () => {
+    fixture.componentRef.setInput('filterDefinition', andG(
+      cond('enword', FilterOperation.BeginsWith, 'a'),
+      cond('rating', FilterOperation.GreaterOrEqual, 3),
+    ));
+    // Numeric properties render comparison operators as symbols; the join word
+    // is translated (mock returns the key's last segment).
+    expect(component.hasFilter).toBe(true);
+    expect(component.filterMenuLabel).toBe('word opStartsWith a joinAnd rating >= 3');
+  });
+
+  it('shows the OR join word for an OR-joined group', () => {
+    fixture.componentRef.setInput('filterDefinition', orG(
+      cond('enword', FilterOperation.BeginsWith, 'a'),
+      cond('rating', FilterOperation.Equal, 5),
+    ));
+    expect(component.filterMenuLabel).toBe('word opStartsWith a joinOr rating = 5');
+  });
+
+  it('wraps nested multi-member groups in parentheses in the menu summary', () => {
+    fixture.componentRef.setInput('filterDefinition', orG(
+      andG(
+        cond('enword', FilterOperation.Equal, 'a'),
+        cond('enword', FilterOperation.Equal, 'b'),
+      ),
+    ));
+    expect(component.filterMenuLabel).toBe('(word opEqual a joinAnd word opEqual b)');
+  });
+
+  it('shows a rating-only summary when no vocabulary condition is active', () => {
+    fixture.componentRef.setInput('filterDefinition', andG(cond('rating', FilterOperation.GreaterOrEqual, 3)));
+    expect(component.hasFilter).toBe(true);
+    expect(component.filterMenuLabel).toBe('rating >= 3');
   });
 
   it('emits freeTextChanged with the local freeText value', () => {
     const spy = vi.spyOn(component.freeTextChanged, 'emit');
     component.freeText = 'abc';
-    component.onFreeTextChanged();
+    component.onFreeTextChanged('abc');
     expect(spy).toHaveBeenCalledWith('abc');
+  });
+
+  it('suppresses free-text emission while an IME composition is in progress', () => {
+    const spy = vi.spyOn(component.freeTextChanged, 'emit');
+    component.onCompositionStart();
+    component.onFreeTextChanged('pin');
+    expect(spy).not.toHaveBeenCalled();
+
+    component.onCompositionEnd('拼音');
+    expect(spy).toHaveBeenCalledWith('拼音');
   });
 
   it('emits the quickSelect mode', () => {
@@ -171,7 +217,7 @@ describe('VocabularyExercisesWordListComponent', () => {
     });
   });
 
-  describe('rating toggle disabling for temp content (L2)', () => {
+  describe('rating column visibility for temp content (L2)', () => {
     const rows: LearnEnglishWordFileItem[] = [
       { id: 1, enword: 'hello', cnword: '你好' },
     ];
@@ -184,25 +230,31 @@ describe('VocabularyExercisesWordListComponent', () => {
       fixture.detectChanges();
     }
 
-    it('enables the rating toggles for persisted content (studyContentId > 0)', () => {
+    // The mock TranslocoService returns the key verbatim, so the header cell
+    // text is exactly 'rating'. (nativeElement is untyped here: pass an
+    // explicit element type to the mapper rather than a selector generic.)
+    const ratingHeaderCellCount = (): number =>
+      Array.from(
+        fixture.nativeElement.querySelectorAll('th'),
+        (th: Element) => th.textContent?.trim() ?? ''
+      ).filter(text => text === 'rating').length;
+    const ratingToggleCount = (): number =>
+      fixture.nativeElement.querySelectorAll('mat-button-toggle button').length;
+
+    it('renders the rating column for persisted content (studyContentId > 0)', () => {
       setupRatingsEnabled(true);
-      const buttons = Array.from(
-        fixture.nativeElement.querySelectorAll('mat-button-toggle button')
-      ) as HTMLButtonElement[];
-      expect(buttons.length).toBe(5);
-      buttons.forEach(btn => expect(btn.disabled).toBe(false));
+      expect(ratingHeaderCellCount()).toBe(1);
+      expect(component.displayedColumns).toContain('rating');
+      expect(ratingToggleCount()).toBe(5);
     });
 
-    it('disables the rating toggles for temp content (non-positive studyContentId)', () => {
+    it('hides the rating column entirely for temp content (non-positive studyContentId)', () => {
+      // Temp uploads cannot persist ratings: no value is displayed and no
+      // toggle can latch a phantom rating, so the whole column disappears.
       setupRatingsEnabled(false);
-      // Disabling each toggle (rather than the group, whose [disabled] the
-      // [ngModel] form control overrides via setDisabledState) prevents
-      // clicking a phantom rating the server cannot persist.
-      const buttons = Array.from(
-        fixture.nativeElement.querySelectorAll('mat-button-toggle button')
-      ) as HTMLButtonElement[];
-      expect(buttons.length).toBe(5);
-      buttons.forEach(btn => expect(btn.disabled).toBe(true));
+      expect(ratingHeaderCellCount()).toBe(0);
+      expect(ratingToggleCount()).toBe(0);
+      expect(component.displayedColumns).not.toContain('rating');
     });
   });
 

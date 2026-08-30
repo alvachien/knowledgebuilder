@@ -1,0 +1,220 @@
+// Master/detail split: the condition-tree navigator on the left, the editor
+// of the selected member on the right, sized by the draggable splitter.
+.fdlg-split {
+  display: grid;
+  grid-template-columns: var(--split-left, 40%) 8px minmax(0, 1fr);
+  height: 440px;
+}
+
+.fdlg-tree-pane {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.fdlg-tree-toolbar {
+  align-items: center;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.12);
+  display: flex;
+  gap: 4px;
+  padding-bottom: 2px;
+}
+
+.fdlg-tree-scroll {
+  flex: 1 1 auto;
+  overflow: auto;
+  padding-top: 6px;
+}
+
+.fdlg-node-row {
+  align-items: center;
+  border-radius: 6px;
+  cursor: pointer;
+  display: flex;
+  gap: 6px;
+  padding: 4px 8px;
+  user-select: none;
+}
+
+.fdlg-node-row:hover {
+  background: rgba(0, 0, 0, 0.04);
+}
+
+.fdlg-node-selected {
+  background: rgba(0, 0, 0, 0.08);
+}
+
+.fdlg-node-icon {
+  font-size: 18px;
+  height: 18px;
+  opacity: 0.7;
+  width: 18px;
+}
+
+.fdlg-node-label {
+  font-size: 0.9em;
+  overflow-wrap: anywhere;
+}
+
+// Validation: a degenerate group (fewer than two members) is flagged with a
+// warning icon and a reddened label until it branches or is deleted.
+.fdlg-node-invalid .fdlg-node-label {
+  color: #b3261e;
+}
+
+.fdlg-node-warn {
+  color: #b3261e;
+  font-size: 16px;
+  height: 16px;
+  width: 16px;
+}
+
+.fdlg-tree-children {
+  display: block;
+}
+
+// Draggable pane divider.
+.fdlg-splitter {
+  background: rgba(0, 0, 0, 0.1);
+  border-radius: 2px;
+  cursor: col-resize;
+  justify-self: center;
+  width: 4px;
+}
+
+.fdlg-splitter:hover,
+.fdlg-splitter:focus-visible {
+  background: rgba(0, 0, 0, 0.25);
+  outline: none;
+}
+
+.fdlg-detail-pane {
+  min-width: 0;
+  overflow: auto;
+  padding-left: 12px;
+}
+
+.fdlg-detail-title {
+  font-size: 0.85em;
+  font-weight: 500;
+  margin-bottom: 8px;
+}
+
+.fdlg-detail-empty {
+  font-size: 0.9em;
+  opacity: 0.65;
+}
+
+.fdlg-hint {
+  font-size: 0.78em;
+  margin-bottom: 8px;
+  opacity: 0.65;
+}
+
+.fdlg-error {
+  color: #b3261e;
+  font-size: 0.78em;
+  margin: 6px 0 0;
+}
+
+.fdlg-join {
+  width: 120px;
+}
+
+// Condition editor (the detail pane's leaf editor).
+.fdlg-condition-row {
+  align-items: center;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.fdlg-property {
+  width: 130px;
+}
+
+.fdlg-operator {
+  width: 150px;
+}
+
+.fdlg-text {
+  flex: 1 1 160px;
+}
+
+.fdlg-number {
+  width: 110px;
+}
+
+.fdlg-date {
+  width: 170px;
+}
+
+// Between: two bound inputs with an en-dash between them.
+.fdlg-between {
+  align-items: center;
+  display: flex;
+  gap: 4px;
+}
+
+.fdlg-between-bound {
+  width: 100px;
+}
+
+.fdlg-between-sep {
+  opacity: 0.65;
+}
+
+// Enum multiple-choice editor.
+.fdlg-choices {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 4px 0;
+}
+
+.fdlg-choices mat-checkbox {
+  font-size: 0.9em;
+}
+
+// Live expression preview of the tree being edited.
+.fdlg-preview {
+  align-items: baseline;
+  border-top: 1px solid rgba(0, 0, 0, 0.12);
+  display: flex;
+  font-size: 0.85em;
+  gap: 8px;
+  margin-top: 12px;
+  padding-top: 8px;
+}
+
+.fdlg-preview-label {
+  font-weight: 500;
+  opacity: 0.65;
+  white-space: nowrap;
+}
+
+.fdlg-preview-expression {
+  word-break: break-word;
+}
+
+// Narrow dialogs (small screens): stack the panes, no splitter.
+@media (max-width: 719px) {
+  .fdlg-split {
+    display: flex;
+    flex-direction: column;
+    height: auto;
+  }
+
+  .fdlg-tree-scroll {
+    max-height: 38vh;
+  }
+
+  .fdlg-splitter {
+    display: none;
+  }
+
+  .fdlg-detail-pane {
+    margin-top: 12px;
+    padding-left: 0;
+  }
+}

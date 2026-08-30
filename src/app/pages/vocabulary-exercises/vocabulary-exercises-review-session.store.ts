@@ -2,6 +2,7 @@ import { DestroyRef, Injectable, computed, inject, signal } from '@angular/core'
 import type { MatButtonToggleChange } from '@angular/material/button-toggle';
 import { interval, type Subscription } from 'rxjs';
 
+import { environment } from '../../../environments/environment';
 import type { ReviewQueueItem, UserLearningRating } from '../../interfaces';
 import { AudioService, LearningRatingService } from '../../services';
 
@@ -70,6 +71,9 @@ export class VocabularyReviewSessionStore {
   // response must not overwrite them: it would revert the visible rating and
   // make the already-confirmed save look stale to saveRating's guard.
   private userRatedItemIds = new Set<number>();
+  // Guards the async MP3->TTS fallback in speakCurrent: a slow 404 for an
+  // earlier word (or one fetched before reset/destroy) must not trigger TTS.
+  private speakGeneration = 0;
 
   constructor() {
     // The store lives as long as the page container. If the user navigates
@@ -79,6 +83,7 @@ export class VocabularyReviewSessionStore {
     // late response cannot write into a store whose session is gone (L8).
     this.destroyRef.onDestroy(() => {
       this.stopAutoMode();
+      this.speakGeneration++;
       for (const sub of this.ratingSubscriptions) {
         sub.unsubscribe();
       }
@@ -137,6 +142,9 @@ export class VocabularyReviewSessionStore {
   /** Drop every piece of session state (quit mid-session / back to the list). */
   reset(): void {
     this.stopAutoMode();
+    // A word-audio fetch still in flight must not TTS-fallback now that the
+    // session (and its queue) is gone.
+    this.speakGeneration++;
     // Cancel in-flight rating loads/saves: a response that lands after the
     // session ended would write into the next session's state.
     for (const sub of this.ratingSubscriptions) {
@@ -271,10 +279,25 @@ export class VocabularyReviewSessionStore {
       return;
     }
     const item = this.queue()[this.cursor()];
-    if (item) {
-      // Web Speech API in the browser: no vocabulary leaks to a third-party server.
-      this.audiosrv.speakWord(item.enword);
+    if (!item) {
+      return;
     }
+    // Recorded pronunciation first (GET /api/WordAudio?word=...); Web Speech
+    // API only as the fallback for words without audio (e.g. 404) - the TTS
+    // path keeps vocabulary local to the browser. The generation guard keeps
+    // a slow miss for an earlier word from speaking over the current one.
+    const generation = ++this.speakGeneration;
+    const word = item.enword;
+    this.audiosrv
+      .playAuthenticatedOneShot(
+        `${environment.apiUrl}/api/WordAudio?word=${encodeURIComponent(word)}`
+      )
+      .then(ok => {
+        if (!ok && generation === this.speakGeneration) {
+          this.audiosrv.speakWord(word);
+        }
+      })
+      .catch(err => console.error('Word audio playback failed', err));
   }
 
   private saveRating(item: ReviewQueueItem): void {

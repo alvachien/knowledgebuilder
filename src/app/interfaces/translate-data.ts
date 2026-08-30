@@ -44,7 +44,6 @@ export interface TranslateExercisePrintOption {
 }
 
 export interface TranslateExerciseOption {
-  allowEmptyAnswer: boolean;
   countOfItems: number;
   direction: TranslateDirectionEnum;
 }

@@ -15,7 +15,7 @@ The decomposition targets four concerns:
 
 1. **One source of truth per concern.** The container owns cross-cutting state (file list, table data source, selection, rating map, applied filters, the active screen). Each study mode owns its own session state in a dedicated signal store. The list screen is purely presentational.
 2. **Screen isolation.** Exactly one screen is mounted at a time via `@switch`; session screens are created/destroyed on transition, so keyboard listeners and per-session subscriptions live only while their screen is mounted.
-3. **Pure, testable helpers.** All filtering, question building, and shuffle logic lives in pure exported functions (`interfaces/vocabulary.ts`, `shared/utils/shuffle.ts`) with no Angular dependencies, so they are unit-tested directly.
+3. **Pure, testable helpers.** All filtering and question building lives in pure exported functions (`interfaces/vocabulary.ts`), and shuffling comes from actslib (`FisherYatesShuffle`) — no Angular dependencies, so they are unit-tested directly. `shared/utils/shuffle.ts` retains only `pickWeighted` (weighted cloze distractor picks).
 4. **Round-trip-stable dialogs.** Options dialogs round-trip `currentSettings` so reopening shows the last picks; filter dialogs clone their seed so Cancel cannot mutate the caller's state.
 
 ---
@@ -31,10 +31,10 @@ VocabularyExercisesComponent (container)
 │   │
 │   ├─ 'list' (default) ─► VocabularyExercisesWordListComponent
 │   │                        inputs:  allFiles, selectedFile, dataSource, selection,
-│   │                                 contentRatings, ratingsEnabled, wordConditions,
-│   │                                 ratingConditions, appliedFreeText, isLoadingContents
-│   │                        outputs: fileSelectionChanged, freeTextChanged, defineWordFilter,
-│   │                                 clearWordFilter, defineRatingFilter, clearRatingFilter,
+│   │                                 contentRatings, ratingsEnabled, filterDefinition,
+│   │                                 appliedFreeText, isLoadingContents
+│   │                        outputs: fileSelectionChanged, freeTextChanged, defineFilter,
+│   │                                 clearFilter,
 │   │                                 quickSelect, allRowsToggled, contentRatingChanged,
 │   │                                 review, worksheet, spelling, quiz,
 │   │                                 downloadTemplate, addFileClick, tempFileSelected
@@ -65,8 +65,7 @@ VocabularyExercisesComponent (container)
     ├─ VocabularyExercisesSpellingOptionsDialogComponent
     ├─ VocabularyExercisesQuizOptionsDialogComponent
     ├─ VocabularyExercisesWorksheetOptionsDialogComponent
-    ├─ VocabularyExercisesWordFilterDialogComponent
-    └─ VocabularyExercisesRatingFilterDialogComponent
+    └─ SharedFilterDialogComponent (src/app/shared/filter-dialog, schema-driven)
 ```
 
 The container's `mode` signal is the screen router. It has six values:
@@ -118,8 +117,7 @@ The container is the single source of truth for cross-cutting state and the orch
 | `selection` | `SelectionModel<LearnEnglishWordFileItem>(true, [])` | Shared selection; read by both the word-list and queue prep. |
 | `contentRatingMap` | `signal(new Map<number, number>())` | Per-itemId rating for the loaded file. Replaced (not mutated) on every update so OnPush consumers see a new reference. |
 | `freeText` | `signal('')` | Live free-text filter term. |
-| `wordConditions` | `signal<WordCondition[]>([])` | ANDed word-match conditions from the Word filter dialog. |
-| `ratingConditions` | `signal<RatingCondition[]>([])` | ANDed rating conditions from the Rating filter dialog. |
+| `filterDefinition` | `signal<IFilterDefinition>` | The actslib condition definition from the shared filter dialog (word/rating leaves in AND/OR-joined groups); starts at `emptyVocabularyFilterDefinition()`. |
 | `listFilterCriteria` | `private VocabularyListFilter \| null` | Parsed form of the active filter; kept in sync with `dataSource.filter` so the row predicate does not `JSON.parse` per row. `null` = no filter. |
 | `studyContentId` | `number` | Backend `ContentId` of the loaded file. Temp uploads get a **negative** id, which disables every `studyContentId > 0` rating guard. |
 | `reviewSetting` / `spellingSetting` / `quizSetting` / `worksheetSetting` | option objects | Persisted settings round-tripped by the options dialogs. |
@@ -152,7 +150,7 @@ Shared by Review, Spelling, Worksheet, and Quiz. The contract: **explicit table 
 private prepareWordQueue<T>(items: T[], options: VocabularyOptionCore): T[] {
   let queues = items;
   if (queues.length > options.countOfItems) {
-    queues = fisherYatesShuffle(queues);   // returns a NEW array; input not mutated
+    queues = FisherYatesShuffle(queues);   // actslib; returns a NEW array; input not mutated
     queues = queues.slice(0, options.countOfItems);
   }
   return queues;
@@ -350,15 +348,15 @@ Purely presentational. The container owns `dataSource`, `selection`, and the app
 
 ### 6.1 Inputs / outputs
 
-- **Inputs (required):** `allFiles`, `selectedFile` (two-way `model`), `isLoadingContents`, `dataSource`, `selection`, `contentRatings`, `wordConditions`, `ratingConditions`.
+- **Inputs (required):** `allFiles`, `selectedFile` (two-way `model`), `isLoadingContents`, `dataSource`, `selection`, `contentRatings`, `filterDefinition`.
 - **Input (defaulted):** `ratingsEnabled` (default `true`; disabled for temp content so the toggle group cannot latch a phantom value), `appliedFreeText` (default `''`; seeds the input box on init so a recreated screen shows the still-applied filter).
-- **Outputs:** file selection, free-text changes, define/clear word & rating filters, quick-select, all-rows-toggled, content-rating-changed, the four exercise intents (review/worksheet/spelling/quiz), download-template, add-file-click, temp-file-selected.
+- **Outputs:** file selection, free-text changes, define/clear filter, quick-select, all-rows-toggled, content-rating-changed, the four exercise intents (review/worksheet/spelling/quiz), download-template, add-file-click, temp-file-selected.
 
 ### 6.2 Filter bar
 
 The toolbar renders a Fiori-style filter bar:
-- a free-text `matInput` (live, `keyup` → `freeTextChanged.emit`);
-- Word and Rating `mat-menu` buttons whose labels are dynamic summaries: `wordMenuLabel` uses `summarizeWordFilter(...)` and `ratingMenuLabel` uses `summarizeRatingFilter(...)` (both pure helpers in `interfaces/vocabulary.ts`), falling back to a "new filter" label when no condition is active;
+- a free-text `matInput` (live, `input` → `freeTextChanged.emit`, suppressed mid-IME-composition via `compositionstart`/`compositionend` so pinyin fragments never flicker the table);
+- a single Filter `mat-menu` whose label is a dynamic summary of the condition definition: `filterMenuLabel` calls `summarizeFilterDefinition(...)` (from `shared/filter-dialog`, over `VOCABULARY_FILTER_PROPERTIES`), which renders conditions joined by each group's AND/OR with parentheses for multi-member sub-groups and `>=`-style symbols for numeric properties (e.g. `(word starts with a OR chinese contains 派) AND rating >= 3`), falling back to a "new filter" label when no condition exists; the menu's second item clears the whole definition;
 - a Quick Selection menu (Random / Sequence / Words → `quickSelect.emit('random'|'sequence'|'words')`);
 - an Exercises menu (Study / Print / Typing / Test);
 - a counts strip: total items · filtered rows · selected rows.
@@ -397,36 +395,42 @@ Four near-identical dialogs. Each seeds its `model()` fields from `data.currentS
 
 The worksheet dialog seeds `subTitle` from `currentSettings.subTitle ?? data.title` (a stored custom subtitle wins over the file name) and exposes `printEntryDate`, `printFirstLetter`, `uniformBlankLength`, `uniformBlankLengthSize` (default `DEFAULT_UNIFORM_BLANK_LENGTH`). It no longer carries any datepicker/radio machinery — that was dead code removed in the review.
 
-### 7.3 Filter dialogs — Word / Rating
+### 7.3 Filter dialog — now the shared `SharedFilterDialogComponent`
 
-Two multi-condition editors. Same Close/Cancel semantics: `Close` returns the edited list; `Cancel`/backdrop/Esc return `undefined` (caller leaves the previous filter untouched). The seed is **cloned** (`this.data.map(c => ({ ...c }))`) so an edit never mutates the caller's array before Close.
+The vocabulary page no longer owns a filter dialog. The Filter menu opens the project-wide **`SharedFilterDialogComponent`** (`src/app/shared/filter-dialog/` — design, contracts, and the CDK tree invariants are documented in `docs/reusable-filter-dialog-design.md`), configured with the page's schema `VOCABULARY_FILTER_PROPERTIES` (`interfaces/vocabulary.ts`):
 
-- **Word filter:** add/remove rows; each row picks an operator (`startsWith`/`contains`/`equal`/`endsWith`/`isPhrase`/`notPhrase`) and text. Phrase operators are textless and disable the text input. `hasEmptyCondition()` blocks Close when a text condition's text is blank.
-- **Rating filter:** add/remove rows; each row picks one of the 5 value-based operators (`>= > = <= <`) and a value 1–5.
+- `enword` / `cnword` — string properties with the four match operators (`BeginsWith`/`Contains`/`Equal`/`EndsWith`); emitted values are trimmed + lower-cased via each property's `prepareValue` hook. `isPhrase` survives as a **custom (valueless) operator**: it emits `Contains ' '` and folds back from it via `recognize`, so the phrase leaf stays editable across dialog round-trips. (A `notPhrase` variant was dropped: actslib `FilterUtility` has no negation.)
+- `rating` — a number property with the five comparison operators (`>= > = <= <`), 0–5 range. Rating is not a row field; the predicate passes it in the synthesized target (§8).
+
+Word and rating conditions mix freely in the same group — that's what makes cross-dimension OR (`word starts with a OR rating = 5`) expressible; groups nest to any depth (the dialog caps only how deep "+ group" goes, default 4 levels; the evaluator is unbounded). The dialog edits the actslib definition **natively**: seed = the definition in effect, Submit = `{ root: IFilterDefinition }`, `Cancel`/backdrop/Esc = `undefined` (caller keeps the previous filter). Validation gates Submit (missing values; nested groups must have ≥2 members, root exempt — invalid groups are flagged in the tree), the master/detail layout is `mat-tree` + splitter + detail editor with the enum multiple-choice and two-input Between editors, and every edit flows through the dialog's `root` signal. See the design doc for the full UI contract.
 
 ---
 
 ## 8. Filter pipeline
 
-All filtering decisions flow through one pure function — `matchVocabularyListFilter(item, rating, filter)` in `interfaces/vocabulary.ts` — and nothing else grows private matching logic.
+All filtering decisions flow through one pure function — `matchVocabularyListFilter(item, rating, filter)` in `interfaces/vocabulary.ts` — and nothing else grows private matching logic. The condition **definition** is an actslib `IFilterDefinition` produced directly by the shared filter dialog (no page-side translation step) and evaluated by `FilterUtility.MatchFilter`.
 
 ### 8.1 Composition
 
-The three filter dimensions combine into a single `VocabularyListFilter`:
+The filter bar combines two dimensions in a single `VocabularyListFilter`: a live `freeText` term and the structured actslib **definition** built by the shared dialog:
 
 ```ts
 interface VocabularyListFilter {
   freeText: string;            // cross-field substring over id/enword/cnword (legacy)
-  wordConditions: WordCondition[];   // ANDed; blank-text rows are inactive
-  ratingConditions: RatingCondition[]; // ANDed
+  root: IFilterDefinition;     // actslib condition definition (the dialog's result)
 }
+
+// IFilterDefinition (actslib): { join?: 'AND'|'OR'; conditions: (IFilterCondition | IFilterDefinition)[] }
+// IFilterCondition: { property; operation: FilterOperation; lowValue?; highValue?; enumValues? }
 ```
 
-Matching is `freeText AND every active word condition AND every rating condition`:
+Word and rating conditions mix freely in the same group, and groups nest to arbitrary depth (the dialog edits the definition directly, capping only how deep new groups can be added; the evaluator is fully recursive). Matching is `freeText AND definition`, per actslib's own semantics:
 
-- `freeText`: lowercased substring of `${id}${enword}${cnword}` (mirrors the old default `MatTableDataSource` predicate).
-- `wordConditions`: text operators compare lowercased `enword`; phrase operators match on shape (`isPhrase` = `enword` contains a space; `notPhrase` = the negation) and are always active.
-- `ratingConditions`: each delegated to `matchRating(rating, operator, value)` (`ui-common.ts`); `LessThan`/`LessOrEquals` intentionally exclude unrated (`0`) words so "LessThan 1" does not collapse into "HasNone".
+- `freeText`: lowercased substring of `${id}${enword}${cnword}` (mirrors the old default `MatTableDataSource` predicate). This is a cross-field concatenation with no per-property condition equivalent, so it stays hand-written in `matchVocabularyListFilter`.
+- `root`: evaluated by `FilterUtility.MatchFilter` against a case-folded target `{ enword, cnword, rating }` (the row's text fields lowercased). **String condition values are already folded** — the dialog applies each property's `prepareValue` (trim + lowercase) at emit time — so the matcher only folds the target's fields; both sides meet lower-cased despite FilterUtility's case-sensitive string comparisons. The rating comes from the page's rating map, not the row.
+  - Word conditions carry `BeginsWith`/`Contains`/`Equal`/`EndsWith` directly (they are actslib operations now, not a page enum). The textless `isPhrase` emits `Contains` of a space via the schema's custom-operator hook — always active, offered for the English word only.
+  - Rating conditions are plain numeric operations on the `rating` property (`>=`, `>`, `=`, `<=`, `<`). An unrated word has rating `0` and compares numerically like any other value — the same semantics as the shared `matchRating` (`ui-common.ts`, still used by the knowledge/Chinese/translate pages), so `< 1` matches unrated words and `>= 1` matches any rated word (ratings are 1–5; the former `HasAny`/`HasNone` operators were removed as redundant).
+  - **No empty leaves/groups reach the matcher:** the shared dialog's Submit validation requires every leaf to hold a value and every nested group to branch (≥2 members), and its emit step drops incomplete leaves and empty sub-groups, so a definition can never contain the always-match empty group that would silently turn an OR-joined parent true.
 
 ### 8.2 Wiring through `MatTableDataSource`
 
@@ -538,25 +542,30 @@ interface VocabularySelectOption {
 ### 10.5 Filter models
 
 ```ts
-type WordMatchOperator = 'startsWith' | 'contains' | 'equal' | 'endsWith' | 'isPhrase' | 'notPhrase';
-interface WordCondition   { operator: WordMatchOperator; text: string; }
-interface RatingCondition  { operator: RatingOperatorEnum; value: number; }
-interface VocabularyListFilter { freeText: string; wordConditions: WordCondition[]; ratingConditions: RatingCondition[]; }
+// actslib (shared filter dialog contract): IFilterDefinition / IFilterCondition /
+// FilterOperation / FilterJoinType — the vocabulary filter IS a definition now.
+// vocabulary.ts schema:
+interface FilterableProperty { key; labelKey; kind: 'string'|'number'|'date'|'enum';
+  operations?; enumValues?; choices?; customOperators?; numberRange?; prepareValue?; }
+const VOCABULARY_FILTER_PROPERTIES: FilterableProperty[]; // enword, cnword, rating
+const VOCABULARY_IS_PHRASE: FilterCustomOperator;          // Contains ' ' emit/recognize
+interface VocabularyListFilter { freeText: string; root: IFilterDefinition; }
 ```
 
-`RatingOperatorEnum` (`Equals`, `GreaterThan`, `LessThan`, `HasAny`, `HasNone`, `LargerOrEquals`, `LessOrEquals`) and `SelectionModeEnum` (`ByID`, `FreeSelection`, `ByCount`) live in `ui-common.ts`, alongside `matchRating()`.
+`RatingOperatorEnum` (`Equals`, `GreaterThan`, `LessThan`, `LargerOrEquals`, `LessOrEquals`), `SelectionModeEnum` (`ByID`, `FreeSelection`, `ByCount`), `RatingCondition` and `summarizeRatingFilter()` live in `ui-common.ts` — they are shared by the vocabulary, knowledge, Chinese and translate list filters — alongside `matchRating()`, which compares an unrated (`0`) word numerically (the vocabulary page evaluates its rating conditions via actslib `FilterUtility` with the same semantics).
 
 ### 10.6 Pure helpers
 
 | Function | Location | Purpose |
 |---|---|---|
-| `matchVocabularyListFilter(item, rating, filter)` | `vocabulary.ts` | Single matching rule for the list filter. |
+| `matchVocabularyListFilter(item, rating, filter)` | `vocabulary.ts` | Single matching rule for the list filter (free text + actslib `FilterUtility.MatchFilter`). |
+| `VOCABULARY_FILTER_PROPERTIES` / `VOCABULARY_IS_PHRASE` | `vocabulary.ts` | The page's schema for the shared filter dialog (properties + phrase custom operator). |
+| `emptyVocabularyFilterDefinition()` | `vocabulary.ts` | The empty AND-joined root (the clear-filter state). |
 | `isVocabularyListFilterEmpty(filter)` | `vocabulary.ts` | True when no dimension is active. |
-| `isWordConditionActive(c)` / `isPhraseOperator(op)` | `vocabulary.ts` | Whether a word condition participates in filtering. |
-| `summarizeWordFilter(...)` / `summarizeRatingFilter(...)` | `vocabulary.ts` | Human-readable menu labels. |
+| `summarizeRatingFilter(...)` | `ui-common.ts` | Human-readable filter-menu label for the rating conditions (shared across pages). |
 | `buildVocabularyQuizQuestions(items, pool, direction)` | `vocabulary.ts` | Build the quiz question queue. |
 | `matchRating(rating, operator, value)` | `ui-common.ts` | Single rating comparison rule. |
-| `fisherYatesShuffle(array)` | `shared/utils/shuffle.ts` | Unbiased shuffle; returns a new array. |
+| `FisherYatesShuffle(array)` | `actslib` (`subject`) | Unbiased shuffle; returns a new array. |
 
 ---
 
@@ -799,8 +808,7 @@ src/app/pages/vocabulary-exercises/
 ├─ vocabulary-exercises-spellingoptions-dialog.component.ts/html
 ├─ vocabulary-exercises-quizoptions-dialog.component.ts/html/scss
 ├─ vocabulary-exercises-worksheetoptions-dialog.component.ts/html
-├─ vocabulary-exercises-word-filter-dialog.component.ts/html/scss/spec
-├─ vocabulary-exercises-rating-filter-dialog.component.ts/html/scss/spec
+├─ vocabulary-exercises-filter-dialog.component.ts/html/scss/spec
 ├─ _vocabulary-exercises-theme.scss
 └─ index.ts                                                   # barrel
 ```
@@ -808,6 +816,6 @@ src/app/pages/vocabulary-exercises/
 Supporting code outside the folder:
 - `src/app/interfaces/vocabulary.ts` — session/quiz/filter models and pure helpers (`matchVocabularyListFilter`, `buildVocabularyQuizQuestions`, `summarize…`).
 - `src/app/interfaces/ui-common.ts` — `SelectionModeEnum`, `RatingOperatorEnum`, `matchRating`, `replaceAtSymbols` (print blank rendering).
-- `src/app/shared/utils/shuffle.ts` — `fisherYatesShuffle`.
+- `src/app/shared/utils/shuffle.ts` — `pickWeighted` (shuffle moved to actslib `FisherYatesShuffle`).
 - `src/app/services/` — `LearningContentService` (file list + content), `LearningRatingService` (ratings), `AudioService` (Howler + Web Speech), `UIService` (worksheet handoff).
 - `src/assets/data/i18n/{en,zh-CN}.json` — translation keys.

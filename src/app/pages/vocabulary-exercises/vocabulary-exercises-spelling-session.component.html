@@ -15,8 +15,8 @@
         [attr.aria-label]="t('vocabularyExercises.nextWord')" (click)="store.nextWord()">
         <mat-icon>arrow_right</mat-icon>
       </button>
-      <button mat-fab class="toolbar-fab-button" [matTooltip]="t('vocabularyExercises.quit')"
-        [attr.aria-label]="t('vocabularyExercises.quit')" (click)="quit.emit()">
+      <button mat-fab class="toolbar-fab-button" [matTooltip]="t('common.quit')"
+        [attr.aria-label]="t('common.quit')" (click)="quit.emit()">
         <mat-icon>cancel_presentation</mat-icon>
       </button>
     </mat-toolbar-row>
@@ -34,7 +34,7 @@
     </div>
     @if (!store.currentResultCorrect()) {
       <div class="vocabulary-typing-status" role="status" aria-live="polite">
-        {{ t('vocabularyExercises.incorrect') }}
+        {{ t('common.incorrect') }}
       </div>
     }
   </div>

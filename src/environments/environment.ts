@@ -6,8 +6,8 @@
 export const environment = {
   homeurl: 'http://localhost:29800',
   production: false,
-  releasedate: '2026-08-23',
-  version: '1.8.433',
+  releasedate: '2026-08-30',
+  version: '1.9.0',
   apiUrl: 'https://localhost:7135',
   pageTitle: 'Knowledge Builder',
   loginRequired: true,
