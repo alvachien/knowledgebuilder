@@ -1,11 +1,14 @@
-import { Component, Input, input } from '@angular/core';
+import { Component, Input, input, ChangeDetectionStrategy } from '@angular/core';
 import { FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { NgxPrintModule } from 'ngx-print';
 
 import type { QuestionBankTypeKeys } from '../../interfaces';
-import type { KnowledgeExercisePrintOption, QuestionBankItemBase } from '../../interfaces/questionbank-base';
+import type {
+  KnowledgeExercisePrintOption,
+  QuestionBankItemBase,
+} from '../../interfaces/questionbank-base';
 import { KnowledgeExerciseItemComponent } from '../knowledge-exercise-item/knowledge-exercise-item.component';
 
 @Component({
@@ -16,9 +19,10 @@ import { KnowledgeExerciseItemComponent } from '../knowledge-exercise-item/knowl
     KnowledgeExerciseItemComponent,
     MatFormFieldModule,
     MatButtonModule,
-    NgxPrintModule
+    NgxPrintModule,
   ],
   templateUrl: './knowledge-exercise-form.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './knowledge-exercise-form.component.scss',
 })
 export class KnowledgeExerciseFormComponent {
@@ -54,10 +58,10 @@ export class KnowledgeExerciseFormComponent {
 
     const totalgrp = {};
     if (this._questions && this._questions.length > 0) {
-      this._questions.forEach((qtn) => {
+      this._questions.forEach(qtn => {
         const grp = qtn.getFormControls();
         Object.assign(totalgrp, grp);
-      })
+      });
     }
     this.form = new FormGroup(totalgrp);
   }

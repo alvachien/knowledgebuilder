@@ -2,10 +2,9 @@
 // Data file.
 
 import {
-  FilterJoinType,
   FilterOperation,
   FilterUtility,
-  type IFilterDefinition,
+  type FilterRoot,
 } from 'actslib';
 
 import { hasActiveFilterDefinition } from "../shared/filter-dialog/filter-dialog-model";
@@ -17,8 +16,9 @@ import type { KnowledgeExerciseFileContent } from "./questionbank-base";
 // ── Filter-bar schema (shared filter dialog) ───────────────────────────────
 //
 // The Chinese list filter is edited by SharedFilterDialogComponent; its seed
-// and result are actslib `IFilterDefinition`, so this page keeps no tree model
-// of its own (see docs/reusable-filter-dialog-design.md).
+// and result are actslib `FilterRoot` (a group definition, or a bare condition
+// for a single-condition filter), so this page keeps no tree model of its own
+// (see docs/reusable-filter-dialog-design.md).
 
 /** actslib string comparisons are case-sensitive while the page matches
  *  case-insensitively — the dialog folds emitted text values (this hook) and
@@ -77,12 +77,6 @@ export const CHINESE_FILTER_PROPERTIES: FilterableProperty[] = [
   },
 ];
 
-/** A fresh (empty) filter definition: matches everything, shown as "new filter". */
-export const emptyChineseFilterDefinition = (): IFilterDefinition => ({
-  join: FilterJoinType.AND,
-  conditions: [],
-});
-
 /**
  * Combined criteria of the Chinese list filter bar. `freeText` applies live
  * (cross-field substring over id/subject/author/content/source); `root` is
@@ -93,8 +87,9 @@ export const emptyChineseFilterDefinition = (): IFilterDefinition => ({
 export interface ChineseListFilter {
   /** Cross-field substring search (legacy default-predicate behaviour). */
   freeText: string;
-  /** actslib filter definition (text/rating leaves and nested AND/OR groups). */
-  root: IFilterDefinition;
+  /** actslib filter root (text/rating leaves and nested AND/OR groups; a bare
+   *  condition when the filter is a single condition). */
+  root: FilterRoot;
 }
 
 /**

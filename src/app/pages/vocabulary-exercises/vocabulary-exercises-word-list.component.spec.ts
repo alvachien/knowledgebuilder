@@ -1,11 +1,16 @@
 import { SelectionModel } from '@angular/cdk/collections';
-import { provideHttpClient } from '@angular/common/http';
+import { provideHttpClient, withXhr } from '@angular/common/http';
 import { provideHttpClientTesting } from '@angular/common/http/testing';
-import type { ComponentFixture} from '@angular/core/testing';
+import type { ComponentFixture } from '@angular/core/testing';
 import { TestBed } from '@angular/core/testing';
 import { MatTableDataSource } from '@angular/material/table';
 import { NoopAnimationsModule } from '@angular/platform-browser/animations';
-import { TranslocoModule, TranslocoService, TRANSLOCO_TRANSPILER, TRANSLOCO_MISSING_HANDLER } from '@jsverse/transloco';
+import {
+  TranslocoModule,
+  TranslocoService,
+  TRANSLOCO_TRANSPILER,
+  TRANSLOCO_MISSING_HANDLER,
+} from '@jsverse/transloco';
 import { FilterJoinType, FilterOperation } from 'actslib';
 import type { IFilterCondition, IFilterDefinition } from 'actslib';
 import { of } from 'rxjs';
@@ -16,7 +21,11 @@ import type { LearnEnglishWordFileItem, LearningContent } from '../../interfaces
 import { VocabularyExercisesWordListComponent } from './vocabulary-exercises-word-list.component';
 
 // cond/andG/orG build the actslib definition the filter input now carries.
-const cond = (property: string, operation: FilterOperation, lowValue: string | number): IFilterCondition => ({
+const cond = (
+  property: string,
+  operation: FilterOperation,
+  lowValue: string | number
+): IFilterCondition => ({
   property,
   operation,
   lowValue,
@@ -58,7 +67,7 @@ describe('VocabularyExercisesWordListComponent', () => {
         { provide: TranslocoService, useValue: mockTransloco() },
         { provide: TRANSLOCO_TRANSPILER, useValue: {} },
         { provide: TRANSLOCO_MISSING_HANDLER, useValue: {} },
-        provideHttpClient(),
+        provideHttpClient(withXhr()),
         provideHttpClientTesting(),
       ],
     }).compileComponents();
@@ -68,8 +77,14 @@ describe('VocabularyExercisesWordListComponent', () => {
     fixture.componentRef.setInput('allFiles', [] as LearningContent[]);
     fixture.componentRef.setInput('selectedFile', undefined);
     fixture.componentRef.setInput('isLoadingContents', false);
-    fixture.componentRef.setInput('dataSource', new MatTableDataSource<LearnEnglishWordFileItem>([]));
-    fixture.componentRef.setInput('selection', new SelectionModel<LearnEnglishWordFileItem>(true, []));
+    fixture.componentRef.setInput(
+      'dataSource',
+      new MatTableDataSource<LearnEnglishWordFileItem>([])
+    );
+    fixture.componentRef.setInput(
+      'selection',
+      new SelectionModel<LearnEnglishWordFileItem>(true, [])
+    );
     fixture.componentRef.setInput('contentRatings', new Map<number, number>());
     fixture.componentRef.setInput('filterDefinition', andG());
     // Do NOT call detectChanges: class-logic tests only (getters read signal
@@ -82,13 +97,19 @@ describe('VocabularyExercisesWordListComponent', () => {
   });
 
   it('builds a readable Filter menu summary when conditions are active', () => {
-    fixture.componentRef.setInput('filterDefinition', andG(cond('enword', FilterOperation.BeginsWith, 'a')));
+    fixture.componentRef.setInput(
+      'filterDefinition',
+      andG(cond('enword', FilterOperation.BeginsWith, 'a'))
+    );
     expect(component.hasFilter).toBe(true);
     expect(component.filterMenuLabel).toBe('word opStartsWith a');
   });
 
   it('labels cnword conditions with the Chinese field name', () => {
-    fixture.componentRef.setInput('filterDefinition', andG(cond('cnword', FilterOperation.Contains, '苹果')));
+    fixture.componentRef.setInput(
+      'filterDefinition',
+      andG(cond('cnword', FilterOperation.Contains, '苹果'))
+    );
     expect(component.filterMenuLabel).toBe('chinese opContains 苹果');
   });
 
@@ -99,10 +120,13 @@ describe('VocabularyExercisesWordListComponent', () => {
   });
 
   it('joins word and rating leaves with the group join word in one summary', () => {
-    fixture.componentRef.setInput('filterDefinition', andG(
-      cond('enword', FilterOperation.BeginsWith, 'a'),
-      cond('rating', FilterOperation.GreaterOrEqual, 3),
-    ));
+    fixture.componentRef.setInput(
+      'filterDefinition',
+      andG(
+        cond('enword', FilterOperation.BeginsWith, 'a'),
+        cond('rating', FilterOperation.GreaterOrEqual, 3)
+      )
+    );
     // Numeric properties render comparison operators as symbols; the join word
     // is translated (mock returns the key's last segment).
     expect(component.hasFilter).toBe(true);
@@ -110,25 +134,28 @@ describe('VocabularyExercisesWordListComponent', () => {
   });
 
   it('shows the OR join word for an OR-joined group', () => {
-    fixture.componentRef.setInput('filterDefinition', orG(
-      cond('enword', FilterOperation.BeginsWith, 'a'),
-      cond('rating', FilterOperation.Equal, 5),
-    ));
+    fixture.componentRef.setInput(
+      'filterDefinition',
+      orG(cond('enword', FilterOperation.BeginsWith, 'a'), cond('rating', FilterOperation.Equal, 5))
+    );
     expect(component.filterMenuLabel).toBe('word opStartsWith a joinOr rating = 5');
   });
 
   it('wraps nested multi-member groups in parentheses in the menu summary', () => {
-    fixture.componentRef.setInput('filterDefinition', orG(
-      andG(
-        cond('enword', FilterOperation.Equal, 'a'),
-        cond('enword', FilterOperation.Equal, 'b'),
-      ),
-    ));
+    fixture.componentRef.setInput(
+      'filterDefinition',
+      orG(
+        andG(cond('enword', FilterOperation.Equal, 'a'), cond('enword', FilterOperation.Equal, 'b'))
+      )
+    );
     expect(component.filterMenuLabel).toBe('(word opEqual a joinAnd word opEqual b)');
   });
 
   it('shows a rating-only summary when no vocabulary condition is active', () => {
-    fixture.componentRef.setInput('filterDefinition', andG(cond('rating', FilterOperation.GreaterOrEqual, 3)));
+    fixture.componentRef.setInput(
+      'filterDefinition',
+      andG(cond('rating', FilterOperation.GreaterOrEqual, 3))
+    );
     expect(component.hasFilter).toBe(true);
     expect(component.filterMenuLabel).toBe('rating >= 3');
   });
@@ -218,9 +245,7 @@ describe('VocabularyExercisesWordListComponent', () => {
   });
 
   describe('rating column visibility for temp content (L2)', () => {
-    const rows: LearnEnglishWordFileItem[] = [
-      { id: 1, enword: 'hello', cnword: '你好' },
-    ];
+    const rows: LearnEnglishWordFileItem[] = [{ id: 1, enword: 'hello', cnword: '你好' }];
 
     function setupRatingsEnabled(enabled: boolean): void {
       const dataSource = new MatTableDataSource<LearnEnglishWordFileItem>(rows.slice());

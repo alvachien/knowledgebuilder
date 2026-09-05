@@ -1,4 +1,4 @@
-import { provideHttpClient } from '@angular/common/http';
+import { provideHttpClient, withXhr } from '@angular/common/http';
 import { provideHttpClientTesting } from '@angular/common/http/testing';
 import type { ComponentFixture } from '@angular/core/testing';
 import { TestBed } from '@angular/core/testing';
@@ -135,7 +135,7 @@ describe('EnglishListeningComponent', () => {
     await TestBed.configureTestingModule({
       imports: [EnglishListeningComponent, NoopAnimationsModule],
       providers: [
-        provideHttpClient(),
+        provideHttpClient(withXhr()),
         provideHttpClientTesting(),
         { provide: LearningContentService, useValue: learningContentSpy },
         { provide: AudioService, useValue: audioSpy },

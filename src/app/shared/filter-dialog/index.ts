@@ -3,4 +3,5 @@
 // it) plus the schema types; the model functions are exported for pages that
 // want the summary (menu labels) or round-trip helpers.
 export * from './filter-dialog-model';
+export * from './filter-dialog-launcher';
 export { SharedFilterDialogComponent } from './filter-dialog.component';

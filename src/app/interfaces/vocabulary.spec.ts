@@ -1,5 +1,4 @@
 import { FilterJoinType, FilterOperation } from 'actslib';
-
 import type { IFilterCondition, IFilterDefinition } from 'actslib';
 
 import {
@@ -7,7 +6,6 @@ import {
   VOCABULARY_IS_PHRASE,
   VOCABULARY_UPLOAD_MAX_ITEMS,
   buildVocabularyQuizQuestions,
-  emptyVocabularyFilterDefinition,
   isVocabularyListFilterEmpty,
   matchVocabularyListFilter,
   parseVocabularyUpload,
@@ -16,7 +14,8 @@ import {
 
 const baseFilter: VocabularyListFilter = {
   freeText: '',
-  root: emptyVocabularyFilterDefinition(),
+  // case 0 — the cleared filter (the shared dialog's emptyFilterDefinition shape)
+  root: { join: FilterJoinType.AND, conditions: [] },
 };
 
 const item = { id: 7, enword: 'Apple Pie', cnword: '苹果派' };

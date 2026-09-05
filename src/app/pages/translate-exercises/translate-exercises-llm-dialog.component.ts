@@ -1,4 +1,11 @@
-import { Component, Inject, DestroyRef, inject, model } from '@angular/core';
+import {
+  Component,
+  Inject,
+  DestroyRef,
+  inject,
+  model,
+  ChangeDetectionStrategy,
+} from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
@@ -20,6 +27,7 @@ import { AIService } from '../../services';
 @Component({
   selector: 'app-translate-exercises-llm-dlg',
   templateUrl: './translate-exercises-llm-dialog.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [
     MatFormFieldModule,
     MatInputModule,

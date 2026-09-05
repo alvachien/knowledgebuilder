@@ -2,14 +2,14 @@
 // Filter pipeline of the knowledge exercises list page.
 //
 // The filter is edited by SharedFilterDialogComponent; its seed and result are
-// actslib `IFilterDefinition`, so this page keeps no tree model of its own
+// actslib `FilterRoot` (a group definition, or a bare condition for a
+// single-condition filter), so this page keeps no tree model of its own
 // (see docs/reusable-filter-dialog-design.md — this page is the enum proof).
 
 import {
-  FilterJoinType,
   FilterOperation,
   FilterUtility,
-  type IFilterDefinition,
+  type FilterRoot,
 } from 'actslib';
 
 import { hasActiveFilterDefinition } from "../shared/filter-dialog/filter-dialog-model";
@@ -90,12 +90,6 @@ export const KNOWLEDGE_FILTER_PROPERTIES: FilterableProperty[] = [
   },
 ];
 
-/** A fresh (empty) filter definition: matches everything, shown as "new filter". */
-export const emptyKnowledgeFilterDefinition = (): IFilterDefinition => ({
-  join: FilterJoinType.AND,
-  conditions: [],
-});
-
 /**
  * Combined criteria of the knowledge list filter bar. `freeText` applies live
  * (multi-term cross-field substring over id/question/tags/options/answers/
@@ -108,8 +102,9 @@ export const emptyKnowledgeFilterDefinition = (): IFilterDefinition => ({
 export interface KnowledgeListFilter {
   /** Cross-field substring search (every term must match somewhere). */
   freeText: string;
-  /** actslib filter definition (text/enum/rating leaves and nested groups). */
-  root: IFilterDefinition;
+  /** actslib filter root (text/enum/rating leaves and nested groups; a bare
+   *  condition when the filter is a single condition). */
+  root: FilterRoot;
 }
 
 /**

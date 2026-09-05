@@ -1,9 +1,8 @@
 import {
   FisherYatesShuffle,
-  FilterJoinType,
   FilterOperation,
   FilterUtility,
-  type IFilterDefinition,
+  type FilterRoot,
 } from 'actslib';
 
 import { hasActiveFilterDefinition } from "../shared/filter-dialog/filter-dialog-model";
@@ -180,8 +179,9 @@ export interface ReviewQueueItem {
 // ── Filter-bar schema (shared filter dialog) ─────────────────────────────────
 //
 // The vocabulary filter is edited by SharedFilterDialogComponent; its seed and
-// result are actslib `IFilterDefinition`, so this page keeps no tree model of
-// its own (see docs/reusable-filter-dialog-design.md).
+// result are actslib `FilterRoot` (a group definition, or a bare condition for
+// a single-condition filter), so this page keeps no tree model of its own
+// (see docs/reusable-filter-dialog-design.md).
 
 /** The `isPhrase` custom operator: a phrase is English text containing a
  *  space. Valueless (the editor shows no input) and recognized from its own
@@ -245,12 +245,6 @@ export const VOCABULARY_FILTER_PROPERTIES: FilterableProperty[] = [
   },
 ];
 
-/** A fresh (empty) filter definition: matches everything, shown as "new filter". */
-export const emptyVocabularyFilterDefinition = (): IFilterDefinition => ({
-  join: FilterJoinType.AND,
-  conditions: [],
-});
-
 /**
  * Combined criteria of the vocabulary list filter bar. `freeText` applies live
  * (cross-field substring over id/enword/cnword); `root` is the actslib
@@ -261,8 +255,9 @@ export const emptyVocabularyFilterDefinition = (): IFilterDefinition => ({
 export interface VocabularyListFilter {
   /** Cross-field substring search over id/enword/cnword (legacy behaviour). */
   freeText: string;
-  /** actslib filter definition (word/rating leaves and nested AND/OR groups). */
-  root: IFilterDefinition;
+  /** actslib filter root (word/rating leaves and nested AND/OR groups; a bare
+   *  condition when the filter is a single condition). */
+  root: FilterRoot;
 }
 
 /**

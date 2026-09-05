@@ -4,6 +4,11 @@
     <div class="fdlg-split" [style.--split-left]="splitLeft() + '%'">
       <!-- Left pane: condition-tree navigator with an insert/delete toolbar. -->
       <div class="fdlg-tree-pane">
+        <!-- Exactly three buttons, enabled by the selected node's kind: a
+             GROUP arms all three (it becomes the insert target; +group
+             respects the depth cap), a CONDITION arms delete only, and with
+             no node selected (the empty tree) the two inserts arm and delete
+             stays off. -->
         <div class="fdlg-tree-toolbar">
           <button mat-icon-button type="button" (click)="onInsertCondition()" [disabled]="!canInsertCondition()"
             [attr.aria-label]="t('common.addCondition')" [title]="t('common.addCondition')">
@@ -13,8 +18,11 @@
             [attr.aria-label]="t('common.addFilterGroup')" [title]="t('common.addFilterGroup')">
             <mat-icon>playlist_add</mat-icon>
           </button>
+          <!-- One button for both kinds (enabled by selection); its label names
+               what is actually removed: a selected condition deletes a
+               condition, a selected group its subtree. -->
           <button mat-icon-button type="button" (click)="onDeleteSelected()" [disabled]="!canDeleteSelected()"
-            [attr.aria-label]="t('common.removeFilterGroup')" [title]="t('common.removeFilterGroup')">
+            [attr.aria-label]="t(deleteSelectedLabelKey())" [title]="t(deleteSelectedLabelKey())">
             <mat-icon>delete</mat-icon>
           </button>
         </div>
@@ -59,6 +67,9 @@
             <div class="fdlg-detail-title">{{ t('common.filterGroup') }}</div>
             <p class="fdlg-hint">{{ t('common.filterJoinHint') }}</p>
             <mat-form-field subscriptSizing="dynamic" class="fdlg-join">
+              <!-- Any rendered group row's join edits here (the top row IS the
+                   case-2 root node). A 1-member group carries the ⚠ warning
+                   instead of a disabled select. -->
               <mat-select [ngModel]="sel.join" (ngModelChange)="onJoinChange(sel.id, $event)"
                 [attr.aria-label]="t('common.filterJoinSelect')">
                 @for (join of joinOptions; track join.value) {

@@ -32,7 +32,7 @@ import { MatTableModule } from '@angular/material/table';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { TranslocoModule, TranslocoService } from '@jsverse/transloco';
-import type { IFilterDefinition } from 'actslib';
+import type { FilterRoot } from 'actslib';
 
 import type { LearnChineseFileItem, LearningContent } from '../../interfaces';
 import { CHINESE_FILTER_PROPERTIES, getChineseReciteItemDisplayContent } from '../../interfaces';
@@ -89,7 +89,7 @@ export class ChineseExercisesListComponent implements OnInit {
   // filter dialog); this child only renders it for the menu label and
   // forwards intents. freeText is a local field for the input box, emitted
   // live.
-  readonly filterDefinition = input.required<IFilterDefinition>();
+  readonly filterDefinition = input.required<FilterRoot>();
   /**
    * Free text currently applied by the container. The container's filter
    * survives the destroy/recreate of this screen, so it seeds the input box

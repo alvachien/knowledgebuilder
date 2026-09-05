@@ -1,10 +1,12 @@
-import { provideHttpClient } from '@angular/common/http';
+import { provideHttpClient, withXhr } from '@angular/common/http';
 import { provideHttpClientTesting } from '@angular/common/http/testing';
 import { NgZone } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { vi } from 'vitest';
 
 import { AudioService } from './audio-service.service';
+import { HOWL_FACTORY } from './howl-factory';
+import { HOWLER_GLOBAL } from './howler.token';
 
 describe('AudioService', () => {
   let service: AudioService;
@@ -68,8 +70,9 @@ describe('AudioService', () => {
     // Pending onload timer (scheduled below); cleared on unload() so a
     // superseded/destroyed Howl can't fire onload into the next test and
     // call .next() on already-completed subjects (which throws and wedges
-    // the runner under CI load). See "should complete all subjects on
-    // destroy" / "should handle load and play cycle".
+    // the runner under CI load). The mock reaches AudioService through
+    // HOWL_FACTORY below — window.Howl would NOT (the real howler class is
+    // what the root-provided factory constructs).
     self._onloadTimer = undefined as ReturnType<typeof setTimeout> | undefined;
     self.unload = vi.fn(() => {
       if (self._onloadTimer !== undefined) {
@@ -118,16 +121,13 @@ describe('AudioService', () => {
   beforeEach(() => {
     howlerVolumeSpy = vi.fn();
 
-    (window as any).Howl = MockHowl;
-    (window as any).Howler = {
-      volume: howlerVolumeSpy,
-    };
-
     TestBed.configureTestingModule({
       providers: [
         AudioService,
-        { provide: NgZone, useValue: new NgZone({}) },
-        provideHttpClient(),
+        { provide: NgZone, useValue: new NgZone({ enableLongStackTrace: false }) },
+        { provide: HOWL_FACTORY, useValue: (config: unknown) => new (MockHowl as any)(config) },
+        { provide: HOWLER_GLOBAL, useValue: { volume: howlerVolumeSpy } },
+        provideHttpClient(withXhr()),
         provideHttpClientTesting(),
       ],
     });
@@ -135,8 +135,6 @@ describe('AudioService', () => {
   });
 
   afterEach(() => {
-    (window as any).Howl = undefined;
-    (window as any).Howler = undefined;
     if (service) {
       service.ngOnDestroy();
     }
@@ -192,7 +190,11 @@ describe('AudioService', () => {
     expect(() => service.toggle()).not.toThrow();
   });
 
-  it('should complete all subjects on destroy', async () => {
+  // Both tests below are deliberately synchronous: Subject completion is a
+  // synchronous notification, and the mocked Howl reports 'loaded' immediately,
+  // so awaiting wall-clock timers here only added CI flake (the awaits used to
+  // stall until the 5s test timeout under load).
+  it('should complete all subjects on destroy', () => {
     let stateCompleted = false;
     let positionCompleted = false;
     let durationCompleted = false;
@@ -205,16 +207,14 @@ describe('AudioService', () => {
 
     service.ngOnDestroy();
 
-    await new Promise(resolve => setTimeout(resolve, 0));
     expect(stateCompleted).toBe(true);
     expect(positionCompleted).toBe(true);
     expect(durationCompleted).toBe(true);
     expect(volumeCompleted).toBe(true);
   });
 
-  it('should handle load and play cycle', async () => {
+  it('should handle load and play cycle', () => {
     void service.load('test.mp3');
-    await new Promise(resolve => setTimeout(resolve, 10));
     expect(service.currentAudioFile).toBe('test.mp3');
     expect(() => service.play()).not.toThrow();
   });
@@ -239,7 +239,8 @@ describe('AudioService', () => {
 
     beforeEach(() => {
       originalSpeechSynthesis = window.speechSynthesis;
-      originalCtor = (window as unknown as { SpeechSynthesisUtterance?: unknown }).SpeechSynthesisUtterance;
+      originalCtor = (window as unknown as { SpeechSynthesisUtterance?: unknown })
+        .SpeechSynthesisUtterance;
       voicesChangedHandler = null;
       getVoicesMock = vi.fn(() => []);
       speakMock = vi.fn();
@@ -283,7 +284,8 @@ describe('AudioService', () => {
         configurable: true,
         value: originalSpeechSynthesis,
       });
-      (window as unknown as { SpeechSynthesisUtterance: unknown }).SpeechSynthesisUtterance = originalCtor;
+      (window as unknown as { SpeechSynthesisUtterance: unknown }).SpeechSynthesisUtterance =
+        originalCtor;
     });
 
     it('should not throw and should not speak when speechSynthesis is unavailable', () => {
@@ -346,7 +348,7 @@ describe('AudioService', () => {
       const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
       service.speakWord('hello');
       const utterance = speakMock.mock.calls[0][0] as SpeechSynthesisUtterance;
-      const makeEvent = (error: string) => ({ error } as unknown as SpeechSynthesisErrorEvent);
+      const makeEvent = (error: string) => ({ error }) as unknown as SpeechSynthesisErrorEvent;
       utterance.onerror!(makeEvent('interrupted'));
       utterance.onerror!(makeEvent('canceled'));
       expect(warnSpy).not.toHaveBeenCalled();

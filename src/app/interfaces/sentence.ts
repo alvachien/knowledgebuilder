@@ -1,9 +1,8 @@
 import {
-  FilterJoinType,
   FilterOperation,
   FilterUtility,
   FisherYatesShuffle,
-  type IFilterDefinition,
+  type FilterRoot,
 } from 'actslib';
 
 import { hasActiveFilterDefinition } from "../shared/filter-dialog/filter-dialog-model";
@@ -13,8 +12,9 @@ import { pickWeighted } from "../shared/utils/shuffle";
 // ── Filter-bar schema (shared filter dialog) ───────────────────────────────
 //
 // The sentence list filter is edited by SharedFilterDialogComponent; its seed
-// and result are actslib `IFilterDefinition`, so this page keeps no tree model
-// of its own (see docs/reusable-filter-dialog-design.md).
+// and result are actslib `FilterRoot` (a group definition, or a bare condition
+// for a single-condition filter), so this page keeps no tree model of its own
+// (see docs/reusable-filter-dialog-design.md).
 
 /** actslib string comparisons are case-sensitive while the page matches
  *  case-insensitively — the dialog folds emitted text values (this hook) and
@@ -66,12 +66,6 @@ export const SENTENCE_FILTER_PROPERTIES: FilterableProperty[] = [
   },
 ];
 
-/** A fresh (empty) filter definition: matches everything, shown as "new filter". */
-export const emptySentenceFilterDefinition = (): IFilterDefinition => ({
-  join: FilterJoinType.AND,
-  conditions: [],
-});
-
 /**
  * Combined criteria of the sentence list filter bar. `freeText` applies live
  * (cross-field substring over id/ensent/cnsent); `root` is the actslib
@@ -82,8 +76,9 @@ export const emptySentenceFilterDefinition = (): IFilterDefinition => ({
 export interface SentenceListFilter {
   /** Cross-field substring search over id/ensent/cnsent (legacy behaviour). */
   freeText: string;
-  /** actslib filter definition (text/rating leaves and nested AND/OR groups). */
-  root: IFilterDefinition;
+  /** actslib filter root (text/rating leaves and nested AND/OR groups; a bare
+   *  condition when the filter is a single condition). */
+  root: FilterRoot;
 }
 
 /**

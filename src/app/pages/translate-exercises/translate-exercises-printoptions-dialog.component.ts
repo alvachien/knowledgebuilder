@@ -1,4 +1,4 @@
-import { Component, Inject, inject, model } from '@angular/core';
+import { Component, Inject, inject, model, ChangeDetectionStrategy } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCheckboxModule } from '@angular/material/checkbox';
@@ -42,6 +42,7 @@ import { MatDateFnsModule, provideDateFnsAdapter } from '@angular/material-date-
     MatDateFnsModule,
     TranslocoModule,
   ],
+  changeDetection: ChangeDetectionStrategy.Eager,
   providers: [
     provideDateFnsAdapter(),
     { provide: MAT_DATE_FORMATS, useValue: MY_DATE_FORMATS },

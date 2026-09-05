@@ -32,7 +32,7 @@ import { MatTableModule } from '@angular/material/table';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { TranslocoModule, TranslocoService } from '@jsverse/transloco';
-import type { IFilterDefinition } from 'actslib';
+import type { FilterRoot } from 'actslib';
 
 import type { KnowledgeExerciseFileContent, LearningContent } from '../../../interfaces';
 import { KNOWLEDGE_FILTER_PROPERTIES } from '../../../interfaces';
@@ -101,7 +101,7 @@ export class KnowledgeExercisesListComponent implements OnInit {
   // filter dialog); this child only renders it for the menu label and
   // forwards intents. freeText is a local field for the input box, emitted
   // live.
-  readonly filterDefinition = input.required<IFilterDefinition>();
+  readonly filterDefinition = input.required<FilterRoot>();
   /**
    * Free text currently applied by the container, seeded into the input box
    * on init. The list screen stays mounted across detail visits (the container
