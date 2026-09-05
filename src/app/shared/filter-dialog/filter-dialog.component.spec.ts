@@ -14,7 +14,11 @@ import type { EnumLike, IFilterCondition, IFilterDefinition } from 'actslib';
 import { of } from 'rxjs';
 import { vi } from 'vitest';
 
-import type { FilterDialogData, FilterableProperty } from './filter-dialog-model';
+import type {
+  FilterDialogData,
+  FilterableProperty,
+  SharedFilterDialogNode,
+} from './filter-dialog-model';
 import { SharedFilterDialogComponent } from './filter-dialog.component';
 
 function mockTranslocoService() {
@@ -91,6 +95,7 @@ describe('SharedFilterDialogComponent', () => {
   const component = () => fixture.componentInstance;
   const rootNode = () => component().root();
   const rows = () => fixture.nativeElement.querySelectorAll('.fdlg-node-row');
+  const rowList = () => rows() as NodeListOf<HTMLElement>;
   const toolbarButtons = () =>
     fixture.nativeElement.querySelectorAll(
       '.fdlg-tree-toolbar button'
@@ -99,6 +104,10 @@ describe('SharedFilterDialogComponent', () => {
     fixture.nativeElement.querySelectorAll(
       'mat-dialog-actions button'
     ) as NodeListOf<HTMLButtonElement>;
+  /** The toolbar's disabled flags, in order: [+ condition, + group, delete]. */
+  const disabledStates = (): boolean[] => Array.from(toolbarButtons()).map(b => b.disabled);
+  /** The tree's single top node — the actslib root (case-1 leaf, case-2 group). */
+  const topNode = () => rootNode().members[0] as SharedFilterDialogNode;
 
   const seedDef: IFilterDefinition = {
     join: FilterJoinType.AND,
@@ -135,34 +144,143 @@ describe('SharedFilterDialogComponent', () => {
   }
 
   describe('rendering', () => {
-    it('seeds the tree: rows, labels and the root selected in the detail pane', async () => {
+    it('(1) opens in case 1: ONE condition node — the root — selected, delete-only armed', async () => {
+      await createWith({ properties: SCHEMA });
+      fixture.detectChanges();
+      const root = rootNode();
+      // The editor tree IS the actslib root: exactly one node (the scaffolded
+      // condition), no wrapper row above it.
+      expect(root.members.length).toBe(1);
+      expect(rowList().length).toBe(1);
+      // A blank leaf labels with just its property name (describeMember fallback).
+      expect(rowList()[0].textContent).toContain('test.word');
+      // The node is selected: its condition editor fills the detail pane.
+      expect(fixture.nativeElement.querySelector('.fdlg-text input')).toBeTruthy();
+      expect(fixture.nativeElement.querySelector('.fdlg-join')).toBeNull();
+      // A selected CONDITION arms delete only.
+      expect(disabledStates()).toEqual([true, true, false]);
+      // Blank value -> Submit disabled by the missing-value rule.
+      expect(component().validation().missingValueIds).toEqual([
+        (root.members[0] as { id: number }).id,
+      ]);
+      expect(component().canSubmit()).toBe(false);
+    });
+
+    it('an empty definition seed (the pages\' cleared filter) scaffolds the same way', async () => {
+      await createWith({ properties: SCHEMA, root: { conditions: [] } });
+      fixture.detectChanges();
+      expect(rootNode().members.length).toBe(1);
+      expect(rowList().length).toBe(1); // the case-1 one-node tree
+      expect(fixture.nativeElement.querySelector('.fdlg-text input')).toBeTruthy();
+      // A non-empty seed is copied in untouched (no scaffold added):
+      // the 5-row seedDef test below covers that.
+    });
+
+    it('(2) delete empties the tree (the adds re-arm); + condition restores case 1', async () => {
+      await createWith({ properties: SCHEMA });
+      fixture.detectChanges();
+      toolbarButtons()[2].click(); // delete the selected condition
+      fixture.detectChanges();
+      // No rows, no selection: the transient empty state the toolbar's
+      // insert buttons own.
+      expect(rowList().length).toBe(0);
+      expect(component().selectedId()).toBeNull();
+      expect(disabledStates()).toEqual([false, false, true]); // adds armed, delete off
+      expect(fixture.nativeElement.querySelector('.fdlg-detail-empty')).toBeTruthy();
+      expect(component().canSubmit()).toBe(false); // case 0 is the Clear Filter button's job
+
+      toolbarButtons()[0].click(); // + condition from the empty state
+      fixture.detectChanges();
+      expect(rowList().length).toBe(1); // back to the one-node case-1 tree
+      expect(component().selectedId()).toBe(rootNode().members[0].id);
+      expect(disabledStates()).toEqual([true, true, false]);
+      expect(fixture.nativeElement.querySelector('.fdlg-text input')).toBeTruthy();
+    });
+
+    it('(3) from the empty tree + group roots a selected group; + condition adds its first child', async () => {
+      await createWith({ properties: SCHEMA });
+      fixture.detectChanges();
+      toolbarButtons()[2].click(); // delete the case-1 node -> empty
+      fixture.detectChanges();
+      toolbarButtons()[1].click(); // + group
+      fixture.detectChanges();
+      expect(rowList().length).toBe(1); // the group IS the single root node
+      const groupId = topNode().id;
+      expect(topNode().members).toEqual([]);
+      expect(component().selectedId()).toBe(groupId);
+      expect(disabledStates()).toEqual([false, false, false]); // a GROUP arms all three
+      expect(fixture.nativeElement.querySelector('.fdlg-join')).toBeTruthy();
+
+      toolbarButtons()[0].click(); // + condition -> the group's FIRST child
+      fixture.detectChanges();
+      expect(rowList().length).toBe(2); // group row + nested child row
+      const child = (component().memberById(groupId) as SharedFilterDialogNode).members[0];
+      expect(component().selectedId()).toBe(child.id); // the child takes selection
+      expect(disabledStates()).toEqual([true, true, false]); // it is a condition
+      expect(rowList()[1].textContent).toContain('test.word');
+
+      rowList()[0].click(); // back to the group: all three armed again
+      fixture.detectChanges();
+      expect(disabledStates()).toEqual([false, false, false]);
+    });
+
+    it('the root group node edits its join in the detail pane and emits as the case-2 root', async () => {
+      await createWith({ properties: SCHEMA, root: seedDef });
+      fixture.detectChanges();
+      // NgModel writes its model/disabled state on a microtask.
+      await fixture.whenStable();
+      fixture.detectChanges();
+      const joinSelect = (): HTMLElement =>
+        fixture.nativeElement.querySelector('.fdlg-join mat-select');
+      expect(joinSelect()).toBeTruthy();
+      expect(joinSelect().getAttribute('aria-disabled')).not.toBe('true');
+      expect(joinSelect().textContent).toContain('common.joinAnd');
+
+      choose('.fdlg-join', 'common.joinOr');
+      component().onSubmit();
+      // Simplify unwraps the 1-member scaffold: the emitted root IS the
+      // edited group (case 2), its join and members intact.
+      const arg = closeSpy.mock.calls[0][0] as { root: IFilterDefinition };
+      expect(arg.root.join).toBe(FilterJoinType.OR);
+      expect(arg.root.conditions.length).toBe(2);
+    });
+
+    it('seeds a case-2 definition as ONE root group row with nested members', async () => {
       await createWith({ properties: SCHEMA, root: seedDef });
       fixture.detectChanges();
 
-      // The seed has root(1) + enword leaf(1) + group(1) + two rating leaves(2) = 5 rows.
-      expect(rows().length).toBe(5);
+      // Normalized to a single top node: the root GROUP row, then enword
+      // leaf, the OR group, and its two rating leaves.
+      expect(rowList().length).toBe(5);
       const host: HTMLElement = fixture.nativeElement;
       const labels = Array.from(host.querySelectorAll<HTMLElement>('.fdlg-node-label'));
-      // Row order: [0] root group, [1] enword leaf, [2] OR group, [3]+[4] its leaves.
       expect(labels[0].textContent).toContain('common.filterGroup (common.joinAnd)');
       expect(labels[1].textContent).toContain('test.word common.opContains app');
       expect(labels[2].textContent?.trim()).toContain('(common.joinOr)');
-      // Root selected initially -> group editor (join select) shows.
+      // The root node is selected on open -> the group join editor, and the
+      // group kind arms all three toolbar buttons.
+      expect(component().selectedId()).toBe(topNode().id);
       expect(fixture.nativeElement.querySelector('.fdlg-join')).toBeTruthy();
+      expect(disabledStates()).toEqual([false, false, false]);
     });
 
     it('re-renders the tree after toolbar inserts (reference trackBy guard)', async () => {
       await createWith({ properties: SCHEMA, root: seedDef });
       fixture.detectChanges();
-      expect(rows().length).toBe(5);
+      expect(rowList().length).toBe(5);
 
-      toolbarButtons()[0].click(); // +cond
+      toolbarButtons()[0].click(); // +cond into the selected root group
       fixture.detectChanges();
-      expect(rows().length).toBe(6);
+      expect(rowList().length).toBe(6);
 
-      toolbarButtons()[1].click(); // +group (root still reachable via the new leaf's parent)
+      // The inserted leaf holds the selection, so +group is off until the
+      // root group is picked again — inserts target GROUP rows only.
+      expect(toolbarButtons()[1].disabled).toBe(true);
+      rowList()[0].click();
       fixture.detectChanges();
-      expect(rows().length).toBe(8); // group node + its default row
+      toolbarButtons()[1].click(); // +group into the root group
+      fixture.detectChanges();
+      expect(rowList().length).toBe(7); // one click adds exactly one node (childless group)
     });
 
     it('renders the live preview uncapped', async () => {
@@ -179,13 +297,14 @@ describe('SharedFilterDialogComponent', () => {
     it('property switch resets the operator and value; the tree label follows', async () => {
       await createWith({ properties: SCHEMA, root: seedDef });
       fixture.detectChanges();
-      const wordRow: NodeListOf<HTMLElement> = rows();
-      wordRow[1].click(); // enword leaf
+
+      rowList()[1].click(); // enword leaf (first row under the root group)
       fixture.detectChanges();
+      expect(disabledStates()).toEqual([true, true, false]); // a condition: delete only
 
       choose('.fdlg-property', 'test.rating');
 
-      const leaf = rootNode().members[0];
+      const leaf = topNode().members[0];
       expect('propertyKey' in leaf ? leaf.propertyKey : '').toBe('rating');
       expect(component().describeNode(leaf)).not.toContain('app');
       // Root identity changed (the edit flowed through the signal).
@@ -204,8 +323,7 @@ describe('SharedFilterDialogComponent', () => {
         },
       });
       fixture.detectChanges();
-      const wordRow: NodeListOf<HTMLElement> = rows();
-      wordRow[1].click(); // first rating leaf
+      rowList()[1].click(); // first rating leaf (row under the root group)
       fixture.detectChanges();
 
       choose('.fdlg-operator', 'common.opBetween');
@@ -214,7 +332,7 @@ describe('SharedFilterDialogComponent', () => {
       typeInto(bounds[0], '1');
       typeInto(bounds[1], '5');
 
-      const leaf = rootNode().members[0];
+      const leaf = topNode().members[0];
       expect('between' in leaf).toBe(true);
       component().onSubmit();
       const arg = closeSpy.mock.calls[0][0] as { root: IFilterDefinition };
@@ -243,8 +361,7 @@ describe('SharedFilterDialogComponent', () => {
         },
       });
       fixture.detectChanges();
-      const firstRow: NodeListOf<HTMLElement> = rows();
-      firstRow[1].click(); // the enum leaf
+      rowList()[1].click(); // the enum leaf (row under the root group)
       fixture.detectChanges();
 
       const checkboxes: NodeListOf<HTMLInputElement> = fixture.nativeElement.querySelectorAll(
@@ -256,7 +373,7 @@ describe('SharedFilterDialogComponent', () => {
       // Check 'blue' too — the leaf now holds a two-value selection.
       checkboxes[1].click();
       fixture.detectChanges();
-      const leaf = rootNode().members[0];
+      const leaf = topNode().members[0];
       expect('choices' in leaf ? leaf.choices : []).toEqual(['red', 'blue']);
 
       component().onSubmit();
@@ -273,14 +390,13 @@ describe('SharedFilterDialogComponent', () => {
     it('custom operator hides the value editor and stays submittable', async () => {
       await createWith({ properties: SCHEMA, root: seedDef });
       fixture.detectChanges();
-      const firstRow: NodeListOf<HTMLElement> = rows();
-      firstRow[1].click(); // enword leaf (has the custom op)
+      rowList()[1].click(); // enword leaf (has the custom op)
       fixture.detectChanges();
 
       choose('.fdlg-operator', 'test.opIsPhrase');
 
       expect(fixture.nativeElement.querySelector('.fdlg-text input')).toBeNull();
-      const leaf = rootNode().members[0];
+      const leaf = topNode().members[0];
       expect('operator' in leaf ? leaf.operator : '').toBe('isPhrase');
       expect(component().canSubmit()).toBe(true); // valueless -> never missing
     });
@@ -288,14 +404,17 @@ describe('SharedFilterDialogComponent', () => {
     it('edits flow through the root signal (ancestor objects are replaced)', async () => {
       await createWith({ properties: SCHEMA, root: seedDef });
       const before = rootNode();
-      const groupBefore = before.members[1];
+      const topBefore = topNode();
+      const groupBefore = topBefore.members[1] as SharedFilterDialogNode;
       expect('members' in groupBefore).toBe(true);
 
-      component().onJoinChange((groupBefore as { id: number }).id, FilterJoinType.AND);
+      component().onJoinChange(groupBefore.id, FilterJoinType.AND);
       expect(rootNode()).not.toBe(before);
-      const groupAfter = rootNode().members[1];
+      const topAfter = topNode();
+      expect(topAfter).not.toBe(topBefore);
+      const groupAfter = topAfter.members[1] as SharedFilterDialogNode;
       expect(groupAfter).not.toBe(groupBefore);
-      expect('join' in groupAfter ? groupAfter.join : '').toBe(FilterJoinType.AND);
+      expect(groupAfter.join).toBe(FilterJoinType.AND);
     });
   });
 
@@ -309,7 +428,7 @@ describe('SharedFilterDialogComponent', () => {
 
       // Select the word leaf and wipe its text -> missing value -> Submit
       // disabled and the hint shown in the detail pane.
-      (rows() as NodeListOf<HTMLElement>)[1].click();
+      rowList()[1].click();
       fixture.detectChanges();
       const input: HTMLInputElement = fixture.nativeElement.querySelector('.fdlg-text input');
       typeInto(input, '   ');
@@ -319,21 +438,24 @@ describe('SharedFilterDialogComponent', () => {
       );
     });
 
-    it('an empty nested group is flagged and blocks submit; the root is exempt', async () => {
-      await createWith({
-        properties: SCHEMA,
-        root: {
-          join: FilterJoinType.AND,
-          conditions: [{ property: 'rating', operation: FilterOperation.Equal, lowValue: 2 }],
-        },
-      });
+    it('a childless group root is flagged and blocks submit; so does the empty tree', async () => {
+      await createWith({ properties: SCHEMA });
       fixture.detectChanges();
+      toolbarButtons()[2].click(); // delete the case-1 node -> empty tree
+      fixture.detectChanges();
+      expect(component().canSubmit()).toBe(false); // case 0 — Clear Filter's job
 
-      // Insert a group (starts with one row, so it is already invalid).
-      toolbarButtons()[1].click();
+      toolbarButtons()[1].click(); // + group -> one childless root group
       fixture.detectChanges();
+      expect(rowList().length).toBe(1);
+      // An empty group violates the >=2 rule, so it is flagged and blocks submit.
       expect(actionButtons()[1].disabled).toBe(true);
       expect(fixture.nativeElement.querySelector('.fdlg-node-invalid')).toBeTruthy();
+
+      toolbarButtons()[2].click(); // delete the group -> back to the empty tree
+      fixture.detectChanges();
+      expect(rowList().length).toBe(0);
+      expect(disabledStates()).toEqual([false, false, true]);
     });
 
     it('onSubmit closes with the emitted definition; onCancel closes undefined', async () => {
@@ -351,15 +473,140 @@ describe('SharedFilterDialogComponent', () => {
       expect(closeSpy).toHaveBeenCalledWith();
     });
 
+    it('a single-condition filter submits as a BARE condition (actslib case 1)', async () => {
+      await createWith({ properties: SCHEMA });
+      fixture.detectChanges();
+      // The dialog opens scaffolded with one BLANK condition — Submit is
+      // disabled by the missing-value rule until it is filled.
+      expect(component().canSubmit()).toBe(false);
+      expect(actionButtons()[1].disabled).toBe(true);
+
+      const input = fixture.nativeElement.querySelector('.fdlg-text input') as HTMLInputElement;
+      expect(input).toBeTruthy();
+      input.value = ' APPLE ';
+      input.dispatchEvent(new Event('input'));
+      fixture.detectChanges();
+
+      expect(component().canSubmit()).toBe(true);
+      actionButtons()[1].click();
+      const arg = closeSpy.mock.calls[0][0] as { root: unknown };
+      // Simplify at the boundary: the scaffold's single member leaves as the
+      // bare condition (prepareValue folded the text).
+      expect(arg.root).toEqual({
+        property: 'enword',
+        operation: FilterOperation.BeginsWith,
+        lowValue: 'apple',
+      });
+    });
+
+    it('a bare-condition seed renders one leaf and re-submits as the same bare condition', async () => {
+      await createWith({
+        properties: SCHEMA,
+        root: { property: 'enword', operation: FilterOperation.Contains, lowValue: 'app' },
+      });
+      fixture.detectChanges();
+      expect(rowList().length).toBe(1); // the one-node case-1 tree
+      expect(disabledStates()).toEqual([true, true, false]);
+      expect(component().canSubmit()).toBe(true);
+      component().onSubmit();
+      const arg = closeSpy.mock.calls[0][0] as { root: unknown };
+      expect(arg.root).toEqual({ property: 'enword', operation: FilterOperation.Contains, lowValue: 'app' });
+    });
+
+    it('a 1-member group blocks submit even with its leaf filled (case 2 groups must branch)', async () => {
+      await createWith({ properties: SCHEMA });
+      fixture.detectChanges();
+      toolbarButtons()[2].click(); // delete the case-1 node -> empty
+      fixture.detectChanges();
+      toolbarButtons()[1].click(); // + group
+      fixture.detectChanges();
+      toolbarButtons()[0].click(); // + condition -> the group's FIRST child
+      fixture.detectChanges();
+      expect(rowList().length).toBe(2); // group + child
+      typeInto(fixture.nativeElement.querySelector('.fdlg-text input') as HTMLInputElement, 'apple');
+      // The leaf is complete, but the 1-member group is the violation
+      // (nested groups must branch) with its warning.
+      expect(component().validation().missingValueIds).toEqual([]);
+      expect(component().canSubmit()).toBe(false);
+      expect(fixture.nativeElement.querySelector('.fdlg-node-warn')).toBeTruthy();
+    });
+
     it('the depth cap disables +group below the configured maximum', async () => {
       await createWith({ properties: SCHEMA, root: seedDef, maxDepth: 2 });
       fixture.detectChanges();
-      // Select the nested group (level 2): inserting another group would exceed the cap.
-      const firstRow: NodeListOf<HTMLElement> = rows();
-      firstRow[2].click();
+      // Select the nested OR group (row 3: root group, leaf, it): inserting
+      // another group would exceed the cap. The cap counts VISIBLE levels —
+      // the wrapper is level 0, the root group is level 1, its children 2.
+      rowList()[2].click();
       fixture.detectChanges();
       expect(component().canInsertGroup()).toBe(false);
       expect(toolbarButtons()[1].disabled).toBe(true);
+    });
+
+    it('at maxDepth 2 the root group still accepts a nested group (condA AND (condB OR condC))', async () => {
+      // The contract's flagship two-level example must stay expressible at
+      // the shallowest cap that describes it: root group (level 1) + one
+      // nested group (level 2).
+      await createWith({ properties: SCHEMA, root: seedDef, maxDepth: 2 });
+      fixture.detectChanges();
+      rowList()[0].click(); // the root group
+      fixture.detectChanges();
+      expect(component().canInsertGroup()).toBe(true);
+      expect(toolbarButtons()[1].disabled).toBe(false);
+    });
+
+    it('at maxDepth 1 even the root group cannot add a nested group', async () => {
+      await createWith({ properties: SCHEMA, root: seedDef, maxDepth: 1 });
+      fixture.detectChanges();
+      rowList()[0].click(); // the root group (visible level 1)
+      fixture.detectChanges();
+      expect(component().canInsertGroup()).toBe(false);
+    });
+  });
+
+  describe('toolbar logic', () => {
+    it('arms the buttons per the selected node kind', async () => {
+      await createWith({ properties: SCHEMA, root: seedDef });
+      fixture.detectChanges();
+
+      rowList()[1].click(); // a condition leaf: delete only
+      fixture.detectChanges();
+      expect(disabledStates()).toEqual([true, true, false]);
+
+      rowList()[2].click(); // a nested group (below the depth cap): all three
+      fixture.detectChanges();
+      expect(disabledStates()).toEqual([false, false, false]);
+
+      rowList()[0].click(); // the root group: all three too
+      fixture.detectChanges();
+      expect(disabledStates()).toEqual([false, false, false]);
+    });
+
+    it('the delete button announces the selected node kind (L2)', async () => {
+      await createWith({ properties: SCHEMA, root: seedDef });
+      fixture.detectChanges();
+      const del = () => toolbarButtons()[2];
+      // The root GROUP is selected on open: the button removes a group.
+      expect(del().getAttribute('aria-label')).toBe('common.removeFilterGroup');
+      expect(del().getAttribute('title')).toBe('common.removeFilterGroup');
+      rowList()[1].click(); // a condition leaf
+      fixture.detectChanges();
+      expect(del().getAttribute('aria-label')).toBe('common.removeFilterCondition');
+      expect(del().getAttribute('title')).toBe('common.removeFilterCondition');
+    });
+
+    it('deleting a nested member returns the selection to its parent group', async () => {
+      await createWith({ properties: SCHEMA, root: seedDef });
+      fixture.detectChanges();
+      const groupId = topNode().members[1].id; // the nested OR group
+      rowList()[3].click(); // a rating leaf inside the OR group
+      fixture.detectChanges();
+      toolbarButtons()[2].click(); // delete it
+      fixture.detectChanges();
+      // The parent group keeps the selection (the tree is not empty), and a
+      // group kind arms all three again.
+      expect(component().selectedId()).toBe(groupId);
+      expect(disabledStates()).toEqual([false, false, false]);
     });
   });
 });

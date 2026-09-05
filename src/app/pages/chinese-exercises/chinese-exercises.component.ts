@@ -13,7 +13,7 @@ import { MatDialog } from '@angular/material/dialog';
 import type { MatSelectChange } from '@angular/material/select';
 import { MatTableDataSource } from '@angular/material/table';
 import { Router } from '@angular/router';
-import { FisherYatesShuffle, type IFilterDefinition } from 'actslib';
+import { FisherYatesShuffle, type FilterRoot } from 'actslib';
 
 import type {
   ChineseListFilter,
@@ -31,17 +31,13 @@ import {
   QuestionBankTypeEnum,
   SelectionModeEnum,
   convertChineseReciteItemToKnowledge,
-  emptyChineseFilterDefinition,
   getQuestionBankLevelName,
   isChineseListFilterEmpty,
   matchChineseListFilter,
 } from '../../interfaces';
 import { LearningContentService, LearningRatingService, UIService } from '../../services';
-import type {
-  FilterDialogData,
-  FilterDialogResult,
-} from '../../shared/filter-dialog/filter-dialog-model';
-import { SharedFilterDialogComponent } from '../../shared/filter-dialog/filter-dialog.component';
+import { openFilterDialog } from '../../shared/filter-dialog/filter-dialog-launcher';
+import { emptyFilterDefinition } from '../../shared/filter-dialog/filter-dialog-model';
 import { FooterComponent } from '../../shared/footer/footer';
 import { AppPageTitle } from '../page-title/page-title';
 
@@ -75,7 +71,7 @@ export class ChineseExercisesComponent implements OnInit {
   // condition definition (it opens the shared filter dialog). freeText is fed
   // back from the child's live input via freeTextChanged.
   freeText = signal('');
-  filterDefinition = signal<IFilterDefinition>(emptyChineseFilterDefinition());
+  filterDefinition = signal<FilterRoot>(emptyFilterDefinition());
   // Parsed form of the active list filter; applyListFilter keeps it in sync
   // with dataSource.filter so the row predicate does not JSON.parse per row.
   // Null means no filter (MatTable skips the predicate for an empty filter).
@@ -208,34 +204,19 @@ export class ChineseExercisesComponent implements OnInit {
   }
 
   onDefineFilter(): void {
-    this.dialog
-      .open<SharedFilterDialogComponent, FilterDialogData, FilterDialogResult | undefined>(
-        SharedFilterDialogComponent,
-        {
-          data: {
-            properties: CHINESE_FILTER_PROPERTIES,
-            root: this.filterDefinition(),
-          },
-          // Tree navigator + detail pane sit side by side; the splitter can
-          // resize them but needs the extra width to start from.
-          width: '880px',
-          enterAnimationDuration: 800,
-          exitAnimationDuration: 500,
-        }
-      )
-      .afterClosed()
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe(result => {
-        // undefined (Cancel / backdrop / Esc) leaves the previous filter untouched.
-        if (result !== undefined) {
-          this.filterDefinition.set(result.root);
-          this.applyCurrentFilter();
-        }
-      });
+    openFilterDialog(this.dialog, {
+      destroyRef: this.destroyRef,
+      properties: CHINESE_FILTER_PROPERTIES,
+      current: this.filterDefinition(),
+      onApplied: root => {
+        this.filterDefinition.set(root);
+        this.applyCurrentFilter();
+      },
+    });
   }
 
   onClearFilter(): void {
-    this.filterDefinition.set(emptyChineseFilterDefinition());
+    this.filterDefinition.set(emptyFilterDefinition());
     this.applyCurrentFilter();
   }
 

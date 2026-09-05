@@ -117,7 +117,7 @@ The container is the single source of truth for cross-cutting state and the orch
 | `selection` | `SelectionModel<LearnEnglishWordFileItem>(true, [])` | Shared selection; read by both the word-list and queue prep. |
 | `contentRatingMap` | `signal(new Map<number, number>())` | Per-itemId rating for the loaded file. Replaced (not mutated) on every update so OnPush consumers see a new reference. |
 | `freeText` | `signal('')` | Live free-text filter term. |
-| `filterDefinition` | `signal<IFilterDefinition>` | The actslib condition definition from the shared filter dialog (word/rating leaves in AND/OR-joined groups); starts at `emptyVocabularyFilterDefinition()`. |
+| `filterDefinition` | `signal<FilterRoot>` | The actslib filter root from the shared filter dialog — a group definition (word/rating leaves in AND/OR-joined groups), or a bare condition for a single-condition filter; starts at `emptyVocabularyFilterDefinition()` (case 0). |
 | `listFilterCriteria` | `private VocabularyListFilter \| null` | Parsed form of the active filter; kept in sync with `dataSource.filter` so the row predicate does not `JSON.parse` per row. `null` = no filter. |
 | `studyContentId` | `number` | Backend `ContentId` of the loaded file. Temp uploads get a **negative** id, which disables every `studyContentId > 0` rating guard. |
 | `reviewSetting` / `spellingSetting` / `quizSetting` / `worksheetSetting` | option objects | Persisted settings round-tripped by the options dialogs. |
@@ -402,13 +402,13 @@ The vocabulary page no longer owns a filter dialog. The Filter menu opens the pr
 - `enword` / `cnword` — string properties with the four match operators (`BeginsWith`/`Contains`/`Equal`/`EndsWith`); emitted values are trimmed + lower-cased via each property's `prepareValue` hook. `isPhrase` survives as a **custom (valueless) operator**: it emits `Contains ' '` and folds back from it via `recognize`, so the phrase leaf stays editable across dialog round-trips. (A `notPhrase` variant was dropped: actslib `FilterUtility` has no negation.)
 - `rating` — a number property with the five comparison operators (`>= > = <= <`), 0–5 range. Rating is not a row field; the predicate passes it in the synthesized target (§8).
 
-Word and rating conditions mix freely in the same group — that's what makes cross-dimension OR (`word starts with a OR rating = 5`) expressible; groups nest to any depth (the dialog caps only how deep "+ group" goes, default 4 levels; the evaluator is unbounded). The dialog edits the actslib definition **natively**: seed = the definition in effect, Submit = `{ root: IFilterDefinition }`, `Cancel`/backdrop/Esc = `undefined` (caller keeps the previous filter). Validation gates Submit (missing values; nested groups must have ≥2 members, root exempt — invalid groups are flagged in the tree), the master/detail layout is `mat-tree` + splitter + detail editor with the enum multiple-choice and two-input Between editors, and every edit flows through the dialog's `root` signal. See the design doc for the full UI contract.
+Word and rating conditions mix freely in the same group — that's what makes cross-dimension OR (`word starts with a OR rating = 5`) expressible; groups nest to any depth (the dialog caps only how deep "+ group" goes, default 4 visible levels counting the root group as level 1; the evaluator is unbounded). The dialog edits the actslib root **natively**: seed = the `FilterRoot` in effect (a definition, or a bare condition), Submit = `{ root: FilterRoot }` — a single-condition filter leaves as a **bare `IFilterCondition`** (the emitted tree passed through `FilterUtility.Simplify` at the boundary), `Cancel`/backdrop/Esc = `undefined` (caller keeps the previous filter). The editor tree IS the root: its top level holds a single node (case 1: one condition row; case 2: one group row with its members nested), and an internal, never-rendered wrapper above it is invisible to the user. Validation gates Submit (missing values; every rendered group — the single top GROUP row included — must branch with ≥2 members, invalid groups flagged in the tree; the empty tree is **not** submittable — case 0 belongs to the page's Clear Filter button), the master/detail layout is `mat-tree` + splitter + detail editor with the enum multiple-choice and two-input Between editors, and every edit flows through the dialog's `root` signal. See the design doc and `docs/filter-hierarchy-contract.md` for the full contract.
 
 ---
 
 ## 8. Filter pipeline
 
-All filtering decisions flow through one pure function — `matchVocabularyListFilter(item, rating, filter)` in `interfaces/vocabulary.ts` — and nothing else grows private matching logic. The condition **definition** is an actslib `IFilterDefinition` produced directly by the shared filter dialog (no page-side translation step) and evaluated by `FilterUtility.MatchFilter`.
+All filtering decisions flow through one pure function — `matchVocabularyListFilter(item, rating, filter)` in `interfaces/vocabulary.ts` — and nothing else grows private matching logic. The condition **root** is an actslib `FilterRoot` (a group definition, or a bare condition for a single-condition filter) produced directly by the shared filter dialog (no page-side translation step) and evaluated by `FilterUtility.MatchFilter`, which accepts both spellings.
 
 ### 8.1 Composition
 
@@ -417,10 +417,11 @@ The filter bar combines two dimensions in a single `VocabularyListFilter`: a liv
 ```ts
 interface VocabularyListFilter {
   freeText: string;            // cross-field substring over id/enword/cnword (legacy)
-  root: IFilterDefinition;     // actslib condition definition (the dialog's result)
+  root: FilterRoot;            // the dialog's result: definition, or bare condition (case 1)
 }
 
-// IFilterDefinition (actslib): { join?: 'AND'|'OR'; conditions: (IFilterCondition | IFilterDefinition)[] }
+// FilterRoot (actslib) = IFilterCondition | IFilterDefinition
+// IFilterDefinition: { join?: 'AND'|'OR'; conditions: (IFilterCondition | IFilterDefinition)[] }
 // IFilterCondition: { property; operation: FilterOperation; lowValue?; highValue?; enumValues? }
 ```
 
@@ -542,14 +543,15 @@ interface VocabularySelectOption {
 ### 10.5 Filter models
 
 ```ts
-// actslib (shared filter dialog contract): IFilterDefinition / IFilterCondition /
-// FilterOperation / FilterJoinType — the vocabulary filter IS a definition now.
+// actslib (shared filter dialog contract): FilterRoot (= IFilterCondition |
+// IFilterDefinition) / IFilterCondition / FilterOperation / FilterJoinType —
+// the vocabulary filter IS an actslib root now (bare condition for case 1).
 // vocabulary.ts schema:
 interface FilterableProperty { key; labelKey; kind: 'string'|'number'|'date'|'enum';
   operations?; enumValues?; choices?; customOperators?; numberRange?; prepareValue?; }
 const VOCABULARY_FILTER_PROPERTIES: FilterableProperty[]; // enword, cnword, rating
 const VOCABULARY_IS_PHRASE: FilterCustomOperator;          // Contains ' ' emit/recognize
-interface VocabularyListFilter { freeText: string; root: IFilterDefinition; }
+interface VocabularyListFilter { freeText: string; root: FilterRoot; }
 ```
 
 `RatingOperatorEnum` (`Equals`, `GreaterThan`, `LessThan`, `LargerOrEquals`, `LessOrEquals`), `SelectionModeEnum` (`ByID`, `FreeSelection`, `ByCount`), `RatingCondition` and `summarizeRatingFilter()` live in `ui-common.ts` — they are shared by the vocabulary, knowledge, Chinese and translate list filters — alongside `matchRating()`, which compares an unrated (`0`) word numerically (the vocabulary page evaluates its rating conditions via actslib `FilterUtility` with the same semantics).

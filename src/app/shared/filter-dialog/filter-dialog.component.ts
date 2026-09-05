@@ -15,7 +15,7 @@ import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { MatTree, MatTreeNodeDef, MatTreeNodeOutlet, MatNestedTreeNode } from '@angular/material/tree';
 import { TranslocoModule, TranslocoService } from '@jsverse/transloco';
-import { FilterJoinType } from 'actslib';
+import { FilterJoinType, FilterUtility } from 'actslib';
 
 import {
   appendMember,
@@ -52,19 +52,39 @@ import type {
 
 /**
  * Project-wide filter condition editor (docs/reusable-filter-dialog-design.md):
- * pages pass a `FilterableProperty[]` schema plus the actslib
- * `IFilterDefinition` in effect, and get an edited definition back on Submit
- * (`undefined` on Cancel/backdrop/Esc — the caller keeps its previous filter).
+ * pages pass a `FilterableProperty[]` schema plus the actslib `FilterRoot` in
+ * effect, and get an edited `FilterRoot` back on Submit (`undefined` on
+ * Cancel/backdrop/Esc — the caller keeps its previous filter).
  *
  * The layout follows the vocabulary filter dialog it generalizes: a
- * `mat-tree` navigator (left) renders the condition tree, the detail pane
- * (right) edits the selected member — a group's AND/OR join, or a leaf's
- * property / operator / value (the value editor dispatches by kind:
- * text, number, date, Between's two inputs, or the enum multiple-choice list,
- * with valueless custom operators) — and a draggable splitter sizes the panes.
- * Insert/delete live in a toolbar above the tree and target the selection;
- * Submit stays disabled while validation fails (missing values, nested groups
- * with fewer than two members — root exempt, flagged in the tree).
+ * `mat-tree` navigator (left) renders the condition tree exactly as the
+ * actslib `FilterRoot` reads — the top level holds AT MOST ONE node, the
+ * root itself (case 1: a single condition row; case 2: a single group row
+ * with its members nested below; empty: no rows). The internal wrapper is
+ * never rendered and its join is forever inert (seedTree normalizes any
+ * seed to a 0-or-1-member scaffold; `Simplify` unwraps it at Submit). The
+ * detail pane (right) edits the selected node — a group's AND/OR join, or a
+ * leaf's property / operator / value (the value editor dispatches by kind:
+ * text, number, date, Between's two inputs, or the enum multiple-choice
+ * list, with valueless custom operators) — and a draggable splitter sizes
+ * the panes.
+ * The toolbar above the tree holds exactly THREE buttons — + condition,
+ * + group, delete — enabled by the selected node's kind: NOTHING selected
+ * (the transient empty tree) arms the two inserts (delete off — there is
+ * nothing to remove), a selected CONDITION arms delete only, a selected
+ * GROUP arms all three (it becomes the insert target; + group respects the
+ * depth cap). So a node is always selected unless the tree is empty:
+ * inserts select the new node, and deleting a member returns the selection
+ * to its parent group — or to nothing when the tree just emptied, where
+ * the inserts re-arm (delete -> + group -> + condition is the growth path
+ * from any state).
+ * A dialog seeded empty (a "new filter") opens SCAFFOLDED with one blank
+ * condition — case 1: one node, selected, delete-only armed. Submit stays
+ * disabled while validation fails (empty tree — clearing is the pages'
+ * Clear Filter button — missing values, or groups with fewer than two
+ * members, the single top GROUP row included; flagged in the tree). Submit emits a
+ * `FilterRoot`: a bare condition for a single-condition filter (actslib
+ * case 1, via `FilterUtility.Simplify`), a definition otherwise (case 2).
  *
  * CDK invariants this component relies on (§6.3 of the design — do not
  * "simplify"): `[trackBy]` is object REFERENCE (nested children are read once
@@ -108,8 +128,26 @@ export class SharedFilterDialogComponent {
   readonly properties = this.data.properties;
   readonly maxDepth = this.data.maxDepth ?? 4;
   readonly titleKey = this.data.titleKey ?? 'common.editFilter';
-  readonly root = signal<SharedFilterDialogNode>(seedTree(this.data.root, this.data.properties, this.newId));
-  readonly selectedId = signal<number>(this.root().id);
+  readonly root = signal<SharedFilterDialogNode>(this.buildInitialTree());
+  // The navigator's top rows are the (at most one) root NODE — never the
+  // unrendered wrapper: open with that node selected, or no selection for an
+  // empty tree (where the toolbar's inserts are armed).
+  readonly selectedId = signal<number | null>(this.root().members[0]?.id ?? null);
+
+  /**
+   * Seed the caller's filter (any `FilterRoot` shape — `seedTree` normalizes
+   * it to a single top node). An empty seed — the "new filter" case — opens
+   * scaffolded with ONE blank condition: case 1, exactly one node. Submit is
+   * disabled by the missing-value rule until the leaf is filled.
+   */
+  private buildInitialTree(): SharedFilterDialogNode {
+    const tree = seedTree(this.data.root, this.data.properties, this.newId);
+    if (tree.members.length > 0) {
+      return tree;
+    }
+    const first = this.data.properties[0];
+    return first ? { ...tree, members: [emptyLeaf(first, this.newId)] } : tree;
+  }
 
   /** Labeler for the model's renderers (tree rows + preview). */
   private readonly labels: FilterSummaryLabels = {
@@ -124,8 +162,14 @@ export class SharedFilterDialogComponent {
 
   // --- mat-tree wiring (see the CDK invariants in the class doc) ------------
 
-  /** Top-level rows of the navigator; a new array only when the tree changes. */
-  readonly treeData = computed(() => [this.root()]);
+  /**
+   * The navigator's top row: the tree's single root NODE (a case-1 condition
+   * or a case-2 group with nested rows under it) — or nothing while the tree
+   * is empty. The wrapper itself is never a row (it holds at most one
+   * member, so its join is inert and has no UI). A new array only when the
+   * tree changes.
+   */
+  readonly treeData = computed(() => this.root().members);
 
   readonly childrenAccessor = (member: SharedFilterDialogMember): SharedFilterDialogMember[] =>
     isFilterDialogNode(member) ? member.members : [];
@@ -159,27 +203,43 @@ export class SharedFilterDialogComponent {
     return root.id === memberId ? root : findMember(root, memberId);
   }
 
-  /** Member currently reflected in the detail pane. */
+  /** Member currently reflected in the detail pane (null: empty tree —
+   *  the insert-anchor state, where nothing exists to select). */
   selectedMember(): SharedFilterDialogMember | null {
-    return this.memberById(this.selectedId());
+    const id = this.selectedId();
+    return id === null ? null : this.memberById(id);
   }
 
-  /** True when the selection is not the root (which can never be deleted). */
+  /** True when a node is selected (the empty tree has none — delete off). */
   canDeleteSelected(): boolean {
-    const selected = this.selectedMember();
-    return selected !== null && selected.id !== this.root().id;
+    return this.selectedMember() !== null;
   }
 
   /**
-   * The group that accepts toolbar inserts: the selected group itself, or the
-   * parent of the selected leaf; null when nothing is selected.
+   * The delete button announces what it removes: a selected CONDITION (leaf)
+   * deletes a condition, anything else (a group, or the disabled no-selection
+   * state) keeps the group wording.
+   */
+  deleteSelectedLabelKey(): string {
+    const selected = this.selectedMember();
+    return selected && !isFilterDialogNode(selected)
+      ? 'common.removeFilterCondition'
+      : 'common.removeFilterGroup';
+  }
+
+  /**
+   * The group that accepts toolbar inserts: a selected GROUP (the case-2
+   * root node or any nested group), or — with NOTHING selected (the empty
+   * tree) — the scaffold root, so the insert becomes THE single top node.
+   * A selected CONDITION targets nothing: its parent is not the selection,
+   * so both add buttons stay disabled for it.
    */
   insertTargetId(): number | null {
     const selected = this.selectedMember();
     if (!selected) {
-      return null;
+      return this.root().id;
     }
-    return isFilterDialogNode(selected) ? selected.id : parentIdOf(this.root(), selected.id);
+    return isFilterDialogNode(selected) ? selected.id : null;
   }
 
   canInsertCondition(): boolean {
@@ -196,8 +256,14 @@ export class SharedFilterDialogComponent {
     return !!target && isFilterDialogNode(target) && this.canAddGroup(target);
   }
 
+  /**
+   * The depth cap counts VISIBLE group levels: the unrendered scaffold
+   * wrapper is level 0, so the single top node the user sees sits at level 1
+   * and `maxDepth` is exactly the deepest group level the toolbar offers
+   * (`FilterDialogData.maxDepth`).
+   */
   private canAddGroup(node: SharedFilterDialogNode): boolean {
-    return depthOf(this.root(), node.id, 1) < this.maxDepth;
+    return depthOf(this.root(), node.id, 0) < this.maxDepth;
   }
 
   /** Insert a blank condition (first property) into the target group and select it. */
@@ -212,11 +278,15 @@ export class SharedFilterDialogComponent {
     this.selectedId.set(leaf.id);
   }
 
-  /** Insert an OR-joined group (one default condition) into the target group and select it. */
+  /**
+   * Insert an OR-joined, CHILDLESS group into the target group and select it.
+   * One click adds exactly one node: the group starts empty and carries the
+   * >=2-members warning until the user fills it (+ condition targets the
+   * selected group), rather than seeding a phantom placeholder row.
+   */
   onInsertGroup(): void {
     const targetId = this.insertTargetId();
-    const first = this.properties[0];
-    if (targetId === null || !first) {
+    if (targetId === null) {
       return;
     }
     const target = this.memberById(targetId);
@@ -226,16 +296,23 @@ export class SharedFilterDialogComponent {
     const group: SharedFilterDialogNode = {
       id: this.newId(),
       join: FilterJoinType.OR,
-      members: [emptyLeaf(first, this.newId)],
+      members: [],
     };
     this.root.update(root => appendMember(root, targetId, group));
     this.selectedId.set(group.id);
   }
 
-  /** Delete the selected member (leaf, or group with its subtree); selection moves to the parent. */
+  /**
+   * Delete the selected node (leaf, or group with its subtree). Selection
+   * moves to the parent group; when the parent is the unrendered scaffold
+   * root, it lands on the root's surviving first member — or on NOTHING
+   * once the tree has emptied, the insert-anchor state where both add
+   * buttons re-arm (the top level holds at most one node, so deleting the
+   * top node always empties the tree).
+   */
   onDeleteSelected(): void {
     const selected = this.selectedMember();
-    if (!selected || selected.id === this.root().id) {
+    if (!selected) {
       return;
     }
     const parentId = parentIdOf(this.root(), selected.id);
@@ -243,7 +320,8 @@ export class SharedFilterDialogComponent {
       return;
     }
     this.root.update(root => removeMember(root, selected.id));
-    this.selectedId.set(parentId);
+    const after = this.root();
+    this.selectedId.set(parentId === after.id ? (after.members[0]?.id ?? null) : parentId);
   }
 
   // --- Detail-pane edits (immutable, through the root signal) ---------------
@@ -451,8 +529,14 @@ export class SharedFilterDialogComponent {
     this.dialogRef.close();
   }
 
-  /** Emit the edited tree as an actslib definition (validation gated the button). */
+  /**
+   * Emit the edited tree as an actslib `FilterRoot` (validation gated the
+   * button). `Simplify` reduces the 1-member wrapper to a bare condition so a
+   * single-condition filter (case 1) leaves the dialog in its minimal form;
+   * a group tree (case 2) is returned unchanged. The empty filter (case 0)
+   * is not submittable — clearing is the pages' Clear Filter button.
+   */
   onSubmit(): void {
-    this.dialogRef.close({ root: emitTree(this.root(), this.properties) });
+    this.dialogRef.close({ root: FilterUtility.Simplify(emitTree(this.root(), this.properties)) });
   }
 }

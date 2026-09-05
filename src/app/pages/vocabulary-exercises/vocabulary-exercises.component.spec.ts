@@ -333,10 +333,25 @@ describe('VocabularyExercisesComponent', () => {
       component.onDefineFilter();
       expect(component.dataSource.filter).toContain('BeginsWith');
       expect(component.dataSource.filter).toContain('"lowValue":"hello"');
-      expect(component.filterDefinition().conditions).toEqual([
+      // A two-member result stays a definition (Simplify only touches case 1).
+      const applied = component.filterDefinition() as IFilterDefinition;
+      expect(applied.conditions).toEqual([
         cond('enword', FilterOperation.BeginsWith, 'hello'),
         cond('rating', FilterOperation.Equal, 4),
       ]);
+    });
+
+    it('onDefineFilter applies a single-condition (case-1) result and filters the rows', () => {
+      component.dataSource.data = mockWordContent;
+      mockDialog.open.mockReturnValue({
+        afterClosed: () => of({ root: cond('enword', FilterOperation.BeginsWith, 'hello') }),
+      });
+      component.onDefineFilter();
+      // The bare condition is stored as-is; MatchFilter evaluates it per row.
+      expect(component.filterDefinition()).toEqual(
+        cond('enword', FilterOperation.BeginsWith, 'hello')
+      );
+      expect(component.dataSource.filteredData.map(w => w.enword)).toEqual(['hello']);
     });
 
     it('onDefineFilter with a cancelled dialog leaves the filter untouched', () => {

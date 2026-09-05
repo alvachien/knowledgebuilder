@@ -32,7 +32,7 @@ import { MatTableModule } from '@angular/material/table';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { TranslocoModule, TranslocoService } from '@jsverse/transloco';
-import type { IFilterDefinition } from 'actslib';
+import type { FilterRoot } from 'actslib';
 
 import type { LearnEnglishWordFileItem, LearningContent } from '../../interfaces';
 import { VOCABULARY_FILTER_PROPERTIES } from '../../interfaces';
@@ -113,7 +113,7 @@ export class VocabularyExercisesWordListComponent implements OnInit {
   // The container owns the applied condition definition (it opens the shared
   // filter dialog); this child only renders it for the menu labels and forwards
   // intents. freeText is a local field for the input box, emitted live.
-  readonly filterDefinition = input.required<IFilterDefinition>();
+  readonly filterDefinition = input.required<FilterRoot>();
   /**
    * Free text currently applied by the container. The container's filter
    * survives the @switch destroy/recreate of this screen (e.g. returning from

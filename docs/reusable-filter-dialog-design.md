@@ -1,11 +1,11 @@
 # Design: Shared Filter Dialog (reusable condition-tree filter editor)
 
-Status: **implemented; vocabulary page migrated (Phase 1 + 2)** — the shared
-dialog lives in `src/app/shared/filter-dialog/` and the vocabulary page uses it
-(`VOCABULARY_FILTER_PROPERTIES` schema in `interfaces/vocabulary.ts`); the old
+Status: **implemented; all four list pages migrated (Phases 1–5)** — the
+shared dialog lives in `src/app/shared/filter-dialog/` and the vocabulary,
+knowledge, Chinese and translate pages each filter through it with their own
+`*_FILTER_PROPERTIES` schema (`interfaces/`); the old
 `vocabulary-exercises-filter-dialog.*` files and the `VocabularyFilterGroup`
-model are deleted. Phases 3–5 (knowledge, Chinese, translate adoption) are
-pending. Implementation deltas from this doc, all deliberate:
+model are deleted. Implementation deltas from this doc, all deliberate:
 - the leaf holds **three value slots** (`single` / `between` / `choices`)
   rather than the five named fields of §6.1;
 - the date editor is a native `<input type="date">` (no `matDatepicker`, so the
@@ -13,7 +13,36 @@ pending. Implementation deltas from this doc, all deliberate:
 - summaries render **comparison symbols** (`>=`, `<`) for numeric/date
   properties and word labels otherwise, keeping rating phrases compact;
 - the join word in summaries is **translated** (`common.joinAnd`/`joinOr`)
-  rather than hardcoded English, matching the localization-first rule.
+  rather than hardcoded English, matching the localization-first rule;
+- (2026-09-03) seed and result are actslib **`FilterRoot`**, not
+  `IFilterDefinition`: Submit runs `FilterUtility.Simplify(emitTree(...))` so a
+  single-condition filter (case 1) crosses the boundary as a **bare
+  condition**, and a bare-condition seed folds back into the root+leaf editor
+  tree (see `docs/filter-hierarchy-contract.md` §2);
+- (2026-09-03) **the empty tree (case 0) is not submittable** — the dialog's
+  contract is cases 1 and 2 only; clearing a filter is the pages' Clear
+  Filter button (the exemption in D7 now covers only the invisible wrapper,
+  structurally; `validateTree` flags `emptyTree`). An empty seed opens **scaffolded with one blank
+  condition** (selected), so the editor only ever presents cases 1/2;
+- (2026-09-04) **the editor tree IS the actslib root** — `seedTree`
+  normalizes any seed to a SINGLE top node: a bare condition (or a chain of
+  1-member definition wrappers, the case-1 spellings) seeds one condition
+  LEAF; a 2+ member definition becomes one GROUP node carrying the seed's
+  join (case 2); an empty/absent seed leaves no node (and the "new filter"
+  scaffold fills in one blank condition — case 1 on open). The wrapper stays
+  the S2 recommendation — an invisible `SharedFilterDialogNode` scaffold
+  holding 0 or 1 members, its join inert by construction (no union type);
+  `Simplify` unwraps it at Submit exactly as before. Consequences for the
+  UI: the tree toolbar is **exactly three buttons** (+ condition, + group,
+  delete — the toolbar join select is gone, since every rendered group row,
+  the top one included, edits its join in the detail pane), enabled by the
+  selected node's kind — nothing selected (empty tree) arms the two
+  inserts, a condition arms delete only, a group arms all three (it becomes
+  the insert target) — and delete returns the selection to the parent group
+  (or to nothing when the tree empties), so **a node is always selected
+  unless the tree is empty**. Growth from case 1 runs through the empty
+  state: delete → + group → + condition; "+ group" keeps one-click-one-node
+  (a childless OR group carrying the ⚠ hint).
 
 Author: Claude Code session 2026-08-30
 Base implementation: the (now deleted) vocabulary filter dialog, which this
@@ -81,13 +110,13 @@ dialog owns tree editing, validation, and the `IFilterDefinition` I/O.
 
 | # | Decision | Rationale |
 |---|---|---|
-| D1 | Seed + result are **actslib `IFilterDefinition`** | Pages already evaluate it (`FilterUtility.MatchFilter`); kills every page-specific dialog model and the `VocabularyFilterGroup` ↔ definition translation. The dialog is generic precisely because its I/O is the evaluator's language. |
+| D1 | Seed + result are **actslib filter roots** — `IFilterDefinition` since widened to `FilterRoot` (2026-09-03) | Pages already evaluate it (`FilterUtility.MatchFilter`); kills every page-specific dialog model and the `VocabularyFilterGroup` ↔ definition translation. The dialog is generic precisely because its I/O is the evaluator's language. |
 | D2 | **Property schema** passed via `MAT_DIALOG_DATA`, operators defaulted per kind from actslib's matrix, narrowed by whitelist | "allowed options per property" without every page re-listing `>`/`>=`/… ; whitelist still controls what's *offered* (e.g. rating offers only `=`). |
 | D3 | Enum multi-select compiles to **one leaf that emits an OR-of-`Equal` group**; seeds fold back | actslib has no `In` operation; OR-of-equals is the only faithful encoding, and `enumValues` per condition keeps actslib's enum validation. Fold-back keeps round-trips editable (§7.3). |
 | D4 | Valueless custom operators via **`customOperators` hook** (`emit` + `recognize`) | Vocabulary's `isPhrase` (→ `Contains ' '`) is app semantics actslib can't express; the hook keeps the dialog reusable without hardcoding word knowledge (§7.4). |
 | D5 | Keep the vocabulary editor-state pattern: numeric-id nodes, **reference `trackBy`**, **id `expansionKey`**, all edits **immutable through the root signal** | These are load-bearing CDK facts, not style choices (see §6.3 and the bug history); encoding them in the shared component prevents re-introducing them page by page. |
 | D6 | `prepareValue?` hook per property for case-folding / trimming | actslib string comparison is case-sensitive; the vocabulary page lowercases folded values *and* folded row fields. Keeping the hook on the property lets the page decide match semantics while the dialog stays content-agnostic (§8.4). |
-| D7 | Validation rules move into the dialog model, same contract as today: blank/missing values and non-branching nested groups block Submit; root exempt | Just implemented in the vocabulary dialog; promoted verbatim to shared code (§9). |
+| D7 | Validation rules move into the dialog model: blank/missing values and non-branching groups block Submit. Amended by the 2026-09-03/04 normalization: EVERY rendered group (the single top GROUP row included) must have ≥2 members — the "root exempt" exemption now applies only to the invisible wrapper, structurally (it holds 0-or-1 nodes; 1 = case 1), and an empty tree (case 0) is not submittable at all (§9) | Just implemented in the vocabulary dialog; promoted verbatim to shared code (§9). |
 
 ---
 
@@ -257,8 +286,8 @@ export interface SharedFilterDialogNode {
 
 | function | role |
 |---|---|
-| `seedTree(def: IFilterDefinition \| undefined, schema): SharedFilterDialogNode` | copy-in: conditions → leaves (fold-back: custom `recognize`, Between, enum OR-of-equals → one multi-choice leaf, single value); nested groups → nodes; **structure preserved at any depth**; never mutates the caller's def |
-| `emitTree(root, schema): IFilterDefinition` | Submit output: leaves → conditions/groups (§7 dispatch); drops nothing (validation already guarantees completeness); root may emit `conditions: []` (= match-all = cleared filter) |
+| `seedTree(root: FilterRoot \| undefined, schema): SharedFilterDialogNode` | copy-in: normalizes the seed to a SINGLE top node (2026-09-04 — bare condition or 1-member wrapper chain → one condition LEAF; 2+ member definition → one GROUP node carrying its join; empty/absent → no node); conditions → leaves (fold-back: custom `recognize`, Between, enum OR-of-equals → one multi-choice leaf, single value); nested groups → nodes; **structure preserved at any depth**; never mutates the caller's def |
+| `emitTree(root, schema): IFilterDefinition` | pre-Submit emission: leaves → conditions/groups (§7 dispatch); drops nothing on a validated tree (the gate guarantees completeness; empty sub-groups appear only when the pure function is driven directly, e.g. unit tests). The **Submit boundary** passes it through `FilterUtility.Simplify`, so a single-condition filter leaves as a bare condition — case 0 is gated off (§9) and the page never receives `conditions: []` from the dialog |
 | `insertMember / deleteMember / patchNode / patchLeaf` | the vocabulary `mutateNode`/`replaceRow` immutables, generalized: every edit returns a new object along the mutation path |
 | `emptyLeaf(schema): SharedFilterDialogLeaf` | new row = first property, its first operator, blank values |
 | `validateTree(root, schema): ValidationState` | `hasMissingValue` + `invalidGroupIds` (§9) |
@@ -406,14 +435,20 @@ drop it; root preselected.
 ## 9. Validation (Submit gate)
 
 `validateTree` returns per-leaf "missing value" flags + `invalidGroupIds`
-(nested groups with `< 2` members; **root exempt**: 0 = clear-filter, 1 =
-single-condition filter). A leaf is missing its value when the dispatch
-selects an input and it is blank (`textValue.trim() === ''`,
-`numberValue/dateValue == null`, any Between bound null,
-`selectedChoices.length === 0`), or when Between has `low > high`.
+(**every rendered group** with `< 2` members — the single top GROUP row
+included) + an `emptyTree` flag. This is the three-case taxonomy of
+`docs/filter-hierarchy-contract.md` §1 stated as a gate: case 1 (a lone
+condition leaf) and case 2 (a branching group tree) submit; the invisible
+wrapper node is exempt from the branch rule only STRUCTURALLY — it holds at
+most one node by construction; case 0 (a 0-member tree) is **not
+submittable** — clearing is the pages' Clear Filter button, so the dialog can
+never install a match-all filter from inside itself. A leaf is missing its
+value when the dispatch selects an input and it is blank
+(`textValue.trim() === ''`, `numberValue/dateValue == null`, any Between
+bound null, `selectedChoices.length === 0`), or when Between has `low > high`.
 
-- **Submit button** `[disabled]="!canSubmit()"` — the rule from the vocabulary
-  session: `canSubmit = noMissingValue && noInvalidGroups`.
+- **Submit button** `[disabled]="!canSubmit()"` — the gate extended to the
+  taxonomy: `canSubmit = !emptyTree && noMissingValue && noInvalidGroups`.
 - Offending rows get the invalid class + `error` icon (tree), and the detail
   pane shows the matching hint below the offending control; group hints reuse
   `vocabularyExercises.filterGroupNeedsTwo`… → promoted to
@@ -422,22 +457,26 @@ selects an input and it is blank (`textValue.trim() === ''`,
   validation prevents submitting one, so `emitTree` becomes total and the
   "empty group would match everything" hazard is blocked at the gate instead
   of cleaned up afterwards. `Cancel` still mutates nothing.
-- `maxDepth` disables "+ group" at the deepest level (default 4), same as
-  `VOCABULARY_FILTER_DIALOG_MAX_DEPTH` today.
+- `maxDepth` disables "+ group" at the deepest level (default 4), counted in
+  VISIBLE group levels: the invisible wrapper is level 0, the top row is
+  level 1, so the deepest group the toolbar offers is exactly level
+  `maxDepth` (an off-by-one here silently eats one nesting level — see
+  `docs/filter-dialog-review.md` H1).
 
 ## 10. Evaluation contract (page side)
 
-Pages apply the result like the vocabulary page does today:
+Pages open the dialog through the shared `openFilterDialog` launcher
+(`filter-dialog-launcher.ts`) — sizing/animation, the seed and the Cancel
+guard live there once, so a fifth page cannot fan out a drift (review M4):
 
 ```ts
 onDefineFilter(): void {
-  this.dialog.open(SharedFilterDialogComponent, {
-    data: { properties: PAGE_FILTER_PROPERTIES, root: this.filterDefinition() },
-    width: '880px',
-  }).afterClosed().pipe(takeUntilDestroyed(this.destroyRef))
-    .subscribe(result => {
-      if (result) { this.filterDefinition.set(result.root); this.applyCurrentFilter(); }
-    });
+  openFilterDialog(this.dialog, {
+    destroyRef: this.destroyRef,
+    properties: PAGE_FILTER_PROPERTIES,
+    current: this.filterDefinition(),
+    onApplied: root => { this.filterDefinition.set(root); this.applyCurrentFilter(); },
+  });
 }
 ```
 
@@ -531,7 +570,8 @@ needed, update CLAUDE.md's dialog list.
 - seed fold-back: custom-ops, Between, OR-of-`Equal`→multi-choice, mixed
   nesting depth preserved, caller's def never mutated;
 - emit: every dispatch row of §7, `prepareValue` applied (incl. skipped for
-  custom ops), enum 0/1/N behavior, empty root → `conditions: []`;
+  custom ops), enum 0/1/N behavior, empty root → `conditions: []` (the pure
+  function only — Submit gates case 0, §9);
 - round-trip: `emitTree(seedTree(emitTree(seed))) === emitTree(seed)` for
   representative trees (the vocabulary spec's round-trip tests promoted);
 - `validateTree` matrix; `summarize` (parens, cap, choice/between rendering).
