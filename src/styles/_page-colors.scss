@@ -1,0 +1,69 @@
+// Static page colors — the single replacement for the removed theme system
+// (the 4-palette switcher, StyleManager/ThemeStorage/ThemePickerComponent,
+// custom-themes bundles, _app-theme.scss and every *_theme.scss partial).
+// Values are the literal resolved colors of the one baked azure-blue theme
+// (extracted via mat.get-theme-color at removal time), so every page renders
+// exactly as it did under the default theme. Homepage/navbar/footer are NOT
+// here — they carry the fixed "Mark & Ledger" identity in their own styles.
+//
+// Material component styling itself still comes from styles.scss
+// (`mat.all-component-themes` on the baked theme); this file only covers the
+// app-level rules the old partials emitted.
+
+.app-background {
+  background: #faf9fd; // surface
+}
+
+// Exercise page body text (from the former per-page theme partials — one
+// `color:` rule each; the knowledge-exercises partial was never @include'd
+// and is intentionally not replicated).
+.vocabulary-page .vocabulary-page-content,
+.translate-page .translate-page-content,
+.chinese-exercises-page .chinese-exercises-page-content,
+.formula-page .formula-page-content,
+.english-listening-page .english-listening-page-content {
+  color: #44474e; // on-surface-variant
+}
+
+app-not-found {
+  color: #00458f; // on-primary-container
+}
+
+// Markdown content (from the former _markdown-theme.scss; its `.dark-theme`
+// twin was dropped — no code ever set that body class and all palettes were
+// light).
+.app-markdown {
+  a:not(.mat-mdc-button-base) {
+    color: #005cbb; // primary
+  }
+
+  pre {
+    border: solid 1px #c4c6d0; // outline-variant
+    border-radius: 12px;
+
+    code {
+      background: transparent;
+    }
+  }
+
+  h3 .material-icons,
+  h4 .material-icons {
+    color: #1a1b1f; // on-surface
+  }
+
+  code {
+    background: #d7e3ff40; // primary-container @ 25%
+  }
+}
+
+// Language selector menu layout (former _language-selector-theme.scss — it
+// never used the theme at all; pure layout kept verbatim).
+.app-language-selector-menu {
+  .mat-mdc-menu-item {
+    .app-language-icon {
+      margin-right: 0;
+      margin-left: 24px;
+      order: 1;
+    }
+  }
+}

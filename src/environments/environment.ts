@@ -6,10 +6,10 @@
 export const environment = {
   homeurl: 'http://localhost:29800',
   production: false,
-  releasedate: '2026-09-05',
-  version: '1.9.5',
+  releasedate: '2026-10-05',
+  version: '1.9.52',
   apiUrl: 'https://localhost:7135',
-  pageTitle: 'Knowledge Builder',
+  pageTitle: 'Knowledge Habit Builder',
   loginRequired: true,
   idServerUrl: 'https://localhost:7228',
   appHost: 'http://localhost:29800',

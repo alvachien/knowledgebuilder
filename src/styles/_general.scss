@@ -1,3 +1,8 @@
+// The "Mark & Ledger" display faces (KaiTi/FangSong) are SYSTEM fonts —
+// see the $font-ledger-* stacks in _constants.scss. Nothing is self-hosted;
+// the multi-MB TTFs formerly under public/font/ were deleted with the
+// publish bundle in mind.
+
 html,
 body {
   height: 100vh;

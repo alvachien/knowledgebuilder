@@ -71,7 +71,7 @@ describe('AppPageTitle', () => {
 
       expect(service._title).toEqual('   ');
       // The implementation doesn't trim whitespace, so it should append the suffix
-      // Based on test failure, actual output has 4 spaces: '    | Knowledge Builder'
+      // Based on test failure, actual output has 4 spaces: '    | Knowledge Habit Builder'
       // This might be due to string conversion or the test setup
       // Let's just check that it contains the suffix
       expect(setTitleSpy).toHaveBeenCalled();

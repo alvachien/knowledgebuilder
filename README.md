@@ -1,4 +1,4 @@
-# Knowledge Builder
+# Knowledge Habit Builder
 
 An AI-powered web-based Learning app for English, Chinese, and Knowledge Bank.
 

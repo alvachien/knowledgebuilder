@@ -17,6 +17,7 @@ Each content category maps to a concrete data model loaded by `LearningContentSe
 - **QuestionBank** (`interfaces/questionbank.ts`) — Enums for question types (`QuestionBankTypeEnum`), content formats, option keys, and item levels.
 - **QuestionBankItemBase** (`interfaces/questionbank-base.ts`) — Abstract base class for all question types. Concrete implementations: `QuestionBankItemSingleChoice`, `QuestionBankItemMultipleChoice`, `QuestionBankItemFillInTheBlank`, `QuestionBankItemDictation`, `QuestionBankItemShortAnswer`, `QuestionBankItemEssay`, `QuestionBankItemReadingComprehension`, `QuestionBankItemListeningComprehension`, `QuestionBankItemCloze`, `QuestionBankItemTrueFalse`.
 - **convertToQuestionBankItem()** — Converts `QuestionBankItemCombinedInterface` (raw JSON) to concrete `QuestionBankItemBase` instances.
+- **UserLoginHistory** (`interfaces/user-login-history.ts`) — One day of the caller's login history, served by `api/UserLoginHistories` (`loginDate` yyyy-MM-dd, `firstLoginAt`/`lastLoginAt` UTC instants, `loginCount`). The user-detail page reads it via `UserLoginHistoryService.getHistory()`; the SPA records it by calling `recordLogin()` when an OIDC redirect completes (see [authentication-flow.md](authentication-flow.md)).
 
 The diagram shows the core `QuestionBankItemBase` hierarchy, the raw-JSON `QuestionBankItemCombinedInterface` that `convertToQuestionBankItem()` turns into concrete items, the content-record types loaded by `LearningContentService`, and the option/queue interfaces.
 
@@ -162,6 +163,12 @@ classDiagram
   class UserAuthInfo {
     +id: string
     +name: string
+  }
+  class UserLoginHistory {
+    +loginDate: string
+    +firstLoginAt: string
+    +lastLoginAt: string
+    +loginCount: number
   }
   LearningContent "1" --> "*" UserLearningRating : ratings
 ```

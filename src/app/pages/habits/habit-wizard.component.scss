@@ -1,0 +1,331 @@
+// Inherits the shared .app-page-container column; 900px is an intentional
+// local reading-width override (component styles beat the global class).
+.wizard-page {
+  padding-block: 16px;
+  max-width: 900px;
+}
+
+.wizard-topbar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 8px;
+
+  .wizard-title {
+    margin: 0;
+    font-size: 1.4rem;
+  }
+}
+
+.wizard-loading {
+  display: flex;
+  justify-content: center;
+  padding: 48px 0;
+}
+
+/* ── Step header: Angular Material stepper (header-only) ──────────────────
+   The mat-steps carry no matStepContent (bodies come from the template's
+   @switch), so the stepper's projected-content strip is always empty — hide
+   it via ::ng-deep, the same overlay escape hatch navbar.scss uses. Material
+   centers its own done/error icons, so no icon alignment rules live here. */
+.wizard-stepper {
+  margin: 4px 0 16px;
+}
+
+:host ::ng-deep .wizard-stepper .mat-horizontal-content-container {
+  display: none;
+}
+
+// Mobile: circles + connector lines carry the flow; Material has no label
+// breakpoint, so drop the labels before they squeeze each other.
+@media (max-width: 600px) {
+  :host ::ng-deep .wizard-stepper .mat-step-label {
+    display: none;
+  }
+}
+
+.wizard-error {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin: 8px 0;
+  padding: 8px 12px;
+  border-radius: 8px;
+  background: rgba(198, 40, 40, 0.1);
+  color: var(--warn, #c62828);
+  font-size: 0.9rem;
+}
+
+.wizard-hint {
+  font-size: 0.85rem;
+  opacity: 0.75;
+}
+
+/* ── Template picker ─────────────────────────────────────────────────────── */
+.template-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+  gap: 12px;
+}
+
+.template-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  padding: 16px 8px;
+  cursor: pointer;
+  text-align: center;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+
+  .template-icon {
+    font-size: 32px;
+    width: 32px;
+    height: 32px;
+    color: var(--mat-primary, #3f51b5);
+  }
+
+  .template-name {
+    font-weight: 600;
+  }
+
+  .template-cycle {
+    font-size: 0.75rem;
+    opacity: 0.7;
+  }
+
+  &.selected {
+    border-color: var(--mat-primary, #3f51b5);
+    box-shadow: 0 0 0 2px var(--mat-primary, #3f51b5);
+  }
+}
+
+.custom-card .template-icon {
+  color: var(--mat-accent, #ff4081);
+}
+
+/* ── Basics / shared field layout ───────────────────────────────────────── */
+.wizard-basics,
+.wizard-targets {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  max-width: 520px;
+
+  mat-form-field {
+    width: 100%;
+  }
+}
+
+.wizard-dates {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+/* ── Items & properties ─────────────────────────────────────────────────── */
+.wizard-items {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+
+  .item-card {
+    .item-row,
+    .prop-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .prop-row {
+      padding-left: 12px;
+      border-left: 2px solid rgba(128, 128, 128, 0.2);
+      margin-bottom: 4px;
+    }
+  }
+}
+
+.grow {
+  flex: 1 1 160px;
+}
+
+.rate-field {
+  width: 110px;
+}
+
+/* ── Criteria editor ────────────────────────────────────────────────────── */
+.wizard-criteria {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+
+  .criterion-card {
+    &.root-card {
+      border-color: var(--mat-primary, #3f51b5);
+    }
+
+    .criterion-head {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+
+      .criterion-type {
+        font-size: 0.75rem;
+        opacity: 0.7;
+        text-transform: uppercase;
+      }
+    }
+
+    .criterion-body {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .scope-items,
+    .operand-list {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      padding: 8px 12px;
+      border-radius: 8px;
+      background: rgba(128, 128, 128, 0.08);
+      margin: 8px 0;
+
+      .operand-label {
+        width: 100%;
+        margin: 0 0 4px;
+        font-size: 0.8rem;
+        opacity: 0.75;
+      }
+    }
+
+    .root-targets {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      flex-wrap: wrap;
+      margin-top: 8px;
+    }
+  }
+
+  .criteria-add {
+    display: flex;
+    gap: 8px;
+  }
+}
+
+/* ── Preview ────────────────────────────────────────────────────────────── */
+.wizard-preview {
+  .preview-banner {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin-bottom: 12px;
+    padding: 8px 12px;
+    border-radius: 8px;
+    background: rgba(255, 152, 0, 0.12);
+    font-size: 0.85rem;
+  }
+
+  .preview-head {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+
+    h2 {
+      flex: 1 1 auto;
+      margin: 0;
+      font-size: 1.1rem;
+    }
+  }
+
+  .preview-progress {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    margin: 12px 0;
+
+    .preview-value {
+      font-weight: 600;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .preview-success {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      color: var(--green, #2e7d32);
+    }
+  }
+
+  .preview-day {
+    font-size: 0.85rem;
+    opacity: 0.8;
+  }
+
+  .preview-chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 12px;
+
+    .preview-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 2px 10px;
+      border-radius: 12px;
+      font-size: 0.75rem;
+      background: rgba(46, 125, 50, 0.12);
+
+      mat-icon {
+        font-size: 14px;
+        width: 14px;
+        height: 14px;
+      }
+    }
+  }
+
+  .preview-criteria {
+    margin-top: 12px;
+
+    .preview-criterion {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 3px 0;
+      font-size: 0.9rem;
+
+      .crit-name {
+        flex: 1 1 auto;
+      }
+
+      .crit-value {
+        font-variant-numeric: tabular-nums;
+        opacity: 0.8;
+      }
+
+      .crit-pass {
+        color: var(--green, #2e7d32);
+      }
+    }
+  }
+}
+
+/* ── Footer ─────────────────────────────────────────────────────────────── */
+.wizard-footer {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 24px;
+  padding-top: 12px;
+  border-top: 1px solid rgba(128, 128, 128, 0.2);
+
+  .wizard-spacer {
+    flex: 1 1 auto;
+  }
+}

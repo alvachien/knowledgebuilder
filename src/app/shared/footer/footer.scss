@@ -1,6 +1,18 @@
+@use '../../../styles/constants' as *;
+
+// ── "Mark & Ledger" fixed identity (mirrors the homepage/navbar tokens; the
+// footer's former _footer-theme.scss participation in the 4-palette swap is
+// gone, so its colors are literal now). ──
+$graphite: #4c5666;
+$paper-rule: #dde3ea;
+$pen: #c62828;
+
 :host {
   display: block;
   margin-top: 100px;
+  background: #fbfbf8;
+  color: $graphite;
+  border-top: 1px solid $paper-rule;
 }
 
 .learning-footer {
@@ -36,6 +48,11 @@ app-logo {
   min-width: 225px;
   margin-top: 16px;
 
+  // Version / release meta in the exam-paper print face.
+  span {
+    font-family: $font-ledger-label;
+  }
+
   > div {
     display: flex;
     flex-direction: column;
@@ -67,6 +84,7 @@ a {
 
   &:hover,
   &:focus {
+    color: $pen;
     text-decoration: underline;
   }
 }

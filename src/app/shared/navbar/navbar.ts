@@ -29,7 +29,6 @@ import { AuthService, UserCodeService } from '../../services';
 import { LanguageSelectorComponent } from '../language-selector';
 import { AppLogoComponent } from '../logo/logo';
 import { NavigationFocusService } from '../navigation-focus/navigation-focus.service';
-import { ThemePickerComponent } from '../theme-picker/theme-picker';
 
 @Component({
   selector: 'app-navbar',
@@ -41,7 +40,6 @@ import { ThemePickerComponent } from '../theme-picker/theme-picker';
     MatButtonModule,
     RouterLink,
     RouterLinkActive,
-    ThemePickerComponent,
     AppLogoComponent,
     MatIconModule,
     MatMenuModule,
