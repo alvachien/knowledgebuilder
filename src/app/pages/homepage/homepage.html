@@ -1,4 +1,8 @@
-<header appFocusOnNavigation class="modern-hero-section"
+<!-- "Mark & Ledger" homepage: fixed paper/ink/red-pen identity, deliberately
+     outside the 4-palette Material theme system (see homepage.scss tokens).
+     Keep every transloco key, the daysleft bindings, appFocusOnNavigation,
+     and id="homepage-header" (navbar skip-link target). -->
+<header appFocusOnNavigation class="ledger-hero"
         [attr.aria-label]="'start_learning_journey_today' | transloco" id="homepage-header">
   <div class="hero-container">
     <div class="hero-content">
@@ -14,75 +18,72 @@
             <span class="stat-number">{{daysleft1}}</span>
             <span class="stat-label">{{ 'days_to_college_2027' | transloco }}</span>
           </div>
-          <div class="stat-divider"></div>
           <div class="stat-item">
             <span class="stat-number">{{daysleft2}}</span>
             <span class="stat-label">{{ 'days_to_shanghai_zhongkao_2028' | transloco }}</span>
           </div>
-          <div class="stat-divider"></div>
           <div class="stat-item">
             <span class="stat-number">{{daysleft3}}</span>
             <span class="stat-label">{{ 'days_to_gaokao_2031' | transloco }}</span>
           </div>
         </div>
       </div>
+
       <div class="hero-visual">
-        <div class="feature-grid">
-          <a mat-raised-button routerLink="/vocabulary" class="feature-card vocabulary-card">
-            <div class="feature-icon">
-              <mat-icon>translate</mat-icon>
-            </div>
-            <div class="feature-content">
-              <h3>{{ 'vocabulary' | transloco }}</h3>
-              <p>{{ 'expand_your_word_power' | transloco }}</p>
-            </div>
+        <!-- The page's one memorable element: a ledger sheet whose rows are
+             the study categories, graded in red pen. Marks are decorative. -->
+        <section class="ledger-panel" [attr.aria-label]="'learning_ledger' | transloco">
+          <h2 class="ledger-title">{{ 'learning_ledger' | transloco }}</h2>
+          <a class="ledger-row" routerLink="/vocabulary">
+            <mat-icon class="row-icon">translate</mat-icon>
+            <span class="row-name">{{ 'vocabulary' | transloco }}
+              <small>{{ 'expand_your_word_power' | transloco }}</small>
+            </span>
+            <span class="row-marks" aria-hidden="true"><i>✓</i><i>✓</i><i>✓</i><i class="off">·</i></span>
           </a>
-          <a mat-raised-button routerLink="/translating" class="feature-card sentence-card">
-            <div class="feature-icon">
-              <mat-icon>format_quote</mat-icon>
-            </div>
-            <div class="feature-content">
-              <h3>{{ 'sentences' | transloco }}</h3>
-              <p>{{ 'master_sentence_structures' | transloco }}</p>
-            </div>
+          <a class="ledger-row" routerLink="/translating">
+            <mat-icon class="row-icon">format_quote</mat-icon>
+            <span class="row-name">{{ 'sentences' | transloco }}
+              <small>{{ 'master_sentence_structures' | transloco }}</small>
+            </span>
+            <span class="row-marks" aria-hidden="true"><i>✓</i><i>✓</i><i class="off">·</i><i class="off">·</i></span>
           </a>
-          <a mat-raised-button routerLink="/listening" class="feature-card listening-card">
-            <div class="feature-icon">
-              <mat-icon>headphones</mat-icon>
-            </div>
-            <div class="feature-content">
-              <h3>{{ 'listening' | transloco }}</h3>
-              <p>{{ 'improve_comprehension' | transloco }}</p>
-            </div>
+          <a class="ledger-row" routerLink="/listening">
+            <mat-icon class="row-icon">headphones</mat-icon>
+            <span class="row-name">{{ 'listening' | transloco }}
+              <small>{{ 'improve_comprehension' | transloco }}</small>
+            </span>
+            <span class="row-marks" aria-hidden="true"><i>✓</i><i>✓</i><i>✓</i><i class="off">·</i></span>
           </a>
-          <a mat-raised-button routerLink="/chinese" class="feature-card chinese-card">
-            <div class="feature-icon">
-              <mat-icon>language</mat-icon>
-            </div>
-            <div class="feature-content">
-              <h3>{{ 'chinese' | transloco }}</h3>
-              <p>{{ 'classical_literature' | transloco }}</p>
-            </div>
+          <a class="ledger-row" routerLink="/chinese">
+            <mat-icon class="row-icon">font_download</mat-icon>
+            <span class="row-name">{{ 'chinese' | transloco }}
+              <small>{{ 'classical_literature' | transloco }}</small>
+            </span>
+            <span class="row-marks" aria-hidden="true"><i>✓</i><i>✓</i><i>✓</i><i class="off">·</i></span>
           </a>
-          <a mat-raised-button routerLink="/formula" class="feature-card formula-card">
-            <div class="feature-icon">
-              <mat-icon>functions</mat-icon>
-            </div>
-            <div class="feature-content">
-              <h3>{{ 'formula' | transloco }}</h3>
-              <p>{{ 'math_science_formulas' | transloco }}</p>
-            </div>
+          <a class="ledger-row" routerLink="/formula">
+            <mat-icon class="row-icon">functions</mat-icon>
+            <span class="row-name">{{ 'formula' | transloco }}
+              <small>{{ 'math_science_formulas' | transloco }}</small>
+            </span>
+            <span class="row-marks" aria-hidden="true"><i>✓</i><i>✓</i><i class="off">·</i><i class="off">·</i></span>
           </a>
-          <a mat-raised-button routerLink="/knowledge" class="feature-card knowledge-card">
-            <div class="feature-icon">
-              <mat-icon>school</mat-icon>
-            </div>
-            <div class="feature-content">
-              <h3>{{ 'knowledge_bank' | transloco }}</h3>
-              <p>{{ 'comprehensive_learning' | transloco }}</p>
-            </div>
+          <a class="ledger-row" routerLink="/knowledge">
+            <mat-icon class="row-icon">school</mat-icon>
+            <span class="row-name">{{ 'knowledge_bank' | transloco }}
+              <small>{{ 'comprehensive_learning' | transloco }}</small>
+            </span>
+            <span class="row-marks" aria-hidden="true"><i>✓</i><i class="off">·</i><i class="off">·</i><i class="off">·</i></span>
           </a>
-        </div>
+          <a class="ledger-row row-streak" routerLink="/habits">
+            <mat-icon class="row-icon">track_changes</mat-icon>
+            <span class="row-name">{{ 'habit_tracker' | transloco }}
+              <small>{{ 'build_daily_consistency' | transloco }}</small>
+            </span>
+            <span class="row-marks" aria-hidden="true"><i>✓</i><i>✓</i><i>✓</i><i>✓</i><i>✓</i></span>
+          </a>
+        </section>
       </div>
     </div>
   </div>
@@ -94,48 +95,56 @@
       <h2>{{ 'why_choose_knowledge_builder' | transloco }}</h2>
       <p class="section-subtitle">{{ 'designed_for_effective_learning' | transloco }}</p>
     </div>
-    
-    <div class="features-grid">
-      <div class="feature-highlight">
-        <div class="highlight-icon">
+
+    <div class="features-list">
+      <article class="feature-note">
+        <div class="note-head">
           <mat-icon>smart_toy</mat-icon>
-        </div>
-        <div class="highlight-content">
           <h3>{{ 'ai_powered_learning' | transloco }}</h3>
-          <p>{{ 'ai_powered_learning_desc' | transloco }}</p>
-          <div class="highlight-note">{{ 'requires_invitation_code' | transloco }}</div>
         </div>
-      </div>
-      
-      <div class="feature-highlight">
-        <div class="highlight-icon">
+        <p>{{ 'ai_powered_learning_desc' | transloco }}</p>
+        <div class="highlight-note">{{ 'requires_invitation_code' | transloco }}</div>
+      </article>
+
+      <article class="feature-note">
+        <div class="note-head">
           <mat-icon>translate</mat-icon>
-        </div>
-        <div class="highlight-content">
           <h3>{{ 'comprehensive_language' | transloco }}</h3>
-          <p>{{ 'comprehensive_language_desc' | transloco }}</p>
         </div>
-      </div>
-      
-      <div class="feature-highlight">
-        <div class="highlight-icon">
+        <p>{{ 'comprehensive_language_desc' | transloco }}</p>
+      </article>
+
+      <article class="feature-note">
+        <div class="note-head">
           <mat-icon>calculate</mat-icon>
-        </div>
-        <div class="highlight-content">
           <h3>{{ 'formula_mastery' | transloco }}</h3>
-          <p>{{ 'formula_mastery_desc' | transloco }}</p>
         </div>
-      </div>
-      
-      <div class="feature-highlight">
-        <div class="highlight-icon">
+        <p>{{ 'formula_mastery_desc' | transloco }}</p>
+      </article>
+
+      <article class="feature-note">
+        <div class="note-head">
           <mat-icon>library_books</mat-icon>
-        </div>
-        <div class="highlight-content">
           <h3>{{ 'knowledge_bank' | transloco }}</h3>
-          <p>{{ 'knowledge_bank_desc' | transloco }}</p>
         </div>
-      </div>
+        <p>{{ 'knowledge_bank_desc' | transloco }}</p>
+      </article>
+
+      <article class="feature-note note-habit">
+        <div class="note-head">
+          <mat-icon>track_changes</mat-icon>
+          <h3>{{ 'habit_tracking' | transloco }}</h3>
+        </div>
+        <p>{{ 'habit_tracking_desc' | transloco }}</p>
+      </article>
+
+      <article class="feature-note">
+        <div class="note-head">
+          <mat-icon>headphones</mat-icon>
+          <h3>{{ 'listening_improvement' | transloco }}</h3>
+        </div>
+        <p>{{ 'listening_improvement_desc' | transloco }}</p>
+      </article>
     </div>
   </div>
 </main>
@@ -146,12 +155,11 @@
       <h2>{{ 'start_learning_journey_today' | transloco }}</h2>
       <p>{{ 'join_thousands_of_learners' | transloco }}</p>
       <div class="cta-actions">
-        <a mat-raised-button routerLink="/vocabulary" class="cta-button primary">
-          <mat-icon>play_arrow</mat-icon>
+        <a routerLink="/vocabulary" class="cta-button primary">
+          <mat-icon>edit_note</mat-icon>
           <span>{{ 'get_started' | transloco }}</span>
         </a>
-        <a mat-raised-button routerLink="/knowledge" class="cta-button secondary">
-          <mat-icon>explore</mat-icon>
+        <a routerLink="/knowledge" class="cta-button secondary">
           <span>{{ 'explore_features' | transloco }}</span>
         </a>
       </div>

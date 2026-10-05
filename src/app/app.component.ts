@@ -5,6 +5,20 @@ import { RouterOutlet, RouterModule } from '@angular/router';
 
 import { NavbarComponent } from './shared/navbar/navbar';
 
+/**
+ * One-time cleanup for the removed "Mark & Ledger" theme picker: `theme-storage`
+ * (deleted with the redesign) persisted under this key, and existing users still
+ * have it. The try/catch mirrors the resilience expected around browser storage
+ * (private modes can throw even on removeItem).
+ */
+function clearLegacyThemeStorage(): void {
+  try {
+    localStorage.removeItem('kb-theme-storage-current-name');
+  } catch {
+    // Storage unavailable/disabled — nothing to clean up.
+  }
+}
+
 @Component({
   selector: 'app-root',
   imports: [RouterOutlet, RouterModule, NavbarComponent],
@@ -14,7 +28,7 @@ import { NavbarComponent } from './shared/navbar/navbar';
   styleUrl: './app.component.scss',
 })
 export class AppComponent {
-  title = 'Knowledge Builder';
+  title = 'Knowledge Habit Builder';
   mobileQuery: MediaQueryList;
   private _mobileQueryListener: () => void;
 
@@ -22,6 +36,7 @@ export class AppComponent {
   private changeDetectorRef = inject(ChangeDetectorRef);
 
   constructor() {
+    clearLegacyThemeStorage();
     this.mobileQuery = this.media.matchMedia('(max-width: 600px)');
     this._mobileQueryListener = () => this.changeDetectorRef.detectChanges();
     this.mobileQuery.addEventListener('change', this._mobileQueryListener);

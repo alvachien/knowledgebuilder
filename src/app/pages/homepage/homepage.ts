@@ -1,8 +1,5 @@
 import type { OnInit } from '@angular/core';
 import { ChangeDetectionStrategy, Component, HostBinding, inject } from '@angular/core';
-import { MatButtonModule } from '@angular/material/button';
-import { MatCardModule } from '@angular/material/card';
-import { MatDividerModule } from '@angular/material/divider';
 import { MatIconModule } from '@angular/material/icon';
 import { RouterLink } from '@angular/router';
 import { TranslocoModule } from '@jsverse/transloco';
@@ -19,11 +16,8 @@ import { AppPageTitle } from '../page-title/page-title';
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     NavigationFocusDirective,
-    MatButtonModule,
     RouterLink,
-    MatDividerModule,
     MatIconModule,
-    MatCardModule,
     FooterComponent,
     TranslocoModule,
   ],

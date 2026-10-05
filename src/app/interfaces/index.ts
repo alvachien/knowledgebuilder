@@ -14,3 +14,4 @@ export * from './questionbank-base';
 export * from './knowledge-list-filter';
 export * from './user-auth-info';
 export type * from './learning-rating';
+export type * from './user-login-history';

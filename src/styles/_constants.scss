@@ -14,3 +14,16 @@ $content-padding-sidenav: 50px;
 $content-padding-side-xs: 15px;
 
 $sidenav-width: 240px;
+
+// Central page content width for routed pages (.app-page-container, see
+// _shared-page.scss). The 1200px value is also the boundary of the toolbar
+// responsive tiers in _shared-toolbars.scss — keep the two in sync.
+$page-max-width: 1200px;
+$page-gutter: 16px;
+
+// Type stacks for the "Mark & Ledger" identity (homepage/navbar/footer).
+// System fonts only — no self-hosted/webfont bytes: KaiTi (Win) / STKaiti
+// (macOS) give the CJK brush display face, FangSong / STFangsong the
+// exam-paper label face, Georgia carries Latin on machines without them.
+$font-ledger-display: 'KaiTi', 'STKaiti', 'DFKai-SB', Georgia, 'Songti SC', serif;
+$font-ledger-label: 'FangSong', 'STFangsong', Georgia, serif;

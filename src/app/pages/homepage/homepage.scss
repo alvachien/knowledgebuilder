@@ -1,228 +1,334 @@
-// Modern Hero Section - Structural styles only
-.modern-hero-section {
-  overflow: hidden;
-  position: relative;
-  padding: 80px 0;
-  min-height: 100vh;
-  display: flex;
-  align-items: center;
+// ── "Mark & Ledger" identity ──────────────────────────────────────────────
+// Fixed palette + type for the homepage: cool paper, ink-blue-black type,
+// one red teacher-pen accent used sparingly. The app's former 4-palette
+// Material theme system was removed entirely (see styles/_page-colors.scss),
+// so these tokens are the homepage's only color source. Structure: ruled
+// hairlines carry the layout; the
+// single memorable element is the hero ledger panel; motion is one
+// page-load moment (the checks inking in), nothing else.
+@use '../../../styles/constants' as *;
+
+:host {
+  // Design tokens (also mirrored by navbar/footer shell styles).
+  --paper: #fbfbf8;      // page surface — cool white, not cream
+  --rule: #dde3ea;       // ledger hairlines
+  --ink: #1b2432;        // headings / strong text — ink blue-black
+  --graphite: #4c5666;   // secondary text
+  --pen: #c62828;        // red teacher pen — marks, stamp, key accent
+  --pen-soft: rgba(198, 40, 40, 0.08);
+  --wash: #eef2f7;       // panel fills / hover
+
+  display: block;
+  background: var(--paper);
+  color: var(--ink);
+}
+
+// ── Hero ──────────────────────────────────────────────────────────────────
+.ledger-hero {
+  background: var(--paper);
+  border-bottom: 1px solid var(--rule);
+  padding: clamp(64px, 9vh, 104px) 0 72px;
 }
 
 .hero-container {
-  max-width: 1400px;
+  max-width: $page-max-width;
   margin: 0 auto;
   padding: 0 40px;
-  width: 100%;
 }
 
 .hero-content {
   display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 80px;
+  grid-template-columns: minmax(0, 1.05fr) minmax(0, 0.95fr);
+  gap: 72px;
   align-items: center;
 }
 
-.hero-text {
-  .hero-badge {
-    display: inline-block;
-    padding: 8px 20px;
-    border-radius: 20px;
-    font-size: 0.875rem;
-    font-weight: 600;
-    margin-bottom: 30px;
-    text-transform: uppercase;
-    letter-spacing: 1px;
-  }
+.hero-badge {
+  font-family: $font-ledger-label;
+  font-size: 0.95rem;
+  letter-spacing: 0.04em;
+  color: var(--graphite);
 
-  .hero-title {
-    font-size: 3.5rem;
-    font-weight: 800;
-    line-height: 1.1;
-    margin: 0 0 24px 0;
-  }
-
-  .hero-description {
-    font-size: 1.25rem;
-    line-height: 1.6;
-    margin: 0 0 40px 0;
-    max-width: 500px;
+  &::before {
+    content: '✓';
+    color: var(--pen);
+    margin-right: 10px;
   }
 }
 
+.hero-title {
+  font-family: $font-ledger-display;
+  font-weight: 400;
+  font-size: clamp(2.4rem, 5.2vw, 4rem);
+  line-height: 1.14;
+  color: var(--ink);
+  margin: 18px 0 20px;
+}
+
+.hero-description {
+  color: var(--graphite);
+  line-height: 1.65;
+  max-width: 52ch;
+}
+
+// Countdown "ledger totals": double rule above, column rules between.
 .hero-stats {
-  display: flex;
+  margin-top: 44px;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  border-top: 3px double var(--rule);
+  border-bottom: 1px solid var(--rule);
+  padding: 14px 0;
+}
+
+.stat-item {
+  text-align: center;
+
+  & + & {
+    border-left: 1px solid var(--rule);
+  }
+}
+
+.stat-number {
+  display: block;
+  font-family: $font-ledger-display;
+  font-size: 2.8rem;
+  line-height: 1.1;
+  color: var(--ink);
+  font-variant-numeric: tabular-nums;
+}
+
+.stat-label {
+  display: block;
+  margin-top: 2px;
+  font-family: $font-ledger-label;
+  font-size: 0.8rem;
+  letter-spacing: 0.04em;
+  color: var(--graphite);
+}
+
+// ── Ledger panel (the page's one memorable element) ──────────────────────
+.ledger-panel {
+  background: #fff;
+  border: 1px solid var(--rule);
+  border-radius: 2px;
+  box-shadow: 0 24px 48px -32px rgba(27, 36, 50, 0.28);
+  padding: 0 28px 12px;
+}
+
+.ledger-title {
+  font-family: $font-ledger-display;
+  font-weight: 400;
+  font-size: 1.1rem;
+  letter-spacing: 0.12em;
+  color: var(--graphite);
+  padding: 20px 0 10px;
+  margin: 0;
+  border-bottom: 1px solid var(--rule);
+}
+
+.ledger-row {
+  display: grid;
+  grid-template-columns: 28px minmax(0, 1fr) auto;
   align-items: center;
-  gap: 40px;
-  margin-top: 40px;
+  gap: 16px;
+  padding: 15px 4px;
+  border-bottom: 1px solid var(--rule);
+  text-decoration: none;
+  color: inherit;
+  transition: background 0.15s ease;
 
-  .stat-item {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-
-    .stat-number {
-      font-size: 3rem;
-      font-weight: 700;
-      line-height: 1;
-      text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-    }
-
-    .stat-label {
-      font-size: 0.875rem;
-      margin-top: 8px;
-      text-align: center;
-      font-weight: 500;
-    }
+  &:last-child {
+    border-bottom: none;
   }
 
-  .stat-divider {
-    width: 1px;
-    height: 40px;
+  &:hover {
+    background: var(--wash);
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--pen);
+    outline-offset: -2px;
   }
 }
 
-.hero-visual {
-  .feature-grid {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: 20px;
+.row-icon {
+  width: 22px;
+  height: 22px;
+  font-size: 22px;
+  line-height: 22px;
+  color: var(--graphite);
+}
+
+.row-name {
+  font-family: $font-ledger-display;
+  font-size: 1.08rem;
+  color: var(--ink);
+
+  small {
+    display: block;
+    margin-top: 2px;
+    font-size: 0.78rem;
+    letter-spacing: 0.02em;
+    color: var(--graphite);
+  }
+}
+
+// Red-pen check marks; one "missed" tick in graphite.
+.row-marks {
+  display: inline-flex;
+  gap: 6px;
+  font-size: 1.1rem;
+  line-height: 1;
+  color: var(--pen);
+
+  .off {
+    color: var(--rule);
+  }
+}
+
+// The habits streak gets the one flourish: the marks are circled-under.
+.row-streak .row-marks {
+  text-decoration: underline;
+  text-decoration-thickness: 2px;
+  text-underline-offset: 6px;
+}
+
+// Single orchestrated load moment: the checks ink in, row by row.
+@keyframes mark-in {
+  from {
+    opacity: 0;
+    transform: translateY(5px) rotate(8deg) scale(0.8);
   }
 
-  .feature-card {
-    display: flex;
-    flex-direction: column;
-    align-items: flex-start;
-    padding: 24px;
-    border-radius: 20px;
-    text-decoration: none;
-    transition: all 0.3s ease;
-    min-height: 140px;
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
 
-    &:hover {
-      transform: translateY(-8px);
-      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
-    }
+.ledger-row .row-marks i {
+  font-style: normal;
+  display: inline-block;
+  animation: mark-in 0.35s ease backwards;
+}
 
-    .feature-icon {
-      width: 48px;
-      height: 48px;
-      border-radius: 12px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      margin-bottom: 16px;
-      font-size: 1.5rem;
+@for $row from 1 through 6 {
+  .ledger-row:nth-of-type(#{$row}) .row-marks i {
+    animation-delay: #{0.25 + $row * 0.12}s;
+  }
+}
 
-      mat-icon {
-        font-size: 1.5rem;
-        width: 1.5rem;
-        height: 1.5rem;
-      }
-    }
-
-    .feature-content {
-      h3 {
-        font-size: 1.125rem;
-        font-weight: 600;
-        margin: 0 0 8px 0;
-      }
-
-      p {
-        font-size: 0.875rem;
-        margin: 0;
-        line-height: 1.4;
-      }
+// Stagger the marks inside each row: each later tick +90ms.
+@for $row from 1 through 6 {
+  @for $tick from 2 through 5 {
+    .ledger-row:nth-of-type(#{$row}) .row-marks i:nth-child(#{$tick}) {
+      animation-delay: #{0.25 + $row * 0.12 + ($tick - 1) * 0.09}s;
     }
   }
 }
 
-// Features Section - Structural styles only
+// ── Why-choose section (margin notes on ruled paper) ─────────────────────
 .features-section {
-  padding: 120px 0;
+  background:
+    repeating-linear-gradient(
+      to bottom,
+      transparent 0 31px,
+      rgba(27, 36, 50, 0.035) 31px 32px
+    ),
+    var(--paper);
+  border-bottom: 1px solid var(--rule);
+  padding: 96px 0;
 }
 
 .features-container {
-  max-width: 1200px;
+  max-width: $page-max-width;
   margin: 0 auto;
   padding: 0 40px;
 }
 
 .section-header {
   text-align: center;
-  margin-bottom: 80px;
+  margin-bottom: 56px;
 
   h2 {
-    font-size: 2.5rem;
-    font-weight: 700;
-    margin: 0 0 16px 0;
-  }
-
-  .section-subtitle {
-    font-size: 1.125rem;
-    max-width: 600px;
-    margin: 0 auto;
-    line-height: 1.6;
+    font-family: $font-ledger-display;
+    font-weight: 400;
+    font-size: clamp(1.9rem, 3.4vw, 2.6rem);
+    color: var(--ink);
+    margin: 0 0 10px;
   }
 }
 
-.features-grid {
+.section-subtitle {
+  color: var(--graphite);
+  margin: 0;
+}
+
+.features-list {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-  gap: 40px;
+  grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
+  gap: 0 64px;
 }
 
-.feature-highlight {
-  border-radius: 24px;
-  padding: 40px;
-  border: 1px solid;
-  transition: all 0.3s ease;
+.feature-note {
+  padding: 22px 6px;
+  border-top: 1px solid var(--rule);
+}
 
-  &:hover {
-    transform: translateY(-8px);
-    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.08);
+.note-head {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+
+  mat-icon {
+    width: 20px;
+    height: 20px;
+    font-size: 20px;
+    line-height: 20px;
+    color: var(--pen);
   }
 
-  .highlight-icon {
-    width: 64px;
-    height: 64px;
-    border-radius: 16px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    margin-bottom: 24px;
-
-    mat-icon {
-      font-size: 2rem;
-      width: 2rem;
-      height: 2rem;
-    }
-  }
-
-  .highlight-content {
-    h3 {
-      font-size: 1.5rem;
-      font-weight: 600;
-      margin: 0 0 16px 0;
-    }
-
-    p {
-      font-size: 1rem;
-      line-height: 1.6;
-      margin: 0 0 16px 0;
-    }
-
-    .highlight-note {
-      font-size: 0.875rem;
-      font-style: italic;
-      padding-top: 16px;
-      border-top: 1px solid;
-    }
+  h3 {
+    font-family: $font-ledger-display;
+    font-weight: 400;
+    font-size: 1.15rem;
+    color: var(--ink);
+    margin: 0;
   }
 }
 
-// CTA Section - Structural styles only
+// The habit note carries this section's single red-pen stroke.
+.note-habit .note-head h3 {
+  background: linear-gradient(
+    to bottom,
+    transparent 68%,
+    rgba(198, 40, 40, 0.22) 68% 86%,
+    transparent 86%
+  );
+}
+
+.feature-note p {
+  margin: 8px 0 0;
+  font-size: 0.92rem;
+  line-height: 1.65;
+  color: var(--graphite);
+}
+
+.highlight-note {
+  display: inline-block;
+  margin-top: 10px;
+  padding: 2px 10px;
+  font-family: $font-ledger-label;
+  font-size: 0.82rem;
+  color: var(--pen);
+  background: var(--pen-soft);
+}
+
+// ── CTA (red-pen stamp) ──────────────────────────────────────────────────
 .cta-section {
-  padding: 60px 0;
+  background: var(--paper);
+  padding: 96px 0 110px;
 }
 
 .cta-container {
@@ -235,183 +341,124 @@
   text-align: center;
 
   h2 {
-    font-size: 2.5rem;
-    font-weight: 700;
-    margin: 0 0 24px 0;
+    font-family: $font-ledger-display;
+    font-weight: 400;
+    font-size: clamp(1.9rem, 3.4vw, 2.6rem);
+    color: var(--ink);
+    margin: 0 0 12px;
   }
 
   p {
-    font-size: 1.125rem;
-    line-height: 1.6;
-    margin: 0 0 40px 0;
-    max-width: 600px;
-    margin: 0 auto 40px;
+    color: var(--graphite);
+    line-height: 1.65;
+    max-width: 60ch;
+    margin: 0 auto;
   }
 }
 
 .cta-actions {
+  margin-top: 36px;
   display: flex;
-  gap: 20px;
   justify-content: center;
+  align-items: center;
+  gap: 28px;
   flex-wrap: wrap;
+}
 
-  .cta-button {
-    padding: 16px 32px;
-    border-radius: 12px;
-    font-weight: 600;
-    font-size: 1rem;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    transition: all 0.3s ease;
+.cta-button.primary {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 34px;
+  border: 2px solid var(--pen);
+  border-radius: 3px;
+  background: transparent;
+  color: var(--pen);
+  font-family: $font-ledger-display;
+  font-size: 1.15rem;
+  letter-spacing: 0.06em;
+  text-decoration: none;
+  transform: rotate(-1.5deg); // the stamp tilt
+  transition: background 0.18s ease, color 0.18s ease;
 
-    mat-icon {
-      font-size: 1.25rem;
-      width: 1.25rem;
-      height: 1.25rem;
-    }
+  mat-icon {
+    width: 22px;
+    height: 22px;
+    font-size: 22px;
+    line-height: 22px;
+  }
 
-    &:hover {
-      transform: translateY(-2px);
-    }
+  &:hover {
+    background: var(--pen);
+    color: var(--paper);
+  }
 
-    &.primary:hover {
-      box-shadow: 0 10px 20px rgba(0, 0, 0, 0.15);
-    }
+  &:focus-visible {
+    outline: 2px solid var(--ink);
+    outline-offset: 3px;
   }
 }
 
-// Responsive styles
-@media (max-width: 1200px) {
-  .hero-content {
-    gap: 60px;
+.cta-button.secondary {
+  color: var(--ink);
+  text-decoration: none;
+  font-size: 1rem;
+  border-bottom: 1px solid var(--rule);
+  padding-bottom: 2px;
+  transition: color 0.15s ease, border-color 0.15s ease;
+
+  &:hover {
+    color: var(--pen);
+    border-bottom-color: var(--pen);
   }
 
-  .hero-title {
-    font-size: 3rem !important;
-  }
-
-  .features-grid {
-    grid-template-columns: repeat(2, 1fr);
+  &:focus-visible {
+    outline: 2px solid var(--pen);
+    outline-offset: 3px;
   }
 }
 
-@media (max-width: 992px) {
+// ── Responsive ───────────────────────────────────────────────────────────
+@media (max-width: 1024px) {
   .hero-content {
     grid-template-columns: 1fr;
-    gap: 60px;
-  }
-
-  .hero-text {
-    text-align: center;
-
-    .hero-description {
-      margin: 0 auto 40px;
-    }
-  }
-
-  .hero-stats {
-    justify-content: center;
-  }
-
-  .hero-visual {
-    .feature-grid {
-      max-width: 600px;
-      margin: 0 auto;
-    }
-  }
-
-  .features-grid {
-    grid-template-columns: 1fr;
-    max-width: 600px;
-    margin: 0 auto;
-  }
-
-  .cta-actions {
-    flex-direction: column;
-    align-items: center;
-
-    .cta-button {
-      width: 100%;
-      max-width: 300px;
-      justify-content: center;
-    }
+    gap: 56px;
   }
 }
 
-@media (max-width: 768px) {
-  .hero-container,
-  .features-container,
-  .cta-container {
-    padding: 0 24px;
+@media (max-width: 720px) {
+  .stat-number {
+    font-size: 2rem;
   }
 
-  .hero-title {
-    font-size: 2.5rem !important;
+  .stat-label {
+    font-size: 0.68rem;
   }
 
-  .hero-description {
-    font-size: 1.125rem !important;
-  }
-
-  .section-header h2 {
-    font-size: 2rem !important;
-  }
-
-  .cta-content h2 {
-    font-size: 2rem !important;
-  }
-
-  .hero-stats {
-    flex-direction: column;
-    gap: 30px;
-
-    .stat-divider {
-      width: 100px;
-      height: 1px;
-    }
-  }
-
-  .hero-visual {
-    .feature-grid {
-      grid-template-columns: 1fr;
-      max-width: 400px;
-    }
-  }
-
-  .feature-highlight {
-    padding: 32px;
+  .features-list {
+    grid-template-columns: 1fr;
   }
 }
 
 @media (max-width: 480px) {
-  .modern-hero-section {
-    padding: 60px 0;
-  }
-
-  .features-section,
-  .cta-section {
-    padding: 80px 0;
-  }
-
-  .hero-title {
-    font-size: 2rem !important;
-  }
-
-  .hero-description {
-    font-size: 1rem !important;
+  .hero-container,
+  .features-container,
+  .cta-container {
+    padding-inline: 22px;
   }
 
   .stat-number {
-    font-size: 2.5rem !important;
+    font-size: 1.6rem;
   }
 
-  .section-header h2,
-  .cta-content h2 {
-    font-size: 1.75rem !important;
+  .ledger-panel {
+    padding: 0 16px 8px;
   }
+}
 
-  .feature-highlight {
-    padding: 24px;
+// Respect reduced-motion: no ink-in stagger, nothing else animates.
+@media (prefers-reduced-motion: reduce) {
+  .ledger-row .row-marks i {
+    animation: none;
   }
 }

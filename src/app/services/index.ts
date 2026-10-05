@@ -14,3 +14,4 @@ export * from './marked.service';
 export * from './learning-content.service';
 export * from './learning-rating.service';
 export * from './rating-item-key.util';
+export * from './user-login-history.service';

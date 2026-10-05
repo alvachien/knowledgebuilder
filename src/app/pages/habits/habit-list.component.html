@@ -1,0 +1,111 @@
+<div *transloco="let t" class="habits-page app-page-container">
+  <div class="habits-header">
+    <h1 class="habits-title"><mat-icon>track_changes</mat-icon> {{ t('habits.list.title') }}</h1>
+    <app-habit-page-header page="list" />
+    <span class="habits-spacer"></span>
+    <a mat-raised-button color="primary" routerLink="./new">
+      <mat-icon>add</mat-icon> {{ t('habits.list.newHabit') }}
+    </a>
+  </div>
+
+  @if (loading()) {
+    <div class="habits-loading">
+      <mat-spinner diameter="36"></mat-spinner>
+    </div>
+  } @else if (loadFailed()) {
+    <div class="habits-empty">
+      <p>{{ t('habits.list.loadError') }}</p>
+      <button mat-stroked-button (click)="load()"><mat-icon>refresh</mat-icon> {{ t('habits.list.retry') }}</button>
+    </div>
+  } @else if (habits().length === 0) {
+    <div class="habits-empty">
+      <p>{{ t('habits.list.empty') }}</p>
+      <a mat-raised-button color="primary" routerLink="./new">
+        <mat-icon>add</mat-icon> {{ t('habits.list.newHabit') }}
+      </a>
+    </div>
+  } @else {
+    <div class="habits-grid">
+      @for (habit of habits(); track habit.id) {
+        <mat-card appearance="outlined" class="habit-card" [routerLink]="['./', habit.id]">
+          <mat-card-header>
+            <mat-card-title>{{ habit.name }}</mat-card-title>
+            <mat-card-subtitle>
+              <span class="habit-state" [class.inactive]="habit.state === 'inactive'">
+                {{ habit.state === 'active' ? t('habits.list.stateActive') : t('habits.list.stateInactive') }}
+              </span>
+              · {{ t('habits.cycle.' + habit.cycle) }}
+              <!-- The habit's active window, not the (always today-to-today for
+                   daily cycles) progress window — that one lives, labeled, on
+                   the detail page. -->
+              · {{ habit.startDate }} → {{ habit.endDate ?? '—' }}
+            </mat-card-subtitle>
+          </mat-card-header>
+          <mat-card-content>
+            @if (habit.description) {
+              <p class="habit-desc">{{ habit.description }}</p>
+            }
+
+            <div class="habit-progress">
+              <span class="habit-progress-label">
+                @if (isDaily(habit)) {
+                  {{ root(habit).successfulDays ?? 0 }} / {{ fmt(root(habit).cycleTarget) }} {{ t('habits.list.days') }}
+                } @else {
+                  {{ fmt(root(habit).currentValue) }} / {{ fmt(root(habit).threshold) }}
+                }
+              </span>
+              <!-- Cumulative pass is latched by the API; daily shows the count. -->
+              @if (root(habit).passed) {
+                <span class="habit-pass"><mat-icon>verified</mat-icon> {{ t('habits.list.passed') }}</span>
+              }
+              <mat-progress-bar
+                mode="determinate"
+                [value]="progressPercent(habit)"
+                [color]="root(habit).passed ? 'accent' : 'primary'"></mat-progress-bar>
+              @if (isDaily(habit) && root(habit).currentDayValue !== null) {
+                <div class="habit-day-progress">
+                  @if (isCompositeRoot(habit)) {
+                    {{ t('habits.list.today') }}:
+                    <mat-icon class="day-pass">{{ root(habit).passed ? 'check' : 'remove' }}</mat-icon>
+                  } @else {
+                    {{ t('habits.list.today') }}: {{ fmt(root(habit).currentDayValue) }} / {{ fmt(root(habit).threshold) }}
+                  }
+                </div>
+              }
+            </div>
+
+            @if (habit.progress.criteria.length > 1) {
+              <app-habit-criterion-summary [criteria]="habit.progress.criteria" />
+            }
+          </mat-card-content>
+          <mat-card-actions align="end" (click)="$event.stopPropagation()">
+            @if (canPunch(habit)) {
+              <button mat-flat-button color="primary" (click)="openPunch(habit)">
+                <mat-icon>touch_app</mat-icon> {{ t('habits.list.punch') }}
+              </button>
+            }
+            <a mat-stroked-button [routerLink]="['./', habit.id, 'edit']">
+              <mat-icon>edit</mat-icon> {{ t('habits.list.edit') }}
+            </a>
+            <button mat-icon-button [mat-menu-trigger-for]="menu" [attr.aria-label]="t('habits.list.actions')">
+              <mat-icon>more_vert</mat-icon>
+            </button>
+            <mat-menu #menu="matMenu">
+              <button mat-menu-item (click)="openShares(habit)">
+                <mat-icon>group_add</mat-icon> {{ t('habits.list.shares') }}
+              </button>
+              @if (habit.state === 'active') {
+                <button mat-menu-item (click)="deactivate(habit)">
+                  <mat-icon>block</mat-icon> {{ t('habits.list.deactivate') }}
+                </button>
+              }
+              <button mat-menu-item (click)="remove(habit)">
+                <mat-icon>delete</mat-icon> {{ t('habits.list.delete') }}
+              </button>
+            </mat-menu>
+          </mat-card-actions>
+        </mat-card>
+      }
+    </div>
+  }
+</div>

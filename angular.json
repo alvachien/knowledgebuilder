@@ -50,26 +50,6 @@
               },
               {
                 "input": "node_modules/katex/dist/katex.min.css"
-              },
-              {
-                "inject": false,
-                "input": "src/styles/custom-themes/rose-red.scss",
-                "bundleName": "rose-red"
-              },
-              {
-                "inject": false,
-                "input": "src/styles/custom-themes/azure-blue.scss",
-                "bundleName": "azure-blue"
-              },
-              {
-                "inject": false,
-                "input": "src/styles/custom-themes/sunshine-coral.scss",
-                "bundleName": "sunshine-coral"
-              },
-              {
-                "inject": false,
-                "input": "src/styles/custom-themes/forest-green.scss",
-                "bundleName": "forest-green"
               }
             ],
             "stylePreprocessorOptions": {

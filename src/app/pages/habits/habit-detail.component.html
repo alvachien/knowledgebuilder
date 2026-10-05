@@ -1,0 +1,191 @@
+<div *transloco="let t" class="habit-detail app-page-container">
+  @if (loading()) {
+    <div class="detail-loading">
+      <mat-spinner diameter="36"></mat-spinner>
+    </div>
+  } @else if (habit(); as h) {
+    @let rootCriterion = root(h);
+
+    <div class="detail-header">
+      <a mat-icon-button routerLink="/habits" [attr.aria-label]="t('habits.detail.back')">
+        <mat-icon>arrow_back</mat-icon>
+      </a>
+      <h1 class="detail-title">{{ h.name }}</h1>
+      <span class="detail-spacer"></span>
+      @if (canPunch(h)) {
+        <button mat-flat-button color="primary" (click)="openPunch()">
+          <mat-icon>touch_app</mat-icon> {{ t('habits.list.punch') }}
+        </button>
+      } @else if (h.state !== 'active') {
+        <span class="habit-state inactive">{{ t('habits.list.stateInactive') }}</span>
+      }
+      <a mat-stroked-button [routerLink]="['/habits', h.id, 'edit']">
+        <mat-icon>edit</mat-icon> {{ t('habits.list.edit') }}
+      </a>
+    </div>
+
+    @if (h.description) {
+      <p class="detail-desc">{{ h.description }}</p>
+    }
+
+    <div class="detail-meta">
+      <span>{{ t('habits.cycle.' + h.cycle) }}</span>
+      <mat-divider type="vertical" [inset]="true"></mat-divider>
+      <span>{{ t('habits.detail.started') }} {{ h.startDate }}</span>
+      @if (h.endDate) {
+        <mat-divider type="vertical" [inset]="true"></mat-divider>
+        <span>{{ t('habits.detail.ends') }} {{ h.endDate }}</span>
+      }
+      <mat-divider type="vertical" [inset]="true"></mat-divider>
+      <span>
+        {{ t('habits.detail.window') }}: {{ h.progress.cycleFrom }} →
+        {{ h.progress.cycleTo ?? t('habits.detail.ongoing') }}
+      </span>
+    </div>
+
+    @if (serverTodayDiffers()) {
+      <div class="detail-tz-hint">
+        <mat-icon>schedule</mat-icon> {{ t('habits.detail.tzHint') }}
+      </div>
+    }
+
+    <mat-card appearance="outlined" class="detail-progress-card">
+      <mat-card-content>
+        <div class="habit-progress">
+          <span class="habit-progress-label">
+            @if (isDaily()) {
+              {{ rootCriterion.successfulDays ?? 0 }} / {{ fmt(rootCriterion.cycleTarget) }} {{ t('habits.list.days') }}
+            } @else {
+              {{ fmt(rootCriterion.currentValue) }} / {{ fmt(rootCriterion.threshold) }}
+            }
+          </span>
+          <!-- Cumulative pass is latched server-side; once reached it stays. -->
+          @if (rootCriterion.passed) {
+            <span class="habit-pass"><mat-icon>verified</mat-icon> {{ t('habits.list.passed') }}</span>
+          }
+          <mat-progress-bar
+            mode="determinate"
+            [value]="progressPercent()"
+            [color]="rootCriterion.passed ? 'accent' : 'primary'"></mat-progress-bar>
+          @if (isDaily() && rootCriterion.currentDayValue !== null) {
+            <div class="habit-day-progress">
+              @if (rootCriterion.criterionType === 'composite') {
+                <!-- A composite root judges the day by its pass bit, not a count. -->
+                {{ t('habits.list.today') }}:
+                <mat-icon class="day-pass">{{ rootCriterion.passed ? 'check' : 'remove' }}</mat-icon>
+              } @else {
+                {{ t('habits.list.today') }}: {{ fmt(rootCriterion.currentDayValue) }} / {{ fmt(rootCriterion.threshold) }}
+              }
+            </div>
+          }
+        </div>
+
+        @if (h.progress.criteria.length > 1) {
+          <app-habit-criterion-summary [criteria]="h.progress.criteria" />
+        }
+      </mat-card-content>
+    </mat-card>
+
+    <h2 class="detail-section-title">{{ t('habits.detail.items') }}</h2>
+    <mat-card appearance="outlined">
+      <mat-card-content>
+        @for (item of items(); track item.id) {
+          <div class="detail-item">
+            <div class="detail-item-name">{{ item.name }}</div>
+            @for (prop of item.properties; track prop.id) {
+              <div class="detail-item-prop">
+                <span class="prop-name">{{ prop.name }}</span>
+                <span class="prop-value">
+                  {{ t('habits.detail.cycleValue') }}: {{ fmt(prop.currentCycleValue) }}
+                  · {{ t('habits.detail.todayValue') }}: {{ prop.todayValue === null ? '—' : fmt(prop.todayValue) }}
+                </span>
+              </div>
+            }
+          </div>
+        } @empty {
+          <p class="detail-history-empty">{{ t('habits.detail.noItems') }}</p>
+        }
+      </mat-card-content>
+    </mat-card>
+
+    <h2 class="detail-section-title">{{ t('habits.detail.history') }}</h2>
+
+    <div class="detail-filter">
+      <mat-form-field appearance="outline">
+        <mat-label>{{ t('habits.detail.rangeFrom') }}</mat-label>
+        <input matInput [matDatepicker]="fromPicker" [(ngModel)]="fromDate" />
+        <mat-datepicker-toggle matIconSuffix [for]="fromPicker"></mat-datepicker-toggle>
+        <mat-datepicker #fromPicker></mat-datepicker>
+      </mat-form-field>
+      <mat-form-field appearance="outline">
+        <mat-label>{{ t('habits.detail.rangeTo') }}</mat-label>
+        <input matInput [matDatepicker]="toPicker" [(ngModel)]="toDate" />
+        <mat-datepicker-toggle matIconSuffix [for]="toPicker"></mat-datepicker-toggle>
+        <mat-datepicker #toPicker></mat-datepicker>
+      </mat-form-field>
+      <button mat-stroked-button (click)="applyFilter()">{{ t('habits.detail.apply') }}</button>
+      <button mat-button (click)="clearFilter()">{{ t('habits.detail.clear') }}</button>
+    </div>
+
+    @if (history().length === 0) {
+      <p class="detail-history-empty">{{ t('habits.detail.noHistory') }}</p>
+    } @else {
+      <mat-accordion multi class="detail-history">
+        @for (day of history(); track day.date) {
+          <mat-expansion-panel>
+            <mat-expansion-panel-header>
+              <span class="history-date">{{ day.date }}</span>
+              @if (showChipFor(day)) {
+                <span class="history-chip" [class.passed]="day.isSuccessful">
+                  <mat-icon>{{ day.isSuccessful ? 'verified' : 'cancel' }}</mat-icon>
+                  {{ chipLabel() }}
+                </span>
+              }
+            </mat-expansion-panel-header>
+
+            @for (criterion of day.criteria; track criterion.criterionId) {
+              <div class="history-criterion">
+                <mat-icon [class.crit-pass]="criterion.passed">
+                  {{ criterion.passed ? 'check_circle' : 'cancel' }}
+                </mat-icon>
+                <span class="crit-name">{{ criterion.name }}</span>
+                <span class="crit-value">{{ fmt(criterion.currentValue) }}</span>
+              </div>
+            }
+
+            <mat-divider></mat-divider>
+            <!-- The API returns EVERY day of the window — punch-less days
+                 render as an outcome-only row (spec FR-3.4). -->
+            @if (day.punches.length === 0) {
+              <p class="detail-history-empty">{{ t('habits.detail.noPunchesDay') }}</p>
+            }
+            @for (punch of day.punches; track punch.id) {
+              <div class="history-punch">
+                <span class="punch-item">{{ itemOf(punch.itemId) }}</span>
+                <span class="punch-values">
+                  @for (value of punch.values; track value.propertyId) {
+                    <span class="punch-value">{{ value.propertyName }}: {{ valueText(punch, value) }}</span>
+                  }
+                </span>
+                <span class="punch-time">{{ punch.punchedAt | date: 'HH:mm' }}</span>
+                <button mat-icon-button (click)="editPunch(punch)" [attr.aria-label]="t('habits.editPunch.title')">
+                  <mat-icon>edit_note</mat-icon>
+                </button>
+                <button mat-icon-button (click)="deletePunch(punch)" [attr.aria-label]="t('habits.detail.deletePunch')">
+                  <mat-icon>delete</mat-icon>
+                </button>
+              </div>
+            }
+          </mat-expansion-panel>
+        }
+      </mat-accordion>
+    }
+  } @else {
+    <div class="detail-empty">
+      <p>{{ t('habits.errors.notFound') }}</p>
+      <a mat-stroked-button routerLink="/habits">
+        <mat-icon>arrow_back</mat-icon> {{ t('habits.detail.back') }}
+      </a>
+    </div>
+  }
+</div>

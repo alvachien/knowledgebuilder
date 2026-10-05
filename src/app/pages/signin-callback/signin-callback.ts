@@ -4,9 +4,10 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { Router } from '@angular/router';
 import { TranslocoModule } from '@jsverse/transloco';
 import type { Subscription } from 'rxjs';
-import { filter } from 'rxjs/operators';
+import { catchError, EMPTY, filter } from 'rxjs';
 
 import { AuthService } from '../../services/auth.service';
+import { UserLoginHistoryService } from '../../services/user-login-history.service';
 
 @Component({
   selector: 'app-signin-callback',
@@ -19,6 +20,7 @@ import { AuthService } from '../../services/auth.service';
 export class SigninCallbackComponent implements OnDestroy {
   private readonly authService = inject(AuthService);
   private readonly router = inject(Router);
+  private readonly loginHistory = inject(UserLoginHistoryService);
   private readonly subscription: Subscription;
 
   constructor() {
@@ -29,7 +31,18 @@ export class SigninCallbackComponent implements OnDestroy {
     // navbar (rendered app-wide) surfaces the error banner.
     this.subscription = this.authService.authContent
       .pipe(filter(info => info.isAuthorized || !!info.getErrorMessage()))
-      .subscribe(() => {
+      .subscribe(info => {
+        if (info.isAuthorized) {
+          // Fresh OIDC login completed — this route is only reached via the IDP
+          // redirect (refresh-token silent renew never navigates here), so record
+          // today's login. The backend upserts (user, day) idempotently, so a
+          // duplicate fire just bumps the count; errors are deliberately swallowed -
+          // history telemetry must never strand the user on this spinner. No
+          // destroy-scoping on this inner subscription: the component navigates away
+          // in the next statement and the request must outlive it (an in-flight
+          // HttpClient call is not cancelled by component destruction).
+          this.loginHistory.recordLogin().pipe(catchError(() => EMPTY)).subscribe();
+        }
         void this.router.navigate(['/']);
       });
   }

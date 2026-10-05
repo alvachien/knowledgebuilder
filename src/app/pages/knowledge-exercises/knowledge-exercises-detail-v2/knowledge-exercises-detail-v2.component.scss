@@ -28,7 +28,10 @@
   justify-content: space-around;
   padding: 16px;
   width: 100%;
-  max-width: 1536px;
+  // The page wrapper (.app-page-container) owns the max-width now; the old
+  // 1536px local cap would double-constrain. Print output is unaffected —
+  // ngxPrint clones #print-section, a child of this element.
+  max-width: none;
 }
 
 /* print.css */

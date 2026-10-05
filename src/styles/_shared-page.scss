@@ -1,0 +1,25 @@
+// Shared horizontal width container for routed pages. Compose it with each
+// page's own wrapper class, e.g. <div class="habits-page app-page-container">.
+// This class owns the centered max-width column and the side gutter; vertical
+// padding and any legitimately narrower reading width (habit detail, wizard)
+// stay LOCAL to the page — component-scoped rules carry an extra
+// [_ngcontent] attribute selector, so a page-local `max-width` always beats
+// this global class without !important (requires ViewEncapsulation.Emulated).
+@use './constants' as *;
+
+.app-page-container {
+  width: 100%;
+  max-width: $page-max-width;
+  margin-inline: auto;
+  padding-inline: $page-gutter;
+}
+
+// Current print flows clone only #print-section (ngxPrint), which never
+// carries this class; this is insurance for any future full-page printing.
+@media print {
+  .app-page-container {
+    max-width: none;
+    margin-inline: 0;
+    padding-inline: 0;
+  }
+}

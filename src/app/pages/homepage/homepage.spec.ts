@@ -9,6 +9,7 @@ import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { RouterTestingModule } from '@angular/router/testing';
 import { TranslocoModule, TranslocoService, TRANSLOCO_TRANSPILER } from '@jsverse/transloco';
 import { differenceInDays } from 'date-fns';
+import { of } from 'rxjs';
 import { vi } from 'vitest';
 
 import { FooterComponent } from '../../shared/footer/footer';
@@ -20,7 +21,7 @@ import { HomepageComponent } from './homepage';
 // Stub class for the AppPageTitle service
 class MockAppPageTitle {
   _title = '';
-  _originalTitle = 'Knowledge Builder';
+  _originalTitle = 'Knowledge Habit Builder';
 
   get title(): string {
     return this._title;
@@ -36,10 +37,19 @@ describe('HomepageComponent', () => {
   let fixture: ComponentFixture<HomepageComponent>;
 
   beforeEach(async () => {
+    // Key-echoing stub (shape shared with navbar.spec) — the transloco pipe and
+    // the *transloco directive need translate/_loadDependencies/langChanges$ in
+    // addition to the service basics, because this suite now renders the template.
     const mockTranslocoService = {
       setActiveLang: vi.fn(),
-      getActiveLang: vi.fn(),
+      getActiveLang: vi.fn().mockReturnValue('en'),
+      translate: vi.fn((key: string) => key),
+      selectTranslate: vi.fn().mockReturnValue(of('')),
+      _loadDependencies: vi.fn().mockReturnValue(of(null)),
+      langChanges$: of('en'),
+      events$: of(),
       activeLang: 'en',
+      config: { reRenderOnLangChange: true, prodMode: false },
     };
 
     await TestBed.configureTestingModule({
@@ -100,5 +110,22 @@ describe('HomepageComponent', () => {
   it('should have correct host bindings', () => {
     expect(component.mainContentClass).toBe(true);
     expect(component.animationsDisabled).toBe(false);
+  });
+
+  describe('learning ledger grid', () => {
+    it('renders all seven rows, incl. the Chinese entry linking /chinese', () => {
+      fixture.detectChanges();
+      const rows = Array.from(
+        (fixture.nativeElement as HTMLElement).querySelectorAll('a.ledger-row')
+      );
+      // 6 study categories + habits streak row.
+      expect(rows.length).toBe(7);
+      const hrefs = rows.map((r) => r.getAttribute('href'));
+      expect(hrefs).toEqual(['/vocabulary', '/translating', '/listening', '/chinese', '/formula', '/knowledge', '/habits']);
+      const chineseRow = rows.find((r) => r.getAttribute('href') === '/chinese');
+      expect(chineseRow?.textContent).toContain('chinese');
+      // Key-echo transpiler: the reused `classical_literature` subtitle renders.
+      expect(chineseRow?.textContent).toContain('classical_literature');
+    });
   });
 });

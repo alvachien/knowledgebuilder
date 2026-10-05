@@ -1,11 +1,17 @@
 /* You can add global styles to this file, and also import other style files */
 @use '@angular/material' as mat;
-@use './app-theme';
 @use './styles/markdown';
 @use './styles/general';
 @use './styles/shared-tables';
 @use './styles/shared-toolbars';
+@use './styles/shared-page';
+@use './styles/page-colors';
 
+// Single baked theme (azure-blue). The 4-palette runtime theme switcher was
+// removed with the "Mark & Ledger" redesign; $theme now exists only to style
+// Angular Material components themselves (dialogs, menus, tables, snackbars).
+// App-level colors that used to come from per-page *_theme.scss mixins are
+// static literals in styles/_page-colors.scss.
 $theme: mat.define-theme((
   color: (
     theme-type: light,
@@ -18,7 +24,6 @@ $theme: mat.define-theme((
 @include mat.elevation-classes();
 @include mat.app-background();
 @include mat.color-variants-backwards-compatibility($theme);
-@include app-theme.theme($theme);
 
 :root {
   @include mat.all-component-themes($theme);
@@ -83,3 +88,15 @@ $theme: mat.define-theme((
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+// Habit API failure snack bar (see habit-error-messages.ts panelClass) —
+// distinct error-tinted surface so failures read differently from info toasts.
+.mat-mdc-snack-bar-container.habit-error-snackbar {
+  .mdc-snackbar__surface {
+    background-color: #a61b1b;
+  }
+
+  .mdc-snackbar__label {
+    color: #fff;
+  }
+}

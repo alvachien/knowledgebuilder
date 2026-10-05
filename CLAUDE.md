@@ -33,7 +33,7 @@ ng generate service service-name         # Generate service
 src/
   app/
     pages/            # Feature page components (routed views, lazy-loaded), incl. signin-callback, user-detail, page-title
-    shared/           # Reusable components, directives, theme/style-manager
+    shared/           # Reusable components, directives
     services/         # Injectable services (learning-content, audio, auth, rating, AI, UI, util, katex, marked, user-code)
     interfaces/       # TypeScript interfaces, enums, and data models
   assets/
@@ -41,7 +41,6 @@ src/
   environments/       # environment.ts (dev) and environment.prod.ts
   test-setup.ts       # Vitest setup: test env init, polyfills, global stubs
 public/
-  font/               # Font assets
   sounds/             # Sound-effect audio clips
   favicon.png / favicon.svg
 docs/                 # Architecture/design notes (data-models.md is the data-model reference)
@@ -73,7 +72,8 @@ All exercise routes (`/vocabulary`, `/translating`, `/listening`, `/chinese`, `/
 - **MarkedService** — Markdown parsing.
 - **AiService** — AI integration for learning assistance.
 - **AuthService / AuthGuardService / AuthInterceptor** (`auth.service.ts`, `auth-guard.service.ts`, `auth.interceptor.ts`) — OIDC authentication via `angular-auth-oidc-client` against `acidserver`. The functional guard protects all exercise routes; the interceptor attaches tokens to API calls.
-- **LearningRatingService** — Per-user learning ratings, persisted server-side via the rating API, with per-content in-memory caching.
+- **LearningRatingService** — Per-user learning ratings, persisted server-side via the rating API, with per-content in-memory caching
+- **UserLoginHistoryService** — Per-day login history (`api/UserLoginHistories`): `recordLogin()` fires once when the OIDC redirect completes (signin-callback), `getHistory()` feeds the login-history card on the user-detail page.
 - **UtilService** — General utilities.
 - **UiService** — UI utilities.
 - **UserCodeService** — Tracks user-entered access codes.
@@ -131,9 +131,8 @@ The `Storage/` index files (`data.json` / `formula.json`) and content JSON live 
 - **Shared table styles** (`src/styles/_shared-tables.scss`) — global `mat-table` styles imported in `styles.scss`. Defines consistent column widths (`.mat-column-*`), header/cell styling, zebra striping (odd/even rows), row hover, sticky headers, and borders. Component SCSS files should NOT define their own `.mat-column-*` overrides — update the shared file instead.
 - **Shared toolbar styles** (`src/styles/_shared-toolbars.scss`) — responsive `mat-toolbar` styles for sub-page toolbars. Three-tier responsive layout: (1) >1200px: normal layout with all items visible; (2) 821-1200px: compact single-row (smaller dropdowns, item count hidden); (3) ≤820px: two-row layout (title on first row, controls wrap to second row, smaller buttons, item count hidden). Use `.page-toolbar-item`/`.toolbar-item` for file selectors and `.toolbar-item-count` for item count spans.
 - Tailwind CSS utility classes (`tailwind.config.js`)
-- Theme system with color palettes (rose-red, azure-blue, sunshine-coral, forest-green)
+- **No theme switcher** (removed with the "Mark & Ledger" redesign): one baked azure-blue Material theme (`styles.scss` `$theme` → `mat.all-component-themes`) styles Material components; app-level colors are static literals in `src/styles/_page-colors.scss` (former per-page `*_theme.scss` mixins, deleted). The homepage, navbar, and footer carry a fixed paper/ink/red-pen identity defined in their own component styles (display faces are system fonts — KaiTi/STKaiti + FangSong, Georgia for Latin; see `$font-ledger-*` in `styles/_constants.scss`, no self-hosted font bytes) and render identically everywhere.
 - `ViewEncapsulation.None` used when global styles are needed
-- Theme files prefixed with underscore (e.g., `_homepage-theme.scss`)
 - Angular Material for UI components; follow Material Design patterns for accessibility
 - Datepicker uses `date-fns` via `@angular/material-date-fns-adapter` (not Moment.js)
 

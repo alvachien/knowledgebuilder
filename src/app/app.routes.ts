@@ -51,6 +51,12 @@ const routeConfig: Routes = [
       ),
   },
   {
+    path: 'habits',
+    canActivate: [AuthGuardService],
+    loadChildren: () =>
+      import('./pages/habits/habits.routes').then(m => m.HABITS_ROUTES),
+  },
+  {
     path: 'user-detail',
     canActivate: [AuthGuardService],
     loadComponent: () =>

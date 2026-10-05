@@ -1,0 +1,143 @@
+<div *transloco="let t" class="cal-page app-page-container">
+  <div class="cal-header">
+    <h1 class="cal-title"><mat-icon>calendar_month</mat-icon> {{ t('habits.calendar.title') }}</h1>
+    <app-habit-page-header page="calendar" />
+  </div>
+
+  <div class="controls-bar">
+    <div class="nav-cluster">
+      <button mat-icon-button (click)="prev()" [matTooltip]="t('habits.calendar.prev')">
+        <mat-icon>chevron_left</mat-icon>
+      </button>
+      <span class="period-label">{{ periodLabel() }}</span>
+      <button mat-icon-button (click)="next()" [matTooltip]="t('habits.calendar.next')">
+        <mat-icon>chevron_right</mat-icon>
+      </button>
+    </div>
+
+    <div class="view-toggle">
+      <button [class.active]="viewMode() === 'month'" (click)="setView('month')">{{ t('habits.calendar.viewMonth') }}</button>
+      <button [class.active]="viewMode() === 'week'" (click)="setView('week')">{{ t('habits.calendar.viewWeek') }}</button>
+      <button [class.active]="viewMode() === 'day'" (click)="setView('day')">{{ t('habits.calendar.viewDay') }}</button>
+    </div>
+  </div>
+
+  @if (loading()) {
+    <div class="loading-wrap">
+      <mat-spinner diameter="40"></mat-spinner>
+    </div>
+  } @else if (loadFailed()) {
+    <div class="cal-error">
+      <p>{{ t('habits.list.loadError') }}</p>
+      <button mat-stroked-button (click)="loadHabits()"><mat-icon>refresh</mat-icon> {{ t('habits.list.retry') }}</button>
+    </div>
+  } @else {
+    @if (viewMode() === 'month') {
+      <div class="month-grid">
+        @for (wd of weekDayNames(); track $index) {
+          <div class="weekday-header">{{ wd }}</div>
+        }
+        @for (d of calendarDays(); track d) {
+          <div
+            class="day-cell"
+            [class.other-month]="!isCurrentMonth(d)"
+            [class.today]="isToday(d)"
+            [class.has-punches]="punchCount(d) > 0"
+            (click)="selectDay(d)">
+            <div class="day-num-wrap">
+              <span class="day-num">{{ dayNumber(d) }}</span>
+            </div>
+            <div class="event-chips">
+              @for (entry of dayEntriesFor(d, 3); track entry.habitId + '-' + entry.itemId) {
+                <div class="event-chip" [title]="entry.habitName + ' / ' + entry.itemName + (entry.count > 1 ? ' × ' + entry.count : '')">
+                  <span class="event-chip-name">{{ entry.habitName }} / {{ entry.itemName }}</span>
+                  @if (entry.count > 1) {
+                    <span class="event-chip-count">×{{ entry.count }}</span>
+                  }
+                </div>
+              }
+              @if (hiddenCount(d, 3) > 0) {
+                <div class="event-more">{{ t('habits.calendar.more', { count: hiddenCount(d, 3) }) }}</div>
+              }
+            </div>
+          </div>
+        }
+      </div>
+    }
+
+    @if (viewMode() === 'week') {
+      <div class="week-grid">
+        @for (d of weekDays(); track d) {
+          <div class="week-col" [class.today]="isToday(d)" (click)="selectDay(d)">
+            <div class="week-col-header">
+              <span class="week-dow">{{ weekdayName(d) }}</span>
+              <span class="week-date">{{ dayNumber(d) }}</span>
+            </div>
+            <div class="week-col-body">
+              @if (punchCount(d) > 0) {
+                <div class="week-event-list">
+                  @for (entry of dayEntriesFor(d, 5); track entry.habitId + '-' + entry.itemId) {
+                    <div class="week-event-chip" [title]="entry.habitName + ' / ' + entry.itemName + (entry.count > 1 ? ' × ' + entry.count : '')">
+                      <span class="week-event-name">{{ entry.habitName }} / {{ entry.itemName }}</span>
+                      @if (entry.count > 1) {
+                        <span class="week-event-count">×{{ entry.count }}</span>
+                      }
+                    </div>
+                  }
+                  @if (hiddenCount(d, 5) > 0) {
+                    <div class="week-event-more">{{ t('habits.calendar.more', { count: hiddenCount(d, 5) }) }}</div>
+                  }
+                </div>
+              } @else {
+                <div class="no-punch-mark">—</div>
+              }
+            </div>
+          </div>
+        }
+      </div>
+    }
+
+    @if (viewMode() === 'day') {
+      <div class="day-view">
+        <div class="day-total">
+          <div class="day-total-icon">
+            <mat-icon>bolt</mat-icon>
+          </div>
+          <div class="day-total-text">
+            <span class="day-total-number">{{ punchCount(selectedDay()) }}</span>
+            <span class="day-total-label">{{ punchCount(selectedDay()) === 1 ? t('habits.calendar.totalPunches') : t('habits.calendar.totalPunchesOther') }}</span>
+          </div>
+        </div>
+
+        @if (dayEntries().length === 0) {
+          <div class="day-empty">
+            <div class="day-empty-icon">
+              <mat-icon>event_busy</mat-icon>
+            </div>
+            <p>{{ t('habits.calendar.noPunchesDay') }}</p>
+          </div>
+        } @else {
+          <div class="day-habit-list">
+            @for (entry of dayEntries(); track entry.habitId + '-' + entry.itemId) {
+              <a class="day-habit-row" [routerLink]="['/habits', entry.habitId]" [queryParams]="{ date: selectedDay() }">
+                <div class="day-habit-icon">
+                  <mat-icon>check_circle</mat-icon>
+                </div>
+                <div class="day-habit-info">
+                  <span class="day-habit-name">{{ entry.habitName }}</span>
+                  <span class="day-habit-item">{{ entry.itemName }}</span>
+                  <span class="day-habit-count">{{ entry.count === 1 ? t('habits.calendar.punches', { count: entry.count }) : t('habits.calendar.punchesOther', { count: entry.count }) }}</span>
+                </div>
+                <div class="day-habit-badge">
+                  <span class="badge-num">{{ entry.count }}</span>
+                  <span class="badge-label">{{ entry.count === 1 ? t('habits.calendar.totalPunches') : t('habits.calendar.totalPunchesOther') }}</span>
+                </div>
+                <mat-icon class="open-icon">open_in_new</mat-icon>
+              </a>
+            }
+          </div>
+        }
+      </div>
+    }
+  }
+</div>

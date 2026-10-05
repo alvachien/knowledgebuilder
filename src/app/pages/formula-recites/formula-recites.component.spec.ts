@@ -81,7 +81,7 @@ function createMockTranslocoService() {
 // Stub class for the AppPageTitle service
 class MockAppPageTitle {
   _title = '';
-  _originalTitle = 'Knowledge Builder';
+  _originalTitle = 'Knowledge Habit Builder';
 
   get title(): string {
     return this._title;

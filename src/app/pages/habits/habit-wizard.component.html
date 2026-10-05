@@ -1,0 +1,426 @@
+<div *transloco="let t" class="wizard-page app-page-container">
+  <div class="wizard-topbar">
+    <a mat-icon-button routerLink="/habits" [attr.aria-label]="t('habits.detail.back')">
+      <mat-icon>arrow_back</mat-icon>
+    </a>
+    <h1 class="wizard-title">
+      {{ isEdit ? t('habits.wizard.titleEdit') : t('habits.wizard.title') }}
+    </h1>
+  </div>
+
+  @if (loading()) {
+    <div class="wizard-loading"><mat-spinner diameter="36"></mat-spinner></div>
+  } @else {
+    <!-- Step header: Angular Material stepper used as a HEADER ONLY — no
+         matStepContent, the @switch below stays the single source of step
+         bodies so screens keep creating/destroying on transitions.
+         [editable]="false" makes finished steps show Material's done check
+         instead of the edit pencil; header clicks route through
+         onHeaderSelect() so goTo()'s validation gates still apply. -->
+    <mat-stepper
+      #stepper
+      class="wizard-stepper"
+      orientation="horizontal"
+      labelPosition="end"
+      [selectedIndex]="step()"
+      (selectionChange)="onHeaderSelect(stepper, $event)">
+      @for (s of steps; track s; let i = $index) {
+        <mat-step
+          [label]="t('habits.wizard.step.' + s)"
+          [completed]="i < step()"
+          [editable]="false"
+          [hasError]="i === step() && stepError() !== null" />
+      }
+    </mat-stepper>
+
+    @if (stepError(); as err) {
+      <div class="wizard-error"><mat-icon>error_outline</mat-icon> {{ err }}</div>
+    }
+
+    @switch (currentStep) {
+      <!-- ── Step: template picker ─────────────────────────────────────── -->
+      @case ('picker') {
+        <div class="template-grid">
+          @for (tpl of templates; track tpl.key) {
+            <mat-card
+              appearance="outlined"
+              class="template-card"
+              [class.selected]="templateKey() === tpl.key"
+              (click)="selectTemplate(tpl)"
+              (keydown.enter)="selectTemplate(tpl)"
+              tabindex="0"
+              role="button"
+              [attr.aria-pressed]="templateKey() === tpl.key">
+              <mat-icon class="template-icon">{{ tpl.icon }}</mat-icon>
+              <div class="template-name">{{ t('habits.templates.' + tpl.key) }}</div>
+              <div class="template-cycle">{{ t('habits.cycle.' + tpl.cycle) }}</div>
+            </mat-card>
+          }
+          <mat-card
+            appearance="outlined"
+            class="template-card custom-card"
+            [class.selected]="templateKey() === 'custom'"
+            (click)="selectTemplate('custom')"
+            (keydown.enter)="selectTemplate('custom')"
+            tabindex="0"
+            role="button"
+            [attr.aria-pressed]="templateKey() === 'custom'">
+            <mat-icon class="template-icon">tune</mat-icon>
+            <div class="template-name">{{ t('habits.templates.custom') }}</div>
+            <div class="template-cycle">{{ t('habits.wizard.customHint') }}</div>
+          </mat-card>
+        </div>
+      }
+
+      <!-- ── Step: basics ──────────────────────────────────────────────── -->
+      @case ('basics') {
+        <div class="wizard-basics">
+          <mat-form-field appearance="outline">
+            <mat-label>{{ t('habits.wizard.name') }}</mat-label>
+            <input matInput [(ngModel)]="name" maxlength="100" required />
+          </mat-form-field>
+          <mat-form-field appearance="outline">
+            <mat-label>{{ t('habits.wizard.description') }}</mat-label>
+            <textarea matInput [(ngModel)]="description" cdkTextareaAutosize #autosize="cdkTextareaAutosize" cdkAutosizeMinRows="2" cdkAutosizeMaxRows="5"></textarea>
+          </mat-form-field>
+
+          <!-- FR-5.3: a template pre-fills the cycle (applyTemplate) but must
+               not lock it — the select renders for every flow. The only lock
+               is FR-2.3: editing a habit that already has punches. -->
+          <mat-form-field appearance="outline">
+            <mat-label>{{ t('habits.wizard.cycle') }}</mat-label>
+            <mat-select [(ngModel)]="cycle" [disabled]="isEdit && hasPunches">
+              <mat-option value="daily">{{ t('habits.cycle.daily') }}</mat-option>
+              <mat-option value="weekly">{{ t('habits.cycle.weekly') }}</mat-option>
+              <mat-option value="monthly">{{ t('habits.cycle.monthly') }}</mat-option>
+              <mat-option value="whole">{{ t('habits.cycle.whole') }}</mat-option>
+            </mat-select>
+          </mat-form-field>
+          @if (isEdit && hasPunches) {
+            <p class="wizard-hint">{{ t('habits.wizard.cycleLocked') }}</p>
+          }
+
+          <div class="wizard-dates">
+            <mat-form-field appearance="outline">
+              <mat-label>{{ t('habits.wizard.startDate') }}</mat-label>
+              <input matInput [matDatepicker]="startPicker" [(ngModel)]="startDate" />
+              <mat-datepicker-toggle matIconSuffix [for]="startPicker"></mat-datepicker-toggle>
+              <mat-datepicker #startPicker></mat-datepicker>
+            </mat-form-field>
+            <mat-form-field appearance="outline">
+              <mat-label>{{ t('habits.wizard.endDate') }}</mat-label>
+              <input matInput [matDatepicker]="endPicker" [(ngModel)]="endDate" />
+              <mat-datepicker-toggle matIconSuffix [for]="endPicker"></mat-datepicker-toggle>
+              <mat-datepicker #endPicker></mat-datepicker>
+            </mat-form-field>
+          </div>
+        </div>
+      }
+
+      <!-- ── Step: items & properties ──────────────────────────────────── -->
+      @case ('items') {
+        <div class="wizard-items">
+          @for (item of items; track item.key) {
+            <mat-card appearance="outlined" class="item-card">
+              <mat-card-content>
+                <div class="item-row">
+                  <mat-form-field appearance="outline" class="grow">
+                    <mat-label>{{ t('habits.wizard.itemName') }}</mat-label>
+                    <input matInput [(ngModel)]="item.name" maxlength="100" />
+                  </mat-form-field>
+                  <button
+                    mat-icon-button
+                    color="warn"
+                    [disabled]="isEdit && item.hasPunches"
+                    [matTooltip]="isEdit && item.hasPunches ? t('habits.wizard.itemHasPunches') : ''"
+                    (click)="removeItem(item)">
+                    <mat-icon>delete</mat-icon>
+                  </button>
+                </div>
+
+                @for (prop of item.properties; track prop.key) {
+                  <div class="prop-row">
+                    <mat-form-field appearance="outline" class="grow">
+                      <mat-label>{{ t('habits.wizard.propName') }}</mat-label>
+                      <input matInput [ngModel]="prop.name" (ngModelChange)="onPropNameChange(prop, $event)" maxlength="100" />
+                    </mat-form-field>
+
+                    <mat-form-field appearance="outline">
+                      <mat-label>{{ t('habits.wizard.propType') }}</mat-label>
+                      <mat-select [(ngModel)]="prop.propertyType" [disabled]="isEdit && !prop.isNew" (ngModelChange)="onPropTypeChange(prop)">
+                        <mat-option value="boolean">{{ t('habits.propType.boolean') }}</mat-option>
+                        <mat-option value="numeric">{{ t('habits.propType.numeric') }}</mat-option>
+                        <mat-option value="list">{{ t('habits.propType.list') }}</mat-option>
+                      </mat-select>
+                    </mat-form-field>
+
+                    @if (prop.propertyType === 'numeric') {
+                      <mat-form-field appearance="outline" class="rate-field">
+                        <mat-label>{{ t('habits.wizard.baseRate') }}</mat-label>
+                        <input matInput type="number" min="0.01" step="any" [ngModel]="prop.baseRate ?? ''" (ngModelChange)="prop.baseRate = toNumOrNull($event)" />
+                      </mat-form-field>
+                    }
+
+                    @if (prop.propertyType === 'list') {
+                      <mat-form-field appearance="outline">
+                        <mat-label>{{ t('habits.wizard.uniqueness') }}</mat-label>
+                        <mat-select [(ngModel)]="prop.itemUniqueness" [disabled]="isEdit && !prop.isNew">
+                          <mat-option value="per_day">{{ t('habits.uniqueness.perDay') }}</mat-option>
+                          <mat-option value="per_cycle">{{ t('habits.uniqueness.perCycle') }}</mat-option>
+                        </mat-select>
+                      </mat-form-field>
+                    }
+
+                    <button mat-icon-button color="warn" (click)="removeProperty(item, prop)">
+                      <mat-icon>remove_circle_outline</mat-icon>
+                    </button>
+                  </div>
+                }
+
+                <button mat-stroked-button (click)="addProperty(item)">
+                  <mat-icon>add</mat-icon> {{ t('habits.wizard.addProperty') }}
+                </button>
+              </mat-card-content>
+            </mat-card>
+          } @empty {
+            <p class="wizard-hint">{{ t('habits.wizard.noItemsYet') }}</p>
+          }
+          <button mat-flat-button (click)="addItem()"><mat-icon>add</mat-icon> {{ t('habits.wizard.addItem') }}</button>
+        </div>
+      }
+
+      <!-- ── Step: targets (template flow) ─────────────────────────────── -->
+      @case ('targets') {
+        <div class="wizard-targets">
+          <p class="wizard-hint">{{ t('habits.wizard.targetsHint') }}</p>
+          @if (rootCriterion()?.successType === 'daily') {
+            <mat-form-field appearance="outline">
+              <mat-label>{{ t('habits.wizard.cycleTarget') }}</mat-label>
+              <input matInput type="number" min="1" step="1" [ngModel]="targetCycle" (ngModelChange)="targetCycle = toNumOrNull($event) ?? 0" />
+            </mat-form-field>
+            <p class="wizard-hint">{{ t('habits.wizard.dayCountNote') }}</p>
+          } @else {
+            <p class="wizard-hint">{{ t('habits.wizard.cumulativeNote', { target: fmtNum(rootCriterion()?.threshold ?? 1) }) }}</p>
+          }
+          @if (rootPropType() !== null && rootCriterion()?.successType === 'cumulative') {
+            <mat-form-field appearance="outline">
+              <mat-label>{{ t('habits.wizard.threshold') }}</mat-label>
+              <input matInput type="number" min="0.01" step="any" [ngModel]="targetThreshold ?? ''" (ngModelChange)="targetThreshold = toNumOrNull($event)" />
+            </mat-form-field>
+          }
+        </div>
+      }
+
+      <!-- ── Step: criteria editor (custom create + edit) ──────────────── -->
+      @case ('criteria') {
+        <div class="wizard-criteria">
+          @for (c of criteria; track c.key) {
+            <mat-card appearance="outlined" class="criterion-card" [class.root-card]="c.isRoot">
+              <mat-card-content>
+                <div class="criterion-head">
+                  <mat-radio-button [checked]="c.isRoot" (change)="setRoot(c)" name="habit-root">
+                    {{ t('habits.wizard.makeRoot') }}
+                  </mat-radio-button>
+                  <mat-form-field appearance="outline" class="grow">
+                    <mat-label>{{ t('habits.wizard.critName') }}</mat-label>
+                    <input matInput [(ngModel)]="c.name" maxlength="100" />
+                  </mat-form-field>
+                  <span class="criterion-type">{{ t('habits.critType.' + c.criterionType) }}</span>
+                  <button
+                    mat-icon-button
+                    color="warn"
+                    [disabled]="c.isRoot"
+                    [matTooltip]="c.isRoot ? t('habits.errors.rootCriterionProtected') : ''"
+                    (click)="removeCriterion(c)">
+                    <mat-icon>delete</mat-icon>
+                  </button>
+                </div>
+
+                @if (c.criterionType === 'condition') {
+                  <div class="criterion-body">
+                    <mat-form-field appearance="outline">
+                      <mat-label>{{ t('habits.wizard.property') }}</mat-label>
+                      <mat-select [(ngModel)]="c.propertyName" (ngModelChange)="onConditionPropChange(c)">
+                        @for (p of propertyOptions(); track p.name) {
+                          <mat-option [value]="p.name">{{ p.name }}</mat-option>
+                        }
+                      </mat-select>
+                    </mat-form-field>
+
+                    <mat-form-field appearance="outline" class="rate-field">
+                      <mat-label>{{ propTypeFor(c.propertyName) === 'boolean' ? t('habits.wizard.thresholdCount') : t('habits.wizard.threshold') }}</mat-label>
+                      @if (propTypeFor(c.propertyName) === 'boolean') {
+                        <input matInput type="number" min="1" step="1" [ngModel]="c.threshold ?? ''" (ngModelChange)="c.threshold = toNumOrNull($event)" />
+                      } @else {
+                        <input matInput type="number" min="0.01" step="any" [ngModel]="c.threshold ?? ''" (ngModelChange)="c.threshold = toNumOrNull($event)" />
+                      }
+                    </mat-form-field>
+
+                    @if (allowedModes(c.propertyName).length > 1) {
+                      <mat-form-field appearance="outline">
+                        <mat-label>{{ t('habits.wizard.aggregation') }}</mat-label>
+                        <mat-select [(ngModel)]="c.aggregationMode">
+                          @for (m of allowedModes(c.propertyName); track m) {
+                            <mat-option [value]="m">{{ m === null ? t('habits.wizard.aggDefault') : t('habits.agg.' + m) }}</mat-option>
+                          }
+                        </mat-select>
+                      </mat-form-field>
+                    }
+
+                    <mat-form-field appearance="outline">
+                      <mat-label>{{ t('habits.wizard.scope') }}</mat-label>
+                      <mat-select [(ngModel)]="c.itemScope">
+                        <mat-option value="all">{{ t('habits.scope.all') }}</mat-option>
+                        <mat-option value="subset">{{ t('habits.scope.subset') }}</mat-option>
+                      </mat-select>
+                    </mat-form-field>
+                  </div>
+
+                  @if (c.itemScope === 'subset') {
+                    <div class="scope-items">
+                      @for (item of items; track item.key) {
+                        <mat-checkbox
+                          [checked]="isItemInScope(c, item)"
+                          (change)="toggleScopeItem(c, item, $event.checked)">
+                          {{ item.name || '?' }}
+                        </mat-checkbox>
+                      }
+                    </div>
+                  }
+
+                } @else {
+                  <div class="criterion-body">
+                    <mat-form-field appearance="outline">
+                      <mat-label>{{ t('habits.wizard.operator') }}</mat-label>
+                      <mat-select [(ngModel)]="c.operator">
+                        <mat-option value="and">{{ t('habits.operator.and') }}</mat-option>
+                        <mat-option value="or">{{ t('habits.operator.or') }}</mat-option>
+                        <mat-option value="not">{{ t('habits.operator.not') }}</mat-option>
+                      </mat-select>
+                    </mat-form-field>
+                  </div>
+                  <div class="operand-list">
+                    <p class="operand-label">{{ t('habits.wizard.operands') }}</p>
+                    @for (o of operandCandidates(c); track o.key) {
+                      <mat-checkbox
+                        [checked]="isOperand(c, o)"
+                        (change)="toggleOperand(c, o, $event.checked)">
+                        {{ o.name || '?' }}
+                      </mat-checkbox>
+                    } @empty {
+                      <p class="wizard-hint">{{ t('habits.wizard.noOperands') }}</p>
+                    }
+                  </div>
+                }
+
+                @if (c.isRoot) {
+                  <!-- Root-only inputs (both criterion types — a composite daily
+                       root passes a day on its group's pass bit, spec FR). The
+                       cumulative cycle target is DERIVED (threshold / passing
+                       operands) and therefore never an input. -->
+                  <div class="root-targets">
+                    <mat-form-field appearance="outline">
+                      <mat-label>{{ t('habits.wizard.successType') }}</mat-label>
+                      <mat-select [ngModel]="c.successType" (ngModelChange)="onSuccessTypeChange(c, $event)">
+                        <mat-option value="daily">{{ t('habits.successType.daily') }}</mat-option>
+                        <mat-option value="cumulative">{{ t('habits.successType.cumulative') }}</mat-option>
+                      </mat-select>
+                    </mat-form-field>
+                    @if (c.successType === 'daily') {
+                      <mat-form-field appearance="outline" class="rate-field">
+                        <mat-label>{{ t('habits.wizard.cycleTarget') }}</mat-label>
+                        <input matInput type="number" min="1" step="1" [ngModel]="c.cycleTarget ?? ''" (ngModelChange)="c.cycleTarget = toNumOrNull($event)" />
+                      </mat-form-field>
+                    }
+                  </div>
+                }
+              </mat-card-content>
+            </mat-card>
+          }
+
+          <div class="criteria-add">
+            <button mat-stroked-button (click)="addCriterion('condition')"><mat-icon>add</mat-icon> {{ t('habits.wizard.addCondition') }}</button>
+            <button mat-stroked-button (click)="addCriterion('composite')"><mat-icon>account_tree</mat-icon> {{ t('habits.wizard.addComposite') }}</button>
+          </div>
+        </div>
+      }
+
+      <!-- ── Step: preview (template flow) ─────────────────────────────── -->
+      @case ('preview') {
+        <div class="wizard-preview">
+          @if (simApproximate()) {
+            <div class="preview-banner">
+              <mat-icon>warning_amber</mat-icon> {{ t('habits.wizard.simApprox') }}
+            </div>
+          }
+
+          <mat-card appearance="outlined">
+            <mat-card-content>
+              <div class="preview-head">
+                <h2>{{ name }}</h2>
+                <button mat-stroked-button (click)="replay()">
+                  <mat-icon>replay</mat-icon> {{ t('habits.wizard.replay') }}
+                </button>
+              </div>
+
+              <div class="preview-progress">
+                <span class="preview-value">
+                  {{ fmtNum(simCurrent()?.rootValue ?? 0) }} / {{ fmtNum(simGoal()) }}
+                </span>
+                <mat-progress-bar mode="determinate" [value]="simPercent()"></mat-progress-bar>
+                @if (simCurrent()?.rootPassed) {
+                  <span class="preview-success"><mat-icon>verified</mat-icon> {{ t('habits.list.passed') }}</span>
+                }
+              </div>
+
+              @if (simCurrent(); as day) {
+                <p class="preview-day">
+                  {{ t('habits.wizard.simDay') }} {{ simCursor() + 1 }} / {{ simDays().length }} · {{ day.date }}
+                </p>
+                <div class="preview-chips">
+                  @for (itemName of day.punchedItems; track $index) {
+                    <span class="preview-chip"><mat-icon>touch_app</mat-icon> {{ itemName }}</span>
+                  }
+                </div>
+
+                <mat-divider></mat-divider>
+                <div class="preview-criteria">
+                  @for (cs of day.criteria; track cs.name) {
+                    <div class="preview-criterion">
+                      <mat-icon [class.crit-pass]="cs.passed">{{ cs.passed ? 'check_circle' : 'remove_circle_outline' }}</mat-icon>
+                      <span class="crit-name">{{ cs.name }}</span>
+                      <span class="crit-value">{{ fmtNum(cs.value) }}</span>
+                    </div>
+                  }
+                </div>
+              }
+            </mat-card-content>
+          </mat-card>
+        </div>
+      }
+    }
+
+    <!-- Footer nav -->
+    <div class="wizard-footer">
+      @if (step() > 0) {
+        <button mat-stroked-button (click)="back()"><mat-icon>arrow_back</mat-icon> {{ t('habits.wizard.back') }}</button>
+      }
+      <span class="wizard-spacer"></span>
+      <button mat-button (click)="cancel()">{{ t('cancel') }}</button>
+      @if (!isLastStep) {
+        <button mat-flat-button color="primary" (click)="next()">
+          {{ t('habits.wizard.next') }} <mat-icon>arrow_forward</mat-icon>
+        </button>
+      } @else {
+        <button mat-flat-button color="primary" [disabled]="saving()" (click)="save()">
+          @if (saving()) {
+            <mat-spinner diameter="18"></mat-spinner>
+          } @else {
+            <mat-icon>check</mat-icon>
+          }
+          {{ isEdit ? t('habits.wizard.save') : t('habits.wizard.create') }}
+        </button>
+      }
+    </div>
+  }
+</div>

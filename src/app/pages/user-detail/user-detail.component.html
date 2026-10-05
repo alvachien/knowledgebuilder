@@ -23,3 +23,38 @@
     </button>
   </mat-card-actions>
 </mat-card>
+
+<mat-card class="login-history-card">
+  <mat-card-header>
+    <mat-card-title>{{ 'login_history' | transloco }}</mat-card-title>
+  </mat-card-header>
+
+  <mat-card-content>
+    @if (historyLoading) {
+      <p>{{ 'loading' | transloco }}</p>
+    } @else if (history.length === 0) {
+      <p class="login-history-empty">{{ 'login_history_empty' | transloco }}</p>
+    } @else {
+      <table class="login-history-table">
+        <thead>
+          <tr>
+            <th>{{ 'login_date' | transloco }}</th>
+            <th>{{ 'first_login' | transloco }}</th>
+            <th>{{ 'last_login' | transloco }}</th>
+            <th class="login-history-count-col">{{ 'login_count' | transloco }}</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (row of history; track row.loginDate) {
+            <tr>
+              <td>{{ row.loginDate }}</td>
+              <td>{{ row.firstLoginAt | date: 'shortTime' }}</td>
+              <td>{{ row.lastLoginAt | date: 'shortTime' }}</td>
+              <td class="login-history-count-col">{{ row.loginCount }}</td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    }
+  </mat-card-content>
+</mat-card>

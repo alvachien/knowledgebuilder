@@ -12,6 +12,7 @@ sequenceDiagram
     participant Auth as AuthService
     participant OIDC as OIDC Library
     participant IDP as Identity Server
+    participant API as Learning API
 
     User->>SPA: Navigate to /vocabulary (protected)
     SPA->>Guard: canActivate()
@@ -35,6 +36,7 @@ sequenceDiagram
             IDP-->>OIDC: id_token + access_token + refresh_token
             OIDC->>Auth: { isAuthenticated: true, userData, accessToken }
             Auth->>Auth: authSubject.next(UserAuthInfo)
+            SPA->>API: POST /api/UserLoginHistories (record today's login, fire-and-forget)
             Auth-->>SPA: Redirect to originally requested route
             SPA->>SPA: Navbar shows user name + logout
         end
@@ -92,6 +94,28 @@ sequenceDiagram
     end
 ```
 
+## Login history recording
+
+When a sign-in completes, the SPA records it server-side so each user keeps a
+per-day login history (shown on `/user-detail`):
+
+- `SigninCallbackComponent` subscribes to `authContent` and, on an
+  **authorized** settled emission, calls
+  `UserLoginHistoryService.recordLogin()` → `POST {apiUrl}/api/UserLoginHistories`
+  before navigating home. The call is fire-and-forget: failures are swallowed
+  (telemetry must never strand the user on the spinner).
+- The backend (`aclearningutil`, see its `docs/design-controllers.md` §15)
+  upserts **one row per user per server-local calendar day** — first/last login
+  instant + count — so a duplicate POST is harmless (it just bumps the count).
+- **Silent refresh is deliberately not recorded**: token renewal happens via
+  the refresh-token grant with no navigation, so `/signin-callback` is never
+  reached and only real IDP-redirect logins count. Cached-session app starts
+  likewise do not fire the POST.
+- The history is read back via `GET {apiUrl}/api/UserLoginHistories[?from=&to=]`
+  (default window: trailing 90 days) and rendered by the login-history card on
+  the user-detail page. The `authInterceptor` attaches the bearer token to both
+  calls (they match `environment.apiUrl`).
+
 ## Logout
 
 ```mermaid
@@ -121,7 +145,9 @@ sequenceDiagram
 | `src/app/services/auth-guard.service.ts` | Protects feature routes (`/vocabulary`, `/translating`, etc.) |
 | `src/app/services/auth-check.util.ts` | Shared `checkAuthentication()` used by the guard |
 | `src/app/interfaces/user-auth-info.ts` | `UserAuthInfo` model (isAuthorized, userName, accessToken, …) |
-| `src/app/pages/signin-callback/` | Landing page after IDP redirect |
+| `src/app/pages/signin-callback/` | Landing page after IDP redirect; fires `recordLogin()` on the completed sign-in |
+| `src/app/services/user-login-history.service.ts` | Client for the per-day login history API (`POST` record / `GET` list) |
+| `src/app/pages/user-detail/` | Shows the caller's login history (date, first/last, count) |
 | `src/app/app.config.ts` | Calls `provideAuth({...})` + registers the interceptor |
 | `src/app/app.routes.ts` | Wires `canActivate: [AuthGuardService]` on feature routes |
 | `src/app/shared/navbar/` | Login / user-menu / logout UI |
