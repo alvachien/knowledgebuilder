@@ -32,7 +32,7 @@
     "@angular/material": "^22.1.4",
     "@angular/material-date-fns-adapter": "^22.1.4",
     "@angular/platform-browser": "22.1.4",
-    "@angular/router": "22.1.4",
+    "@angular/router": "22.2.1",
     "@jsverse/transloco": "^8.2.1",
     "actslib": "^0.6.83",
     "angular-auth-oidc-client": "^22.0.0",
