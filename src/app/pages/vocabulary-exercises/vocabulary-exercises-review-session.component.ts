@@ -1,20 +1,39 @@
-import { ChangeDetectionStrategy, Component, HostListener, inject, input, output } from '@angular/core';
+import type { ElementRef } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  DestroyRef,
+  HostListener,
+  effect,
+  inject,
+  input,
+  output,
+  viewChildren,
+} from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatButtonToggleModule } from '@angular/material/button-toggle';
-import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatDialog } from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
-import { MatSelectModule } from '@angular/material/select';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { TranslocoModule } from '@jsverse/transloco';
 
+import { UserLearningTimeService } from '../../services';
+
+import { VocabularyExercisesAutoPlayOptionsDialogComponent } from './vocabulary-exercises-autoplayoptions-dialog.component';
 import { VocabularyReviewSessionStore } from './vocabulary-exercises-review-session.store';
 
 /**
- * Review screen of the vocabulary exercises page: progress bar, auto-play,
- * previous/next/quit controls and the current word with its rating toggles.
+ * Review screen of the vocabulary exercises page. All interactions sit in one
+ * wrapping toolbar: progress bar with position count, the Review label, the
+ * 1-5 rating toggles, and the action fabs - Auto Play settings (interval /
+ * randomized order / read example sentences), play/pause/stop (a
+ * stopped/playing/paused machine), re-read, previous, next and quit. The
+ * content area shows the word, its gloss, and the explanation/example tables,
+ * highlighting the sentence being read aloud.
  * All review state lives in the injected session store; this component renders
  * it and owns the keyboard listener, so keystroke handling is registered only
  * while the review screen is alive (the container's @switch destroys it).
@@ -30,22 +49,84 @@ import { VocabularyReviewSessionStore } from './vocabulary-exercises-review-sess
     MatIconModule,
     MatButtonToggleModule,
     MatTooltipModule,
-    MatFormFieldModule,
-    MatSelectModule,
     TranslocoModule,
   ],
   templateUrl: './vocabulary-exercises-review-session.component.html',
   styleUrl: './vocabulary-exercises-review-session.component.scss',
 })
 export class VocabularyExercisesReviewSessionComponent {
-  /** Interval choices offered by the seconds-per-word selector. */
-  protected readonly autoModeSecondChoices = [3, 5, 10];
-
   protected readonly store = inject(VocabularyReviewSessionStore);
+  protected readonly dialog = inject(MatDialog);
+  protected readonly destroyRef = inject(DestroyRef);
 
   readonly hideExplain = input.required<boolean>();
 
   readonly quit = output<void>();
+
+  /** Example-sentence table rows, queried by the `#exampleRow` template refs. */
+  private readonly exampleRows = viewChildren<ElementRef>('exampleRow');
+
+  private readonly learningTime = inject(UserLearningTimeService);
+
+  constructor() {
+    // Keep the sentence currently being read visible: auto play can keep
+    // running while the user has scrolled elsewhere in a long entry. The
+    // rows exist by the time a reading starts (the sentences render with
+    // the dictionary entry, the reading follows it).
+    effect(() => {
+      const index = this.store.readingSentenceIndex();
+      if (index < 0) {
+        return;
+      }
+      this.exampleRows()[index]?.nativeElement.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+    });
+
+    // Auto play is studying even when nothing is typed: each word change and
+    // each sentence the reader starts counts as activity for the heartbeat.
+    effect(() => {
+      this.store.cursor();
+      if (this.store.isAutoMode()) {
+        this.learningTime.markActivity();
+      }
+    });
+    effect(() => {
+      const index = this.store.readingSentenceIndex();
+      if (index >= 0 && this.store.isAutoMode()) {
+        this.learningTime.markActivity();
+      }
+    });
+  }
+
+  /**
+   * Open the Auto Play settings dialog (interval, randomized walk order,
+   * sentences to read). Cancel/backdrop leaves the current settings
+   * untouched. During a running cycle the interval applies immediately (the
+   * live tick is re-armed), the sentence count applies from the next item,
+   * and randomizing takes effect on the next start.
+   */
+  protected onAutoPlaySettings(): void {
+    const dialogRef = this.dialog.open(VocabularyExercisesAutoPlayOptionsDialogComponent, {
+      data: {
+        currentSettings: {
+          intervalSeconds: this.store.autoModeSeconds(),
+          randomizeWords: this.store.autoPlayRandomize(),
+          sentencesToRead: this.store.autoPlaySentences(),
+        },
+      },
+      width: '420px',
+      enterAnimationDuration: 800,
+      exitAnimationDuration: 500,
+    });
+
+    dialogRef
+      .afterClosed()
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(result => {
+        if (result !== undefined) {
+          this.store.applyAutoPlaySettings(result);
+        }
+      });
+  }
 
   /**
    * Study keyboard shortcuts: 1-5 rate the current word, ArrowUp/Down nudge
@@ -61,10 +142,10 @@ export class VocabularyExercisesReviewSessionComponent {
       return;
     }
 
-    // Keys typed into a form control belong to that control: arrows navigate
-    // the seconds-per-word select's options and Escape closes its panel -
-    // neither must re-rate the current word nor quit the session. The open
-    // dropdown panel lives in a cdk overlay, so match that too.
+    // Keys typed into a form control belong to that control: arrows spin the
+    // settings dialog's number inputs and Escape closes the dialog - neither
+    // must re-rate the current word nor quit the session. Dialogs and open
+    // dropdown panels live in a cdk overlay, so match that too.
     const target = event.target as HTMLElement | null;
     if (
       target?.closest(

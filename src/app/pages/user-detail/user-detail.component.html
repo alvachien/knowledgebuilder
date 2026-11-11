@@ -58,3 +58,47 @@
     }
   </mat-card-content>
 </mat-card>
+
+<mat-card class="login-history-card learning-time-card">
+  <mat-card-header>
+    <mat-card-title>{{ 'learning_time' | transloco }}</mat-card-title>
+  </mat-card-header>
+
+  <mat-card-content>
+    @if (learningLoading) {
+      <p>{{ 'loading' | transloco }}</p>
+    } @else if (learningRows.length === 0) {
+      <p class="login-history-empty">{{ 'learning_time_empty' | transloco }}</p>
+    } @else {
+      <p class="learning-time-summary">
+        <span>{{ 'learning_today' | transloco: { minutes: todayMinutes } }}</span>
+        <span>{{ 'learning_this_week' | transloco: { minutes: weekMinutes } }}</span>
+      </p>
+      <table class="learning-time-table">
+        <thead>
+          <tr>
+            <th>{{ 'login_date' | transloco }}</th>
+            <th>{{ 'learning_category' | transloco }}</th>
+            <th class="login-history-count-col">{{ 'learning_minutes' | transloco }}</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (row of learningRows; track row.learnDate + '-' + row.categoryKey) {
+            <tr>
+              <td>{{ row.learnDate }}</td>
+              <td>{{ row.categoryKey | transloco }}</td>
+              <td class="login-history-count-col">{{ row.minutes }}</td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    }
+
+    <div class="learning-time-optout">
+      <mat-checkbox [ngModel]="leaderboardOptOut"
+        (ngModelChange)="onLeaderboardOptOutChange($event)">
+        {{ 'leaderboard_opt_out' | transloco }}
+      </mat-checkbox>
+    </div>
+  </mat-card-content>
+</mat-card>

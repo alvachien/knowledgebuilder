@@ -27,6 +27,14 @@ mat-toolbar .example-button-container {
   gap: 4px;
 }
 
+// Toolbar action FABs. Canonical spacing for the class every page uses on its
+// header/toolbar `mat-fab` buttons (it used to be re-declared in nine component
+// stylesheets). Applied globally, so it also works in pages whose header is a
+// plain <div> instead of a <mat-toolbar>.
+.toolbar-fab-button {
+  margin-inline: 4px;
+}
+
 // =============================================================================
 // Medium screens (821px–1200px): Compact single-row layout
 // =============================================================================
@@ -73,21 +81,24 @@ mat-toolbar .example-button-container {
     width: 8px;
   }
 
-  // Use smaller buttons on small screens
-  mat-toolbar button.mat-mdc-fab,
-  mat-toolbar a.mat-mdc-fab {
+  // Use smaller buttons on small screens. Scoped to the round (non-extended) FABs:
+  // an extended FAB carries a label, so forcing it to 40x40 would clip the text.
+  // Selectors are not limited to <mat-toolbar> so that header FABs living in a plain
+  // <div> (habits pages) shrink the same way.
+  button.mat-mdc-fab:not(.mat-mdc-extended-fab),
+  a.mat-mdc-fab:not(.mat-mdc-extended-fab) {
     width: 40px;
     height: 40px;
   }
 
-  mat-toolbar button.mat-mdc-fab .mat-mdc-button-touch-target,
-  mat-toolbar a.mat-mdc-fab .mat-mdc-button-touch-target {
+  button.mat-mdc-fab:not(.mat-mdc-extended-fab) .mat-mdc-button-touch-target,
+  a.mat-mdc-fab:not(.mat-mdc-extended-fab) .mat-mdc-button-touch-target {
     width: 40px;
     height: 40px;
   }
 
-  mat-toolbar button.mat-mdc-fab .mat-icon,
-  mat-toolbar a.mat-mdc-fab .mat-icon {
+  button.mat-mdc-fab:not(.mat-mdc-extended-fab) .mat-icon,
+  a.mat-mdc-fab:not(.mat-mdc-extended-fab) .mat-icon {
     font-size: 20px;
     width: 20px;
     height: 20px;

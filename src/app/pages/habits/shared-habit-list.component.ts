@@ -6,6 +6,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSnackBar } from '@angular/material/snack-bar';
+import { MatTooltipModule } from '@angular/material/tooltip';
 import { RouterLink } from '@angular/router';
 import { TranslocoModule, TranslocoService } from '@jsverse/transloco';
 
@@ -34,6 +35,7 @@ import { HabitService } from './habit.service';
     MatCardModule,
     MatIconModule,
     MatProgressBarModule,
+    MatTooltipModule,
     MatProgressSpinnerModule,
     TranslocoModule,
     HabitCriterionSummaryComponent,
@@ -53,7 +55,10 @@ import { HabitService } from './habit.service';
       } @else if (loadFailed()) {
         <div class="shared-empty">
           <p>{{ t('habits.shared.loadError') }}</p>
-          <button mat-stroked-button (click)="load()"><mat-icon>refresh</mat-icon> {{ t('habits.shared.retry') }}</button>
+          <button mat-fab class="toolbar-fab-button" (click)="load()"
+                  [matTooltip]="t('habits.shared.retry')" [attr.aria-label]="t('habits.shared.retry')">
+            <mat-icon>refresh</mat-icon>
+          </button>
         </div>
       } @else if (shared().length === 0) {
         <div class="shared-empty">

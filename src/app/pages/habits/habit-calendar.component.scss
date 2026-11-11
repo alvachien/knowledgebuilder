@@ -68,11 +68,17 @@
   padding: 3px;
   box-shadow: var(--shadow-sm);
 
-  button[mat-icon-button] {
+  // The stepper buttons are mini-FABs (the project-wide action-button family, see
+  // CLAUDE.md "Action buttons"); the pill only re-tints and compacts them.
+  button.mat-mdc-mini-fab {
     width: 34px;
     height: 34px;
     line-height: 34px;
     color: var(--text-2);
+    // Flat inside the pill: the FAB's own primary-container fill and elevation
+    // would turn the stepper into two discs floating in a bordered box.
+    background: transparent;
+    box-shadow: none;
     display: flex;
     align-items: center;
     justify-content: center;

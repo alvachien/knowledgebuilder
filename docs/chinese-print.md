@@ -39,7 +39,7 @@ The numbered subsections below detail each step.
 
 ### 1. Print options dialog
 
-`src/app/pages/chinese-exercises/chinese-exercises.component.ts:359` (`onPrintWithOptions`) opens `ChineseExercisesPrintOptionsDialogComponent` (defined at `:568`, template `chinese-exercises-printoptions-dialog.html`) with:
+`src/app/pages/chinese-exercises/chinese-exercises.component.ts:559` (`onPrintWithOptions`) opens `ChineseExercisesPrintOptionsDialogComponent` (defined in `chinese-exercises-printoptions-dialog.component.ts:63`, template `chinese-exercises-printoptions-dialog.html`) with:
 
 - `reciteContentCount` - selection length if rows are selected, else total loaded item count
 - `disableCount` - whether any rows are manually selected (disables the count input)
@@ -57,11 +57,11 @@ The dialog collects these settings into a `ChineseRecitePrintOption` (`src/app/i
 | `printExecDate` | set `true` when the Exec. Date radio is at option `2`; collected, not currently consumed |
 | `execDate` | the chosen date when `printExecDate` is `true`; collected, not currently consumed |
 
-The assembly happens in `onYesClick()` (`:590-603`): the Exec. Date radio (`selectedExecDateModel`) maps `1` -> `respectRetentionCurve`, `2` -> `printExecDate` + `execDate`.
+The assembly happens in `onYesClick()` (`chinese-exercises-printoptions-dialog.component.ts:88`): the Exec. Date radio (`selectedExecDateModel`) maps `1` -> `respectRetentionCurve`, `2` -> `printExecDate` + `execDate`.
 
 ### 2. Building the print queue
 
-`src/app/pages/chinese-exercises/chinese-exercises.component.ts:392-435` (`onPrint`):
+`src/app/pages/chinese-exercises/chinese-exercises.component.ts:593` (`onPrint`):
 
 - **With a manual selection** (`selection.selected.length > 0`): the queue is `convertChineseReciteItemToKnowledge(this.selection.selected, ...)`, then shuffled. `countOfItems` is **ignored** - all selected rows print.
 - **Without a selection**: the queue is `convertChineseReciteItemToKnowledge(this.dataSource.data, ...)`; if it is longer than `countOfItems` it is shuffled and sliced to `countOfItems`; if it is already shorter, all items print (no shuffle, no padding). So `countOfItems` is a **ceiling**, not an exact count.
@@ -112,9 +112,9 @@ The print-options dialog collects `printEntryDate`, `respectRetentionCurve`, `pr
 
 Signal path:
 
-1. The dialog (`ChineseExercisesPrintOptionsDialogComponent`, `chinese-exercises.component.ts:568`) collects the four fields. `onYesClick()` (`:590-603`) maps the Exec. Date radio into `respectRetentionCurve` / `printExecDate` / `execDate` and closes with a `ChineseRecitePrintOption`.
+1. The dialog (`ChineseExercisesPrintOptionsDialogComponent`, `chinese-exercises-printoptions-dialog.component.ts:63`) collects the four fields. `onYesClick()` (`chinese-exercises-printoptions-dialog.component.ts:88`) maps the Exec. Date radio into `respectRetentionCurve` / `printExecDate` / `execDate` and closes with a `ChineseRecitePrintOption`.
 2. The `afterClosed` subscriber (`:375-389`) copies the result into `this.printSetting`, then calls `onPrint()`.
-3. `onPrint()` (`:392-435`) ignores `this.printSetting`'s four date/entry fields and constructs `execPrintSetting` from scratch - the sole exception being `answerLineBreakPerItem`, which **is** forwarded (see [Answer Line Break](#answer-line-break)):
+3. `onPrint()` (`chinese-exercises.component.ts:593`) ignores `this.printSetting`'s four date/entry fields and constructs `execPrintSetting` from scratch - the sole exception being `answerLineBreakPerItem`, which **is** forwarded (see [Answer Line Break](#answer-line-break)):
 
 ```ts
 const execPrintSetting: KnowledgeExercisePrintOption = {
@@ -149,7 +149,7 @@ export interface ChineseRecitePrintOption extends ChineseRecitetOptionAbstract {
   answerLineBreakPerItem?: boolean;
 }
 
-// src/app/interfaces/questionbank-base.ts:1363
+// src/app/interfaces/questionbank-base.ts:1374
 export interface KnowledgeExercisePrintOption {
   formTitle: string;
   printEntryDate: boolean;
@@ -189,7 +189,7 @@ The Chinese answer key (`markdownAdditionStr`) historically ran every item's ans
 
 Signal path:
 
-1. The print-options dialog (`ChineseExercisesPrintOptionsDialogComponent`, `chinese-exercises.component.ts:568`) collects `answerLineBreak` (checkbox, default on). `onYesClick()` (`:590-603`) packs it as `answerLineBreakPerItem` into the `ChineseRecitePrintOption` returned to the caller.
+1. The print-options dialog (`ChineseExercisesPrintOptionsDialogComponent`, `chinese-exercises-printoptions-dialog.component.ts:63`) collects `answerLineBreak` (checkbox, default on). `onYesClick()` (`chinese-exercises-printoptions-dialog.component.ts:88`) packs it as `answerLineBreakPerItem` into the `ChineseRecitePrintOption` returned to the caller.
 2. The `afterClosed` subscriber (`:375-389`) copies it into `this.printSetting.answerLineBreakPerItem`.
 3. `onPrint()` (`:423-431`) forwards it onto the shared `KnowledgeExercisePrintOption`:
 

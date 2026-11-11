@@ -91,7 +91,7 @@ describe('HabitCalendarComponent', () => {
     const d = new Date();
     const monthStart = dateToIso(new Date(d.getFullYear(), d.getMonth(), 1));
     const monthEnd = dateToIso(new Date(d.getFullYear(), d.getMonth() + 1, 0));
-    expect(service.getHabitPunches).toHaveBeenCalledWith(7, monthStart, monthEnd);
+    expect(service.getHabitPunches).toHaveBeenCalledWith(7, monthStart, monthEnd, false);
     expect(service.getItems).toHaveBeenCalledTimes(1);
   });
 
@@ -133,7 +133,7 @@ describe('HabitCalendarComponent', () => {
     const d = new Date();
     const prevStart = dateToIso(new Date(d.getFullYear(), d.getMonth() - 1, 1));
     const prevEnd = dateToIso(new Date(d.getFullYear(), d.getMonth(), 0));
-    expect(service.getHabitPunches).toHaveBeenCalledWith(7, prevStart, prevEnd);
+    expect(service.getHabitPunches).toHaveBeenCalledWith(7, prevStart, prevEnd, false);
     expect(service.getItems).not.toHaveBeenCalled();
 
     comp.next();
@@ -154,7 +154,7 @@ describe('HabitCalendarComponent', () => {
     await flush();
 
     expect(comp.viewMode()).toBe('day');
-    expect(service.getHabitPunches).toHaveBeenCalledWith(7, y, y);
+    expect(service.getHabitPunches).toHaveBeenCalledWith(7, y, y, false);
     // Day entries sort busiest first: Gym(3) before Run(1).
     expect(comp.dayEntries().map((e) => e.itemName)).toEqual(['Gym', 'Run']);
     expect(comp.periodLabel()).not.toBe('');

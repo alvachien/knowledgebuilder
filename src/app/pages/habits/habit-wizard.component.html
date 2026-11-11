@@ -1,6 +1,7 @@
 <div *transloco="let t" class="wizard-page app-page-container">
   <div class="wizard-topbar">
-    <a mat-icon-button routerLink="/habits" [attr.aria-label]="t('habits.detail.back')">
+    <a mat-fab class="toolbar-fab-button" routerLink="/habits"
+       [matTooltip]="t('habits.detail.back')" [attr.aria-label]="t('habits.detail.back')">
       <mat-icon>arrow_back</mat-icon>
     </a>
     <h1 class="wizard-title">

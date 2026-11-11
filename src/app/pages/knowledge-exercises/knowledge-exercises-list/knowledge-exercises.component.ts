@@ -47,7 +47,6 @@ import {
 } from '../../../services';
 import { openFilterDialog } from '../../../shared/filter-dialog/filter-dialog-launcher';
 import { emptyFilterDefinition } from '../../../shared/filter-dialog/filter-dialog-model';
-import { FooterComponent } from '../../../shared/footer/footer';
 import { MarkdownContentComponent } from '../../../shared/markdown-content';
 import { AppPageTitle } from '../../page-title/page-title';
 
@@ -71,7 +70,6 @@ export type KnowledgeExercisesMode = 'list' | 'detail' | 'extrainfo';
     MatIconModule,
     MatToolbarModule,
     MatTooltipModule,
-    FooterComponent,
     MarkdownContentComponent,
     KnowledgeExercisesListComponent,
     TranslocoModule,

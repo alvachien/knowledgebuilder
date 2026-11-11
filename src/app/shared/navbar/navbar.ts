@@ -28,6 +28,7 @@ import type { UserAuthInfo } from '../../interfaces';
 import { AuthService, UserCodeService } from '../../services';
 import { LanguageSelectorComponent } from '../language-selector';
 import { AppLogoComponent } from '../logo/logo';
+import { NAV_ICON } from '../nav-icons';
 import { NavigationFocusService } from '../navigation-focus/navigation-focus.service';
 
 @Component({
@@ -58,6 +59,9 @@ export class NavbarComponent implements OnDestroy {
   skipLinkHref: string | null | undefined;
   skipLinkHidden = true;
   homeUrl = '';
+
+  /** Drawer icons come from the app-wide map, same as the homepage (see nav-icons.ts). */
+  protected readonly navIcon = NAV_ICON;
   readonly dialog = inject(MatDialog);
   readonly usrsrv = inject(UserCodeService);
   readonly authService = inject(AuthService);

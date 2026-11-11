@@ -38,22 +38,35 @@ $theme: mat.define-theme((
     width: 100%;
     max-width: none;
 
-    // Screen body text is 14px (~10.5pt), which renders too small on paper.
-    // 12pt is the standard print body size; line-height 1.6 keeps the printed
-    // exercise sheet readable. p/ul/ol carry an explicit 14px on screen, so
-    // they are overridden below to take on the print base.
-    font-size: 12pt;
+    // Screen body text is 14px (~10.5pt); 12pt read as oversized on paper,
+    // so the print base is 11pt — still clearly legible, closer to a typical
+    // exam sheet. line-height 1.6 keeps the printed exercise sheet readable.
+    // p/ul/ol/pre carry explicit 14px on screen (_markdown.scss sets the
+    // first three, _general.scss sets pre), so they are overridden below to
+    // take on the print base.
+    font-size: 11pt;
     line-height: 1.6;
   }
 
   // Override the explicit 14px / 20px screen sizing set in _markdown.scss so
-  // the question text and options render at the larger print size.
+  // the question text and options render at the print base.
   .markdown-content p,
   .markdown-content ul,
-  .markdown-content ol {
-    font-size: 12pt;
+  .markdown-content ol,
+  .markdown-content pre {
+    font-size: 11pt;
     line-height: 1.6;
   }
+
+  // Headings live at on-screen pixel sizes in _markdown.scss (h1 32px, h2
+  // 28px, h3 24px …). Those print far too heavy next to an 11pt body, so
+  // rescale them relative to the print base instead of the screen ramp.
+  .markdown-content h1 { font-size: 1.6em; }
+  .markdown-content h2 { font-size: 1.4em; }
+  .markdown-content h3 { font-size: 1.25em; }
+  .markdown-content h4 { font-size: 1.15em; }
+  .markdown-content h5,
+  .markdown-content h6 { font-size: 1.05em; }
 
   .markdown-content,
   .markdown-content * {

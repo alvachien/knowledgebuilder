@@ -48,7 +48,6 @@ import {
 import { LearningContentService, LearningRatingService, UIService } from '../../services';
 import { openFilterDialog } from '../../shared/filter-dialog/filter-dialog-launcher';
 import { emptyFilterDefinition } from '../../shared/filter-dialog/filter-dialog-model';
-import { FooterComponent } from '../../shared/footer/footer';
 import { AppPageTitle } from '../page-title/page-title';
 
 import { VocabularyExercisesDictationResultComponent } from './vocabulary-exercises-dictation-result.component';
@@ -85,7 +84,6 @@ const UPLOAD_FAILURE_KEYS: Record<VocabularyUploadFailureReason, string> = {
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
-    FooterComponent,
     VocabularyExercisesWordListComponent,
     VocabularyExercisesReviewSessionComponent,
     VocabularyExercisesSpellingSessionComponent,

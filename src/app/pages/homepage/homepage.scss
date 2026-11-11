@@ -174,13 +174,21 @@
   }
 }
 
-// Red-pen check marks; one "missed" tick in graphite.
+// Red-pen check marks; a "missed" tick in graphite. Every row carries exactly four
+// slots — the sheet's grading scale — and only the lit count differs. The slots are
+// fixed-width so the ticks line up in columns down the ledger (rows used to mix four
+// and five slots, which left the right edge ragged).
 .row-marks {
   display: inline-flex;
   gap: 6px;
   font-size: 1.1rem;
   line-height: 1;
   color: var(--pen);
+
+  i {
+    flex: 0 0 1.1rem;
+    text-align: center;
+  }
 
   .off {
     color: var(--rule);
@@ -207,25 +215,30 @@
   }
 }
 
+// Rows publish their ordinal, ticks publish theirs, and the delay formula below reads
+// both. This replaces two `@for $row from 1 through 6` loops that matched by
+// nth-of-type and therefore silently skipped the 7th row — the habits streak — leaving
+// its marks to stamp in all at once instead of ink-ing in. Adding a ledger row now
+// needs no SCSS edit (up to the loop bound).
+@for $row from 1 through 12 {
+  .ledger-row:nth-of-type(#{$row}) {
+    --row: #{$row};
+  }
+}
+
+@for $tick from 1 through 4 {
+  .ledger-row .row-marks i:nth-child(#{$tick}) {
+    --tick: #{$tick};
+  }
+}
+
+// One orchestrated load moment per tick: rows land 120ms apart, ticks within a row
+// 90ms apart.
 .ledger-row .row-marks i {
   font-style: normal;
   display: inline-block;
   animation: mark-in 0.35s ease backwards;
-}
-
-@for $row from 1 through 6 {
-  .ledger-row:nth-of-type(#{$row}) .row-marks i {
-    animation-delay: #{0.25 + $row * 0.12}s;
-  }
-}
-
-// Stagger the marks inside each row: each later tick +90ms.
-@for $row from 1 through 6 {
-  @for $tick from 2 through 5 {
-    .ledger-row:nth-of-type(#{$row}) .row-marks i:nth-child(#{$tick}) {
-      animation-delay: #{0.25 + $row * 0.12 + ($tick - 1) * 0.09}s;
-    }
-  }
+  animation-delay: calc(0.25s + var(--row, 0) * 0.12s + (var(--tick, 1) - 1) * 0.09s);
 }
 
 // ── Why-choose section (margin notes on ruled paper) ─────────────────────
@@ -365,7 +378,10 @@
   flex-wrap: wrap;
 }
 
-.cta-button.primary {
+// Both CTAs are the same red-pen stamp: one shared shape, so the pair cannot drift apart
+// again. `.secondary` only changes the accent (ink instead of pen) — the hierarchy is a
+// colour difference, not a different kind of control.
+.cta-button {
   display: inline-flex;
   align-items: center;
   gap: 10px;
@@ -400,21 +416,16 @@
 }
 
 .cta-button.secondary {
+  border-color: var(--ink);
   color: var(--ink);
-  text-decoration: none;
-  font-size: 1rem;
-  border-bottom: 1px solid var(--rule);
-  padding-bottom: 2px;
-  transition: color 0.15s ease, border-color 0.15s ease;
 
   &:hover {
-    color: var(--pen);
-    border-bottom-color: var(--pen);
+    background: var(--ink);
+    color: var(--paper);
   }
 
   &:focus-visible {
-    outline: 2px solid var(--pen);
-    outline-offset: 3px;
+    outline-color: var(--pen);
   }
 }
 
@@ -462,3 +473,70 @@
     animation: none;
   }
 }
+
+/* ── Learning leaderboard (under the hero's three countdown stats; signed-in
+     only; the site's first cross-user view) ── */
+.leaderboard-section {
+  margin-top: 24px;
+  padding-top: 14px;
+  border-top: 1px solid var(--rule); // echoes the ledger panel's hairline
+  text-align: left;
+}
+
+.leaderboard-heading {
+  font-family: $font-ledger-display;
+  font-size: 1.1rem;
+  color: var(--ink);
+  margin: 0 0 8px;
+}
+
+// The two windows sit side by side when the hero text column is wide enough
+// and stack when it isn't — auto-fit keys off this container, not the viewport.
+.leaderboard-columns {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+  gap: 4px 28px;
+}
+
+.leaderboard-period {
+  font-family: $font-ledger-label;
+  font-size: 0.8rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--graphite);
+  margin: 0 0 6px;
+}
+
+.leaderboard-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.leaderboard-entry {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 12px;
+  padding: 7px 2px;
+  border-bottom: 1px dashed var(--rule); // ledger dotted-leader feel
+
+  &:last-child {
+    border-bottom: none;
+  }
+}
+
+.leaderboard-name {
+  font-family: $font-ledger-display;
+  color: var(--ink);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.leaderboard-time {
+  font-family: $font-ledger-label;
+  color: var(--pen); // red-pen grade accent, like the tick marks
+  white-space: nowrap;
+}
+

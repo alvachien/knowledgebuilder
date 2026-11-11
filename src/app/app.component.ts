@@ -3,6 +3,7 @@ import { ChangeDetectorRef, inject, ChangeDetectionStrategy } from '@angular/cor
 import { Component, ViewEncapsulation } from '@angular/core';
 import { RouterOutlet, RouterModule } from '@angular/router';
 
+import { FooterComponent } from './shared/footer/footer';
 import { NavbarComponent } from './shared/navbar/navbar';
 
 /**
@@ -21,7 +22,7 @@ function clearLegacyThemeStorage(): void {
 
 @Component({
   selector: 'app-root',
-  imports: [RouterOutlet, RouterModule, NavbarComponent],
+  imports: [RouterOutlet, RouterModule, NavbarComponent, FooterComponent],
   encapsulation: ViewEncapsulation.None,
   templateUrl: './app.component.html',
   changeDetection: ChangeDetectionStrategy.Eager,

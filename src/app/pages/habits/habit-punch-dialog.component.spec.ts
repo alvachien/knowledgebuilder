@@ -22,7 +22,16 @@ import { HabitService } from './habit.service';
  * reported via the snackbar, retrying happens by reopening.
  */
 
-const habit = { id: 7, name: 'Test habit' } as Habit;
+/** `todayIso()` shifted by `days` (negative = past) — keeps fixtures clock-independent. */
+function shiftIso(days: number): string {
+  const d = isoToDate(todayIso());
+  d.setDate(d.getDate() + days);
+  return dateToIso(d);
+}
+
+// Active with an open 7-day window ([startDate, today]) so `punchDateBounds`
+// yields real picker bounds — matches the production habit payload.
+const habit = { id: 7, name: 'Test habit', state: 'active', startDate: shiftIso(-7), endDate: null } as Habit;
 
 function makeItems(): HabitItem[] {
   return [
@@ -78,7 +87,8 @@ const flush = () => new Promise<void>((resolve) => setTimeout(resolve, 0));
 async function createDialog(
   items: HabitItem[],
   createPunch: (...args: unknown[]) => unknown,
-  getHistory?: (...args: unknown[]) => unknown
+  getHistory?: (...args: unknown[]) => unknown,
+  habitData: Habit = habit
 ) {
   const service = {
     createPunch: vi.fn(createPunch),
@@ -88,7 +98,7 @@ async function createDialog(
   await TestBed.configureTestingModule({
     providers: [
       { provide: HabitService, useValue: service },
-      { provide: MAT_DIALOG_DATA, useValue: { habit, items } },
+      { provide: MAT_DIALOG_DATA, useValue: { habit: habitData, items } },
       { provide: MatDialogRef, useValue: { close: vi.fn() } },
       { provide: MatSnackBar, useValue: snackbar },
       {
@@ -424,5 +434,40 @@ describe('Date picker locking (revised FR-3.1: landed punches pin their date)', 
 
     comp.onDateChange(isoToDate(yesterdayIso()));
     expect(comp.selectedDate()).toBe(yesterdayIso());
+  });
+});
+
+/** The hint under the date field names the punchable window, or the lock once it engaged. */
+describe('Date field hint bounds', () => {
+  it('exposes the open window [startDate, today] while the picker is usable', async () => {
+    const items = makeItems();
+    const { comp } = await createDialog(items, () => of({ id: 90 }));
+
+    expect(comp.dayLocked()).toBe(false);
+    expect(comp.windowMin()).toBe(shiftIso(-7));
+    expect(comp.windowMax()).toBe(todayIso());
+  });
+
+  it('a habit started today collapses the window to a single punchable day', async () => {
+    const items = makeItems();
+    const fresh = { id: 7, name: 'New habit', state: 'active', startDate: todayIso(), endDate: null } as Habit;
+    const { comp } = await createDialog(items, () => of({ id: 91 }), undefined, fresh);
+
+    expect(comp.windowMin()).toBe(todayIso());
+    expect(comp.windowMax()).toBe(todayIso());
+  });
+
+  it('clamps the window at endDate once the period has passed', async () => {
+    const items = makeItems();
+    const ended = { id: 7, name: 'Ended habit', state: 'active', startDate: shiftIso(-10), endDate: shiftIso(-2) } as Habit;
+    const { comp, service } = await createDialog(items, () => of({ id: 92 }), undefined, ended);
+
+    expect(comp.windowMin()).toBe(shiftIso(-10));
+    expect(comp.windowMax()).toBe(shiftIso(-2));
+    // The initial selection clamps into the window too — a past day, so its
+    // overlay loads on open (the hint shows the range, not the lock text).
+    expect(comp.selectedDate()).toBe(shiftIso(-2));
+    expect(comp.dayLocked()).toBe(false);
+    expect(service.getHistory).toHaveBeenCalledWith(7, shiftIso(-2), shiftIso(-2));
   });
 });

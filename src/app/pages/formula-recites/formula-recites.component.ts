@@ -65,7 +65,6 @@ import {
   UserCodeService,
   UtilService,
 } from '../../services';
-import { FooterComponent } from '../../shared/footer/footer';
 import { MathItemComponent } from '../../shared/mathitem';
 import { AppPageTitle } from '../page-title/page-title';
 
@@ -73,7 +72,6 @@ import { AppPageTitle } from '../page-title/page-title';
   selector: 'app-formula-recite',
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
-    FooterComponent,
     MatToolbarModule,
     MatFormFieldModule,
     MatInputModule,

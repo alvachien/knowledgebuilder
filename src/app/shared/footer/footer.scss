@@ -7,9 +7,17 @@ $graphite: #4c5666;
 $paper-rule: #dde3ea;
 $pen: #c62828;
 
+// App-shell chrome (one instance in AppComponent, like the navbar — every
+// routed page is a sub-page above it). app-root is a 100vh flex column, so
+// margin-top: auto pins this to the viewport bottom on short pages and
+// flex-shrink: 0 keeps it whole while tall pages shrink and scroll inside
+// .app-main-content. Deliberately NOT position: fixed: that would need a
+// hardcoded clearance matching this wrap-dependent height (the debt the fixed
+// navbar carries with its "must stay ≈56px" comment).
 :host {
   display: block;
-  margin-top: 100px;
+  flex-shrink: 0;
+  margin-top: auto;
   background: #fbfbf8;
   color: $graphite;
   border-top: 1px solid $paper-rule;
@@ -92,5 +100,45 @@ a {
 @media screen and (max-width: 884px){
   .learning-footer-list {
     flex-direction: column;
+  }
+
+  // Compact persistent chrome: as the shell's bottom bar this band is always
+  // visible, and on a phone in landscape the stacked form would eat ~half the
+  // viewport. Slimmer paddings, a smaller mark, and the three copyright spans
+  // collapse into one centered wrapped 10px line. Nothing is hidden.
+  .learning-footer {
+    padding: 6px;
+  }
+
+  .learning-footer-list {
+    padding: 2px;
+  }
+
+  app-logo {
+    width: 32px;
+    height: 32px;
+  }
+
+  .learning-footer-logo {
+    a {
+      font-size: 13px;
+      line-height: 32px;
+      margin: 0 8px;
+    }
+  }
+
+  .learning-footer-copyright {
+    min-width: 0;
+    margin-top: 4px;
+
+    > div {
+      align-self: center;
+      flex-direction: row;
+      flex-wrap: wrap;
+      justify-content: center;
+      column-gap: 6px;
+      font-size: 10px;
+      text-align: center;
+    }
   }
 }

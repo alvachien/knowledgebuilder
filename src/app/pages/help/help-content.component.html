@@ -1,0 +1,423 @@
+@if (lang() === 'zh-CN') {
+  <!-- ══ 中文 ══ (mirror of the English branch: same sections, ids and TOC order) -->
+  <div class="app-markdown markdown-content">
+    <div class="help-toc">
+      <a [routerLink]="[]" [fragment]="'quick-start'">快速上手</a>
+      <a [routerLink]="[]" [fragment]="'vocabulary'">词汇</a>
+      <a [routerLink]="[]" [fragment]="'chinese'">中文</a>
+      <a [routerLink]="[]" [fragment]="'knowledge-bank'">知识库</a>
+      <a [routerLink]="[]" [fragment]="'habit-tracker'">习惯打卡</a>
+      <a [routerLink]="[]" [fragment]="'account'">账号、语言与评分</a>
+    </div>
+
+    <h2 id="quick-start">快速上手</h2>
+    <ol>
+      <li><strong>登录</strong>：点导航栏右侧的登录按钮。除本页和首页之外，其他页面都需要账号，因为评分、练习纸和习惯记录都是按用户保存的。</li>
+      <li><strong>选择学习内容</strong>：导航栏里有词汇、句子、听力、中文、公式、知识库和习惯。手机上是 ☰ 抽屉里的同一组入口。</li>
+      <li><strong>挑一个文件</strong>：页面工具栏的「文件」下拉框。选完表格就填满了，旁边的三个计数告诉你现在看到的是什么：<strong>项目</strong>（文件里的全部）、<strong>过滤后</strong>（筛选剩下的）、<strong>已选</strong>（勾选的行）。</li>
+      <li><strong>先缩小范围，再勾选</strong>要处理的行。所有练习模式都遵循同一条规则：勾了行就只用这些行；一行都没勾，就用筛选后可见的那些行。</li>
+      <li>从<strong>练习</strong>菜单<strong>开始一次练习</strong>——复习、拼写、听写、测验或打印。</li>
+    </ol>
+    <p>下面每节介绍一个页面。习惯打卡放在最后一节，其中包含十二个现成模板。</p>
+
+    <h2 id="vocabulary">词汇</h2>
+    <p>中英对照的单词表，一本书或一个单元一个文件。这里的做法和中文页、知识库页是一样的，只是字段不同。</p>
+
+    <h3>筛选列表</h3>
+    <p>有两种筛选，它们同时生效：</p>
+    <ul>
+      <li><strong>自由文本框</strong>：把整段输入当成一个短语，在每行的编号、英文单词或中文释义里查找，忽略大小写，是简单的「包含」判断；用输入法组词时不会中途刷新表格。</li>
+      <li><strong>「筛选 ▾」</strong>：打开条件编辑器。没有筛选条件时菜单第一项显示「新建」，有筛选时显示当前条件的摘要；「清除」只清空条件树，不动文本框。</li>
+    </ul>
+    <p>对话框里左边是条件树，右边编辑当前选中的节点：</p>
+    <table>
+      <thead>
+        <tr><th>节点</th><th>可以设置什么</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>条件</td><td>一个属性、一个运算符、一个值。词汇页提供<strong>单词</strong>、<strong>中文</strong>和<strong>评分</strong>。文本属性支持<em>开头是</em>、<em>包含</em>、<em>等于</em>、<em>结尾是</em>，外加<em>是词组</em>（匹配含空格的词组）。评分（0–5）支持 <em>≥</em>、<em>&gt;</em>、<em>=</em>、<em>≤</em>、<em>&lt;</em> 和<em>介于</em>。</td></tr>
+        <tr><td>条件组</td><td>组内成员用 <strong>并且</strong> 还是 <strong>或者</strong> 连接，以及哪些行和嵌套的组属于它。一个条件组至少要有两个成员。</td></tr>
+      </tbody>
+    </table>
+    <p>树上方的三个按钮用于添加条件、添加条件组、删除选中的节点。底部一行显示程序理解的完整表达式，例如 <code>word contains app AND (chinese contains 派 OR rating &gt;= 3)</code>。值缺失、或某个组不足两个成员时<strong>提交</strong>不可用；<strong>取消</strong>会保留原来的筛选不变。</p>
+    <p>筛选不会删除任何数据，只决定屏幕上有哪些行——而这批行正是下一次练习或练习纸的取材范围。</p>
+
+    <h3>选择要处理的行</h3>
+    <p><strong>「选择 ▾」</strong>提供四种方式：</p>
+    <ul>
+      <li><strong>随机选择</strong>：填数量，从可见行里随机挑出这些行。</li>
+      <li><strong>顺序选择</strong>：数量加起始位置，即「从第 40 行开始取 20 个」，按当前排序和筛选计算。</li>
+      <li><strong>按词选择</strong>：粘贴以逗号、空格或换行分隔的单词列表，匹配到的行会被勾选，<code>apple pie</code> 这样的词组会整体保留。如果一个都不匹配，勾选状态不会被清空，所以粘错内容不会弄坏已有的选择。</li>
+      <li><strong>清空选择</strong>。</li>
+    </ul>
+    <p>表头的全选框勾选或取消当前可见的全部行；排序和翻页都会保留你的选择。</p>
+
+    <h3>练习模式</h3>
+    <p>每个项目都会先打开选项对话框，并且记住你上次的选择。取材规则始终是：<strong>先取勾选的行（全部，随机顺序）；没有勾选就用可见行，并以你填的数量为上限。</strong></p>
+    <ul>
+      <li><strong>复习</strong>——卡片模式：先看英文，播放发音，再显示释义；释义（词性 + 中文意思）和双语例句以表格显示在下方，宽度与工具栏一致。选项：数量、<em>禁用语音</em>、<em>隐藏讲解</em>（两者不能同时关闭，否则无从学起）。所有操作都集中在一行工具栏里：进度条和队列位置（如 <code>3 / 20</code>）、<strong>复习</strong>标签、当前词的 <strong>1–5 评分按钮</strong>，以及六个图标按钮（自动播放进行中会多出第七个「停止」按钮）——<strong>自动播放设置</strong>（调节图标：每个条目的秒数、自动播放是否按随机顺序翻阅——只影响自动播放的浏览路线，不会改变队列本身——以及浏览器朗读的例句数量 0–10）、<strong>播放/暂停</strong>（自动播放有三态——默认停止、播放中、已暂停：播放从第一个词开始，同一按钮可在当前词暂停并静音所有声音，再按一次继续），<strong>停止</strong>（结束自动循环，回到手动翻阅；仅在播放中或已暂停时显示）、<strong>重新朗读</strong>（重放当前单词及其例句）、上一个 / 下一个 / 退出。每个<em>条目</em>是单词加朗读的例句；间隔时间是条目之间的秒数，每次翻页都会等当前条目的朗读完整结束才继续。进度按本次播放的位置计算——开启随机顺序时，进度条跟着随机翻阅顺序走，一整轮播完就显示 100%（而不是最后一个词在队列里的随机位置）。运行中修改间隔会立即生效（当前条目重新计时）；朗读数量从下一个条目起生效；随机顺序在下次开始播放时生效。正在朗读的例句会在表格中高亮并保持可见。离开页面时自动播放会停止。</li>
+      <li><strong>练习纸</strong>——可打印的版本，见下一小节。</li>
+      <li><strong>拼写</strong>——听着发音逐字母输入。字母对了就显示并伴随提示音；错了会响提示音并把该词标记为错误；<em>退格</em>重新隐藏最后一个字母。<strong>提示</strong>按钮显示当前字母（代价是该词记为错误），<strong>下一个词</strong>直接跳过。队列走完会给出得分和逐词的对错列表。</li>
+      <li><strong>听写</strong>——全自动：每五秒朗读一个单词，你写下来，结束后给出答案表。</li>
+      <li><strong>测验</strong>——按你选的方向出单选题，英译中或中译英。四个选项取自当前可见的行，所以先筛出一个单元，测验就只考那个单元。点击或用 <code>1</code>–<code>4</code> / <code>A</code>–<code>D</code> 作答；<code>Enter</code> 或 <code>→</code> 继续，<code>←</code> 回到上一题查看。凑不出三个不同选项的题目会被跳过。</li>
+    </ul>
+    <p>会话进行中的快捷键：</p>
+    <table>
+      <thead>
+        <tr><th>按键</th><th>复习</th><th>测验</th></tr>
+      </thead>
+      <tbody>
+        <tr><td><code>←</code> / <code>→</code></td><td>上一个 / 下一个单词</td><td>上一题 / 下一题</td></tr>
+        <tr><td><code>↑</code> / <code>↓</code></td><td>给该词评分加 / 减一星</td><td>—</td></tr>
+        <tr><td><code>1</code>–<code>5</code></td><td>直接设定评分</td><td>—</td></tr>
+        <tr><td><code>Enter</code></td><td>—</td><td>下一题（作答之后）</td></tr>
+        <tr><td><code>Esc</code></td><td>退出到列表</td><td>—</td></tr>
+      </tbody>
+    </table>
+
+    <h3>打印练习纸</h3>
+    <ol>
+      <li>勾选一些行或设置筛选（否则使用全部可见行）。</li>
+      <li><strong>「练习 ▾」→「练习纸」</strong>，然后设置：数量、标题下的副标题、<em>打印首字母</em>（每个空格以首字母开头）以及<em>统一空格长度</em>及其宽度（后者会掩盖单词的长短差异）。</li>
+      <li>确认后程序打开打印页：编号的空格题行，形如 <code>1. &lt;释义&gt; f________</code>，其后分页附上答案页。</li>
+      <li>点右上角的<strong>打印</strong>。送到纸面上的只有这一页——导航栏、计数和按钮都不会出现。</li>
+    </ol>
+    <p>一点提醒：这张纸是临时存在内存里的，刷新该页面就会丢失并被送回列表，所以请先打印或存成 PDF 再离开。</p>
+
+    <h3>评分与发音</h3>
+    <p>每行最后一列是 <strong>1–5 的评分</strong>，按「你 + 这个文件 + 这个单词」保存到你的账号下。评分是你标记「这个词老出错」的方式：它既是<em>评分</em>筛选条件的数据来源，也会带进复习队列。再次点击当前分值不会取消——一个词只有「已评」和「未评」两种状态，未评在筛选时按 0 计算。</p>
+    <p>发音优先使用已录好的音频，没有录音时改用浏览器自带的语音引擎，因此这两者都不需要邀请码。</p>
+
+    <h2 id="chinese">中文</h2>
+    <p>古今中文阅读材料：每行是一篇文章，带主题、作者、出处和正文。操作方式和词汇页相同——文件下拉框、自由文本、<strong>筛选 ▾</strong>、<strong>选择 ▾</strong>——只是字段换成：</p>
+    <ul>
+      <li><strong>主题</strong>、<strong>作者</strong>、<strong>正文</strong>按文本筛选（开头是 / 包含 / 等于 / 结尾是）。</li>
+      <li><strong>评分</strong>与词汇页完全一样。</li>
+      <li>自由文本框在编号、主题、作者、正文、出处里查找。</li>
+      <li><strong>「选择 ▾」</strong>里是<strong>全选可见行</strong>，而不是「按词选择」。</li>
+    </ul>
+
+    <h3>打印</h3>
+    <p><strong>「练习 ▾」→「打印」</strong>打开选项对话框。关键选项是<strong>等级</strong>，它决定每篇课文被挖掉多少：简单挖去约两成字符，中等一半，困难八成，全部则整篇隐去（正文变成一份供听写的答案）。<strong>每行一个答案</strong>会把还原的每个字符组单独排一行，学生直接在卷子上书写时正是你想要的效果。</p>
+    <p>输出的打印页与词汇练习纸同一套：先是题目行，分页之后是答案页。</p>
+    <p>两处需要如实说明：本页面的<strong>背诵</strong>选项目前只会打开选项对话框，尚不会开始一场背诵会话；<strong>打印录入日期</strong>与<strong>执行日期选项</strong>会被记录，但目前不影响打印出来的内容。</p>
+
+    <h2 id="knowledge-bank">知识库</h2>
+    <p>这里存的是题目而不是单词：每行有题型（单选、填空等）、难度、预计用时、标签、题干、答案，以及可选的提示和附加材料。</p>
+
+    <h3>筛选与选择</h3>
+    <ul>
+      <li>本页的自由文本框是<strong>多词</strong>的：用空格分隔若干词，每一个都必须出现在该行的某处——题干、选项、答案、提示、附加信息或子题里；所有词都命中，这一行才算匹配。</li>
+      <li><strong>筛选 ▾</strong> 提供 <strong>编号</strong>（文本运算符）、<strong>题型</strong>（勾选任意题型，多勾选表示"这种或那种"）、<strong>标签</strong>（文本运算符）和<strong>评分</strong>。</li>
+      <li><strong>「选择 ▾」</strong>多出<strong>按编号选择</strong>：粘贴一串题号，本文件里存在的行会被勾选。<strong>全选可见行</strong>和<strong>清空选择</strong>也在这里。</li>
+    </ul>
+
+    <h3>查看题目</h3>
+    <p>点击行的<strong>编号</strong>按钮打开习题页，或点「附加信息」列的图标只看那部分内容。两个页面工具栏上都有上一个 /下一个 / 返回列表；习题页还多了针对当前题的<strong>切换答案</strong>和<strong>切换答案提示</strong>。文件若标记包含公式，数学式会渲染成公式，与文件一起存放的插图会就地显示。</p>
+
+    <h3>打印</h3>
+    <p>至少要勾选一行，<strong>打印</strong>才会可用——整个题库不是一份练习卷。选项对话框里的设置：</p>
+    <table>
+      <thead>
+        <tr><th>选项</th><th>作用</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>标题</td><td>打印页顶部的标题，默认取文件名。</td></tr>
+        <tr><td>随机选择选项</td><td>重排每一道选择题的选项顺序，默认开启。</td></tr>
+        <tr><td>打印答案</td><td>分页后附加答案页。</td></tr>
+        <tr><td>打印答案提示</td><td>在该题下方打印已保存的提示。</td></tr>
+        <tr><td>打印分数</td><td>在顶部加上 Date / Duration / Score 填写栏。</td></tr>
+        <tr><td>隐藏题目类型标签</td><td>为你选中的题型隐藏 <code>【题型】</code> 标记。</td></tr>
+      </tbody>
+    </table>
+    <p>题目会按你选择的顺序重新编号为 1…n，子题同样如此，打印方式与其它页面完全一致。</p>
+
+    <h2 id="habit-tracker">习惯打卡</h2>
+    <p>习惯就是在一段时间里反复记录的事，而这段时间需要一个结论：这周我达标了吗？每条习惯包含一个周期（<strong>每日</strong>、<strong>每周</strong>、<strong>每月</strong>或<strong>整段期间</strong>）、开始日期和可选的结束日期、若干用来记录的<strong>条目</strong>（每个条目有自己的<strong>属性</strong>），以及<strong>判分标准</strong>——它决定哪天算成功、整周期算不算通过。</p>
+
+    <h3>从模板创建习惯</h3>
+    <p><strong>新建习惯</strong>打开一个五步向导：<strong>模板 → 基本信息 → 条目 → 目标 → 预览</strong>。</p>
+    <ul>
+      <li>选一个模板，或选<em>自定义</em>从空白开始。</li>
+      <li>模板会填入名称、周期、条目与属性、以及目标。所有内容都可以继续编辑：改条目名、换属性类型、加第五个项目、设自己的目标。模板不会把习惯锁死。</li>
+      <li><strong>条目</strong>这一步管理你要记录的内容。属性可以是<em>是/否</em>、<em>数字</em>或<em>列表</em>（自由填写的条目，可选择按天或按周期去重）。</li>
+      <li><strong>目标</strong>这一步就是判分标准。根判分标准不同类型，你设置的是<strong>周期目标</strong>（"这周要有这么多天成功"）或<strong>阈值</strong>（"这周累计这么多公里"）。</li>
+      <li><strong>预览</strong>会用你大概会记录的打卡数据模拟一整个周期，让你在保存之前就看到进度条和结论。特殊配置下模拟结果只是近似，真实计算在服务器上进行。</li>
+    </ul>
+    <p>已经改过内容时重新选模板会先要求确认：它会替换你现有的条目和判分标准。</p>
+
+    <h3>十二个模板</h3>
+    <table>
+      <thead>
+        <tr><th>模板</th><th>周期</th><th>达标条件</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>晨练</td><td>每周</td><td>俯卧撑、深蹲、拉伸、平板支撑四项全勾满 <strong>5 天</strong></td></tr>
+        <tr><td>跑步</td><td>每周</td><td>一周内记录的里程合计达到 <strong>30</strong></td></tr>
+        <tr><td>每日阅读</td><td>每日</td><td>一天读满 <strong>20 页</strong></td></tr>
+        <tr><td>冥想</td><td>每周</td><td>有 <strong>5 天</strong>勾了当日练习</td></tr>
+        <tr><td>喝水</td><td>每日</td><td>一天喝够 <strong>8 杯</strong></td></tr>
+        <tr><td>睡眠</td><td>每周</td><td>"23 点前入睡"和"睡满 7 小时"两项全勾满 <strong>5 天</strong></td></tr>
+        <tr><td>词汇</td><td>每日</td><td>一天写下 <strong>10 个不重复</strong>的新词</td></tr>
+        <tr><td>日记</td><td>每周</td><td>晨间随笔与感恩记录两项全勾满 <strong>5 天</strong></td></tr>
+        <tr><td>力量训练</td><td>每周</td><td>四个动作全勾满 <strong>3 天</strong></td></tr>
+        <tr><td>章节阅读</td><td>整段期间</td><td>三个章节全部标记完成，何时完成不限</td></tr>
+        <tr><td>书页阅读</td><td>整段期间</td><td>各章合计读到 <strong>60 页</strong></td></tr>
+        <tr><td>课后习题</td><td>整段期间</td><td>各章合计写下 <strong>9 道不重复</strong>的习题</td></tr>
+      </tbody>
+    </table>
+    <p>三个<em>书</em>类模板特意使用<strong>整段期间</strong>：读完一本书是整个周期的目标，不必每周重复达成。</p>
+    <p>你填写的条目名和属性名会成为习惯的一部分，所以在中文界面下创建的习惯，条目名就是中文——反之亦然。</p>
+
+    <h3>打卡</h3>
+    <p>卡片上的<strong>打卡</strong>（或习惯详情页上的同名按钮）打开一次记录。每个条目是一个独立面板，控件取决于属性类型：</p>
+    <ul>
+      <li><strong>是/否</strong>——勾上即刻保存。同一属性同一条目同一天只有一个值，当天再勾一次会覆盖前一次。</li>
+      <li><strong>数字</strong>——填一个量，每次提交都会<strong>累加</strong>到当天和整期的合计里，所以三次短跑的里程会相加；同一条目一天可以记录多次。</li>
+      <li><strong>列表</strong>——一行一条。条目按顺序追加；若该属性标记为<em>按天唯一</em>，当天已记录过的内容会被拒绝。被拒绝的条目会让该条目本次的记录整条失效，并指名是哪几行；同一次会话里的其它条目照常保存，提示会告诉你哪些失败了。</li>
+    </ul>
+    <p>关于日期，这也是最容易让人意外的地方：</p>
+    <ul>
+      <li>新建的打卡可以记在<strong>今天或这段期间内更早的日子</strong>，绝不能记到未来，也不能早于开始日期。对话框在日期选择器下方写明了可打卡的区间。</li>
+      <li>一次会话只要已经记录了内容，日期就<strong>锁定</strong>：之后勾选的条目仍按你开始时的日期盖章，因为悄悄挪动会让它们对不上号。要记另一天，请关掉对话框再打开一次。</li>
+      <li><strong>已保存的打卡日期永久不变</strong>。要挪动一条记录，请在打卡历史里删掉它，再打卡到正确的日子。<strong>数值</strong>则随时可以修改——即使期间已结束、习惯已停用也一样——而当天、当周期和整份历史都由保存的打卡重新算出，所以一处修正会同步反映到所有地方。</li>
+      <li>日期按<strong>服务器</strong>的时区计算，跨时区旅行时，程序里的"今天"可能与你的本地零点不同。</li>
+    </ul>
+
+    <h3>进度、日历与编辑</h3>
+    <p>习惯卡片显示本周期的进度条、根目标的 <code>当前 / 目标</code>，周期达成时会有一个红色的达标标记；每日习惯还会显示今天自己的数值。<strong>编辑</strong>会在同一个习惯上重新打开向导。每张卡片的菜单里有<em>分享</em>、<em>停用</em>和<em>删除</em>。</p>
+    <p><strong>日历</strong>页按月、按周或按天铺开打卡记录，让你一眼看出一个月的形状，而不必去读一根根进度条。</p>
+    <p><strong>停用</strong>会把习惯永久设为只读——历史保留，不能再打卡，也无法重新启用，因此它会要求确认。<strong>删除</strong>会连同条目、判分标准和全部打卡历史一起移除；一旦该习惯已分享给别人，删除会被拒绝。</p>
+
+    <h3>分享习惯</h3>
+    <p>卡片菜单里的<em>分享…</em>可以邀请指定用户（按显示名搜索；程序只能看到名字和一个 id，看不到邮箱）。邀请立即生效，也可以立即撤销。被邀请者得到的是<strong>待我共享</strong>页面上该习惯的<strong>只读</strong>视图：完整打卡历史都在，注明作者，但所有写入入口都去掉了——他不能打卡、编辑、分享或删除，也看不到你还把它分享给了谁。分享不转移所有权，同一个人重复邀请也不会产生第二条记录。</p>
+
+    <h2 id="account">账号、语言与评分</h2>
+
+    <h3>登录</h3>
+    <p>导航栏右端是<em>登录</em>；登录之后显示你的名字，菜单里有<strong>我的账号</strong>和<strong>退出</strong>。账号页面列出最近一个季度里登录过的日子，这是审视自己坚持程度最省事的办法。</p>
+    <p>身份验证与本网站其它页面用的是同一个账号服务。登录失败或连接断开时，导航栏下方会出现一条提示和重试按钮，你也可以直接关掉它。</p>
+
+    <h3>邀请码，以及哪些功能需要它</h3>
+    <p>盾牌图标打开一个填<strong>邀请码</strong>的小对话框。只有 AI 功能需要它——句子页面的"讲解"和与 AI 对话，以及公式页面生成的测验。上文介绍的一切都无需邀请码：词汇复习、拼写、听写、自己组卷的测验、练习纸、中文与知识库打印、整个习惯打卡。没有录音时发音改用浏览器语音引擎，因此也不额外收费。</p>
+    <p>退出登录会清除邀请码，同时清掉缓存的习惯与评分。</p>
+
+    <h3>语言</h3>
+    <p>语言控制项在<strong>English</strong> 与 <strong>中文</strong> 之间切换界面文字，选择会被记住，下次访问仍然有效。本页也跟随它——你正在读的这份指南就是你所选语言对应的文档。</p>
+    <p>学习内容本身不会被翻译：单词文件里的中文栏和英文栏是文件自带的数据，不是界面文字。</p>
+
+    <h3>你的数据去了哪里</h3>
+    <p>评分、习惯、打卡和登录记录都按用户保存在学习 API 上，一切都不是匿名的：其他用户看不到它们，即使猜到编号也不行——唯一的例外是你主动分享出去的习惯。清理浏览器存储不会影响这些记录，它们存在服务器端，所以换一台机器登录，同一条习惯可以继续打卡。</p>
+  </div>
+} @else {
+  <!-- ══ English ══ (mirror of the Chinese branch: same sections, ids and TOC order) -->
+  <div class="app-markdown markdown-content">
+    <div class="help-toc">
+      <a [routerLink]="[]" [fragment]="'quick-start'">Quick start</a>
+      <a [routerLink]="[]" [fragment]="'vocabulary'">Vocabulary</a>
+      <a [routerLink]="[]" [fragment]="'chinese'">Chinese</a>
+      <a [routerLink]="[]" [fragment]="'knowledge-bank'">Knowledge Bank</a>
+      <a [routerLink]="[]" [fragment]="'habit-tracker'">Habit tracker</a>
+      <a [routerLink]="[]" [fragment]="'account'">Account, language and ratings</a>
+    </div>
+
+    <h2 id="quick-start">Quick start</h2>
+    <ol>
+      <li><strong>Sign in</strong> with the button at the right of the navigation bar. Everything except this page and the home page needs an account, because your ratings, worksheets and habits are stored per user.</li>
+      <li><strong>Choose a destination</strong> in the navigation bar: Vocabulary, Sentences, Listening, Chinese, Formula, Knowledge Bank or Habits. On a phone the same list is in the ☰ drawer.</li>
+      <li><strong>Pick a file</strong> in the <code>Files</code> selector in the page's toolbar. The table fills with rows and the counters next to the selector tell you what you are looking at: <strong>Items</strong> (everything in the file), <strong>Filtered</strong> (what the current filter leaves visible) and <strong>Selected</strong> (rows you have ticked).</li>
+      <li><strong>Narrow the list, then tick the rows</strong> you want to work on. Every exercise mode follows the same rule: if you have ticked rows, it uses exactly those; if you have ticked nothing, it uses the rows the filter leaves visible.</li>
+      <li><strong>Start a session</strong> from the <code>Exercises</code> menu — review, spell, dictate, quiz or print.</li>
+    </ol>
+    <p>Each section below describes one page. The habit tracker is at the end, together with the twelve ready-made templates.</p>
+
+    <h2 id="vocabulary">Vocabulary</h2>
+    <p>Word lists with an English side and a Chinese side, one file per unit or word book. Everything here is also what the Chinese and Knowledge Bank pages do — only the fields differ.</p>
+
+    <h3>Filter the list</h3>
+    <p>Two things filter the table, and they combine:</p>
+    <ul>
+      <li><strong>The free-text box</strong> matches one phrase anywhere in the row's id, English word or Chinese meaning. It is a plain "contains" test, case-insensitive, and it does not restart the table while you are still composing characters with an input method.</li>
+      <li><strong><code>Filter ▾</code></strong> opens the condition editor. The menu's first item is labelled <em>New</em> when you have no filter and shows a summary of the current one otherwise; <em>Clear</em> removes the condition tree (it leaves the free-text box alone).</li>
+    </ul>
+    <p>Inside the dialog, the left pane is the tree and the right pane edits whichever node you select:</p>
+    <table>
+      <thead>
+        <tr><th>Node</th><th>What you can set</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>Condition</td><td>A property, an operator and a value. Vocabulary offers <strong>Word</strong>, <strong>Chinese</strong> and <strong>Rating</strong>. Text properties support <em>starts with</em>, <em>contains</em>, <em>equal</em>, <em>ends with</em> and <em>is phrase</em> (matches a multi-word entry). Rating (0–5) supports <em>≥</em>, <em>&gt;</em>, <em>=</em>, <em>≤</em>, <em>&lt;</em> and <em>between</em>.</td></tr>
+        <tr><td>Group</td><td>Whether its members are joined by <strong>AND</strong> or <strong>OR</strong>, and which rows and nested groups belong to it. A group needs at least two members.</td></tr>
+      </tbody>
+    </table>
+    <p>Use the three buttons above the tree to add a condition, add a group, or delete the selected node. The line at the bottom shows the whole expression as the app reads it, for example <code>word contains app AND (chinese contains 派 OR rating &gt;= 3)</code>. <strong>Submit</strong> is blocked while a value is missing or a group has fewer than two members; <em>Cancel</em> keeps the previous filter untouched.</p>
+    <p>Filtering never deletes anything — it only decides which rows are on screen, and that set is what the next exercise or worksheet will draw from.</p>
+
+    <h3>Select the rows you want</h3>
+    <p><code>Selection ▾</code> offers four ways in:</p>
+    <ul>
+      <li><strong>Select Randomly</strong> — enter a count, get that many rows picked from the visible ones in random order.</li>
+      <li><strong>Select Sequentially</strong> — a count plus an offset, i.e. "take 20 rows starting at row 40" of the currently sorted, visible list.</li>
+      <li><strong>Select by Words</strong> — paste a list separated by commas, spaces or new lines; matching rows are ticked and phrases like <code>apple pie</code> survive intact. Nothing is selected if none of the words match, so a bad paste never wipes a good selection.</li>
+      <li><strong>Clear Selection</strong>.</li>
+    </ul>
+    <p>The header checkbox ticks or clears every row currently visible, and sorting or paging keeps your selection.</p>
+
+    <h3>Exercises</h3>
+    <p>Every item opens an options dialog first; it remembers what you chose last time. The queue rule is always: <strong>ticked rows first (all of them, shuffled), otherwise the visible rows capped by the count you entered.</strong></p>
+    <ul>
+      <li><strong>Review</strong> — flashcard mode: the English word, then play its audio and reveal the meaning; the explanation (part of speech + Chinese sense) and bilingual example sentences appear as two tables below, as wide as the toolbar. Options: count, <em>Disable Voice</em>, <em>Hide Explanation</em> (the two cannot both be off, or there would be nothing to learn from). Everything you touch sits in one toolbar: the progress bar with the position in the queue (e.g. <code>3 / 20</code>), the <strong>Review</strong> label, the <strong>1–5 rating buttons</strong> for the current word, and six icon buttons (a seventh, Stop, appears while auto play is on) — <strong>Auto Play settings</strong> (tune: seconds per item, whether auto play visits the words in a random order — that only changes the auto-play walk, never the list or manual browsing — and how many example sentences (0–10) the browser reads aloud), <strong>Play/Pause</strong> (Auto Play has three states — stopped by default, playing, paused: play starts from the first word, the same button pauses on the current word silencing all audio, pressing again resumes it), <strong>Stop</strong> (ends the cycle and leaves you browsing manually; only visible while playing or paused), <strong>Re-read</strong> (plays the current word and its sentences again), previous / next / quit. Each <em>item</em> is the word plus its read sentences; the interval is the seconds between items, and a tick always waits for the current item's reading to finish before advancing. The progress counts your place in the current run — with random order on, the bar tracks the shuffle, so finishing the whole run shows 100% (not the random queue slot the last word happened to sit in). Changing the interval during a run applies immediately (the item on screen is re-timed); the sentence count takes effect from the next item, and the random order the next time you start. The sentence being read is highlighted in the table and kept on screen. Leaving the page stops auto play.</li>
+      <li><strong>Worksheet</strong> — the printable form, see below.</li>
+      <li><strong>Spelling</strong> — type the word letter by letter while it is spoken. A correct letter reveals with a click; a wrong one is beeped and marks the word incorrect; <code>Backspace</code> hides the last letter again. The <em>Hint</em> button reveals the current letter (at the cost of marking the word incorrect) and <em>Next Word</em> skips. When the queue runs out you get a score and a per-word list.</li>
+      <li><strong>Dictation</strong> — fully automatic: a word is spoken every five seconds, you write it down, and the answer list appears at the end.</li>
+      <li><strong>Quiz</strong> — single-choice questions in the direction you pick, English→Chinese or Chinese→English. Four options come from the rows currently visible, so filtering to a unit makes the quiz about that unit. Answer by clicking or with <code>1</code>–<code>4</code> / <code>A</code>–<code>D</code>; <code>Enter</code> or <code>→</code> goes on, <code>←</code> comes back to revisit. Questions that cannot gather three distinct alternatives are skipped.</li>
+    </ul>
+    <p>Keyboard shortcuts while a session is open:</p>
+    <table>
+      <thead>
+        <tr><th>Key</th><th>Review</th><th>Quiz</th></tr>
+      </thead>
+      <tbody>
+        <tr><td><code>←</code> / <code>→</code></td><td>previous / next word</td><td>previous / next question</td></tr>
+        <tr><td><code>↑</code> / <code>↓</code></td><td>rate the word one star up / down</td><td>—</td></tr>
+        <tr><td><code>1</code>–<code>5</code></td><td>set the rating directly</td><td>—</td></tr>
+        <tr><td><code>Enter</code></td><td>—</td><td>next question (after answering)</td></tr>
+        <tr><td><code>Esc</code></td><td>quit to the list</td><td>—</td></tr>
+      </tbody>
+    </table>
+
+    <h3>Print a worksheet</h3>
+    <ol>
+      <li>Tick rows or set a filter (otherwise all visible rows are used).</li>
+      <li><code>Exercises ▾</code> → <strong>Worksheet</strong>, then choose: count, a sub-title printed under the heading, <em>Print First Letter</em> (each blank starts with its first letter) and <em>Uniform Blank Length</em> with its width, which hides how long each word is.</li>
+      <li>Confirm and the app opens the print sheet: numbered lines of <code>1. &lt;meaning&gt; f________</code>, then a page break and the answer key.</li>
+      <li>Press <strong>Print</strong> at the top right. Only the sheet itself goes to the paper — the navigation bar, the counters and the buttons do not.</li>
+    </ol>
+    <p>One caution: the sheet is assembled in memory. If you reload that page it disappears and sends you back to the list, so print or save to PDF before you navigate away.</p>
+
+    <h3>Ratings and audio</h3>
+    <p>The last column of every row is a <strong>1–5 rating</strong>, saved to your account for that word in that file. Ratings are how you mark "I keep getting this one wrong": they drive the <em>Rating</em> filter condition, and they travel with you to the review queue. Clicking the active value again does nothing — a word is either rated or unrated, and unrated counts as zero when you filter.</p>
+    <p>Pronunciation comes from recorded audio where the app has it and falls back to your browser's own speech voices otherwise, so nothing needs an invitation code.</p>
+
+    <h2 id="chinese">Chinese</h2>
+    <p>Classical and modern Chinese reading material: each row is a text with its subject, author, source and content. The mechanics are the same as Vocabulary — file selector, free text, <code>Filter ▾</code>, <code>Selection ▾</code> — with these fields instead:</p>
+    <ul>
+      <li><strong>Subject</strong>, <strong>Author</strong> and <strong>Content</strong> filter as text (starts with / contains / equal / ends with).</li>
+      <li><strong>Rating</strong> works exactly like the vocabulary one.</li>
+      <li>The free-text box searches id, subject, author, content and source.</li>
+      <li><code>Selection ▾</code> has <em>Select All Visible</em> instead of <em>Select by Words</em>.</li>
+    </ul>
+
+    <h3>Print</h3>
+    <p><code>Exercises ▾</code> → <strong>Print</strong> opens the options dialog. The important choice is <strong>Level</strong>, which decides how much of each text is blanked out: Easy hides about a fifth of the characters, Medium a half, Hard four fifths, and Full hides everything (the text becomes an answer key you dictate from). <em>One Answer per Line</em> puts each restored character group on its own line in the key, which is what you want when students write on the sheet itself.</p>
+    <p>The output is the same printable sheet as the vocabulary worksheet: prompt lines first, a page break, then the answer key.</p>
+    <p>Two honest notes for this page: the <em>Recite</em> item currently opens its options dialog but does not start a session, and <em>Print Entry Date</em> / <em>Exec. Date Option</em> are collected but do not change the printed sheet yet.</p>
+
+    <h2 id="knowledge-bank">Knowledge Bank</h2>
+    <p>Questions rather than words: each row carries a type (single choice, fill in the blank, and so on), a difficulty, an estimated time, tags, the question itself, its answer, optional hints and extra material.</p>
+
+    <h3>Filter and select</h3>
+    <ul>
+      <li>The free-text box here is <strong>multi-term</strong>: separate words with spaces and every one of them must appear somewhere in the row — in the question, the options, the answer, a hint, the extra info or a sub-item. A row matches only if all your terms match.</li>
+      <li><code>Filter ▾</code> offers <strong>ID</strong> (text operators), <strong>Type</strong> (tick any of the question types; several ticks mean "this type OR that type"), <strong>Tags</strong> (text operators) and <strong>Rating</strong>.</li>
+      <li><code>Selection ▾</code> adds <strong>Select by ID</strong>: paste a list of question numbers, and the rows that exist in the current file are ticked. <em>Select All Visible</em> and <em>Clear Selection</em> are there as well.</li>
+    </ul>
+
+    <h3>Browse a question</h3>
+    <p>Click a row's <strong>ID</strong> button to open the exercise view, or the icon in the <em>Extra Info</em> column to see only that material. Both screens have previous / next / back-to-list on the toolbar, and the exercise view adds <strong>Toggle Answer</strong> and <strong>Toggle Hint of Answer</strong> for the selected question. Formulas render as mathematics when the file is marked as containing them, and figures stored next to the file are shown inline.</p>
+
+    <h3>Print</h3>
+    <p><strong>Print</strong> stays disabled until you tick at least one row — a whole question bank is not a worksheet. The options dialog then asks for:</p>
+    <table>
+      <thead>
+        <tr><th>Option</th><th>Effect</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>Title</td><td>Heading printed on the sheet; pre-filled with the file's name.</td></tr>
+        <tr><td>Shuffle Options in Selection</td><td>Re-orders the choices of every multiple-choice question, on by default.</td></tr>
+        <tr><td>Print Answer</td><td>Appends the answer key after a page break.</td></tr>
+        <tr><td>Print Hint of Answer</td><td>Prints each stored hint under its question.</td></tr>
+        <tr><td>Print Score</td><td>Adds the Date / Duration / Score blanks at the top.</td></tr>
+        <tr><td>Hide Question Type's Label</td><td>Suppresses the <code>【type】</code> tag for the question types you pick.</td></tr>
+      </tbody>
+    </table>
+    <p>Questions are renumbered 1…n in the order you selected them, sub-items too, and the sheet prints the same way as every other page's worksheet.</p>
+
+    <h2 id="habit-tracker">Habit tracker</h2>
+    <p>A habit is something you record repeatedly for a period, and the period needs a verdict: did I make it this week? The tracker stores one habit with a cycle (<strong>daily</strong>, <strong>weekly</strong>, <strong>monthly</strong> or <strong>whole period</strong>), a start date and an optional end date, one or more <strong>items</strong> you log against (each with its own <strong>properties</strong>), and <strong>criteria</strong> that decide when a day counts and when the whole cycle passes.</p>
+
+    <h3>Create a habit from a template</h3>
+    <p><strong>New Habit</strong> opens a wizard with five steps — <strong>Template → Basics → Items → Targets → Preview</strong>.</p>
+    <ul>
+      <li>Pick a template, or <em>Custom</em> to start from an empty habit.</li>
+      <li>The template fills in the name, the cycle, the items and properties, and the goal. Everything stays editable: rename the items, change a property's type, add a fifth exercise, set your own target. Nothing about a template locks the habit.</li>
+      <li><strong>Items</strong> is where you add or rename what you log. A property is <em>yes/no</em>, a <em>number</em>, or a <em>list</em> (free-text entries, optionally unique per day or per cycle).</li>
+      <li><strong>Targets</strong> is the goal itself. Depending on the root criterion you set either a <strong>cycle target</strong> ("this many successful days in the week") or a <strong>threshold</strong> ("this many kilometres in the week").</li>
+      <li><strong>Preview</strong> simulates a period from the punches you would plausibly record, so you can see the progress bar and the verdict before you commit. The simulation is approximate for exotic setups; the real calculation happens on the server.</li>
+    </ul>
+    <p>Re-picking a template while you have edited something asks for confirmation first: it replaces your items and criteria.</p>
+
+    <h3>The twelve templates</h3>
+    <table>
+      <thead>
+        <tr><th>Template</th><th>Cycle</th><th>What makes it pass</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>Morning exercise</td><td>weekly</td><td>all four of push-ups, squats, stretching and plank ticked on <strong>5 days</strong></td></tr>
+        <tr><td>Running</td><td>weekly</td><td>logged distance adds up to <strong>30</strong> in the week</td></tr>
+        <tr><td>Daily reading</td><td>daily</td><td><strong>20 pages</strong> in a day</td></tr>
+        <tr><td>Meditation</td><td>weekly</td><td>the session ticked on <strong>5 days</strong></td></tr>
+        <tr><td>Drink water</td><td>daily</td><td><strong>8 glasses</strong> in a day</td></tr>
+        <tr><td>Sleep hygiene</td><td>weekly</td><td>both "in bed before 23:00" and "7+ hours" ticked on <strong>5 days</strong></td></tr>
+        <tr><td>Vocabulary</td><td>daily</td><td><strong>10 different new words</strong> written down in a day</td></tr>
+        <tr><td>Journaling</td><td>weekly</td><td>both morning pages and the gratitude entry ticked on <strong>5 days</strong></td></tr>
+        <tr><td>Strength training</td><td>weekly</td><td>all four lifts ticked on <strong>3 days</strong></td></tr>
+        <tr><td>Book chapters</td><td>whole period</td><td>all <strong>3 chapters</strong> marked completed, whenever they land</td></tr>
+        <tr><td>Book pages</td><td>whole period</td><td>the chapters together reach <strong>60 pages</strong></td></tr>
+        <tr><td>Book exercises</td><td>whole period</td><td><strong>9 distinct exercises</strong> written down across the chapters</td></tr>
+      </tbody>
+    </table>
+    <p>The three <em>Book</em> templates use a <strong>whole-period</strong> cycle on purpose: finishing one book is a goal for the whole period, not something that has to repeat every week.</p>
+    <p>Names you type for items and properties become part of the habit, so a habit created while the interface is in Chinese carries Chinese item names — and vice versa.</p>
+
+    <h3>Punching</h3>
+    <p><strong>Punch</strong> on a card (or on the habit's page) opens one session. Each item is a panel of its own, and the control depends on the property's type:</p>
+    <ul>
+      <li><strong>Yes/no</strong> — tick it and it saves immediately. One value per property per item per day; a second tick the same day replaces the first.</li>
+      <li><strong>Number</strong> — enter an amount; each submission is <strong>added</strong> to the day's and the cycle's running total, so three short runs add up. You can log the same item several times a day.</li>
+      <li><strong>List</strong> — one entry per line. Entries are appended, and if the property is marked <em>unique per day</em> an entry you already recorded that day is rejected. A rejected entry discards that item's whole record for the session and names the offending lines; other items in the same session are saved anyway, and the message tells you which ones failed.</li>
+    </ul>
+    <p>About dates, which is where people get surprised:</p>
+    <ul>
+      <li>New punches may be dated <strong>today or any earlier day inside the habit's window</strong>, never a future day, and never before the start date. The dialog spells out the punchable range under the picker.</li>
+      <li>Once a session has recorded something, its date <strong>locks</strong> for the rest of that session: items you tick afterwards are stamped with the date you started with, because silently moving them would mislabel them. Close the dialog and open it again for another day.</li>
+      <li>A <strong>stored punch keeps its date forever</strong>. To move a record, delete it in the punch history and punch the right day. Editing the <em>values</em> of a past punch is always allowed — even after the period has ended or the habit was deactivated — and the day, the cycle and the history are recomputed from the stored punches, so a correction shows up everywhere at once.</li>
+      <li>Days are counted in the <strong>server's</strong> timezone, so "today" can differ from your local midnight if you travel.</li>
+    </ul>
+
+    <h3>Progress, calendar, editing</h3>
+    <p>Habit cards show a progress bar for the current cycle, the root goal as <code>current / target</code>, and a red <em>passed</em> mark when the cycle is satisfied; daily habits also show today's own value. <strong>Edit</strong> reopens the wizard on the same habit. The menu on each card holds <em>Shares…</em>, <em>Deactivate</em> and <em>Delete</em>.</p>
+    <p>The <strong>Calendar</strong> page plots punches over a month, a week or a single day, so you can see the shape of a month at a glance rather than reading bars.</p>
+    <p><strong>Deactivate</strong> makes a habit read-only for good — history stays, no new punches, no reactivation, which is why it asks for confirmation. <strong>Delete</strong> removes the habit with its items, criteria and entire punch history, and is refused once the habit has been shared with somebody.</p>
+
+    <h3>Sharing a habit</h3>
+    <p><em>Shares…</em> on a habit card lets you invite a named user (search by display name; the app only sees the name and an id, never an email address). The invitation takes effect immediately and can be revoked immediately. What the invited person gets is the <strong>Shared with me</strong> page: a read-only view of that habit and its full punch history, credited to its owner, with every write affordance removed — they cannot punch, edit, share or delete it, and they cannot see who else it was shared with. Sharing does not transfer ownership, and a second invitation to the same person is a no-op.</p>
+
+    <h2 id="account">Account, language and ratings</h2>
+
+    <h3>Signing in</h3>
+    <p>The right end of the navigation bar holds <em>Sign in</em>, and once you are in, your name with a menu for <strong>My account</strong> and <strong>Sign out</strong>. Your account page lists the days you have signed in over the last quarter, which is a cheap way to watch your own consistency.</p>
+    <p>The identity provider is the same account service behind the other pages on this site. If a sign-in fails or the connection is lost, a bar appears under the navigation with a retry; you can dismiss it.</p>
+
+    <h3>The invitation code, and what needs one</h3>
+    <p>The shield button opens a small dialog for an <strong>invitation code</strong>. Only the AI features ask for it — the "Explain" and chat helpers on the sentence pages and the generated quizzes on the formula page. Everything described above — vocabulary review, spelling, dictation, quizzes you assemble yourself, worksheets, Chinese and Knowledge Bank printing, the whole habit tracker — runs without a code. Audio uses your browser's speech engine when no recording exists, so it is also free.</p>
+    <p>Signing out clears the code, along with the cached habits and ratings.</p>
+
+    <h3>Language</h3>
+    <p>The language control switches the interface between <strong>English</strong> and <strong>中文</strong>, and the choice is remembered for the next visit. This page follows it too — the guide you are reading is the document that belongs to your language.</p>
+    <p>Exercise content itself is not translated: a word file's Chinese column and an English column are data that came with the file, not interface text.</p>
+
+    <h3>Where your data goes</h3>
+    <p>Ratings, habits, punches and sign-in days are stored per user on the learning API, and nothing is anonymous: another user cannot see them, not even by guessing an id — with the single exception of the habits you deliberately share. Clearing the browser's storage changes nothing about them; the records live server-side, which is why you can sign in from another machine and continue the same habit.</p>
+  </div>
+}

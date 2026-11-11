@@ -13,6 +13,7 @@ import { MatInputModule } from '@angular/material/input';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSnackBar } from '@angular/material/snack-bar';
+import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatDateFnsModule, provideDateFnsAdapter } from '@angular/material-date-fns-adapter';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { TranslocoModule, TranslocoService } from '@jsverse/transloco';
@@ -52,6 +53,7 @@ import { HabitService } from './habit.service';
     MatFormFieldModule,
     MatInputModule,
     MatProgressBarModule,
+    MatTooltipModule,
     MatProgressSpinnerModule,
     TranslocoModule,
     HabitCriterionSummaryComponent,
@@ -71,7 +73,8 @@ import { HabitService } from './habit.service';
         @let rootCriterion = root(h);
 
         <div class="detail-header">
-          <a mat-icon-button routerLink="/habits/shared" [attr.aria-label]="t('habits.shared.detailBack')">
+          <a mat-fab class="toolbar-fab-button" routerLink="/habits/shared"
+             [matTooltip]="t('habits.shared.detailBack')" [attr.aria-label]="t('habits.shared.detailBack')">
             <mat-icon>arrow_back</mat-icon>
           </a>
           <h1 class="detail-title">{{ h.name }}</h1>
@@ -225,7 +228,8 @@ import { HabitService } from './habit.service';
       } @else {
         <div class="detail-empty">
           <p>{{ t('habits.errors.notFound') }}</p>
-          <a mat-stroked-button routerLink="/habits/shared">
+          <a mat-fab extended class="toolbar-fab-button" routerLink="/habits/shared"
+             [matTooltip]="t('habits.shared.detailBack')" [attr.aria-label]="t('habits.shared.detailBack')">
             <mat-icon>arrow_back</mat-icon> {{ t('habits.shared.detailBack') }}
           </a>
         </div>

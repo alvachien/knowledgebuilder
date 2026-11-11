@@ -9,7 +9,7 @@ This document describes the **as-built** architecture of the vocabulary exercise
 
 ## 1. Design goals
 
-The page is a single route (`/vocabulary`, `canActivate: [AuthGuardService]`) that supports four study modes over one loaded word file: **Review** (flashcard auto-play), **Spelling** (letter-by-letter typing), **Quiz** (single-choice EN↔CN), and **Worksheet** (printable fill-in-the-blank, handed off to the knowledge-display page). Over the same file the user can also filter, sort, select, and rate words.
+The page is a single route (`/vocabulary`, `canActivate: [AuthGuardService]`) that supports five study modes over one loaded word file: **Review** (flashcard auto-play), **Spelling** (letter-by-letter typing), **Dictation** (passive listen-and-check playback), **Quiz** (single-choice EN↔CN), and **Worksheet** (printable fill-in-the-blank, handed off to the knowledge-display page). Over the same file the user can also filter, sort, select, and rate words.
 
 The decomposition targets four concerns:
 
@@ -24,7 +24,7 @@ The decomposition targets four concerns:
 
 ```
 VocabularyExercisesComponent (container)
-│  providers: [VocabularySpellingSessionStore, VocabularyReviewSessionStore, VocabularyQuizSessionStore]
+│  providers: [VocabularySpellingSessionStore, VocabularyReviewSessionStore, VocabularyQuizSessionStore, VocabularyDictationSessionStore]
 │  owns: dataSource, selection, contentRatingMap, filters, mode
 │
 ├─ @switch (mode()) ─────────────────────────────────────────────
@@ -36,12 +36,13 @@ VocabularyExercisesComponent (container)
 │   │                        outputs: fileSelectionChanged, freeTextChanged, defineFilter,
 │   │                                 clearFilter,
 │   │                                 quickSelect, allRowsToggled, contentRatingChanged,
-│   │                                 review, worksheet, spelling, quiz,
+│   │                                 review, worksheet, spelling, dictation, quiz,
 │   │                                 downloadTemplate, addFileClick, tempFileSelected
 │   │
 │   ├─ 'review' ───────► VocabularyExercisesReviewSessionComponent
 │   │                        injects: VocabularyReviewSessionStore  (shared w/ container)
 │   │                        input: hideExplain    output: quit
+│   │                        opens: AutoPlayOptionsDialog (tune fab in its own toolbar)
 │   │
 │   ├─ 'spelling' ─────► VocabularyExercisesSpellingSessionComponent
 │   │                        injects: VocabularySpellingSessionStore (shared w/ container)
@@ -49,6 +50,15 @@ VocabularyExercisesComponent (container)
 │   │
 │   ├─ 'spellingresult' ► VocabularyExercisesSpellingResultComponent
 │   │                        injects: VocabularySpellingSessionStore
+│   │                        output: backToList
+│   │
+│   ├─ 'dictation' ────► VocabularyExercisesDictationSessionComponent
+│   │                        injects: VocabularyDictationSessionStore (shared w/ container)
+│   │                        output: quit  (Escape-to-quit via document:keyup @HostListener)
+│   │                        passive session: marks learning-time activity per word advance
+│   │
+│   ├─ 'dictationresult' ► VocabularyExercisesDictationResultComponent
+│   │                        injects: VocabularyDictationSessionStore
 │   │                        output: backToList
 │   │
 │   ├─ 'quiz' ─────────► VocabularyExercisesQuizSessionComponent
@@ -64,15 +74,18 @@ VocabularyExercisesComponent (container)
     ├─ VocabularyExercisesReviewOptionsDialogComponent
     ├─ VocabularyExercisesSpellingOptionsDialogComponent
     ├─ VocabularyExercisesQuizOptionsDialogComponent
+    ├─ VocabularyExercisesDictationOptionsDialogComponent
     ├─ VocabularyExercisesWorksheetOptionsDialogComponent
+    ├─ VocabularyExercisesAutoPlayOptionsDialogComponent (the one exception: opened by the review session screen, not the container)
     └─ SharedFilterDialogComponent (src/app/shared/filter-dialog, schema-driven)
 ```
 
-The container's `mode` signal is the screen router. It has six values:
+The container's `mode` signal is the screen router. It has eight values:
 
 ```ts
 export type VocabularyExercisesMode =
-  'list' | 'review' | 'spelling' | 'spellingresult' | 'quiz' | 'quizresult';
+  'list' | 'review' | 'spelling' | 'spellingresult'
+  | 'dictation' | 'dictationresult' | 'quiz' | 'quizresult';
 ```
 
 The template renders exactly one screen:
@@ -82,6 +95,8 @@ The template renders exactly one screen:
   @case ('review')         { <app-vocabulary-exercises-review-session ...> }
   @case ('spelling')       { <app-vocabulary-exercises-spelling-session ...> }
   @case ('spellingresult') { <app-vocabulary-exercises-spelling-result ...> }
+  @case ('dictation')        { <app-vocabulary-exercises-dictation-session ...> }
+  @case ('dictationresult') { <app-vocabulary-exercises-dictation-result ...> }
   @case ('quiz')           { <app-vocabulary-exercises-quiz-session ...> }
   @case ('quizresult')     { <app-vocabulary-exercises-quiz-result ...> }
   @default                 { <app-vocabulary-exercises-word-list ...> }   <!-- 'list' -->
@@ -96,7 +111,7 @@ Because `@switch` destroys the screen it leaves, a session screen's `@HostListen
 
 File: `vocabulary-exercises.component.ts` · template: `vocabulary-exercises.component.html`
 
-The container is the single source of truth for cross-cutting state and the orchestrator of all dialog flows and screen transitions. It does **not** own session state — that lives in the three stores, which it `provide`s in its `providers` array so the container and its session screens share one instance per page instance:
+The container is the single source of truth for cross-cutting state and the orchestrator of all dialog flows and screen transitions. It does **not** own session state — that lives in the four stores, which it `provide`s in its `providers` array so the container and its session screens share one instance per page instance:
 
 ```ts
 @Component({
@@ -120,7 +135,7 @@ The container is the single source of truth for cross-cutting state and the orch
 | `filterDefinition` | `signal<FilterRoot>` | The actslib filter root from the shared filter dialog — a group definition (word/rating leaves in AND/OR-joined groups), or a bare condition for a single-condition filter; starts at `emptyVocabularyFilterDefinition()` (case 0). |
 | `listFilterCriteria` | `private VocabularyListFilter \| null` | Parsed form of the active filter; kept in sync with `dataSource.filter` so the row predicate does not `JSON.parse` per row. `null` = no filter. |
 | `studyContentId` | `number` | Backend `ContentId` of the loaded file. Temp uploads get a **negative** id, which disables every `studyContentId > 0` rating guard. |
-| `reviewSetting` / `spellingSetting` / `quizSetting` / `worksheetSetting` | option objects | Persisted settings round-tripped by the options dialogs. |
+| `reviewSetting` / `spellingSetting` / `dictationSetting` / `quizSetting` / `worksheetSetting` | option objects | Persisted settings round-tripped by the options dialogs. |
 | `fileLoadToken` | `private number` | Monotonic token for last-click-wins file loads. |
 | `pendingContentRatings` | `private Map<number, number>` | Latest requested rating per item; drops stale upsert responses. |
 | `isDestroyed` | `private boolean` | Guards the `FileReader.onload` callback (which has no `takeUntilDestroyed`) from writing to a destroyed component. |
@@ -144,7 +159,7 @@ The container is the single source of truth for cross-cutting state and the orch
 
 ### 3.4 Queue preparation — `prepareWordQueue`
 
-Shared by Review, Spelling, Worksheet, and Quiz. The contract: **explicit table selection bypasses capping; otherwise the visible (filtered) rows are shuffled and capped to `countOfItems`**.
+Shared by Review, Spelling, Dictation, Worksheet, and Quiz. The contract: **explicit table selection bypasses capping; otherwise the visible (filtered) rows are shuffled and capped to `countOfItems`**.
 
 ```ts
 private prepareWordQueue<T>(items: T[], options: VocabularyOptionCore): T[] {
@@ -161,6 +176,7 @@ Each exercise's `on…Core()` method follows the same shape:
 
 - **Review** (`onReviewCore`): selection → shuffle; else `prepareWordQueue(getVisibleData(), reviewSetting)`. Maps rows to `ReviewQueueItem` (carrying `itemId` for rating persistence). Calls `reviewStore.start(queue, disableVoice, studyContentId)`; on `true`, `mode.set('review')`.
 - **Spelling** (`onSpellingStart`): same selection/`prepareWordQueue` logic over `coverContentToQueue(...)` (rows → `VocabularySpellingQueue`). `spellingStore.start(items, disableVoice)` → `mode.set('spelling')`.
+- **Dictation** (`onDictationStart`): same selection/`prepareWordQueue` logic over `coverContentToQueue(...)` with `dictationSetting` (count only — no voice/explain toggles). `dictationStore.start(items)` begins the 5-second speak interval → `mode.set('dictation')`; an empty queue stays on the list.
 - **Quiz** (`onQuizStart`): builds the question queue via `prepareWordQueue`, then `buildVocabularyQuizQuestions(sourceItems, pool, direction)` where `pool` is the visible rows (fallback to whole file if a stale selection outlived its filter). `quizStore.start(questions)` → `mode.set('quiz')`.
 - **Worksheet** (`onNewWorksheetCore`): builds `KnowledgeExerciseFileContent` fill-in-the-blank items, packs a `KnowledgeExercisePrintOption`, hands them to `uiService.setSelectedExerciseItem(...)`, and navigates to `/knowledge/displayv2` (a different page). See §15 for the full flow, the renderer, and blank-length behavior.
 
@@ -168,19 +184,21 @@ Each exercise's `on…Core()` method follows the same shape:
 
 ### 3.5 Screen transitions
 
-Mode is set imperatively by the container, not by the stores (the stores cannot switch screens). Two `effect()`s in the constructor watch for completion:
+Mode is set imperatively by the container, not by the stores (the stores cannot switch screens). Three `effect()`s in the constructor watch for completion:
 
 ```ts
-effect(() => { if (this.spellingStore.isComplete() && this.mode() === 'spelling') this.mode.set('spellingresult'); });
+effect(() => { if (this.spellingStore.isComplete() && this.mode() === 'spelling')   this.mode.set('spellingresult');   });
+effect(() => { if (this.dictationStore.isComplete() && this.mode() === 'dictation') this.mode.set('dictationresult');  });
 effect(() => { if (this.quizStore.isComplete()   && this.mode() === 'quiz')      this.mode.set('quizresult');   });
 ```
 
 Quitting returns to `'list'` and resets the store:
 
 ```ts
-onQuitReview()   { merge confirmed ratings back into contentRatingMap; mode.set('list'); }
-onQuitSpelling() { spellingStore.reset(); mode.set('list'); }
-onQuitQuiz()     { quizStore.reset();     mode.set('list'); }
+onQuitReview()     { merge confirmed ratings back into contentRatingMap; mode.set('list'); }
+onQuitSpelling()   { spellingStore.reset();   mode.set('list'); }
+onQuitDictation()  { dictationStore.reset();  mode.set('list'); }   // also cancels the speak interval
+onQuitQuiz()       { quizStore.reset();       mode.set('list'); }
 ```
 
 ### 3.6 Dialog orchestration
@@ -199,39 +217,51 @@ Each options dialog receives `{ wordQueueCount, withSelection, currentSettings }
 
 ## 4. Signal stores
 
-Three `@Injectable()` classes (intentionally **not** `providedIn: 'root'` — the container `provide`s them so the session and result screens share one instance scoped to the page). State is signal-based: no manual change-detection nudges. They are imported directly, not via the barrel.
+Four `@Injectable()` classes (intentionally **not** `providedIn: 'root'` — the container `provide`s them so the session and result screens share one instance scoped to the page). State is signal-based: no manual change-detection nudges. They are imported directly, not via the barrel.
 
 ### 4.1 `VocabularyReviewSessionStore`
 
 File: `vocabulary-exercises-review-session.store.ts`
 
-State and behavior of one review (flashcard) session: the word queue, cursor, auto-play timer, per-word ratings with their load/save lifecycle.
+State and behavior of one review (flashcard) session: the word queue, cursor, the Auto Play scheduler (interval, optional queue shuffle, TTS reading of example sentences), per-word ratings with their load/save lifecycle.
 
 | Signal | Type | Notes |
 |---|---|---|
 | `queue` | `signal<ReviewQueueItem[]>` | The study queue. |
 | `cursor` | `signal(0)` | Index into `queue`. |
-| `isAutoMode` | `signal(false)` | Auto-advance active; disables prev/next. |
-| `autoModeSeconds` | `signal(5)` | Seconds per word (toolbar edits). |
-| `progress` | `computed` | `(cursor+1)/queue.length * 100`, `0` when empty. |
+| `autoPlayState` | `signal<'stopped'\|'playing'\|'paused'>('stopped')` | Three-state Auto Play machine; `paused` freezes on the current word with speech silenced. |
+| `isAutoMode` / `isPaused` | `computed` | `autoPlayState === 'playing'` / `=== 'paused'`. Only `playing` disables prev/next and the keyboard's manual navigation. |
+| `autoModeSeconds` | `signal(5)` | Silent gap in seconds between two items — counted from the moment the current item's last sound ends to the next item's first word (the Auto Play settings dialog edits this). |
+| `autoPlayRandomize` | `signal(false)` | Walk the items in a shuffled order when auto play starts. Only the auto-play traversal is randomized — the queue itself is never re-ordered, so manual browsing keeps its order. |
+| `autoPlaySentences` | `signal(0)` | Example sentences read aloud (TTS) after each word; 0 = off. |
+| `readingSentenceIndex` | `signal(-1)` | Index (into `wordReference().examples`) of the sentence being read aloud; the screen highlights that table row and scrolls it into view. |
+| `progress` | `computed` | `currentPosition / queue.length * 100`, `0` when empty. |
+| `currentPosition` | `computed` | 1-based position for the toolbar's `position / total` count (`0` when empty). Once a walk exists it is the word's rank **in the walk** (`autoOrder.indexOf(cursor) + 1`), so a completed randomized run reads `len / len` = 100% and stays there after self-stop; before/without a walk (and after `reset()`) it falls back to the plain queue index. |
 | `isPreviousDisabled` / `isNextDisabled` | `computed` | Boundary guards. |
 | `currentItem` | `computed` | `queue[cursor]` or a stable `EMPTY_ITEM`. |
+| `wordReference` | `signal<WordDictionaryEntry \| null>` | Dictionary detail (Chinese definitions + bilingual examples) for the cursor word; `null` while loading, on a miss, or after reset. |
 
-Private: `disableVoice`, `contentId` (0 disables rating calls), `ratingMap` (server-confirmed ratings, keyed by itemId), `autoModeSubscription`, `ratingSubscriptions[]` (in-flight load/save, cancelled in `reset()`), `userRatedItemIds` (items the user rated this session — a late preload must not overwrite them).
+Private: `disableVoice`, `contentId` (0 disables rating calls), `ratingMap` (server-confirmed ratings, keyed by itemId), the auto-play scheduler (`autoCycleToken` invalidates stale continuations; `autoAdvanceTimeout` the live tick; `autoSpeechGuardTimeout` caps the speech wait; `currentSpeechDone` resolves when the cursor word's audio — pronunciation + read sentences — is over; `autoOrder`/`autoStep` the walk permutation and position — randomization lives here, never in the queue), `ratingSubscriptions[]` (in-flight load/save, cancelled in `reset()`), `userRatedItemIds` (items the user rated this session — a late preload must not overwrite them), `refGeneration` (drops stale dictionary responses, bumped on every cursor move incl. blank-word moves, `reset()` and destroy), `refSubscriptions[]` (in-flight dictionary loads, cancelled in `reset()`).
 
 **Methods:**
-- `start(items, disableVoice, contentId): boolean` — resets, returns `false` (no-op) for an empty queue, else sets state, speaks the first word, and preloads ratings (skipping `userRatedItemIds`). Queue slots are replaced with copies (not mutated) so OnPush consumers see new references.
-- `previous()` / `next()` — move cursor, speak.
-- `enableAutoMode()` — restart from word 0, run `interval(seconds*1000)` → `autoAdvance()`, self-stop at the last word.
-- `setAutoModeSeconds(n)` — swap a running timer immediately; ignore invalid values.
+- `start(items, disableVoice, contentId): boolean` — resets, returns `false` (no-op) for an empty queue, else sets state, presents the first word (audio + dictionary load), and preloads ratings (skipping `userRatedItemIds`). Queue slots are replaced with copies (not mutated) so OnPush consumers see new references.
+- `previous()` / `next()` — move cursor, present it (`presentCurrentWord()`: cancel stale speech + speak + load reference, plus sentence reading when auto play is running).
+- `toggleAutoPlay()` — the Play/Pause button: `stopped` → build the walk (`autoOrder` = identity, or a shuffled index permutation when `autoPlayRandomize` — the queue stays as it is), start at its first item, state flips **before** presenting so the first chain reads; `playing` → `pauseAutoPlay()` (bump the cycle token, clear both timers, silence word MP3 + speech queue, clear the highlight, stay on the word); `paused` → `resumeAutoPlay()` (re-anchor the walk at the word on screen — prev/next are live while paused — re-present it so the item is heard whole, then advance on a fresh interval). Starting on an empty queue is a no-op.
+- `stopAutoPlay()` — end the cycle → `stopped` (manual browsing on the current word); also the cleanup used by `quit()`, `reset()` and page-destroy, so nothing ever keeps advancing or speaking.
+- `reReadCurrent()` — the replay button (disabled while `playing`): pronounce the word again and read its sentences from the already-loaded entry (`requireAutoPlay = false`), leaving cursor and state untouched.
+- `scheduleAutoAdvance(token)` (private) — two phases per item: first wait for `currentSpeechDone` (bounded by `AUTO_SPEECH_GUARD_MS` = 60s so hung TTS cannot wedge the queue), then `setTimeout(interval)` and move to `autoOrder[++autoStep]` (self-stop at the walk's end). The interval is the gap BETWEEN items: a word-plus-sentences reading stretches the per-item cycle instead of eating the pause, so the next word always starts one full interval after the last sound. Advance settings keep their natural boundary: the interval re-arms the live cycle immediately, the sentence count applies from the next item, randomize from the next start.
+- `setAutoModeSeconds(n)` — ignore invalid values; swap a running timer's interval immediately.
+- `applyAutoPlaySettings(option)` — store the dialog result: interval via `setAutoModeSeconds`, the randomize flag, and the sentence count clamped to 0–10 (the `/api/WordDictionary` cap).
 - `rateCurrent(value)` — validate 1–5, remember the itemId in `userRatedItemIds`, update the queue slot, `saveRating(...)`.
 - `setRatingFromToggle(event)` — handle the toggle-group's deselect (value `undefined` → restore the group value; no "clear rating" operation).
 - `quit(): Map<number, number>` — stop timer, return only **confirmed** ratings (failed/in-flight upserts do not leak), then `reset()`.
-- `reset()` — stop timer, unsubscribe in-flight rating loads/saves, clear all state.
+- `reset()` — stop timer, stop any pending word audio/speech, invalidate and unsubscribe in-flight rating loads/saves and dictionary loads, clear all state (incl. `wordReference`).
 
-**Audio:** `speakWord(enword)` (Web Speech API) per word; sounds are not used in review.
+**Audio:** per word, recorded pronunciation via `AudioService.playAuthenticatedOneShot(GET /api/WordAudio?word=..., 'mp3', onEnd)`, falling back to `speakWord` (Web Speech API) on a miss; the `speakGeneration` guard keeps slow responses from acting on a stale cursor. `speakCurrent()` returns a promise that settles when the pronunciation is over (recorded-sound `onEnd`, TTS utterance end, or immediately with voice disabled). During **auto play** with `autoPlaySentences > 0`, `presentCurrentWord()` chains `loadCurrentReference()` → `readExampleSentences()` on top of it (`AudioService.speakSequence`, English sources, up to the configured count, generation-guarded), and the whole chain is `currentSpeechDone` — the scheduler's wait signal. `speakSequence` announces each sentence's index right before it is spoken, so `readingSentenceIndex` tracks the line being read (highlighted + scrolled into view by the screen) and resets to -1 when reading ends. Manual browsing never reads sentences on navigation — that's an auto-play behavior — but the re-read button plays the current item on demand from any state except `playing`.
 
-**Destruction:** `destroyRef.onDestroy` stops auto-mode and cancels in-flight rating subscriptions (navigating away mid-auto-mode must not keep advancing/speaking).
+**Dictionary detail:** `loadCurrentReference()` fetches `WordDictionaryService.getWord(enword)` on every cursor change (`presentCurrentWord()`) and **returns the entry as a promise** (null on miss/blank/superseded) so the reading chain can consume it; bumps `refGeneration` and clears `wordReference` before the blank-word guard, so a stale or blank move never repaints. It fires even while the screen hides explanations — the service cache makes re-shows free.
+
+**Destruction:** `destroyRef.onDestroy` stops auto-mode (which now also stops the word one-shot and cancels the speech queue) and cancels in-flight rating and dictionary subscriptions (navigating away mid-auto-mode must not keep advancing/speaking).
 
 ### 4.2 `VocabularySpellingSessionStore`
 
@@ -290,6 +320,28 @@ State and behavior of one quiz (single-choice) session. Mirrors the spelling sto
 
 **Post-completion no-ops:** once `isComplete()`, `answer`, `next`, and `handleKey` are all no-ops (no extra sound, no tally change, no cursor drift) — verified by dedicated tests.
 
+### 4.4 `VocabularyDictationSessionStore`
+
+File: `vocabulary-exercises-dictation-session.store.ts`
+
+A **passive listening session**: the store speaks each word of the queue aloud on a fixed interval (`DICTATION_INTERVAL_MS = 5000`, via `AudioService` TTS playback) and does not collect any input — there is no typing, no per-letter state, and no hide-audio/hide-description option (per spec the only setting is `countOfItems`). It reuses the `VocabularySpellingQueue` item shape but the `completed` flag flips purely from the timer advancing past a word.
+
+| Signal | Type | Notes |
+|---|---|---|
+| `queue` | `signal<VocabularySpellingQueue[]>` | The dictated queue. |
+| `queueIndex` | `signal(-1)` | Current word position (`-1` before start). |
+| `isComplete` | `signal(false)` | Set when the last word has been spoken — the container's effect switches to `'dictationresult'`. |
+| `progress` | `computed` | `completed/queue.length * 100`; `100` when empty; reaches 100% on completion (mirrors spelling's L7 behavior). |
+| `currentWordNumber` | `computed` | 1-based position of the word being dictated (`0` before start), rendered as "dictating word X / N". |
+
+**Methods:**
+- `start(items): boolean` — reset; `false` for empty (caller stays on the list); otherwise speak word 1 immediately and schedule `advance()`.
+- `advance()` — mark the current word completed, move to the next, or finish: set `isComplete`, clear the timer, play `correct.wav`.
+- `reset()` — cleanup + drop every piece of state.
+- `cleanup()` / `clearTimer()` — kill the pending `setTimeout`. The constructor registers `destroyRef.onDestroy(() => this.cleanup())`, so navigating away mid-dictation never leaves a live timer speaking words after the page is gone (same rule as the review store's auto-mode cleanup).
+
+**Learning-time heartbeat:** because the user is listening rather than typing, the session screen calls `UserLearningTimeService.markActivity()` on each word advance (every 5 s), so a passive dictation session keeps the heartbeat alive without user input.
+
 ---
 
 ## 5. Session screens
@@ -298,12 +350,12 @@ Each session screen injects its store directly (no state inputs) and owns its ke
 
 ### 5.1 Review — `VocabularyExercisesReviewSessionComponent`
 
-- **Store:** `inject(VocabularyReviewSessionStore)`.
+- **Store:** `inject(VocabularyReviewSessionStore)`; opens the Auto Play settings dialog via `inject(MatDialog)` (`afterClosed` piped through `takeUntilDestroyed`, result handed to `store.applyAutoPlaySettings`).
 - **Input:** `hideExplain` (required). **Output:** `quit`.
-- **Template:** progress bar; seconds-per-word `mat-select`; play/prev/next/quit fabs (all with `aria-label`/`matTooltip`); the current EN word; optionally the CN explanation; a 5-toggle rating group bound `[ngModel]="store.currentItem().rating"`.
+- **Template:** all interaction lives in one wrapping toolbar row (`.review-toolbar-row`, `flex-wrap: wrap; height: auto`), left to right: progress bar **plus the `currentPosition() / queue().length` count**, the **Review mode label** (`t('review')`, hidden below 820px), the **5-toggle rating group** (`[ngModel]="store.currentItem().rating"`), a spacer, then fabs — **tune** (Auto Play settings), **play/pause** (`toggleAutoPlay()`; icon `play_arrow`/`pause`, tooltip tracks the state: start / `pauseAutoPlay` / `resumeAutoPlay`), **stop** (`stopAutoPlay()`; rendered ONLY while the state is `playing`/`paused`, hidden when `stopped`), **re-read** (`reReadCurrent()`, disabled while playing or on an empty queue), **prev**, **next**, **quit** — all with `aria-label`/`matTooltip`. The progress bar is a fixed 100px with 24px gaps around the label and rating group, keeping visual weight on the enlarged word/gloss headline (46px font, `min-height: 96px`, 64px padding above the word and below the gloss; re-read uses the `volume_up` icon). The content area below shows the EN word, the CN explanation and — when `!hideExplain() && store.wordReference()` — the two dictionary blocks (`@if` alias, `track $index`) as **plain HTML tables** spanning the full container width (`.vocabulary-reference`, no longer capped narrower than the toolbar): the explanation table is `POS | meaning` rows (`th scope="row"`), the examples table is `EN source | CN translation` columns (stacking below 720px), labeled by the i18n keys `vocabularyExercises.definitionsLabel` / `examplesLabel`. The row whose index equals `store.readingSentenceIndex()` gets `.vocabulary-example-reading` (azure wash + inset accent) and is scrolled into view by a component `effect` over the examples table rows (`#exampleRow`, `viewChildren`).
 - **Keyboard (`document:keyup`):** `1`–`5` rate, `ArrowUp`/`Down` nudge rating, `ArrowLeft`/`Right` navigate, `Esc` quits. Guards:
   - modifier chords (`ctrl`/`alt`/`meta`) are never study input;
-  - keys landing inside a form control / overlay panel are left alone (arrows navigate the seconds select, `Esc` closes it);
+  - keys landing inside a form control / overlay panel are left alone (arrows spin the settings dialog's number inputs, `Esc` closes the dialog);
   - **arrows are ignored while a `mat-button-toggle-group` has focus** — the group already applies them on keydown (clicking the neighboring toggle); re-applying on keyup would double-rate and send a duplicate upsert.
 - **Keyboard (`document:keydown`) — scroll suppression:** `ArrowUp/Down/Left/Right` from a plain target call `preventDefault()` so the page does not scroll. The same exclusions as keyup apply, plus `button` and `mat-button-toggle-group` (those need their own keydown behavior). State changes stay on keyup; this listener only blocks the browser default.
 
@@ -332,6 +384,18 @@ Each session screen injects its store directly (no state inputs) and owns its ke
 - **Store:** `inject(VocabularyQuizSessionStore)`.
 - **Output:** `backToList`.
 - **Template:** score line `correctCount / questions().length`; back button; `mat-table` over `store.results()` with columns `word`, `chinese`, `correct`. Null-safe on an empty session.
+
+### 5.6 Dictation — `VocabularyExercisesDictationSessionComponent`
+
+- **Store:** `inject(VocabularyDictationSessionStore)`; renders `currentWordNumber`/`queue.length` ("dictating word X / N"), `progress`, and the current word; quit fab.
+- **Output:** `quit`. `@HostListener('document:keyup')`: Escape quits (modifier/combo keys ignored so app/browser shortcuts never trigger it).
+- **Heartbeat:** an `effect` calls `UserLearningTimeService.markActivity()` whenever `store.queueIndex()` moves (every 5 s while playing), keeping the passive session counted as active learning time.
+
+### 5.7 Dictation result — `VocabularyExercisesDictationResultComponent`
+
+- **Store:** `inject(VocabularyDictationSessionStore)`.
+- **Output:** `backToList`.
+- **Template:** header line "Dictation result: N" + back button; `mat-table` over `store.queue()` with columns `order`, `enword`, `cnword` — the dictated list for the user to check what was played. No score/correctness column (there is no typing in dictation). Null-safe on an empty session.
 
 ---
 
@@ -385,13 +449,17 @@ Mode-driven: one component, three modes via `@switch (data.mode)`:
 
 `parseWordTokens()` splits on commas/newlines and trims (so pasted lists work; multi-word entries like "apple pie" survive). `onYesClick()` clamps count/offset to safe integers and returns a clean comma-joined `importIDs` regardless of how it was pasted. `isFormInvalid` disables OK.
 
-### 7.2 Options dialogs — Review / Spelling / Quiz / Worksheet
+### 7.2 Options dialogs — Review / Spelling / Quiz / Dictation / Worksheet (+ Auto Play)
 
-Four near-identical dialogs. Each seeds its `model()` fields from `data.currentSettings` so **reopening shows the last picks**, and returns a fresh options object on Close. Shared validation contract:
+Five near-identical list-page dialogs. Each seeds its `model()` fields from `data.currentSettings` so **reopening shows the last picks**, and returns a fresh options object on Close. Shared validation contract:
 
 - `countOfItems` is an integer ≥ 1 (`isCountInvalid` disables OK).
 - When `withSelection` is true, the count input advertises the selection size but is disabled; `onYesClick` returns the **persisted** count untouched (never let the selection size silently overwrite the configured count).
 - Review/Spelling additionally disable OK when both `disableVoice` and `hideExplain` are on (no output).
+
+The **Auto Play dialog** (`VocabularyExercisesAutoPlayOptionsDialogComponent`, opened from the review session's tune fab, not the container) follows the same seed/round-trip pattern for `VocabularyAutoPlayOption`: `intervalSeconds` must be an integer 1–120 and `sentencesToRead` an integer 0–10 (separate validation messages disable OK); Cancel/backdrop returns `undefined` and leaves the store untouched. Its three settings steer the auto-play cycle only: interval (live via the scheduler's re-arm), randomize (next start), sentences read aloud (next word).
+
+The **Dictation dialog** (`VocabularyExercisesDictationOptionsDialogComponent`) is the minimal member of the family: `VocabularyDictationOption` is exactly `VocabularyOptionCore` (`{ countOfItems }`, default 20 in the container) — no voice/explanation toggles, since dictation has no per-word UI choices.
 
 The worksheet dialog seeds `subTitle` from `currentSettings.subTitle ?? data.title` (a stored custom subtitle wins over the file name) and exposes `printEntryDate`, `printFirstLetter`, `uniformBlankLength`, `uniformBlankLengthSize` (default `DEFAULT_UNIFORM_BLANK_LENGTH`). It no longer carries any datepicker/radio machinery — that was dead code removed in the review.
 
@@ -527,6 +595,7 @@ Built by `buildVocabularyQuizQuestions(items, pool, direction)`:
 
 ```ts
 interface VocabularyOptionCore        { countOfItems: number; }
+type    VocabularyDictationOption     = VocabularyOptionCore; // dictation has no extra settings
 interface VocabularyReviewOption      extends VocabularyOptionCore { disableVoice: boolean; hideExplain: boolean; }
 interface VocabularySpellingOption    extends VocabularyOptionCore { disableVoice: boolean; hideExplain: boolean; }
 interface VocabularyQuizOption        extends VocabularyOptionCore { direction: VocabularyQuizDirection; }
@@ -605,7 +674,7 @@ Framework: Vitest via `@angular/build:unit-test` (jsdom). **Run via `ng test`**,
 
 Spec files in the folder (one per store, session screen, dialog, and the container/word-list):
 
-- **Store specs** (`…-store.spec.ts`) — start/reset, per-method behavior, derived computeds, audio calls, completion, and post-completion no-ops. Stores are tested with a mock `AudioService` (and `LearningRatingService` for review) and `TestBed.inject`ed.
+- **Store specs** (`…-store.spec.ts`) — start/reset, per-method behavior, derived computeds, audio calls, completion, and post-completion no-ops. Stores are tested with a mock `AudioService` (and `LearningRatingService` + `WordDictionaryService` for review) and `TestBed.inject`ed.
 - **Session screen specs** (`…-component.spec.ts`) — keyboard handling (including the toggle-group/overlay/modifier guards and the keydown scroll-suppression listener), a11y (aria-labels on icon fabs, aria-live regions, correctness icons), and the "answered option buttons stay focusable" contract.
 - **Result screen specs** (`…-quiz-result.component.spec.ts`, `…-spelling-result.component.spec.ts`) — score line + one `mat-checkbox` per result row from a populated session, null-safety on an empty session (`0 / 0`, no rows, no throw), and `backToList` emission. Row counts are asserted via `querySelectorAll('mat-checkbox')` (stable host tag name, not MDC classes).
 - **Dialog specs** — `isFormInvalid` gating, `onYesClick` clamping, seed-from-`currentSettings`, and Cancel-leaves-state-untouched.
@@ -613,7 +682,7 @@ Spec files in the folder (one per store, session screen, dialog, and the contain
 
 Patterns: `provideHttpClientTesting()` + `provideHttpClient()`; `HttpTestingController` for caching/error paths; `NoopAnimationsModule`; a `mockTransloco()` helper whose `translate: vi.fn((key) => key)` returns the key (so template text contains the key string for assertions); `takeUntilDestroyed`-style cleanup is verified where relevant.
 
-The full suite is green at 50 files / ~1557 tests.
+The full suite is green at 93 files / 2228 tests (verified 2026-11-07).
 
 ---
 
@@ -795,25 +864,31 @@ const totalLength =
 
 ```
 src/app/pages/vocabulary-exercises/
-├─ vocabulary-exercises.component.ts/html/scss/spec          # container
+├─ vocabulary-exercises.component.ts/html/scss/spec            # container
 ├─ vocabulary-exercises-word-list.component.ts/html/scss/spec  # list screen
-├─ vocabulary-exercises-review-session.store.ts/spec          # review store
-├─ vocabulary-exercises-spelling-session.store.ts/spec        # spelling store
-├─ vocabulary-exercises-quiz-session.store.ts/spec            # quiz store
+├─ vocabulary-exercises-review-session.store.ts/spec           # review store
+├─ vocabulary-exercises-spelling-session.store.ts/spec         # spelling store
+├─ vocabulary-exercises-dictation-session.store.ts/spec        # dictation store
+├─ vocabulary-exercises-quiz-session.store.ts/spec             # quiz store
 ├─ vocabulary-exercises-review-session.component.ts/html/scss/spec
 ├─ vocabulary-exercises-spelling-session.component.ts/html/scss/spec
 ├─ vocabulary-exercises-spelling-result.component.ts/html/scss/spec
+├─ vocabulary-exercises-dictation-session.component.ts/html/scss/spec
+├─ vocabulary-exercises-dictation-result.component.ts/html/scss/spec
 ├─ vocabulary-exercises-quiz-session.component.ts/html/scss/spec
 ├─ vocabulary-exercises-quiz-result.component.ts/html/scss/spec
-├─ vocabulary-exercises-select-dialog.component.ts/html      # mode-driven select
+├─ vocabulary-exercises-select-dialog.component.ts/html        # mode-driven select
 ├─ vocabulary-exercises-reviewoptions-dialog.component.ts/html
 ├─ vocabulary-exercises-spellingoptions-dialog.component.ts/html
+├─ vocabulary-exercises-dictationoptions-dialog.component.ts/html/spec
 ├─ vocabulary-exercises-quizoptions-dialog.component.ts/html/scss
 ├─ vocabulary-exercises-worksheetoptions-dialog.component.ts/html
-├─ vocabulary-exercises-filter-dialog.component.ts/html/scss/spec
-├─ _vocabulary-exercises-theme.scss
-└─ index.ts                                                   # barrel
+├─ vocabulary-exercises-autoplayoptions-dialog.component.ts/html  # opened by the review screen
+├─ vocabulary-exercises-options-dialogs.scss                   # shared styles for the options dialogs
+└─ index.ts                                                    # barrel
 ```
+
+The former `vocabulary-exercises-filter-dialog.*` files are gone — filtering moved to the project-wide `src/app/shared/filter-dialog/` (§7.3). The old `_vocabulary-exercises-theme.scss` mixin was removed with the theme-system deletion (see `CLAUDE.md` → Styling); dialog styling now lives in `vocabulary-exercises-options-dialogs.scss`.
 
 Supporting code outside the folder:
 - `src/app/interfaces/vocabulary.ts` — session/quiz/filter models and pure helpers (`matchVocabularyListFilter`, `buildVocabularyQuizQuestions`, `summarize…`).

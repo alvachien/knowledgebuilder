@@ -15,3 +15,5 @@ export * from './learning-content.service';
 export * from './learning-rating.service';
 export * from './rating-item-key.util';
 export * from './user-login-history.service';
+export * from './user-learning-time.service';
+export * from './word-dictionary.service';

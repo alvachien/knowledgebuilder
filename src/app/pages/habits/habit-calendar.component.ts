@@ -112,19 +112,24 @@ export class HabitCalendarComponent {
     this.loadHabits();
   }
 
-  /** Load (or reload after a failure): habits + item names, then the visible window. */
-  loadHabits(): void {
+  /**
+   * Load (or reload after a failure): habits + item names, then the visible window.
+   * Every read below goes through `HabitService`'s cache, so returning to the calendar
+   * costs no requests at all; `force` (the Refresh button) bypasses the caches for the
+   * whole chain, because a stale window is exactly what the button exists to escape.
+   */
+  loadHabits(force = false): void {
     this.loading.set(true);
     this.loadFailed.set(false);
     this.service
-      .getHabits()
+      .getHabits(force)
       .pipe(
         switchMap((habits) => {
           this.habits.set(habits);
           if (habits.length === 0) {
             return of<HabitItem[][] | null>(null);
           }
-          return forkJoin(habits.map((h) => this.service.getItems(h.id)));
+          return forkJoin(habits.map((h) => this.service.getItems(h.id, force)));
         }),
         catchError((err: unknown) => {
           showHabitError(this.snackbar, this.transloco, err);
@@ -141,11 +146,11 @@ export class HabitCalendarComponent {
             this.itemNames.set(habits[idx].id, Object.fromEntries(items.map((i) => [i.id, i.name])));
           });
         }
-        this.loadPunches();
+        this.loadPunches(force);
       });
   }
 
-  private loadPunches(): void {
+  private loadPunches(force = false): void {
     const habits = this.habits();
     if (habits.length === 0) {
       this.punchMap.set({});
@@ -155,7 +160,7 @@ export class HabitCalendarComponent {
     }
     this.loading.set(true);
     const { from, to } = this.rangeFor();
-    forkJoin(habits.map((h) => this.service.getHabitPunches(h.id, from, to)))
+    forkJoin(habits.map((h) => this.service.getHabitPunches(h.id, from, to, force)))
       .pipe(
         map((results) => this.foldPunches(results)),
         catchError((err: unknown) => {

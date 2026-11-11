@@ -13,7 +13,29 @@
   color: rgba(0, 0, 0, 0.6);
 }
 
-.login-history-table {
+// Leaderboard opt-out switch at the card's bottom, separated by a hair rule.
+.learning-time-optout {
+  margin-top: 0.75rem;
+  padding-top: 0.5rem;
+  border-top: 1px solid rgba(0, 0, 0, 0.08);
+  font-size: 0.9rem;
+}
+
+// Summary line of the learning-time card: today + last-7-days totals side by side.
+.learning-time-summary {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 8px 16px;
+  margin: 0.5rem 0;
+  font-weight: 500;
+  color: rgba(0, 0, 0, 0.72);
+}
+
+// Shared table look for the login-history card and the learning-time card. The
+// two classes exist so each card's template/tests can target its own table.
+.login-history-table,
+.learning-time-table {
   width: 100%;
   border-collapse: collapse;
 

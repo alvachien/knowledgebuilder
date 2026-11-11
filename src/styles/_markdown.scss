@@ -1,4 +1,5 @@
 // Styles for overview and guide docs generated via `marked` from the material2 repo.
+@use './constants' as *;
 
 .app-markdown {
   max-width: 100%;
@@ -71,8 +72,125 @@
     }
   }
 
+  // GFM tables. Nothing styled these before — the only table rules in the app were the
+  // print page-break guards in styles.scss — so a markdown table rendered with no borders,
+  // no cell padding and no header distinction (the /help guide's twelve-template list and
+  // its option tables were unreadable). Literals rather than the ledger `--rule` / `--wash`
+  // tokens, because those are declared on individual :hosts and markdown renders inside
+  // several different pages.
+  table {
+    border-collapse: collapse;
+    display: block;            // GitHub-style: scroll sideways instead of squashing columns
+    width: max-content;
+    max-width: 100%;
+    overflow-x: auto;
+    margin: 16px 0;
+    font-size: 14px;
+    line-height: 1.6;
+  }
+
+  th,
+  td {
+    border: 1px solid #dde3ea;
+    padding: 8px 12px;
+    text-align: left;
+    vertical-align: top;
+  }
+
+  thead th {
+    background: #eef2f7;
+    color: #1b2432;
+    font-weight: 700;
+    white-space: nowrap;
+  }
+
+  tbody tr:nth-child(even) td {
+    background: rgba(238, 242, 247, 0.45);
+  }
+
   code {
     padding: 3px;
+  }
+}
+
+// ── The /help guide document ──────────────────────────────────────────────
+// Global on purpose: the help prose is sanitized innerHTML inside
+// <app-markdown-content>, so help.component.scss cannot reach it (emulated
+// encapsulation puts [_ngcontent] on the leaf selector). This layers the "Mark &
+// Ledger" reading typography over the generic doc styles above, scoped to the help
+// page's `.help-doc` wrapper — no other markdown consumer is affected. The `--ink` /
+// `--rule` / `--pen` tokens come from the help page's own `:host` (they inherit into this
+// subtree); the $font-ledger-* stacks are the shared ones from _constants.scss.
+.help-doc .app-markdown {
+  font-size: 15px;
+  line-height: 1.8;
+  color: var(--ink);
+
+  h2 {
+    scroll-margin-top: 12px;         // section jumps shouldn't sit flush on the container top
+    margin: 44px 0 12px;
+    padding-top: 18px;
+    border-top: 1px solid var(--rule);   // ledger hairline between sections
+    font-family: $font-ledger-display;
+    font-size: 1.55rem;
+    font-weight: 400;
+  }
+
+  h3 {
+    scroll-margin-top: 12px;
+    margin: 28px 0 8px;
+    font-family: $font-ledger-label;
+    font-size: 1.05rem;
+    color: var(--pen);                  // the red pen marks sub-steps
+  }
+
+  p, ul, ol {
+    font-size: 15px;
+    line-height: 1.8;
+  }
+
+  li {
+    margin-block: 4px;
+  }
+
+  code {
+    background: var(--wash);
+    border: 1px solid var(--rule);
+    border-radius: 4px;
+    font-size: 0.9em;
+  }
+
+  // The document's own table of contents, authored as a literal <div class="help-toc">
+  // block in the help templates (en/zh branches must mirror each other — guarded by
+  // help.component.spec.ts). Anchors are routerLink fragments: a plain href="#x" would
+  // resolve against the <base href> and leave the SPA.
+  .help-toc {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin: 0 0 8px;
+
+    a {
+      padding: 5px 12px;
+      border: 1px solid var(--rule);
+      border-radius: 999px;
+      font-family: $font-ledger-label;
+      font-size: 0.9rem;
+      color: var(--graphite);
+      background: var(--paper);
+
+      &:hover {
+        border-color: var(--pen);
+        color: var(--pen);
+      }
+    }
+  }
+}
+
+// Dead links on paper: the guide prints as a document, not as a navigation pane.
+@media print {
+  .help-doc .help-toc {
+    display: none;
   }
 }
 

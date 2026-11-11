@@ -57,7 +57,6 @@ import type {
 } from '../../interfaces';
 import type { LearningContent } from '../../interfaces';
 import { AudioService, LearningContentService } from '../../services';
-import { FooterComponent } from '../../shared/footer/footer';
 import { MarkdownContentComponent } from '../../shared/markdown-content';
 import { AppPageTitle } from '../page-title/page-title';
 
@@ -82,7 +81,6 @@ import { AppPageTitle } from '../page-title/page-title';
     MatTooltipModule,
     MatToolbarModule,
     AsyncPipe,
-    FooterComponent,
     TranslocoModule,
   ],
   standalone: true,

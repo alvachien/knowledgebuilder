@@ -22,7 +22,13 @@ import type {
   UserLearningRating,
 } from '../../interfaces';
 import { SelectionModeEnum, VOCABULARY_IS_PHRASE, VOCABULARY_UPLOAD_MAX_ITEMS } from '../../interfaces';
-import { AudioService, UIService, LearningContentService, LearningRatingService } from '../../services';
+import {
+  AudioService,
+  UIService,
+  LearningContentService,
+  LearningRatingService,
+  UserLearningTimeService,
+} from '../../services';
 import { AppPageTitle } from '../page-title/page-title';
 
 import { VocabularyExercisesQuizOptionsDialogComponent } from './vocabulary-exercises-quizoptions-dialog.component';
@@ -88,8 +94,16 @@ describe('VocabularyExercisesComponent', () => {
     mockAudioService = {
       playSound: vi.fn(),
       stopSound: vi.fn(),
-      speakWord: vi.fn(),
-      playAuthenticatedOneShot: vi.fn().mockResolvedValue(true),
+      speakWord: vi.fn().mockResolvedValue(undefined),
+      playAuthenticatedOneShot: vi.fn(
+        (_src: string, _format: string, onEnd?: () => void) => {
+          onEnd?.();
+          return Promise.resolve(true);
+        }
+      ),
+      stopWordOneShot: vi.fn(),
+      cancelSpeech: vi.fn(),
+      speakSequence: vi.fn().mockResolvedValue(undefined),
     };
     mockSnackBar = { open: vi.fn() };
     mockUIService = { setSelectedExerciseItem: vi.fn() };
@@ -115,6 +129,10 @@ describe('VocabularyExercisesComponent', () => {
         { provide: MatSnackBar, useValue: mockSnackBar },
         { provide: AppPageTitle, useValue: mockPageTitle },
         { provide: LearningRatingService, useValue: mockRatingService },
+        // The review/dictation child screens inject the heartbeat service;
+        // markActivity is all they use, so a bare stub keeps the DI graph
+        // out of AuthService/OIDC.
+        { provide: UserLearningTimeService, useValue: { markActivity: vi.fn() } },
         { provide: TranslocoService, useValue: createMockTranslocoService() },
         { provide: TRANSLOCO_TRANSPILER, useValue: {} },
         { provide: TRANSLOCO_MISSING_HANDLER, useValue: {} },

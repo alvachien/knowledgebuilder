@@ -63,6 +63,13 @@ const routeConfig: Routes = [
       import('./pages/user-detail').then(m => m.UserDetailComponent),
   },
   {
+    // Public on purpose: this page explains what happens after you sign in, so it has to be
+    // readable before you do. Its body is a compiled bilingual template (see
+    // HelpContentComponent) — no API calls, no token.
+    path: 'help',
+    loadComponent: () => import('./pages/help').then(m => m.HelpComponent),
+  },
+  {
     path: '404',
     loadComponent: () => import('./pages/not-found').then(m => m.NotFoundComponent),
   },

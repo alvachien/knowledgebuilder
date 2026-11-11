@@ -5,11 +5,12 @@ description: Bump the knowledgebuilder app version across package.json and both 
 
 # Bump Version
 
-The version string lives in **three** places that must stay in sync, plus a `releasedate` field in the two environment files:
+The version string lives in **four** places that must stay in sync, plus a `releasedate` field in the two environment files:
 
 | File | Field(s) |
 |---|---|
 | `package.json` | `version` |
+| `package-lock.json` | `version` (root) and `packages[""].version` |
 | `src/environments/environment.ts` | `version`, `releasedate` |
 | `src/environments/environment.prod.ts` | `version`, `releasedate` |
 
@@ -22,14 +23,14 @@ Semver `MAJOR.MINOR.PATCH` (e.g. `1.8.419`). PATCH is a running number, not stri
 ## Steps
 
 1. **Determine the target version.** If the user gave an explicit version (e.g. `1.8.420`), use it. Otherwise ask whether to bump `patch` / `minor` / `major` and compute it from the current `package.json` version.
-2. **Apply the bump** by running the helper script that ships with this skill - never edit the version fields by hand, so the three files cannot drift:
+2. **Apply the bump** by running the helper script that ships with this skill - never edit the version fields by hand, so the files cannot drift:
    ```bash
    node .claude/skills/bump-version/bump-version.mjs <X.Y.Z>
    ```
-   This updates `package.json`, both environment files, and sets `releasedate` to today's date (`YYYY-MM-DD`).
-3. **Verify sync** - confirm all three files report the same version:
+   This updates `package.json`, the `package-lock.json` root version fields, and both environment files (setting `releasedate` to today's date, `YYYY-MM-DD`).
+3. **Verify sync** - confirm all four files report the same version:
    ```bash
-   grep -nE "version|releasedate" package.json src/environments/environment.ts src/environments/environment.prod.ts
+   grep -nE "\"version\"|releasedate" package.json package-lock.json src/environments/environment.ts src/environments/environment.prod.ts
    ```
 4. **Verify the build** (recommended):
    ```bash
@@ -39,7 +40,7 @@ Semver `MAJOR.MINOR.PATCH` (e.g. `1.8.419`). PATCH is a running number, not stri
    ```
    chore: bump version to <X.Y.Z>
    ```
-   Stage `package.json`, `src/environments/environment.ts`, `src/environments/environment.prod.ts`. Per project rules, never commit unless requested.
+   Stage `package.json`, `package-lock.json`, `src/environments/environment.ts`, `src/environments/environment.prod.ts`. Per project rules, never commit unless requested.
 
 ## Notes
 

@@ -2,8 +2,8 @@ import { TestBed } from '@angular/core/testing';
 import { of, Subject, throwError } from 'rxjs';
 
 import { environment } from '../../../environments/environment';
-import type { ReviewQueueItem, UserLearningRating } from '../../interfaces';
-import { AudioService, LearningRatingService } from '../../services';
+import type { ReviewQueueItem, UserLearningRating, WordDictionaryEntry } from '../../interfaces';
+import { AudioService, LearningRatingService, WordDictionaryService } from '../../services';
 
 import { VocabularyReviewSessionStore } from './vocabulary-exercises-review-session.store';
 
@@ -13,10 +13,16 @@ describe('VocabularyReviewSessionStore', () => {
     speakWord: ReturnType<typeof vi.fn>;
     playSound: ReturnType<typeof vi.fn>;
     playAuthenticatedOneShot: ReturnType<typeof vi.fn>;
+    stopWordOneShot: ReturnType<typeof vi.fn>;
+    cancelSpeech: ReturnType<typeof vi.fn>;
+    speakSequence: ReturnType<typeof vi.fn>;
   };
   let mockRatingService: {
     getRatings: ReturnType<typeof vi.fn>;
     upsertRating: ReturnType<typeof vi.fn>;
+  };
+  let mockDictionaryService: {
+    getWord: ReturnType<typeof vi.fn>;
   };
 
   const word = (enword: string, cnword = '测试', itemId?: number): ReviewQueueItem => ({
@@ -26,15 +32,35 @@ describe('VocabularyReviewSessionStore', () => {
     itemId,
   });
 
+  /** Let queued microtasks (speech promise chains) settle. */
+  async function flushTasks(): Promise<void> {
+    await new Promise(resolve => setTimeout(resolve, 0));
+  }
+
   beforeEach(() => {
     mockAudioService = {
-      speakWord: vi.fn(),
+      // The default fake plays the recorded word to completion right away:
+      // it fires the onEnd callback and resolves true, mirroring a Howl
+      // whose 'end' arrives as soon as playback starts.
+      playAuthenticatedOneShot: vi.fn(
+        (_src: string, _format: string, onEnd?: () => void) => {
+          onEnd?.();
+          return Promise.resolve(true);
+        }
+      ),
+      speakWord: vi.fn().mockResolvedValue(undefined),
       playSound: vi.fn(),
-      playAuthenticatedOneShot: vi.fn().mockResolvedValue(true),
+      stopWordOneShot: vi.fn(),
+      cancelSpeech: vi.fn(),
+      speakSequence: vi.fn().mockResolvedValue(undefined),
     };
     mockRatingService = {
       getRatings: vi.fn().mockReturnValue(of([])),
       upsertRating: vi.fn().mockReturnValue(of({} as UserLearningRating)),
+    };
+    // Default: every word is a miss (null entry) unless a test overrides it.
+    mockDictionaryService = {
+      getWord: vi.fn().mockReturnValue(of(null)),
     };
 
     TestBed.configureTestingModule({
@@ -42,6 +68,7 @@ describe('VocabularyReviewSessionStore', () => {
         VocabularyReviewSessionStore,
         { provide: AudioService, useValue: mockAudioService },
         { provide: LearningRatingService, useValue: mockRatingService },
+        { provide: WordDictionaryService, useValue: mockDictionaryService },
       ],
     });
     store = TestBed.inject(VocabularyReviewSessionStore);
@@ -66,7 +93,9 @@ describe('VocabularyReviewSessionStore', () => {
       expect(store.cursor()).toBe(0);
       expect(store.progress()).toBe(50);
       expect(mockAudioService.playAuthenticatedOneShot).toHaveBeenCalledWith(
-        `${environment.apiUrl}/api/WordAudio?word=hello`
+        `${environment.apiUrl}/api/WordAudio?word=hello`,
+        'mp3',
+        expect.any(Function)
       );
       // Recorded audio resolved successfully: no TTS fallback.
       expect(mockAudioService.speakWord).not.toHaveBeenCalled();
@@ -187,17 +216,15 @@ describe('VocabularyReviewSessionStore', () => {
       store.next();
 
       expect(mockAudioService.playAuthenticatedOneShot).toHaveBeenCalledWith(
-        `${environment.apiUrl}/api/WordAudio?word=world`
+        `${environment.apiUrl}/api/WordAudio?word=world`,
+        'mp3',
+        expect.any(Function)
       );
       expect(mockAudioService.speakWord).not.toHaveBeenCalled();
     });
   });
 
   describe('pronunciation (MP3-first with TTS fallback)', () => {
-    async function flushTasks(): Promise<void> {
-      await new Promise(resolve => setTimeout(resolve, 0));
-    }
-
     it('falls back to TTS when the word has no recorded audio', async () => {
       mockAudioService.playAuthenticatedOneShot.mockResolvedValue(false);
 
@@ -252,6 +279,82 @@ describe('VocabularyReviewSessionStore', () => {
       await flushTasks();
 
       expect(mockAudioService.speakWord).not.toHaveBeenCalled();
+    });
+  });
+
+  describe('word reference (definitions & examples)', () => {
+    const entry = (word: string): WordDictionaryEntry => ({
+      word,
+      definitions: [{ partOfSpeech: 'n.', meaning: 'a meaning' }],
+      examples: [{ source: 'A sentence.', translation: '一个句子。' }],
+    });
+
+    it('loads the entry for the first word when the session starts', () => {
+      mockDictionaryService.getWord.mockReturnValue(of(entry('hello')));
+
+      store.start([word('hello'), word('world')], false, 0);
+
+      expect(mockDictionaryService.getWord).toHaveBeenCalledWith('hello');
+      expect(store.wordReference()?.word).toBe('hello');
+    });
+
+    it('clears the visible entry and fetches again on cursor moves', () => {
+      mockDictionaryService.getWord.mockReturnValue(of(entry('hello')));
+      store.start([word('hello'), word('world')], false, 0);
+      expect(store.wordReference()).not.toBeNull();
+
+      const pending = new Subject<WordDictionaryEntry | null>();
+      mockDictionaryService.getWord.mockReturnValue(pending.asObservable());
+      store.next();
+
+      expect(mockDictionaryService.getWord).toHaveBeenLastCalledWith('world');
+      // Loading state: the previous word's entry is gone while 'world' is in flight.
+      expect(store.wordReference()).toBeNull();
+    });
+
+    it('drops a stale response after the cursor moved on', () => {
+      const hello$ = new Subject<WordDictionaryEntry | null>();
+      mockDictionaryService.getWord.mockReturnValueOnce(hello$.asObservable());
+      store.start([word('hello'), word('world')], false, 0);
+
+      mockDictionaryService.getWord.mockReturnValue(of(entry('world')));
+      store.next();
+      // A late response for the earlier word must not overwrite the current entry.
+      hello$.next(entry('hello'));
+
+      expect(store.wordReference()?.word).toBe('world');
+    });
+
+    it('drops an in-flight response when the cursor lands on a blank word', () => {
+      const hello$ = new Subject<WordDictionaryEntry | null>();
+      mockDictionaryService.getWord.mockReturnValueOnce(hello$.asObservable());
+      store.start([word('hello'), word('   ')], false, 0);
+
+      store.next();
+      // The blank-word move must invalidate the in-flight 'hello' fetch (the
+      // generation bumps before the blank guard), or the stale entry would
+      // repaint under the blank headline.
+      hello$.next(entry('hello'));
+
+      expect(store.wordReference()).toBeNull();
+    });
+
+    it('does not fetch for a blank word', () => {
+      store.start([word('   ')], false, 0);
+
+      expect(mockDictionaryService.getWord).not.toHaveBeenCalled();
+      expect(store.wordReference()).toBeNull();
+    });
+
+    it('cancels in-flight loads when the session is dropped', () => {
+      const pending = new Subject<WordDictionaryEntry | null>();
+      mockDictionaryService.getWord.mockReturnValue(pending.asObservable());
+      store.start([word('hello')], false, 0);
+
+      store.quit();
+
+      expect(() => pending.next(entry('hello'))).not.toThrow();
+      expect(store.wordReference()).toBeNull();
     });
   });
 
@@ -370,57 +473,109 @@ describe('VocabularyReviewSessionStore', () => {
 
   describe('auto mode', () => {
     afterEach(() => {
-      store['stopAutoMode']?.();
+      store['stopAutoPlay']?.();
       vi.useRealTimers();
     });
 
-    it('defaults to 5 seconds and inactive', () => {
-      expect(store.autoModeSeconds()).toBe(5);
+    it('defaults to stopped with 5 seconds, no randomizing, no reading', () => {
+      expect(store.autoPlayState()).toBe('stopped');
       expect(store.isAutoMode()).toBe(false);
+      expect(store.readingSentenceIndex()).toBe(-1);
+      expect(store.autoModeSeconds()).toBe(5);
+      expect(store.autoPlayRandomize()).toBe(false);
+      expect(store.autoPlaySentences()).toBe(0);
     });
 
     it('does not enable when the queue is empty', () => {
-      store.enableAutoMode();
+      store.toggleAutoPlay();
 
       expect(store.isAutoMode()).toBe(false);
     });
 
-    it('does not double-start when already running', () => {
-      vi.useFakeTimers();
-      store.start([word('a'), word('b')], true, 0);
-
-      store.enableAutoMode();
-      const firstTick = vi.getTimerCount();
-
-      store.enableAutoMode();
-
-      expect(store.isAutoMode()).toBe(true);
-      expect(vi.getTimerCount()).toBe(firstTick);
-    });
-
-    it('auto-advances to the next word every N seconds', () => {
+    it('cycles stopped -> playing -> paused -> playing, and stops back to stopped', async () => {
       vi.useFakeTimers();
       store.start([word('a'), word('b'), word('c')], true, 0);
 
-      store.enableAutoMode();
+      store.toggleAutoPlay(); // stopped -> playing
+      expect(store.autoPlayState()).toBe('playing');
+      expect(store.isAutoMode()).toBe(true);
+      expect(vi.getTimerCount()).toBe(1);
+
+      store.toggleAutoPlay(); // playing -> paused
+      expect(store.autoPlayState()).toBe('paused');
+      expect(store.isAutoMode()).toBe(false);
+      expect(vi.getTimerCount()).toBe(0); // the live tick is gone
+      expect(mockAudioService.stopWordOneShot).toHaveBeenCalled();
+      expect(mockAudioService.cancelSpeech).toHaveBeenCalled();
+
+      // A paused cycle advances nothing, ever.
+      await vi.advanceTimersByTimeAsync(30000);
+      expect(store.cursor()).toBe(0);
+
+      store.toggleAutoPlay(); // paused -> playing (resume on the same word)
+      expect(store.autoPlayState()).toBe('playing');
+      expect(store.cursor()).toBe(0);
+      expect(vi.getTimerCount()).toBe(1);
+
+      store.stopAutoPlay(); // -> stopped, word under the cursor is kept
+      expect(store.autoPlayState()).toBe('stopped');
+      expect(vi.getTimerCount()).toBe(0);
+      expect(store.cursor()).toBe(0);
+    });
+
+    it('auto-advances to the next word every N seconds', async () => {
+      vi.useFakeTimers();
+      store.start([word('a'), word('b'), word('c')], true, 0);
+
+      store.toggleAutoPlay();
 
       expect(store.isAutoMode()).toBe(true);
       expect(store.cursor()).toBe(0);
 
-      vi.advanceTimersByTime(5000);
+      await vi.advanceTimersByTimeAsync(5000);
       expect(store.cursor()).toBe(1);
 
-      vi.advanceTimersByTime(5000);
+      await vi.advanceTimersByTimeAsync(5000);
       expect(store.cursor()).toBe(2);
     });
 
-    it('restarts from the first word regardless of the current cursor', () => {
+    it('starts the interval only after the current word audio is over', async () => {
+      vi.useFakeTimers();
+      store.start([word('a'), word('b')], false, 0);
+      // The auto-play presentation of 'a' gets a recorded sound whose onEnd
+      // arrives late: the 5s interval is the gap BETWEEN items, so it must
+      // not even start while the word is still speaking - and once the
+      // pronunciation ends, a full 5s of silence must pass before 'b'.
+      let endSound!: () => void;
+      mockAudioService.playAuthenticatedOneShot.mockImplementation(
+        (_src: string, _format: string, onEnd: () => void) =>
+          new Promise<boolean>(resolve => {
+            endSound = () => {
+              onEnd();
+              resolve(true);
+            };
+          })
+      );
+
+      store.toggleAutoPlay();
+      await vi.advanceTimersByTimeAsync(5000);
+      expect(store.cursor()).toBe(0); // still speaking: the gap has not started
+
+      endSound();
+      await vi.advanceTimersByTimeAsync(4000);
+      expect(store.cursor()).toBe(0); // audio over, but the gap is not full yet
+
+      await vi.advanceTimersByTimeAsync(1000);
+      expect(store.cursor()).toBe(1); // 'b' starts a full 5s after the audio ended
+    });
+
+    it('restarts from the first word regardless of the current cursor', async () => {
       vi.useFakeTimers();
       store.start([word('a'), word('b'), word('c'), word('d')], true, 0);
       store.next();
       store.next(); // cursor at 2, mid-queue
 
-      store.enableAutoMode();
+      store.toggleAutoPlay();
 
       // Always jumps to the first word, even though the cursor was mid-queue.
       expect(store.isAutoMode()).toBe(true);
@@ -428,65 +583,69 @@ describe('VocabularyReviewSessionStore', () => {
       expect(store.progress()).toBe(25);
 
       // Auto-advances from the first word through the queue.
-      vi.advanceTimersByTime(5000);
+      await vi.advanceTimersByTimeAsync(5000);
       expect(store.cursor()).toBe(1);
-      vi.advanceTimersByTime(5000);
+      await vi.advanceTimersByTimeAsync(5000);
       expect(store.cursor()).toBe(2);
-      vi.advanceTimersByTime(5000);
+      await vi.advanceTimersByTimeAsync(5000);
       expect(store.cursor()).toBe(3);
       expect(store.isAutoMode()).toBe(true);
 
       // Reaches the last word and self-stops on the next tick.
-      vi.advanceTimersByTime(5000);
+      await vi.advanceTimersByTimeAsync(5000);
       expect(store.isAutoMode()).toBe(false);
       expect(store.cursor()).toBe(3);
 
       // No further advances after auto mode stopped.
-      vi.advanceTimersByTime(5000);
+      await vi.advanceTimersByTimeAsync(5000);
       expect(store.cursor()).toBe(3);
     });
 
-    it('falls back to 5 seconds when autoModeSeconds is invalid', () => {
+    it('falls back to 5 seconds when autoModeSeconds is invalid', async () => {
       vi.useFakeTimers();
       store.start([word('a'), word('b')], true, 0);
       store.autoModeSeconds.set(0);
 
-      store.enableAutoMode();
+      store.toggleAutoPlay();
       expect(store.isAutoMode()).toBe(true);
 
       // 0 would fire immediately if used literally; the fallback to 5s means
       // no advance until 5s elapse.
-      vi.advanceTimersByTime(1000);
+      await vi.advanceTimersByTimeAsync(1000);
       expect(store.cursor()).toBe(0);
 
-      vi.advanceTimersByTime(4000);
+      await vi.advanceTimersByTimeAsync(4000);
       expect(store.cursor()).toBe(1);
     });
 
-    it('setAutoModeSeconds updates the interval used by a later start', () => {
+    it('setAutoModeSeconds updates the interval used by a later start', async () => {
       vi.useFakeTimers();
       store.start([word('a'), word('b'), word('c')], true, 0);
       store.setAutoModeSeconds(3);
 
-      store.enableAutoMode();
-      vi.advanceTimersByTime(3000);
+      store.toggleAutoPlay();
+      await vi.advanceTimersByTimeAsync(3000);
       expect(store.cursor()).toBe(1);
     });
 
-    it('setAutoModeSeconds swaps a running timer without restarting the session', () => {
+    it('setAutoModeSeconds re-arms the live tick immediately', async () => {
       vi.useFakeTimers();
       store.start([word('a'), word('b'), word('c'), word('d')], true, 0);
-      store.enableAutoMode();
-      vi.advanceTimersByTime(5000);
-      expect(store.cursor()).toBe(1);
+      store.toggleAutoPlay(); // 5s armed
 
+      // Change the interval mid-item: the live tick is replaced, so the
+      // current item gets exactly the new interval counted from the change.
+      await vi.advanceTimersByTimeAsync(3000);
       store.setAutoModeSeconds(3);
-      // Old 5s timer is gone: only the new 3s cadence fires.
-      vi.advanceTimersByTime(2000);
+      await vi.advanceTimersByTimeAsync(2000);
+      expect(store.cursor()).toBe(0);
+      await vi.advanceTimersByTimeAsync(1000);
       expect(store.cursor()).toBe(1);
-      vi.advanceTimersByTime(1000);
-      expect(store.cursor()).toBe(2);
       expect(store.isAutoMode()).toBe(true);
+
+      // The new cadence sticks.
+      await vi.advanceTimersByTimeAsync(3000);
+      expect(store.cursor()).toBe(2);
     });
 
     it('setAutoModeSeconds ignores invalid values', () => {
@@ -502,12 +661,358 @@ describe('VocabularyReviewSessionStore', () => {
       store.start([word('hello'), word('world')], false, 0);
       mockAudioService.playAuthenticatedOneShot.mockClear();
 
-      store.enableAutoMode();
+      store.toggleAutoPlay();
 
       expect(mockAudioService.playAuthenticatedOneShot).toHaveBeenCalledWith(
-        `${environment.apiUrl}/api/WordAudio?word=hello`
+        `${environment.apiUrl}/api/WordAudio?word=hello`,
+        'mp3',
+        expect.any(Function)
       );
       expect(mockAudioService.speakWord).not.toHaveBeenCalled();
+    });
+
+    it('stops the word audio and speech queue when auto mode is cancelled', () => {
+      store.start([word('a'), word('b')], false, 0);
+      store.toggleAutoPlay();
+      mockAudioService.stopWordOneShot.mockClear();
+      mockAudioService.cancelSpeech.mockClear();
+
+      store.quit();
+
+      expect(mockAudioService.stopWordOneShot).toHaveBeenCalled();
+      expect(mockAudioService.cancelSpeech).toHaveBeenCalled();
+    });
+  });
+
+  describe('applyAutoPlaySettings', () => {
+    it('applies interval, randomize and clamps the sentence count to 0-10', () => {
+      store.applyAutoPlaySettings({ intervalSeconds: 8, randomizeWords: true, sentencesToRead: 4 });
+      expect(store.autoModeSeconds()).toBe(8);
+      expect(store.autoPlayRandomize()).toBe(true);
+      expect(store.autoPlaySentences()).toBe(4);
+
+      store.applyAutoPlaySettings({ intervalSeconds: 7, randomizeWords: false, sentencesToRead: 99 });
+      expect(store.autoPlayRandomize()).toBe(false);
+      expect(store.autoPlaySentences()).toBe(10);
+
+      store.applyAutoPlaySettings({ intervalSeconds: 6, randomizeWords: false, sentencesToRead: -3 });
+      expect(store.autoPlaySentences()).toBe(0);
+    });
+
+    it('ignores an invalid interval but still applies the other fields', () => {
+      store.applyAutoPlaySettings({ intervalSeconds: 5, randomizeWords: false, sentencesToRead: 0 });
+
+      store.applyAutoPlaySettings({ intervalSeconds: 2.5, randomizeWords: true, sentencesToRead: 3 });
+
+      expect(store.autoModeSeconds()).toBe(5);
+      expect(store.autoPlayRandomize()).toBe(true);
+      expect(store.autoPlaySentences()).toBe(3);
+    });
+  });
+
+  describe('auto play walk order (randomize never touches the queue)', () => {
+    afterEach(() => {
+      store['stopAutoPlay']?.();
+      vi.useRealTimers();
+    });
+
+    it('walks a shuffled order visiting every word exactly once, queue untouched', async () => {
+      vi.useFakeTimers();
+      const items = Array.from({ length: 6 }, (_, i) => word(`w${i}`, '测试', i + 1));
+      store.start(items.slice(), true, 0);
+      store.applyAutoPlaySettings({ intervalSeconds: 1, randomizeWords: true, sentencesToRead: 0 });
+
+      store.toggleAutoPlay();
+      const visited = [store.cursor()];
+      for (let i = 0; i < items.length - 1; i++) {
+        await vi.advanceTimersByTimeAsync(1000);
+        visited.push(store.cursor());
+      }
+      await vi.advanceTimersByTimeAsync(1000); // the last item's tick self-stops
+
+      // Every word is visited exactly once, and the queue itself kept the
+      // input order - manual browsing and the ratings map are untouched.
+      expect(new Set(visited)).toEqual(new Set([0, 1, 2, 3, 4, 5]));
+      expect(store.queue().map(q => q.enword)).toEqual(items.map(q => q.enword));
+      expect(store.autoPlayState()).toBe('stopped');
+    });
+
+    it('a completed randomized walk reads 100% and stays there after self-stop', async () => {
+      vi.useFakeTimers();
+      store.start(Array.from({ length: 5 }, (_, i) => word(`w${i}`, '测试', i + 1)), true, 0);
+      store.applyAutoPlaySettings({ intervalSeconds: 1, randomizeWords: true, sentencesToRead: 0 });
+
+      store.toggleAutoPlay();
+      // Walk all 5 items: 4 advances after the first presentation.
+      for (let i = 0; i < 4; i++) {
+        await vi.advanceTimersByTimeAsync(1000);
+      }
+
+      // Progress counts the WALK, not the shuffled queue index of the last
+      // word (the bug: stopping at, say, queue slot 2 of 5 showed ~40%).
+      expect(store.currentPosition()).toBe(5);
+      expect(store.progress()).toBe(100);
+
+      await vi.advanceTimersByTimeAsync(1000); // the final tick self-stops
+      expect(store.autoPlayState()).toBe('stopped');
+      expect(store.progress()).toBe(100); // and stays full, not collapsing
+    });
+
+    it('visits the words in plain order when randomize is off', async () => {
+      vi.useFakeTimers();
+      store.start([word('a', '测试', 1), word('b', '测试', 2), word('c', '测试', 3)], true, 0);
+      store.applyAutoPlaySettings({ intervalSeconds: 1, randomizeWords: false, sentencesToRead: 0 });
+
+      store.toggleAutoPlay();
+      expect(store.cursor()).toBe(0);
+      await vi.advanceTimersByTimeAsync(1000);
+      expect(store.cursor()).toBe(1);
+      await vi.advanceTimersByTimeAsync(1000);
+      expect(store.cursor()).toBe(2);
+      await vi.advanceTimersByTimeAsync(1000);
+      expect(store.autoPlayState()).toBe('stopped');
+    });
+
+    it('re-anchors the walk at the current word when resuming after manual browsing', async () => {
+      vi.useFakeTimers();
+      store.start([word('a'), word('b'), word('c')], false, 0);
+      store.applyAutoPlaySettings({ intervalSeconds: 5, randomizeWords: false, sentencesToRead: 0 });
+      store.toggleAutoPlay(); // playing on 'a'
+      store.toggleAutoPlay(); // paused
+      store.next(); // manual browse while paused -> 'b'
+      mockAudioService.playAuthenticatedOneShot.mockClear();
+
+      store.toggleAutoPlay(); // resume continues from the word on screen
+
+      expect(store.autoPlayState()).toBe('playing');
+      expect(mockAudioService.playAuthenticatedOneShot).toHaveBeenCalledWith(
+        `${environment.apiUrl}/api/WordAudio?word=b`,
+        'mp3',
+        expect.any(Function)
+      );
+      await vi.advanceTimersByTimeAsync(5000);
+      expect(store.cursor()).toBe(2); // 'c' next, not back to 'a'
+    });
+  });
+
+  describe('example sentence reading (auto play only)', () => {
+    const entry = (wordText: string, examples: string[]): WordDictionaryEntry => ({
+      word: wordText,
+      definitions: [{ partOfSpeech: 'n.', meaning: 'meaning' }],
+      examples: examples.map(s => ({ source: s, translation: `译：${s}` })),
+    });
+
+    afterEach(() => {
+      store['stopAutoPlay']?.();
+      vi.useRealTimers();
+    });
+
+    it('reads the first N sentences after the word during auto play', async () => {
+      mockDictionaryService.getWord.mockReturnValue(
+        of(entry('hello', ['One.', 'Two.', 'Three.', 'Four.']))
+      );
+      store.start([word('hello'), word('world')], false, 0);
+      store.applyAutoPlaySettings({ intervalSeconds: 30, randomizeWords: false, sentencesToRead: 2 });
+
+      store.toggleAutoPlay();
+      await flushTasks();
+
+      expect(mockAudioService.speakSequence).toHaveBeenCalledWith(['One.', 'Two.'], expect.any(Function));
+    });
+
+    it('does not read when auto play is off (manual browsing)', async () => {
+      mockDictionaryService.getWord.mockReturnValue(of(entry('hello', ['One.', 'Two.'])));
+      store.start([word('hello'), word('world')], false, 0);
+      store.applyAutoPlaySettings({ intervalSeconds: 5, randomizeWords: false, sentencesToRead: 2 });
+
+      store.next();
+      await flushTasks();
+
+      expect(mockAudioService.speakSequence).not.toHaveBeenCalled();
+    });
+
+    it('does not read with a count of 0 or when voice is disabled', async () => {
+      mockDictionaryService.getWord.mockReturnValue(of(entry('hello', ['One.'])));
+      store.start([word('hello'), word('world')], false, 0);
+      store.applyAutoPlaySettings({ intervalSeconds: 5, randomizeWords: false, sentencesToRead: 0 });
+      store.toggleAutoPlay();
+      await flushTasks();
+
+      store.quit();
+      store.start([word('hello'), word('world')], true, 0);
+      store.applyAutoPlaySettings({ intervalSeconds: 5, randomizeWords: false, sentencesToRead: 3 });
+      store.toggleAutoPlay();
+      await flushTasks();
+
+      expect(mockAudioService.speakSequence).not.toHaveBeenCalled();
+    });
+
+    it('does not read when the word has no dictionary entry', async () => {
+      mockDictionaryService.getWord.mockReturnValue(of(null));
+      store.start([word('hello')], false, 0);
+      store.applyAutoPlaySettings({ intervalSeconds: 5, randomizeWords: false, sentencesToRead: 2 });
+
+      store.toggleAutoPlay();
+      await flushTasks();
+
+      expect(mockAudioService.speakSequence).not.toHaveBeenCalled();
+    });
+
+    it('counts the interval only after the sentence reading is over', async () => {
+      vi.useFakeTimers();
+      let finishReading!: () => void;
+      mockAudioService.speakSequence.mockImplementation(
+        () =>
+          new Promise<void>(resolve => {
+            finishReading = resolve;
+          })
+      );
+      mockDictionaryService.getWord.mockReturnValue(of(entry('hello', ['Long sentence.'])));
+      store.start([word('hello'), word('world')], false, 0);
+      store.applyAutoPlaySettings({ intervalSeconds: 2, randomizeWords: false, sentencesToRead: 1 });
+
+      store.toggleAutoPlay();
+      await vi.advanceTimersByTimeAsync(0); // let the word audio + ref fetch settle
+
+      // The sentence is still being read: the item is not over, so no part
+      // of the 2s gap has been counted yet - a slow reading stretches the
+      // per-item cycle instead of eating the pause.
+      await vi.advanceTimersByTimeAsync(2000);
+      expect(store.cursor()).toBe(0);
+
+      finishReading();
+      await vi.advanceTimersByTimeAsync(1000);
+      expect(store.cursor()).toBe(0); // reading over, gap only half counted
+
+      await vi.advanceTimersByTimeAsync(1000);
+      expect(store.cursor()).toBe(1); // 'world' starts a full 2s after the reading
+      vi.useRealTimers();
+    });
+
+    it('exposes the index of the sentence being read, resetting when done', async () => {
+      let emitIndex!: (i: number) => void;
+      let finishReading!: () => void;
+      mockAudioService.speakSequence.mockImplementation(
+        (_texts: string[], onIndex?: (i: number) => void) => {
+          emitIndex = onIndex!;
+          return new Promise<void>(resolve => {
+            finishReading = resolve;
+          });
+        }
+      );
+      mockDictionaryService.getWord.mockReturnValue(of(entry('hello', ['One.', 'Two.'])));
+      store.start([word('hello'), word('world')], false, 0);
+      store.applyAutoPlaySettings({ intervalSeconds: 30, randomizeWords: false, sentencesToRead: 2 });
+
+      store.toggleAutoPlay();
+      await flushTasks(); // chain reaches speakSequence
+
+      emitIndex(1); // the service announces the second sentence right before speaking it
+      expect(store.readingSentenceIndex()).toBe(1);
+
+      finishReading();
+      await flushTasks();
+      expect(store.readingSentenceIndex()).toBe(-1);
+    });
+
+    it('pause silences the reading and clears the highlight', async () => {
+      let emitIndex!: (i: number) => void;
+      mockAudioService.speakSequence.mockImplementation(
+        (_texts: string[], onIndex?: (i: number) => void) => {
+          emitIndex = onIndex!;
+          return new Promise<void>(() => {
+            /* never settles until superseded - the store guard owns the reset */
+          });
+        }
+      );
+      mockDictionaryService.getWord.mockReturnValue(of(entry('hello', ['One.', 'Two.'])));
+      store.start([word('hello'), word('world')], false, 0);
+      store.applyAutoPlaySettings({ intervalSeconds: 30, randomizeWords: false, sentencesToRead: 2 });
+
+      store.toggleAutoPlay();
+      await flushTasks();
+      emitIndex(0);
+      expect(store.readingSentenceIndex()).toBe(0);
+
+      store.toggleAutoPlay(); // pause
+      expect(store.readingSentenceIndex()).toBe(-1);
+      expect(store.isPaused()).toBe(true);
+    });
+  });
+
+  describe('re-read', () => {
+    const entry = (wordText: string, examples: string[]): WordDictionaryEntry => ({
+      word: wordText,
+      definitions: [{ partOfSpeech: 'n.', meaning: 'meaning' }],
+      examples: examples.map(s => ({ source: s, translation: `译：${s}` })),
+    });
+
+    afterEach(() => {
+      store['stopAutoPlay']?.();
+    });
+
+    it('replays the word and its sentences while stopped', async () => {
+      mockDictionaryService.getWord.mockReturnValue(of(entry('hello', ['One.', 'Two.'])));
+      store.start([word('hello'), word('world')], false, 0);
+      store.applyAutoPlaySettings({ intervalSeconds: 5, randomizeWords: false, sentencesToRead: 2 });
+      await flushTasks(); // let the start presentation settle
+
+      mockAudioService.playAuthenticatedOneShot.mockClear();
+      mockAudioService.speakSequence.mockClear();
+
+      store.reReadCurrent();
+      await flushTasks();
+
+      expect(mockAudioService.playAuthenticatedOneShot).toHaveBeenCalledWith(
+        `${environment.apiUrl}/api/WordAudio?word=hello`,
+        'mp3',
+        expect.any(Function)
+      );
+      expect(mockAudioService.speakSequence).toHaveBeenCalledWith(
+        ['One.', 'Two.'],
+        expect.any(Function)
+      );
+      // The queue position is untouched.
+      expect(store.cursor()).toBe(0);
+    });
+
+    it('is ignored while auto play is running', () => {
+      store.start([word('a'), word('b')], false, 0);
+      store.toggleAutoPlay();
+      mockAudioService.playAuthenticatedOneShot.mockClear();
+
+      store.reReadCurrent();
+
+      expect(mockAudioService.playAuthenticatedOneShot).not.toHaveBeenCalled();
+    });
+
+    it('replays the word (without sentences) when reading is off', async () => {
+      mockDictionaryService.getWord.mockReturnValue(of(entry('hello', ['One.'])));
+      store.start([word('hello')], false, 0);
+      await flushTasks();
+
+      mockAudioService.speakSequence.mockClear();
+      store.reReadCurrent();
+      await flushTasks();
+
+      expect(mockAudioService.speakSequence).not.toHaveBeenCalled();
+      expect(mockAudioService.playAuthenticatedOneShot).toHaveBeenCalled();
+    });
+
+    it('works while paused, replaying the current item', async () => {
+      mockDictionaryService.getWord.mockReturnValue(of(entry('hello', ['One.', 'Two.'])));
+      store.start([word('hello'), word('world')], false, 0);
+      store.applyAutoPlaySettings({ intervalSeconds: 30, randomizeWords: false, sentencesToRead: 2 });
+      store.toggleAutoPlay(); // playing
+      await flushTasks();
+      store.toggleAutoPlay(); // paused
+      mockAudioService.speakSequence.mockClear();
+
+      store.reReadCurrent();
+      await flushTasks();
+
+      expect(store.autoPlayState()).toBe('paused');
+      expect(mockAudioService.speakSequence).toHaveBeenCalled();
     });
   });
 
@@ -528,7 +1033,7 @@ describe('VocabularyReviewSessionStore', () => {
 
     it('includes preloaded ratings (unchanged words keep their stored rating)', () => {
       mockRatingService.getRatings.mockReturnValue(
-        of([{ contentId: 1, itemId: 10, rating: 3 } as UserLearningRating])
+        of([{ contentId: 1, itemId: 10, rating: 3 }])
       );
       store.start([word('hello', '你好', 10)], true, 1);
 
@@ -541,7 +1046,7 @@ describe('VocabularyReviewSessionStore', () => {
       vi.useFakeTimers();
       afterEach(() => vi.useRealTimers());
       store.start([word('a'), word('b')], true, 0);
-      store.enableAutoMode();
+      store.toggleAutoPlay();
       expect(store.isAutoMode()).toBe(true);
 
       store.quit();
@@ -603,7 +1108,7 @@ describe('VocabularyReviewSessionStore', () => {
       vi.useFakeTimers();
       afterEach(() => vi.useRealTimers());
       store.start([word('a'), word('b')], true, 0);
-      store.enableAutoMode();
+      store.toggleAutoPlay();
       expect(store.isAutoMode()).toBe(true);
 
       // Destroying the page's injector (navigating away) must tear down the
