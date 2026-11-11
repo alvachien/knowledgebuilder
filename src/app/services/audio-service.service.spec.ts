@@ -481,10 +481,7 @@ describe('AudioService', () => {
     });
   });
 
-  // Generous per-test timeout: these tests await MockHowl's real 1ms onload
-  // timer, which can starve past the default 5s when the whole suite runs
-  // under load (observed once; the file passes in 0.1s in isolation).
-  describe('playAuthenticatedOneShot onEnd', { timeout: 20_000 }, () => {
+  describe('playAuthenticatedOneShot onEnd', () => {
     const helloUrl = `${environment.apiUrl}/api/WordAudio?word=hello`;
     let objectUrlSeq = 0;
 
@@ -492,15 +489,25 @@ describe('AudioService', () => {
       // jsdom has no object-URL support; the one-shot path builds a blob URL.
       vi.spyOn(URL, 'createObjectURL').mockImplementation(() => `blob:mock-${++objectUrlSeq}`);
       vi.spyOn(URL, 'revokeObjectURL').mockImplementation(() => {});
+      // MockHowl defers onload on a REAL 1ms timer — when the whole suite
+      // runs on a loaded CI runner those callbacks starve past any generous
+      // timeout (PR #101 CI). Fake timers let startOneShot advance the load
+      // deterministically, so no test here waits on the wall clock.
+      vi.useFakeTimers();
     });
 
-    // Start a one-shot, serve its authenticated blob, and let MockHowl's
-    // deferred onload (1ms) fire so the promise resolves `true` (playing).
+    afterEach(() => {
+      vi.useRealTimers();
+    });
+
+    // Start a one-shot, serve its authenticated blob, and advance MockHowl's
+    // deferred onload so the promise resolves `true` (playing). The async
+    // advance drains the HTTP microtasks first, then the mock's load timer.
     async function startOneShot(onEnd?: () => void): Promise<boolean> {
       const promise = service.playAuthenticatedOneShot(helloUrl, 'mp3', onEnd);
       const request = httpTestingController.expectOne(helloUrl);
       request.flush(new Blob(['data'], { type: 'audio/mpeg' }));
-      await new Promise(resolve => setTimeout(resolve, 5));
+      await vi.advanceTimersByTimeAsync(10);
       return promise;
     }
 
