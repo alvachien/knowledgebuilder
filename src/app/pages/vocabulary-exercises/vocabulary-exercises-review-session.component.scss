@@ -7,25 +7,60 @@
     flex: 1 1 auto;
 }
 
-.toolbar-fab-button {
-  margin-right: 4px;
-  margin-left: 4px;
+// The review toolbar carries every interaction (progress, mode label, rating,
+// action buttons). Unlike the default fixed-height row it wraps to a second
+// line when the width is not enough, so nothing gets clipped on tablets.
+.review-toolbar-row {
+    flex-wrap: wrap;
+    height: auto;
+    min-height: 64px;
+    row-gap: 4px;
+    padding-block: 4px;
 }
 
-// Seconds-per-word selector: compact so it fits the toolbar row on tablets.
-.seconds-field {
-  margin-right: 4px;
-  width: 90px;
-
-  .mat-mdc-text-field-wrapper {
-    padding-top: 4px;
-  }
-}
-
-.example-button-container {
+// Progress: a deliberately short 100px bar (the word/gloss area below is the
+// main content) plus the "position / total" count beside it, spaced apart
+// from the label and rating group that follow.
+.review-progress {
     display: flex;
-    justify-content: center;
-    width: 56px;
+    align-items: center;
+    gap: 12px;
+    flex: 0 1 auto;
+    margin-right: 24px;
+
+    mat-progress-bar {
+        flex: 0 0 100px;
+        width: 100px;
+    }
+}
+
+.review-progress-count {
+    flex: 0 0 auto;
+    font-size: 14px;
+    white-space: nowrap;
+    font-variant-numeric: tabular-nums;
+}
+
+// Mode label between the progress bar and the rating group (mirrors the list
+// page's `h5` toolbar title); dropped on small screens like the item counts.
+.review-mode-label {
+    margin: 0;
+    white-space: nowrap;
+}
+
+// The 1-5 rating group now lives in the toolbar next to the mode label, with
+// breathing room between it and the action buttons.
+.review-rating {
+    display: flex;
+    align-items: center;
+    margin-left: 24px;
+    margin-right: 12px;
+}
+
+@media (max-width: 820px) {
+    .review-mode-label {
+        display: none;
+    }
 }
 
 .vocabulary-container {
@@ -34,21 +69,118 @@
     align-items: center;
     justify-content: center;
     width: 100%;
+    max-width: 1200px; // same ceiling as the page container: the reference
+    margin-inline: auto; // tables then span as wide as the toolbar above
     padding: 24px;
 }
 
+// The word and its gloss are the major section of the screen: sized up well
+// beyond the reference tables, with generous air around the pair (64px above
+// the word, 64px below the gloss; the 32px + 32px overlap between them reads
+// as a calm rhythm rather than one giant gap).
 .vocabulary-typing-explain {
-    font-size: 36px;
+    font-size: 46px;
     display: flex;
     justify-content: center;
     align-items: center;
     text-align: center;
-    min-height: 50px;
-    margin-bottom: 16px;
+    min-height: 96px;
+    margin: 0;
     width: 100%;
+    box-sizing: border-box;
 }
 
-.vocabulary-rating-container {
-    display: flex;
-    justify-content: center;
+.vocabulary-word {
+    padding-top: 64px;
+    padding-bottom: 32px;
+}
+
+.vocabulary-gloss {
+    padding-top: 32px;
+    padding-bottom: 64px;
+}
+
+// Dictionary detail (definitions / example sentences from words.db). Full
+// container width - deliberately NOT capped narrower anymore, so the tables
+// span exactly as wide as the toolbar and the word headline above them.
+.vocabulary-reference {
+    width: 100%;
+    margin-bottom: 16px;
+    padding: 0 12px;
+    box-sizing: border-box;
+    font-size: 16px;
+    text-align: left;
+}
+
+.vocabulary-reference-label {
+    font-size: 14px;
+    font-weight: 700;
+    margin-bottom: 6px;
+    color: rgba(0, 0, 0, 0.62);
+}
+
+.vocabulary-reference-table {
+    width: 100%;
+    border-collapse: collapse;
+    border-top: 1px solid rgba(0, 0, 0, 0.1);
+
+    tr {
+        border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+    }
+
+    // Zebra striping, consistent with the shared mat-table lists.
+    tbody tr:nth-child(even) {
+        background: rgba(0, 0, 0, 0.015);
+    }
+
+    th,
+    td {
+        padding: 8px 12px;
+        vertical-align: top;
+        text-align: left;
+        font-weight: normal;
+    }
+}
+
+// Definitions: a narrow italic part-of-speech column + the meaning.
+.vocabulary-definitions-table {
+    .vocabulary-reference-pos {
+        width: 64px;
+        font-style: italic;
+        color: rgba(0, 0, 0, 0.6);
+        white-space: nowrap;
+    }
+}
+
+// Examples: English source on the left, Chinese gloss on the right. On narrow
+// screens the two cells stack so long sentences never overflow.
+.vocabulary-examples-table {
+    .vocabulary-example-en {
+        width: 55%;
+        padding-right: 16px;
+    }
+
+    .vocabulary-example-zh {
+        color: rgba(0, 0, 0, 0.66);
+    }
+
+    // The sentence currently being read aloud (auto play / re-read): azure
+    // wash + inset accent. Declared after the zebra rule with equal-or-higher
+    // specificity so the highlight always wins.
+    tbody tr.vocabulary-example-reading {
+        background: rgba(25, 118, 192, 0.14);
+        box-shadow: inset 3px 0 0 rgba(25, 118, 192, 0.85);
+    }
+
+    @media (max-width: 720px) {
+        .vocabulary-example-en,
+        .vocabulary-example-zh {
+            display: block;
+            width: auto;
+        }
+
+        .vocabulary-example-en {
+            padding-bottom: 2px;
+        }
+    }
 }

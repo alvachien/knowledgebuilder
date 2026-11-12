@@ -225,3 +225,32 @@ describe('HabitDetailComponent history filter', () => {
     expect(comp.showChipFor(visible[0])).toBe(true);
   });
 });
+
+describe('HabitDetailComponent cycle-window label (FR-2.2)', () => {
+  it('labels an active habit window as the current cycle', async () => {
+    const { comp } = await createDetail(() => of<DayHistoryOut[]>([]));
+    await wait();
+
+    expect(comp.windowLabelKey(habit)).toBe('habits.detail.window');
+  });
+
+  it('labels an inactive habit window as the last actual cycle, with deactivation date shown when known', async () => {
+    const inactive: Habit = { ...habit, state: 'inactive', deactivatedDate: '2026-10-06' };
+    const { comp } = await createDetail(() => of<DayHistoryOut[]>([]), undefined, inactive);
+    await wait();
+
+    expect(comp.windowLabelKey(inactive)).toBe('habits.detail.windowLastActual');
+    // The server-clamped window from the deactivated habit renders unchanged.
+    expect(comp.habit()?.progress.cycleFrom).toBe('2026-09-21');
+    expect(comp.habit()?.deactivatedDate).toBe('2026-10-06');
+  });
+
+  it('still uses the last-actual label for legacy inactive rows without a deactivated date', async () => {
+    const legacy: Habit = { ...habit, state: 'inactive' };
+    const { comp } = await createDetail(() => of<DayHistoryOut[]>([]), undefined, legacy);
+    await wait();
+
+    expect(comp.windowLabelKey(legacy)).toBe('habits.detail.windowLastActual');
+    expect(legacy.deactivatedDate ?? null).toBeNull();
+  });
+});

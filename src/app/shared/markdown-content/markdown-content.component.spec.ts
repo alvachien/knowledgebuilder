@@ -87,6 +87,16 @@ describe('MarkdownContentComponent', () => {
 
       expect(component['renderMarkdown']).toHaveBeenCalled();
     });
+
+    it('should call renderMarkdown when headingIds input changes', () => {
+      vi.spyOn(component as any, 'renderMarkdown');
+
+      component.ngOnChanges({
+        headingIds: new SimpleChange(false, true, false),
+      });
+
+      expect(component['renderMarkdown']).toHaveBeenCalled();
+    });
   });
 
   describe('renderMarkdown', () => {
@@ -561,6 +571,66 @@ describe('MarkdownContentComponent', () => {
       const html = component.renderedContent.toString();
       expect(html).toMatch(/src="blob:/);
       expect(html).not.toContain('data/knowledge-exercises/');
+    });
+  });
+
+  // The /help page renders one long document whose own table of contents links to the
+  // heading ids below. Default OFF, so the exercise-content consumers above keep exactly
+  // the markup they had before this input existed.
+  describe('headingIds', () => {
+    it('leaves headings untouched when disabled', async () => {
+      component.markdown = '## One\n\n## Two';
+      await component['renderMarkdown']();
+
+      const html = component.renderedContent.toString();
+      expect(html).toContain('<h2>One</h2>');
+      expect(html).not.toContain('id=');
+    });
+
+    it('stamps ordinal ids on h2 and h3 when enabled', async () => {
+      component.markdown = '## One\n\n### Sub\n\n## Two\n\n### Sub A\n\n### Sub B';
+      component.headingIds = true;
+      await component['renderMarkdown']();
+
+      const html = component.renderedContent.toString();
+      expect(html).toContain('<h2 id="sec-1">One</h2>');
+      expect(html).toContain('<h3 id="sec-1-1">Sub</h3>');
+      expect(html).toContain('<h2 id="sec-2">Two</h2>');
+      expect(html).toContain('<h3 id="sec-2-1">Sub A</h3>');
+      expect(html).toContain('<h3 id="sec-2-2">Sub B</h3>');
+    });
+
+    it('restarts the numbering on every render (counters are per-render state)', async () => {
+      component.headingIds = true;
+      component.markdown = '## Only';
+      await component['renderMarkdown']();
+      expect(component.renderedContent.toString()).toContain('<h2 id="sec-1">Only</h2>');
+
+      component.markdown = '## Again';
+      await component['renderMarkdown']();
+      expect(component.renderedContent.toString()).toContain('<h2 id="sec-1">Again</h2>');
+    });
+
+    it('keeps the TOC div, its class and its fragment link through sanitization', async () => {
+      component.headingIds = true;
+      component.markdown =
+        '<div class="help-toc"><a href="#sec-1">Quick start</a></div>\n\n## Quick start';
+      await component['renderMarkdown']();
+
+      const html = component.renderedContent.toString();
+      expect(html).toContain('class="help-toc"');
+      expect(html).toContain('href="#sec-1"');
+      expect(html).toContain('<h2 id="sec-1">Quick start</h2>');
+    });
+
+    it('renders through the extension path without dropping math or text content', async () => {
+      component.headingIds = true;
+      component.markdown = '## Section\n\nPlain **bold** body.';
+      await component['renderMarkdown']();
+
+      const html = component.renderedContent.toString();
+      expect(html).toContain('<strong>bold</strong>');
+      expect(html).toContain('Plain');
     });
   });
 });

@@ -1,7 +1,9 @@
 <!-- "Mark & Ledger" homepage: fixed paper/ink/red-pen identity, deliberately
      outside the 4-palette Material theme system (see homepage.scss tokens).
      Keep every transloco key, the daysleft bindings, appFocusOnNavigation,
-     and id="homepage-header" (navbar skip-link target). -->
+     and id="homepage-header" (navbar skip-link target).
+     Every glyph binds to NAV_ICON (shared/nav-icons.ts) — never hardcode a
+     category icon here, or this page and the navbar drawer drift apart again. -->
 <header appFocusOnNavigation class="ledger-hero"
         [attr.aria-label]="'start_learning_journey_today' | transloco" id="homepage-header">
   <div class="hero-container">
@@ -27,6 +29,43 @@
             <span class="stat-label">{{ 'days_to_gaokao_2031' | transloco }}</span>
           </div>
         </div>
+
+        <!-- Learning leaderboard — sits under the three countdown stats; hidden
+             entirely for anonymous visitors and while both windows are empty
+             (no data yet, or a failed load). -->
+        @if (isSignedIn() && (weekTop().length > 0 || monthTop().length > 0)) {
+          <section class="leaderboard-section" [attr.aria-label]="'top_learners' | transloco">
+            <h2 class="leaderboard-heading">{{ 'top_learners' | transloco }}</h2>
+            <div class="leaderboard-columns">
+              @if (weekTop().length > 0) {
+                <div class="leaderboard-column">
+                  <h3 class="leaderboard-period">{{ 'past_week' | transloco }}</h3>
+                  <ol class="leaderboard-list">
+                    @for (entry of weekTop(); track entry.userId) {
+                      <li class="leaderboard-entry">
+                        <span class="leaderboard-name">{{ entry.userName }}</span>
+                        <span class="leaderboard-time">{{ formatDuration(entry.totalSeconds) }}</span>
+                      </li>
+                    }
+                  </ol>
+                </div>
+              }
+              @if (monthTop().length > 0) {
+                <div class="leaderboard-column">
+                  <h3 class="leaderboard-period">{{ 'past_month' | transloco }}</h3>
+                  <ol class="leaderboard-list">
+                    @for (entry of monthTop(); track entry.userId) {
+                      <li class="leaderboard-entry">
+                        <span class="leaderboard-name">{{ entry.userName }}</span>
+                        <span class="leaderboard-time">{{ formatDuration(entry.totalSeconds) }}</span>
+                      </li>
+                    }
+                  </ol>
+                </div>
+              }
+            </div>
+          </section>
+        }
       </div>
 
       <div class="hero-visual">
@@ -34,54 +73,57 @@
              the study categories, graded in red pen. Marks are decorative. -->
         <section class="ledger-panel" [attr.aria-label]="'learning_ledger' | transloco">
           <h2 class="ledger-title">{{ 'learning_ledger' | transloco }}</h2>
+          <!-- Each row shows four red-pen ticks (decorative, not progress); the lit
+               count is the "grade". Keep four <i> per row — homepage.scss sizes the
+               slots to line the columns up, and the streak row is underlined. -->
           <a class="ledger-row" routerLink="/vocabulary">
-            <mat-icon class="row-icon">translate</mat-icon>
+            <mat-icon class="row-icon">{{ navIcon.vocabulary }}</mat-icon>
             <span class="row-name">{{ 'vocabulary' | transloco }}
               <small>{{ 'expand_your_word_power' | transloco }}</small>
             </span>
             <span class="row-marks" aria-hidden="true"><i>✓</i><i>✓</i><i>✓</i><i class="off">·</i></span>
           </a>
           <a class="ledger-row" routerLink="/translating">
-            <mat-icon class="row-icon">format_quote</mat-icon>
+            <mat-icon class="row-icon">{{ navIcon.translating }}</mat-icon>
             <span class="row-name">{{ 'sentences' | transloco }}
               <small>{{ 'master_sentence_structures' | transloco }}</small>
             </span>
             <span class="row-marks" aria-hidden="true"><i>✓</i><i>✓</i><i class="off">·</i><i class="off">·</i></span>
           </a>
           <a class="ledger-row" routerLink="/listening">
-            <mat-icon class="row-icon">headphones</mat-icon>
+            <mat-icon class="row-icon">{{ navIcon.listening }}</mat-icon>
             <span class="row-name">{{ 'listening' | transloco }}
               <small>{{ 'improve_comprehension' | transloco }}</small>
             </span>
             <span class="row-marks" aria-hidden="true"><i>✓</i><i>✓</i><i>✓</i><i class="off">·</i></span>
           </a>
           <a class="ledger-row" routerLink="/chinese">
-            <mat-icon class="row-icon">font_download</mat-icon>
+            <mat-icon class="row-icon">{{ navIcon.chinese }}</mat-icon>
             <span class="row-name">{{ 'chinese' | transloco }}
               <small>{{ 'classical_literature' | transloco }}</small>
             </span>
             <span class="row-marks" aria-hidden="true"><i>✓</i><i>✓</i><i>✓</i><i class="off">·</i></span>
           </a>
           <a class="ledger-row" routerLink="/formula">
-            <mat-icon class="row-icon">functions</mat-icon>
+            <mat-icon class="row-icon">{{ navIcon.formula }}</mat-icon>
             <span class="row-name">{{ 'formula' | transloco }}
               <small>{{ 'math_science_formulas' | transloco }}</small>
             </span>
             <span class="row-marks" aria-hidden="true"><i>✓</i><i>✓</i><i class="off">·</i><i class="off">·</i></span>
           </a>
           <a class="ledger-row" routerLink="/knowledge">
-            <mat-icon class="row-icon">school</mat-icon>
+            <mat-icon class="row-icon">{{ navIcon.knowledge }}</mat-icon>
             <span class="row-name">{{ 'knowledge_bank' | transloco }}
               <small>{{ 'comprehensive_learning' | transloco }}</small>
             </span>
             <span class="row-marks" aria-hidden="true"><i>✓</i><i class="off">·</i><i class="off">·</i><i class="off">·</i></span>
           </a>
           <a class="ledger-row row-streak" routerLink="/habits">
-            <mat-icon class="row-icon">track_changes</mat-icon>
+            <mat-icon class="row-icon">{{ navIcon.habits }}</mat-icon>
             <span class="row-name">{{ 'habit_tracker' | transloco }}
               <small>{{ 'build_daily_consistency' | transloco }}</small>
             </span>
-            <span class="row-marks" aria-hidden="true"><i>✓</i><i>✓</i><i>✓</i><i>✓</i><i>✓</i></span>
+            <span class="row-marks" aria-hidden="true"><i>✓</i><i>✓</i><i>✓</i><i>✓</i></span>
           </a>
         </section>
       </div>
@@ -99,7 +141,7 @@
     <div class="features-list">
       <article class="feature-note">
         <div class="note-head">
-          <mat-icon>smart_toy</mat-icon>
+          <mat-icon>{{ navIcon.ai }}</mat-icon>
           <h3>{{ 'ai_powered_learning' | transloco }}</h3>
         </div>
         <p>{{ 'ai_powered_learning_desc' | transloco }}</p>
@@ -108,7 +150,7 @@
 
       <article class="feature-note">
         <div class="note-head">
-          <mat-icon>translate</mat-icon>
+          <mat-icon>{{ navIcon.languages }}</mat-icon>
           <h3>{{ 'comprehensive_language' | transloco }}</h3>
         </div>
         <p>{{ 'comprehensive_language_desc' | transloco }}</p>
@@ -116,7 +158,7 @@
 
       <article class="feature-note">
         <div class="note-head">
-          <mat-icon>calculate</mat-icon>
+          <mat-icon>{{ navIcon.formula }}</mat-icon>
           <h3>{{ 'formula_mastery' | transloco }}</h3>
         </div>
         <p>{{ 'formula_mastery_desc' | transloco }}</p>
@@ -124,7 +166,7 @@
 
       <article class="feature-note">
         <div class="note-head">
-          <mat-icon>library_books</mat-icon>
+          <mat-icon>{{ navIcon.knowledge }}</mat-icon>
           <h3>{{ 'knowledge_bank' | transloco }}</h3>
         </div>
         <p>{{ 'knowledge_bank_desc' | transloco }}</p>
@@ -132,7 +174,7 @@
 
       <article class="feature-note note-habit">
         <div class="note-head">
-          <mat-icon>track_changes</mat-icon>
+          <mat-icon>{{ navIcon.habits }}</mat-icon>
           <h3>{{ 'habit_tracking' | transloco }}</h3>
         </div>
         <p>{{ 'habit_tracking_desc' | transloco }}</p>
@@ -140,7 +182,7 @@
 
       <article class="feature-note">
         <div class="note-head">
-          <mat-icon>headphones</mat-icon>
+          <mat-icon>{{ navIcon.listening }}</mat-icon>
           <h3>{{ 'listening_improvement' | transloco }}</h3>
         </div>
         <p>{{ 'listening_improvement_desc' | transloco }}</p>
@@ -156,15 +198,17 @@
       <p>{{ 'join_thousands_of_learners' | transloco }}</p>
       <div class="cta-actions">
         <a routerLink="/vocabulary" class="cta-button primary">
-          <mat-icon>edit_note</mat-icon>
+          <mat-icon>{{ navIcon.vocabulary }}</mat-icon>
           <span>{{ 'get_started' | transloco }}</span>
         </a>
-        <a routerLink="/knowledge" class="cta-button secondary">
+        <!-- "Explore Features" lands on the guide, not on a study page: the way to explore a
+             feature is to read how it works first. Label keys untouched (en/zh already read
+             "Explore Features / 探索功能"). -->
+        <a routerLink="/help" class="cta-button secondary">
+          <mat-icon>{{ navIcon.help }}</mat-icon>
           <span>{{ 'explore_features' | transloco }}</span>
         </a>
       </div>
     </div>
   </div>
 </section>
-
-<app-footer></app-footer>

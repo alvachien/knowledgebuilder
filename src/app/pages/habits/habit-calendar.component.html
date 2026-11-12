@@ -6,11 +6,13 @@
 
   <div class="controls-bar">
     <div class="nav-cluster">
-      <button mat-icon-button (click)="prev()" [matTooltip]="t('habits.calendar.prev')">
+      <button mat-mini-fab (click)="prev()"
+              [matTooltip]="t('habits.calendar.prev')" [attr.aria-label]="t('habits.calendar.prev')">
         <mat-icon>chevron_left</mat-icon>
       </button>
       <span class="period-label">{{ periodLabel() }}</span>
-      <button mat-icon-button (click)="next()" [matTooltip]="t('habits.calendar.next')">
+      <button mat-mini-fab (click)="next()"
+              [matTooltip]="t('habits.calendar.next')" [attr.aria-label]="t('habits.calendar.next')">
         <mat-icon>chevron_right</mat-icon>
       </button>
     </div>
@@ -29,7 +31,10 @@
   } @else if (loadFailed()) {
     <div class="cal-error">
       <p>{{ t('habits.list.loadError') }}</p>
-      <button mat-stroked-button (click)="loadHabits()"><mat-icon>refresh</mat-icon> {{ t('habits.list.retry') }}</button>
+      <button mat-fab class="toolbar-fab-button" (click)="loadHabits(true)"
+              [matTooltip]="t('habits.list.retry')" [attr.aria-label]="t('habits.list.retry')">
+        <mat-icon>refresh</mat-icon>
+      </button>
     </div>
   } @else {
     @if (viewMode() === 'month') {

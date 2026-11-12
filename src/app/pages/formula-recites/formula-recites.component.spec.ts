@@ -30,7 +30,6 @@ import { LearningContentService } from '../../services/learning-content.service'
 import { UIService } from '../../services/ui.service';
 import { UserCodeService } from '../../services/user-code.service';
 import { UtilService } from '../../services/util.service';
-import { FooterComponent } from '../../shared/footer/footer';
 import { MathItemComponent } from '../../shared/mathitem';
 import { AppPageTitle } from '../page-title/page-title';
 
@@ -139,7 +138,6 @@ describe('FormulaRecitesComponent', () => {
 
     await TestBed.configureTestingModule({
       imports: [
-        FooterComponent,
         MatToolbarModule,
         MatFormFieldModule,
         MatInputModule,
@@ -152,7 +150,6 @@ describe('FormulaRecitesComponent', () => {
         MatDividerModule,
         MatProgressBarModule,
         MatPaginatorModule,
-        FooterComponent,
         MathItemComponent,
       ],
       providers: [
@@ -175,7 +172,6 @@ describe('FormulaRecitesComponent', () => {
     TestBed.overrideComponent(FormulaRecitesComponent, {
       set: {
         imports: [
-          FooterComponent,
           MatToolbarModule,
           MatFormFieldModule,
           MatInputModule,

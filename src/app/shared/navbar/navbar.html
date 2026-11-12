@@ -21,7 +21,7 @@
     </div>
   }
 
-  <!-- Hamburger button (small screens only: ≤600px) -->
+  <!-- Hamburger button (small screens only: ≤820px) -->
   <button mat-icon-button class="app-navbar-show-small app-navbar-hamburger"
     (click)="toggleDrawer()" [attr.aria-label]="'menu' | transloco">
     <mat-icon>menu</mat-icon>
@@ -33,34 +33,44 @@
     <span class="app-navbar-short-text">KHB</span>
   </a>
 
-  <!-- Navigation links (hidden at ≤600px, abbreviated at 601–1200px, full at >1200px) -->
-  <a mat-button class="app-navbar-hide-small" routerLink="./vocabulary" routerLinkActive="app-navbar-header-item-selected">
-    <span class="app-navbar-full-text">{{ 'vocabulary' | transloco }}</span>
-    <span class="app-navbar-short-text">Voc</span>
+  <!-- Destination links (hidden at ≤820px, where the drawer carries icon + label).
+       Icon only, at every width: the glyph is the same one the home page's ledger and the
+       drawer use (NAV_ICON), the name moves to the tooltip, and aria-label keeps it
+       readable for screen readers — so the abbreviation tier ("Voc", "Sent", "中", …) is
+       gone here entirely. Same shape as the invitation-code button below. -->
+  <a mat-button class="app-navbar-hide-small" routerLink="./vocabulary" routerLinkActive="app-navbar-header-item-selected"
+    [matTooltip]="'vocabulary' | transloco" [attr.aria-label]="'vocabulary' | transloco">
+    <mat-icon>{{ navIcon.vocabulary }}</mat-icon>
   </a>
-  <a mat-button class="app-navbar-hide-small" routerLink="./translating" routerLinkActive="app-navbar-header-item-selected">
-    <span class="app-navbar-full-text">{{ 'sentences' | transloco }}</span>
-    <span class="app-navbar-short-text">Sent</span>
+  <a mat-button class="app-navbar-hide-small" routerLink="./translating" routerLinkActive="app-navbar-header-item-selected"
+    [matTooltip]="'sentences' | transloco" [attr.aria-label]="'sentences' | transloco">
+    <mat-icon>{{ navIcon.translating }}</mat-icon>
   </a>
-  <a mat-button class="app-navbar-hide-small" routerLink="./listening" routerLinkActive="app-navbar-header-item-selected">
-    <span class="app-navbar-full-text">{{ 'listening' | transloco }}</span>
-    <span class="app-navbar-short-text">Listen</span>
+  <a mat-button class="app-navbar-hide-small" routerLink="./listening" routerLinkActive="app-navbar-header-item-selected"
+    [matTooltip]="'listening' | transloco" [attr.aria-label]="'listening' | transloco">
+    <mat-icon>{{ navIcon.listening }}</mat-icon>
   </a>
-  <a mat-button class="app-navbar-hide-small" routerLink="./chinese" routerLinkActive="app-navbar-header-item-selected">
-    <span class="app-navbar-full-text">{{ 'chinese' | transloco }}</span>
-    <span class="app-navbar-short-text">中</span>
+  <a mat-button class="app-navbar-hide-small" routerLink="./chinese" routerLinkActive="app-navbar-header-item-selected"
+    [matTooltip]="'chinese' | transloco" [attr.aria-label]="'chinese' | transloco">
+    <mat-icon>{{ navIcon.chinese }}</mat-icon>
   </a>
-  <a mat-button class="app-navbar-hide-small" routerLink="./formula" routerLinkActive="app-navbar-header-item-selected">
-    <span class="app-navbar-full-text">{{ 'formula' | transloco }}</span>
-    <span class="app-navbar-short-text">Form</span>
+  <a mat-button class="app-navbar-hide-small" routerLink="./formula" routerLinkActive="app-navbar-header-item-selected"
+    [matTooltip]="'formula' | transloco" [attr.aria-label]="'formula' | transloco">
+    <mat-icon>{{ navIcon.formula }}</mat-icon>
   </a>
-  <a mat-button class="app-navbar-hide-small" routerLink="./knowledge" routerLinkActive="app-navbar-header-item-selected">
-    <span class="app-navbar-full-text">{{ 'knowledge_bank' | transloco }}</span>
-    <span class="app-navbar-short-text">KB</span>
+  <a mat-button class="app-navbar-hide-small" routerLink="./knowledge" routerLinkActive="app-navbar-header-item-selected"
+    [matTooltip]="'knowledge_bank' | transloco" [attr.aria-label]="'knowledge_bank' | transloco">
+    <mat-icon>{{ navIcon.knowledge }}</mat-icon>
   </a>
-  <a mat-button class="app-navbar-hide-small" routerLink="./habits" routerLinkActive="app-navbar-header-item-selected">
-    <span class="app-navbar-full-text">{{ 'habits.nav' | transloco }}</span>
-    <span class="app-navbar-short-text">Hab</span>
+  <a mat-button class="app-navbar-hide-small" routerLink="./habits" routerLinkActive="app-navbar-header-item-selected"
+    [matTooltip]="'habits.nav' | transloco" [attr.aria-label]="'habits.nav' | transloco">
+    <mat-icon>{{ navIcon.habits }}</mat-icon>
+  </a>
+  <!-- Help sits with the destinations, not beside the account controls: it is a page you
+       navigate to (and is reachable signed out). -->
+  <a mat-button class="app-navbar-hide-small" routerLink="./help" routerLinkActive="app-navbar-header-item-selected"
+    [matTooltip]="'help.nav' | transloco" [attr.aria-label]="'help.nav' | transloco">
+    <mat-icon>{{ navIcon.help }}</mat-icon>
   </a>
   <div class="flex-spacer"></div>
 
@@ -107,38 +117,43 @@
   <div class="app-navbar-drawer-content">
     <a mat-button routerLink="./vocabulary" routerLinkActive="app-navbar-header-item-selected"
       (click)="closeDrawer()">
-      <mat-icon>menu_book</mat-icon>
+      <mat-icon>{{ navIcon.vocabulary }}</mat-icon>
       {{ t('vocabulary') }}
     </a>
     <a mat-button routerLink="./translating" routerLinkActive="app-navbar-header-item-selected"
       (click)="closeDrawer()">
-      <mat-icon>translate</mat-icon>
+      <mat-icon>{{ navIcon.translating }}</mat-icon>
       {{ t('sentences') }}
     </a>
     <a mat-button routerLink="./listening" routerLinkActive="app-navbar-header-item-selected"
       (click)="closeDrawer()">
-      <mat-icon>headphones</mat-icon>
+      <mat-icon>{{ navIcon.listening }}</mat-icon>
       {{ t('listening') }}
     </a>
     <a mat-button routerLink="./chinese" routerLinkActive="app-navbar-header-item-selected"
       (click)="closeDrawer()">
-      <mat-icon>font_download</mat-icon>
+      <mat-icon>{{ navIcon.chinese }}</mat-icon>
       {{ t('chinese') }}
     </a>
     <a mat-button routerLink="./formula" routerLinkActive="app-navbar-header-item-selected"
       (click)="closeDrawer()">
-      <mat-icon>functions</mat-icon>
+      <mat-icon>{{ navIcon.formula }}</mat-icon>
       {{ t('formula') }}
     </a>
     <a mat-button routerLink="./knowledge" routerLinkActive="app-navbar-header-item-selected"
       (click)="closeDrawer()">
-      <mat-icon>account_balance</mat-icon>
+      <mat-icon>{{ navIcon.knowledge }}</mat-icon>
       {{ t('knowledge_bank') }}
     </a>
     <a mat-button routerLink="./habits" routerLinkActive="app-navbar-header-item-selected"
       (click)="closeDrawer()">
-      <mat-icon>track_changes</mat-icon>
+      <mat-icon>{{ navIcon.habits }}</mat-icon>
       {{ t('habits.nav') }}
+    </a>
+    <a mat-button routerLink="./help" routerLinkActive="app-navbar-header-item-selected"
+      (click)="closeDrawer()">
+      <mat-icon>{{ navIcon.help }}</mat-icon>
+      {{ t('help.nav') }}
     </a>
 
     <mat-divider></mat-divider>

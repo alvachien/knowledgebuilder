@@ -26,13 +26,24 @@
 		border: none;
 	}
 
+	// The worksheet body (questions, options, answers) sets no size anywhere,
+	// so it used to inherit the browser's 16px default. Pin the print section
+	// to the same 11pt print base the markdown sheets use.
+	#print-section {
+		font-size: 11pt;
+		line-height: 1.5;
+	}
+
+	// Title/subtitle are rem-based (root-relative), so #print-section above
+	// does not reach them; pin them to pt as well (1.2rem/1rem printed
+	// ~14.4pt/12pt off a 16px root).
 	.form-title {
-		font-size: 1.2rem;
+		font-size: 14pt;
 		font-weight: bold;
 		text-align: center;
 	}
 	.form-sub-title {
-		font-size: 1rem;
+		font-size: 11pt;
 		text-align: center;
 		margin-bottom: 1rem;
 	}

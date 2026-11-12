@@ -133,8 +133,11 @@ describe('SharedHabitListComponent', () => {
     const dom = fixture.nativeElement as HTMLElement;
     expect(norm(dom.textContent)).toContain('habits.shared.loadError');
 
-    const retry = Array.from(dom.querySelectorAll('button')).find((b) =>
-      norm(b.textContent).includes('habits.shared.retry')
+    // Retry is an icon-only FAB: the label is carried by aria-label, not text.
+    const retry = Array.from(dom.querySelectorAll('button')).find(
+      (b) =>
+        norm(b.textContent).includes('habits.shared.retry') ||
+        (b.getAttribute('aria-label') ?? '').includes('habits.shared.retry')
     );
     expect(retry).toBeTruthy();
     retry?.click();

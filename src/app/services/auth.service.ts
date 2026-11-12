@@ -8,7 +8,9 @@ import { BehaviorSubject, TimeoutError, type Observable, type Subscription } fro
 
 import { environment } from '../../environments/environment';
 import { UserAuthInfo } from '../interfaces';
+import { HabitService } from '../pages/habits/habit.service';
 
+import { LearningRatingService } from './learning-rating.service';
 import { UserCodeService } from './user-code.service';
 
 /** Time (ms) to wait when probing the IDP's well-known endpoint. */
@@ -32,6 +34,8 @@ export class AuthService implements OnDestroy {
   private readonly router = inject(Router);
   private readonly http = inject(HttpClient);
   private readonly userCodeService = inject(UserCodeService);
+  private readonly habitService = inject(HabitService);
+  private readonly ratingService = inject(LearningRatingService);
 
   /** Number of consecutive silent-renew failures — used to avoid infinite retry loops. */
   private _silentRenewFailures = 0;
@@ -114,6 +118,11 @@ export class AuthService implements OnDestroy {
         this.authSubject.next(UserAuthInfo.createClean());
         // Clear stored user code on logout to prevent stale access credentials.
         this.userCodeService.clearUserCode();
+        // Cached API results are per-user data held in root singletons that survive
+        // the navigation away — drop them so the next account never sees the
+        // previous one's habits or ratings.
+        this.habitService.clearCaches();
+        this.ratingService.clearCache();
       });
   }
 

@@ -1,8 +1,10 @@
 import { provideHttpClient, withXhr } from '@angular/common/http';
-import { provideHttpClientTesting } from '@angular/common/http/testing';
+import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { NgZone } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { vi } from 'vitest';
+
+import { environment } from '../../environments/environment';
 
 import { AudioService } from './audio-service.service';
 import { HOWL_FACTORY } from './howl-factory';
@@ -10,7 +12,11 @@ import { HOWLER_GLOBAL } from './howler.token';
 
 describe('AudioService', () => {
   let service: AudioService;
+  let httpTestingController: HttpTestingController;
   let howlerVolumeSpy: ReturnType<typeof vi.fn>;
+  // Last config object handed to the HOWL_FACTORY mock; lets tests drive the
+  // one-shot's onload/onend/onloaderror callbacks by hand.
+  let lastHowlConfig: Record<string, ((...args: unknown[]) => void) | undefined> | undefined;
 
   // Setup proper Howl mock class
   function MockHowl(this: any, config: any) {
@@ -125,13 +131,20 @@ describe('AudioService', () => {
       providers: [
         AudioService,
         { provide: NgZone, useValue: new NgZone({ enableLongStackTrace: false }) },
-        { provide: HOWL_FACTORY, useValue: (config: unknown) => new (MockHowl as any)(config) },
+        {
+          provide: HOWL_FACTORY,
+          useValue: (config: Record<string, ((...args: unknown[]) => void) | undefined>) => {
+            lastHowlConfig = config;
+            return new (MockHowl as any)(config);
+          },
+        },
         { provide: HOWLER_GLOBAL, useValue: { volume: howlerVolumeSpy } },
         provideHttpClient(withXhr()),
         provideHttpClientTesting(),
       ],
     });
     service = TestBed.inject(AudioService);
+    httpTestingController = TestBed.inject(HttpTestingController);
   });
 
   afterEach(() => {
@@ -299,7 +312,7 @@ describe('AudioService', () => {
     });
 
     it('should speak the word with an en-US utterance at rate 0.9', () => {
-      service.speakWord('hello');
+      void service.speakWord('hello');
 
       expect(cancelMock).toHaveBeenCalled();
       expect(speakMock).toHaveBeenCalledTimes(1);
@@ -313,7 +326,7 @@ describe('AudioService', () => {
       const usVoice = { lang: 'en-US', name: 'US English' } as SpeechSynthesisVoice;
       getVoicesMock.mockReturnValue([usVoice]);
 
-      service.speakWord('hello');
+      void service.speakWord('hello');
 
       const utterance = speakMock.mock.calls[0][0] as SpeechSynthesisUtterance;
       expect(utterance.voice).toBe(usVoice);
@@ -321,7 +334,7 @@ describe('AudioService', () => {
 
     it('should attach onvoiceschanged and refresh the cache when voices load later', () => {
       // First call: no voices available yet — selection skipped, listener attached.
-      service.speakWord('hello');
+      void service.speakWord('hello');
       expect(voicesChangedHandler).not.toBeNull();
       const firstUtterance = speakMock.mock.calls[0][0] as SpeechSynthesisUtterance;
       expect(firstUtterance.voice).toBeUndefined();
@@ -332,21 +345,21 @@ describe('AudioService', () => {
       voicesChangedHandler!();
 
       // The next utterance should now pick up the cached US voice.
-      service.speakWord('world');
+      void service.speakWord('world');
       const secondUtterance = speakMock.mock.calls[1][0] as SpeechSynthesisUtterance;
       expect(secondUtterance.voice).toBe(usVoice);
     });
 
     it('should not re-attach the onvoiceschanged listener on subsequent calls', () => {
-      service.speakWord('hello');
+      void service.speakWord('hello');
       const firstHandler = voicesChangedHandler;
-      service.speakWord('world');
+      void service.speakWord('world');
       expect(voicesChangedHandler).toBe(firstHandler);
     });
 
     it('should not warn on interrupted/canceled errors', () => {
       const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
-      service.speakWord('hello');
+      void service.speakWord('hello');
       const utterance = speakMock.mock.calls[0][0] as SpeechSynthesisUtterance;
       const makeEvent = (error: string) => ({ error }) as unknown as SpeechSynthesisErrorEvent;
       utterance.onerror!(makeEvent('interrupted'));
@@ -357,11 +370,190 @@ describe('AudioService', () => {
 
     it('should warn on other speechSynthesis errors', () => {
       const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
-      service.speakWord('hello');
+      void service.speakWord('hello');
       const utterance = speakMock.mock.calls[0][0] as SpeechSynthesisUtterance;
       utterance.onerror!({ error: 'audio-busy' } as unknown as SpeechSynthesisErrorEvent);
       expect(warnSpy).toHaveBeenCalledWith('speechSynthesis error:', 'audio-busy');
       warnSpy.mockRestore();
+    });
+
+    it('should resolve the speakWord promise when the utterance ends', async () => {
+      const done = service.speakWord('hello');
+      const utterance = speakMock.mock.calls[0][0] as SpeechSynthesisUtterance;
+      // Drive the platform end event and let the microtask settle.
+      utterance.onend!(undefined as unknown as SpeechSynthesisEvent);
+      await expect(done).resolves.toBeUndefined();
+    });
+
+    it('speakSequence should queue utterances one after another (no cancel)', async () => {
+      const announced: number[] = [];
+      const sequence = service.speakSequence(['One.', 'Two.'], i => announced.push(i));
+
+      // First utterance is queued immediately; no cancel before the sequence.
+      expect(cancelMock).not.toHaveBeenCalled();
+      expect(speakMock).toHaveBeenCalledTimes(1);
+      expect(announced).toEqual([0]); // index announced BEFORE the utterance starts
+      const first = speakMock.mock.calls[0][0] as SpeechSynthesisUtterance;
+      expect(first.text).toBe('One.');
+
+      // The second is queued only once the first has ended.
+      first.onend!(undefined as unknown as SpeechSynthesisEvent);
+      await Promise.resolve();
+      expect(speakMock).toHaveBeenCalledTimes(2);
+      expect((speakMock.mock.calls[1][0] as SpeechSynthesisUtterance).text).toBe('Two.');
+
+      const second = speakMock.mock.calls[1][0] as SpeechSynthesisUtterance;
+      second.onend!(undefined as unknown as SpeechSynthesisEvent);
+      await expect(sequence).resolves.toBeUndefined();
+      expect(announced).toEqual([0, 1]);
+    });
+
+    it('speakSequence should skip blank texts', async () => {
+      const sequence = service.speakSequence(['  ', 'Real.']);
+      expect(speakMock).toHaveBeenCalledTimes(1);
+      expect((speakMock.mock.calls[0][0] as SpeechSynthesisUtterance).text).toBe('Real.');
+      (speakMock.mock.calls[0][0] as SpeechSynthesisUtterance).onend!(
+        undefined as unknown as SpeechSynthesisEvent
+      );
+      await sequence;
+    });
+
+    it('cancelSpeech should stop the sequence loop and cancel utterances', async () => {
+      const sequence = service.speakSequence(['One.', 'Two.', 'Three.']);
+      expect(speakMock).toHaveBeenCalledTimes(1);
+
+      service.cancelSpeech();
+      expect(cancelMock).toHaveBeenCalled();
+
+      // The in-flight first utterance ends (canceled); the loop must then bail
+      // because its generation was superseded by cancelSpeech().
+      (speakMock.mock.calls[0][0] as SpeechSynthesisUtterance).onerror!(
+        { error: 'canceled' } as unknown as SpeechSynthesisErrorEvent
+      );
+      await sequence;
+      expect(speakMock).toHaveBeenCalledTimes(1);
+    });
+
+    it('a newer speakSequence supersedes an in-flight one', async () => {
+      const first = service.speakSequence(['A1.', 'A2.']);
+      const second = service.speakSequence(['B1.']);
+
+      // End the currently queued utterance(s) so both loops settle.
+      (speakMock.mock.calls[0][0] as SpeechSynthesisUtterance).onend!(
+        undefined as unknown as SpeechSynthesisEvent
+      );
+      if (speakMock.mock.calls[1]) {
+        (speakMock.mock.calls[1][0] as SpeechSynthesisUtterance).onend!(
+          undefined as unknown as SpeechSynthesisEvent
+        );
+      }
+      await Promise.all([first, second]);
+
+      // The first loop must not continue to A2. once superseded by B1.
+      const spoken = speakMock.mock.calls.map(c => (c[0] as SpeechSynthesisUtterance).text);
+      expect(spoken).not.toContain('A2.');
+    });
+
+    it('a newer speakWord supersedes an in-flight sentence sequence', async () => {
+      const sequence = service.speakSequence(['One.', 'Two.']);
+      const wordPromise = service.speakWord('hello');
+      expect(cancelMock).toHaveBeenCalled(); // speakWord cancels the queue
+
+      // Settle both pending promises: current utterance errors as canceled,
+      // then the word's own utterance ends.
+      const inFlight = speakMock.mock.calls[speakMock.mock.calls.length - 1][0] as SpeechSynthesisUtterance;
+      // 'One.' was the queued sentence; the cancel surfaced on it.
+      (speakMock.mock.calls[0][0] as SpeechSynthesisUtterance).onerror!(
+        { error: 'canceled' } as unknown as SpeechSynthesisErrorEvent
+      );
+      inFlight.onend!(undefined as unknown as SpeechSynthesisEvent);
+      await Promise.all([sequence, wordPromise]);
+
+      const spoken = speakMock.mock.calls.map(c => (c[0] as SpeechSynthesisUtterance).text);
+      expect(spoken).not.toContain('Two.');
+      expect(spoken).toContain('hello');
+    });
+
+    it('speakSequence should not throw when speechSynthesis is unavailable', async () => {
+      Object.defineProperty(window, 'speechSynthesis', { configurable: true, value: undefined });
+      await expect(service.speakSequence(['One.'])).resolves.toBeUndefined();
+      expect(() => service.cancelSpeech()).not.toThrow();
+    });
+  });
+
+  describe('playAuthenticatedOneShot onEnd', () => {
+    const helloUrl = `${environment.apiUrl}/api/WordAudio?word=hello`;
+    let objectUrlSeq = 0;
+
+    beforeEach(() => {
+      // jsdom has no object-URL support; the one-shot path builds a blob URL.
+      vi.spyOn(URL, 'createObjectURL').mockImplementation(() => `blob:mock-${++objectUrlSeq}`);
+      vi.spyOn(URL, 'revokeObjectURL').mockImplementation(() => {});
+      // MockHowl defers onload on a REAL 1ms timer — when the whole suite
+      // runs on a loaded CI runner those callbacks starve past any generous
+      // timeout (PR #101 CI). Fake timers let startOneShot advance the load
+      // deterministically, so no test here waits on the wall clock.
+      vi.useFakeTimers();
+    });
+
+    afterEach(() => {
+      vi.useRealTimers();
+    });
+
+    // Start a one-shot, serve its authenticated blob, and advance MockHowl's
+    // deferred onload so the promise resolves `true` (playing). The async
+    // advance drains the HTTP microtasks first, then the mock's load timer.
+    async function startOneShot(onEnd?: () => void): Promise<boolean> {
+      const promise = service.playAuthenticatedOneShot(helloUrl, 'mp3', onEnd);
+      const request = httpTestingController.expectOne(helloUrl);
+      request.flush(new Blob(['data'], { type: 'audio/mpeg' }));
+      await vi.advanceTimersByTimeAsync(10);
+      return promise;
+    }
+
+    it('resolves true once playback starts but does not fire onEnd yet', async () => {
+      const onEnd = vi.fn();
+      const ok = await startOneShot(onEnd);
+
+      expect(ok).toBe(true);
+      // Started, not finished: onEnd only fires on the real end of playback.
+      expect(onEnd).not.toHaveBeenCalled();
+    });
+
+    it('fires onEnd exactly once when the sound reports it ended', async () => {
+      const onEnd = vi.fn();
+      await startOneShot(onEnd);
+
+      lastHowlConfig!['onend']!();
+      lastHowlConfig!['onend']!(); // a duplicate end must not double-fire
+
+      expect(onEnd).toHaveBeenCalledTimes(1);
+    });
+
+    it('fires onEnd when a superseding one-shot stops the pending sound', async () => {
+      const onEnd = vi.fn();
+      await startOneShot(onEnd);
+
+      // A newer word calls stopWordOneShot internally, releasing the waiter
+      // instead of leaving its promise unresolved forever.
+      void service.playAuthenticatedOneShot(`${environment.apiUrl}/api/WordAudio?word=world`);
+      httpTestingController.expectOne(`${environment.apiUrl}/api/WordAudio?word=world`);
+
+      expect(onEnd).toHaveBeenCalledTimes(1);
+    });
+
+    it('does not fire onEnd on a fetch miss - the caller falls back to TTS', async () => {
+      const onEnd = vi.fn();
+      const promise = service.playAuthenticatedOneShot(helloUrl, 'mp3', onEnd);
+      // Blob responses cannot auto-convert an error body; drive the 404
+      // through the error channel instead of flush.
+      httpTestingController
+        .expectOne(helloUrl)
+        .error(new ErrorEvent('NotFound', { error: '404' }), { status: 404, statusText: 'Not Found' });
+
+      await expect(promise).resolves.toBe(false);
+      // The `false` result carries the signal; the follow-up (TTS) owns it.
+      expect(onEnd).not.toHaveBeenCalled();
     });
   });
 });

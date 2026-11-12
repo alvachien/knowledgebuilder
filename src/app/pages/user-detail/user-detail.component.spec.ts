@@ -10,9 +10,9 @@ import { TranslocoModule, TranslocoService, TRANSLOCO_TRANSPILER } from '@jsvers
 import { BehaviorSubject, of, throwError } from 'rxjs';
 import { vi } from 'vitest';
 
-import type { UserLoginHistory } from '../../interfaces';
+import type { UserLearningTime, UserLoginHistory } from '../../interfaces';
 import { UserAuthInfo } from '../../interfaces';
-import { AuthService, UserLoginHistoryService } from '../../services';
+import { AuthService, UserLearningTimeService, UserLoginHistoryService } from '../../services';
 
 import { UserDetailComponent } from './user-detail.component';
 
@@ -25,6 +25,25 @@ describe('UserDetailComponent', () => {
   };
   let mockRouter: { navigate: ReturnType<typeof vi.fn> };
   let mockLoginHistoryService: { getHistory: ReturnType<typeof vi.fn> };
+  let mockLearningTimeService: {
+    getMy: ReturnType<typeof vi.fn>;
+    getPreferences: ReturnType<typeof vi.fn>;
+    savePreferences: ReturnType<typeof vi.fn>;
+  };
+
+  /** Server-side window default rows (dates in the past, so no today/week totals). */
+  const learningRows: UserLearningTime[] = [
+    { learnDate: '2026-10-05', categoryId: 1, learningSeconds: 300, lastBeatAt: '2026-10-05T09:00:00Z' },
+    { learnDate: '2026-10-05', categoryId: 3, learningSeconds: 120, lastBeatAt: '2026-10-05T09:30:00Z' },
+    { learnDate: '2026-10-02', categoryId: 6, learningSeconds: 60, lastBeatAt: '2026-10-02T10:00:00Z' },
+  ];
+
+  /** The server-local day key for a Date, mirroring the component's helper. */
+  function dayKey(d: Date): string {
+    const m = String(d.getMonth() + 1).padStart(2, '0');
+    const day = String(d.getDate()).padStart(2, '0');
+    return `${d.getFullYear()}-${m}-${day}`;
+  }
 
   const historyRows: UserLoginHistory[] = [
     {
@@ -66,6 +85,12 @@ describe('UserDetailComponent', () => {
     };
     mockRouter = { navigate: vi.fn() };
     mockLoginHistoryService = { getHistory: vi.fn().mockReturnValue(of(historyRows)) };
+    mockLearningTimeService = {
+      getMy: vi.fn().mockReturnValue(of(learningRows)),
+      getPreferences: vi.fn().mockReturnValue(of({ leaderboardOptOut: false })),
+      savePreferences: vi.fn().mockImplementation((v: boolean) =>
+        of({ leaderboardOptOut: v })),
+    };
 
     await TestBed.configureTestingModule({
       imports: [
@@ -81,6 +106,7 @@ describe('UserDetailComponent', () => {
         { provide: AuthService, useValue: mockAuthService },
         { provide: Router, useValue: mockRouter },
         { provide: UserLoginHistoryService, useValue: mockLoginHistoryService },
+        { provide: UserLearningTimeService, useValue: mockLearningTimeService },
         { provide: TranslocoService, useValue: createMockTranslocoService() },
         { provide: TRANSLOCO_TRANSPILER, useValue: {} },
       ],
@@ -218,6 +244,121 @@ describe('UserDetailComponent', () => {
 
       expect(component.historyLoading).toBe(false);
       expect(compiled.querySelector('.login-history-empty')).toBeTruthy();
+    });
+  });
+
+  describe('learning time', () => {
+    it('should load the default-window rows and map category ids to label keys', () => {
+      fixture.detectChanges();
+
+      expect(mockLearningTimeService.getMy).toHaveBeenCalled();
+      expect(component.learningLoading).toBe(false);
+      // Seconds -> minutes, ids -> existing nav label keys, in server order.
+      expect(component.learningRows).toEqual([
+        { learnDate: '2026-10-05', categoryKey: 'vocabulary', minutes: 5 },
+        { learnDate: '2026-10-05', categoryKey: 'listening', minutes: 2 },
+        { learnDate: '2026-10-02', categoryKey: 'knowledge_bank', minutes: 1 },
+      ]);
+      // Past-dated rows leave the today/week summaries at zero.
+      expect(component.todayMinutes).toBe(0);
+      expect(component.weekMinutes).toBe(0);
+    });
+
+    it('should render one table row per (day, category)', () => {
+      fixture.detectChanges();
+      const compiled = fixture.nativeElement;
+      const rows = compiled.querySelectorAll('.learning-time-table tbody tr');
+
+      expect(rows.length).toBe(3);
+      expect(rows[0].textContent).toContain('2026-10-05');
+      expect(rows[0].textContent).toContain('5');
+    });
+
+    it('should total today and the last 7 days from live-dated rows', () => {
+      const today = dayKey(new Date());
+      const fiveDaysAgo = dayKey(new Date(Date.now() - 5 * 24 * 3600 * 1000));
+      const outsideWeek = dayKey(new Date(Date.now() - 40 * 24 * 3600 * 1000));
+      mockLearningTimeService.getMy.mockReturnValue(
+        of([
+          { learnDate: today, categoryId: 1, learningSeconds: 300, lastBeatAt: '' },
+          { learnDate: today, categoryId: 3, learningSeconds: 120, lastBeatAt: '' },
+          { learnDate: fiveDaysAgo, categoryId: 1, learningSeconds: 360, lastBeatAt: '' },
+          { learnDate: outsideWeek, categoryId: 1, learningSeconds: 600, lastBeatAt: '' },
+        ])
+      );
+
+      fixture.detectChanges();
+
+      // Today: 420s -> 7 min. Week (>= today-6d): 780s -> 13 min.
+      expect(component.todayMinutes).toBe(7);
+      expect(component.weekMinutes).toBe(13);
+    });
+
+    it('should show the empty state when there are no learning rows', () => {
+      mockLearningTimeService.getMy.mockReturnValue(of([]));
+      fixture.detectChanges();
+      const compiled = fixture.nativeElement;
+      const card = compiled.querySelector('.learning-time-card');
+
+      expect(card).toBeTruthy();
+      expect(card.querySelector('.learning-time-table')).toBeNull();
+      expect(card.querySelector('.login-history-empty')).toBeTruthy();
+    });
+
+    it('should show the empty state (not a stuck spinner) when loading fails', () => {
+      mockLearningTimeService.getMy.mockReturnValue(throwError(() => new Error('HTTP 500')));
+      fixture.detectChanges();
+      const compiled = fixture.nativeElement;
+
+      expect(component.learningLoading).toBe(false);
+      expect(compiled.querySelector('.learning-time-card .login-history-empty')).toBeTruthy();
+    });
+
+    describe('leaderboard opt-out', () => {
+      it('should load the stored preference into the checkbox', () => {
+        mockLearningTimeService.getPreferences.mockReturnValue(of({ leaderboardOptOut: true }));
+
+        fixture.detectChanges();
+
+        // The switch renders in the card and the loaded value reaches the
+        // bound state (the native input's checked flag is Material-internal
+        // and settles a tick later — asserted via the model, not the DOM).
+        expect(
+          fixture.nativeElement.querySelector('.learning-time-optout input[type="checkbox"]')
+        ).toBeTruthy();
+        expect(component.leaderboardOptOut).toBe(true);
+      });
+
+      it('should default to visible when the preference load fails', () => {
+        mockLearningTimeService.getPreferences.mockReturnValue(
+          throwError(() => new Error('HTTP 500'))
+        );
+
+        fixture.detectChanges();
+
+        expect(component.leaderboardOptOut).toBe(false);
+      });
+
+      it('should persist a toggle through savePreferences', () => {
+        fixture.detectChanges();
+
+        component.onLeaderboardOptOutChange(true);
+
+        expect(mockLearningTimeService.savePreferences).toHaveBeenCalledWith(true);
+        expect(component.leaderboardOptOut).toBe(true);
+      });
+
+      it('should revert the checkbox when saving fails', () => {
+        fixture.detectChanges();
+        mockLearningTimeService.savePreferences.mockReturnValue(
+          throwError(() => new Error('HTTP 500'))
+        );
+
+        component.onLeaderboardOptOutChange(true);
+
+        expect(mockLearningTimeService.savePreferences).toHaveBeenCalledWith(true);
+        expect(component.leaderboardOptOut).toBe(false);
+      });
     });
   });
 });

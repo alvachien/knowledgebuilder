@@ -15,3 +15,5 @@ export * from './knowledge-list-filter';
 export * from './user-auth-info';
 export type * from './learning-rating';
 export type * from './user-login-history';
+export type * from './user-learning-time';
+export type * from './word-dictionary';

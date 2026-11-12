@@ -109,6 +109,51 @@ describe('NavbarComponent', () => {
     expect(component).toBeTruthy();
   });
 
+  // The destination entries in the header are icon-only at every width: the glyph is the
+  // shared NAV_ICON one (same as the home page ledger rows and the drawer), the name lives
+  // in the tooltip + aria-label, and the old abbreviated-text tier ("Voc", "Sent", "中",
+  // "KB"…) is gone. Pinned here because the point is that the header and the home page
+  // never show two different glyphs for one destination.
+  describe('destination links (icon-only, name in the tooltip)', () => {
+    const destinations = [
+      ['/vocabulary', 'menu_book'],
+      ['/translating', 'translate'],
+      ['/listening', 'headphones'],
+      ['/chinese', 'font_download'],
+      ['/formula', 'functions'],
+      ['/knowledge', 'library_books'],
+      ['/habits', 'track_changes'],
+      ['/help', 'help_outline'],
+    ] as const;
+
+    it('renders one icon-only anchor per destination, named by tooltip and aria-label', () => {
+      fixture.detectChanges();
+      const anchors = Array.from(
+        (fixture.nativeElement as HTMLElement).querySelectorAll<HTMLAnchorElement>('a.app-navbar-hide-small')
+      ).filter((a) => destinations.some(([href]) => a.getAttribute('href') === href));
+
+      expect(anchors.map((a) => a.getAttribute('href'))).toEqual(destinations.map(([href]) => href));
+
+      for (const [href, glyph] of destinations) {
+        const anchor = anchors.find((a) => a.getAttribute('href') === href)!;
+        const icon = anchor.querySelector('mat-icon');
+        expect(icon, href).toBeTruthy();
+        expect(icon?.textContent?.trim(), href).toBe(glyph);
+        expect(anchor.getAttribute('aria-label'), `${href} keeps an accessible name`).not.toBeNull();
+        expect(anchor.querySelector('.app-navbar-full-text'), `${href} shows no text label`).toBeNull();
+        expect(anchor.querySelector('.app-navbar-short-text'), `${href} shows no abbreviated label`).toBeNull();
+      }
+    });
+
+    it('uses the same glyph the home page uses for each destination', async () => {
+      const { NAV_ICON } = await import('../nav-icons');
+      expect(destinations.map(([, glyph]) => glyph)).toEqual([
+        NAV_ICON.vocabulary, NAV_ICON.translating, NAV_ICON.listening, NAV_ICON.chinese,
+        NAV_ICON.formula, NAV_ICON.knowledge, NAV_ICON.habits, NAV_ICON.help,
+      ]);
+    });
+  });
+
   describe('constructor', () => {
     it('should set homeUrl from environment', () => {
       expect(component.homeUrl).toBeDefined();

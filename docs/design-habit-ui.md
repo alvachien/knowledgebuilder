@@ -2,13 +2,14 @@
 
 ## Overview
 
-This document adapts the standalone `habit-ui` (Angular 22 SPA) from `../habit-tracker-v0.3.13/docs/ui-design.md` into the **existing `knowledgebuilder` learning app**. Habit tracking becomes a lazily-loaded feature area of knowledgebuilder — new routes, components, and a `HabitService` — reusing the app's existing authentication, HTTP interceptor, i18n, and styling infrastructure.
+This document is the **implementation-level companion** for the habit-tracking feature area of `knowledgebuilder` — lazily-loaded `/habits` routes, components, and the `HabitService` — originally adapted out of the standalone `habit-ui` Angular prototype (retired), reusing the app's existing authentication, HTTP interceptor, i18n, and styling infrastructure.
 
+- **Canonical as-built UI reference**: [`../../docs/habit-tracker-ui-design.md`](../../docs/habit-tracker-ui-design.md) — routes, pages, dialogs, wizard flows, cache engine, i18n, error UX. Start there.
 - Functional requirements: [`../../docs/habit-tracker-functional-spec.md`](../../docs/habit-tracker-functional-spec.md) (EN) / [CN](../../docs/habit-tracker-functional-spec-cn.md)
-- Companion API design: [`../../aclearningutil/docs/design-habit-api.md`](../../aclearningutil/docs/design-habit-api.md) — the new `/api/Habits` endpoints
-- Reference UI design (superseded by this doc): `habit-tracker-v0.3.13/docs/ui-design.md`
+- Server side: canonical [`../../docs/habit-tracker-api-design.md`](../../docs/habit-tracker-api-design.md) + implementation notes [`../../aclearningutil/docs/design-habit-api.md`](../../aclearningutil/docs/design-habit-api.md)
+- Test-suite map: [`testing-habit-ui.md`](./testing-habit-ui.md)
 
-All page/component behavior (list states, progress rendering modes, wizard steps, punch dialogs, history view, template picker, preview simulation) carries over from the reference; adaptations concern the stack, contract naming (camelCase), auth reuse, and bilingual i18n.
+Page/component behavior was inherited from the reference and has since evolved on this stack (invitation sharing, calendar, day-overlay back-fill, client cache, the 5/4/3 wizard restructure); where the two docs overlap they must agree, and this doc keeps the repo-specific texture (stack mapping, guard/adapter conventions, known limitations of the port).
 
 ## Tech Stack Mapping
 
@@ -74,102 +75,18 @@ knowledgebuilder (as built)
     (nav label `habits.nav`, used by the navbar's full/short-text link and the mobile drawer)
 ```
 
-The API is stateless and `GET /api/Habits` already embeds `progress` for every habit, so the reference approach carries over unchanged: **no state-management library**; every mutation re-fetches the affected data (FR-4.4's "live progress after each punch" is satisfied by the post-dialog refresh calls described below). Use signals for component state with `async`/`await`-style RxJS operators, subscriptions cleaned via `takeUntilDestroyed(this.destroyRef)`.
+The API is stateless and `GET /api/Habits` embeds `progress` for every habit. There is still **no state-management library** — instead `HabitService` grew a built-in in-memory **scope-epoch cache** (post-2026-10 revision): reads are keyed by `global|habits` / `habit:{id}` (+range for history/punch lists), replayed while the scope's epoch is unchanged, deduplicated for concurrent callers (`shareReplay(1, refCount:false)`), and invalidated by every write (the habit's scope + `global`); responses landing after a mid-flight write are discarded (epoch race guard), failed reads are never cached, and `forceRefresh` bypasses everything. `getHabit(id)` is deliberately NOT cached — it is the post-punch in-place row patch satisfying FR-4.4. Shares, user search, and all `SharedHabits` reads stay live. Signals drive component state; subscriptions clean up via `takeUntilDestroyed(this.destroyRef)`. Full method table in the canonical doc § Service & Client Cache.
 
 The app's navigation shell gains one entry ("Habits / 习惯打卡") linking to `/habits`, visible per the existing auth-conditional menu pattern.
 
 ## Data Models & Service
 
-`src/app/habits/models/habit.models.ts` mirrors the API design's DTOs (camelCase on the wire; enum values remain the spec's lowercase strings):
+`src/app/pages/habits/habit.models.ts` mirrors the API DTOs exactly (camelCase properties; enum values keep the spec's lowercase/snake spellings). The **full current contract is listed in the canonical [`../../docs/habit-tracker-ui-design.md`](../../docs/habit-tracker-ui-design.md) § Data Models**; the essentials for this page:
 
-```typescript
-type HabitCycle = 'daily' | 'weekly' | 'monthly';
-type HabitState = 'active' | 'inactive';
-type PropertyType = 'boolean' | 'numeric' | 'list';
-type ItemUniqueness = 'per_day' | 'per_cycle';
-type CriterionType = 'condition' | 'composite';
-type CompositeOperator = 'and' | 'or' | 'not';
-type ItemScope = 'all' | 'subset';
-
-interface CriterionProgressOut {
-  criterionId: number; name: string; isRoot: boolean;
-  criterionType: CriterionType; passed: boolean;
-  propertyId: number | null; currentValue: number | null; threshold: number | null;
-  dailyTarget: number | null; cycleTarget: number | null;
-  currentDayValue: number | null; successfulDays: number | null;
-  operator: CompositeOperator | null; operandIds: number[] | null;
-}
-interface ProgressOut {
-  cycleFrom: string; cycleTo: string;
-  rootCriterion: CriterionProgressOut; criteria: CriterionProgressOut[];
-}
-interface Habit {
-  id: number; name: string; description: string | null; cycle: HabitCycle;
-  startDate: string; endDate: string | null; state: HabitState;
-  hasPunches: boolean; createdAt: string; progress: ProgressOut;
-}
-interface PropertyOut {
-  id: number; itemId: number; name: string; propertyType: PropertyType;
-  baseRate: number | null; itemUniqueness: ItemUniqueness | null; order: number;
-  createdAt: string; currentCycleValue: number; todayValue: number | null;
-}
-interface HabitItem {
-  id: number; habitId: number; name: string; order: number;
-  createdAt: string; hasPunches: boolean; properties: PropertyOut[];
-}
-interface CriterionOut {
-  id: number; habitId: number; name: string; isRoot: boolean;
-  criterionType: CriterionType; propertyId: number | null;
-  itemScope: ItemScope | null; scopeItemIds: number[] | null; threshold: number | null;
-  operator: CompositeOperator | null; operandCriterionIds: number[] | null;
-  dailyTarget: number | null; cycleTarget: number | null; createdAt: string;
-}
-interface PropertyValueOut {
-  propertyId: number; propertyName: string; propertyType: PropertyType;
-  boolValue: boolean | null; numValue: number | null; listEntries: string[] | null;
-}
-interface PunchOut {
-  id: number; habitId: number; itemId: number;
-  punchedAt: string; punchDate: string; createdAt: string; values: PropertyValueOut[];
-}
-interface CriterionDayResultOut {
-  criterionId: number; name: string; passed: boolean; currentValue: number | null;
-}
-interface DayHistoryOut {
-  date: string; isSuccessful: boolean;
-  criteria: CriterionDayResultOut[]; punches: PunchOut[];
-}
-
-// Request bodies — create payloads use name-based refs; edit payloads use id-based refs.
-interface PropertyCreate { name: string; propertyType: PropertyType;
-  baseRate?: number; itemUniqueness?: ItemUniqueness; order: number; }
-interface PropertyUpdate { name: string; baseRate?: number | null; order: number; }
-interface ItemCreate { name: string; order: number; properties: PropertyCreate[]; }
-interface ItemUpdate { name: string; order: number; }
-interface CriterionCreateInWizard {
-  name: string; isRoot: boolean; criterionType: CriterionType;
-  propertyName?: string; itemScope?: ItemScope; scopeItemNames?: string[];
-  threshold?: number;                       // condition, > 0
-  operator?: CompositeOperator; operandCriterionNames?: string[];
-  dailyTarget?: number | null; cycleTarget?: number;   // root-only
-}
-interface CriterionUpdate {
-  name: string; isRoot: boolean; criterionType: CriterionType;
-  propertyId?: number | null; itemScope?: ItemScope; scopeItemIds?: number[];
-  threshold?: number;
-  operator?: CompositeOperator; operandCriterionIds?: number[];
-  dailyTarget?: number | null; cycleTarget?: number;
-}
-interface PropertyValueCreate { propertyId: number; boolValue?: boolean;
-  numValue?: number; listEntries?: string[]; }
-interface PunchCreate { values: PropertyValueCreate[]; }
-interface PunchUpdate { values: PropertyValueCreate[]; }
-interface HabitCreate { name: string; description?: string | null; cycle: HabitCycle;
-  startDate: string; endDate?: string | null;
-  items: ItemCreate[]; criteria: CriterionCreateInWizard[]; }
-interface HabitUpdate { name: string; description?: string | null; cycle: HabitCycle;
-  startDate: string; endDate?: string | null; }
-```
+- String-union enums: `HabitCycle` = `daily | weekly | monthly | whole`; `CriterionType` = **`condition | composite`** (the reference's `leaf` terminology is retired); `SuccessType` = `daily | cumulative` (root only); `AggregationMode` = `ever_true | sum | avg | max | min | latest | union_distinct` (null ⇒ property-type default); plus `PropertyType`, `ItemUniqueness` (`per_day`/`per_cycle`), `CompositeOperator`, `ItemScope`, `HabitState`.
+- Response shapes: `Habit` (+embedded `ProgressOut` with `cycleFrom`/`cycleTo|null`, `rootCriterion`, non-root `criteria[]`), `ItemOut`(+`PropertyOut` with `currentCycleValue`/`todayValue`), `CriterionOut`, `PunchOut`(+`PropertyValueOut`), `CriterionDayResultOut`, `DayHistoryOut` (adds per-day `cycleFrom`/`cycleTo`), `ShareGrant`, `UserSearchHit`, `SharedHabitSummary`/`SharedHabitDetail`.
+- Request shapes: `HabitCreate`/`HabitUpdate`, `ItemCreate/Update`, `PropertyCreate/Update`, `CriterionCreateInWizard` (name-based refs) / `CriterionUpdate` (id-based refs), `PropertyValueCreate`, `PunchCreate` (optional `punchDate`) / `PunchUpdate`, share body `{ granteeUserId, granteeUserName }`.
+- Historical renames to know when reading old notes: `propertyId` bindings are gone (conditions bind `propertyName` in every phase); `dailyTarget` was replaced by `successType` + root `cycleTarget`; the list's 90-day default window never existed server-side.
 
 `HabitService` (wraps `HttpClient`, all methods return `Observable<T>`, errors normalized here — see § Error Handling):
 
@@ -188,19 +105,22 @@ interface HabitUpdate { name: string; description?: string | null; cycle: HabitC
 | `createPunch` / `getPunch` / `updatePunch` / `deletePunch` | `…/Items/{i}/Punches[{id}]` |
 | `getHabitPunches(habitId, from?, to?)` | `GET {api}/api/Habits/{id}/Punches` |
 | `getItemPunches(habitId, itemId, from?, to?)` | `GET …/Items/{i}/Punches` |
+| `getShares` / `addShare(habitId, userId, userName)` / `deleteShare(habitId, grantId)` | `…/Shares[{/grantId}]` — live, never cached |
+| `searchUsers(q)` | `GET {idServerUrl}/api/users/search?q=` — trims, blank emits `[]` **without a request**, >50 chars silently truncated (mirrors acidserver's cap); bearer attached by the interceptor |
+| `getSharedHabits()` / `getSharedHabit(id)` / `getSharedHistory(id, from?, to?)` | `GET {api}/api/SharedHabits[/{id}][/History]` — live |
 
 `{api}` is the existing environment's learning-API base URL — in dev `https://localhost:7135`, in prod the `/learningutil` path on the same origin. No new environment file or hard-coded port. The reference `getVersion()` call is dropped: the app already surfaces/uses the API's existing health endpoint.
 
 ## Pages & Components
 
-Behavior is inherited from the reference design; the deltas are naming (camelCase), transloco bindings on every string, and OnPush-compatible state handling (signals). Reference specifics reproduced here in brief — implementers should treat `habit-tracker-v0.3.13/docs/ui-design.md` §§ HabitListComponent / HabitDetailComponent / HabitWizardComponent / PunchDialog / PunchEditDialog / ConfirmDialog / CriterionSummary as the normative behavioral spec, with these adjustments:
+Behavior was inherited from the retired reference and has since evolved on this stack (camelCase, transloco on every string, OnPush + signals, the FR-7 shared views, the day-overlay punch, the cache layer). **The canonical [`../../docs/habit-tracker-ui-design.md`](../../docs/habit-tracker-ui-design.md) §§ Pages & Components / Dialogs is the normative behavioral description**; the sections below are the implementation-notes condensed view with repo-specific adjustments:
 
 ### `HabitListComponent` (`/habits`)
 
 - Loading (centered progress spinner), empty ("No habits yet" + New Habit button), error (snack-bar + Retry) states — all strings via `habits.list.*` keys.
-- Cards show name/description, cycle, state badge (`active`/`inactive`), current-cycle date range, and root-criterion progress:
-  - **Cumulative mode** (no `dailyTarget`): `currentValue / cycleTarget` progress bar; success when `passed`.
-  - **Day-count mode**: `successfulDays / cycleTarget` passing days + secondary today label `currentDayValue / dailyTarget` while `currentDayValue !== null`; suppress the label defensively if `dailyTarget` is null (reference inconsistency guard).
+- Cards show name/description, cycle, state badge (`active`/`inactive`), the habit's **active window** (`startDate → endDate ?? '—'` — deliberately not the cycle window; the detail page renders the reported cycle range), and root-criterion progress:
+  - **Cumulative mode** (`successType: cumulative`; `cycleTarget` null — the displayed target is the root `threshold`): `currentValue / threshold` progress bar; success when `passed` (server-latched within the cycle, so the chip/bar never flickers back).
+  - **Day-count mode** (`successType: daily`): `successfulDays / cycleTarget` passing days + secondary today line while `currentDayValue !== null` — condition root: `today: value / threshold`; composite root: pass icon (the day signal is the 1/0 pass bit, not an operand count); suppress the line defensively if the root `threshold` is null (inconsistency guard).
 - `CriterionSummaryComponent` rendered only when `progress.criteria.length > 1`.
 - Per-card actions: **Punch** (opens `PunchDialog`, fetching items on demand via `getItems`; shown only when `canPunchToday(habit)` — active AND the browser's today lies in `[startDate, endDate?]`, mirroring the API's FR-3.3 `outOfWindow` rejection so the button is never a guaranteed failure), **Edit** (route to `/habits/:id/edit`), overflow menu: **Shares…** (opens `HabitSharesDialogComponent` for the per-habit invitation list — see its §), **Deactivate** (confirm dialog warning the action is permanent/irreversible; `alreadyInactive` mapped to its message, not an unexpected error), **Delete** (confirm). Card click → detail.
 - Card actions row wraps on narrow cards (`mat-card-actions { flex-wrap: wrap }`) — Material's default no-wrap layout overlapped Punch/Edit/menu below ~400px card width.
@@ -210,7 +130,7 @@ Behavior is inherited from the reference design; the deltas are naming (camelCas
 ### `HabitDetailComponent` (`/habits/:id`)
 
 - Parallel `getHabit` + `getItems` on mount (items needed to name `PunchOut.itemId` in history).
-- Metadata block; full criterion tree via `CriterionSummary` (root also shows `dailyTarget`/`cycleTarget`, `successfulDays`/`currentDayValue` where non-null).
+- Metadata block; full criterion tree via `CriterionSummary` (root also shows `successType`/`cycleTarget`, `successfulDays`/`currentDayValue` where non-null). The reported cycle window line is labeled per FR-2.2 by `windowLabelKey(habit)`: "Current cycle" while active, "Last actual cycle" once inactive (the server already clamps the progress anchor to `min(EndDate, DeactivatedDate − 1 day)`, so the dates need no client-side adjustment), plus the "Deactivated {deactivatedDate}" chip when the wire carries the date (absent for legacy inactive rows that predate the field).
 - Items list with `currentCycleValue` / `todayValue` per property.
 - History from `getHistory(id, from?, to?)`: day rows newest-first with the day/cycle-complete chip rules exactly as the reference (day-count: chip on each passing day; cumulative: "cycle complete" chip on the earliest passing day only, detected by scanning oldest→newest); expandable per-session rows with item name + per-property values; Edit/Delete per session with refresh-on-close.
 - Date-range picker defaulting to the clamped current cycle (clamp `from` to `startDate`, `to` to `endDate` as the reference specifies). Arriving from a calendar day link (`/habits/:id?date=yyyy-MM-dd`) prefilters both bounds to that day (query-param read is optional-chained — the shared ActivatedRoute stubs omit `queryParamMap`).
@@ -239,7 +159,7 @@ Viewer side (`/habits/shared`, `/habits/shared/:id`) — "Shared with me": the h
 
 ### `HabitWizardComponent` (`/habits/new`, `/habits/:id/edit`)
 
-- Create mode: template picker (Step 0) → Basics → Items & Properties → Targets (templates only) → Preview; Custom template skips Targets (4 steps for templates, 3 for Custom — FR-5.3). Edit mode: Basics → Items → Criteria, pre-populated from parallel `getHabit`/`getItems`/`getCriteria`, tracking new/dirty/unchanged entities.
+- Step structures (as-built; FR-5.3 per the 2026-10-09 spec alignment): **create + template = picker → Basics → Items & Properties → Targets → Preview** (5 screens; the Targets step edits `cycleTarget` / optional numeric|list threshold override — the tree *structure* is fixed); **create + Custom = picker → Basics → Items → Criteria** (4 screens; full condition-tree editor seeded from the wizard's auto-generated default tree — no Targets/Preview); **edit = Basics → Items → Criteria** (3 screens), pre-populated from parallel `getHabit`/`getItems`/`getCriteria`, tracking new/dirty/unchanged entities.
 - The wizard is the only place criterion *editing* is exposed in this port (the reference also edits criteria only in the wizard — same here).
 - Basics step cycle field is an editable `mat-select` in **every** flow: a template pre-fills its cycle (`applyTemplate`) but must not lock it (FR-5.3). The only lock is FR-2.3 — editing a habit that already has punches disables the select and shows the `cycleLocked` hint (historical cycle boundaries would become ambiguous).
 - Step 2 edit-mode locks: `propertyType`/`itemUniqueness` read-only on existing properties; item delete disabled with tooltip when `hasPunches` (backend-computed all-cycles flag — do not proxy from `currentCycleValue`/`todayValue`); adding items/properties always allowed (FR-2.3).
@@ -250,9 +170,9 @@ Viewer side (`/habits/shared`, `/habits/shared/:id`) — "Shared with me": the h
 
 ### `PunchDialogComponent` / `PunchEditDialogComponent`
 
-- Punch dialog: date picker on top (default = browser-local today; bounds `punchDateBounds(habit)` = `[startDate, today]` — never future, and the picker only exists while the window is open at all). Accordion per item (first expanded), status icons (punched-this-session vs already-recorded-on-the-selected-day); boolean checkbox auto-submits a single-value punch immediately (suppressed when setting `false` with no value on the selected day); numeric/list inputs buffered and submitted on the footer Punch button as parallel `createPunch` calls (`forkJoin`) — one per item with dirty inputs; list textareas split on newlines; result `null` | `'saved'`.
+- Punch dialog: date field on top (default = browser-local today, clamped into `punchDateBounds(habit)` = `[startDate, min(endDate?, today)]` — never future; an ended-but-active habit opens at its last in-window day). The selected day **locks after any landed punch** of the session (a failed punch does not lock — locking protects already-stamped boolean auto-submits). Accordion per item (first expanded), status icons (punched-this-session vs already-recorded-on-the-selected-day); boolean checkbox auto-submits a single-value punch immediately with an optimistic flip + exact rollback on failure (suppressed when setting `false` with no value on the selected day); numeric/list inputs are buffered and submitted on the footer Punch button as **one `createPunch` POST per dirty item — deliberately not an all-or-nothing `forkJoin`**: landed items fold into the day state and clear, failed items are named in a 6 s error snackbar, and the dialog closes `'saved'` once the batch settles (retry = reopen); list textareas split on newlines; result `undefined` | `'saved'`.
   - **Day overlay**: while today is selected, the panels read/write the payload's `todayValue` exactly as before and the body omits `punchDate` (also the client/server clock-skew guard). Selecting a past day clears buffered inputs/dirty flag, then loads that day's record via `getHistory(id, D, D)` (Subject + switchMap, same stale-response pattern as the detail page) into a per-property overlay — booleans prefill the checkbox state, numeric hints show the day's base-rate-weighted total (Σ `todayValueDelta`), list hints its entry count; the overlay fully shadows `todayValue`. Inputs are never prefilled (re-submitting numeric ADDs a session; re-submitting a list entry 422s `duplicateEntry`). Submits for a past day carry `punchDate`.
-  - Dialog height: component styles lift Material's default `mat-dialog-content` `max-height: 65vh` cap to `calc(100vh - 240px)` so expanded panels get sufficient room.
+  - Dialog height: component styles lift Material's default `mat-dialog-content` `max-height: 65vh` cap to `calc(100vh - 200px)` so expanded panels get sufficient room.
 - Edit dialog: prefills the original session values (never the cycle total — reference note preserved); per-`per_cycle`-list uniqueness hint; date/item read-only; submits `updatePunch`. (To re-date a wrong punch: delete it and re-punch on the intended day.)
 - All dialogs close with `'saved'` so parents refresh (detail page reloads habit + items + history; list page patches the one habit).
 
@@ -313,6 +233,7 @@ FR-1.x (login, redirect-then-return, logout, silent renewal) are satisfied by kn
 | FR-4.1–4.4 live progress, bars, criterion views | List/detail progress blocks, `CriterionSummaryComponent`, refetch-after-mutate |
 | FR-5.1–5.4 templates + Targets step | `habit-templates.ts` + wizard Steps 0–3 (labels i18n'd) |
 | FR-6.1/6.2 data isolation | Server-side `OwnerId` scoping (API doc); UI sends no user identifiers |
+| FR-7.1–7.5 read-only invitation sharing | Owner side: `HabitSharesDialogComponent` + `…/Shares` (grantee ids come from the acidserver user-search picker, never typed); grantee side: `SharedHabitListComponent` / `SharedHabitDetailComponent` — zero write affordances, non-granted ids indistinguishable from missing |
 | NFR-3/4/5 | Server concerns — see API doc; UI shows server-time dates as-is plus the timezone-difference hint from the reference (server date is authoritative) |
 
 Out of scope (same as spec): notifications, streaks/gamification, social features, native mobile, reporting dashboards, admin UI.
@@ -325,7 +246,7 @@ Out of scope (same as spec): notifications, streaks/gamification, social feature
 
 ## Known Limitations / Deviations from Reference
 
-- No optimistic UI — mutations re-fetch (same as reference; FR-4.4 met by refresh after punch).
+- No optimistic verdicts — the service's epoch cache only shortens re-reads (and never caches failures); the sole optimistic surface is the punch dialog's boolean checkbox, rolled back exactly on error. FR-4.4 is met by refresh/patch after each punch.
 - Route-level OIDC configuration is the app's existing acidserver setup rather than the reference's standalone IDP; the `sub` claim the API uses is acidserver's `AspNetUsers.Id`.
 - Edit-mode multi-request save sequence is not transactional client-side; partial failure leaves intermediate server state visible after re-fetch (each individual API call is transactional).
 - Step 4 preview simulation remains approximate for subset scopes, cross-item composites, and `per_cycle` list properties — warning banner retained.

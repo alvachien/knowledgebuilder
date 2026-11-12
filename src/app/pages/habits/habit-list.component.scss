@@ -46,11 +46,18 @@
     opacity: 0.85;
   }
 
-  // Material's actions row never wraps — on narrow cards (grid min 320px) the
-  // Punch/Edit/menu buttons overflowed and visually overlapped. Let them wrap.
+  // Two problems, both from Material's own card-actions CSS (`.mat-mdc-card-actions`
+  // is a plain nowrap flex row with `padding: 8px` and NO gap, and it adds no margin
+  // to the buttons inside it):
+  //  - on narrow cards (grid min 320px) the row overflows and the buttons overlap;
+  //  - the mini-FABs sit flush against each other, so their elevation shadow spills
+  //    onto the neighbour and they read as overlapping discs (labelled text buttons
+  //    hid this behind their own 16px horizontal padding).
+  // `gap` fixes the spacing; `flex-wrap` fixes the overflow. 8px column gap also keeps
+  // the mini-FABs' 48px touch targets from covering each other.
   mat-card-actions {
     flex-wrap: wrap;
-    row-gap: 4px;
+    gap: 4px 8px;
   }
 }
 

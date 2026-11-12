@@ -6,10 +6,10 @@
 export const environment = {
   homeurl: 'http://localhost:29800',
   production: false,
-  releasedate: '2026-10-05',
-  version: '1.9.52',
+  releasedate: '2026-11-08',
+  version: '1.9.64',
   apiUrl: 'https://localhost:7135',
-  pageTitle: 'Knowledge Habit Builder',
+  pageTitle: 'K.H.B., by Alva Chien',
   loginRequired: true,
   idServerUrl: 'https://localhost:7228',
   appHost: 'http://localhost:29800',

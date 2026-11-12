@@ -63,6 +63,8 @@ export interface HabitPunchDialogData {
  * skew). Once any punch of this session has landed, the picker locks: auto-submitted
  * booleans are stamped with the date active when toggled, and a mid-session change
  * would mislabel them (delete + re-punch via history is the way to move a record).
+ * A hint under the field spells out the punchable window while the picker is
+ * usable, and explains the lock once it engages.
  */
 @Component({
   selector: 'app-habits-punch-dlg',
@@ -94,6 +96,11 @@ export interface HabitPunchDialogData {
           <input matInput [matDatepicker]="dayPicker" [min]="minDate()" [max]="maxDate()" [disabled]="dayLocked()" [ngModel]="punchDate()" (ngModelChange)="onDateChange($event)" />
           <mat-datepicker-toggle matIconSuffix [for]="dayPicker" [disabled]="dayLocked()"></mat-datepicker-toggle>
           <mat-datepicker #dayPicker></mat-datepicker>
+          @if (dayLocked()) {
+            <mat-hint>{{ t('habits.punch.dateLockedHint') }}</mat-hint>
+          } @else if (windowMax()) {
+            <mat-hint>{{ t('habits.punch.dateRangeHint', { min: windowMin(), max: windowMax() }) }}</mat-hint>
+          }
         </mat-form-field>
         <mat-accordion multi>
           @for (item of data.items; track item.id; let first = $first) {
@@ -208,6 +215,10 @@ export class HabitPunchDialogComponent {
   readonly minDate = signal<Date | null>(null);
   readonly maxDate = signal<Date | null>(null);
 
+  /** ISO bounds behind the date field's hint (null when the habit offers no window). */
+  readonly windowMin = signal<string | null>(null);
+  readonly windowMax = signal<string | null>(null);
+
   constructor() {
     const bounds = punchDateBounds(this.data.habit);
     const initial = bounds ? this.clampToBounds(new Date(), bounds.min, bounds.max) : new Date();
@@ -216,6 +227,8 @@ export class HabitPunchDialogComponent {
     if (bounds) {
       this.minDate.set(isoToDate(bounds.min));
       this.maxDate.set(isoToDate(bounds.max));
+      this.windowMin.set(bounds.min);
+      this.windowMax.set(bounds.max);
     }
 
     this.dayLoad$

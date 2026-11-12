@@ -49,7 +49,6 @@ import {
 } from '../../services';
 import { openFilterDialog } from '../../shared/filter-dialog/filter-dialog-launcher';
 import { emptyFilterDefinition } from '../../shared/filter-dialog/filter-dialog-model';
-import { FooterComponent } from '../../shared/footer/footer';
 import { AppPageTitle } from '../page-title/page-title';
 
 import { TranslateExercisesInfoDialogComponent } from './translate-exercises-info-dialog.component';
@@ -76,7 +75,6 @@ export type TranslateExercisesMode = 'list' | 'review' | 'typing' | 'typingresul
   selector: 'app-translate-exercises',
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
-    FooterComponent,
     TranslateExercisesSentenceListComponent,
     TranslateExercisesReviewSessionComponent,
     TranslateExercisesTypingSessionComponent,

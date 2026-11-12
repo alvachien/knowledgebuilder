@@ -1,9 +1,10 @@
 <div *transloco="let t" class="habits-page app-page-container">
   <div class="habits-header">
-    <h1 class="habits-title"><mat-icon>track_changes</mat-icon> {{ t('habits.list.title') }}</h1>
+    <h1 class="habits-title"><mat-icon>{{ navIcon.habits }}</mat-icon> {{ t('habits.list.title') }}</h1>
     <app-habit-page-header page="list" />
     <span class="habits-spacer"></span>
-    <a mat-raised-button color="primary" routerLink="./new">
+    <a mat-fab extended class="toolbar-fab-button" routerLink="./new"
+       [matTooltip]="t('habits.list.newHabit')" [attr.aria-label]="t('habits.list.newHabit')">
       <mat-icon>add</mat-icon> {{ t('habits.list.newHabit') }}
     </a>
   </div>
@@ -15,12 +16,16 @@
   } @else if (loadFailed()) {
     <div class="habits-empty">
       <p>{{ t('habits.list.loadError') }}</p>
-      <button mat-stroked-button (click)="load()"><mat-icon>refresh</mat-icon> {{ t('habits.list.retry') }}</button>
+      <button mat-fab class="toolbar-fab-button" (click)="load(true)"
+              [matTooltip]="t('habits.list.retry')" [attr.aria-label]="t('habits.list.retry')">
+        <mat-icon>refresh</mat-icon>
+      </button>
     </div>
   } @else if (habits().length === 0) {
     <div class="habits-empty">
       <p>{{ t('habits.list.empty') }}</p>
-      <a mat-raised-button color="primary" routerLink="./new">
+      <a mat-fab extended class="toolbar-fab-button" routerLink="./new"
+         [matTooltip]="t('habits.list.newHabit')" [attr.aria-label]="t('habits.list.newHabit')">
         <mat-icon>add</mat-icon> {{ t('habits.list.newHabit') }}
       </a>
     </div>
@@ -80,12 +85,14 @@
           </mat-card-content>
           <mat-card-actions align="end" (click)="$event.stopPropagation()">
             @if (canPunch(habit)) {
-              <button mat-flat-button color="primary" (click)="openPunch(habit)">
-                <mat-icon>touch_app</mat-icon> {{ t('habits.list.punch') }}
+              <button mat-mini-fab (click)="openPunch(habit)"
+                      [matTooltip]="t('habits.list.punch')" [attr.aria-label]="t('habits.list.punch')">
+                <mat-icon>touch_app</mat-icon>
               </button>
             }
-            <a mat-stroked-button [routerLink]="['./', habit.id, 'edit']">
-              <mat-icon>edit</mat-icon> {{ t('habits.list.edit') }}
+            <a mat-mini-fab [routerLink]="['./', habit.id, 'edit']"
+               [matTooltip]="t('habits.list.edit')" [attr.aria-label]="t('habits.list.edit')">
+              <mat-icon>edit</mat-icon>
             </a>
             <button mat-icon-button [mat-menu-trigger-for]="menu" [attr.aria-label]="t('habits.list.actions')">
               <mat-icon>more_vert</mat-icon>

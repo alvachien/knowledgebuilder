@@ -370,4 +370,173 @@ describe('HabitService', () => {
       expect(err.detail).toBe('Punch 11 not found');
     });
   });
+
+  describe('read cache', () => {
+    /** Drain one list request and return the emitted value. */
+    async function loadList(force = false): Promise<Habit[]> {
+      const p = firstValueFrom(service.getHabits(force));
+      http.expectOne(BASE).flush([mockHabit]);
+      return p;
+    }
+
+    it('replays the cached list instead of re-requesting on the next navigation', async () => {
+      expect(await loadList()).toEqual([mockHabit]);
+      // A second read (the next navigation) resolves from the cache, no request.
+      expect(await firstValueFrom(service.getHabits())).toEqual([mockHabit]);
+      http.expectNone(BASE);
+    });
+
+    it('forceRefresh bypasses the cache', async () => {
+      await loadList();
+      expect(await loadList(true)).toEqual([mockHabit]);
+    });
+
+    it('shares one in-flight request between concurrent callers', async () => {
+      const a = firstValueFrom(service.getHabits());
+      const b = firstValueFrom(service.getHabits());
+      const req = http.expectOne(BASE);
+      req.flush([mockHabit]);
+      expect(await a).toEqual([mockHabit]);
+      expect(await b).toEqual([mockHabit]);
+      http.expectNone(BASE);
+    });
+
+    it('does not cache a failed list — a retry reaches the network again', async () => {
+      const p = firstValueFrom(service.getHabits()).catch((e: unknown) => e);
+      http.expectOne(BASE).error(new ErrorEvent('network error'), { status: 0, statusText: 'Unknown Error' });
+      expect(await p).toBeInstanceOf(HabitApiError);
+
+      expect(await loadList()).toEqual([mockHabit]);
+    });
+
+    it('any write invalidates the cached list', async () => {
+      await loadList();
+
+      const del = firstValueFrom(service.deleteHabit(7));
+      http.expectOne(`${BASE}/7`).flush(null);
+      await del;
+
+      expect(await loadList()).toEqual([mockHabit]);
+    });
+
+    it('a punch write invalidates the cached list', async () => {
+      await loadList();
+
+      const punch = firstValueFrom(service.createPunch(7, 3, { values: [{ propertyId: 5, numValue: 3 }] }));
+      http.expectOne(`${BASE}/7/Items/3/Punches`).flush({ id: 1 });
+      await punch;
+
+      expect(await loadList()).toEqual([mockHabit]);
+    });
+
+    it('getHabit refreshes the cached entry in place (no list round trip)', async () => {
+      await loadList();
+
+      const p = firstValueFrom(service.getHabit(7));
+      http.expectOne(`${BASE}/7`).flush({ ...mockHabit, name: 'Renamed' });
+      expect((await p).name).toBe('Renamed');
+
+      const cached = await firstValueFrom(service.getHabits());
+      expect(cached[0].name).toBe('Renamed');
+      http.expectNone(BASE);
+    });
+
+    it('a write landing mid-flight is not overwritten by the stale list response', async () => {
+      const p = firstValueFrom(service.getHabits());
+      const listReq = http.expectOne(BASE);
+
+      const del = firstValueFrom(service.deleteHabit(7));
+      const delReq = http.expectOne(`${BASE}/7`);
+      delReq.flush(null);
+      await del;
+
+      // The list response was produced before the delete — it must not repopulate.
+      listReq.flush([mockHabit]);
+      await p;
+      http.verify();
+
+      const reload = firstValueFrom(service.getHabits());
+      const refetch = http.expectOne(BASE);
+      refetch.flush([]);
+      expect(await reload).toEqual([]);
+    });
+
+    it('clearCaches forces the next read back to the network', async () => {
+      await loadList();
+      service.clearCaches();
+      expect(await loadList()).toEqual([mockHabit]);
+    });
+
+    it('caches items, criteria, history and punch windows per habit', async () => {
+      const items = firstValueFrom(service.getItems(7));
+      http.expectOne(`${BASE}/7/Items`).flush([]);
+      await items;
+      expect(await firstValueFrom(service.getItems(7))).toEqual([]);
+      http.expectNone(`${BASE}/7/Items`);
+
+      const criteria = firstValueFrom(service.getCriteria(7));
+      http.expectOne(`${BASE}/7/Criteria`).flush([]);
+      await criteria;
+      expect(await firstValueFrom(service.getCriteria(7))).toEqual([]);
+      http.expectNone(`${BASE}/7/Criteria`);
+
+      const history = firstValueFrom(service.getHistory(7, '2026-09-01', '2026-09-07'));
+      http.expectOne(`${BASE}/7/History?from=2026-09-01&to=2026-09-07`).flush([]);
+      await history;
+      expect(await firstValueFrom(service.getHistory(7, '2026-09-01', '2026-09-07'))).toEqual([]);
+
+      const punches = firstValueFrom(service.getHabitPunches(7, '2026-09-01', '2026-09-30'));
+      http.expectOne(`${BASE}/7/Punches?from=2026-09-01&to=2026-09-30`).flush([]);
+      await punches;
+      expect(await firstValueFrom(service.getHabitPunches(7, '2026-09-01', '2026-09-30'))).toEqual([]);
+      http.expectNone(`${BASE}/7/Punches`);
+    });
+
+    it('keeps a punch window per range — a new month is its own entry', async () => {
+      const sept = firstValueFrom(service.getHabitPunches(7, '2026-09-01', '2026-09-30'));
+      http.expectOne(`${BASE}/7/Punches?from=2026-09-01&to=2026-09-30`).flush([]);
+      await sept;
+
+      const oct = firstValueFrom(service.getHabitPunches(7, '2026-10-01', '2026-10-31'));
+      http.expectOne(`${BASE}/7/Punches?from=2026-10-01&to=2026-10-31`).flush([]);
+      await oct;
+
+      // Coming back to September replays it; the October request was the only new one.
+      expect(await firstValueFrom(service.getHabitPunches(7, '2026-09-01', '2026-09-30'))).toEqual([]);
+      http.expectNone(`${BASE}/7/Punches`);
+    });
+
+    it('a write invalidates its own habit only', async () => {
+      const a = firstValueFrom(service.getItems(7));
+      http.expectOne(`${BASE}/7/Items`).flush([]);
+      await a;
+      const b = firstValueFrom(service.getItems(8));
+      http.expectOne(`${BASE}/8/Items`).flush([]);
+      await b;
+
+      const punch = firstValueFrom(service.createPunch(7, 3, { values: [{ propertyId: 5, numValue: 3 }] }));
+      http.expectOne(`${BASE}/7/Items/3/Punches`).flush({ id: 1 });
+      await punch;
+
+      // Habit 7 re-reads; habit 8's items are untouched by a punch on 7.
+      const refetch7 = firstValueFrom(service.getItems(7));
+      const req7 = http.expectOne(`${BASE}/7/Items`);
+      req7.flush([]);
+      expect(await refetch7).toEqual([]);
+
+      expect(await firstValueFrom(service.getItems(8))).toEqual([]);
+      http.expectNone(`${BASE}/8/Items`);
+    });
+
+    it('getItems forceRefresh bypasses the cached list', async () => {
+      const items = firstValueFrom(service.getItems(7));
+      http.expectOne(`${BASE}/7/Items`).flush([]);
+      await items;
+
+      const again = firstValueFrom(service.getItems(7, true));
+      const req = http.expectOne(`${BASE}/7/Items`);
+      req.flush([]);
+      expect(await again).toEqual([]);
+    });
+  });
 });

@@ -8,10 +8,12 @@ import { MatMenuModule } from '@angular/material/menu';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSnackBar } from '@angular/material/snack-bar';
+import { MatTooltipModule } from '@angular/material/tooltip';
 import { RouterLink } from '@angular/router';
 import { TranslocoModule, TranslocoService } from '@jsverse/transloco';
 import { firstValueFrom } from 'rxjs';
 
+import { NAV_ICON } from '../../shared/nav-icons';
 import { AppPageTitle } from '../page-title/page-title';
 
 import { HabitConfirmDialogComponent } from './habit-confirm-dialog.component';
@@ -47,12 +49,14 @@ import { HabitService } from './habit.service';
     MatIconModule,
     MatProgressBarModule,
     MatProgressSpinnerModule,
+    MatTooltipModule,
     TranslocoModule,
     HabitCriterionSummaryComponent,
     HabitPageHeaderComponent,
   ],
 })
 export class HabitListComponent {
+  protected readonly navIcon = NAV_ICON;
   private readonly service = inject(HabitService);
   private readonly dialog = inject(MatDialog);
   private readonly snackbar = inject(MatSnackBar);
@@ -69,11 +73,12 @@ export class HabitListComponent {
     this.load();
   }
 
-  load(): void {
+  /** `force` bypasses the service's cached list (retry after a failed load). */
+  load(force = false): void {
     this.loading.set(true);
     this.loadFailed.set(false);
     this.service
-      .getHabits()
+      .getHabits(force)
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (habits) => {

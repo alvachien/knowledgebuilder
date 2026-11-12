@@ -59,6 +59,19 @@ export interface VocabularyReviewOption extends VocabularyOptionCore {
   hideExplain: boolean;
 }
 
+// Auto Play settings for the vocabulary review session (the tune button in the
+// study toolbar). All three fields steer the auto-play cycle, not the manual
+// prev/next browsing.
+export interface VocabularyAutoPlayOption {
+  /** Seconds each word is held before auto-advance; integer >= 1. */
+  intervalSeconds: number;
+  /** Walk the items in a shuffled order when auto play starts (the study
+   * queue itself is never re-ordered; manual browsing keeps its order). */
+  randomizeWords: boolean;
+  /** Example sentences read aloud (TTS) after each word; 0 turns reading off. */
+  sentencesToRead: number;
+}
+
 /** Direction of a vocabulary test question: EN word -> CN explanation, or the reverse. */
 export type VocabularyQuizDirection = 'en2cn' | 'cn2en';
 

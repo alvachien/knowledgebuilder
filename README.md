@@ -8,8 +8,8 @@ Built with Angular 22 (standalone components, Signals, Angular Material, Tailwin
 
 The frontend expects two sibling backend services to be running (see the workspace-level docs for `start-learning-all.ps1`):
 
-- **[aclearningutil](https://github.com/alvachien/aclearningutil)** - REST API serving all learning content (`apiUrl` in `src/environments/environment*.ts`)
-- **[acidserver](https://github.com/alvachien/acidserver)** - OIDC identity provider; all exercise routes require sign-in
+- **[aclearningutil](https://github.com/alvachien/aclearningutil)** - REST API serving all learning content (`apiUrl` in `src/environments/environment*.ts`); started by `start-learning-all.ps1`
+- **[acidserver](https://github.com/alvachien/acidserver)** - OIDC identity provider, hosted in Docker (`docker compose up -d` in its repo - not started by `start-learning-all.ps1`); all exercise routes require sign-in
 
 ### Development server
 
@@ -64,9 +64,9 @@ The app adapts to different screen sizes with a three-tier layout (minimum width
 
 | Breakpoint | Navbar | Sub-page Toolbars |
 |---|---|---|
-| **>1200px** | Full labels, user name visible | Normal layout with all controls |
-| **821–1200px** | Abbreviated labels (Voc, Sent, etc.), icon-only user button | Compact single-row, item count hidden |
-| **≤820px** | Hamburger menu with slide-out drawer | Two-row layout, smaller buttons |
+| **>1200px** | Icon-only destinations (name in tooltip/aria-label), user name visible | Normal layout with all controls |
+| **821–1200px** | Icon-only destinations, user name hidden (tooltip only) | Compact single-row, item count hidden |
+| **≤820px** | Hamburger menu with slide-out drawer (icon + label) | Two-row layout, smaller buttons |
 
 
 ## License

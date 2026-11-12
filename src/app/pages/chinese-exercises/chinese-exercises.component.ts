@@ -38,7 +38,6 @@ import {
 import { LearningContentService, LearningRatingService, UIService } from '../../services';
 import { openFilterDialog } from '../../shared/filter-dialog/filter-dialog-launcher';
 import { emptyFilterDefinition } from '../../shared/filter-dialog/filter-dialog-model';
-import { FooterComponent } from '../../shared/footer/footer';
 import { AppPageTitle } from '../page-title/page-title';
 
 import { ChineseExercisesListComponent } from './chinese-exercises-list.component';
@@ -49,7 +48,7 @@ import { ChineseExercisesSelectDialogComponent } from './chinese-exercises-selec
 @Component({
   selector: 'app-chinese-exercises',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [FooterComponent, ChineseExercisesListComponent],
+  imports: [ChineseExercisesListComponent],
   templateUrl: './chinese-exercises.component.html',
   styleUrl: './chinese-exercises.component.scss',
   host: {

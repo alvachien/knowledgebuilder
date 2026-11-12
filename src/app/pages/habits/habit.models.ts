@@ -64,6 +64,14 @@ export interface Habit {
   startDate: string;
   endDate: string | null;
   state: HabitState;
+  /**
+   * Date the owner pressed Deactivate (yyyy-MM-dd, spec FR-2.4). Null while the habit is
+   * active, and also null for habits deactivated before the field shipped - so it is
+   * optional rather than `| null`, which lets mocks omit it. The habit's last actual day
+   * is the day before it, and the progress window below is clamped to the cycle
+   * containing that day (FR-2.2), so the detail view labels that window accordingly.
+   */
+  deactivatedDate?: string | null;
   hasPunches: boolean;
   createdAt: string;
   progress: ProgressOut;

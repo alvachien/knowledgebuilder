@@ -157,7 +157,8 @@ app-logo {
   display: none !important;
 }
 
-// Medium screens (601px–1200px): abbreviated text, user name hidden
+// Medium screens (≤1200px; the ≤820px drawer tier takes over below this range):
+// abbreviated brand text, user name hidden
 @media (max-width: 1200px) {
   .app-navbar-header .app-navbar-full-text {
     display: none !important;

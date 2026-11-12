@@ -7,19 +7,22 @@
     @let rootCriterion = root(h);
 
     <div class="detail-header">
-      <a mat-icon-button routerLink="/habits" [attr.aria-label]="t('habits.detail.back')">
+      <a mat-fab class="toolbar-fab-button" routerLink="/habits"
+         [matTooltip]="t('habits.detail.back')" [attr.aria-label]="t('habits.detail.back')">
         <mat-icon>arrow_back</mat-icon>
       </a>
       <h1 class="detail-title">{{ h.name }}</h1>
       <span class="detail-spacer"></span>
       @if (canPunch(h)) {
-        <button mat-flat-button color="primary" (click)="openPunch()">
+        <button mat-fab extended class="toolbar-fab-button" (click)="openPunch()"
+                [matTooltip]="t('habits.list.punch')" [attr.aria-label]="t('habits.list.punch')">
           <mat-icon>touch_app</mat-icon> {{ t('habits.list.punch') }}
         </button>
       } @else if (h.state !== 'active') {
         <span class="habit-state inactive">{{ t('habits.list.stateInactive') }}</span>
       }
-      <a mat-stroked-button [routerLink]="['/habits', h.id, 'edit']">
+      <a mat-fab extended class="toolbar-fab-button" [routerLink]="['/habits', h.id, 'edit']"
+         [matTooltip]="t('habits.list.edit')" [attr.aria-label]="t('habits.list.edit')">
         <mat-icon>edit</mat-icon> {{ t('habits.list.edit') }}
       </a>
     </div>
@@ -37,10 +40,16 @@
         <span>{{ t('habits.detail.ends') }} {{ h.endDate }}</span>
       }
       <mat-divider type="vertical" [inset]="true"></mat-divider>
+      <!-- FR-2.2: an inactive habit's window is the LAST actual cycle (the server
+           clamps the progress anchor to min(endDate, deactivatedDate − 1 day)). -->
       <span>
-        {{ t('habits.detail.window') }}: {{ h.progress.cycleFrom }} →
+        {{ t(windowLabelKey(h)) }}: {{ h.progress.cycleFrom }} →
         {{ h.progress.cycleTo ?? t('habits.detail.ongoing') }}
       </span>
+      @if (h.state !== 'active' && h.deactivatedDate) {
+        <mat-divider type="vertical" [inset]="true"></mat-divider>
+        <span>{{ t('habits.detail.deactivatedOn') }} {{ h.deactivatedDate }}</span>
+      }
     </div>
 
     @if (serverTodayDiffers()) {
@@ -168,10 +177,12 @@
                   }
                 </span>
                 <span class="punch-time">{{ punch.punchedAt | date: 'HH:mm' }}</span>
-                <button mat-icon-button (click)="editPunch(punch)" [attr.aria-label]="t('habits.editPunch.title')">
+                <button mat-mini-fab (click)="editPunch(punch)"
+                        [matTooltip]="t('habits.editPunch.title')" [attr.aria-label]="t('habits.editPunch.title')">
                   <mat-icon>edit_note</mat-icon>
                 </button>
-                <button mat-icon-button (click)="deletePunch(punch)" [attr.aria-label]="t('habits.detail.deletePunch')">
+                <button mat-mini-fab color="warn" (click)="deletePunch(punch)"
+                        [matTooltip]="t('habits.detail.deletePunch')" [attr.aria-label]="t('habits.detail.deletePunch')">
                   <mat-icon>delete</mat-icon>
                 </button>
               </div>
@@ -183,7 +194,8 @@
   } @else {
     <div class="detail-empty">
       <p>{{ t('habits.errors.notFound') }}</p>
-      <a mat-stroked-button routerLink="/habits">
+      <a mat-fab extended class="toolbar-fab-button" routerLink="/habits"
+         [matTooltip]="t('habits.detail.back')" [attr.aria-label]="t('habits.detail.back')">
         <mat-icon>arrow_back</mat-icon> {{ t('habits.detail.back') }}
       </a>
     </div>

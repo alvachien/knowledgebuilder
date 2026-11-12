@@ -73,6 +73,15 @@ export class AudioService implements OnDestroy {
   // pronunciation never disturbs a playing content track.
   private wordSound?: Howl;
   private wordGeneration = 0;
+  // Completion callback of the current one-shot (see playAuthenticatedOneShot's
+  // `onEnd`); stopWordOneShot() invokes it so a waiter on a superseded sound
+  // is released instead of hanging.
+  private wordOneShotEnd?: () => void;
+
+  // Generation guarding the sequential-speech loop (see speakSequence):
+  // cancelSpeech() and every speakWord()/speakSequence() call bump it so an
+  // in-flight sequence stops after its current utterance.
+  private speechSequenceGeneration = 0;
 
   // Monotonic counter guarding against interleaved async loads: a superseded
   // authenticated fetch must not overwrite the newer Howl/object URL.
@@ -396,31 +405,88 @@ export class AudioService implements OnDestroy {
   // study/typing screens so no vocabulary leaks to a third-party server).
   // This is the speechSynthesis fallback that playAuthenticatedOneShot()'s
   // callers use when the /api/WordAudio fetch returns false (e.g. 404).
-  speakWord(word: string): void {
+  // Returns a promise that resolves when the utterance ends (or immediately
+  // when speechSynthesis is unavailable), so callers that chain further
+  // speech - like the review store reading example sentences after the word -
+  // can await it. Superseding calls (a newer speakWord/speakSequence or
+  // cancelSpeech) still resolve the pending promise: the canceled utterance
+  // fires its error event.
+  speakWord(word: string): Promise<void> {
+    if (typeof window === 'undefined' || !window.speechSynthesis) {
+      return Promise.resolve();
+    }
+
+    // A new word supersedes any pending sentence sequence as well as the
+    // previous utterance queue.
+    this.speechSequenceGeneration++;
+    window.speechSynthesis.cancel();
+
+    return this.speakUtterance(word);
+  }
+
+  // Speaks `texts` one after another via the Web Speech API (the review
+  // screen reads a word's example sentences after its pronunciation).
+  // Deliberately does NOT cancel first: the utterances queue behind whatever
+  // speech is already playing, so the first sentence starts right when the
+  // word's own utterance ends. Resolves when every utterance has finished;
+  // a cancelSpeech()/speakWord()/speakSequence() call supersedes the loop,
+  // which then returns after its current utterance. `onIndex` is invoked
+  // with the text's index right BEFORE each utterance starts, so the caller
+  // can highlight the sentence being read.
+  async speakSequence(texts: string[], onIndex?: (index: number) => void): Promise<void> {
     if (typeof window === 'undefined' || !window.speechSynthesis) {
       return;
     }
 
-    window.speechSynthesis.cancel();
-
-    const utterance = new SpeechSynthesisUtterance(word);
-    utterance.lang = 'en-US';
-    utterance.rate = 0.9;
-
-    // Explicit US English voice selection (uses the async-populated cache so
-    // it applies even on the first utterance of a session).
-    this.ensureVoiceCache();
-    const usVoice = this.cachedVoices.find(v => v.lang === 'en-US');
-    if (usVoice) {
-      utterance.voice = usVoice;
-    }
-
-    utterance.onerror = (e) => {
-      if (e.error !== 'interrupted' && e.error !== 'canceled') {
-        console.warn('speechSynthesis error:', e.error);
+    const generation = ++this.speechSequenceGeneration;
+    for (let i = 0; i < texts.length; i++) {
+      if (generation !== this.speechSequenceGeneration) {
+        return;
       }
-    };
-    window.speechSynthesis.speak(utterance);
+      const trimmed = typeof texts[i] === 'string' ? texts[i].trim() : '';
+      if (trimmed.length === 0) {
+        continue;
+      }
+      onIndex?.(i);
+      await this.speakUtterance(trimmed);
+    }
+  }
+
+  // Drops a pending speakSequence queue and every queued speechSynthesis
+  // utterance (including an in-flight word fallback). Safe to call when
+  // nothing is speaking; awaiting sequence promises settle through the
+  // canceled utterances' error events.
+  cancelSpeech(): void {
+    this.speechSequenceGeneration++;
+    if (typeof window !== 'undefined' && window.speechSynthesis) {
+      window.speechSynthesis.cancel();
+    }
+  }
+
+  // Builds one US-English utterance and resolves when it ends or errors.
+  private speakUtterance(text: string): Promise<void> {
+    return new Promise<void>(resolve => {
+      const utterance = new SpeechSynthesisUtterance(text);
+      utterance.lang = 'en-US';
+      utterance.rate = 0.9;
+
+      // Explicit US English voice selection (uses the async-populated cache so
+      // it applies even on the first utterance of a session).
+      this.ensureVoiceCache();
+      const usVoice = this.cachedVoices.find(v => v.lang === 'en-US');
+      if (usVoice) {
+        utterance.voice = usVoice;
+      }
+
+      utterance.onend = () => resolve();
+      utterance.onerror = (e) => {
+        if (e.error !== 'interrupted' && e.error !== 'canceled') {
+          console.warn('speechSynthesis error:', e.error);
+        }
+        resolve();
+      };
+      window.speechSynthesis.speak(utterance);
+    });
   }
 
   // Simple sound effects. `frontendfile === false` plays a backend file from the API,
@@ -478,9 +544,33 @@ export class AudioService implements OnDestroy {
   // Calling this again - or `stopWordOneShot()` - supersedes any in-flight or
   // playing word audio, so rapid study navigation never layers a stale word over
   // the current one.
-  async playAuthenticatedOneShot(src: string, format = 'mp3'): Promise<boolean> {
+  //
+  // `onEnd` (optional) fires exactly once when a sound that STARTED playing is
+  // over: natural playback end, a play error after playback was reported
+  // started, or supersession by a newer request/stopWordOneShot(). It is NOT
+  // called when the promise resolves `false` - on those paths the caller falls
+  // back to TTS, whose completion is the real "word is done" signal (this is
+  // what lets the review store chain example-sentence reading after the word).
+  async playAuthenticatedOneShot(
+    src: string,
+    format = 'mp3',
+    onEnd?: () => void
+  ): Promise<boolean> {
     this.stopWordOneShot();
     const generation = ++this.wordGeneration;
+
+    let endFired = false;
+    const fireEnd = (): void => {
+      if (endFired) {
+        return;
+      }
+      endFired = true;
+      if (this.wordOneShotEnd === fireEnd) {
+        this.wordOneShotEnd = undefined;
+      }
+      onEnd?.();
+    };
+    this.wordOneShotEnd = fireEnd;
 
     let blob: Blob;
     try {
@@ -492,18 +582,22 @@ export class AudioService implements OnDestroy {
       return false;
     }
     if (generation !== this.wordGeneration) {
-      // A newer request superseded this one while it was fetching.
+      // A newer request superseded this one while it was fetching; its
+      // stopWordOneShot() already released any waiter on this sound.
       return true;
     }
 
     const objectUrl = URL.createObjectURL(blob);
     return new Promise<boolean>(resolve => {
       let settled = false;
-      const settle = (ok: boolean): void => {
-        if (!settled) {
-          settled = true;
-          resolve(ok);
+      // Returns whether this call was the first settle of the promise.
+      const settle = (ok: boolean): boolean => {
+        if (settled) {
+          return false;
         }
+        settled = true;
+        resolve(ok);
+        return true;
       };
       const release = (): void => {
         URL.revokeObjectURL(objectUrl);
@@ -533,8 +627,16 @@ export class AudioService implements OnDestroy {
         onend: () => {
           sound.unload();
           release();
+          fireEnd();
         },
-        onplayerror: () => settle(false),
+        onplayerror: () => {
+          // First settle (before onload): the caller gets `false` and falls
+          // back to TTS, which owns the completion signal. A later play error
+          // means the sound never finishes naturally - release the waiter.
+          if (!settle(false)) {
+            fireEnd();
+          }
+        },
       });
       this.wordSound = sound;
     });
@@ -546,6 +648,8 @@ export class AudioService implements OnDestroy {
     this.wordGeneration++;
     const sound = this.wordSound;
     this.wordSound = undefined;
+    const end = this.wordOneShotEnd;
+    this.wordOneShotEnd = undefined;
     if (sound) {
       try {
         sound.unload();
@@ -553,5 +657,7 @@ export class AudioService implements OnDestroy {
         // Ignore double-unload races.
       }
     }
+    // Release any caller waiting on the superseded sound's completion.
+    end?.();
   }
 }

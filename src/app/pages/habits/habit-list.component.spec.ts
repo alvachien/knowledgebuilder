@@ -120,7 +120,12 @@ async function renderList(habits: Habit[]) {
 function punchCardTitles(fixtureDom: HTMLElement): string[] {
   return Array.from(fixtureDom.querySelectorAll<HTMLElement>('.habit-card'))
     .filter((card) =>
-      Array.from(card.querySelectorAll('button')).some((b) => norm(b.textContent).includes('habits.list.punch'))
+      // The punch button is an icon-only mini-FAB: its label lives in aria-label.
+      Array.from(card.querySelectorAll('button')).some(
+        (b) =>
+          norm(b.textContent).includes('habits.list.punch') ||
+          (b.getAttribute('aria-label') ?? '').includes('habits.list.punch')
+      )
     )
     .map((card) => norm(card.querySelector('mat-card-title')?.textContent));
 }

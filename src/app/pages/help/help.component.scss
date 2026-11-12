@@ -1,0 +1,102 @@
+// ── Help page ─────────────────────────────────────────────────────────────
+// Same fixed "Mark & Ledger" palette as the homepage/navbar (the tokens are
+// duplicated per :host by design — see homepage.scss:11-24). The prose itself is
+// styled globally under `.help-doc` in styles/_markdown.scss, which also covers
+// <app-help-content>'s compiled templates (global selectors match through component
+// boundaries by DOM ancestry).
+@use '../../../styles/constants' as *;
+
+:host {
+  --paper: #fbfbf8;
+  --rule: #dde3ea;
+  --ink: #1b2432;
+  --graphite: #4c5666;
+  --pen: #c62828;
+  --wash: #eef2f7;
+
+  display: block;
+  background: var(--paper);
+  color: var(--ink);
+}
+
+.help-page {
+  padding-block: 40px 72px;
+  max-width: 880px;   // narrower than the generic page column: this page is read, not scanned
+}
+
+.help-header {
+  border-bottom: 1px solid var(--rule);
+  padding-bottom: 20px;
+  margin-bottom: 32px;
+
+  .help-title {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin: 0;
+    font-family: $font-ledger-display;
+    font-size: clamp(1.8rem, 3.2vw, 2.3rem);
+    font-weight: 400;
+    letter-spacing: .01em;
+  }
+
+  .help-title-icon {
+    color: var(--pen);
+    font-size: 1.9rem;
+    width: 1.9rem;
+    height: 1.9rem;
+  }
+
+  .help-intro {
+    margin: 10px 0 0;
+    font-family: $font-ledger-label;
+    font-size: 1rem;
+    color: var(--graphite);
+  }
+}
+
+.help-loading,
+.help-failed {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  padding: 56px 0;
+  color: var(--graphite);
+}
+
+// The document kept its previous text and a re-read failed — say so without
+// replacing content the reader is already using.
+.help-stale {
+  margin: 24px 0 0;
+  padding: 10px 14px;
+  border-left: 3px solid var(--pen);
+  background: rgba(198, 40, 40, 0.06);
+  color: var(--graphite);
+  font-size: 0.9rem;
+}
+
+// Exit row under the document. The guide is a static asset, so it cannot carry
+// routerLinks; the "go and try it" affordances live here.
+.help-exit {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  margin-top: 40px;
+  padding-top: 20px;
+  border-top: 1px solid var(--rule);
+
+  .help-exit-label {
+    font-family: $font-ledger-label;
+    color: var(--graphite);
+    margin-right: 4px;
+  }
+}
+
+@media print {
+  .help-exit,
+  .help-header {
+    display: none;   // the guide prints as a document, not as a navigation pane
+  }
+}

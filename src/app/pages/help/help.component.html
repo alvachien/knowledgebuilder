@@ -1,0 +1,41 @@
+<div *transloco="let t" class="help-page app-page-container">
+  <header class="help-header">
+    <h1 class="help-title">
+      <mat-icon class="help-title-icon">{{ navIcon.help }}</mat-icon>
+      {{ t('help.title') }}
+    </h1>
+    <p class="help-intro">{{ t('help.intro') }}</p>
+  </header>
+
+  <!-- The body is a single component holding both language variants, switched by the app's
+       active language. It carries its own table of contents (<div class="help-toc"> jumping
+       to `id` headings via routerLink fragments — never plain href="#x", which resolves
+       against <base href> and would leave the SPA). The prose is styled by the global
+       `.help-doc .app-markdown` rules in styles/_markdown.scss. -->
+  <article class="help-doc">
+    <app-help-content />
+  </article>
+
+  <!-- The document itself carries no links to the app: a plain href would reload the SPA
+       and break under the /learning/ base href in production. So the exits live here,
+       in the page chrome. -->
+  <nav class="help-exit" [attr.aria-label]="t('help.try')">
+    <span class="help-exit-label">{{ t('help.try') }}</span>
+    <a mat-fab extended class="toolbar-fab-button" routerLink="/vocabulary"
+       [matTooltip]="t('vocabulary')" [attr.aria-label]="t('vocabulary')">
+      <mat-icon>{{ navIcon.vocabulary }}</mat-icon> {{ t('vocabulary') }}
+    </a>
+    <a mat-fab extended class="toolbar-fab-button" routerLink="/chinese"
+       [matTooltip]="t('chinese')" [attr.aria-label]="t('chinese')">
+      <mat-icon>{{ navIcon.chinese }}</mat-icon> {{ t('chinese') }}
+    </a>
+    <a mat-fab extended class="toolbar-fab-button" routerLink="/knowledge"
+       [matTooltip]="t('knowledge_bank')" [attr.aria-label]="t('knowledge_bank')">
+      <mat-icon>{{ navIcon.knowledge }}</mat-icon> {{ t('knowledge_bank') }}
+    </a>
+    <a mat-fab extended class="toolbar-fab-button" routerLink="/habits"
+       [matTooltip]="t('habits.nav')" [attr.aria-label]="t('habits.nav')">
+      <mat-icon>{{ navIcon.habits }}</mat-icon> {{ t('habits.nav') }}
+    </a>
+  </nav>
+</div>

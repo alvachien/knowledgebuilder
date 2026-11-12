@@ -14,6 +14,7 @@ import { MatInputModule } from '@angular/material/input';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSnackBar } from '@angular/material/snack-bar';
+import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatDateFnsModule, provideDateFnsAdapter } from '@angular/material-date-fns-adapter';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { TranslocoModule, TranslocoService } from '@jsverse/transloco';
@@ -59,6 +60,7 @@ import { HabitService } from './habit.service';
     MatFormFieldModule,
     MatInputModule,
     MatProgressBarModule,
+    MatTooltipModule,
     MatProgressSpinnerModule,
     TranslocoModule,
     HabitCriterionSummaryComponent,
@@ -147,6 +149,15 @@ export class HabitDetailComponent {
   isDaily(): boolean {
     const h = this.habit();
     return h !== null && this.root(h).successType === 'daily';
+  }
+
+  /**
+   * FR-2.2: an inactive habit's reported progress window is its LAST actual cycle
+   * (the server clamps the anchor to min(EndDate, DeactivatedDate − 1 day)), so the
+   * metadata line labels it accordingly instead of pretending it is current.
+   */
+  windowLabelKey(habit: Habit): string {
+    return habit.state === 'active' ? 'habits.detail.window' : 'habits.detail.windowLastActual';
   }
 
   /**

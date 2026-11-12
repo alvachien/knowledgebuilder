@@ -55,9 +55,9 @@ sequenceDiagram
 
     Component->>HttpClient: GET apiUrl/api/TTS/details
     HttpClient->>Interceptor: intercept(req, next)
-    Interceptor->>Interceptor: req.url startsWith environment.apiUrl?
+    Interceptor->>Interceptor: isBearerUrl(req.url) — under apiUrl or idServerUrl?
 
-    alt Matches apiUrl
+    alt Matches (API or ID server URL)
         Interceptor->>OIDC: getAccessToken()
         OIDC-->>Interceptor: "eyJhbGci..."
         Interceptor->>Interceptor: Clone req with Authorization: Bearer <token>
@@ -141,7 +141,7 @@ sequenceDiagram
 | File | Role |
 |---|---|
 | `src/app/services/auth.service.ts` | Wraps OIDC library, exposes `authSubject` / `authContent` |
-| `src/app/services/auth.interceptor.ts` | Attaches `Bearer` to API-URL requests only |
+| `src/app/services/auth.interceptor.ts` | Attaches `Bearer` to requests under `environment.apiUrl` **or** `environment.idServerUrl` (`isBearerUrl`; the second covers habit invitation's user search on acidserver) |
 | `src/app/services/auth-guard.service.ts` | Protects feature routes (`/vocabulary`, `/translating`, etc.) |
 | `src/app/services/auth-check.util.ts` | Shared `checkAuthentication()` used by the guard |
 | `src/app/interfaces/user-auth-info.ts` | `UserAuthInfo` model (isAuthorized, userName, accessToken, …) |
@@ -159,7 +159,7 @@ sequenceDiagram
 
 | Env | `loginRequired` | Behaviour |
 |---|---|---|
-| `environment.ts` (dev) | `false` | All routes accessible — auth is wired but passive |
-| `environment.prod.ts` | `true` | Feature routes require a valid session |
+| `environment.ts` (dev) | `true` | Feature routes require a valid session — dev points at the Docker `acidserver` on `https://localhost:7228` |
+| `environment.prod.ts` | `true` | Feature routes require a valid session (`https://www.alvachien.com/idserver`) |
 
-To activate login on dev, flip `loginRequired` to `true` and point `idServerUrl` / `oidcClientId` / `oidcScope` at a real identity server whose allowed redirect URIs include `${appHost}/signin-callback`.
+Both environments enforce login. To develop with auth bypassed, flip `loginRequired` to `false` — then the guard lets every route through while the OIDC wiring stays in place. When it is `true`, `idServerUrl` / `oidcClientId` / `oidcScope` must point at a real identity server whose allowed redirect URIs include `${appHost}/signin-callback`.

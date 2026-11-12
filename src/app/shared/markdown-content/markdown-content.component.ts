@@ -45,6 +45,16 @@ export class MarkdownContentComponent implements OnChanges {
   @Input() enableMath: boolean = false;
 
   /**
+   * Give `h2`/`h3` ordinal ids (`sec-2`, `sec-2-1`) so the document can carry its own
+   * table of contents with `[Vocabulary](#sec-2)` links. Off by default: the ids only
+   * make sense for a long single-page document, and the exercise-content consumers
+   * (listening, knowledge, translate) render fragments that never link to headings.
+   * Ids are positional rather than slugged from the text on purpose — the content is
+   * bilingual, and a CJK slug makes a poor URL fragment.
+   */
+  @Input() headingIds: boolean = false;
+
+  /**
    * Base URL for resolving relative image paths found in the markdown content.
    * When set, images with relative src (e.g., `./image.png`) are fetched via HttpClient
    * (which includes the auth Bearer token via the auth interceptor), converted to blob
@@ -80,9 +90,36 @@ export class MarkdownContentComponent implements OnChanges {
   }
 
   ngOnChanges(changes: SimpleChanges): void {
-    if (changes['markdown'] || changes['enableMath']) {
+    if (changes['markdown'] || changes['enableMath'] || changes['headingIds']) {
       void this.renderMarkdown();
     }
+  }
+
+  /**
+   * Extension behind {@link headingIds}: stamps `sec-N` on each h2 and `sec-N-M` on the
+   * h3s under it, in document order. Called once per render, so the counters always
+   * start clean; deeper levels and h1 pass through unchanged.
+   */
+  private createHeadingIdExtension(): MarkedExtension {
+    let section = 0;
+    let subsection = 0;
+    return {
+      renderer: {
+        heading({ tokens, depth }) {
+          const inner = this.parser.parseInline(tokens);
+          if (depth === 2) {
+            section += 1;
+            subsection = 0;
+            return `<h2 id="sec-${section}">${inner}</h2>`;
+          }
+          if (depth === 3) {
+            subsection += 1;
+            return `<h3 id="sec-${section}-${subsection}">${inner}</h3>`;
+          }
+          return `<h${depth}>${inner}</h${depth}>`;
+        },
+      },
+    };
   }
 
   private createKatexExtensions(): MarkedExtension {
@@ -193,17 +230,29 @@ export class MarkdownContentComponent implements OnChanges {
 
     try {
       let rawHtml: string;
+      // Extensions go through a FRESH Marked instance (parseWithExtensions) so the
+      // shared singleton is never polluted. Any failure on that path — KaTeX not
+      // loading, or the extension throwing — falls back to the plain parse, so the
+      // text still renders.
+      const extensions: MarkedExtension[] = [];
+      if (this.headingIds) {
+        extensions.push(this.createHeadingIdExtension());
+      }
       if (hasMath) {
         try {
           // 1. 加载 KaTeX 模块 (如果尚未加载)
           await this.katexService.loadKatex();
-
           // 2. 使用独立实例解析，避免污染全局 Marked 状态
-          const katexExt = this.createKatexExtensions();
-          rawHtml = this.markedService.parseWithExtensions(this.markdown, [katexExt]);
+          extensions.push(this.createKatexExtensions());
         } catch (loadError) {
           console.error('Error loading or setting up KaTeX:', loadError);
-          // 如果加载失败，继续渲染，但不带数学公式
+        }
+      }
+      if (extensions.length > 0) {
+        try {
+          rawHtml = this.markedService.parseWithExtensions(this.markdown, extensions);
+        } catch (parseExtError) {
+          console.error('Error parsing markdown with extensions:', parseExtError);
           rawHtml = this.markedService.parse(this.markdown);
         }
       } else {

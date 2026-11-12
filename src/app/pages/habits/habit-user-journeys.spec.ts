@@ -254,9 +254,15 @@ function makeFake() {
 const flush = () => new Promise<void>((resolve) => setTimeout(resolve, 0));
 const norm = (s: string | null | undefined): string => (s ?? '').replace(/\s+/g, ' ').trim();
 
-/** Buttons embed mat-icon ligatures ("arrow_forward habits.wizard.next") — match by substring. */
+/**
+ * Buttons embed mat-icon ligatures ("arrow_forward habits.wizard.next") — match by
+ * substring. Icon-only FABs (the punch button on a habit card) carry their label in
+ * `aria-label`/`title` instead of text, so check those too.
+ */
 function buttonWith(root: ParentNode, text: string): HTMLButtonElement | undefined {
-  return Array.from(root.querySelectorAll('button')).find((b) => norm(b.textContent).includes(text));
+  return Array.from(root.querySelectorAll('button')).find(
+    (b) => norm(b.textContent).includes(text) || (b.getAttribute('aria-label') ?? '').includes(text)
+  );
 }
 
 async function startJourney(templateKey: string) {

@@ -1,25 +1,42 @@
 <ng-container *transloco="let t">
   <mat-toolbar class="container">
-    <mat-toolbar-row>
-      <section>
-        <div class="example-button-container">
-          <mat-progress-bar mode="determinate" [value]="store.progress()"></mat-progress-bar>
-        </div>
+    <mat-toolbar-row class="review-toolbar-row">
+      <section class="review-progress">
+        <mat-progress-bar mode="determinate" [value]="store.progress()"></mat-progress-bar>
+        <span class="review-progress-count">{{ store.currentPosition() }} / {{ store.queue().length }}</span>
       </section>
+      <h5 class="review-mode-label">{{ t('review') }}</h5>
+      <div class="review-rating">
+        <mat-button-toggle-group [ngModel]="store.currentItem().rating" aria-label="Rating"
+          (change)="store.setRatingFromToggle($event)">
+          <mat-button-toggle [value]="1">1</mat-button-toggle>
+          <mat-button-toggle [value]="2">2</mat-button-toggle>
+          <mat-button-toggle [value]="3">3</mat-button-toggle>
+          <mat-button-toggle [value]="4">4</mat-button-toggle>
+          <mat-button-toggle [value]="5">5</mat-button-toggle>
+        </mat-button-toggle-group>
+      </div>
       <span class="toolbar-spacer"></span>
-      <mat-form-field class="seconds-field" appearance="outline" subscriptSizing="dynamic">
-        <mat-label>{{ t('vocabularyExercises.secondsPerWord') }}</mat-label>
-        <mat-select [ngModel]="store.autoModeSeconds()" (ngModelChange)="store.setAutoModeSeconds($event)"
-          [disabled]="store.isAutoMode()">
-          @for (sec of autoModeSecondChoices; track sec) {
-            <mat-option [value]="sec">{{ sec }}s</mat-option>
-          }
-        </mat-select>
-      </mat-form-field>
-      <button mat-fab class="toolbar-fab-button" [matTooltip]="t('common.enableAutoMode')"
-        [attr.aria-label]="t('common.enableAutoMode')"
-        (click)="store.enableAutoMode()" [disabled]="store.isAutoMode()">
-        <mat-icon>play_circle_outline</mat-icon>
+      <button mat-fab class="toolbar-fab-button" [matTooltip]="t('vocabularyExercises.autoPlaySettings')"
+        [attr.aria-label]="t('vocabularyExercises.autoPlaySettings')" (click)="onAutoPlaySettings()">
+        <mat-icon>tune</mat-icon>
+      </button>
+      <button mat-fab class="toolbar-fab-button"
+        [matTooltip]="store.isAutoMode() ? t('vocabularyExercises.pauseAutoPlay') : (store.isPaused() ? t('vocabularyExercises.resumeAutoPlay') : t('common.enableAutoMode'))"
+        [attr.aria-label]="store.isAutoMode() ? t('vocabularyExercises.pauseAutoPlay') : (store.isPaused() ? t('vocabularyExercises.resumeAutoPlay') : t('common.enableAutoMode'))"
+        (click)="store.toggleAutoPlay()">
+        <mat-icon>{{ store.isAutoMode() ? 'pause' : 'play_arrow' }}</mat-icon>
+      </button>
+      @if (store.autoPlayState() !== 'stopped') {
+        <button mat-fab class="toolbar-fab-button" [matTooltip]="t('vocabularyExercises.stopAutoPlay')"
+          [attr.aria-label]="t('vocabularyExercises.stopAutoPlay')" (click)="store.stopAutoPlay()">
+          <mat-icon>stop</mat-icon>
+        </button>
+      }
+      <button mat-fab class="toolbar-fab-button" [matTooltip]="t('vocabularyExercises.reRead')"
+        [attr.aria-label]="t('vocabularyExercises.reRead')"
+        (click)="store.reReadCurrent()" [disabled]="store.isAutoMode() || store.currentPosition() === 0">
+        <mat-icon>volume_up</mat-icon>
       </button>
       <button mat-fab class="toolbar-fab-button" [matTooltip]="t('common.previous')"
         [attr.aria-label]="t('common.previous')"
@@ -38,25 +55,47 @@
     </mat-toolbar-row>
   </mat-toolbar>
   <div class="vocabulary-container">
-    <div class="vocabulary-typing-explain">
+    <div class="vocabulary-typing-explain vocabulary-word">
       {{store.currentItem().enword}}
     </div>
 
-    <div class="vocabulary-typing-explain">
+    <div class="vocabulary-typing-explain vocabulary-gloss">
       @if(!hideExplain()) {
         {{store.currentItem().cnword}}
       }
     </div>
 
-    <div class="vocabulary-rating-container">
-      <mat-button-toggle-group [ngModel]="store.currentItem().rating" aria-label="Rating"
-        (change)="store.setRatingFromToggle($event)">
-        <mat-button-toggle [value]="1">1</mat-button-toggle>
-        <mat-button-toggle [value]="2">2</mat-button-toggle>
-        <mat-button-toggle [value]="3">3</mat-button-toggle>
-        <mat-button-toggle [value]="4">4</mat-button-toggle>
-        <mat-button-toggle [value]="5">5</mat-button-toggle>
-      </mat-button-toggle-group>
-    </div>
+    @if (!hideExplain() && store.wordReference(); as ref) {
+      @if (ref.definitions.length > 0) {
+        <div class="vocabulary-reference">
+          <div class="vocabulary-reference-label">{{ t('vocabularyExercises.definitionsLabel') }}</div>
+          <table class="vocabulary-reference-table vocabulary-definitions-table">
+            <tbody>
+              @for (def of ref.definitions; track $index) {
+                <tr>
+                  <th scope="row" class="vocabulary-reference-pos">{{ def.partOfSpeech }}</th>
+                  <td class="vocabulary-reference-meaning">{{ def.meaning }}</td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      }
+      @if (ref.examples.length > 0) {
+        <div class="vocabulary-reference">
+          <div class="vocabulary-reference-label">{{ t('vocabularyExercises.examplesLabel') }}</div>
+          <table class="vocabulary-reference-table vocabulary-examples-table">
+            <tbody>
+              @for (ex of ref.examples; track $index) {
+                <tr #exampleRow [class.vocabulary-example-reading]="store.readingSentenceIndex() === $index">
+                  <td class="vocabulary-example-en">{{ ex.source }}</td>
+                  <td class="vocabulary-example-zh">{{ ex.translation }}</td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      }
+    }
   </div>
 </ng-container>

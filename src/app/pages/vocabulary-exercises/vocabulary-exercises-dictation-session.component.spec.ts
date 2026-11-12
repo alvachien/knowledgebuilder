@@ -5,7 +5,7 @@ import { TranslocoModule, TranslocoService, TRANSLOCO_TRANSPILER, TRANSLOCO_MISS
 import { of } from 'rxjs';
 
 import type { VocabularySpellingQueue } from '../../interfaces';
-import { AudioService } from '../../services';
+import { AudioService, UserLearningTimeService } from '../../services';
 
 import { VocabularyExercisesDictationSessionComponent } from './vocabulary-exercises-dictation-session.component';
 import { VocabularyDictationSessionStore } from './vocabulary-exercises-dictation-session.store';
@@ -36,6 +36,7 @@ describe('VocabularyExercisesDictationSessionComponent', () => {
       providers: [
         VocabularyDictationSessionStore,
         { provide: AudioService, useValue: { speakWord: vi.fn(), playSound: vi.fn() } },
+        { provide: UserLearningTimeService, useValue: { markActivity: vi.fn() } },
         { provide: TranslocoService, useValue: mockTransloco() },
         { provide: TRANSLOCO_TRANSPILER, useValue: {} },
         { provide: TRANSLOCO_MISSING_HANDLER, useValue: {} },

@@ -1,10 +1,10 @@
 export const environment = {
   homeurl: 'https://www.alvachien.com/learning',
   production: true,
-  releasedate: '2026-10-05',
-  version: '1.9.52',
+  releasedate: '2026-11-08',
+  version: '1.9.64',
   apiUrl: 'https://www.alvachien.com/learningutil',
-  pageTitle: 'Knowledge Habit Builder',
+  pageTitle: 'K.H.B., by Alva Chien',
   loginRequired: true,
   idServerUrl: 'https://www.alvachien.com/idserver',
   appHost: 'https://www.alvachien.com/learning',

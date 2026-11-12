@@ -1,10 +1,12 @@
-import { ChangeDetectionStrategy, Component, HostListener, inject, output } from '@angular/core';
+import { ChangeDetectionStrategy, Component, HostListener, effect, inject, output } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { TranslocoModule } from '@jsverse/transloco';
+
+import { UserLearningTimeService } from '../../services';
 
 import { VocabularyDictationSessionStore } from './vocabulary-exercises-dictation-session.store';
 
@@ -32,8 +34,19 @@ import { VocabularyDictationSessionStore } from './vocabulary-exercises-dictatio
 })
 export class VocabularyExercisesDictationSessionComponent {
   protected readonly store = inject(VocabularyDictationSessionStore);
+  private readonly learningTime = inject(UserLearningTimeService);
 
   readonly quit = output<void>();
+
+  constructor() {
+    // Dictation is passive by design (listen, write on paper): every dictated
+    // word extends the learning-time heartbeat's active window.
+    effect(() => {
+      if (this.store.queueIndex() >= 0) {
+        this.learningTime.markActivity();
+      }
+    });
+  }
 
   /**
    * Escape quits the session (parity with the spelling/review screens). No

@@ -1,0 +1,27 @@
+<div *transloco="let t">
+  <h2 mat-dialog-title>{{ t('vocabularyExercises.autoPlaySettings') }}</h2>
+  <mat-dialog-content class="control-full-width">
+    <mat-form-field class="control-full-width">
+      <mat-label>{{ t('vocabularyExercises.secondsPerWord') }}</mat-label>
+      <input matInput type="number" [(ngModel)]="intervalSeconds" min="1" max="120">
+      <span matSuffix>s</span>
+    </mat-form-field>
+    <div class="control-full-width">
+      <mat-checkbox [(ngModel)]="randomizeWords">{{ t('vocabularyExercises.randomizeWords') }}</mat-checkbox>
+    </div>
+    <mat-form-field class="control-full-width">
+      <mat-label>{{ t('vocabularyExercises.sentencesToRead') }}</mat-label>
+      <input matInput type="number" [(ngModel)]="sentencesToRead" min="0" max="10">
+    </mat-form-field>
+  </mat-dialog-content>
+  @if (isIntervalInvalid) {
+    <div class="control-full-width dialog-validation-message">{{ t('vocabularyExercises.autoPlayIntervalInvalid') }}</div>
+  }
+  @if (isSentencesInvalid) {
+    <div class="control-full-width dialog-validation-message">{{ t('vocabularyExercises.autoPlaySentencesInvalid') }}</div>
+  }
+  <mat-dialog-actions>
+    <button mat-button (click)="onNoClick()">{{ t('no') }}</button>
+    <button mat-button (click)="onYesClick()" [disabled]="isInvalid" cdkFocusInitial>{{ t('ok') }}</button>
+  </mat-dialog-actions>
+</div>

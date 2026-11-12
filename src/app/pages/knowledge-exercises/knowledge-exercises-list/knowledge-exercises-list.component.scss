@@ -5,6 +5,14 @@
     display: contents;
 }
 
+// The container toggles this host with [hidden] while the detail screen is
+// shown. The UA's [hidden] { display: none } is overridden by the author
+// `display: contents` above (its children would keep rendering), so restore
+// hiding explicitly — otherwise the list stays visible under the detail view.
+:host([hidden]) {
+    display: none;
+}
+
 .toolbar-spacer {
     flex: 1 1 auto;
 }

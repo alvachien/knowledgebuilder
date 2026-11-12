@@ -17,7 +17,9 @@ Each content category maps to a concrete data model loaded by `LearningContentSe
 - **QuestionBank** (`interfaces/questionbank.ts`) — Enums for question types (`QuestionBankTypeEnum`), content formats, option keys, and item levels.
 - **QuestionBankItemBase** (`interfaces/questionbank-base.ts`) — Abstract base class for all question types. Concrete implementations: `QuestionBankItemSingleChoice`, `QuestionBankItemMultipleChoice`, `QuestionBankItemFillInTheBlank`, `QuestionBankItemDictation`, `QuestionBankItemShortAnswer`, `QuestionBankItemEssay`, `QuestionBankItemReadingComprehension`, `QuestionBankItemListeningComprehension`, `QuestionBankItemCloze`, `QuestionBankItemTrueFalse`.
 - **convertToQuestionBankItem()** — Converts `QuestionBankItemCombinedInterface` (raw JSON) to concrete `QuestionBankItemBase` instances.
-- **UserLoginHistory** (`interfaces/user-login-history.ts`) — One day of the caller's login history, served by `api/UserLoginHistories` (`loginDate` yyyy-MM-dd, `firstLoginAt`/`lastLoginAt` UTC instants, `loginCount`). The user-detail page reads it via `UserLoginHistoryService.getHistory()`; the SPA records it by calling `recordLogin()` when an OIDC redirect completes (see [authentication-flow.md](authentication-flow.md)).
+- **UserLoginHistory** (`interfaces/user-login-history.ts`) — One day of the caller's login history, served by `api/UserLoginHistories` (`loginDate` yyyy-MM-dd, `firstLoginAt`/`lastLoginAt` UTC instants, `loginCount` — server-deduplicated: a POST within 5 minutes of the day's last accepted sign-in is a duplicate report and changes nothing, so the count means distinct sign-ins, not client calls). The user-detail page reads it via `UserLoginHistoryService.getHistory()`; the SPA records it by calling `recordLogin()` when an OIDC redirect completes (see [authentication-flow.md](authentication-flow.md)).
+- **UserLearningTime** (`interfaces/user-learning-time.ts`) — One `(day, category)` row of the caller's server-credited learning time from `api/UserLearningTimes` (`learnDate` yyyy-MM-dd, `categoryId` 1-6, `learningSeconds`, `lastBeatAt` UTC instant). Companion models: `LearningTimePreferences` (`{ leaderboardOptOut }`, GET/PUT …/Preferences) and `LearningTimeLeaderboardEntry` (`{ userId, userName, totalSeconds }`, GET …/Leaderboard). Consumed by `UserLearningTimeService` (heartbeat echo, user-detail cards, homepage Top Learners).
+- **WordDictionaryEntry** (`interfaces/word-dictionary.ts`) — One word's dictionary detail served by `api/WordDictionary` from `words.db`: `word` (the canonical DB spelling, spelling variants resolved via `base_word`), `definitions[]` (`partOfSpeech` — empty for phrase glosses — plus Chinese `meaning`), `examples[]` (English `source` + Chinese `translation`, capped at 10 server-side). Consumed by `WordDictionaryService.getWord()` in the vocabulary review screen; mirrors the backend `WordDictionaryDto`.
 
 The diagram shows the core `QuestionBankItemBase` hierarchy, the raw-JSON `QuestionBankItemCombinedInterface` that `convertToQuestionBankItem()` turns into concrete items, the content-record types loaded by `LearningContentService`, and the option/queue interfaces.
 
@@ -82,7 +84,9 @@ classDiagram
   direction LR
   class EnglishListeningLesson {
     +title: string
-    +audioFile: string
+    +audioFile?: string
+    +audioFolder?: string
+    +supplementary?: string[]
   }
   class EnglishListeningSection {
     +title: string
@@ -131,10 +135,14 @@ classDiagram
     +enwords: string[]
   }
   class LearnChineseFileItem {
-    +id: number
+    +id?: number
     +subject: string
-    +author: string
-    +content: string
+    +author?: string
+    +content?: string
+    +contentlength?: number
+    +source?: string
+    +audio?: string
+    +content1..content39?: string
   }
   class FormulaReciteContent {
     +name: string
@@ -156,8 +164,11 @@ classDiagram
   }
 
   class UserLearningRating {
+    +id?: number
+    +userId?: string
     +contentId: number
-    +itemId: number
+    +itemId?: number
+    +scoreDate?: string
     +rating: number
   }
   class UserAuthInfo {
@@ -202,7 +213,10 @@ classDiagram
   VocabularyOptionCore <|-- VocabularySpellingOption
   VocabularyOptionCore <|-- VocabularyReviewOption
   VocabularyOptionCore <|-- VocabularyQuizOption
+  VocabularyOptionCore <|-- VocabularyDictationOption
 ```
+
+(`VocabularyDictationOption` is a type alias of `VocabularyOptionCore` — dictation takes only the item count.)
 
 `VocabularyQuizOption` drives the vocabulary page's Test exercise: it generates
 single-choice questions (`buildVocabularyQuizQuestions`) - either EN word ->

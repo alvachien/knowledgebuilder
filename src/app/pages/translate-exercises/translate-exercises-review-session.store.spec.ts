@@ -479,6 +479,11 @@ describe('TranslateReviewSessionStore', () => {
   });
 
   describe('quit', () => {
+    // The builder runs spec files with isolate:false (shared worker globals):
+    // fake timers left installed at file end leak into the next file in the
+    // same worker, where every real-timer await hangs until its test timeout.
+    afterEach(() => vi.useRealTimers());
+
     it('returns the confirmed ratings and resets the session', () => {
       store.start([item('Hello world', '你好世界', 10)], true, 1);
       mockRatingService.upsertRating.mockReturnValue(of({ contentId: 1, itemId: 10, rating: 4 }));
@@ -565,6 +570,8 @@ describe('TranslateReviewSessionStore', () => {
   });
 
   describe('destruction', () => {
+    afterEach(() => vi.useRealTimers());
+
     it('stops the auto timer when the store is destroyed (leaving the page mid-auto-mode)', () => {
       vi.useFakeTimers();
       store.start([item('a'), item('b')], true, 0);

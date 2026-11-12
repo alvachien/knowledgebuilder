@@ -15,6 +15,14 @@ import { NavigationFocusService } from './shared/navigation-focus/navigation-foc
 })
 class MockNavbarComponent {}
 
+@Component({
+  selector: 'app-footer',
+  template: '<div>Mock Footer</div>',
+  changeDetection: ChangeDetectionStrategy.Eager,
+  standalone: true,
+})
+class MockFooterComponent {}
+
 class MockNavigationFocusService {
   getSkipLinkHref() {
     return '';
@@ -29,7 +37,7 @@ describe('AppComponent', () => {
     })
       .overrideComponent(AppComponent, {
         set: {
-          imports: [MockNavbarComponent, RouterOutlet], // Replace NavBar with mock and add RouterOutlet
+          imports: [MockNavbarComponent, MockFooterComponent, RouterOutlet], // Replace navbar/footer with mocks and add RouterOutlet
         },
       })
       .compileComponents();
@@ -52,6 +60,13 @@ describe('AppComponent', () => {
     fixture.detectChanges();
     const compiled = fixture.nativeElement as HTMLElement;
     expect(compiled.querySelector('app-navbar')).toBeTruthy();
+  });
+
+  it('should render footer', () => {
+    const fixture = TestBed.createComponent(AppComponent);
+    fixture.detectChanges();
+    const compiled = fixture.nativeElement as HTMLElement;
+    expect(compiled.querySelector('app-footer')).toBeTruthy();
   });
 
   describe('legacy theme storage cleanup (U11)', () => {
