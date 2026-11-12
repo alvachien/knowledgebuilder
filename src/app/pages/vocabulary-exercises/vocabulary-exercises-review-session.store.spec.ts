@@ -1017,6 +1017,10 @@ describe('VocabularyReviewSessionStore', () => {
   });
 
   describe('quit', () => {
+    // isolate:false — never leave fake timers installed at file end: the fake
+    // clock leaks into later spec files in the same worker and hangs them.
+    afterEach(() => vi.useRealTimers());
+
     it('returns the confirmed ratings and resets the session', () => {
       store.start([word('hello', '你好', 10)], true, 1);
       mockRatingService.upsertRating.mockReturnValue(of({ contentId: 1, itemId: 10, rating: 4 }));
@@ -1044,7 +1048,6 @@ describe('VocabularyReviewSessionStore', () => {
 
     it('stops the auto timer so no tick can fire after the reset', () => {
       vi.useFakeTimers();
-      afterEach(() => vi.useRealTimers());
       store.start([word('a'), word('b')], true, 0);
       store.toggleAutoPlay();
       expect(store.isAutoMode()).toBe(true);
@@ -1104,9 +1107,10 @@ describe('VocabularyReviewSessionStore', () => {
   });
 
   describe('destruction', () => {
+    afterEach(() => vi.useRealTimers());
+
     it('stops the auto timer when the store is destroyed (leaving the page mid-auto-mode)', () => {
       vi.useFakeTimers();
-      afterEach(() => vi.useRealTimers());
       store.start([word('a'), word('b')], true, 0);
       store.toggleAutoPlay();
       expect(store.isAutoMode()).toBe(true);

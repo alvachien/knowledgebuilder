@@ -186,7 +186,7 @@ Use `.toolbar-item-count` for item count spans and `.page-toolbar-item` / `.tool
 ### Framework
 
 - **Vitest** via `@angular/build:unit-test` (default runner)
-- **jsdom** environment (configured in `vitest.config.ts`)
+- **jsdom** environment (configured in `vitest.config.ts`, which the builder loads ONLY because `angular.json` sets `test.options.runnerConfig: "vitest.config.ts"` — without that option the file is silently ignored). The builder manages test discovery, setup files and `globals`; `vitest.config.ts` carries runner-level options only (`testTimeout`, CI-serial `maxWorkers`, coverage).
 - **Globals enabled**: `describe`, `it`, `expect`, `beforeEach`, `vi` available without imports
 - **Setup file**: `src/test-setup.ts` — initializes `BrowserTestingModule` + `platformBrowserTesting()`, installs polyfills (ResizeObserver, MutationObserver, matchMedia), stubs KaTeX globals, stubs CDK `HighContrastModeDetector`
 - **`tsconfig.spec.json`** extends base config with `"types": ["vitest/globals", "node"]`
@@ -215,6 +215,7 @@ Did you run and wait for 'resolveComponentResources()'?
 - Test caching behavior (no second request should be made)
 - For async tests, use `async`/`await` or Vitest's `waitFor()` — avoid the Jasmine `done` callback pattern
 - Mock Howler via `HOWL_FACTORY` and `HOWLER_GLOBAL` tokens (see `audio-service.service.spec.ts`)
+- **Fake timers MUST be restored in an `afterEach` (`vi.useRealTimers()`), never left installed at file end.** The builder runs spec files with `isolate: false`, so all files in a worker share one set of globals — a fake clock left installed by one file leaks into the next and makes every real-timer `await` (e.g. a `setTimeout`-based `flush()`) hang until the test timeout. The symptom is CI-only timeouts in an *unrelated* spec (often the habit DOM specs), while the leaking file itself passes. Register the restore as a describe/file-level `afterEach`, not inside an `it` body (an in-test `afterEach` lands on the file suite and only works by accident). See `translate-exercises-review-session.store.spec.ts` / `vocabulary-exercises-review-session.store.spec.ts`.
 
 ## Code Style
 
